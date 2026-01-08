@@ -125,7 +125,7 @@ models:
 - **チャンクプロンプト生成 (`visual_prompt_from_chunk`)**: 各 cue を heavy_reasoning モデルに渡し、Visual Bible + 直前/直後セクション文脈を含むプロンプトを生成。既存の機械的 summary を置換、Gemini Image へ渡す下準備を統一。
 
 ## 6. 具体的なリファクタ案
-- **コンフィグ**: `configs/llm_router.yaml` に tiers/models/tasks を集約。既存 `llm_model_registry.yaml` はモデル定義のみを残し、router が読み込む。
+- **コンフィグ**: `configs/llm_router.yaml` に tiers/models/tasks を集約し、モデル定義は `configs/llm_model_codes.yaml`（+ slots）で管理する。旧 registry（llm_model_registry.yaml）は archive-first→削除済み（2026-01-08）。
 - **共通クライアント**: `packages/factory_common/llm_router.py`（新規）で `call(task, messages|prompt, media=None, options={})` を提供。provider ごとに adapter を実装し、パラメータ正規化とログを統一。
 - **パイプライン改修**:
   - `packages/script_pipeline/runner.py` 内の `_run_llm` 呼び出しを router 経由に差し替え、stage 定義に `task` を記述。
@@ -150,7 +150,7 @@ models:
 - [ ] `packages/audio_tts/tts/llm_adapter.py` に三段階 Bテキスト生成ロジックと router 呼び出しを導入、`builder.py` で SSML 生成を統合。  
   - 進捗: llm_adapter は router 呼び出しに統一済み。`generate_reading_script` は segment→reading の二段階に再構成済み。`generate_reading_for_blocks` も router 一括呼び出し化。`tts_text_prepare` の導線は orchestrator/builder まで配線済み（pause/ruby適用）。SSML側に `<break>` を入れる追加実装が必要なら残タスク。
 - [ ] `audio_tts` 内の古い参照 (`auditor.py`, `qa_adapter.py`, `arbiter.py`, `strict_orchestrator.py`) を全て `LLMRouter` に移行し、旧ドキュメント言及を掃除する。  
-  - 現状: llm_adapter は移行完了。旧 `llm_client.py` は削除済み/非参照。残るのは文書の片付けと、SSMLへの `<break>` 挿入を要する場合の仕上げ。
+  - 現状: llm_adapter は移行完了。旧 `llm_client.py` は legacy/非参照（削除候補）。残るのは文書の片付けと、SSMLへの `<break>` 挿入を要する場合の仕上げ。
 - [ ] `video_pipeline` に Visual Bible 読込と router 呼び出しを追加、画像プロンプト生成部を差し替え。  
   - 現状: Visual Bible 未読込。Gemini image 直呼び出し＆テンプレ混在。
 - [ ] 回帰テスト・サンプルパイプライン（script→tts→image）の E2E テストを追加。  

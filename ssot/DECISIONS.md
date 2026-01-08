@@ -83,12 +83,14 @@
 ## D-010（P1）LLM設定のSSOTを `llm_router.yaml` 系へ一本化する？
 
 ### Decision
-- LLMの「タスク→モデル/プロバイダ」設定を **`configs/llm_router.yaml` + `configs/llm_task_overrides.yaml`** に統一し、`llm.yml` / `llm_registry.json` / `llm_model_registry.yaml` は **段階的に廃止**する。
+- LLMの「タスク→モデル/プロバイダ」設定を **`configs/llm_router.yaml` + `configs/llm_task_overrides.yaml`（+ codes/slots）** に統一する。  
+  旧 registry（`llm_registry.json`, `llm_model_registry.yaml`）は **archive-first→削除済み（2026-01-08）** のため復活禁止。`llm.yml` + `factory_common.llm_client` は legacy（互換）扱い。
 
 ### Recommended（推奨）
 1) SSOT（正本）: `llm_router.yaml`（tiers/models/tasks） + `llm_task_overrides.yaml`（taskごとの上書き）  
-2) UI/集計のために残っている registry 参照は、将来 **router由来に置換**する（同じ情報を二重管理しない）  
-3) 旧系（`llm.yml` + `factory_common.llm_client`）は “legacy隔離” を経て削除対象へ
+2) UI/集計のために残っている registry 参照は **router/slot由来へ置換**する（同じ情報を二重管理しない）  
+   - UI backend: 置換済み（2026-01-08）。以後 `llm_model`（provider:model 直指定）は禁止し、数字スロット（`LLM_MODEL_SLOT`）で運用する。  
+3) 旧系（`llm.yml` + `factory_common.llm_client`）は “legacy隔離” を経て削除対象へ（削除までは SSOT と明示して迷いを止める）
 
 ### Rationale（根拠）
 - 現状は「複数の設定SSOT」が併存し、運用者/エージェントが必ず迷う（=誤モデル/誤コスト）。
@@ -101,7 +103,8 @@
 
 ### Impact（影響/作業）
 - SSOT側: `ops/OPS_LLM_MODEL_CHEATSHEET.md` 等の「正本: llm.yml」記述を `llm_router.yaml` に寄せて統一する。
-- 実装側: UI backend / 集計が `llm_registry.json` を参照している箇所を router由来に置換する（段階導入）。
+- 実装側: UI backend / 集計が `llm_registry.json` を参照している箇所を router由来に置換する（段階導入）。  
+  - UI backend: 置換済み（2026-01-08）
 
 ---
 

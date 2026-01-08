@@ -10,6 +10,7 @@
   - `configs/llm_model_codes.yaml`（+ `configs/llm_model_codes.local.yaml`）
   - `configs/llm_model_slots.yaml`（+ `configs/llm_model_slots.local.yaml`）
   - `configs/llm_exec_slots.yaml`（+ `configs/llm_exec_slots.local.yaml`）
+- legacy（互換/テスト用。ルーティングSSOTではない）: `configs/llm.yml`
 - UI設定（キー/表示用。ルーティングSSOTではない）: `configs/ui_settings.json`
 - OpenRouterメタ: `packages/script_pipeline/config/openrouter_models.json` を正とし、必要なら `python -m script_pipeline.tools.openrouter_models --free-only` で更新。
 

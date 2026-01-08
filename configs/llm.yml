@@ -1,6 +1,14 @@
 # Unified LLM configuration (models, tiers, tasks)
-# This file consolidates legacy llm_router.yaml + llm_registry.json + llm_model_registry.yaml
-# into a single source of truth for the new LLMClient.
+#
+# LEGACY NOTICE:
+# - This file exists for legacy tooling/tests compatibility (factory_common.llm_config / llm_client).
+# - Normal ops routing SSOT is the slot-based router config:
+#     - configs/llm_router.yaml (+ local)
+#     - configs/llm_task_overrides.yaml (+ local)
+#     - configs/llm_model_codes.yaml (+ local)
+#     - configs/llm_model_slots.yaml (+ local) via LLM_MODEL_SLOT
+#     - configs/llm_exec_slots.yaml (+ local) via LLM_EXEC_SLOT
+# - The old registry files were archived and removed from the repo (2026-01-08).
 #
 # -------------------------------------------------------------------
 # 2025-12-13 01:59:12 +0900
@@ -312,7 +320,7 @@ tasks:
     defaults:
       timeout: 60
 
-  # Legacy script tasks (llm_registry.json)
+  # Legacy script tasks (kept for compatibility)
   script_polish_ai:
     tier: heavy_reasoning
     defaults:

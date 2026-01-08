@@ -16,10 +16,8 @@ DEFAULT_TIER_MAPPING_LOCAL = PROJECT_ROOT / "configs" / "llm_tier_mapping.local.
 DEFAULT_TIER_CANDIDATES = PROJECT_ROOT / "configs" / "llm_tier_candidates.yaml"
 DEFAULT_TIER_CANDIDATES_LOCAL = PROJECT_ROOT / "configs" / "llm_tier_candidates.local.yaml"
 
-# Legacy fallbacks (for compatibility)
+# Compatibility fallback (router-era config)
 LEGACY_ROUTER = PROJECT_ROOT / "configs" / "llm_router.yaml"
-LEGACY_MODEL_REGISTRY = PROJECT_ROOT / "configs" / "llm_model_registry.yaml"
-LEGACY_TASK_REGISTRY = PROJECT_ROOT / "configs" / "llm_registry.json"
 
 
 def _load_yaml(path: Path) -> Dict[str, Any]:
@@ -29,15 +27,6 @@ def _load_yaml(path: Path) -> Dict[str, Any]:
         return yaml.safe_load(f) or {}
 
 
-def _load_json(path: Path) -> Dict[str, Any]:
-    if not path or not path.exists():
-        return {}
-    import json
-
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
 def load_llm_config(
     config_path: Path | str | None = None,
     tier_mapping_path: Path | str | None = None,
@@ -45,7 +34,7 @@ def load_llm_config(
 ) -> Dict[str, Any]:
     """
     Load the unified LLM config with optional tier/task overrides.
-    Falls back to legacy router/registry files if the new config is absent.
+    Falls back to router-era config (llm_router.yaml) if the unified config is absent.
     """
     config_path = Path(config_path) if config_path else (DEFAULT_CONFIG_LOCAL if DEFAULT_CONFIG_LOCAL.exists() else DEFAULT_CONFIG)
     tier_mapping_path = Path(tier_mapping_path) if tier_mapping_path else (
@@ -67,17 +56,6 @@ def load_llm_config(
         models = models or base.get("models", {})
         tiers = tiers or base.get("tiers", {})
         tasks = tasks or base.get("tasks", {})
-
-    # Merge legacy task registry if present (task -> provider/model)
-    legacy_task_map = _load_json(LEGACY_TASK_REGISTRY)
-    for task_name, legacy in legacy_task_map.items():
-        tasks.setdefault(task_name, {})
-        tasks[task_name].setdefault("tier", None)
-        tasks[task_name].setdefault("legacy_provider", legacy.get("provider"))
-        tasks[task_name].setdefault("legacy_model", legacy.get("model"))
-        for key in ("thinkingLevel", "max_output_tokens"):
-            if key in legacy:
-                tasks[task_name].setdefault(key, legacy[key])
 
     # Allow tier override file
     mapping = _load_yaml(tier_mapping_path)
