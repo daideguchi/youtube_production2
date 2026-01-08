@@ -35,10 +35,17 @@ export const STAGE_ORDER: string[] = [
 export const STATUS_LABELS: Record<string, string> = {
   pending: "未着手",
   in_progress: "進行中",
+  processing: "処理中",
   blocked: "要対応",
   review: "レビュー待ち",
   completed: "完了",
   published: "投稿済み",
+  failed: "失敗",
+  rerun_requested: "再実行待ち",
+  rerun_in_progress: "再実行中",
+  rerun_completed: "再実行完了",
+  script_in_progress: "台本作成中",
+  script_completed: "台本準備済み",
   script_ready: "台本準備済み",
   script_validated: "台本チェック済み",
   unknown: "未設定",
@@ -47,10 +54,17 @@ export const STATUS_LABELS: Record<string, string> = {
 export const STATUS_COLORS: Record<string, string> = {
   pending: "#9ca3af",
   in_progress: "#2563eb",
+  processing: "#2563eb",
   blocked: "#dc2626",
   review: "#7c3aed",
   completed: "#16a34a",
   published: "#0f766e",
+  failed: "#dc2626",
+  rerun_requested: "#2563eb",
+  rerun_in_progress: "#2563eb",
+  rerun_completed: "#16a34a",
+  script_in_progress: "#2563eb",
+  script_completed: "#0369a1",
   script_ready: "#0369a1",
   script_validated: "#4338ca",
   unknown: "#9ca3af",
@@ -66,6 +80,7 @@ export function translateStatus(statusKey?: string | null): string {
 }
 
 const STATUS_HINTS: Record<string, string> = {
+  script_in_progress: "台本作成中です。",
   script_ready: "台本の整備が完了し、音声準備を進めています。",
   script_validated: "台本チェック完了。音声生成に進める状態です。",
   completed: "音声・字幕まで生成済みです。",

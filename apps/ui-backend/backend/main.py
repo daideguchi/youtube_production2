@@ -3466,13 +3466,65 @@ def parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
         return None
 
 
-def _stage_status_value(stage_entry: Optional[dict]) -> str:
-    if not stage_entry:
+def _normalize_status_token(value: Any) -> str:
+    """
+    Normalize various runner/UI status tokens into the small set the UI can reason about.
+
+    The UI (frontend) expects stage statuses to collapse into:
+      pending | in_progress | review | blocked | completed
+    while older/legacy status.json may contain tokens like:
+      processing | running | failed | skipped | done | ok ...
+    """
+
+    token = str(value or "").strip().lower()
+    if not token or token == "pending":
         return "pending"
-    status = stage_entry.get("status")
-    if status in VALID_STAGE_STATUSES:
-        return status
+    if token in {"completed", "done", "ok", "success", "succeeded", "skipped"}:
+        return "completed"
+    if token in {"blocked", "failed", "error"}:
+        return "blocked"
+    if token in {"review"}:
+        return "review"
+    if token in {"in_progress", "processing", "running", "rerun_in_progress", "rerun_requested"}:
+        return "in_progress"
     return "unknown"
+
+
+def _stage_status_value(stage_entry: Any) -> str:
+    if stage_entry is None:
+        return "pending"
+    raw = stage_entry.get("status") if isinstance(stage_entry, dict) else stage_entry
+    normalized = _normalize_status_token(raw)
+    if normalized in VALID_STAGE_STATUSES:
+        return normalized
+    return "unknown"
+
+
+SCRIPT_DUMMY_MARKERS = (
+    "この動画の台本本文は外部管理です",
+    "ダミー本文を配置しています",
+)
+
+SCRIPT_ASSEMBLED_MILESTONE_STAGES = (
+    # Script pipeline (current / new)
+    "topic_research",
+    "script_outline",
+    "script_master_plan",
+    "chapter_brief",
+    "script_draft",
+    "script_review",
+    # Legacy / compatibility
+    "script_enhancement",
+    "quality_check",
+)
+
+SCRIPT_POST_VALIDATION_AUTOCOMPLETE_STAGES = (
+    # Some pipelines don't emit these stages in status.json (UI treats missing as pending),
+    # but they are effectively "skipped" once validation is completed.
+    "script_polish_ai",
+    "script_audio_ai",
+    "script_tts_prepare",
+)
 
 
 def _detect_artifact_path(channel_code: str, video_number: str, extension: str) -> Path:
@@ -3533,6 +3585,152 @@ def _inject_audio_completion_from_artifacts(
         srt_stage["status"] = "completed"
 
     return stages_copy, audio_exists, srt_exists
+
+
+def _resolve_script_artifact_candidates(
+    *,
+    base_dir: Path,
+    metadata: Dict[str, Any],
+) -> List[Path]:
+    candidates: List[Path] = []
+
+    # status.json may carry an explicit assembled_path (best-effort).
+    assembled_path = None
+    if isinstance(metadata, dict):
+        assembled_path = metadata.get("assembled_path")
+        script_meta = metadata.get("script") if assembled_path is None else None
+        if assembled_path is None and isinstance(script_meta, dict):
+            assembled_path = script_meta.get("assembled_path")
+    if isinstance(assembled_path, str) and assembled_path.strip():
+        try:
+            p = Path(assembled_path)
+            if not p.is_absolute():
+                p = (PROJECT_ROOT / assembled_path).resolve()
+            candidates.append(p)
+        except Exception:
+            pass
+
+    candidates.extend(
+        [
+            base_dir / "content" / "assembled_human.md",
+            base_dir / "content" / "assembled.md",
+            # Legacy (backward-compat only; should not be reintroduced as canonical).
+            base_dir / "content" / "final" / "assembled.md",
+        ]
+    )
+    return candidates
+
+
+def _a_text_file_ok(path: Path) -> bool:
+    if not path.exists() or not path.is_file():
+        return False
+    try:
+        if path.stat().st_size <= 0:
+            return False
+    except Exception:
+        return False
+    try:
+        with path.open("r", encoding="utf-8", errors="ignore") as handle:
+            head = handle.read(4096)
+    except Exception:
+        return False
+    return not any(marker in head for marker in SCRIPT_DUMMY_MARKERS)
+
+
+def _detect_script_a_text(
+    *,
+    base_dir: Path,
+    metadata: Dict[str, Any],
+) -> Optional[Path]:
+    for candidate in _resolve_script_artifact_candidates(base_dir=base_dir, metadata=metadata):
+        if _a_text_file_ok(candidate):
+            return candidate
+    return None
+
+
+def _inject_script_completion_from_artifacts(
+    channel_code: str,
+    video_number: str,
+    stages: Dict[str, Any],
+    metadata: Dict[str, Any],
+) -> Tuple[Dict[str, Any], bool]:
+    """
+    Derive script-stage progress from durable artifacts (A-text).
+
+    Rationale:
+    - The UI treats missing stage keys as "pending".
+    - Stale/mixed status.json can claim early stages are pending even when assembled.md exists.
+    - For progress display, "assembled present" is the most reliable milestone.
+
+    This is a read-time override; it does NOT persist status.json.
+    """
+    stages_copy = copy.deepcopy(stages) if isinstance(stages, dict) else {}
+    base_dir = video_base_dir(channel_code, video_number)
+    a_text_path = _detect_script_a_text(base_dir=base_dir, metadata=metadata)
+    assembled_ok = a_text_path is not None
+    if not assembled_ok:
+        return stages_copy, False
+
+    for key in SCRIPT_ASSEMBLED_MILESTONE_STAGES:
+        slot = _ensure_stage_slot(stages_copy, key)
+        if _stage_status_value(slot) != "completed":
+            slot["status"] = "completed"
+
+    script_validation_done = _stage_status_value(stages_copy.get("script_validation")) == "completed"
+    if script_validation_done:
+        for key in SCRIPT_POST_VALIDATION_AUTOCOMPLETE_STAGES:
+            slot = _ensure_stage_slot(stages_copy, key)
+            if _stage_status_value(slot) != "completed":
+                slot["status"] = "completed"
+
+    return stages_copy, True
+
+
+def _derive_effective_stages(
+    *,
+    channel_code: str,
+    video_number: str,
+    stages: Dict[str, Any],
+    metadata: Dict[str, Any],
+) -> Tuple[Dict[str, Any], bool, bool, bool]:
+    stages_effective, audio_exists, srt_exists = _inject_audio_completion_from_artifacts(
+        channel_code, video_number, stages, metadata
+    )
+    stages_effective, a_text_ok = _inject_script_completion_from_artifacts(
+        channel_code, video_number, stages_effective, metadata
+    )
+    return stages_effective, a_text_ok, audio_exists, srt_exists
+
+
+def _derive_effective_video_status(
+    *,
+    raw_status: str,
+    stages: Dict[str, Any],
+    a_text_ok: bool,
+    audio_exists: bool,
+    srt_exists: bool,
+    published_locked: bool = False,
+) -> str:
+    raw = str(raw_status or "").strip().lower()
+    if published_locked:
+        return "completed"
+    if audio_exists and srt_exists:
+        return "completed"
+
+    if _stage_status_value(stages.get("script_validation")) == "completed" or raw == "script_validated":
+        return "script_validated"
+    if raw in {"script_ready", "script_completed"}:
+        return "script_ready"
+    if a_text_ok:
+        return "script_ready"
+
+    # Fallback: collapse into pending / in_progress / blocked / review based on stage states.
+    any_blocked = any(_stage_status_value(stages.get(stage_key)) == "blocked" for stage_key in STAGE_ORDER)
+    if any_blocked or str(raw_status or "").strip().lower() == "blocked":
+        return "blocked"
+
+    any_started = any(_stage_status_value(stage_entry) != "pending" for stage_entry in (stages or {}).values())
+    return "in_progress" if any_started else "pending"
 
 
 def _summarize_video_detail_artifacts(
@@ -9054,26 +9252,35 @@ def dashboard_overview(
                 continue
 
             summary.total += 1
-            stages = status_payload.get("stages", {})
             metadata = status_payload.get("metadata", {}) if isinstance(status_payload.get("metadata", {}), dict) else {}
+            stages_raw = status_payload.get("stages", {})
+            stages, a_text_ok, audio_exists, srt_exists = _derive_effective_stages(
+                channel_code=channel_code,
+                video_number=video_number,
+                stages=stages_raw if isinstance(stages_raw, dict) else {},
+                metadata=metadata,
+            )
 
             # 台本完成: script_polish_ai があれば優先、なければ script_review/script_validation を代用
-            if _stage_status_value(stages.get("script_polish_ai")) == "completed" or _stage_status_value(
-                stages.get("script_review")
-            ) == "completed" or _stage_status_value(stages.get("script_validation")) == "completed":
+            if (
+                a_text_ok
+                or _stage_status_value(stages.get("script_polish_ai")) == "completed"
+                or _stage_status_value(stages.get("script_review")) == "completed"
+                or _stage_status_value(stages.get("script_validation")) == "completed"
+            ):
                 summary.script_completed += 1
 
             # 音声完了: audio_synthesis があればそれ、無ければ最終WAVの存在で代用
-            audio_done = _stage_status_value(stages.get("audio_synthesis")) == "completed"
-            if not audio_done:
+            audio_done = audio_exists or _stage_status_value(stages.get("audio_synthesis")) == "completed"
+            if not audio_done:  # legacy fallback (status.json metadata paths etc)
                 audio_path = resolve_audio_path(status_payload, base_dir)
                 audio_done = bool(audio_path and audio_path.exists())
             if audio_done:
                 summary.audio_completed += 1
 
             # 字幕完了: srt_generation があればそれ、無ければ最終SRTの存在で代用
-            srt_done = _stage_status_value(stages.get("srt_generation")) == "completed"
-            if not srt_done:
+            srt_done = srt_exists or _stage_status_value(stages.get("srt_generation")) == "completed"
+            if not srt_done:  # legacy fallback (status.json metadata paths etc)
                 srt_path = resolve_srt_path(status_payload, base_dir)
                 srt_done = bool(srt_path and srt_path.exists())
             if srt_done:
@@ -9084,7 +9291,11 @@ def dashboard_overview(
             ):
                 summary.blocked += 1
 
-            if bool(metadata.get("ready_for_audio")):
+            if (
+                bool(metadata.get("ready_for_audio"))
+                or _stage_status_value(stages.get("script_validation")) == "completed"
+                or str(status_value or "").strip().lower() == "script_validated"
+            ):
                 summary.ready_for_audio += 1
 
             sheets_meta = metadata.get("sheets") if isinstance(metadata.get("sheets"), dict) else None
@@ -9698,7 +9909,6 @@ def list_videos(channel: str):
     for video_number in sorted(video_numbers):
         planning_row = planning_rows.get(video_number)
         a_text_character_count_raw: Optional[int] = _character_count_from_a_text(channel_code, video_number)
-        a_text_exists = a_text_character_count_raw is not None
         a_text_character_count = a_text_character_count_raw if a_text_character_count_raw is not None else 0
         planning_character_count: Optional[int] = None
         character_count = a_text_character_count
@@ -9710,12 +9920,22 @@ def list_videos(channel: str):
             else:
                 raise
         metadata = status.get("metadata", {}) if status else {}
-        stages_dict = status.get("stages", {}) if status else {}
-        stages_dict, audio_exists, srt_exists = _inject_audio_completion_from_artifacts(
-            channel_code, video_number, stages_dict, metadata
+        if not isinstance(metadata, dict):
+            metadata = {}
+        stages_raw = status.get("stages", {}) if status else {}
+        stages_dict, a_text_ok, audio_exists, srt_exists = _derive_effective_stages(
+            channel_code=channel_code,
+            video_number=video_number,
+            stages=stages_raw if isinstance(stages_raw, dict) else {},
+            metadata=metadata,
         )
-        stages = {key: value.get("status", "pending") for key, value in stages_dict.items()} if stages_dict else {}
-        status_value = status.get("status", "unknown") if status else "pending"
+        stages = (
+            {key: _stage_status_value(value) for key, value in stages_dict.items() if key}
+            if isinstance(stages_dict, dict)
+            else {}
+        )
+        raw_status_value = status.get("status", "unknown") if status else "pending"
+        status_value = raw_status_value
         if planning_row:
             row_raw = planning_row.raw
             # CSV を最新ソースとして統合する
@@ -9733,8 +9953,6 @@ def list_videos(channel: str):
                     planning_character_count = int(raw_chars.replace(",", ""))
                 except ValueError:
                     planning_character_count = None
-        if audio_exists and srt_exists and status_value != "completed":
-            status_value = "completed"
 
         # 投稿済み（ロック）:
         # - 正本は Planning CSV の「進捗」（人間が手動で更新するのは基本ここだけ）。
@@ -9751,9 +9969,24 @@ def list_videos(channel: str):
         if not published_locked and isinstance(metadata, dict) and bool(metadata.get("published_lock")):
             published_locked = True
         if published_locked:
-            status_value = "completed"
             stages["audio_synthesis"] = "completed"
             stages["srt_generation"] = "completed"
+
+        status_value = _derive_effective_video_status(
+            raw_status=raw_status_value,
+            stages=stages_dict,
+            a_text_ok=a_text_ok,
+            audio_exists=audio_exists,
+            srt_exists=srt_exists,
+            published_locked=published_locked,
+        )
+        script_validated = _stage_status_value(stages_dict.get("script_validation")) == "completed" or str(
+            raw_status_value or ""
+        ).strip().lower() == "script_validated"
+        ready_for_audio = bool(metadata.get("ready_for_audio", False)) or script_validated
+        a_text_exists = bool(a_text_ok)
+        if published_locked:
+            status_value = "completed"
 
         updated_at = status.get("updated_at") if status else None
         if not updated_at and planning_row:
@@ -9774,7 +10007,7 @@ def list_videos(channel: str):
                 script_id=status.get("script_id") if status else planning_row.script_id if planning_row else None,
                 title=metadata.get("sheet_title") or metadata.get("title") or (planning_row.raw.get("タイトル") if planning_row else "(draft)"),
                 status=status_value,
-                ready_for_audio=bool(metadata.get("ready_for_audio", False)),
+                ready_for_audio=bool(ready_for_audio),
                 published_lock=bool(published_locked),
                 stages=stages,
                 updated_at=updated_at,
@@ -13706,6 +13939,8 @@ def get_video_detail(channel: str, video: str):
         status_missing = True
         status = _default_status_payload(channel_code, video_number)
     metadata = status.get("metadata", {})
+    if not isinstance(metadata, dict):
+        metadata = {}
     # CSV の最新情報を統合する（UI が常に最新の企画情報を参照できるようにする）
     planning_row = None
     for row in planning_store.get_rows(channel_code, force_refresh=True):
@@ -13729,9 +13964,18 @@ def get_video_detail(channel: str, video: str):
         redo_audio = True
     redo_note = metadata.get("redo_note")
 
-    stages_meta = status.get("stages", {}) or {}
-    stages_meta, audio_exists, srt_exists = _inject_audio_completion_from_artifacts(channel_code, video_number, stages_meta, metadata)
-    stages = {key: value.get("status", "pending") for key, value in stages_meta.items()} if stages_meta else {}
+    stages_raw = status.get("stages", {}) or {}
+    stages_meta, a_text_ok, audio_exists, srt_exists = _derive_effective_stages(
+        channel_code=channel_code,
+        video_number=video_number,
+        stages=stages_raw if isinstance(stages_raw, dict) else {},
+        metadata=metadata,
+    )
+    stages = (
+        {key: _stage_status_value(value) for key, value in stages_meta.items() if key}
+        if isinstance(stages_meta, dict)
+        else {}
+    )
     stage_details: Optional[Dict[str, Any]] = None
     if stages_meta:
         details_out: Dict[str, Any] = {}
@@ -13761,9 +14005,32 @@ def get_video_detail(channel: str, video: str):
             if subset:
                 details_out[stage_name] = subset
         stage_details = details_out or None
-    status_value = status.get("status", "unknown")
-    if audio_exists and srt_exists and status_value != "completed":
-        status_value = "completed"
+    raw_status_value = status.get("status", "unknown")
+    published_locked = False
+    if planning_row:
+        progress_value = str(planning_row.raw.get("進捗") or planning_row.raw.get("progress") or "").strip()
+        if progress_value:
+            lower = progress_value.lower()
+            if "投稿済み" in progress_value or "公開済み" in progress_value or lower in {"published", "posted"}:
+                published_locked = True
+    if not published_locked and bool(metadata.get("published_lock")):
+        published_locked = True
+    if published_locked:
+        stages["audio_synthesis"] = "completed"
+        stages["srt_generation"] = "completed"
+
+    status_value = _derive_effective_video_status(
+        raw_status=raw_status_value,
+        stages=stages_meta,
+        a_text_ok=a_text_ok,
+        audio_exists=audio_exists,
+        srt_exists=srt_exists,
+        published_locked=published_locked,
+    )
+    script_validated = _stage_status_value(stages_meta.get("script_validation")) == "completed" or str(
+        raw_status_value or ""
+    ).strip().lower() == "script_validated"
+    ready_for_audio = bool(metadata.get("ready_for_audio", False)) or script_validated
     base_dir = video_base_dir(channel_code, video_number)
     content_dir = base_dir / "content"
 
@@ -13913,7 +14180,7 @@ def get_video_detail(channel: str, video: str):
         script_id=status.get("script_id") or (planning_row.script_id if planning_row else None),
         title=metadata.get("sheet_title") or metadata.get("title"),
         status=status_value,
-        ready_for_audio=bool(metadata.get("ready_for_audio", False)),
+        ready_for_audio=bool(ready_for_audio),
         stages=stages,
         stage_details=stage_details,
         redo_script=bool(redo_script),
