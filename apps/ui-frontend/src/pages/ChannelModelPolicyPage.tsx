@@ -265,6 +265,74 @@ function resolveSsotModelOverrides(catalog: SsotCatalog | null | undefined): Arr
     .filter((o) => Boolean(o.env && o.selector));
 }
 
+type ChannelSourcesCatalog = {
+  path?: string;
+  overlay_path?: string | null;
+  channels?: Record<string, ChannelSourcesEntry>;
+};
+
+type ChannelSourcesEntry = {
+  video_broll?: { enabled?: boolean; provider?: string | null; ratio?: number | null };
+  image_source_mix?: {
+    enabled?: boolean;
+    weights?: string | null;
+    gemini_model_key?: string | null;
+    schnell_model_key?: string | null;
+    broll_provider?: string | null;
+    broll_min_gap_sec?: number | null;
+  };
+};
+
+function parseWeights3(raw: string | null | undefined): { g: number; s: number; f: number } | null {
+  const s = String(raw ?? "").trim();
+  const m = s.match(/^(\d+):(\d+):(\d+)$/);
+  if (!m) return null;
+  const g = parseInt(m[1], 10);
+  const se = parseInt(m[2], 10);
+  const f = parseInt(m[3], 10);
+  if (!Number.isFinite(g) || !Number.isFinite(se) || !Number.isFinite(f)) return null;
+  return { g, s: se, f };
+}
+
+function shortImageSourceName(code: string): string {
+  const c = String(code ?? "").trim();
+  if (c === "g-1") return "gemini";
+  if (c === "f-1") return "schnell";
+  if (c === "f-3") return "pro";
+  if (c === "f-4") return "max";
+  return c || "?";
+}
+
+function ratioToMix10(ratioRaw: unknown): { main: number; free: number; ratio: number } | null {
+  const ratio = typeof ratioRaw === "number" ? ratioRaw : parseFloat(String(ratioRaw ?? ""));
+  if (!Number.isFinite(ratio)) return null;
+  const r = Math.max(0, Math.min(0.95, ratio));
+  const free = Math.max(0, Math.min(9, Math.round(r * 10)));
+  const main = Math.max(0, 10 - free);
+  return { main, free, ratio: r };
+}
+
+function formatVideoSourcePolicy(entry: ChannelSourcesEntry | null, videoCode: string): string {
+  const ism = entry?.image_source_mix;
+  if (ism?.enabled) {
+    const w = parseWeights3(ism.weights ?? null);
+    const weightsText = w ? `${w.g}:${w.s}:${w.f}` : String(ism.weights ?? "").trim();
+    return `ソースmix: gemini:schnell:フリー=${weightsText || "?"}`;
+  }
+
+  const vb = entry?.video_broll;
+  if (vb?.enabled) {
+    const mix = ratioToMix10(vb.ratio);
+    const base = shortImageSourceName(videoCode);
+    const mixText = mix ? `${mix.main}:${mix.free}` : "?";
+    const provider = String(vb.provider ?? "").trim() || "?";
+    return `ソースmix: ${base}:フリー=${mixText} (${provider})`;
+  }
+
+  const base = shortImageSourceName(videoCode);
+  return `ソースmix: ${base}のみ`;
+}
+
 function rowForChannel(channels: ChannelImageModelRouting[], code: string): ChannelImageModelRouting | null {
   const up = String(code || "").trim().toUpperCase();
   return channels.find((c) => String(c.channel || "").trim().toUpperCase() === up) ?? null;
@@ -628,6 +696,13 @@ export function ChannelModelPolicyPage() {
   }, [sortedChannels, channelQuery, channelSummaries]);
 
   const activeOverrides = useMemo(() => resolveSsotModelOverrides(catalog), [catalog]);
+  const channelSources = useMemo(() => (catalog?.image?.channel_sources ?? null) as ChannelSourcesCatalog | null, [catalog]);
+  const channelSourcesPath = String(channelSources?.path ?? "").trim();
+  const channelSourcesOverlayPath = String(channelSources?.overlay_path ?? "").trim();
+  const channelSourcesByChannel = useMemo(
+    () => ((channelSources?.channels ?? {}) as Record<string, ChannelSourcesEntry>),
+    [channelSources]
+  );
 
   const imageSlots = useMemo(() => catalog?.image?.model_slots?.slots ?? [], [catalog]);
   const llmSlots = useMemo(() => catalog?.llm?.model_slots?.slots ?? [], [catalog]);
@@ -1710,6 +1785,8 @@ export function ChannelModelPolicyPage() {
                     const videoTitle = humanImageCodeTitle(videoEffCode) || (videoEffCode || "未設定");
                     const videoHint = humanImageCodeHint(videoEffCode);
                     const videoReal = resolveImageTaskModelText(videoEffCode, "visual_image_gen");
+                    const srcEntry = channelSourcesByChannel[String(ch || "").toUpperCase()] ?? null;
+                    const videoSourcePolicy = formatVideoSourcePolicy(srcEntry, videoEffCode);
 
                     const reqChipClass = req.tone === "warn" ? "mp-chip mp-chip--warn" : "mp-chip";
                     const forcedChip =
@@ -1777,6 +1854,7 @@ export function ChannelModelPolicyPage() {
                             <div className="mp-mini__body">
                               <div className="mp-mini__value">{videoTitle}</div>
                               {videoHint ? <div className="mp-mini__hint">{videoHint}</div> : null}
+                              <div className="mp-mini__hint">{videoSourcePolicy}</div>
                               {isDetail && videoReal ? <div className="mp-mini__hint">実モデル: {videoReal}</div> : null}
                               {isDetail && showChannelDetails && videoConfigCode && videoConfigCode !== videoEffCode ? (
                                 <div className="mp-mini__hint">設定コード: {videoConfigCode}</div>
@@ -1860,6 +1938,8 @@ export function ChannelModelPolicyPage() {
 	                const videoTitle = humanImageCodeTitle(videoEffCode) || (videoEffCode || "未設定");
 	                const videoHint = humanImageCodeHint(videoEffCode);
 	                const videoReal = resolveImageTaskModelText(videoEffCode, "visual_image_gen");
+                  const srcEntry = channelSourcesByChannel[String(ch || "").toUpperCase()] ?? null;
+                  const videoSourcePolicy = formatVideoSourcePolicy(srcEntry, videoEffCode);
 	
 	                const scriptInfo = resolveLlmSelectorInfo(scriptEff, llmCodeToModelKey, llmModelRegistry);
 	                const scriptTitle = scriptEff ? (scriptEff === scriptPolicy.primary_code ? "台本（本線）" : "台本") : "未設定";
@@ -1957,6 +2037,7 @@ export function ChannelModelPolicyPage() {
 	                      <div style={{ display: "grid", gap: 6 }}>
 	                        <div style={{ fontWeight: 900 }}>{videoTitle || "未設定"}</div>
 	                        {videoHint ? <div className="muted small-text">{videoHint}</div> : null}
+                          <div className="muted small-text">{videoSourcePolicy}</div>
 	                        {isDetail && videoReal ? (
 	                          <div className="muted small-text">
 	                            実モデル: <span className="mono">{videoReal}</span>
@@ -2015,9 +2096,19 @@ export function ChannelModelPolicyPage() {
 
 	        {showImages ? (
           <details style={{ marginTop: 10 }}>
-            <summary style={{ cursor: "pointer", fontWeight: 950 }}>動画用画像の要件（CH別）/ 現在の設定</summary>
+            <summary style={{ cursor: "pointer", fontWeight: 950 }}>動画内画像のソースmix（CH別）/ 現在の設定</summary>
           <div className="muted small-text" style={{ marginTop: 8, lineHeight: 1.6 }}>
-            目的: 「このチャンネルは画質要件が高いか？」と「いま実際にどのコードで回っているか？」を同時に見える化。
+            目的: 「動画内画像のソースmix（生成/フリー素材/複数画像モデル）」と「いま実際にどのコードで回っているか？」を同時に見える化。
+            {channelSourcesPath ? (
+              <div>
+                SoT: <span className="mono">{channelSourcesPath}</span>
+                {isDetail && channelSourcesOverlayPath ? (
+                  <span className="muted">
+                    （overlay: <span className="mono">{channelSourcesOverlayPath}</span>）
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
           <div style={{ overflowX: "auto", marginTop: 10 }}>
             <table style={{ width: "100%", minWidth: 1180, borderCollapse: "collapse" }}>
@@ -2025,8 +2116,7 @@ export function ChannelModelPolicyPage() {
                 <tr>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>CH</th>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>チャンネル名</th>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>動画用画像（要件）</th>
-                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>いま通る前提</th>
+                  <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>ソースmix（SoT）</th>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>現在の設定（動画内画像）</th>
                   <th style={{ textAlign: "left", padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.25)" }}>現在の設定（サムネ）</th>
                 </tr>
@@ -2034,8 +2124,7 @@ export function ChannelModelPolicyPage() {
               <tbody>
                 {filteredChannels.map((ch) => {
                   const name = channelNameFromList(channelSummaries, ch);
-                  const policy = resolveVideoImagePolicy(ch);
-                  const nowAssumption = resolvePolicyNowAssumption(ch);
+                  const srcEntry = channelSourcesByChannel[String(ch || "").toUpperCase()] ?? null;
                   const row = routing ? rowForChannel(routing.channels ?? [], ch) : null;
                   const videoSel = row?.video_image;
                   const thumbSel = row?.thumbnail;
@@ -2046,6 +2135,11 @@ export function ChannelModelPolicyPage() {
                   const thumbSource = thumbSel ? normalizeKey(thumbSel.source) : "";
                   const videoNote = videoSel?.note ? normalizeKey(videoSel.note) : "";
                   const thumbNote = thumbSel?.note ? normalizeKey(thumbSel.note) : "";
+                  const videoCode =
+                    canonicalizeImageCode(videoSel?.model_key ?? null, imageCanonicalById) ||
+                    canonicalizeImageCode(defaultVideoSelector, imageCanonicalById) ||
+                    String(videoSel?.model_key ?? defaultVideoSelector);
+                  const sourcePolicy = formatVideoSourcePolicy(srcEntry, videoCode);
 
                   return (
                     <tr key={ch}>
@@ -2058,13 +2152,10 @@ export function ChannelModelPolicyPage() {
                         <span style={{ opacity: 0.9 }}>{name}</span>
                       </td>
                       <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                        <div style={{ display: "grid", gap: 4 }}>
-                          <span style={{ fontWeight: 700 }}>{policy.requirement}</span>
+                        <div style={{ display: "grid", gap: 6 }}>
+                          <span style={{ fontWeight: 700 }}>{sourcePolicy}</span>
                           <span className="muted small-text">（SRT→images / visual_image_gen）</span>
                         </div>
-                      </td>
-                      <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
-                        <span style={{ fontWeight: 700 }}>{nowAssumption}</span>
                       </td>
                       <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
                         <div style={{ display: "grid", gap: 6 }}>

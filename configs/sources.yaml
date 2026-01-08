@@ -76,7 +76,7 @@ channels:
     target_chars_min: 8000
     target_chars_max: 10000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH05:
@@ -108,7 +108,7 @@ channels:
     target_chars_min: 20000
     target_chars_max: 26000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH07:
@@ -140,7 +140,7 @@ channels:
     target_chars_min: 6000
     target_chars_max: 7000
     video_broll:
-      enabled: false
+      enabled: true
       provider: pexels
       ratio: 0.2
   CH09:
@@ -205,7 +205,7 @@ channels:
     target_chars_min: 7000
     target_chars_max: 9000
     video_broll:
-      enabled: true
+      enabled: false
       provider: pexels
       ratio: 0.2
   CH13:

@@ -21,6 +21,19 @@ _MAIN_SENTINEL_RE = re.compile(r"if\s+__name__\s*==\s*['\"]__main__['\"]\s*:")
 
 _PHASE_ORDER = ["A", "B", "C", "D", "F", "G"]
 
+# NOTE:
+# UI backend sometimes runs pipeline code in-process, and some pipelines temporarily mutate
+# IMAGE_CLIENT_FORCE_MODEL_KEY* env vars. If we read os.environ at catalog-build time, the UI
+# can show "envで強制中" even though the operator never set it (it's a runtime mutation).
+# To keep the UI policy view stable and avoid confusion, capture a snapshot at import time.
+_IMAGE_OVERRIDE_ENV_NAMES = [
+    "IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN",
+    "IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN",
+    "IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION",
+    "IMAGE_CLIENT_FORCE_MODEL_KEY",
+]
+_IMAGE_OVERRIDE_ENV_SNAPSHOT: Dict[str, str] = {k: (os.getenv(k) or "") for k in _IMAGE_OVERRIDE_ENV_NAMES}
+
 
 def _classify_phases(*parts: str) -> List[str]:
     hay = " ".join(str(p or "") for p in parts).lower()
@@ -3492,11 +3505,23 @@ def _extract_image_tasks_from_code(repo: Path) -> List[Dict[str, Any]]:
 def _load_llm_router_config(repo: Path) -> Dict[str, Any]:
     default_path = repo / "configs" / "llm_router.yaml"
     local_path = repo / "configs" / "llm_router.local.yaml"
-    cfg_path = local_path if local_path.exists() else default_path
-    cfg = _load_yaml(cfg_path)
+    base = _load_yaml(default_path) if default_path.exists() else {}
+    if not isinstance(base, dict):
+        base = {}
+    cfg: Dict[str, Any] = base
+    merged_local = False
+    if local_path.exists():
+        local = _load_yaml(local_path) or {}
+        if isinstance(local, dict) and local:
+            cfg = _deep_merge_dict(base, local)
+            merged_local = True
     if not isinstance(cfg, dict):
         cfg = {}
-    return {"path": _repo_rel(cfg_path, root=repo), "config": cfg}
+    return {
+        "path": _repo_rel(default_path if default_path.exists() else local_path, root=repo),
+        "local_path": _repo_rel(local_path, root=repo) if merged_local else None,
+        "config": cfg,
+    }
 
 
 def _load_llm_task_overrides(repo: Path) -> Dict[str, Any]:
@@ -4037,7 +4062,7 @@ def _load_image_model_slots(repo: Path) -> Dict[str, Any]:
     slots.sort(key=lambda s: str(s.get("id") or ""))
 
     def _env(name: str) -> str | None:
-        v = (os.getenv(name) or "").strip()
+        v = (_IMAGE_OVERRIDE_ENV_SNAPSHOT.get(name) or "").strip()
         return v or None
 
     active_overrides: List[Dict[str, Any]] = []
@@ -4058,6 +4083,69 @@ def _load_image_model_slots(repo: Path) -> Dict[str, Any]:
         "schema_version": cfg.get("schema_version"),
         "slots": slots,
         "active_overrides": active_overrides,
+    }
+
+
+def _load_channel_sources(repo: Path) -> Dict[str, Any]:
+    """
+    Load per-channel media sourcing policy for UI visibility (no secrets).
+
+    SoT:
+    - primary: repo-root `configs/sources.yaml`
+    - overlay: `packages/script_pipeline/config/sources.yaml`
+
+    We only expose a small subset here (video_broll / image_source_mix), because the rest
+    of sources.yaml contains many unrelated operational paths.
+    """
+
+    default_path = repo / "configs" / "sources.yaml"
+    overlay_path = script_pkg_root() / "config" / "sources.yaml"
+
+    base = _load_yaml(default_path) if default_path.exists() else {}
+    if not isinstance(base, dict):
+        base = {}
+    cfg: Dict[str, Any] = base
+    merged_overlay = False
+    if overlay_path.exists():
+        overlay = _load_yaml(overlay_path) or {}
+        if isinstance(overlay, dict) and overlay:
+            cfg = _deep_merge_dict(base, overlay)
+            merged_overlay = True
+
+    channels_raw = cfg.get("channels") if isinstance(cfg.get("channels"), dict) else {}
+    channels: Dict[str, Any] = {}
+    for raw_code, ent in channels_raw.items():
+        code = str(raw_code or "").strip().upper()
+        if not code or not isinstance(ent, dict):
+            continue
+
+        out: Dict[str, Any] = {}
+        vb = ent.get("video_broll")
+        if isinstance(vb, dict):
+            out["video_broll"] = {
+                "enabled": bool(vb.get("enabled", False)),
+                "provider": vb.get("provider"),
+                "ratio": vb.get("ratio"),
+            }
+
+        ism = ent.get("image_source_mix")
+        if isinstance(ism, dict):
+            out["image_source_mix"] = {
+                "enabled": bool(ism.get("enabled", False)),
+                "weights": ism.get("weights"),
+                "gemini_model_key": ism.get("gemini_model_key"),
+                "schnell_model_key": ism.get("schnell_model_key"),
+                "broll_provider": ism.get("broll_provider"),
+                "broll_min_gap_sec": ism.get("broll_min_gap_sec"),
+            }
+
+        if out:
+            channels[code] = out
+
+    return {
+        "path": _repo_rel(default_path if default_path.exists() else overlay_path, root=repo),
+        "overlay_path": _repo_rel(overlay_path, root=repo) if merged_overlay else None,
+        "channels": channels,
     }
 
 
@@ -4199,6 +4287,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
     image_models_conf = _load_image_models_config(repo)
     image_task_overrides = _load_image_task_overrides(repo)
     image_model_slots = _load_image_model_slots(repo)
+    channel_sources = _load_channel_sources(repo)
     image_provider_status = _provider_status_from_config(
         providers=image_models_conf.get("config", {}).get("providers", {}) if isinstance(image_models_conf, dict) else {},
         fireworks_pool="image",
@@ -4983,6 +5072,7 @@ def build_ssot_catalog() -> Dict[str, Any]:
             },
             "providers": image_provider_status,
             "model_slots": image_model_slots,
+            "channel_sources": channel_sources,
             "model_registry": image_model_registry,
             "task_overrides": {
                 "path": image_task_overrides.get("path"),

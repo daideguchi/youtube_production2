@@ -928,6 +928,16 @@ export interface ThumbnailLibraryAssignResponse {
   public_url: string;
 }
 
+export interface ThumbnailAssetReplaceResponse {
+  status: string;
+  channel: string;
+  video: string;
+  slot: string;
+  file_name: string;
+  image_path: string;
+  public_url: string;
+}
+
 export interface ThumbnailDescriptionResponse {
   description: string;
   model?: string | null;
@@ -2207,6 +2217,24 @@ export interface SsotCatalog {
         task: string;
         selector: string;
       }>;
+    };
+    channel_sources?: {
+      path?: string;
+      overlay_path?: string | null;
+      channels?: Record<
+        string,
+        {
+          video_broll?: { enabled?: boolean; provider?: string | null; ratio?: number | null };
+          image_source_mix?: {
+            enabled?: boolean;
+            weights?: string | null;
+            gemini_model_key?: string | null;
+            schnell_model_key?: string | null;
+            broll_provider?: string | null;
+            broll_min_gap_sec?: number | null;
+          };
+        }
+      >;
     };
     task_overrides?: { path?: string; profile?: string; tasks_count?: number };
     task_defs?: Record<

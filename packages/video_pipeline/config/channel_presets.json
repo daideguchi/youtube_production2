@@ -39,10 +39,13 @@
     "CH02": {
       "name": "哲学系",
       "image_generation": {
-        "model_key": "img-flux-schnell-1"
+        "model_key": "img-flux-schnell-1",
+        "personless_default": true,
+        "forbid_text_default": true,
+        "negative_prompt": "people, person, human, face, portrait, body, skin, nude, naked, hands, fingers, crowd, child, man, woman, character design, mascot, text, letters, numbers, subtitle, caption, logo, watermark, UI, interface, signage, poster, typography, handwriting, symbols, glyphs, runes, hieroglyphs, checkmark, tick mark"
       },
       "prompt_template": "templates/watercolor_gold_blue_ch02.txt",
-    "prompt_suffix": "基本無人。人物が必要なときだけ台本に出る当該人物を登場させ、顔/服/年齢/体型/文化・時代を台本どおり全カット固定。無関係な作業員や道具（赤い鉢巻・鎌・工事/農作業ギア）は禁止（台本に明示がある場合のみその人物1名に限定）。抽象・比喩優先、静かな油絵寄り（薄い下塗り＋油彩グレーズ、キャンバス目、柔らかな筆致）。ただし各cueはそのセクション内容を正確に表現し、抽象語を固定モチーフへ安易に置換しない（cueに明示がある場合のみ）。同じ象徴を連発しない。文字/看板/ロゴは禁止。",
+      "prompt_suffix": "基本無人。人物が必要なときだけ台本に出る当該人物を登場させ、顔/服/年齢/体型/文化・時代を台本どおり全カット固定。無関係な作業員や道具（赤い鉢巻・鎌・工事/農作業ギア）は禁止（台本に明示がある場合のみその人物1名に限定）。抽象・比喩優先、静かな油絵寄り（薄い下塗り＋油彩グレーズ、キャンバス目、柔らかな筆致）。ただし各cueはそのセクション内容を正確に表現し、抽象語を固定モチーフへ安易に置換しない（cueに明示がある場合のみ）。同じ象徴を連発しない。文字/看板/ロゴは禁止。",
       "tone_profile": "トーン: 静寂・内省・哲学的・象徴的。油絵（薄塗り＋グレーズ）のブラシ質感、低〜中彩度、柔らかいゴールド光と薄い霧。影はブルーグレーで静かに深く。軽いフィルム粒子/色褪せでノスタルジックに。文字要素なし。",
       "character_note": "人物ポリシー: デフォルト無人。人物が出る場合は台本に沿う一人/少数のみで、一貫した顔・服・年齢・文化/時代を保持。無関係な新キャラや現場作業員・道具（赤い鉢巻・鎌等）は禁止。",
       "style": "quiet philosophical oil painting, metaphorical symbolism, muted palette, warm-gold highlights vs cool blue-gray shadows, soft haze, no text, no photorealism, consistent visual style (no humans by default)",
@@ -105,6 +108,9 @@
     },
     "CH04": {
       "name": "隠れ書庫アカシック／心理学",
+      "image_generation": {
+        "model_key": "img-flux-schnell-1"
+      },
       "prompt_template": "templates/oil_painting_akashic_fantasy.txt",
       "prompt_suffix": "キャラ一貫: 語り手=30代後半の日本人（性別任意）を必要時のみ登場させ、顔/髪/服/雰囲気を全カットで統一。幻想的で哲学的、静かなダークトーンのリッチな油絵表現を最優先。不要な人物や群衆は入れない。文字・看板・UI・ロゴは一切描かない。アニメ誇張なし。",
       "tone_profile": "トーン: 幻想的・内省的・落ち着くダーク。油絵のブラシ質感と深い陰影、柔らかな光と奥行きでリッチに。文字要素は描かない。",
@@ -170,6 +176,9 @@
     },
     "CH06": {
       "name": "都市伝説のダーク図書館",
+      "image_generation": {
+        "model_key": "img-flux-schnell-1"
+      },
       "prompt_template": "templates/watercolor_gold_blue_ch06_dark.txt",
       "prompt_suffix": "好奇心をくすぐるが落ち着いたダーク図書館。暖かな金色の点光×深いインディゴ/青グレーの書架・石。水彩＋薄い線画＋和紙＋グランジ＋フィルム粒子。基本無人、必要時のみ案内人1名を一貫（日本人/アジア顔、性別任意）。かわいい/ポップ禁止。文字や看板は描かない。",
       "tone_profile": "トーン: 静寂・ミステリアス・少し不穏だが安らぐ。低〜中低彩度、局所的スポット光と薄い霧。退廃的な空気感。アニメ誇張なし。",
@@ -243,6 +252,9 @@
     },
     "CH08": {
       "name": "未設定プレースホルダ8",
+      "image_generation": {
+        "model_key": "img-flux-schnell-1"
+      },
       "prompt_template": "templates/watercolor_gold_blue_strict.txt",
       "prompt_suffix": "ノスタルジック基調。人物は不要がデフォルト。必要なときのみ脚本に沿って登場させ、一貫性を守る。文字/看板/ロゴなし。デジタル水彩＋薄い線画＋和紙テクスチャを厳格適用。油彩表現は禁止。",
       "tone_profile": "やわらかな水彩＋軽いフィルム粒子、低彩度、落ち着いたノスタルジックトーン。アニメ誇張なし。油彩表現は禁止。",
@@ -581,7 +593,7 @@
       "name": "老後の友人関係ラボ",
       "image_generation": {
         "base_period": 35.0,
-        "model_key": "img-flux-pro-1"
+        "model_key": "img-gemini-flash-1"
       },
       "prompt_template": "templates/senior_story_friendly_psychology.txt",
       "prompt_suffix": "親しみやすいセミリアル寄りの日本イラストで統一。心理描写は誇張せず、視線/口元/沈黙/手元/距離感で“現実の摩耗”を描く。人物が出る場合は同一人物を全カットで顔立ち/髪型/服装/体型/年齢感を固定。不要な新キャラや群衆は入れない。文字/看板/ロゴ/字幕は描かない。",
