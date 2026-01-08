@@ -757,6 +757,32 @@ def cmd_doctor(_args: argparse.Namespace) -> int:
             print("[doctor] slack_notify=OFF (optional)", file=sys.stderr)
     except Exception:
         pass
+    # Soft signal (non-fatal): routing + override state (helps prevent silent drift/spend).
+    try:
+        lockdown = (os.getenv("YTM_ROUTING_LOCKDOWN") or "").strip() or "-"
+        emergency = (os.getenv("YTM_EMERGENCY_OVERRIDE") or "").strip() or "-"
+        model_slot = (os.getenv("LLM_MODEL_SLOT") or "").strip() or "-"
+        exec_slot = (os.getenv("LLM_EXEC_SLOT") or "").strip() or "-"
+        print(f"[doctor] routing_lockdown={lockdown} emergency_override={emergency}", file=sys.stderr)
+        print(f"[doctor] llm_slots model={model_slot} exec={exec_slot}", file=sys.stderr)
+
+        image_override_vars = [
+            "IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN",
+            "IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN",
+            "IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION",
+            "IMAGE_CLIENT_FORCE_MODEL_KEY",
+        ]
+        active = []
+        for v in image_override_vars:
+            val = (os.getenv(v) or "").strip()
+            if val:
+                active.append(f"{v}={val}")
+        if active:
+            print("[doctor] WARNING: image model override active (may override preset/template):", file=sys.stderr)
+            for line in active:
+                print(f"         {line}", file=sys.stderr)
+    except Exception:
+        pass
     return 0
 
 

@@ -93,6 +93,10 @@
 - 一時切替（ファイル編集なし / その実行だけ）:
   - 動画内画像: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=g-1`（Gemini）/ `f-1`（Flux schnell）/ `f-4`（Flux max）
   - サムネ: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=g-1`（Gemini）/ `f-4`（Flux max）
+- **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`）。
+  - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
+- **許可（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は Gemini 3 系を使ってよい（必要時のみ、明示して使う）。
+  - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview`
 
 ---
 
@@ -131,7 +135,7 @@
 
 ## 4. 実行時の重要な補足（壊さないための知識）
 
-- `video_pipeline` は実行時に `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` をセットして画像モデルを固定する（チャンネルpreset由来）。
+- `video_pipeline` は実行時に `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` をセットして画像モデルを固定する（優先順: env override → チャンネルpreset → tier default。`pipeline.py` が source をログに残す）。
   - 値は `configs/image_models.yaml` の model_key か、`configs/image_model_slots.yaml` の slot code（例: `f-4`）を使う。
 - “remotionは未実装/未運用”のため、現行は CapCut 主線に合わせてタスク/モデルを調整する。
 

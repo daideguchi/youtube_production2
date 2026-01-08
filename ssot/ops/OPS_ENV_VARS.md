@@ -6,6 +6,34 @@
   - 注: LLMRouter は `.env` を `override=False` で読み込むため、**シェル export / `./scripts/with_ytm_env.sh` の値が優先**される（未設定のみ `.env` で補完）。
 - グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。必要なら `./scripts/with_ytm_env.sh ...` を使う。
 - **キーはチャット/Issue/ログに貼らない**（貼った時点で漏洩扱い）。誤って共有した場合は **即ローテ/無効化**し、`.env` を更新して `python3 scripts/check_env.py --env-file .env` で再検証する。
+
+## Slack通知（任意）
+目的:
+- 長時間処理（script/audio/video/thumbnails 等）が終わった/止まった（THINK pending）タイミングで、Slackに通知して取りこぼしを防ぐ。
+
+有効化:
+- Webhook方式:
+  - `YTM_SLACK_WEBHOOK_URL`（または `SLACK_WEBHOOK_URL`）に Incoming Webhook URL を設定する（git管理しない）。
+- Bot方式（既存のSlack設定がこれの場合）:
+  - `SLACK_BOT_TOKEN` と `SLACK_CHANNEL` を設定する（git管理しない）。
+
+通知対象（任意）:
+- `YTM_SLACK_NOTIFY_CMDS`（default: `script,audio,video,thumbnails,publish,resume,reconcile`）
+  - `./ops` の top-level cmd をカンマ区切りで指定する（例: `video,thumbnails,resume`）
+- `YTM_SLACK_NOTIFY_ALL=1` で全cmdを通知（スパム注意）
+
+通知条件（任意）:
+- `YTM_SLACK_NOTIFY_ON=both|success|failure`（default: `both`）
+- `YTM_SLACK_NOTIFY_MIN_DURATION_SEC`（default: `0`）: この秒数未満の実行は通知しない（例: `30`）
+- `YTM_SLACK_NOTIFY_AGENT_TASKS`（default: `1`）: THINK MODE の agent task（`./ops agent claim/complete`）も通知する（スパムが嫌なら `0`）
+
+備考:
+- `--llm think` で pending が出た場合は「失敗」ではなく `PENDING` として通知される（task埋め→再実行で続行）。
+- `packages/script_pipeline/job_runner.py` の通知（`scripts/notifications.py`）も同じ Slack 設定を使う（Webhook/Bot 両対応）。
+- `./ops` の “迷わない” レバー（任意）:
+  - `./ops think <cmd> ...` / `./ops api <cmd> ...` / `./ops codex <cmd> ...` を使う（`--llm` の付け忘れを物理的に防ぐ）
+  - `YTM_OPS_DEFAULT_LLM=think|api|codex` を設定すると、`./ops` で `--llm` を省略した時の既定を切り替えられる（例: 「今日は外部APIを使わない」→ `think`）
+  - `YTM_OPS_TIPS=0` で `./ops` のヒント表示（stderr）を無効化できる（default: ON）
 - モデル選択は **モデル名ではなく数字スロット**で行う（モデル名の書き換え禁止）。
   - `LLM_MODEL_SLOT`（default: `0`）: `configs/llm_model_slots.yaml` の `slots` から選ぶ
   - 個別調整は `configs/llm_model_slots.local.yaml`（git管理しない）で上書きする
@@ -44,7 +72,12 @@
   - 適用先:
     - 動画内画像: `packages/video_pipeline/config/channel_presets.json` の `channels.<CH>.image_generation.model_key`
     - サムネ: `workspaces/thumbnails/templates.json` の `templates[].image_model_key`
-    - その実行だけ上書き: `IMAGE_CLIENT_FORCE_MODEL_KEY_<TASK>=g-1`（例: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1`）
+    - incident/debug（その実行だけ）: `IMAGE_CLIENT_FORCE_MODEL_KEY_<TASK>=f-1`（例: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1`）
+      - 注意: `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY*` を恒久セットする運用は禁止（ロックダウンONで停止）。「その実行だけ」prefixで明示する。
+  - **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`, `openrouter_gemini_3_pro_image_preview`）。
+    - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
+  - **許可（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は Gemini 3 系を使っても良い（必要時のみ明示して使う）。
+    - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ...`
   - 任意: `IMAGE_CLIENT_MODEL_SLOTS_PATH` で slot 定義ファイルを差し替えできる（検証/一時切替用途）
 
 ## 主な必須キー（抜粋）

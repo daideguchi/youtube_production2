@@ -178,6 +178,49 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
       exit 3
     fi
   fi
+  # Hard-stop: persistent image model overrides in `.env` are a major drift source.
+  # Normal ops must use SoT configs (preset/template). One-off comparisons are OK as per-run env prefix.
+  if grep -qE '^[[:space:]]*IMAGE_CLIENT_FORCE_MODEL_KEY([A-Z0-9_]+)?=' "$ENV_FILE" 2>/dev/null; then
+    echo "❌ [LOCKDOWN] IMAGE_CLIENT_FORCE_MODEL_KEY* must not be set in .env: $ENV_FILE" >&2
+    echo "    found:" >&2
+    grep -nE '^[[:space:]]*IMAGE_CLIENT_FORCE_MODEL_KEY([A-Z0-9_]+)?=' "$ENV_FILE" 2>/dev/null | sed -E 's/=.*$/=<set>/' >&2 || true
+    echo "    SoT:" >&2
+    echo "      - video images: packages/video_pipeline/config/channel_presets.json" >&2
+    echo "      - thumbnails:   workspaces/thumbnails/templates.json" >&2
+    echo "    one-off (per-run):" >&2
+    echo "      - IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1 ./ops video ..." >&2
+    echo "      - IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 ./ops thumbnails ..." >&2
+    exit 3
+  fi
+  # Policy: Gemini 3 image models are forbidden for *video images* (visual_image_gen),
+  # but allowed for thumbnails (thumbnail_image_gen).
+  for v in IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION IMAGE_CLIENT_FORCE_MODEL_KEY; do
+    _val="${!v:-}"
+    if [[ -z "${_val}" ]]; then
+      continue
+    fi
+    case "${_val}" in
+      *gemini-3*|*gemini_3* )
+        echo "❌ [LOCKDOWN] Forbidden image model override detected: ${v}=${_val}" >&2
+        echo "    動画内画像（visual_image_gen）での Gemini 3 系は使用禁止です。img-gemini-flash-1（=g-1）等の許可モデルを使ってください。" >&2
+        echo "    ※サムネ（thumbnail_image_gen）で Gemini 3 を使う場合は IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN を使う（global/visual には入れない）。" >&2
+        echo "    debug only: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+        exit 3
+        ;;
+    esac
+  done
+  # Also forbid passing the override via `env FOO=... command` style args.
+  for _arg in "$@"; do
+    case "${_arg}" in
+      IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=*gemini-3*|IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=*gemini_3*|IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION=*gemini-3*|IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION=*gemini_3*|IMAGE_CLIENT_FORCE_MODEL_KEY=*gemini-3*|IMAGE_CLIENT_FORCE_MODEL_KEY=*gemini_3* )
+        echo "❌ [LOCKDOWN] Forbidden image model override detected in command args: ${_arg}" >&2
+        echo "    動画内画像（visual_image_gen）での Gemini 3 系は使用禁止です。img-gemini-flash-1（=g-1）等の許可モデルを使ってください。" >&2
+        echo "    ※サムネ（thumbnail_image_gen）で Gemini 3 を使う場合は IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN を使う（global/visual には入れない）。" >&2
+        echo "    debug only: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+        exit 3
+        ;;
+    esac
+  done
   for v in \
     YTM_CODEX_EXEC_DISABLE \
     YTM_CODEX_EXEC_ENABLED \

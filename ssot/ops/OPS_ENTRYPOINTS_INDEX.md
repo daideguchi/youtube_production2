@@ -236,6 +236,7 @@
   - 量産: `python scripts/thumbnails/build.py build --channel CHxx --videos 001 002 ...`
   - リテイク: `python scripts/thumbnails/build.py retake --channel CHxx`（`projects.json: status=in_progress` を対象）
   - QC: `python scripts/thumbnails/build.py qc --channel CHxx --status in_progress`
+- 競合サムネの特徴抽出→テンプレ雛形: `python3 scripts/ops/thumbnail_styleguide.py --help`（詳細: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`）
 
 ### 3.6 Vision（スクショ/サムネ読み取り補助）
 - SSOT: `ssot/ops/OPS_VISION_PACK.md`

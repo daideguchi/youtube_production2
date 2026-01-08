@@ -22,9 +22,9 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 
 例:
 
-- CH01 を「いまの運用（Gemini-only）」で回す: `g-1_script-main-1_g-1`
-- CH01 の「動画内画像だけ」Flux Max にする（例）: `g-1_script-main-1_f-4`
-- THINK MODE で回す（例）: `g-1_script-main-1_g-1@x3`
+- CH01 を「サムネ=Gemini / 台本=共通 / 動画内画像=Flux Max」で回す（例）: `g-1_script-main-1_f-4`
+- CH02 を「サムネ=Gemini / 台本=共通 / 動画内画像=Flux schnell」で回す（例）: `g-1_script-main-1_f-1`
+- THINK MODE で回す（例）: `g-1_script-main-1_f-1@x3`
   - 意味: `LLM_EXEC_SLOT=3`（`configs/llm_exec_slots.yaml`）
 
 ### 0.1 コード早見表（画像）
@@ -127,8 +127,10 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 - `img-flux-max-1`（alias: `f-4`）
 
 既定（SSOT）:
-- `visual_image_gen` default: `img-flux-schnell-1`
-- `thumbnail_image_gen` default: `img-flux-max-1`
+- tier default は `configs/image_models.yaml` の `tiers` に従う（現行は `gemini_2_5_flash_image` が既定）。
+- ただし通常運用では **tier default に頼らず**、次の SoT で `model_key` を明示してブレを潰す:
+  - 動画内画像: `packages/video_pipeline/config/channel_presets.json`
+  - サムネ: `workspaces/thumbnails/templates.json`
 
 ---
 
@@ -136,26 +138,35 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 
 ### 5.1 動画用画像（SRT→images / visual_image_gen）
 
-| CH | 要件（動画用画像） | いま通る前提 |
-|---|---|---|
-| 共通 | デフォは `img-flux-schnell-1`（= `f-1`） | デフォ維持 |
-| CH01 | **絶対に高品質**（`img-flux-max-1` または `img-gemini-flash-1`） | **いまは `img-gemini-flash-1` で回す** |
-| CH02 | `img-flux-pro-1` または `img-flux-max-1` | **いまは `img-gemini-flash-1` で回す** |
-| CH04 | `img-flux-pro-1` / `img-flux-max-1` / `img-gemini-flash-1` | **いまは `img-gemini-flash-1` で回す** |
-| CH06 | `img-flux-pro-1` / `img-flux-max-1` / `img-gemini-flash-1` | **いまは `img-gemini-flash-1` で回す** |
-| CH08 | `img-flux-schnell-1` メインでOK | そのままでOK |
+SoT（正本）:
+- CH別の固定: `packages/video_pipeline/config/channel_presets.json` の `channels.<CH>.image_generation.model_key`
+- 画面: `/model-policy`（effective確認） / `/image-model-routing`（編集）
 
-運用メモ:
-- 「いまは Gemini しか通らない」間は、YAML を書き換えず **環境変数で強制**する（ブレ/事故防止）。
-  - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=img-gemini-flash-1`（または `g-1`）
+禁止（通常運用）:
+- `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY` を恒久セットしない（ロックダウンで停止）。
+
+許可（incident/debug のみ・その実行だけ）:
+- `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1 ./ops video ...`
+
+安全（強制）:
+- **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`, `openrouter_gemini_3_pro_image_preview`）。
+  - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
 
 ### 5.2 サムネ（thumbnail_image_gen）
 
-- ルール: **絶対に `img-gemini-flash-1` か `img-flux-max-1`**
-- 優先順位: **Gemini > Max**
-- 「いまは Gemini しか通らない」間は:
-  - `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=img-gemini-flash-1`（または `g-1`）
-- 将来: fal.ai を追加しても flux は使う（固定はしない）
+SoT（正本）:
+- `workspaces/thumbnails/templates.json` の `templates[].image_model_key`
+- 画面: `/thumbnails`（運用） / `/image-model-routing`（編集） / `/model-policy`（effective確認）
+
+禁止（通常運用）:
+- `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY` を恒久セットしない（ロックダウンで停止）。
+
+許可（incident/debug のみ・その実行だけ）:
+- `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 ./ops thumbnails build ...`
+
+備考:
+- **許可（サムネ）**: サムネ背景生成（`thumbnail_image_gen`）に限り Gemini 3 系の画像モデルは **使っても良い**（必要時のみ明示して使う）。
+  - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ./ops thumbnails build ...`
 
 ---
 
