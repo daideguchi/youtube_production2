@@ -67,6 +67,9 @@ def main(argv: list[str] | None = None) -> int:
     # LLM hardcode guard (prevent direct provider calls outside LLMRouter/ImageClient).
     rc = max(rc, _run([sys.executable, "scripts/ops/llm_hardcode_audit.py"]))
 
+    # LLM routing config lint (router + codes + slots + overrides).
+    rc = max(rc, _run([sys.executable, "scripts/ops/lint_llm_router_config.py"]))
+
     # SSOT catalog (UI "System Map") must build cleanly (no missing task defs).
     rc = max(rc, _run([sys.executable, "scripts/ops/build_ssot_catalog.py", "--check"]))
 
