@@ -60,7 +60,7 @@
 
 - Codex環境ではロールバック系Git操作がガードされる（`OPS_GIT_SAFETY` 参照）。
 - commit/pushが不安定な環境では、まず `bash scripts/ops/save_patch.sh` でパッチ保存し、Orchestrator/人間が apply→commit→push する。
-- `main` 反映（push）直前のみ `.git` の write-lock を一時解除する（`python3 scripts/ops/git_write_lock.py unlock-for-push`）。
+- `.git` write-lock を使っている場合は、push直前に一時解除する（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
 
 ---
 

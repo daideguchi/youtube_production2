@@ -85,14 +85,15 @@ lock がある範囲は **触らない**。必要なら memo/request で調整�
 ```bash
 python3 scripts/ops/git_write_lock.py status
 python3 scripts/ops/git_write_lock.py lock
+python3 scripts/ops/git_write_lock.py unlock
 ```
 
-push直前の一時解除（Orchestratorのみ）:
+push直前の一時解除（Orchestrator向け・安全）:
 ```bash
 python3 scripts/ops/git_write_lock.py unlock-for-push
 ```
 
-push後はすぐ `lock` に戻す（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
+通常は unlocked のまま運用し、事故が多い期間だけ lock を使う（詳細: `ssot/ops/OPS_GIT_SAFETY.md`）。
 
 補足（視界制限 / 事故防止）:
 - Codex 環境では `git status`/`git diff`（パス指定なし）は、**自分の lock scopes に自動スコープ**される（他人の差分を見て誤って消す事故を減らす）

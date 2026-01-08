@@ -72,11 +72,13 @@ Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **
 コマンド:
 - 状態確認: `python3 scripts/ops/git_write_lock.py status`
 - ロック: `python3 scripts/ops/git_write_lock.py lock`
-- アンロック（push時のみ）: `python3 scripts/ops/git_write_lock.py unlock-for-push`
+- アンロック（人間が明示）: `python3 scripts/ops/git_write_lock.py unlock`
+- アンロック（Orchestrator向け・安全）: `python3 scripts/ops/git_write_lock.py unlock-for-push`
 
 運用ルール:
-- **通常運用は常に lock**（並列エージェントが動く間は特に）
-- pushの直前だけ Orchestrator が一時解除し、push後はすぐ lock に戻す（`unlock-for-push` は Orchestrator lease 必須）
+- **既定は unlocked（push/commit を邪魔しない）**。rollback遮断は Git Guard + execpolicy で担保する。
+- `.git` write-lock は「事故多発時の強化」「危険作業の前に一時的に凍結」など、必要時だけ使う（常時ONにしない）
+- Orchestrator で `orchestrator_bootstrap.py` を使う場合、`--ensure-git-lock` を付けた時だけ `.git` を lock する（既定は lock しない）
 
 補足:
 - `status` が `locked (external)` の場合、環境側（sandbox/OS制約）で `.git/` が保護されている状態。Codexからの破壊的git操作は既に通りにくいが、execpolicy（後述）も併用して二重化する。
@@ -110,17 +112,12 @@ push前に、SSOT↔実装の不整合がないかを点検する（詳細は `s
 
 対処（push直前の“短時間だけ”開ける）:
 
-1. Orchestrator を起動（lease を握る）
-   - `python3 scripts/agent_org.py orchestrator start --name dd-orch --no-process-requests`
-2. `.git` を push 用に一時アンロック
-   - `python3 scripts/ops/git_write_lock.py unlock-for-push`
-3. commit/push（PR運用推奨。`ssot/ops/OPS_GIT_BRANCH_POLICY.md` 参照）
-4. push後すぐ再ロック
-   - `python3 scripts/ops/git_write_lock.py lock`
-5. Orchestrator 停止
-   - `python3 scripts/agent_org.py orchestrator stop`
+1. `.git` をアンロック
+   - 人間の一時解除: `python3 scripts/ops/git_write_lock.py unlock`
+   - Orchestrator運用: `python3 scripts/ops/git_write_lock.py unlock-for-push`（lease必須）
+2. commit/push
+3. （任意）事故が多い期間だけ再ロック: `python3 scripts/ops/git_write_lock.py lock`
 
 注意:
 
-- unlock状態を放置しない（事故率が跳ね上がる）。
-- worker は原則 `bash scripts/ops/save_patch.sh` で **スコープ限定パッチ**を保存し、Orchestrator/人間が apply→commit→push する。
+- rollback操作は禁止（人間が許可した場合のみ）。Codex側は Git Guard + execpolicy で強制遮断される。

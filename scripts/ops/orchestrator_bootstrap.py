@@ -6,7 +6,7 @@ This script is meant to be run by the human-designated Orchestrator before
 spinning up many agents.
 
 What it does:
-  - Locks `.git` (rollback guard) using scripts/ops/git_write_lock.py
+  - (Optional) Locks `.git` (rollback guard) using scripts/ops/git_write_lock.py
   - Starts orchestrator lease process (background) via scripts/agent_org.py
   - Starts/refreshes orchestrator heartbeat entry + board status
   - Runs parallel preflight and writes a report
@@ -37,6 +37,11 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--doing", default="orchestrator: coordinating parallel run", help="board: doing")
     ap.add_argument("--next", default="assign tasks + enforce locks", help="board: next")
     ap.add_argument("--tags", default="coordination", help="board tags")
+    ap.add_argument(
+        "--ensure-git-lock",
+        action="store_true",
+        help="Lock `.git` (write-lock). This blocks commit/push until explicitly unlocked.",
+    )
     return ap
 
 
@@ -44,10 +49,11 @@ def main(argv: List[str] | None = None) -> int:
     ap = build_parser()
     args = ap.parse_args(argv)
 
-    # 1) Lock .git (best-effort; harmless if already locked)
-    rc = _run([sys.executable, "scripts/ops/git_write_lock.py", "lock"])
-    if rc != 0:
-        return rc
+    # 1) (Optional) Lock .git (best-effort; harmless if already locked)
+    if args.ensure_git_lock:
+        rc = _run([sys.executable, "scripts/ops/git_write_lock.py", "lock"])
+        if rc != 0:
+            return rc
 
     # 2) Start orchestrator lease holder (background)
     orch_cmd = [sys.executable, "scripts/agent_org.py", "orchestrator", "start", "--name", str(args.name)]
@@ -80,19 +86,20 @@ def main(argv: List[str] | None = None) -> int:
         return rc
 
     # 4) Preflight report (writes JSON under workspaces/logs)
+    preflight_cmd = [
+        sys.executable,
+        "scripts/ops/parallel_ops_preflight.py",
+        "--ensure-orchestrator",
+        "--orchestrator-name",
+        str(args.name),
+    ]
+    if args.ensure_git_lock:
+        preflight_cmd.insert(3, "--ensure-git-lock")
     rc = _run(
-        [
-            sys.executable,
-            "scripts/ops/parallel_ops_preflight.py",
-            "--ensure-git-lock",
-            "--ensure-orchestrator",
-            "--orchestrator-name",
-            str(args.name),
-        ]
+        preflight_cmd
     )
     return rc
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

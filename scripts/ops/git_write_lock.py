@@ -232,7 +232,7 @@ def cmd_lock(_args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_unlock(_args: argparse.Namespace) -> int:
+def _unlock_git_dir(*, require_orchestrator_lease: bool) -> int:
     git_dir = _git_dir()
     if not git_dir.exists():
         print("[FAIL] .git/ not found (not a git repo?)", file=sys.stderr)
@@ -241,19 +241,20 @@ def cmd_unlock(_args: argparse.Namespace) -> int:
         print("unlocked")
         return 0
 
-    held, note = _orchestrator_lease_is_held()
-    if not held:
-        print(
-            "[FAIL] refusing to unlock .git without an active orchestrator lease (rollback prevention).",
-            file=sys.stderr,
-        )
-        print(
-            "hint: start orchestrator -> python3 scripts/agent_org.py orchestrator start --name dd-orch",
-            file=sys.stderr,
-        )
-        print(f"orchestrator_state: {_orchestrator_state_summary()}", file=sys.stderr)
-        print(f"lease_check: {note}", file=sys.stderr)
-        return 2
+    if require_orchestrator_lease:
+        held, note = _orchestrator_lease_is_held()
+        if not held:
+            print(
+                "[FAIL] refusing to unlock .git without an active orchestrator lease (rollback prevention).",
+                file=sys.stderr,
+            )
+            print(
+                "hint: start orchestrator -> python3 scripts/agent_org.py orchestrator start --name dd-orch",
+                file=sys.stderr,
+            )
+            print(f"orchestrator_state: {_orchestrator_state_summary()}", file=sys.stderr)
+            print(f"lease_check: {note}", file=sys.stderr)
+            return 2
 
     if _is_darwin():
         try:
@@ -274,6 +275,17 @@ def cmd_unlock(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_unlock(_args: argparse.Namespace) -> int:
+    # Human-friendly: allow unlocking without orchestrator lease.
+    # Rollback prevention for agents should rely on Codex Git Guard / execpolicy.
+    return _unlock_git_dir(require_orchestrator_lease=False)
+
+
+def cmd_unlock_for_push(_args: argparse.Namespace) -> int:
+    # Safer unlock path (for orchestrator workflows).
+    return _unlock_git_dir(require_orchestrator_lease=True)
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="Write-lock/unlock .git to prevent destructive rollbacks.")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -288,7 +300,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_unlock)
 
     sp = sub.add_parser("unlock-for-push", help="unlock .git (requires orchestrator lease; safer)")
-    sp.set_defaults(func=cmd_unlock)
+    sp.set_defaults(func=cmd_unlock_for_push)
 
     return ap
 
