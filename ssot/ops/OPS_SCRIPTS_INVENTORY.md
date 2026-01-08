@@ -29,7 +29,7 @@ ref の見方:
 |---|---:|:--:|:--:|---:|---|
 | `scripts/_adhoc/README.md` | MISC | P3 | yes | refs=0 | `-` |
 | `scripts/_bootstrap.py` | MISC | P1 | yes | scripts=1 ssot=1 other=1 | `_bootstrap.py:19` |
-| `scripts/agent_org.py` | COORD | P1 | yes | packages=5 scripts=19 ssot=110 other=2 | `packages/script_pipeline/prompts/orchestrator_prompt.txt:18` |
+| `scripts/agent_org.py` | COORD | P1 | yes | packages=5 scripts=19 ssot=111 other=2 | `packages/script_pipeline/prompts/orchestrator_prompt.txt:18` |
 | `scripts/agent_runner.py` | COORD | P1 | yes | packages=8 scripts=16 ssot=30 | `packages/factory_common/agent_mode.py:282` |
 | `scripts/aggregate_llm_usage.py` | MISC | P1 | yes | ssot=6 | `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md:465` |
 | `scripts/aggregate_voicevox_reading_logs.py` | AUDIO | P1 | yes | scripts=1 ssot=2 | `scripts/aggregate_voicevox_reading_logs.py:6` |
@@ -45,11 +45,11 @@ ref の見方:
 | `scripts/check_all_srt.sh` | AUDIO | P1 | yes | scripts=2 ssot=3 | `scripts/check_all_srt.sh:14` |
 | `scripts/check_env.py` | MISC | P1 | yes | apps=3 scripts=2 ssot=5 other=2 | `apps/ui-backend/backend/main.py:688` |
 | `scripts/cleanup_audio_prep.py` | AUDIO | P1 | yes | scripts=2 ssot=6 | `scripts/cleanup_audio_prep.py:11` |
-| `scripts/cleanup_data.py` | OPS | P1 | yes | ssot=15 | `ssot/agent_runbooks/RUNBOOK_CLEANUP_DATA.md:10` |
-| `scripts/cleanup_workspace.py` | OPS | P1 | yes | packages=2 ssot=26 other=1 | `packages/script_pipeline/prompts/phase2_audio_prompt.txt:57` |
+| `scripts/cleanup_data.py` | OPS | P1 | yes | ssot=16 | `ssot/agent_runbooks/RUNBOOK_CLEANUP_DATA.md:10` |
+| `scripts/cleanup_workspace.py` | OPS | P1 | yes | packages=2 ssot=33 other=1 | `packages/script_pipeline/prompts/phase2_audio_prompt.txt:57` |
 | `scripts/drive_oauth_setup.py` | PUBLISH | P1 | yes | scripts=3 ssot=1 README=2 | `README.md:53` |
 | `scripts/drive_upload_oauth.py` | PUBLISH | P1 | yes | scripts=1 ssot=2 README=1 | `README.md:60` |
-| `scripts/e2e_smoke.sh` | MISC | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:247` |
+| `scripts/e2e_smoke.sh` | MISC | P1 | yes | ssot=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:249` |
 | `scripts/enforce_alignment.py` | SCRIPT | P0 | yes | packages=1 ssot=8 | `packages/audio_tts/scripts/run_tts.py:651` |
 | `scripts/episode_ssot.py` | SCRIPT | P1 | yes | packages=2 scripts=9 ssot=10 other=2 | `packages/audio_tts/scripts/run_tts.py:124` |
 | `scripts/expand_a_text.py` | SCRIPT | P1 | yes | ssot=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:184` |
@@ -76,23 +76,24 @@ ref の見方:
 | `scripts/ops/build_ssot_catalog.py` | OPS | P1 | no | scripts=6 ssot=3 | `scripts/ops/build_ssot_catalog.py:6` |
 | `scripts/ops/channel_info_normalize.py` | OPS | P1 | yes | ssot=9 | `ssot/ops/OPS_CHANNEL_BENCHMARKS.md:97` |
 | `scripts/ops/cleanup_broken_symlinks.py` | OPS | P1 | yes | ssot=5 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:295` |
-| `scripts/ops/cleanup_caches.sh` | OPS | P1 | yes | scripts=2 ssot=3 | `scripts/ops/ops_cli.py:1039` |
-| `scripts/ops/cleanup_logs.py` | OPS | P1 | yes | scripts=2 ssot=10 other=1 | `scripts/ops/ops_cli.py:1034` |
+| `scripts/ops/cleanup_caches.sh` | OPS | P1 | yes | scripts=2 ssot=4 | `scripts/ops/ops_cli.py:1039` |
+| `scripts/ops/cleanup_logs.py` | OPS | P1 | yes | scripts=2 ssot=11 other=1 | `scripts/ops/ops_cli.py:1034` |
 | `scripts/ops/cleanup_remotion_artifacts.py` | OPS | P1 | yes | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:296` |
 | `scripts/ops/cleanup_video_runs.py` | OPS | P1 | yes | scripts=1 ssot=3 | `scripts/ops/restore_video_runs.py:6` |
 | `scripts/ops/dialog_ai_script_audit.py` | OPS | P1 | no | ssot=4 | `ssot/ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md:125` |
 | `scripts/ops/docs_inventory.py` | OPS | P1 | yes | scripts=3 ssot=2 | `scripts/ops/docs_inventory.py:14` |
 | `scripts/ops/episode_progress.py` | OPS | P1 | no | scripts=6 ssot=3 | `scripts/ops/episode_progress.py:12` |
 | `scripts/ops/fact_check_codex.py` | OPS | P1 | no | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:119` |
-| `scripts/ops/fireworks_key_report.py` | OPS | P1 | no | refs=0 | `-` |
+| `scripts/ops/fireworks_key_report.py` | OPS | P1 | yes | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:313` |
 | `scripts/ops/fireworks_keyring.py` | OPS | P1 | no | packages=1 ssot=9 | `packages/factory_common/ssot_catalog.py:4701` |
 | `scripts/ops/git_write_lock.py` | OPS | P1 | no | scripts=9 ssot=13 | `scripts/ops/git_write_lock.py:19` |
 | `scripts/ops/idea.py` | OPS | P1 | yes | packages=2 scripts=10 ssot=18 other=1 | `packages/factory_common/ssot_catalog.py:3392` |
 | `scripts/ops/import_ch01_legacy_scripts.py` | OPS | P1 | yes | scripts=1 ssot=2 | `scripts/ops/import_ch01_legacy_scripts.py:13` |
 | `scripts/ops/init_workspaces.py` | OPS | P1 | yes | scripts=2 ssot=1 | `scripts/ops/init_workspaces.py:11` |
+| `scripts/ops/lint_llm_router_config.py` | OPS | P1 | no | scripts=1 | `scripts/ops/pre_push_final_check.py:71` |
 | `scripts/ops/llm_hardcode_audit.py` | OPS | P1 | no | scripts=1 | `scripts/ops/pre_push_final_check.py:68` |
 | `scripts/ops/llm_usage_report.py` | OPS | P1 | yes | ssot=2 | `ssot/ops/OPS_ENV_VARS.md:135` |
-| `scripts/ops/logs_snapshot.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:293` |
+| `scripts/ops/logs_snapshot.py` | OPS | P1 | yes | ssot=5 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:293` |
 | `scripts/ops/ops_cli.py` | OPS | P1 | no | scripts=1 ssot=2 other=1 | `ops:8` |
 | `scripts/ops/orchestrator_bootstrap.py` | OPS | P1 | no | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:212` |
 | `scripts/ops/pages_script_viewer_index.py` | OPS | P1 | no | scripts=3 ssot=2 other=2 | `docs/README.md:14` |
@@ -104,7 +105,7 @@ ref の見方:
 | `scripts/ops/planning_patch_gen.py` | OPS | P1 | yes | ssot=3 other=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:138` |
 | `scripts/ops/planning_realign_to_title.py` | OPS | P1 | yes | scripts=3 ssot=5 | `scripts/ops/planning_realign_to_title.py:31` |
 | `scripts/ops/planning_sanitize.py` | OPS | P0 | yes | scripts=5 ssot=6 | `scripts/ops/ops_cli.py:915` |
-| `scripts/ops/pre_push_final_check.py` | OPS | P1 | no | apps=2 scripts=4 ssot=6 | `apps/ui-backend/backend/README.md:19` |
+| `scripts/ops/pre_push_final_check.py` | OPS | P1 | no | apps=2 scripts=4 ssot=8 | `apps/ui-backend/backend/README.md:19` |
 | `scripts/ops/preproduction_audit.py` | OPS | P1 | yes | scripts=15 ssot=11 other=1 | `scripts/ops/preproduction_audit.py:11` |
 | `scripts/ops/preproduction_issue_catalog.py` | OPS | P1 | yes | ssot=1 other=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:138` |
 | `scripts/ops/production_pack.py` | OPS | P1 | yes | scripts=8 ssot=10 other=3 | `scripts/ops/preproduction_issue_catalog.py:64` |
@@ -122,7 +123,7 @@ ref の見方:
 | `scripts/ops/save_patch.sh` | OPS | P1 | yes | scripts=4 ssot=7 other=1 | `AGENTS.md:28` |
 | `scripts/ops/script_runbook.py` | OPS | P0 | yes | packages=3 scripts=9 ssot=71 | `packages/factory_common/ssot_catalog.py:1408` |
 | `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | scripts=4 ssot=3 | `scripts/ops/ops_cli.py:1343` |
-| `scripts/ops/secret_guard.py` | OPS | P1 | no | refs=0 | `-` |
+| `scripts/ops/secret_guard.py` | OPS | P1 | yes | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:312` |
 | `scripts/ops/slack_notify.py` | OPS | P1 | no | scripts=2 ssot=1 | `scripts/agent_runner.py:76` |
 | `scripts/ops/ssot_audit.py` | OPS | P1 | yes | scripts=3 ssot=6 | `scripts/ops/docs_inventory.py:10` |
 | `scripts/ops/thumbnail_styleguide.py` | OPS | P1 | yes | ssot=4 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:241` |
@@ -136,7 +137,7 @@ ref の見方:
 | `scripts/repair_manager.py` | MISC | P1 | yes | packages=2 scripts=1 ssot=2 | `packages/audio_tts/docs/SRT_SYNC_PROTOCOL.md:36` |
 | `scripts/run_srt2images.sh` | AUDIO | P1 | yes | packages=3 ssot=1 | `packages/factory_common/ssot_catalog.py:2129` |
 | `scripts/sanitize_a_text.py` | SCRIPT | P1 | yes | packages=1 ssot=5 | `packages/script_pipeline/runner.py:8166` |
-| `scripts/start_all.sh` | MISC | P0 | yes | apps=3 scripts=1 ssot=7 other=1 | `apps/ui-backend/backend/__init__.py:5` |
+| `scripts/start_all.sh` | MISC | P0 | yes | apps=3 scripts=1 ssot=8 other=1 | `apps/ui-backend/backend/__init__.py:5` |
 | `scripts/sync_all_scripts.py` | MISC | P1 | yes | scripts=2 ssot=2 | `scripts/start_all.sh:169` |
 | `scripts/sync_audio_prep_to_final.py` | AUDIO | P1 | yes | scripts=2 ssot=4 | `scripts/sync_audio_prep_to_final.py:15` |
 | `scripts/sync_thumbnail_inventory.py` | THUMB | P0 | yes | apps=2 scripts=1 ssot=1 | `apps/ui-backend/tools/start_manager.py:616` |

@@ -309,6 +309,8 @@
   - completed も厳密に索引化する: `python3 scripts/ops/ssot_audit.py --strict`
 - `python3 scripts/ops/scripts_inventory.py --write`（`scripts/**` 棚卸しSSOTを再生成: `ssot/ops/OPS_SCRIPTS_INVENTORY.md`）
 - `python3 scripts/ops/repo_sanity_audit.py --verbose`（tracked symlink / ルート互換symlink の再混入を検出）
+- `python3 scripts/ops/secret_guard.py --paths-from-git-diff-base origin/main`（commit前の “鍵/トークンっぽい文字列” 混入チェック。出力はマスクされる）
+- `python3 scripts/ops/fireworks_key_report.py --pool {script|image} --format json`（Fireworks key pool の状態/使用量を可視化。**キー本体は出さない**）
 - `python3 scripts/ops/prompts_inventory.py --write`（プロンプト索引 `prompts/PROMPTS_INDEX.md` を再生成）
 - `python3 scripts/ops/repo_ref_audit.py --target <path-or-glob> --stdout`（参照ゼロの機械棚卸し）
 - `python3 scripts/ops/docs_inventory.py --write`（非SSOT docs の参照棚卸し: `workspaces/logs/regression/docs_inventory/`）
