@@ -5,10 +5,11 @@ schema_version: 1
 # Goal:
 # - Never touch vendor model ids in ops configs (no drift).
 # - Use short, stable codes in:
-#   - `configs/llm_model_slots.yaml`
-#   - `configs/llm_task_overrides.yaml` (when pinning model chains)
-#   - env overrides: `LLM_FORCE_MODELS="txt-main-hr-1"`
-#   - CLI overrides: `--llm-model txt-main-hr-1`
+#   - `configs/llm_model_slots.yaml` (numeric slot → tier → model codes)
+#   - `configs/llm_task_overrides.yaml` (task-level pinning via model codes)
+# - Normal ops (lockdown ON) does NOT use direct model overrides:
+#   - Use `LLM_MODEL_SLOT=<N>` (numeric) to switch routing.
+#   - Non-numeric `LLM_FORCE_MODELS` / `--llm-model <code>` is debug-only and requires `YTM_EMERGENCY_OVERRIDE=1`.
 #
 # Notes:
 # - Codes resolve to existing `configs/llm_router.yaml: models.<model_key>`.

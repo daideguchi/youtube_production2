@@ -129,6 +129,14 @@ def main() -> int:
         print("Please update .env and re-run this command.")
         return 1
 
+    # Hard-stop on legacy model pinning vars that cause operator confusion.
+    # Model selection must be done via slots/codes (SSOT: ssot/ops/OPS_ENV_VARS.md).
+    if env.get("GEMINI_MODEL"):
+        print("❌ Forbidden env var detected: GEMINI_MODEL")
+        print("    GEMINI_MODEL は本repoでは未使用/事故源です。`.env` から削除してください。")
+        print("    代替: LLM_MODEL_SLOT / channel presets / thumbnail templates / IMAGE_CLIENT_FORCE_MODEL_KEY_*")
+        return 1
+
     for key, message in WARNING_KEYS.items():
         if key in env:
             print(message)

@@ -58,8 +58,11 @@ models:
       # finish_reason=length loops on whole-script rewrites.
       max_tokens: 65535
 
-  # --- Script Writing (Fireworks alternatives; opt-in via LLM_FORCE_MODELS / --llm-model) ---
-  # NOTE: These are NOT used by default tiers/tasks to avoid style/quality drift.
+  # --- Script Writing (Fireworks alternatives; selected via codes/slots) ---
+  # NOTE:
+  # - Normal ops (lockdown ON) selects models via `LLM_MODEL_SLOT` + `configs/llm_task_overrides.yaml` model codes.
+  # - Non-numeric `LLM_FORCE_MODELS` / `--llm-model <code>` is debug-only (requires `YTM_EMERGENCY_OVERRIDE=1`).
+  # - These are NOT used by default tiers/tasks to avoid style/quality drift.
   fw_glm_4p7:
     provider: fireworks
     model_name: "accounts/fireworks/models/glm-4p7"

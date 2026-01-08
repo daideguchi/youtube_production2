@@ -29,6 +29,14 @@ slots:
       visual_image_gen: gemini_2_5_flash_image
       thumbnail_image_gen: gemini_2_5_flash_image
 
+  g-3:
+    label: gemini_3_pro_image_preview
+    description: Gemini 3 Pro Image Preview (thumbnails allowed; video images blocked under lockdown).
+    tasks:
+      image_generation: gemini_3_pro_image_preview
+      visual_image_gen: gemini_3_pro_image_preview
+      thumbnail_image_gen: gemini_3_pro_image_preview
+
   f-1:
     label: flux_schnell
     description: Fireworks FLUX.1 schnell (fast).
@@ -61,6 +69,14 @@ slots:
       image_generation: gemini_2_5_flash_image
       visual_image_gen: gemini_2_5_flash_image
       thumbnail_image_gen: gemini_2_5_flash_image
+
+  img-gemini-3-pro-preview-1:
+    label: gemini_3_pro_image_preview
+    description: Alias of g-3 (Gemini 3 Pro Image Preview; thumbnails only in normal ops).
+    tasks:
+      image_generation: gemini_3_pro_image_preview
+      visual_image_gen: gemini_3_pro_image_preview
+      thumbnail_image_gen: gemini_3_pro_image_preview
 
   img-flux-schnell-1:
     label: flux_schnell

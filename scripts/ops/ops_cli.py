@@ -763,10 +763,52 @@ def cmd_doctor(_args: argparse.Namespace) -> int:
     try:
         lockdown = (os.getenv("YTM_ROUTING_LOCKDOWN") or "").strip() or "-"
         emergency = (os.getenv("YTM_EMERGENCY_OVERRIDE") or "").strip() or "-"
-        model_slot = (os.getenv("LLM_MODEL_SLOT") or "").strip() or "-"
-        exec_slot = (os.getenv("LLM_EXEC_SLOT") or "").strip() or "-"
         print(f"[doctor] routing_lockdown={lockdown} emergency_override={emergency}", file=sys.stderr)
-        print(f"[doctor] llm_slots model={model_slot} exec={exec_slot}", file=sys.stderr)
+        # Show effective slots (default vs env) to reduce operator confusion.
+        def _effective_model_slot() -> tuple[int, str]:
+            raw = (os.getenv("LLM_MODEL_SLOT") or "").strip()
+            if raw:
+                try:
+                    return max(0, int(raw)), "env:LLM_MODEL_SLOT"
+                except Exception:
+                    pass
+            forced_all = (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
+            if forced_all and forced_all.isdigit():
+                try:
+                    return max(0, int(forced_all)), "env:LLM_FORCE_MODELS"
+                except Exception:
+                    pass
+            try:
+                import yaml
+
+                cfg_path = _root() / "configs" / "llm_model_slots.yaml"
+                cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+                default_slot = int(cfg.get("default_slot") or 0) if isinstance(cfg, dict) else 0
+                return max(0, default_slot), "default"
+            except Exception:
+                return 0, "default"
+
+        def _effective_exec_slot() -> tuple[int, str]:
+            try:
+                from factory_common.llm_exec_slots import active_llm_exec_slot_id
+
+                active = active_llm_exec_slot_id()
+                return int(active.get("id") or 0), str(active.get("source") or "default")
+            except Exception:
+                raw = (os.getenv("LLM_EXEC_SLOT") or "").strip()
+                if raw:
+                    try:
+                        return max(0, int(raw)), "env:LLM_EXEC_SLOT"
+                    except Exception:
+                        pass
+                return 0, "default"
+
+        model_slot_id, model_slot_source = _effective_model_slot()
+        exec_slot_id, exec_slot_source = _effective_exec_slot()
+        print(
+            f"[doctor] llm_slots model={model_slot_id} ({model_slot_source}) exec={exec_slot_id} ({exec_slot_source})",
+            file=sys.stderr,
+        )
 
         image_override_vars = [
             "IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN",

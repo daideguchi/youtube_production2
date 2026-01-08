@@ -119,6 +119,20 @@ done
 
 # Hard-stop on forbidden overrides (drift prevention).
 if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]]; then
+  # Hard-stop on legacy model-pinning env vars (drift prevention / operator confusion).
+  # Model selection must be done via slots/codes (LLM_MODEL_SLOT + image_model_slots + presets/templates),
+  # not via ad-hoc "MODEL" env vars.
+  if [[ -n "${GEMINI_MODEL:-}" ]]; then
+    echo "❌ [LOCKDOWN] GEMINI_MODEL is forbidden (legacy/unused; causes model confusion)." >&2
+    echo "    remove it from: $ENV_FILE" >&2
+    echo "    use:" >&2
+    echo "      - text LLM: LLM_MODEL_SLOT (configs/llm_model_slots.yaml)" >&2
+    echo "      - video images: packages/video_pipeline/config/channel_presets.json" >&2
+    echo "      - thumbnails: workspaces/thumbnails/templates.json" >&2
+    echo "      - one-off thumbnail override: IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ..." >&2
+    echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+    exit 3
+  fi
   # SSOT integrity guard: under lockdown we do not allow ad-hoc edits to model routing configs.
   # (This prevents "someone rewrote the model YAML" drift across agents.)
   if command -v git >/dev/null 2>&1; then

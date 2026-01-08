@@ -5,6 +5,8 @@
 - `.env.example` をベースに必要キーを埋める。
   - 注: LLMRouter は `.env` を `override=False` で読み込むため、**シェル export / `./scripts/with_ytm_env.sh` の値が優先**される（未設定のみ `.env` で補完）。
 - グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。必要なら `./scripts/with_ytm_env.sh ...` を使う。
+- **禁止（混乱の元）**: `GEMINI_MODEL` のような “モデル名直指定” env var を `.env` に置かない（本repoでは未使用/事故源）。
+  - テキストLLMは `LLM_MODEL_SLOT`、画像は `channel_presets.json` / `templates.json` / `IMAGE_CLIENT_FORCE_MODEL_KEY_*`（必要時のみ）で制御する。
 - **キーはチャット/Issue/ログに貼らない**（貼った時点で漏洩扱い）。誤って共有した場合は **即ローテ/無効化**し、`.env` を更新して `python3 scripts/check_env.py --env-file .env` で再検証する。
 
 ## Slack通知（任意）
