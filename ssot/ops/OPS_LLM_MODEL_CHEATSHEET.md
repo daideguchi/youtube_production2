@@ -93,6 +93,7 @@
 - 一時切替（ファイル編集なし / その実行だけ）:
   - 動画内画像: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=g-1`（Gemini）/ `f-1`（Flux schnell）/ `f-4`（Flux max）
   - サムネ: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=g-1`（Gemini）/ `f-4`（Flux max）
+- 注意: ロックダウン運用（`YTM_ROUTING_LOCKDOWN=1`）では `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY*` を恒久セットしない（混乱/コスト事故の原因）。必要なら prefix で「その実行だけ」明示する。
 - **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`）。
   - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
 - **許可（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は Gemini 3 系を使ってよい（必要時のみ、明示して使う）。

@@ -18,7 +18,17 @@
 実装:
 - `scripts/vision/vision_pack.py`
 
+推奨（統一CLI）:
+```bash
+./ops vision --help
+```
+
 ### 1.1 スクショ（UIテキスト転記向け）
+推奨:
+```bash
+./ops vision screenshot /path/to/screenshot.png
+```
+
 ```bash
 ./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py screenshot /path/to/screenshot.png
 ```
@@ -29,6 +39,11 @@ OCRも併用（best-effort）:
 ```
 
 ### 1.2 サムネ（配色/構図の解析向け）
+推奨:
+```bash
+./ops vision thumbnail /path/to/thumb.png
+```
+
 ```bash
 ./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py thumbnail /path/to/thumb.png
 ```
@@ -80,4 +95,3 @@ OCRも併用（best-effort）:
 注意:
 - 日本語OCRは `jpn` の学習データが必要な場合がある（環境依存）。
 - OCRが空/崩れる場合でも、`bin2x_otsu.png` / `bin2x_otsu_inv.png` と `crops/` をLLMへ渡すだけで改善することが多い。
-

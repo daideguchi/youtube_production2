@@ -240,9 +240,10 @@
 
 ### 3.6 Vision（スクショ/サムネ読み取り補助）
 - SSOT: `ssot/ops/OPS_VISION_PACK.md`
-- CLI: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py --help`
-  - スクショ: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py screenshot /path/to/screenshot.png`
-  - サムネ: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py thumbnail /path/to/thumb.png`
+- 統一CLI（推奨）: `./ops vision --help`
+  - スクショ: `./ops vision screenshot /path/to/screenshot.png`
+  - サムネ: `./ops vision thumbnail /path/to/thumb.png`
+- 直叩き（互換）: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py --help`
 
 ### 3.7 Episode（A→B→音声→SRT→run の1:1整備）
 - `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
