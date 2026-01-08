@@ -333,6 +333,7 @@ def run_semantic_alignment(
         check_result = router.call_with_raw(
             task="script_semantic_alignment_check",
             messages=[{"role": "user", "content": prompt}],
+            allow_fallback=True,
         )
     finally:
         if prev_routing_key is None:
@@ -438,11 +439,20 @@ def run_semantic_alignment(
         draft = ""
         last_issues = None
         fix_meta: Dict[str, Any] = {}
+        fix_max_tokens: Optional[int] = None
+        try:
+            max_i = int(char_max) if str(char_max or "").strip().isdigit() else 0
+            if max_i > 0:
+                fix_max_tokens = max(1600, min(16384, max_i))
+        except Exception:
+            fix_max_tokens = None
         while attempt < max_fix_attempts:
             attempt += 1
             fix_result = router.call_with_raw(
                 task="script_semantic_alignment_fix",
                 messages=[{"role": "user", "content": fix_prompt}],
+                allow_fallback=True,
+                max_tokens=fix_max_tokens,
             )
             fix_text = _extract_text_content(fix_result)
             draft = fix_text.rstrip("\n") + "\n"

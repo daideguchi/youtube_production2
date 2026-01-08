@@ -1680,5 +1680,253 @@
     "priority": 5,
     "accentType": 0,
     "lang": "ja"
+  },
+  {
+    "sur": "\u53e3\u696d",
+    "pron": "\u30af\u30b4\u30aa",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u8eab\u53e3\u610f",
+    "pron": "\u30b7\u30f3\u30af\u30a4",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u4e09\u696d",
+    "pron": "\u30b5\u30f3\u30b4\u30aa",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u898b",
+    "pron": "\u30b7\u30e7\u30aa\u30b1\u30f3",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u601d\u60df",
+    "pron": "\u30b7\u30e7\u30aa\u30b7\u30e6\u30a4",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u8a9e",
+    "pron": "\u30b7\u30e7\u30aa\u30b4",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u696d",
+    "pron": "\u30b7\u30e7\u30aa\u30b4\u30aa",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u547d",
+    "pron": "\u30b7\u30e7\u30aa\u30df\u30e7\u30aa",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u7cbe\u9032",
+    "pron": "\u30b7\u30e7\u30aa\u30b7\u30e7\u30aa\u30b8\u30f3",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u5ff5",
+    "pron": "\u30b7\u30e7\u30aa\u30cd\u30f3",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u6b63\u5b9a",
+    "pron": "\u30b7\u30e7\u30aa\u30b8\u30e7\u30aa",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u7e01\u8d77",
+    "pron": "\u30a8\u30f3\u30ae",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u56e0\u679c",
+    "pron": "\u30a4\u30f3\u30ac",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u672c\u80fd\u5bfa",
+    "pron": "\u30db\u30f3\u30ce\u30aa\u30b8",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u672c\u80fd\u5bfa\u306e\u5909",
+    "pron": "\u30db\u30f3\u30ce\u30aa\u30b8\u30ce\u30d8\u30f3",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u5929\u6b63",
+    "pron": "\u30c6\u30f3\u30b7\u30e7\u30aa",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u4e39\u6ce2\u56fd",
+    "pron": "\u30bf\u30f3\u30d0\u30ce\u30af\u30cb",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u4fe1\u9577\u516c\u8a18",
+    "pron": "\u30b7\u30f3\u30c1\u30e7\u30aa\u30b3\u30aa\u30ad",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u30a4\u30a8\u30ba\u30b9\u4f1a",
+    "pron": "\u30a4\u30a8\u30ba\u30b9\u30ab\u30a4",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u5ba3\u6559\u5e2b",
+    "pron": "\u30bb\u30f3\u30ad\u30e7\u30aa\u30b7",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u4e00\u30f6\u6708",
+    "pron": "\u30a4\u30c3\u30ab\u30b2\u30c4",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u7e54\u7530",
+    "pron": "\u30aa\u30c0",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u4fe1\u9577",
+    "pron": "\u30ce\u30d6\u30ca\u30ac",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u7e54\u7530\u4fe1\u9577",
+    "pron": "\u30aa\u30c0\u30ce\u30d6\u30ca\u30ac",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u660e\u667a",
+    "pron": "\u30a2\u30b1\u30c1",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u5149\u79c0",
+    "pron": "\u30df\u30c4\u30d2\u30c7",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u660e\u667a\u5149\u79c0",
+    "pron": "\u30a2\u30b1\u30c1\u30df\u30c4\u30d2\u30c7",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u5fb3\u5ddd",
+    "pron": "\u30c8\u30af\u30ac\u30ef",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u5bb6\u5eb7",
+    "pron": "\u30a4\u30a8\u30e4\u30b9",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u5fb3\u5ddd\u5bb6\u5eb7",
+    "pron": "\u30c8\u30af\u30ac\u30ef\u30a4\u30a8\u30e4\u30b9",
+    "pos": "Japanese_Koyuumeishi_jinmei",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
+  },
+  {
+    "sur": "\u4f55\u5343",
+    "pron": "\u30ca\u30f3\u30bc\u30f3",
+    "pos": "Japanese_Futsuu_meishi",
+    "priority": 10,
+    "accentType": 0,
+    "lang": "ja"
   }
 ]

@@ -173,6 +173,46 @@ def _lease_expired(obj: Dict[str, Any], *, now: float) -> bool:
     return float(exp) <= now
 
 
+def _pid_alive(pid: int) -> bool:
+    """
+    Best-effort liveness check for local processes.
+    Returns True when the PID exists (even if we lack permission), otherwise False.
+    """
+    try:
+        pid_i = int(pid)
+    except Exception:
+        return False
+    if pid_i <= 1:
+        return False
+    try:
+        os.kill(pid_i, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except Exception:
+        # Unknown platforms / transient errors: assume alive to avoid stealing leases.
+        return True
+    return True
+
+
+def _lease_owner_dead(obj: Dict[str, Any]) -> bool:
+    """
+    Treat a lease as stale when:
+    - it is owned by a PID on *this host*, and
+    - that PID is no longer alive.
+    """
+    if not isinstance(obj, dict):
+        return False
+    host = str(obj.get("host") or "").strip()
+    if host and host != socket.gethostname():
+        return False
+    pid = obj.get("pid")
+    if not isinstance(pid, int):
+        return False
+    return not _pid_alive(pid)
+
+
 def _agent_name() -> str:
     return (
         (os.getenv("LLM_AGENT_NAME") or "").strip()
@@ -273,7 +313,7 @@ def _try_acquire_lease(
         fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     except FileExistsError:
         obj = _read_json(path)
-        if isinstance(obj, dict) and not _lease_expired(obj, now=now):
+        if isinstance(obj, dict) and not _lease_expired(obj, now=now) and not _lease_owner_dead(obj):
             return None
         # stale → reclaim
         try:

@@ -283,7 +283,19 @@ def _replace_voiceover(script: draft.Script_file, draft_dir: Path, wav_path: Pat
     audio_dir = draft_dir / "materials" / "audio"
     audio_dir.mkdir(parents=True, exist_ok=True)
     voice_dest = audio_dir / wav_path.name
-    shutil.copy2(wav_path, voice_dest)
+    need_copy = True
+    if voice_dest.exists():
+        try:
+            if os.path.samefile(wav_path, voice_dest):
+                need_copy = False
+        except Exception:
+            try:
+                if wav_path.resolve() == voice_dest.resolve():
+                    need_copy = False
+            except Exception:
+                need_copy = True
+    if need_copy:
+        shutil.copy2(wav_path, voice_dest)
 
     voice_track = "voiceover"
     voice_index = _compute_audio_voice_index_below_bgm(draft_dir, fallback=10)

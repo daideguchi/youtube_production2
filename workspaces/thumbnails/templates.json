@@ -329,6 +329,51 @@
         }
       ]
     },
+    "CH09": {
+      "default_template_id": "ch09_background_dark_portrait_v1",
+      "layer_specs": {
+        "image_prompts_id": "ch26_image_prompts_ijin_v1",
+        "text_layout_id": "ch26_text_layout_ijin_v1"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.15,
+          "contrast": 1.08,
+          "color": 1.04,
+          "gamma": 0.92
+        },
+        "bg_pan_zoom": {
+          "zoom": 1.0,
+          "pan_x": 0.0,
+          "pan_y": 0.0
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH09: 不動の指針（CH26-like）v1",
+        "benchmark_path": null,
+        "preview_upper": "結論、迷うな",
+        "preview_title": null,
+        "preview_lower": null
+      },
+      "templates": [
+        {
+          "id": "ch09_background_dark_portrait_v1",
+          "name": "CH09: 背景生成（暗背景・中央肖像・上下余白/ビネット・NO WORDS）v1",
+          "image_model_key": "img-flux-max-1",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n超リアルな実写・写真風の偉人肖像（フォトリアル、シネマティック、シャープ）。顔は暗すぎず、目にキャッチライト。人物の顔が主役。人物は中央〜やや左寄りに大きく（胸上〜上半身）。人物の背後に薄い円形スポットライト/リムライトを控えめに。上部と下部は文字合成のため情報量を落とし、自然な暗めの余白/ビネットで読めるスペースを作る（帯のような均一な黒い矩形やはっきりした水平帯は作らない）。\\n\\n{{thumbnail_prompt}}\\n\\n※英字/日本語などの単語・文章（キャプション/字幕/ラベル/署名/ロゴ/透かし/UI）を絶対に描かない。数字/数式/記号は薄く入れてよい。\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、看板の文字、署名、読める本の文字",
+          "notes": "CH09はCH26寄せ（上白/下赤テンプレを想定）。背景は暗基調＋中央肖像＋自然な上下余白/ビネット（帯は作らない）で統一。",
+          "created_at": "2026-01-08T00:00:00Z",
+          "updated_at": "2026-01-08T00:00:00Z"
+        }
+      ]
+    },
     "CH10": {
       "default_template_id": "ch10_background_left_space_v3",
       "layer_specs": {

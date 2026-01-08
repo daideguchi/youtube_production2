@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "fetched_at": "2025-12-29T00:17:37.578030+00:00",
-  "playlist_end": 120,
+  "fetched_at": "2026-01-08T10:04:48.304397+00:00",
+  "playlist_end": 80,
   "channel": {
     "playlist_channel_id": "UCeUpwmP1xKY2Tgc8qH-I0Tw",
     "playlist_uploader_id": "@前略偉人より",
@@ -11,596 +11,659 @@
   },
   "videos": [
     {
+      "id": "RXVWniiSjWA",
+      "title": "【現実は行動で作れない】意識の位置が現実を決める｜デヴィッド・R・ホーキンズ",
+      "url": "https://www.youtube.com/watch?v=RXVWniiSjWA",
+      "duration_sec": 2023.0,
+      "view_count": 2813,
+      "thumbnail_url": "https://i.ytimg.com/vi/RXVWniiSjWA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDLR09LA8ROmeUO_CeiUMnSc_pE1g",
+      "playlist_index": 1
+    },
+    {
+      "id": "yFGlnya_7rs",
+      "title": "【岡潔流】賢さの正体は「違和感」を拾う力にある",
+      "url": "https://www.youtube.com/watch?v=yFGlnya_7rs",
+      "duration_sec": 2408.0,
+      "view_count": 4717,
+      "thumbnail_url": "https://i.ytimg.com/vi/yFGlnya_7rs/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDyRrFLl9QtBYHq0AU40WdKW_vVPQ",
+      "playlist_index": 2
+    },
+    {
+      "id": "9r3zYxwvCSE",
+      "title": "【IQ300ノイマン】成功者は“決める順番”を逆にする",
+      "url": "https://www.youtube.com/watch?v=9r3zYxwvCSE",
+      "duration_sec": 2611.0,
+      "view_count": 10821,
+      "thumbnail_url": "https://i.ytimg.com/vi/9r3zYxwvCSE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDfv4eQl7Ln-9CqiljLy057F1-_aQ",
+      "playlist_index": 3
+    },
+    {
+      "id": "mwQD6AzgUbU",
+      "title": "【IQ300ノイマン】集中できない本当の理由。消すべきものは7つある",
+      "url": "https://www.youtube.com/watch?v=mwQD6AzgUbU",
+      "duration_sec": 1210.0,
+      "view_count": 3099,
+      "thumbnail_url": "https://i.ytimg.com/vi/mwQD6AzgUbU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBkCs6ahL-nSNl7vsXiUzkiGfwzwA",
+      "playlist_index": 4
+    },
+    {
+      "id": "LoMO2jioGdg",
+      "title": "【ニコラ・テスラ流】本当の変化は“行動”ではなく“視点”から始まる",
+      "url": "https://www.youtube.com/watch?v=LoMO2jioGdg",
+      "duration_sec": 1299.0,
+      "view_count": 1234,
+      "thumbnail_url": "https://i.ytimg.com/vi/LoMO2jioGdg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB6XexVtLJOe34UfJdc2u3fkvtuKQ",
+      "playlist_index": 5
+    },
+    {
+      "id": "gcbBM0cFBvY",
+      "title": "【IQ300ノイマン】一点集中が最大の成果を生む本当の理由",
+      "url": "https://www.youtube.com/watch?v=gcbBM0cFBvY",
+      "duration_sec": 1249.0,
+      "view_count": 3941,
+      "thumbnail_url": "https://i.ytimg.com/vi/gcbBM0cFBvY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBuFt1kXwctR57N8_8E7R9zigYrsA",
+      "playlist_index": 6
+    },
+    {
+      "id": "BCQnUYukqpk",
+      "title": "【デヴィッド・R・ホーキンズ】周波数が上がると世界が変わる理由。現実を軽くする意識状態",
+      "url": "https://www.youtube.com/watch?v=BCQnUYukqpk",
+      "duration_sec": 1675.0,
+      "view_count": 3681,
+      "thumbnail_url": "https://i.ytimg.com/vi/BCQnUYukqpk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBv9GDQ8eczt-3AYocR5s_tlS9Pug",
+      "playlist_index": 7
+    },
+    {
       "id": "jDcL36UoC30",
       "title": "【岡潔流】正解を集めても賢くならない。本質は「問いの質」にある",
       "url": "https://www.youtube.com/watch?v=jDcL36UoC30",
       "duration_sec": 1201.0,
-      "view_count": 1940,
+      "view_count": 16238,
       "thumbnail_url": "https://i.ytimg.com/vi/jDcL36UoC30/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDQK88ACZ6WrisikhSOBzrdBvwxzA",
-      "playlist_index": 1
+      "playlist_index": 8
     },
     {
       "id": "53yF28-Zyus",
       "title": "【IQ300ノイマン】成功は“正解”より“仕組み”で決まる",
       "url": "https://www.youtube.com/watch?v=53yF28-Zyus",
       "duration_sec": 1237.0,
-      "view_count": 5222,
+      "view_count": 13102,
       "thumbnail_url": "https://i.ytimg.com/vi/53yF28-Zyus/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA5da2ww7eraqFy-QFqCJpkFMuqew",
-      "playlist_index": 2
+      "playlist_index": 9
     },
     {
       "id": "nIsNn8T8PrA",
       "title": "【ショーペンハウアー】幸福を諦めることが最も幸福である理由",
       "url": "https://www.youtube.com/watch?v=nIsNn8T8PrA",
       "duration_sec": 1664.0,
-      "view_count": 702,
+      "view_count": 1196,
       "thumbnail_url": "https://i.ytimg.com/vi/nIsNn8T8PrA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAqcybqChxh3qFuV4uVY-h9IuB82A",
-      "playlist_index": 3
+      "playlist_index": 10
     },
     {
       "id": "x0Yt5Cg1ufk",
       "title": "【今の周波数を知る】周波数は「言葉」に現れる｜デヴィッド・R・ホーキンズ",
       "url": "https://www.youtube.com/watch?v=x0Yt5Cg1ufk",
       "duration_sec": 1400.0,
-      "view_count": 1854,
+      "view_count": 2775,
       "thumbnail_url": "https://i.ytimg.com/vi/x0Yt5Cg1ufk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBOtU3Z4IyxBPJsuKiv8m-Fz7U2CA",
-      "playlist_index": 4
+      "playlist_index": 11
     },
     {
       "id": "rlChVQasCtE",
       "title": "【IQ300ノイマン】迷ったときに絶対やってはいけない7つのこと",
       "url": "https://www.youtube.com/watch?v=rlChVQasCtE",
       "duration_sec": 1354.0,
-      "view_count": 4295,
+      "view_count": 5025,
       "thumbnail_url": "https://i.ytimg.com/vi/rlChVQasCtE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA8lhqx_Y1Z5MSOtrKpAwJNSgZu3w",
-      "playlist_index": 5
+      "playlist_index": 12
     },
     {
       "id": "_9MDX2One3E",
       "title": "【ニコラ・テスラ流】朝の周波数を整える3分習慣",
       "url": "https://www.youtube.com/watch?v=_9MDX2One3E",
       "duration_sec": 1686.0,
-      "view_count": 919,
+      "view_count": 1222,
       "thumbnail_url": "https://i.ytimg.com/vi/_9MDX2One3E/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA-6Tqe19KAGO64xUwpQzMiaJzMvw",
-      "playlist_index": 6
+      "playlist_index": 13
     },
     {
       "id": "LAX5C60mNSU",
       "title": "【IQ300ノイマン】失敗の原因は選択ではなく前提にある",
       "url": "https://www.youtube.com/watch?v=LAX5C60mNSU",
       "duration_sec": 1367.0,
-      "view_count": 5994,
+      "view_count": 7207,
       "thumbnail_url": "https://i.ytimg.com/vi/LAX5C60mNSU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCN4SDeZv7cicRIerIzR5zNYp69oA",
-      "playlist_index": 7
+      "playlist_index": 14
     },
     {
       "id": "9uksKZO7bfY",
       "title": "【ニコラ・テスラ】やることを半分にしても成果が伸びる理由",
       "url": "https://www.youtube.com/watch?v=9uksKZO7bfY",
       "duration_sec": 1145.0,
-      "view_count": 4844,
+      "view_count": 5194,
       "thumbnail_url": "https://i.ytimg.com/vi/9uksKZO7bfY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCXnb9IcwtE9NudoNgeKDPs7EexMA",
-      "playlist_index": 8
+      "playlist_index": 15
     },
     {
       "id": "-I68HvisPxY",
       "title": "【IQ300ノイマン】結論、成果を最大化するための思考法",
       "url": "https://www.youtube.com/watch?v=-I68HvisPxY",
       "duration_sec": 1251.0,
-      "view_count": 23632,
+      "view_count": 25680,
       "thumbnail_url": "https://i.ytimg.com/vi/-I68HvisPxY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBpAQ-zgTlRDPFWmiYEHeqLi2CmxQ",
-      "playlist_index": 9
+      "playlist_index": 16
     },
     {
       "id": "x33NBSfObTE",
       "title": "【ニコラ・テスラ】人生を一瞬で変える調律の法則",
       "url": "https://www.youtube.com/watch?v=x33NBSfObTE",
       "duration_sec": 1067.0,
-      "view_count": 1260,
+      "view_count": 1382,
       "thumbnail_url": "https://i.ytimg.com/vi/x33NBSfObTE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCYK6GBN_742ZLOpZX6hi43XoMCXA",
-      "playlist_index": 10
+      "playlist_index": 17
     },
     {
       "id": "bI8KxZP_tZQ",
       "title": "【デヴィッド・R・ホーキンズ】脱力こそ最強の意識状態である",
       "url": "https://www.youtube.com/watch?v=bI8KxZP_tZQ",
       "duration_sec": 1277.0,
-      "view_count": 22163,
+      "view_count": 26073,
       "thumbnail_url": "https://i.ytimg.com/vi/bI8KxZP_tZQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAMbVFSY51UqbFf9V8Y7ehqa-F9Dg",
-      "playlist_index": 11
+      "playlist_index": 18
     },
     {
       "id": "vQFdp8jAkwg",
       "title": "【IQ300ノイマン流】99％は捨てよ、本当にやることは1%しかない",
       "url": "https://www.youtube.com/watch?v=vQFdp8jAkwg",
       "duration_sec": 1252.0,
-      "view_count": 17263,
+      "view_count": 19497,
       "thumbnail_url": "https://i.ytimg.com/vi/vQFdp8jAkwg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB6YhC1e-cGDllhPYhf0io7oiww8g",
-      "playlist_index": 12
+      "playlist_index": 19
     },
     {
       "id": "q30pWvTCFF4",
       "title": "【岡潔流】本当に頭がいい人は情報を減らしている",
       "url": "https://www.youtube.com/watch?v=q30pWvTCFF4",
       "duration_sec": 2050.0,
-      "view_count": 54453,
+      "view_count": 68714,
       "thumbnail_url": "https://i.ytimg.com/vi/q30pWvTCFF4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBbRB15-VyE7XSH4m395GQLPygZdw",
-      "playlist_index": 13
+      "playlist_index": 20
     },
     {
       "id": "tusIF1yhmYI",
       "title": "【ニコラ・テスラ】集中力が上がる「今日やる3つ」の法則",
       "url": "https://www.youtube.com/watch?v=tusIF1yhmYI",
       "duration_sec": 1486.0,
-      "view_count": 9890,
+      "view_count": 10242,
       "thumbnail_url": "https://i.ytimg.com/vi/tusIF1yhmYI/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBnEycDbn8YwKtLf4qJ8RH6LOeqow",
-      "playlist_index": 14
+      "playlist_index": 21
     },
     {
       "id": "Slo9fuYoaC4",
       "title": "【ニコラ・テスラ】周波数と音の違いが世界を創造している",
       "url": "https://www.youtube.com/watch?v=Slo9fuYoaC4",
       "duration_sec": 1665.0,
-      "view_count": 5509,
+      "view_count": 5820,
       "thumbnail_url": "https://i.ytimg.com/vi/Slo9fuYoaC4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDgI2d-ZGmNLMT3TC_4ynbpXFnh2A",
-      "playlist_index": 15
+      "playlist_index": 22
     },
     {
       "id": "PWsjW8bFaLw",
       "title": "無意識に運を下げている7つの口癖｜デヴィッド・R・ホーキンズ",
       "url": "https://www.youtube.com/watch?v=PWsjW8bFaLw",
       "duration_sec": 1506.0,
-      "view_count": 3175,
+      "view_count": 3756,
       "thumbnail_url": "https://i.ytimg.com/vi/PWsjW8bFaLw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDCiEqxYYAYUdidOw3V4jEVFr6YFw",
-      "playlist_index": 16
+      "playlist_index": 23
     },
     {
       "id": "Gy_N1T4RDlI",
       "title": "【IQ300ノイマン流】成果は足し算ではなく引き算から生まれる",
       "url": "https://www.youtube.com/watch?v=Gy_N1T4RDlI",
       "duration_sec": 1537.0,
-      "view_count": 48401,
+      "view_count": 52313,
       "thumbnail_url": "https://i.ytimg.com/vi/Gy_N1T4RDlI/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLACM9eG7CgZP95wgO5-ZbWo7Yqq3A",
-      "playlist_index": 17
+      "playlist_index": 24
     },
     {
       "id": "HO9M_CidNSk",
       "title": "【ニコラ・テスラ流】頑張るのをやめて「整える」だけで結果が出る思考術",
       "url": "https://www.youtube.com/watch?v=HO9M_CidNSk",
       "duration_sec": 1367.0,
-      "view_count": 5219,
+      "view_count": 5401,
       "thumbnail_url": "https://i.ytimg.com/vi/HO9M_CidNSk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLD9xH05emHLFKXbI9PKVDXrtTCJXg",
-      "playlist_index": 18
+      "playlist_index": 25
     },
     {
       "id": "4zOP2mo0rcQ",
       "title": "【今の周波数を知る】意識レベルを確かめる方法｜デヴィッド・R・ホーキンズ",
       "url": "https://www.youtube.com/watch?v=4zOP2mo0rcQ",
       "duration_sec": 1362.0,
-      "view_count": 43217,
+      "view_count": 50881,
       "thumbnail_url": "https://i.ytimg.com/vi/4zOP2mo0rcQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC9A_QTjA5ROV2XvEc2hyU3u8FjmQ",
-      "playlist_index": 19
+      "playlist_index": 26
     },
     {
       "id": "deX_KcPZmaw",
       "title": "【ニコラ・テスラ流】物事の本質を捉えるための思考法",
       "url": "https://www.youtube.com/watch?v=deX_KcPZmaw",
       "duration_sec": 1434.0,
-      "view_count": 4140,
+      "view_count": 4249,
       "thumbnail_url": "https://i.ytimg.com/vi/deX_KcPZmaw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA_LvIrA-Xy9nLyWJ7K7Bg3Fjjb8Q",
-      "playlist_index": 20
+      "playlist_index": 27
     },
     {
       "id": "XRyvx2DCA30",
       "title": "【岡潔流】賢さは知識量でなく心の軸で決まる",
       "url": "https://www.youtube.com/watch?v=XRyvx2DCA30",
       "duration_sec": 1508.0,
-      "view_count": 3962,
+      "view_count": 4692,
       "thumbnail_url": "https://i.ytimg.com/vi/XRyvx2DCA30/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLADjq0MD_ojlQXUjth2HhypT1M4uw",
-      "playlist_index": 21
+      "playlist_index": 28
     },
     {
       "id": "FH-8cOR9SDg",
       "title": "【ニコラ・テスラ流】周波数は嘘をつかない、現実を変える意識の法則",
       "url": "https://www.youtube.com/watch?v=FH-8cOR9SDg",
       "duration_sec": 1461.0,
-      "view_count": 1943,
+      "view_count": 2011,
       "thumbnail_url": "https://i.ytimg.com/vi/FH-8cOR9SDg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCnlf2Qqv4m6EkLy8D7e6_j1QlETw",
-      "playlist_index": 22
+      "playlist_index": 29
     },
     {
       "id": "QAkv6WHXMo4",
       "title": "【岡潔】迷いが消えない本当の理由は心の使い方にある",
       "url": "https://www.youtube.com/watch?v=QAkv6WHXMo4",
       "duration_sec": 1571.0,
-      "view_count": 1462,
+      "view_count": 1907,
       "thumbnail_url": "https://i.ytimg.com/vi/QAkv6WHXMo4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBjmkVqNTcsZxPWfxzZP7PB9qSsNA",
-      "playlist_index": 23
+      "playlist_index": 30
     },
     {
       "id": "Bi6MqP9gu48",
       "title": "【ニコラ・テスラ流】行動を減らして結果を出すための思考術",
       "url": "https://www.youtube.com/watch?v=Bi6MqP9gu48",
       "duration_sec": 1228.0,
-      "view_count": 11337,
+      "view_count": 11563,
       "thumbnail_url": "https://i.ytimg.com/vi/Bi6MqP9gu48/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBshjQUY6um76C5A3qRGeWV0y0g1g",
-      "playlist_index": 24
+      "playlist_index": 31
     },
     {
       "id": "wT9q4Ki8JpQ",
       "title": "【人生は無意味】この事実が生きる唯一の理由になる｜エミール・シオラン",
       "url": "https://www.youtube.com/watch?v=wT9q4Ki8JpQ",
       "duration_sec": 1378.0,
-      "view_count": 4607,
+      "view_count": 4865,
       "thumbnail_url": "https://i.ytimg.com/vi/wT9q4Ki8JpQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCjxIOIBQhFhER1wkLo2NIKEWWuVA",
-      "playlist_index": 25
+      "playlist_index": 32
     },
     {
       "id": "_DTLiXppw00",
       "title": "【ニコラ・テスラ流】一つの問いで現実を動かす思考術",
       "url": "https://www.youtube.com/watch?v=_DTLiXppw00",
       "duration_sec": 1395.0,
-      "view_count": 2997,
+      "view_count": 3039,
       "thumbnail_url": "https://i.ytimg.com/vi/_DTLiXppw00/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBQwgfGgwROB9BvnGru2RpNwUUZxg",
-      "playlist_index": 26
+      "playlist_index": 33
     },
     {
       "id": "8jp6Et7VYVE",
       "title": "【ショーペンハウアー】幸せになるのに友達は必要ない理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=8jp6Et7VYVE",
       "duration_sec": 1590.0,
-      "view_count": 3298,
+      "view_count": 3587,
       "thumbnail_url": "https://i.ytimg.com/vi/8jp6Et7VYVE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA3nD1gIBhpbBOE5rc1v27EgWez4A",
-      "playlist_index": 27
+      "playlist_index": 34
     },
     {
       "id": "OXFCFaYLSMs",
       "title": "【岡潔流】どれだけ悩んでも答えは同じである理由",
       "url": "https://www.youtube.com/watch?v=OXFCFaYLSMs",
       "duration_sec": 1568.0,
-      "view_count": 3880,
+      "view_count": 4519,
       "thumbnail_url": "https://i.ytimg.com/vi/OXFCFaYLSMs/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBHLzV8azZ-ehMM9SHn2j0klQF1jQ",
-      "playlist_index": 28
+      "playlist_index": 35
     },
     {
       "id": "P-ddTKqOlUE",
       "title": "【思考を整える】考えすぎをリセットし思考を整理する方法｜アドラー心理学",
       "url": "https://www.youtube.com/watch?v=P-ddTKqOlUE",
       "duration_sec": 1658.0,
-      "view_count": 979,
+      "view_count": 1024,
       "thumbnail_url": "https://i.ytimg.com/vi/P-ddTKqOlUE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA3rV2JHrDqPKsr-6gWMM4Y21Wecg",
-      "playlist_index": 29
+      "playlist_index": 36
     },
     {
       "id": "CLyi_naHABE",
       "title": "【人生の短さについて】悔いのない人生を送るための考え方｜セネカ",
       "url": "https://www.youtube.com/watch?v=CLyi_naHABE",
       "duration_sec": 1455.0,
-      "view_count": 5392,
+      "view_count": 5467,
       "thumbnail_url": "https://i.ytimg.com/vi/CLyi_naHABE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCI49NVbZ5LLvtzWPcYByO_lBzMOA",
-      "playlist_index": 30
+      "playlist_index": 37
     },
     {
       "id": "3_BEOakI3dw",
       "title": "【思考の扱い方】複雑な問題を単純化する思考術｜ ニコラ・テスラ",
       "url": "https://www.youtube.com/watch?v=3_BEOakI3dw",
       "duration_sec": 1569.0,
-      "view_count": 6171,
+      "view_count": 6298,
       "thumbnail_url": "https://i.ytimg.com/vi/3_BEOakI3dw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAR_wLgIXrBqBEyQ0MKx0b3mEMtqQ",
-      "playlist_index": 31
+      "playlist_index": 38
     },
     {
       "id": "1awqBX7EDE8",
       "title": "【ニコラテスラ流】思考停止に入る直前の変化を見抜く方法｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=1awqBX7EDE8",
       "duration_sec": 1845.0,
-      "view_count": 3419,
+      "view_count": 3476,
       "thumbnail_url": "https://i.ytimg.com/vi/1awqBX7EDE8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDA8XSny8pObnFuRNtJHD2AQSQkiA",
-      "playlist_index": 32
+      "playlist_index": 39
     },
     {
       "id": "tnkmXPlzMZU",
       "title": "【岡潔流】考える量と賢さは無関係である理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=tnkmXPlzMZU",
       "duration_sec": 1360.0,
-      "view_count": 27910,
+      "view_count": 30274,
       "thumbnail_url": "https://i.ytimg.com/vi/tnkmXPlzMZU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDGGMY5AsxzPigtfTh1p_F4mZvWmQ",
-      "playlist_index": 33
+      "playlist_index": 40
     },
     {
       "id": "_MGoJ_zdFH0",
       "title": "成果は速度ではなく深度で決まる｜ニコラ・テスラ",
       "url": "https://www.youtube.com/watch?v=_MGoJ_zdFH0",
       "duration_sec": 1459.0,
-      "view_count": 5724,
+      "view_count": 5899,
       "thumbnail_url": "https://i.ytimg.com/vi/_MGoJ_zdFH0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDrTY1V5Vq8f7M9jLhjKiFnm_z5rA",
-      "playlist_index": 34
+      "playlist_index": 41
     },
     {
       "id": "eUEmCPMyihQ",
       "title": "【周波数は嘘をつかない】現実を作る意識の法則｜デヴィッド・R・ホーキンズ",
       "url": "https://www.youtube.com/watch?v=eUEmCPMyihQ",
       "duration_sec": 1517.0,
-      "view_count": 26118,
+      "view_count": 27199,
       "thumbnail_url": "https://i.ytimg.com/vi/eUEmCPMyihQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB6fkcdO2-d9sGqpM3lzQM9x2IqIw",
-      "playlist_index": 35
+      "playlist_index": 42
     },
     {
       "id": "UaOK4Er86GI",
       "title": "【ニコラテスラ流】心臓が止まっても君が消えない理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=UaOK4Er86GI",
       "duration_sec": 1315.0,
-      "view_count": 6417,
+      "view_count": 6507,
       "thumbnail_url": "https://i.ytimg.com/vi/UaOK4Er86GI/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAp5B98tWbE0zNwQBW5FzUV1EVk6A",
-      "playlist_index": 36
+      "playlist_index": 43
     },
     {
       "id": "BoCukqxML50",
       "title": "【ラッセル流】忙しさの中で自分の軸を整える方法｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=BoCukqxML50",
       "duration_sec": 1261.0,
-      "view_count": 6381,
+      "view_count": 6704,
       "thumbnail_url": "https://i.ytimg.com/vi/BoCukqxML50/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBaGlFzsADic26VGjYJgwowe1MPYg",
-      "playlist_index": 37
+      "playlist_index": 44
     },
     {
       "id": "6UKxgK_Fyyg",
       "title": "【岡潔流】賢さの本質は「感じながら考える力」にある｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=6UKxgK_Fyyg",
       "duration_sec": 1296.0,
-      "view_count": 24473,
+      "view_count": 27092,
       "thumbnail_url": "https://i.ytimg.com/vi/6UKxgK_Fyyg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDGIFZ2dU09ZRn7hudWqczvbgVb9Q",
-      "playlist_index": 38
+      "playlist_index": 45
     },
     {
       "id": "kxNX0efoSMA",
       "title": "【岡本太郎流】削ることが人生の本質である理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=kxNX0efoSMA",
       "duration_sec": 1198.0,
-      "view_count": 5629,
+      "view_count": 5703,
       "thumbnail_url": "https://i.ytimg.com/vi/kxNX0efoSMA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDNWSkRuzoGPQiIQhE3QbsyIqCWuA",
-      "playlist_index": 39
+      "playlist_index": 46
     },
     {
       "id": "Ik4Mind17Cw",
       "title": "【ニコラテスラ流】一日の思考を一点に集める思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=Ik4Mind17Cw",
       "duration_sec": 1459.0,
-      "view_count": 10814,
+      "view_count": 10958,
       "thumbnail_url": "https://i.ytimg.com/vi/Ik4Mind17Cw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAgJDnrrayUsk-vCgfTd_S7plVqHA",
-      "playlist_index": 40
+      "playlist_index": 47
     },
     {
       "id": "yLbj92BflSk",
       "title": "【ショーペンハウアー流】年齢を重ねて気づいた幸福の本質｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=yLbj92BflSk",
       "duration_sec": 1406.0,
-      "view_count": 20165,
+      "view_count": 20624,
       "thumbnail_url": "https://i.ytimg.com/vi/yLbj92BflSk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCAMEBfoxQUbHoJK9TDVtblkDRZYQ",
-      "playlist_index": 41
+      "playlist_index": 48
     },
     {
       "id": "QDWXqS214vs",
       "title": "【岡本太郎流】人に好かれても良いことなんてない理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=QDWXqS214vs",
       "duration_sec": 1322.0,
-      "view_count": 5233,
+      "view_count": 5301,
       "thumbnail_url": "https://i.ytimg.com/vi/QDWXqS214vs/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBn0_Hi0d8OR0NSdS9mXPVRTniGBA",
-      "playlist_index": 42
+      "playlist_index": 49
     },
     {
       "id": "8hoBigNTO3A",
       "title": "【ニコラテスラ流】少ない行動で結果を出す思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=8hoBigNTO3A",
       "duration_sec": 1442.0,
-      "view_count": 30284,
+      "view_count": 30733,
       "thumbnail_url": "https://i.ytimg.com/vi/8hoBigNTO3A/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDUPVZ3rmCPUYp-4ebhpL6JhE09LA",
-      "playlist_index": 43
+      "playlist_index": 50
     },
     {
       "id": "sUK6HmZUArw",
       "title": "【宮沢賢治流】力を抜いた人が最後に勝つ理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=sUK6HmZUArw",
       "duration_sec": 1493.0,
-      "view_count": 6747,
+      "view_count": 6814,
       "thumbnail_url": "https://i.ytimg.com/vi/sUK6HmZUArw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA0i4r2S-pXRADsLSWXrSZH_4aX7g",
-      "playlist_index": 44
+      "playlist_index": 51
     },
     {
       "id": "8bUgsWChVQ8",
       "title": "【岡本太郎流】「未完成なまま動く人」が結局すべてを手にする理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=8bUgsWChVQ8",
       "duration_sec": 1272.0,
-      "view_count": 2090,
+      "view_count": 2125,
       "thumbnail_url": "https://i.ytimg.com/vi/8bUgsWChVQ8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDgntNjxMMKkaT2dVs5mIFsjUQaqA",
-      "playlist_index": 45
+      "playlist_index": 52
     },
     {
       "id": "Q77aNjkl-U4",
       "title": "【ニコラ・テスラ流】考えない時間が成果を生む思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=Q77aNjkl-U4",
       "duration_sec": 1401.0,
-      "view_count": 16520,
+      "view_count": 16675,
       "thumbnail_url": "https://i.ytimg.com/vi/Q77aNjkl-U4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDQiQwbnflTOjnn15cle0rQD6WiKw",
-      "playlist_index": 46
+      "playlist_index": 53
     },
     {
       "id": "8STTlbTQd-A",
       "title": "【岡潔流】本当に頭がいい人は速さより深さを大事にする理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=8STTlbTQd-A",
       "duration_sec": 1362.0,
-      "view_count": 30950,
+      "view_count": 31407,
       "thumbnail_url": "https://i.ytimg.com/vi/8STTlbTQd-A/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC17oeSI5N8TYpyVdz970eQ_m1YDQ",
-      "playlist_index": 47
+      "playlist_index": 54
     },
     {
       "id": "_ZQrIWL9VmQ",
       "title": "【アルベール・カミュ流】人生に意味や目的がなくても良い理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=_ZQrIWL9VmQ",
       "duration_sec": 1265.0,
-      "view_count": 2290,
+      "view_count": 2317,
       "thumbnail_url": "https://i.ytimg.com/vi/_ZQrIWL9VmQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDR6-HxDRoSBxItIliQ6ofaRsGlgQ",
-      "playlist_index": 48
+      "playlist_index": 55
     },
     {
       "id": "w3z9BQ9otBE",
       "title": "【岡本太郎流】嫌われる勇気より「見せる勇気」が人生を変える理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=w3z9BQ9otBE",
       "duration_sec": 1388.0,
-      "view_count": 2765,
+      "view_count": 2797,
       "thumbnail_url": "https://i.ytimg.com/vi/w3z9BQ9otBE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBg8aq2gIvpJwDVRC7WuwxsUSIV7Q",
-      "playlist_index": 49
+      "playlist_index": 56
     },
     {
       "id": "CJptk9OhmEs",
       "title": "【ニコラ・テスラ流】知識を増やすほど思考が鈍くなる理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=CJptk9OhmEs",
       "duration_sec": 1401.0,
-      "view_count": 9974,
+      "view_count": 10071,
       "thumbnail_url": "https://i.ytimg.com/vi/CJptk9OhmEs/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLD6Deh8iWBwmttvdPjJSQXv3sdcgw",
-      "playlist_index": 50
+      "playlist_index": 57
     },
     {
       "id": "6ILO-nJSSsY",
       "title": "【ショーペンハウアー流】年齢を重ねるほど孤独が幸福をもたらす理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=6ILO-nJSSsY",
       "duration_sec": 1411.0,
-      "view_count": 49599,
+      "view_count": 50246,
       "thumbnail_url": "https://i.ytimg.com/vi/6ILO-nJSSsY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCe9LnW5su1-65HA663knw3RbYhdA",
-      "playlist_index": 51
+      "playlist_index": 58
     },
     {
       "id": "ZIWvLIkkRsE",
       "title": "【ニコラ・テスラ流】常識を超えて考える力を磨く思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=ZIWvLIkkRsE",
       "duration_sec": 1634.0,
-      "view_count": 26196,
+      "view_count": 26396,
       "thumbnail_url": "https://i.ytimg.com/vi/ZIWvLIkkRsE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA5Ea8zBQSpOQvK_ZFI92AEa0wdJA",
-      "playlist_index": 52
+      "playlist_index": 59
     },
     {
       "id": "K5wgLnRFZ44",
       "title": "【岡本太郎流】凡人が天才に勝てるたった一つの理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=K5wgLnRFZ44",
       "duration_sec": 1352.0,
-      "view_count": 14304,
+      "view_count": 14402,
       "thumbnail_url": "https://i.ytimg.com/vi/K5wgLnRFZ44/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDo2HjWFTREfODkVgi64GsLKJNJTQ",
-      "playlist_index": 53
+      "playlist_index": 60
     },
     {
       "id": "VbyyBhoFmjM",
       "title": "【ニコラ・テスラ流】力を抜いて結果を引き寄せる思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=VbyyBhoFmjM",
       "duration_sec": 1678.0,
-      "view_count": 196617,
+      "view_count": 198630,
       "thumbnail_url": "https://i.ytimg.com/vi/VbyyBhoFmjM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLArcihRQj_AFZ7SJrFmdK1BYorl7w",
-      "playlist_index": 54
+      "playlist_index": 61
     },
     {
       "id": "sOZJRvVkII4",
       "title": "【ニコラ・テスラ流】369の周波数で夢を叶える思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=sOZJRvVkII4",
       "duration_sec": 1783.0,
-      "view_count": 37422,
+      "view_count": 37779,
       "thumbnail_url": "https://i.ytimg.com/vi/sOZJRvVkII4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB6SUbh1958hiMuv4hlfWf1A14ZSA",
-      "playlist_index": 55
+      "playlist_index": 62
     },
     {
       "id": "NRWjh5BJh00",
       "title": "【岡本太郎流】孤独が創造を生み出す理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=NRWjh5BJh00",
       "duration_sec": 1277.0,
-      "view_count": 2112,
+      "view_count": 2149,
       "thumbnail_url": "https://i.ytimg.com/vi/NRWjh5BJh00/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDFpy3BSZb5-bJNqMpYqNzIfkNA8Q",
-      "playlist_index": 56
+      "playlist_index": 63
     },
     {
       "id": "45B_M1EA5EU",
       "title": "【岡本太郎流】成功よりも爆発を選ぶべき理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=45B_M1EA5EU",
       "duration_sec": 1352.0,
-      "view_count": 8729,
+      "view_count": 8798,
       "thumbnail_url": "https://i.ytimg.com/vi/45B_M1EA5EU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCjuhh09Cq0AVM5D_E8NlTM2wfROg",
-      "playlist_index": 57
+      "playlist_index": 64
     },
     {
       "id": "DsRfE-lDF2k",
       "title": "【老子流】何もしない人がすべてを成す理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=DsRfE-lDF2k",
       "duration_sec": 1130.0,
-      "view_count": 1339,
+      "view_count": 1405,
       "thumbnail_url": "https://i.ytimg.com/vi/DsRfE-lDF2k/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB6jWKlW6wgyJ50EseXKa0OWjs_ww",
-      "playlist_index": 58
+      "playlist_index": 65
     },
     {
       "id": "LWSNPgxJsAs",
       "title": "【墨子流】賢さを隠せば信頼は集まる｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=LWSNPgxJsAs",
       "duration_sec": 1412.0,
-      "view_count": 1310,
+      "view_count": 1374,
       "thumbnail_url": "https://i.ytimg.com/vi/LWSNPgxJsAs/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBcHjb55wjQa1mksRaY_6uVPy_4pg",
-      "playlist_index": 59
+      "playlist_index": 66
     },
     {
       "id": "2DKbrGe0AmU",
       "title": "【ニコラ・テスラ流】未来を引き寄せる7つの教え｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=2DKbrGe0AmU",
       "duration_sec": 1486.0,
-      "view_count": 34204,
+      "view_count": 34584,
       "thumbnail_url": "https://i.ytimg.com/vi/2DKbrGe0AmU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAwRrzBu3Qupg85HE7fsLN4wu6cuA",
-      "playlist_index": 60
+      "playlist_index": 67
     }
   ],
   "stats": {
-    "n": 60,
+    "n": 67,
     "views": {
-      "min": 702.0,
-      "p25": 3130.5,
-      "median": 5676.5,
-      "p75": 20664.5,
-      "max": 196617.0,
-      "mean": 15430.916666666666
+      "min": 1024.0,
+      "p25": 3287.5,
+      "median": 5820.0,
+      "p75": 18086.0,
+      "max": 198630.0,
+      "mean": 15428.119402985074
     },
     "durations_sec": {
       "min": 1067.0,
-      "p25": 1310.25,
+      "p25": 1297.5,
       "median": 1401.0,
-      "p75": 1510.25,
-      "max": 2050.0,
-      "mean": 1427.7666666666667
+      "p75": 1552.5,
+      "max": 2611.0,
+      "mean": 1464.7910447761194
     },
     "title_len": {
       "min": 21.0,
       "p25": 28.0,
-      "median": 31.5,
+      "median": 32.0,
       "p75": 35.0,
-      "max": 41.0,
-      "mean": 31.233333333333334
+      "max": 43.0,
+      "mean": 31.35820895522388
     },
     "title_patterns": {
-      "starts_with_bracket_ratio": 0.9666666666666667,
-      "has_bar_ratio": 0.6166666666666667,
-      "has_quotes_ratio": 0.11666666666666667,
+      "starts_with_bracket_ratio": 0.9701492537313433,
+      "has_bar_ratio": 0.5671641791044776,
+      "has_quotes_ratio": 0.11940298507462686,
       "has_question_ratio": 0.0,
       "has_exclamation_ratio": 0.0,
-      "has_digits_ratio": 0.18333333333333332,
+      "has_digits_ratio": 0.208955223880597,
       "has_age_ratio": 0.0,
       "top_bracket_prefixes": [
         {
           "prefix": "ニコラ・テスラ流",
-          "count": 12
+          "count": 13
+        },
+        {
+          "prefix": "岡潔流",
+          "count": 8
+        },
+        {
+          "prefix": "IQ300ノイマン",
+          "count": 7
         },
         {
           "prefix": "岡本太郎流",
           "count": 7
-        },
-        {
-          "prefix": "岡潔流",
-          "count": 7
-        },
-        {
-          "prefix": "IQ300ノイマン",
-          "count": 4
         },
         {
           "prefix": "ニコラテスラ流",
@@ -623,15 +686,15 @@
           "count": 2
         },
         {
+          "prefix": "デヴィッド・R・ホーキンズ",
+          "count": 2
+        },
+        {
           "prefix": "今の周波数を知る",
           "count": 2
         },
         {
           "prefix": "アルベール・カミュ流",
-          "count": 1
-        },
-        {
-          "prefix": "デヴィッド・R・ホーキンズ",
           "count": 1
         },
         {
@@ -678,35 +741,35 @@
         },
         {
           "token": "ニコラ",
-          "count": 18
+          "count": 19
         },
         {
           "token": "テスラ流",
-          "count": 12
+          "count": 13
+        },
+        {
+          "token": "岡潔流",
+          "count": 8
+        },
+        {
+          "token": "IQ300ノイマン",
+          "count": 7
+        },
+        {
+          "token": "デヴィッド",
+          "count": 7
+        },
+        {
+          "token": "ホーキンズ",
+          "count": 7
         },
         {
           "token": "岡本太郎流",
           "count": 7
         },
         {
-          "token": "岡潔流",
-          "count": 7
-        },
-        {
           "token": "テスラ",
           "count": 6
-        },
-        {
-          "token": "デヴィッド",
-          "count": 5
-        },
-        {
-          "token": "ホーキンズ",
-          "count": 5
-        },
-        {
-          "token": "IQ300ノイマン",
-          "count": 4
         },
         {
           "token": "ニコラテスラ流",
@@ -745,6 +808,10 @@
           "count": 1
         },
         {
+          "token": "から始まる",
+          "count": 1
+        },
+        {
           "token": "が人生を変える理由",
           "count": 1
         },
@@ -758,6 +825,10 @@
         },
         {
           "token": "だけで結果が出る思考術",
+          "count": 1
+        },
+        {
+          "token": "ではなく",
           "count": 1
         },
         {
@@ -782,6 +853,14 @@
         },
         {
           "token": "より",
+          "count": 1
+        },
+        {
+          "token": "を拾う力にある",
+          "count": 1
+        },
+        {
+          "token": "を逆にする",
           "count": 1
         },
         {
@@ -811,32 +890,16 @@
         {
           "token": "ラッセル流",
           "count": 1
-        },
-        {
-          "token": "一つの問いで現実を動かす思考術",
-          "count": 1
-        },
-        {
-          "token": "一日の思考を一点に集める思考術",
-          "count": 1
-        },
-        {
-          "token": "人に好かれても良いことなんてない理由",
-          "count": 1
-        },
-        {
-          "token": "人生に意味や目的がなくても良い理由",
-          "count": 1
         }
       ]
     },
-    "corr_duration_vs_views": 0.2855654563309115
+    "corr_duration_vs_views": 0.14017467464036615
   },
   "duration_buckets": {
     "<8m": 0,
     "8-15m": 0,
-    "15-25m": 43,
-    "25-45m": 17,
+    "15-25m": 46,
+    "25-45m": 21,
     "45m+": 0
   },
   "top_by_views": [
@@ -845,181 +908,181 @@
       "title": "【ニコラ・テスラ流】力を抜いて結果を引き寄せる思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=VbyyBhoFmjM",
       "duration_sec": 1678.0,
-      "view_count": 196617,
+      "view_count": 198630,
       "thumbnail_url": "https://i.ytimg.com/vi/VbyyBhoFmjM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLArcihRQj_AFZ7SJrFmdK1BYorl7w",
-      "playlist_index": 54
+      "playlist_index": 61
     },
     {
       "id": "q30pWvTCFF4",
       "title": "【岡潔流】本当に頭がいい人は情報を減らしている",
       "url": "https://www.youtube.com/watch?v=q30pWvTCFF4",
       "duration_sec": 2050.0,
-      "view_count": 54453,
+      "view_count": 68714,
       "thumbnail_url": "https://i.ytimg.com/vi/q30pWvTCFF4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBbRB15-VyE7XSH4m395GQLPygZdw",
-      "playlist_index": 13
-    },
-    {
-      "id": "6ILO-nJSSsY",
-      "title": "【ショーペンハウアー流】年齢を重ねるほど孤独が幸福をもたらす理由｜偉人の名言・言葉",
-      "url": "https://www.youtube.com/watch?v=6ILO-nJSSsY",
-      "duration_sec": 1411.0,
-      "view_count": 49599,
-      "thumbnail_url": "https://i.ytimg.com/vi/6ILO-nJSSsY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCe9LnW5su1-65HA663knw3RbYhdA",
-      "playlist_index": 51
+      "playlist_index": 20
     },
     {
       "id": "Gy_N1T4RDlI",
       "title": "【IQ300ノイマン流】成果は足し算ではなく引き算から生まれる",
       "url": "https://www.youtube.com/watch?v=Gy_N1T4RDlI",
       "duration_sec": 1537.0,
-      "view_count": 48401,
+      "view_count": 52313,
       "thumbnail_url": "https://i.ytimg.com/vi/Gy_N1T4RDlI/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLACM9eG7CgZP95wgO5-ZbWo7Yqq3A",
-      "playlist_index": 17
+      "playlist_index": 24
     },
     {
       "id": "4zOP2mo0rcQ",
       "title": "【今の周波数を知る】意識レベルを確かめる方法｜デヴィッド・R・ホーキンズ",
       "url": "https://www.youtube.com/watch?v=4zOP2mo0rcQ",
       "duration_sec": 1362.0,
-      "view_count": 43217,
+      "view_count": 50881,
       "thumbnail_url": "https://i.ytimg.com/vi/4zOP2mo0rcQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC9A_QTjA5ROV2XvEc2hyU3u8FjmQ",
-      "playlist_index": 19
+      "playlist_index": 26
+    },
+    {
+      "id": "6ILO-nJSSsY",
+      "title": "【ショーペンハウアー流】年齢を重ねるほど孤独が幸福をもたらす理由｜偉人の名言・言葉",
+      "url": "https://www.youtube.com/watch?v=6ILO-nJSSsY",
+      "duration_sec": 1411.0,
+      "view_count": 50246,
+      "thumbnail_url": "https://i.ytimg.com/vi/6ILO-nJSSsY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCe9LnW5su1-65HA663knw3RbYhdA",
+      "playlist_index": 58
     },
     {
       "id": "sOZJRvVkII4",
       "title": "【ニコラ・テスラ流】369の周波数で夢を叶える思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=sOZJRvVkII4",
       "duration_sec": 1783.0,
-      "view_count": 37422,
+      "view_count": 37779,
       "thumbnail_url": "https://i.ytimg.com/vi/sOZJRvVkII4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB6SUbh1958hiMuv4hlfWf1A14ZSA",
-      "playlist_index": 55
+      "playlist_index": 62
     },
     {
       "id": "2DKbrGe0AmU",
       "title": "【ニコラ・テスラ流】未来を引き寄せる7つの教え｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=2DKbrGe0AmU",
       "duration_sec": 1486.0,
-      "view_count": 34204,
+      "view_count": 34584,
       "thumbnail_url": "https://i.ytimg.com/vi/2DKbrGe0AmU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAwRrzBu3Qupg85HE7fsLN4wu6cuA",
-      "playlist_index": 60
+      "playlist_index": 67
     },
     {
       "id": "8STTlbTQd-A",
       "title": "【岡潔流】本当に頭がいい人は速さより深さを大事にする理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=8STTlbTQd-A",
       "duration_sec": 1362.0,
-      "view_count": 30950,
+      "view_count": 31407,
       "thumbnail_url": "https://i.ytimg.com/vi/8STTlbTQd-A/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC17oeSI5N8TYpyVdz970eQ_m1YDQ",
-      "playlist_index": 47
+      "playlist_index": 54
     },
     {
       "id": "8hoBigNTO3A",
       "title": "【ニコラテスラ流】少ない行動で結果を出す思考術｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=8hoBigNTO3A",
       "duration_sec": 1442.0,
-      "view_count": 30284,
+      "view_count": 30733,
       "thumbnail_url": "https://i.ytimg.com/vi/8hoBigNTO3A/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDUPVZ3rmCPUYp-4ebhpL6JhE09LA",
-      "playlist_index": 43
+      "playlist_index": 50
     },
     {
       "id": "tnkmXPlzMZU",
       "title": "【岡潔流】考える量と賢さは無関係である理由｜偉人の名言・言葉",
       "url": "https://www.youtube.com/watch?v=tnkmXPlzMZU",
       "duration_sec": 1360.0,
-      "view_count": 27910,
+      "view_count": 30274,
       "thumbnail_url": "https://i.ytimg.com/vi/tnkmXPlzMZU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDGGMY5AsxzPigtfTh1p_F4mZvWmQ",
-      "playlist_index": 33
+      "playlist_index": 40
     }
   ],
   "recent": [
+    {
+      "id": "RXVWniiSjWA",
+      "title": "【現実は行動で作れない】意識の位置が現実を決める｜デヴィッド・R・ホーキンズ",
+      "url": "https://www.youtube.com/watch?v=RXVWniiSjWA",
+      "duration_sec": 2023.0,
+      "view_count": 2813,
+      "thumbnail_url": "https://i.ytimg.com/vi/RXVWniiSjWA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDLR09LA8ROmeUO_CeiUMnSc_pE1g",
+      "playlist_index": 1
+    },
+    {
+      "id": "yFGlnya_7rs",
+      "title": "【岡潔流】賢さの正体は「違和感」を拾う力にある",
+      "url": "https://www.youtube.com/watch?v=yFGlnya_7rs",
+      "duration_sec": 2408.0,
+      "view_count": 4717,
+      "thumbnail_url": "https://i.ytimg.com/vi/yFGlnya_7rs/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDyRrFLl9QtBYHq0AU40WdKW_vVPQ",
+      "playlist_index": 2
+    },
+    {
+      "id": "9r3zYxwvCSE",
+      "title": "【IQ300ノイマン】成功者は“決める順番”を逆にする",
+      "url": "https://www.youtube.com/watch?v=9r3zYxwvCSE",
+      "duration_sec": 2611.0,
+      "view_count": 10821,
+      "thumbnail_url": "https://i.ytimg.com/vi/9r3zYxwvCSE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDfv4eQl7Ln-9CqiljLy057F1-_aQ",
+      "playlist_index": 3
+    },
+    {
+      "id": "mwQD6AzgUbU",
+      "title": "【IQ300ノイマン】集中できない本当の理由。消すべきものは7つある",
+      "url": "https://www.youtube.com/watch?v=mwQD6AzgUbU",
+      "duration_sec": 1210.0,
+      "view_count": 3099,
+      "thumbnail_url": "https://i.ytimg.com/vi/mwQD6AzgUbU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBkCs6ahL-nSNl7vsXiUzkiGfwzwA",
+      "playlist_index": 4
+    },
+    {
+      "id": "LoMO2jioGdg",
+      "title": "【ニコラ・テスラ流】本当の変化は“行動”ではなく“視点”から始まる",
+      "url": "https://www.youtube.com/watch?v=LoMO2jioGdg",
+      "duration_sec": 1299.0,
+      "view_count": 1234,
+      "thumbnail_url": "https://i.ytimg.com/vi/LoMO2jioGdg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB6XexVtLJOe34UfJdc2u3fkvtuKQ",
+      "playlist_index": 5
+    },
+    {
+      "id": "gcbBM0cFBvY",
+      "title": "【IQ300ノイマン】一点集中が最大の成果を生む本当の理由",
+      "url": "https://www.youtube.com/watch?v=gcbBM0cFBvY",
+      "duration_sec": 1249.0,
+      "view_count": 3941,
+      "thumbnail_url": "https://i.ytimg.com/vi/gcbBM0cFBvY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBuFt1kXwctR57N8_8E7R9zigYrsA",
+      "playlist_index": 6
+    },
+    {
+      "id": "BCQnUYukqpk",
+      "title": "【デヴィッド・R・ホーキンズ】周波数が上がると世界が変わる理由。現実を軽くする意識状態",
+      "url": "https://www.youtube.com/watch?v=BCQnUYukqpk",
+      "duration_sec": 1675.0,
+      "view_count": 3681,
+      "thumbnail_url": "https://i.ytimg.com/vi/BCQnUYukqpk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBv9GDQ8eczt-3AYocR5s_tlS9Pug",
+      "playlist_index": 7
+    },
     {
       "id": "jDcL36UoC30",
       "title": "【岡潔流】正解を集めても賢くならない。本質は「問いの質」にある",
       "url": "https://www.youtube.com/watch?v=jDcL36UoC30",
       "duration_sec": 1201.0,
-      "view_count": 1940,
+      "view_count": 16238,
       "thumbnail_url": "https://i.ytimg.com/vi/jDcL36UoC30/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDQK88ACZ6WrisikhSOBzrdBvwxzA",
-      "playlist_index": 1
+      "playlist_index": 8
     },
     {
       "id": "53yF28-Zyus",
       "title": "【IQ300ノイマン】成功は“正解”より“仕組み”で決まる",
       "url": "https://www.youtube.com/watch?v=53yF28-Zyus",
       "duration_sec": 1237.0,
-      "view_count": 5222,
+      "view_count": 13102,
       "thumbnail_url": "https://i.ytimg.com/vi/53yF28-Zyus/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA5da2ww7eraqFy-QFqCJpkFMuqew",
-      "playlist_index": 2
+      "playlist_index": 9
     },
     {
       "id": "nIsNn8T8PrA",
       "title": "【ショーペンハウアー】幸福を諦めることが最も幸福である理由",
       "url": "https://www.youtube.com/watch?v=nIsNn8T8PrA",
       "duration_sec": 1664.0,
-      "view_count": 702,
+      "view_count": 1196,
       "thumbnail_url": "https://i.ytimg.com/vi/nIsNn8T8PrA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAqcybqChxh3qFuV4uVY-h9IuB82A",
-      "playlist_index": 3
-    },
-    {
-      "id": "x0Yt5Cg1ufk",
-      "title": "【今の周波数を知る】周波数は「言葉」に現れる｜デヴィッド・R・ホーキンズ",
-      "url": "https://www.youtube.com/watch?v=x0Yt5Cg1ufk",
-      "duration_sec": 1400.0,
-      "view_count": 1854,
-      "thumbnail_url": "https://i.ytimg.com/vi/x0Yt5Cg1ufk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBOtU3Z4IyxBPJsuKiv8m-Fz7U2CA",
-      "playlist_index": 4
-    },
-    {
-      "id": "rlChVQasCtE",
-      "title": "【IQ300ノイマン】迷ったときに絶対やってはいけない7つのこと",
-      "url": "https://www.youtube.com/watch?v=rlChVQasCtE",
-      "duration_sec": 1354.0,
-      "view_count": 4295,
-      "thumbnail_url": "https://i.ytimg.com/vi/rlChVQasCtE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA8lhqx_Y1Z5MSOtrKpAwJNSgZu3w",
-      "playlist_index": 5
-    },
-    {
-      "id": "_9MDX2One3E",
-      "title": "【ニコラ・テスラ流】朝の周波数を整える3分習慣",
-      "url": "https://www.youtube.com/watch?v=_9MDX2One3E",
-      "duration_sec": 1686.0,
-      "view_count": 919,
-      "thumbnail_url": "https://i.ytimg.com/vi/_9MDX2One3E/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA-6Tqe19KAGO64xUwpQzMiaJzMvw",
-      "playlist_index": 6
-    },
-    {
-      "id": "LAX5C60mNSU",
-      "title": "【IQ300ノイマン】失敗の原因は選択ではなく前提にある",
-      "url": "https://www.youtube.com/watch?v=LAX5C60mNSU",
-      "duration_sec": 1367.0,
-      "view_count": 5994,
-      "thumbnail_url": "https://i.ytimg.com/vi/LAX5C60mNSU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCN4SDeZv7cicRIerIzR5zNYp69oA",
-      "playlist_index": 7
-    },
-    {
-      "id": "9uksKZO7bfY",
-      "title": "【ニコラ・テスラ】やることを半分にしても成果が伸びる理由",
-      "url": "https://www.youtube.com/watch?v=9uksKZO7bfY",
-      "duration_sec": 1145.0,
-      "view_count": 4844,
-      "thumbnail_url": "https://i.ytimg.com/vi/9uksKZO7bfY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCXnb9IcwtE9NudoNgeKDPs7EexMA",
-      "playlist_index": 8
-    },
-    {
-      "id": "-I68HvisPxY",
-      "title": "【IQ300ノイマン】結論、成果を最大化するための思考法",
-      "url": "https://www.youtube.com/watch?v=-I68HvisPxY",
-      "duration_sec": 1251.0,
-      "view_count": 23632,
-      "thumbnail_url": "https://i.ytimg.com/vi/-I68HvisPxY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBpAQ-zgTlRDPFWmiYEHeqLi2CmxQ",
-      "playlist_index": 9
-    },
-    {
-      "id": "x33NBSfObTE",
-      "title": "【ニコラ・テスラ】人生を一瞬で変える調律の法則",
-      "url": "https://www.youtube.com/watch?v=x33NBSfObTE",
-      "duration_sec": 1067.0,
-      "view_count": 1260,
-      "thumbnail_url": "https://i.ytimg.com/vi/x33NBSfObTE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCYK6GBN_742ZLOpZX6hi43XoMCXA",
       "playlist_index": 10
     }
   ],

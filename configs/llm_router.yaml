@@ -258,6 +258,15 @@ tasks:
       temperature: 0.2
       max_tokens: 1200
 
+  # --- Stock B-roll query normalization ---
+  # Used by `video_pipeline.stock_broll.injector` to convert JP cues into short EN search queries.
+  broll_query:
+    tier: cheap
+    timeout: 30
+    defaults:
+      temperature: 0.0
+      max_tokens: 128
+
   # Master plan (blueprint) — optional Opus one-shot
   # Enable via env:
   #   SCRIPT_MASTER_PLAN_LLM=1

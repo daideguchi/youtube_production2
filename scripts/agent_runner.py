@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,6 +12,7 @@ from pathlib import Path
 from _bootstrap import bootstrap
 
 PROJECT_ROOT = bootstrap()
+PROJECT_ROOT_PATH = Path(str(PROJECT_ROOT))
 
 from factory_common.agent_mode import (
     get_queue_dir,
@@ -31,6 +33,55 @@ def _now_iso_utc() -> str:
 def _agent_name(args: argparse.Namespace) -> str | None:
     raw = (getattr(args, "agent_name", None) or os.getenv("LLM_AGENT_NAME") or os.getenv("AGENT_NAME") or "").strip()
     return raw or None
+
+
+def _env_truthy(name: str) -> bool:
+    return (os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "on", "y"}
+
+
+def _slack_webhook_url() -> str:
+    return str(os.getenv("YTM_SLACK_WEBHOOK_URL") or os.getenv("SLACK_WEBHOOK_URL") or "").strip()
+
+
+def _slack_bot_token() -> str:
+    return str(os.getenv("SLACK_BOT_TOKEN") or os.getenv("YTM_SLACK_BOT_TOKEN") or "").strip()
+
+
+def _slack_channel() -> str:
+    return str(os.getenv("SLACK_CHANNEL") or os.getenv("YTM_SLACK_CHANNEL") or "").strip()
+
+
+def _slack_configured() -> bool:
+    # Webhook or Bot-token mode (token requires channel).
+    if _slack_webhook_url():
+        return True
+    return bool(_slack_bot_token() and _slack_channel())
+
+
+def _slack_notify_agent_tasks_enabled() -> bool:
+    raw = (os.getenv("YTM_SLACK_NOTIFY_AGENT_TASKS") or "").strip()
+    if raw == "":
+        return True
+    return _env_truthy("YTM_SLACK_NOTIFY_AGENT_TASKS")
+
+
+def _maybe_slack_notify(event: dict) -> None:
+    if not _slack_notify_agent_tasks_enabled():
+        return
+    if not _slack_configured():
+        return
+    try:
+        payload = json.dumps(event, ensure_ascii=False)
+        subprocess.run(
+            ["python3", "scripts/ops/slack_notify.py", "--event-json", payload],
+            cwd=str(PROJECT_ROOT_PATH),
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    except Exception:
+        return
 
 
 def _atomic_write_json(path: Path, payload: dict) -> None:
@@ -125,6 +176,21 @@ def cmd_complete(args: argparse.Namespace) -> int:
         completed_by=agent,
         queue_dir=q,
         move_pending=not args.keep_pending,
+    )
+    _maybe_slack_notify(
+        {
+            "kind": "agent_task",
+            "event": "complete",
+            "at": _now_iso_utc(),
+            "task_id": args.task_id,
+            "task": task,
+            "agent": agent,
+            "queue_dir": str(q),
+            "pending_path": str(p),
+            "result_path": str(result_path),
+            "runbook_path": str(pending_obj.get("runbook_path") or ""),
+            "response_format": pending_obj.get("response_format"),
+        }
     )
     print(str(result_path))
     return 0
@@ -356,6 +422,20 @@ def cmd_claim(args: argparse.Namespace) -> int:
     obj["claimed_by"] = agent
     obj["claimed_at"] = _now_iso_utc()
     _atomic_write_json(p, obj)
+    _maybe_slack_notify(
+        {
+            "kind": "agent_task",
+            "event": "claim",
+            "at": _now_iso_utc(),
+            "task_id": args.task_id,
+            "task": str(obj.get("task") or ""),
+            "agent": agent,
+            "queue_dir": str(q),
+            "pending_path": str(p),
+            "runbook_path": str(obj.get("runbook_path") or ""),
+            "response_format": obj.get("response_format"),
+        }
+    )
     print(str(p))
     return 0
 

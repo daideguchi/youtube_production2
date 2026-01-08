@@ -2702,8 +2702,36 @@ class LLMRouter:
         if provider in ["azure", "openrouter", "fireworks"]:
             try:
                 content = raw_result.choices[0].message.content  # type: ignore[attr-defined]
-                if provider == "fireworks" and isinstance(content, str) and "YTM_FINAL" in content:
-                    return _extract_after_fireworks_marker(content)
+                # Fireworks "final marker" cleanup:
+                # - We sometimes append a marker system message when reasoning output is excluded.
+                # - Some models echo the marker (or variants) back; never let it leak into downstream stages
+                #   where `<<...>>` placeholder guards would treat it as an unresolved placeholder.
+                if provider == "fireworks":
+                    if isinstance(content, str):
+                        if _FIREWORKS_FINAL_MARKER_RE.search(content):
+                            return _extract_after_fireworks_marker(content)
+                        return content
+                    if isinstance(content, list):
+                        has_marker = False
+                        for part in content:
+                            if isinstance(part, dict):
+                                t = part.get("text")
+                                if isinstance(t, str) and _FIREWORKS_FINAL_MARKER_RE.search(t):
+                                    has_marker = True
+                                    break
+                            elif isinstance(part, str) and _FIREWORKS_FINAL_MARKER_RE.search(part):
+                                has_marker = True
+                                break
+                        if has_marker:
+                            buf: List[str] = []
+                            for part in content:
+                                if isinstance(part, dict):
+                                    t = part.get("text")
+                                    if isinstance(t, str):
+                                        buf.append(t)
+                                elif isinstance(part, str):
+                                    buf.append(part)
+                            return _extract_after_fireworks_marker("".join(buf))
                 return content
             except Exception:
                 pass

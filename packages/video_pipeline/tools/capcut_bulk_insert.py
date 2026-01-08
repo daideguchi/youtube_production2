@@ -2998,69 +2998,95 @@ def main():
     # Insert images/videos (b-roll)
     prev_end_us = None
     for i, cue in enumerate(cues):
-        # Prefer injected asset_relpath from image_cues.json (e.g., broll/*.mp4)
+        # Prefer injected asset_relpath from image_cues.json (e.g., broll/*.mp4).
         rel = None
         if isinstance(cue, dict):
             rel = (cue.get("asset_relpath") or "").strip() or None
 
-        src = (run_dir / rel).resolve() if rel else (images_dir / f"{i+1:04d}.png")
+        fallback_png = (images_dir / f"{i+1:04d}.png").resolve()
+        requested_src = (run_dir / rel).resolve() if rel else None
+        if requested_src is not None and not requested_src.exists():
+            logger.warning("⚠️ Missing b-roll asset for cue[%d]: %s (fallback to %s)", i, requested_src, fallback_png)
+            requested_src = None
+
+        src = requested_src if requested_src is not None else fallback_png
         if not src.exists():
             raise FileNotFoundError(f"Asset missing for cue[{i}]: {src}")
 
-        dest = assets_dir / src.name
-        # Prefer hardlinking to avoid duplicating large assets (e.g., b-roll MP4) into CapCut drafts.
-        # This prevents "No space left on device" failures on tight disks. Fall back to copy when linking fails.
-        linked = False
-        try:
-            if dest.exists():
-                dest.unlink()
-        except Exception:
-            pass
-        try:
-            os.link(src, dest)
-            linked = True
-        except Exception:
+        def _hardlink_or_copy_asset(src_path: Path) -> Path:
+            dest_path = assets_dir / src_path.name
+            # Prefer hardlinking to avoid duplicating large assets (e.g., b-roll MP4) into CapCut drafts.
+            # This prevents "No space left on device" failures on tight disks. Fall back to copy when linking fails.
             linked = False
-
-        if not linked:
             try:
-                shutil.copy2(src, dest)
-            except Exception as exc:
-                # shutil.copy2() can fail *after* copying the data (e.g., metadata/xattr issues).
-                # If the destination exists but is incomplete (e.g., 0 bytes), treat it as a hard error.
-                try:
-                    src_size = int(src.stat().st_size)
-                except Exception:
-                    src_size = -1
-                try:
-                    dest_size = int(dest.stat().st_size) if dest.exists() else -1
-                except Exception:
-                    dest_size = -1
+                if dest_path.exists():
+                    dest_path.unlink()
+            except Exception:
+                pass
+            try:
+                os.link(src_path, dest_path)
+                linked = True
+            except Exception:
+                linked = False
 
-                if dest.exists() and src_size > 0 and dest_size == src_size:
-                    # Data copied successfully; ignore metadata copy failure.
-                    pass
-                else:
-                    # Remove partial file and retry copying data-only.
+            if not linked:
+                try:
+                    shutil.copy2(src_path, dest_path)
+                except Exception:
+                    # shutil.copy2() can fail *after* copying the data (e.g., metadata/xattr issues).
+                    # If the destination exists but is incomplete (e.g., 0 bytes), treat it as a hard error.
                     try:
-                        if dest.exists():
-                            dest.unlink()
+                        src_size = int(src_path.stat().st_size)
                     except Exception:
-                        pass
+                        src_size = -1
                     try:
-                        shutil.copyfile(src, dest)
-                        dest_size2 = int(dest.stat().st_size) if dest.exists() else -1
-                        if src_size > 0 and dest_size2 != src_size:
-                            raise RuntimeError("copy_size_mismatch_after_retry")
-                    except Exception as exc2:
-                        raise RuntimeError(f"Failed to copy asset for cue[{i}]: {src} -> {dest}: {exc2}") from exc2
+                        dest_size = int(dest_path.stat().st_size) if dest_path.exists() else -1
+                    except Exception:
+                        dest_size = -1
+
+                    if dest_path.exists() and src_size > 0 and dest_size == src_size:
+                        # Data copied successfully; ignore metadata copy failure.
+                        pass
+                    else:
+                        # Remove partial file and retry copying data-only.
+                        try:
+                            if dest_path.exists():
+                                dest_path.unlink()
+                        except Exception:
+                            pass
+                        try:
+                            shutil.copyfile(src_path, dest_path)
+                            dest_size2 = int(dest_path.stat().st_size) if dest_path.exists() else -1
+                            if src_size > 0 and dest_size2 != src_size:
+                                raise RuntimeError("copy_size_mismatch_after_retry")
+                        except Exception as exc2:
+                            raise RuntimeError(
+                                f"Failed to copy asset for cue[{i}]: {src_path} -> {dest_path}: {exc2}"
+                            ) from exc2
+            return dest_path
+
+        dest = _hardlink_or_copy_asset(src)
         # Absolute timing from cues
         start_us, dur_us = schedule[i]
         # Material: reference draft-local asset path to avoid relinking
-        if _VIDEO_MATERIAL_REQUIRES_TYPE:
-            mat = Video_material(material_type='photo', path=str(dest), material_name=src.name)
-        else:
-            mat = Video_material(path=str(dest), material_name=src.name)
+        try:
+            if _VIDEO_MATERIAL_REQUIRES_TYPE:
+                mt = "video" if str(dest.suffix or "").lower() in {".mp4", ".mov", ".m4v"} else "photo"
+                mat = Video_material(material_type=mt, path=str(dest), material_name=src.name)
+            else:
+                mat = Video_material(path=str(dest), material_name=src.name)
+        except Exception as exc:
+            # Some mp4s can be unreadable to pymediainfo/pyJianYingDraft; fall back to PNG so draft creation doesn't abort.
+            if requested_src is not None:
+                logger.warning("⚠️ Failed to load video asset for cue[%d]: %s (%s). Fallback to %s", i, requested_src, exc, fallback_png)
+                src = fallback_png
+                dest = _hardlink_or_copy_asset(src)
+                if _VIDEO_MATERIAL_REQUIRES_TYPE:
+                    mat = Video_material(material_type="photo", path=str(dest), material_name=src.name)
+                else:
+                    mat = Video_material(path=str(dest), material_name=src.name)
+            else:
+                raise
         # Register material into the draft to ensure materials.images contains it
         try:
             script.add_material(mat)
@@ -3068,6 +3094,8 @@ def main():
             print(f"Warning: Failed to add_material for {src.name}: {e}")
 
         is_video = str(getattr(mat, "material_type", "") or "").lower() == "video"
+        if not is_video and str(dest.suffix or "").lower() in {".mp4", ".mov", ".m4v"}:
+            is_video = True
         # For videos, cap source duration to the material's duration (allow mild slow-down when shorter).
         src_dur_us = int(dur_us)
         if is_video:

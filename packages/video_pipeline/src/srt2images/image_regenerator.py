@@ -6,6 +6,7 @@ Individual Image Regenerator
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from PIL import Image
@@ -15,6 +16,32 @@ import shutil
 from .nanobanana_client import _run_direct, _convert_to_16_9
 
 logger = logging.getLogger(__name__)
+
+_SHOT_BLOCK_RE = re.compile(r"Shot:.*?(?:\n\n|$)", re.DOTALL)
+
+
+def _replace_shot_block(prompt: str, shot_block: str) -> str:
+    """
+    Replace the "Shot:" guidance block inside an existing prompt.
+
+    Many runs store a fully-rendered `cue.prompt` that includes a "Shot:" paragraph.
+    When `cue.diversity_note` (which also starts with "Shot:") is updated later, the
+    stored `cue.prompt` can become stale. For regeneration tools, we prefer the latest
+    `cue.diversity_note` to avoid accidentally producing face close-ups.
+    """
+    if not prompt or "Shot:" not in prompt:
+        return prompt
+    sb = shot_block.strip()
+
+    # Some historical prompts accidentally contain duplicated Shot blocks.
+    # Replace all Shot blocks, and keep a blank line separator when there is following text.
+    def _repl(m: re.Match[str]) -> str:
+        if m.end() < len(prompt):
+            return sb + "\n\n"
+        return sb
+
+    return _SHOT_BLOCK_RE.sub(_repl, prompt)
+
 
 class ImageRegenerator:
     """個別画像の再生成・差し替え機能を提供するクラス"""
@@ -112,7 +139,7 @@ class ImageRegenerator:
         
         Args:
             index: 画像番号
-            custom_prompt: カスタムプロンプト（Noneの場合は元のプロンプトを使用）
+            custom_prompt: 追加の指示（Noneの場合は追加なし）
             custom_style: カスタムスタイル（Noneの場合はデフォルトスタイル）
             
         Returns:
@@ -126,15 +153,24 @@ class ImageRegenerator:
         cue_info = img_info['cue_info']
         image_file = img_info['file_path']
         
-        # プロンプト決定（image_cuesの内容をそのまま優先）
+        # プロンプト決定（image_cues の prompt/summary をベースに、追加指示を追記）
+        base_prompt = cue_info.get('prompt', cue_info.get('summary', ''))
+        diversity_note = str(cue_info.get("diversity_note") or "").strip()
+        if diversity_note.startswith("Shot:") and isinstance(base_prompt, str) and "Shot:" in base_prompt:
+            base_prompt = _replace_shot_block(base_prompt, diversity_note)
+
+        # If the cue-level shot hint is not a close-up, avoid leaving stale "close-up reaction" tokens
+        # in template guidance (they can overpower the medium-shot instruction).
+        shot_hint = str(cue_info.get("shot_hint") or "").strip().lower()
+        if isinstance(base_prompt, str) and shot_hint and "closeup" not in shot_hint:
+            base_prompt = base_prompt.replace("close-up reaction", "medium reaction")
+            base_prompt = base_prompt.replace("wide/medium/close-up", "wide/medium")
+        prompt_parts = [base_prompt] if base_prompt else []
         if custom_prompt:
-            prompt = custom_prompt
-        else:
-            prompt = cue_info.get('prompt', cue_info.get('summary', ''))
-        
-        # 任意の追加スタイルのみ明示的に付ける
+            prompt_parts.append(custom_prompt)
         if custom_style:
-            prompt = f"{prompt}\n\n{custom_style}"
+            prompt_parts.append(custom_style)
+        prompt = "\n\n".join([p for p in prompt_parts if p])
         
         logger.info(f"Regenerating image {index:04d}.png with prompt: {prompt[:100]}...")
         

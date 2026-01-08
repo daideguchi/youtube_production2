@@ -11,7 +11,7 @@
 ```json
 {
   "sections": [
-    [start_segment, end_segment, summary, visual_focus, emotional_tone, persona_needed, role_tag, section_type]
+    [start_segment, end_segment, summary, visual_focus, emotional_tone, persona_needed, role_tag, section_type, refined_prompt]
   ]
 }
 ```
@@ -21,6 +21,7 @@
 - `summary`: 日本語の短いラベル（<=30文字）
 - `visual_focus`: 英語の短い「何を映すか」（<=14 words, 具体/カメラ指示寄り、画面内テキスト禁止）
 - `emotional_tone`: 1〜2語（例: calm, uneasy, nostalgic）
+- `refined_prompt`: 英語の短い本命プロンプト（<=220 chars, action/pose + setting/props + lighting + camera angle/distance を入れる、画面内テキスト禁止、隣接で同じ構図/同じ場所を繰り返さない）
 - `persona_needed`: 同一人物の顔/服/髪/小物の一貫性が必要なカットだけ `true`
 - `role_tag`: `explanation|story|dialogue|list_item|metaphor|quote|hook|cta|recap|transition|viewer_address`
 - `section_type`: `story|dialogue|exposition|list|analysis|instruction|context|other`
@@ -31,6 +32,7 @@
 - **余計な人物追加禁止**: 台本にない僧侶/瞑想/正座/赤鉢巻/鎌おじさん等を「デフォルト」で入れない
 - **人物の特定**: 歴史人物/固有名詞が出る場合は、その人物の属性（年代/衣装/地域）を崩さない
 - **隣接差分**: 連続カットで同じ構図/距離/ポーズにしない（角度/距離/手元/前景/時間帯を変える）
+- **schnell（短プロンプト）**: `refined_prompt` は空にしない（ここが本命差分。短くてもよいが具体にする）
 - **禁止（機械プロンプト）**: キーワード辞書・固定モチーフ・固定プール等で `visual_focus` を自動決め打ちしない（例: time→pocket watch）。必ず当該セクションの文脈で具体化し、同じ象徴を連発しない。※禁止例の“具体単語”をそのままモデル向けプロンプトに列挙すると priming になり得るため、運用プロンプトでは禁止カテゴリを一般化して書く（例: cliché symbols）。
 - **最重要（意味整合）**: `visual_focus` は **そのセクション内容を正確に表現**する（具体の行動/物体/状況/たとえに紐づける）。無関係な象徴で埋めない。抽象語だけで終わらせない。
 

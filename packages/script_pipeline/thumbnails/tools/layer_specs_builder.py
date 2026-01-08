@@ -267,20 +267,115 @@ def _resolve_title_from_specs(
     *,
     channel: str,
     video_id: str,
-    image_spec: ImagePromptsSpecV3,
-    text_spec: TextLayoutSpecV3,
+    image_spec: Optional[ImagePromptsSpecV3],
+    text_spec: Optional[TextLayoutSpecV3],
 ) -> Optional[str]:
-    for item in text_spec.items:
-        if str(item.video_id).strip() == str(video_id).strip():
-            t = str(item.title).strip()
-            if t:
-                return t
-    for item in image_spec.items:
-        if str(item.video_id).strip() == str(video_id).strip():
-            t = str(item.title).strip()
-            if t:
-                return t
+    if text_spec is not None:
+        for item in text_spec.items:
+            if str(item.video_id).strip() == str(video_id).strip():
+                t = str(item.title).strip()
+                if t:
+                    return t
+    if image_spec is not None:
+        for item in image_spec.items:
+            if str(item.video_id).strip() == str(video_id).strip():
+                t = str(item.title).strip()
+                if t:
+                    return t
     return None
+
+
+def _load_planning_image_prompt(channel: str, video: str) -> str:
+    """
+    Load per-video image prompt from Planning CSV (best-effort).
+
+    This is a fallback when layer_specs image_prompts does not include the video_id.
+    """
+    ch = _normalize_channel(channel)
+    v = _normalize_video(video)
+    try:
+        rows = planning_store.get_rows(ch, force_refresh=False)
+    except Exception:
+        return ""
+
+    keys = [
+        "サムネ画像プロンプト（URL・テキスト指示込み）",
+        # Planning CSV common columns (channel-dependent).
+        "AI向け画像生成プロンプト (背景用)",
+        "AI向け画像生成プロンプト（背景用）",
+        "サムネ用DALL-Eプロンプト（URL・テキスト指示込み）",
+        "DALL-Eプロンプト（URL・テキスト指示込み）",
+        "サムネ画像プロンプト",
+        "サムネ画像プロンプト（URL）",
+        "thumbnail_prompt",
+        "thumbnail_image_prompt",
+    ]
+
+    for row in rows:
+        try:
+            row_v = _normalize_video(row.video_number or "")
+        except Exception:
+            continue
+        if row_v != v:
+            continue
+        raw = row.raw if isinstance(row.raw, dict) else {}
+        for k in keys:
+            val = raw.get(k)
+            if isinstance(val, str) and val.strip():
+                return val.strip()
+        break
+    return ""
+
+
+def _default_text_template_id(text_layout_spec: Dict[str, Any]) -> str:
+    templates = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
+    if not isinstance(templates, dict) or not templates:
+        return ""
+    keys = [str(k).strip() for k in templates.keys() if str(k).strip()]
+    keys.sort()
+    return keys[0] if keys else ""
+
+
+def _ensure_text_layout_item(
+    *,
+    text_layout_spec: Dict[str, Any],
+    video_id: str,
+    template_id: str,
+    title: str,
+) -> Dict[str, Any]:
+    """
+    Ensure `text_layout_spec.items` contains `video_id` (do not mutate the input dict).
+
+    The layer_specs YAML is cached; mutating it would pollute subsequent builds.
+    """
+    existing = find_text_layout_item_for_video(text_layout_spec, video_id) if isinstance(text_layout_spec, dict) else None
+    if isinstance(existing, dict):
+        return text_layout_spec
+
+    templates = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
+    tpl = templates.get(template_id) if isinstance(templates, dict) else None
+    slots_payload = tpl.get("slots") if isinstance(tpl, dict) else None
+    slot_keys = [
+        str(k).strip()
+        for k in (slots_payload.keys() if isinstance(slots_payload, dict) else [])
+        if isinstance(k, str) and str(k).strip()
+    ]
+    if not slot_keys:
+        slot_keys = ["main"]
+    synthetic_item = {
+        "video_id": str(video_id).strip(),
+        "title": str(title).strip() or str(video_id).strip(),
+        "template_id": str(template_id).strip(),
+        "text": {k: "" for k in slot_keys},
+    }
+
+    spec_copy = copy.deepcopy(text_layout_spec)
+    items = spec_copy.get("items")
+    if not isinstance(items, list):
+        items = []
+        spec_copy["items"] = items
+    items.append(synthetic_item)
+    return spec_copy
 
 
 def _sanitize_prompt_for_generation(*, channel: str, prompt: str) -> str:
@@ -881,20 +976,26 @@ def build_channel_thumbnails(
         resolved_variant_label = "thumb_00" if stable_thumb_name == "00_thumb.png" else Path(stable_thumb_name).stem
     compiler_defaults = _load_compiler_defaults_from_templates(ch)
     img_id, txt_id = resolve_channel_layer_spec_ids(ch)
-    if not img_id or not txt_id:
-        raise RuntimeError(f"layer_specs not configured for channel: {ch}")
-    image_spec = load_image_prompts_v3_typed(img_id)
+    if not txt_id:
+        txt_id = "text_layout_v3"
     text_spec = load_layer_spec_yaml(txt_id)
     text_spec_typed = load_text_layout_v3_typed(txt_id)
 
+    # image_prompts / model_key are only required when generating backgrounds.
+    image_spec: Optional[ImagePromptsSpecV3] = None
     model_key = _resolve_model_key_from_templates(ch)
-    if not model_key:
-        raise RuntimeError(f"image_model_key not found in workspaces/thumbnails/templates.json for channel={ch}")
+    needs_generation = (not bool(skip_generate)) or bool(regen_bg)
+    if needs_generation:
+        if not img_id:
+            img_id = "image_prompts_v3"
+        image_spec = load_image_prompts_v3_typed(img_id)
+        if not model_key:
+            raise RuntimeError(f"image_model_key not found in workspaces/thumbnails/templates.json for channel={ch}")
 
     assets_root = fpaths.thumbnails_root() / "assets" / ch
     assets_root.mkdir(parents=True, exist_ok=True)
 
-    client = ImageClient()
+    client = ImageClient() if needs_generation else None
     portrait_policy = _load_ch26_portrait_policy() if ch == "CH26" else {}
 
     bg_defaults = compiler_defaults.get("bg_enhance") if isinstance(compiler_defaults.get("bg_enhance"), dict) else {}
@@ -1061,9 +1162,16 @@ def build_channel_thumbnails(
             if skip_generate:
                 print(f"[{idx}/{len(targets)}] {target.video_id}: missing bg (skip_generate)")
                 continue
-            prompt = next((it.prompt_ja for it in image_spec.items if it.video_id == target.video_id), None)
+            prompt = None
+            if image_spec is not None:
+                prompt = next((it.prompt_ja for it in image_spec.items if it.video_id == target.video_id), None)
             if not isinstance(prompt, str) or not prompt.strip():
-                raise RuntimeError(f"image prompt missing for {target.video_id}")
+                prompt = _load_planning_image_prompt(ch, target.video)
+            if not isinstance(prompt, str) or not prompt.strip():
+                raise RuntimeError(
+                    f"image prompt missing for {target.video_id} "
+                    f"(layer_specs image_prompts item or Planning CSV image prompt column is required)"
+                )
             prompt = _sanitize_prompt_for_generation(channel=ch, prompt=prompt)
             negative_prompt = _negative_prompt_for_generation(channel=ch)
             try:
@@ -1107,6 +1215,8 @@ def build_channel_thumbnails(
         template_id = str(item.get("template_id") or "").strip() if isinstance(item, dict) else ""
         if template_id_override:
             template_id = str(template_id_override).strip() or template_id
+        if not template_id:
+            template_id = _default_text_template_id(text_spec)
         templates = text_spec.get("templates") if isinstance(text_spec, dict) else None
         slots = None
         if template_id and isinstance(templates, dict):
@@ -1149,6 +1259,13 @@ def build_channel_thumbnails(
         text_line_spec_lines = _load_text_line_spec_lines(ch, target.video, stable=stable_id)
 
         text_spec_for_render = text_spec
+        if not isinstance(item, dict) and template_id:
+            text_spec_for_render = _ensure_text_layout_item(
+                text_layout_spec=text_spec_for_render,
+                video_id=target.video_id,
+                template_id=template_id,
+                title=str(target.video_id),
+            )
         needs_text_mutation = bool(text_line_spec_lines) or abs(float(video_text_scale) - 1.0) > 1e-6 or (
             abs(float(video_text_offset_x)) > 1e-9 or abs(float(video_text_offset_y)) > 1e-9
         )
@@ -1178,6 +1295,13 @@ def build_channel_thumbnails(
                             if isinstance(base_size, (int, float)):
                                 scaled = int(round(float(base_size) * float(line_scale_f)))
                                 slot_cfg["base_size_px"] = max(1, scaled)
+        if not isinstance(item, dict) and template_id:
+            text_spec_for_render = _ensure_text_layout_item(
+                text_layout_spec=text_spec_for_render,
+                video_id=target.video_id,
+                template_id=template_id,
+                title=str(target.video_id),
+            )
 
         resolved_text_by_slot: Dict[str, str] = {}
         if isinstance(slots, dict):

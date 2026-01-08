@@ -12,15 +12,16 @@
       "character": "男性3",
       "engine_options": {
         "narrator": "男性3",
-        "pitch": -60
+        "pitch": 0,
+        "comma_policy": "particles",
+        "comma_drop_particles": ["は", "が", "に", "で", "も", "へ", "を"]
       }
     },
     "voicepeak_female1_low": {
       "engine": "voicepeak",
       "character": "Japanese Female 1",
       "engine_options": {
-        "narrator": "Japanese Female 1",
-        "pitch": -60
+        "narrator": "Japanese Female 1"
       }
     },
     "voicevox_aoyama": {

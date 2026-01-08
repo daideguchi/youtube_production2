@@ -29,6 +29,7 @@ import {
   PromptUpdatePayload,
   ThumbnailLibraryAsset,
   ThumbnailLibraryAssignResponse,
+  ThumbnailAssetReplaceResponse,
   ThumbnailDescriptionResponse,
   ThumbnailEditorContext,
   ThumbnailCommentPatch,
@@ -1285,6 +1286,24 @@ export function uploadThumbnailVariantAsset(
   }
   return requestForm<ThumbnailVariant>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/variants/upload`,
+    form
+  );
+}
+
+export function replaceThumbnailVideoAsset(
+  channel: string,
+  video: string,
+  slot: string,
+  file: File
+): Promise<ThumbnailAssetReplaceResponse> {
+  const slotKey = String(slot ?? "").trim();
+  if (!slotKey) {
+    return Promise.reject(new Error("slot が未指定です。"));
+  }
+  const form = new FormData();
+  form.append("file", file);
+  return requestForm<ThumbnailAssetReplaceResponse>(
+    `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/assets/${encodeURIComponent(slotKey)}`,
     form
   );
 }

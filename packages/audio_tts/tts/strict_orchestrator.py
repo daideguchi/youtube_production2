@@ -168,7 +168,16 @@ def run_strict_pipeline(
         
         # 4. SRT Generation
         srt_path = output_wav.with_suffix(".srt")
-        generate_srt(segments, srt_path)
+        generate_srt(
+            segments,
+            srt_path,
+            channel=channel,
+            video_no=video_no,
+            engine=engine,
+            voice_config=voice_config,
+            voicevox_client=vv_client,
+            speaker_id=speaker_id,
+        )
     else:
         print("[STEP 3] Prepass mode: skip synthesis/SRT. Log only.")
     

@@ -23,6 +23,7 @@ class VisualCuesPlanSection(BaseModel):
     summary: str = ""
     visual_focus: str = ""
     emotional_tone: str = ""
+    refined_prompt: str = ""
     persona_needed: bool = False
     role_tag: str = ""
     section_type: str = ""
@@ -31,7 +32,7 @@ class VisualCuesPlanSection(BaseModel):
     @classmethod
     def _accept_compact_list(cls, v: Any) -> Any:
         # Accept the compact runbook format:
-        # [start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type]
+        # [start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type,refined_prompt]
         if isinstance(v, list):
             start = v[0] if len(v) > 0 else None
             end = v[1] if len(v) > 1 else None
@@ -44,6 +45,7 @@ class VisualCuesPlanSection(BaseModel):
                 "persona_needed": bool(v[5]) if len(v) > 5 else False,
                 "role_tag": str(v[6]) if len(v) > 6 and v[6] is not None else "",
                 "section_type": str(v[7]) if len(v) > 7 and v[7] is not None else "",
+                "refined_prompt": str(v[8]) if len(v) > 8 and v[8] is not None else "",
             }
         return v
 

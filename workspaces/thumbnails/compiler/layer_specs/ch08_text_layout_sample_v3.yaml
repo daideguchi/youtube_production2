@@ -26,20 +26,20 @@ templates:
         box: [0.0400, 0.0300, 0.9200, 0.1000]
         font: headline_sans
         fill: white_fill
-        base_size_px: 94
+        base_size_px: 86
         align: center
         tracking: 0
         max_lines: 1
         backdrop:
           enabled: true
           mode: image
-          image_path: asset/thumbnails/common/brush/brush_swipe_bench_04.png
+          image_path: asset/thumbnails/common/brush/brush_swipe_bench_05.png
           fit: stretch
           colorize: true
           color: '#000000'
           alpha: 0.90
-          pad_x_px: 80
-          pad_y_px: 22
+          pad_x_px: 70
+          pad_y_px: 20
         stroke: false
         shadow: false
         glow: false
@@ -47,20 +47,21 @@ templates:
         box: [0.0400, 0.1150, 0.9200, 0.2150]
         font: headline_sans
         fill: white_fill
-        base_size_px: 190
+        base_size_px: 170
         align: center
         tracking: 0
         max_lines: 2
         backdrop:
           enabled: true
           mode: image
-          image_path: asset/thumbnails/common/brush/brush_swipe_bench_04.png
+          image_path: asset/thumbnails/common/brush/brush_swipe_bench_05.png
           fit: stretch
           colorize: true
           color: '#000000'
           alpha: 0.90
-          pad_x_px: 110
-          pad_y_px: 30
+          pad_x_px: 100
+          pad_y_px: 26
+          per_line: true
         stroke: false
         shadow: false
         glow: false

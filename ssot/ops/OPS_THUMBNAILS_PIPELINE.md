@@ -27,6 +27,8 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
     - slot code 正本: `configs/image_model_slots.yaml`（例: `f-4`）
     - 運用既定（現行）: **Gemini 2.5 Flash Image**（`g-1` / `img-gemini-flash-1`）
       - ポリシー: サムネは **Gemini > FLUX max**（サイレント切替はしない）
+      - 例外（許可）: サムネ背景生成（`thumbnail_image_gen`）に限り **Gemini 3**（例: `gemini_3_pro_image_preview`）の利用を許可する（必要時のみ明示して使う）。
+        - 注意: 動画内画像（`visual_image_gen`）では Gemini 3 は禁止（別SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md`）。
   - Fireworks（画像）キー運用（固定）:
     - 台本用（`FIREWORKS_SCRIPT*`）とは **別プール**（`FIREWORKS_IMAGE*`）で運用する（コスト/枯渇の混線防止）
       - ただし現行運用では **Fireworks（text/台本）は無効**（`YTM_DISABLE_FIREWORKS_TEXT=1`）
@@ -35,10 +37,12 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
       - token-free状態更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`
     - 並列運用: 同一キーの同時利用を避けるため、画像生成は **key lease** で排他する（`FIREWORKS_KEYS_LEASE_DIR` 参照）
 
-  - 非常時（Gemini が使えない/止める必要がある場合）:
-    - **サイレント切替は禁止**（正本: `ssot/DECISIONS.md:D-002`）。切替は必ず明示する。
+    - 非常時（Gemini が使えない/止める必要がある場合）:
+      - **サイレント切替は禁止**（正本: `ssot/DECISIONS.md:D-002`）。切替は必ず明示する。
     - サムネ背景生成だけ FLUX max に切替する場合は、タスク強制で固定する:
       - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
+    - サムネ背景生成で Gemini 3 を使う場合（許可・明示）:
+      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
     - 事故防止のため `allow_fallback` は有効化しない（明示 `model_key` は strict が原則）。
     - 期間が長い場合は `.gitignore` 対象の `configs/*.local.*`（例: `configs/image_models.local.yaml`, `configs/image_model_slots.local.yaml`）で切替してよい（コミットしない）。
 
@@ -234,8 +238,11 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 
 ローカル合成は **一括目視**できる状態が最重要。
 - `workspaces/thumbnails/assets/{CH}/_qc/contactsheet_*.png` を生成し、差分/劣化を素早く検出する。
-- UIでの確認を容易にするため、最新のQCは `workspaces/thumbnails/assets/{CH}/library/qc/contactsheet.png` に publish する。
-  - UI: `/thumbnails` → **QCタブ**（QCはここに集約。ライブラリ/案件には混ぜない）
+- UIでの確認を容易にするため、最新のQCは `workspaces/thumbnails/assets/{CH}/library/qc/contactsheet.png` に publish する（正本はここ）。
+  - UI: `/thumbnails` → **QCタブ**
+- 例外（テンプレ/ベンチの“参考集”を残したい時）:
+  - `workspaces/thumbnails/assets/{CH}/library/qc/` に **意図的に** `qc__YYYYMMDD__<topic>__<variant>.png` のような命名で少数だけ置いてよい（探索ノイズを増やさない）。
+  - 生成元は `--source-name 00_thumb_sample_*.png` のような“安定出力名”を使い、本番 `00_thumb.png` を上書きしない。
 
 ---
 
@@ -266,7 +273,13 @@ A/B（2案）で安定出力名を分けたい場合:
 3) 合成エンジンを決める
    - 推奨: `layer_specs_v3`（`templates.json.channels[CHxx].layer_specs` を設定）
    - 互換: `buddha_3line_v1`（stylepackを用意）
-4) `scripts/thumbnails/build.py build ...` で量産 → QC → UIでレビュー
+4) （任意）ベンチマーク（競合）サムネの特徴を集約→テンプレ雛形を作る
+   - 競合定義SoT: `packages/script_pipeline/channels/CHxx-*/channel_info.json: benchmarks.channels`
+   - 収集: `python3 scripts/ops/yt_dlp_benchmark_analyze.py --channel CHxx --apply`
+   - 特徴抽出（styleguide）: `python3 scripts/ops/thumbnail_styleguide.py build --handle @HANDLE --apply`（または `--channel-id UC...`）
+   - 雛形生成（layer_specs + templates.json追記）: `python3 scripts/ops/thumbnail_styleguide.py scaffold --handle @HANDLE --channel-code CHxx --apply`
+     - 出力: `workspaces/research/thumbnail_styleguides/<UC...>/styleguide.{json,md}`
+5) `scripts/thumbnails/build.py build ...` で量産 → QC → UIでレビュー
 
 ---
 

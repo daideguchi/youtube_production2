@@ -97,9 +97,12 @@ def agent_mode_enabled_for_task(task: str) -> bool:
     # THINK MODE default behavior (safe defaults):
     # - If no filters are specified, intercept only text tasks and avoid image generation tasks.
     if mode == "think" and not (tasks_csv or prefixes_csv or exclude_csv or exclude_prefixes_csv):
-        # Keep this list broad enough so THINK MODE never accidentally hits API for text-only tasks.
-        # (Operator can always narrow via env vars / think.sh flags.)
-        prefixes_csv = "script_,tts_,visual_,title_,belt_"
+        # Default policy: intercept ALL LLM tasks (subscription/manual completion),
+        # and only exclude non-text/expensive generation tasks by default.
+        #
+        # Rationale:
+        # - Operators often enable THINK MODE specifically to avoid paid external LLM API spend.
+        # - Prefix allowlists are easy to miss and can silently leak API calls.
         exclude_csv = "visual_image_gen,image_generation"
 
     if exclude_csv:

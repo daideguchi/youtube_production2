@@ -510,19 +510,38 @@ def apply_pan_zoom(
     Apply a lightweight pan/zoom (digital zoom + crop) to adjust framing.
 
     - zoom: >=1.0 (1.0 = no zoom)
-    - pan_x/pan_y: -1..1 (0 = centered). Effective only when zoom > 1.0.
+    - pan_x/pan_y: -1..1 stays within "cover" range (0 = centered).
+      Wider values intentionally reveal the base fill (pasteboard-style).
     """
     z = float(zoom)
-    if z <= 1.0 + 1e-6:
-        return img
-
     w, h = img.size
     if w <= 0 or h <= 0:
         return img
 
-    # Clamp pan to [-1, 1]
-    px = max(-1.0, min(1.0, float(pan_x)))
-    py = max(-1.0, min(1.0, float(pan_y)))
+    # Keep sane bounds (UI/editor may push outside [-1, 1]).
+    px = max(-5.0, min(5.0, float(pan_x)))
+    py = max(-5.0, min(5.0, float(pan_y)))
+
+    # When zoom==1, allow pasteboard-style translation by revealing the base fill.
+    if z <= 1.0 + 1e-6:
+        if abs(px) < 1e-6 and abs(py) < 1e-6:
+            return img
+        out = Image.new("RGBA", (w, h), (0, 0, 0, 255))
+        base = img.convert("RGBA")
+        max_dx = max(1, w // 2)
+        max_dy = max(1, h // 2)
+        left = int(round(px * max_dx))
+        top = int(round(py * max_dy))
+        src_x0 = max(0, left)
+        src_y0 = max(0, top)
+        src_x1 = min(w, left + w)
+        src_y1 = min(h, top + h)
+        if src_x1 > src_x0 and src_y1 > src_y0:
+            crop = base.crop((src_x0, src_y0, src_x1, src_y1))
+            dst_x0 = src_x0 - left
+            dst_y0 = src_y0 - top
+            out.paste(crop, (dst_x0, dst_y0), crop)
+        return out
 
     scaled_w = max(1, int(round(w * z)))
     scaled_h = max(1, int(round(h * z)))
@@ -536,9 +555,19 @@ def apply_pan_zoom(
 
     left = int(cx - (w // 2))
     top = int(cy - (h // 2))
-    left = max(0, min(left, scaled_w - w))
-    top = max(0, min(top, scaled_h - h))
-    return scaled.crop((left, top, left + w, top + h))
+
+    # If the crop extends outside the scaled image, paste onto a black canvas.
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 255))
+    src_x0 = max(0, left)
+    src_y0 = max(0, top)
+    src_x1 = min(scaled_w, left + w)
+    src_y1 = min(scaled_h, top + h)
+    if src_x1 > src_x0 and src_y1 > src_y0:
+        crop = scaled.crop((src_x0, src_y0, src_x1, src_y1))
+        dst_x0 = src_x0 - left
+        dst_y0 = src_y0 - top
+        out.paste(crop, (dst_x0, dst_y0), crop)
+    return out
 
 
 @contextmanager
@@ -583,7 +612,7 @@ def enhanced_bg_path(
 
     try:
         bg_img = Image.open(base_bg_path).convert("RGBA")
-        if abs(z - 1.0) >= 1e-6:
+        if abs(z - 1.0) >= 1e-6 or abs(px) >= 1e-6 or abs(py) >= 1e-6:
             bg_img = apply_pan_zoom(bg_img, zoom=z, pan_x=px, pan_y=py)
         if not params.is_identity():
             bg_img = apply_bg_enhancements(bg_img, params=params)

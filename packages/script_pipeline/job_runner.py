@@ -50,8 +50,8 @@ def _duration_sec(started_at: str | None, finished_at: str | None) -> float | No
 
 
 def _slack_notify(job: Dict[str, Any], result: Dict[str, Any]) -> None:
-    webhook = job.get("notify") or os.getenv("SLACK_WEBHOOK_URL")
-    if not send_slack or not webhook:
+    webhook = str(job.get("notify") or "").strip()
+    if not send_slack:
         return
     status = result.get("status")
     attempts = job.get("attempts", 0)

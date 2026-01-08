@@ -13,12 +13,31 @@ from fastapi import APIRouter, HTTPException, Body
 
 from factory_common import locks as coord_locks
 from factory_common import paths as repo_paths
+from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 
 router = APIRouter(prefix="/api/meta", tags=["meta"])
 
 REPO_ROOT = repo_paths.repo_root()
 
 _CACHE: Dict[str, Any] = {"at": 0.0, "value": None}
+_YOUTUBE_PUBLISHING_CACHE: Dict[str, Any] = {"at": 0.0, "value": None}
+
+LOGS_ROOT = repo_paths.logs_root()
+YOUTUBE_PUBLISHING_CACHE_DIR = LOGS_ROOT / "_cache" / "youtube_publishing"
+YOUTUBE_PUBLISHING_CACHE_PATH = YOUTUBE_PUBLISHING_CACHE_DIR / "publishing.json"
+
+
+def _float_env(name: str, default: float) -> float:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
+
+
+YOUTUBE_PUBLISHING_CACHE_TTL_SEC = _float_env("YOUTUBE_PUBLISHING_CACHE_TTL_HOURS", 6.0) * 3600.0
 
 
 def _run_git(*args: str) -> Tuple[Optional[str], Optional[str]]:
@@ -78,6 +97,260 @@ def get_meta():
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _load_youtube_publishing_disk_cache(*, now_ts: float) -> tuple[Optional[float], Optional[dict[str, Any]]]:
+    if not YOUTUBE_PUBLISHING_CACHE_PATH.exists():
+        return None, None
+    try:
+        payload = json.loads(_read_text_best_effort(YOUTUBE_PUBLISHING_CACHE_PATH))
+    except Exception:
+        return None, None
+    fetched_at = _parse_iso_datetime(payload.get("fetched_at"))
+    if not fetched_at:
+        return None, None
+    fetched_ts = fetched_at.replace(tzinfo=timezone.utc).timestamp()
+    if now_ts - fetched_ts > YOUTUBE_PUBLISHING_CACHE_TTL_SEC:
+        return None, None
+    return fetched_ts, payload
+
+
+def _persist_youtube_publishing_disk_cache(payload: dict[str, Any]) -> None:
+    try:
+        YOUTUBE_PUBLISHING_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        YOUTUBE_PUBLISHING_CACHE_PATH.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    except Exception:
+        # best-effort
+        return
+
+
+def _jst_date_from_iso(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except Exception:
+        return None
+    try:
+        from zoneinfo import ZoneInfo
+
+        tz = ZoneInfo("Asia/Tokyo")
+    except Exception:
+        tz = timezone.utc
+    return dt.astimezone(tz).date().isoformat()
+
+
+def _load_channels_catalog() -> list[dict[str, Any]]:
+    catalog_path = REPO_ROOT / "packages" / "script_pipeline" / "channels" / "channels_info.json"
+    if not catalog_path.exists():
+        return []
+    try:
+        text = _read_text_best_effort(catalog_path)
+        obj = json.loads(text)
+    except Exception:
+        return []
+    return obj if isinstance(obj, list) else []
+
+
+def _channel_sort_key(code: str) -> tuple[int, str]:
+    text = str(code or "").upper()
+    if text.startswith("CH") and text[2:].isdigit():
+        return (int(text[2:]), text)
+    return (10_000, text)
+
+
+def _chunks(seq: list[str], n: int) -> list[list[str]]:
+    if n <= 0:
+        return [list(seq)]
+    return [seq[i : i + n] for i in range(0, len(seq), n)]
+
+
+def _resolve_uploads_playlists(
+    client: YouTubeDataClient,
+    channel_ids: list[str],
+) -> tuple[dict[str, str], list[str]]:
+    warnings: list[str] = []
+    out: dict[str, str] = {}
+    for batch in _chunks(channel_ids, 50):
+        try:
+            data = client._get(
+                "channels",
+                {
+                    "part": "contentDetails",
+                    "id": ",".join(batch),
+                    "maxResults": max(1, len(batch)),
+                },
+            )
+        except YouTubeDataAPIError as exc:
+            warnings.append(str(exc))
+            continue
+
+        items = data.get("items") or []
+        for item in items:
+            channel_id = str(item.get("id") or "").strip()
+            uploads = (
+                (item.get("contentDetails") or {}).get("relatedPlaylists") or {}
+            ).get("uploads")
+            uploads = str(uploads or "").strip()
+            if channel_id and uploads:
+                out[channel_id] = uploads
+
+    return out, warnings
+
+
+def _fetch_latest_uploads(
+    client: YouTubeDataClient,
+    uploads_playlist_id: str,
+    *,
+    limit: int,
+) -> tuple[list[dict[str, Any]], Optional[str]]:
+    try:
+        data = client._get(
+            "playlistItems",
+            {
+                "part": "contentDetails,snippet",
+                "playlistId": uploads_playlist_id,
+                "maxResults": max(1, min(limit, 6)),
+            },
+        )
+    except YouTubeDataAPIError as exc:
+        return [], str(exc)
+
+    items = data.get("items") or []
+    out: list[dict[str, Any]] = []
+    for item in items:
+        snippet = item.get("snippet") or {}
+        content = item.get("contentDetails") or {}
+        video_id = str(content.get("videoId") or (snippet.get("resourceId") or {}).get("videoId") or "").strip() or None
+        title = str(snippet.get("title") or "").strip() or None
+        published_at = str(content.get("videoPublishedAt") or snippet.get("publishedAt") or "").strip() or None
+        out.append(
+            {
+                "video_id": video_id,
+                "title": title,
+                "published_at": published_at,
+                "published_date_jst": _jst_date_from_iso(published_at),
+                "url": f"https://www.youtube.com/watch?v={video_id}" if video_id else None,
+            }
+        )
+    return out, None
+
+
+@router.get("/youtube/publishing")
+def get_youtube_publishing(
+    refresh: bool = False,
+    limit: int = 1,
+):
+    """
+    YouTube Data API（APIキー）で、各チャンネルの最新公開日（公開済み動画）を集計する。
+    Note: 公開予約（publishAt）は APIキーでは取得できないため対象外。
+    """
+    now = time.time()
+    cached_at = float(_YOUTUBE_PUBLISHING_CACHE.get("at") or 0.0)
+    cached_value = _YOUTUBE_PUBLISHING_CACHE.get("value")
+    if cached_value and not refresh and now - cached_at < YOUTUBE_PUBLISHING_CACHE_TTL_SEC:
+        return cached_value
+    if not refresh:
+        disk_at, disk_value = _load_youtube_publishing_disk_cache(now_ts=now)
+        if disk_value is not None and disk_at is not None:
+            _YOUTUBE_PUBLISHING_CACHE["at"] = disk_at
+            _YOUTUBE_PUBLISHING_CACHE["value"] = disk_value
+            return disk_value
+
+    client = YouTubeDataClient.from_env()
+    if not getattr(client, "api_key", None):
+        return {
+            "schema": "ytm.meta.youtube_publishing.v1",
+            "status": "disabled",
+            "generated_at": _utc_now_iso(),
+            "fetched_at": None,
+            "channels": [],
+            "warnings": ["YOUTUBE_API_KEY が設定されていません"],
+        }
+
+    catalog = _load_channels_catalog()
+    warnings: list[str] = []
+    targets: list[dict[str, Any]] = []
+    channel_ids: list[str] = []
+
+    for entry in catalog:
+        if not isinstance(entry, dict):
+            continue
+        code = str(entry.get("channel_id") or "").strip().upper()
+        if not code.startswith("CH"):
+            continue
+        youtube = entry.get("youtube") if isinstance(entry.get("youtube"), dict) else {}
+        channel_id = str(youtube.get("channel_id") or "").strip()
+        handle = str(entry.get("youtube_handle") or youtube.get("handle") or "").strip() or None
+        if not channel_id:
+            warnings.append(f"missing_youtube_channel_id:{code}")
+            continue
+        channel_ids.append(channel_id)
+        targets.append({"channel": code, "youtube_channel_id": channel_id, "youtube_handle": handle})
+
+    uploads_map, uploads_warnings = _resolve_uploads_playlists(client, channel_ids)
+    warnings.extend(uploads_warnings)
+
+    limit_clamped = max(1, min(int(limit or 1), 6))
+
+    channels_out: list[dict[str, Any]] = []
+    for item in targets:
+        code = str(item.get("channel") or "").strip().upper()
+        channel_id = str(item.get("youtube_channel_id") or "").strip()
+        uploads_playlist_id = uploads_map.get(channel_id)
+        if not uploads_playlist_id:
+            warnings.append(f"missing_uploads_playlist:{code}")
+            continue
+
+        recent, err = _fetch_latest_uploads(client, uploads_playlist_id, limit=limit_clamped)
+        if err:
+            warnings.append(f"{code}: {err}")
+        latest = recent[0] if recent else {}
+        channels_out.append(
+            {
+                "channel": code,
+                "youtube_channel_id": channel_id,
+                "youtube_handle": item.get("youtube_handle"),
+                "latest_published_at": latest.get("published_at"),
+                "latest_published_date_jst": latest.get("published_date_jst"),
+                "latest_title": latest.get("title"),
+                "latest_video_id": latest.get("video_id"),
+                "latest_url": latest.get("url"),
+                "recent": recent,
+            }
+        )
+
+    channels_out.sort(key=lambda x: _channel_sort_key(str(x.get("channel") or "")))
+    payload = {
+        "schema": "ytm.meta.youtube_publishing.v1",
+        "status": "ok",
+        "generated_at": _utc_now_iso(),
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "channels": channels_out,
+        "warnings": warnings[:200],
+    }
+    _persist_youtube_publishing_disk_cache(payload)
+    _YOUTUBE_PUBLISHING_CACHE["at"] = now
+    _YOUTUBE_PUBLISHING_CACHE["value"] = payload
+    return payload
 
 
 def _read_text_best_effort(path: Path) -> str:

@@ -330,7 +330,9 @@ def build_contactsheet(
         label = f"{vid}"
         bbox = draw.textbbox((0, 0), label, font=font)
         tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        lx, ly = x + 10, y + 10
+        # Place the video label away from the typical "top-left title" area to avoid
+        # covering the thumbnail's own top text.
+        lx, ly = x + tile_w - 10 - tw, y + 10
         draw.rectangle((lx - 6, ly - 4, lx + tw + 6, ly + th + 4), fill=(0, 0, 0))
         draw.text((lx, ly), label, fill=(255, 255, 255), font=font)
 

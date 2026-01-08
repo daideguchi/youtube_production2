@@ -25,8 +25,7 @@
       "engine": "voicepeak",
       "character": "男性3",
       "engine_options": {
-        "narrator": "男性3",
-        "pitch": -60
+        "narrator": "男性3"
       }
     },
     "voicevox_namioto": {

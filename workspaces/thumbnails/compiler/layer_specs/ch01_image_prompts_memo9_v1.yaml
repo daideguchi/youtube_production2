@@ -271,6 +271,11 @@ items:
       Main subject on FAR RIGHT (rightmost 40–45%), edge-to-edge.
       Left 55–60% is empty text-safe area: dark smooth gradient, minimal texture, NO objects, NO glow, NO particles.
 
+      CROP / SCALE (LOCKED):
+      Extreme close-up (head + shoulders only). NO full body. Crop around the chest.
+      Make the face large and readable: the head + halo should fill ~55–65% of the canvas height on the right side.
+      Keep the full head AND full halo visible (do not crop), with a small margin from top/right.
+
       SUBJECT (FIXED for CH01):
       Impactful Buddhist monk, elderly, shaved head, orange-brown robes, prayer beads. Calm but unwavering presence.
 
@@ -306,11 +311,16 @@ items:
       Semi-real illustration (NOT photo), Japanese ink + watercolor hybrid, cinematic, high contrast, subtle grain.
 
       COMPOSITION (LOCKED):
-      Subject on FAR RIGHT, big face + upper torso, rightmost 40–45%.
+      Subject on FAR RIGHT, rightmost 40–45%, edge-to-edge.
       Left 55–60% is dark smooth empty space for text (no details).
 
+      CROP / SCALE (LOCKED):
+      Tight close-up (head + shoulders / upper torso). NO full body.
+      Make the face large and readable: the head + halo should fill ~55–65% of the canvas height on the right side.
+      Keep the full head AND full halo visible (do not crop), with a small margin from top/right.
+
       SUBJECT (FIXED for CH01):
-      Elderly Buddhist monk, shaved head, orange-brown robes, prayer beads, calm and dignified.
+      Elderly Buddhist monk, shaved head, orange-brown robes, prayer beads. Calm but powerful presence, clear silhouette.
 
       POSE / GAZE:
       3/4 view facing LEFT, eyes gently toward the text area (quiet strength).
@@ -342,6 +352,11 @@ items:
 
       COMPOSITION (LOCKED):
       Subject on FAR RIGHT (rightmost 40–45%), left 55–60% empty dark smooth text-safe area.
+
+      CROP / SCALE (LOCKED):
+      Tight close-up (head + shoulders / upper torso). NO full body.
+      Make the face large and readable: the head + halo should fill ~55–65% of the canvas height on the right side.
+      Keep the full head AND full halo visible (do not crop), with a small margin from top/right.
 
       SUBJECT (FIXED for CH01):
       Elderly Buddhist monk, shaved head, orange-brown robes, prayer beads, calm and unshaken.

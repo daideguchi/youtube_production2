@@ -5663,8 +5663,9 @@ def reset_video(channel: str, video: str, *, wipe_research: bool = False) -> Sta
         current = load_status(channel, video)
         current_meta = dict(current.metadata or {})
         # Preserve only minimal operator guards; everything else should be reloaded from SoT (CSV/persona/prompt).
+        # NOTE: `redo_note` is an episode-level operator memo (UI "リテイク"欄). It must survive resets.
         meta: Dict[str, Any] = {}
-        for key in ("published_lock", "published_at"):
+        for key in ("published_lock", "published_at", "redo_note"):
             if key in current_meta:
                 meta[key] = current_meta.get(key)
         title = current_meta.get("title") or current_meta.get("expected_title") or f"{channel}-{video}"
@@ -6107,6 +6108,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 task="script_semantic_alignment_check",
                                 messages=[{"role": "user", "content": prompt}],
                                 response_format="json_object",
+                                max_tokens=4096,
+                                allow_fallback=True,
                             )
                         finally:
                             if prev_routing_key is None:
@@ -8330,6 +8333,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 task="script_semantic_alignment_check",
                                 messages=[{"role": "user", "content": prompt}],
                                 response_format="json_object",
+                                max_tokens=4096,
+                                allow_fallback=True,
                             )
                         finally:
                             if prev_routing_key is None:
@@ -12202,6 +12207,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 task="script_semantic_alignment_check",
                                 messages=[{"role": "user", "content": prompt}],
                                 response_format="json_object",
+                                max_tokens=4096,
+                                allow_fallback=True,
                             )
                         finally:
                             if prev_routing_key is None:

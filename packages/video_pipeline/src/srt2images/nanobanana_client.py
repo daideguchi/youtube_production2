@@ -250,32 +250,44 @@ def _convert_to_16_9(path: str, target_width: int, target_height: int):
     from PIL import Image
     
     try:
-        img = Image.open(path)
-        current_ratio = img.size[0] / img.size[1]
-        target_ratio = target_width / target_height
-        
-        # If already correct ratio, skip
-        if abs(current_ratio - target_ratio) < 0.01:
-            logging.info("Image already has correct aspect ratio: %s", path)
-            return
-        
-        # For 1024x1024 -> 1920x1080 conversion
-        if img.size == (1024, 1024) and (target_width, target_height) == (1920, 1080):
-            # Center crop to 16:9 then resize
-            crop_height = int(1024 * 9 / 16)  # 576
-            crop_y = (1024 - crop_height) // 2  # 224
-            
-            # Crop to 16:9 aspect ratio
-            cropped = img.crop((0, crop_y, 1024, crop_y + crop_height))
-            
-            # Resize to target dimensions
-            resized = cropped.resize((target_width, target_height), Image.LANCZOS)
-            
-            # Save back to original path
-            resized.save(path)
+        with Image.open(path) as img:
+            w, h = img.size
+            if w <= 0 or h <= 0:
+                logging.info("Skipping conversion for invalid size %s: %s", img.size, path)
+                return
+
+            current_ratio = w / h
+            target_ratio = target_width / target_height
+
+            # Fast path: already exact target.
+            if abs(current_ratio - target_ratio) < 0.01 and (w, h) == (target_width, target_height):
+                logging.info("Image already has correct aspect ratio and size: %s", path)
+                return
+
+            out = img
+
+            # Center-crop to 16:9 if needed.
+            if abs(current_ratio - target_ratio) >= 0.01:
+                if current_ratio > target_ratio:
+                    # Too wide → crop width.
+                    new_w = int(round(h * target_ratio))
+                    new_w = max(1, min(w, new_w))
+                    left = (w - new_w) // 2
+                    box = (left, 0, left + new_w, h)
+                else:
+                    # Too tall → crop height.
+                    new_h = int(round(w / target_ratio))
+                    new_h = max(1, min(h, new_h))
+                    top = (h - new_h) // 2
+                    box = (0, top, w, top + new_h)
+                out = img.crop(box)
+
+            # Resize to target dimensions (ensures CapCut-friendly consistency).
+            if out.size != (target_width, target_height):
+                out = out.resize((target_width, target_height), Image.LANCZOS)
+
+            out.save(path)
             logging.info("Converted image to 16:9 (%dx%d): %s", target_width, target_height, path)
-        else:
-            logging.info("Skipping conversion for size %s to %dx%d: %s", img.size, target_width, target_height, path)
             
     except Exception as e:
         logging.warning("Failed to convert image to 16:9 aspect ratio %s: %s", path, e)
@@ -437,6 +449,7 @@ def _run_direct(
     timeout_sec: int,
     input_images: list[str] | None = None,
     model_key: str | None = None,
+    seed: int | None = None,
     *,
     max_retries: int = 3,
 ) -> bool:
@@ -486,6 +499,7 @@ def _run_direct(
                     prompt=prompt,
                     aspect_ratio=aspect_ratio,
                     n=1,
+                    seed=seed,
                     input_images=input_images,
                     extra=extra,
                 )
@@ -639,6 +653,7 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
         timeout_sec,
         input_images=input_images,
         model_key=model_key,
+        seed=(int(cue.get("seed")) if str(cue.get("seed") or "").strip().isdigit() else None),
         max_retries=max_retries,
     )
         
@@ -778,29 +793,46 @@ def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: b
         run_dir_name = run_dir.name
         images_dir = run_dir / "images"
         expected = len(cues)
-        png_names = []
-        if images_dir.exists():
-            png_names = [f.name for f in images_dir.glob("*.png") if f.is_file()]
-            png_count = len(png_names)
-        else:
-            png_count = 0
+
+        # When regenerating a subset (e.g. only cue 28/30/36), images_dir may already contain
+        # many PNGs from the full run. We must validate *requested* outputs, not directory totals.
+        requested: list[str] = []
+        existing: list[str] = []
+        for cue in cues:
+            try:
+                out_path = cue.get("image_path")
+                if not isinstance(out_path, str) or not out_path.strip():
+                    continue
+                p = Path(out_path).resolve()
+                requested.append(p.name)
+                if p.exists() and p.is_file() and p.stat().st_size > 0:
+                    existing.append(p.name)
+            except Exception:
+                continue
+
+        got = len(existing)
+        try:
+            dir_total = len([f for f in images_dir.glob("*.png") if f.is_file()]) if images_dir.exists() else 0
+        except Exception:
+            dir_total = 0
 
         if mode == "direct":
-            logging.info(f"[{run_dir_name}][image_gen][OK] engine=gemini_2_5_flash_image images={png_count} dir={images_dir}")
-        elif mode == "none":
-            logging.info(f"[{run_dir_name}][image_gen][SKIP] reason='mode none' images=0")
-        else:
-            logging.info(f"[{run_dir_name}][image_gen][BATCH_COMPLETE] mode={mode} total_images={png_count}")
-
-        if png_count != expected:
-            # Detect missing frames early so downstream (CapCut) doesn't fail silently
-            missing = sorted(
-                {f"{i:04d}.png" for i in range(1, expected + 1)} - set(png_names)
+            logging.info(
+                f"[{run_dir_name}][image_gen][OK] mode=direct requested={expected} ok={got} dir_total={dir_total} dir={images_dir}"
             )
+        elif mode == "none":
+            logging.info(f"[{run_dir_name}][image_gen][SKIP] reason='mode none' requested={expected}")
+        else:
+            logging.info(
+                f"[{run_dir_name}][image_gen][BATCH_COMPLETE] mode={mode} requested={expected} ok={got} dir_total={dir_total}"
+            )
+
+        if got != expected:
+            missing = sorted(set(requested) - set(existing))
             logging.warning(
                 "[%s][image_gen][MISMATCH] expected=%d got=%d missing=%s",
                 run_dir_name,
                 expected,
-                png_count,
+                got,
                 ",".join(missing[:10]) + ("..." if len(missing) > 10 else ""),
             )

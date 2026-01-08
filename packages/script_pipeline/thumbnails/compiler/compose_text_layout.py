@@ -646,6 +646,65 @@ def _apply_backdrop_image_overlay(
     return Image.alpha_composite(img, full)
 
 
+def _apply_backdrop_image_overlay_multi(
+    base: Image.Image,
+    *,
+    boxes_px: Sequence[Tuple[int, int, int, int]],
+    image_path: str,
+    fit: str,
+    colorize: bool,
+    color: RGBA,
+    alpha: float,
+) -> Image.Image:
+    if not boxes_px:
+        return base.convert("RGBA")
+    if not colorize:
+        out = base.convert("RGBA")
+        for box_px in boxes_px:
+            out = _apply_backdrop_image_overlay(
+                out,
+                box_px=box_px,
+                image_path=image_path,
+                fit=fit,
+                colorize=colorize,
+                color=color,
+                alpha=alpha,
+            )
+        return out
+
+    img = base.convert("RGBA")
+    w, h = img.size
+
+    resolved = _resolve_repo_file_path(image_path)
+    if not resolved:
+        return img
+    src = _load_rgba_image_cached(resolved).copy()
+
+    a = max(0.0, min(1.0, float(alpha)))
+    mask_full = Image.new("L", (w, h), 0)
+    for raw_box in boxes_px:
+        x0, y0, x1, y1 = [int(v) for v in raw_box]
+        x0 = max(0, min(w - 1, x0))
+        y0 = max(0, min(h - 1, y0))
+        x1 = max(x0 + 1, min(w, x1))
+        y1 = max(y0 + 1, min(h, y1))
+        sw = max(1, x1 - x0)
+        sh = max(1, y1 - y0)
+
+        overlay = _fit_rgba_image_to_box(src, size=(sw, sh), fit=fit).convert("RGBA")
+        alpha_ch = overlay.getchannel("A")
+        if a < 0.999:
+            alpha_ch = alpha_ch.point(lambda p: int(round(p * a)))
+
+        tmp = Image.new("L", (w, h), 0)
+        tmp.paste(alpha_ch, (x0, y0))
+        mask_full = ImageChops.lighter(mask_full, tmp)
+
+    solid = Image.new("RGBA", (w, h), (color[0], color[1], color[2], 255))
+    solid.putalpha(mask_full)
+    return Image.alpha_composite(img, solid)
+
+
 def _split_font_ref(font_ref: str) -> Tuple[str, int, Optional[str]]:
     """
     Support TTC face selection + variable font selection using a compact encoding:
@@ -1875,6 +1934,7 @@ def compose_text_layout(
                 sw = int(fit.stroke_width if stroke_enabled else 0)
 
                 bbox_union: Optional[Tuple[int, int, int, int]] = None
+                line_boxes: List[Tuple[int, int, int, int]] = []
                 y_cursor = int(y_draw)
                 for line in fit.lines:
                     if not line:
@@ -1896,6 +1956,7 @@ def compose_text_layout(
                         int(x_anchor + bbox[2]),
                         int(y_anchor + bbox[3]),
                     )
+                    line_boxes.append(abs_box)
                     if bbox_union is None:
                         bbox_union = abs_box
                     else:
@@ -1907,13 +1968,13 @@ def compose_text_layout(
                         )
                     y_cursor += bh + int(fit.line_gap)
 
-                if bbox_union is not None and bd_alpha > 0.0:
-                    box_px = (
-                        bbox_union[0] - pad_x,
-                        bbox_union[1] - pad_y,
-                        bbox_union[2] + pad_x,
-                        bbox_union[3] + pad_y,
-                    )
+                per_line = bool(backdrop_cfg.get("per_line", False))
+                boxes = line_boxes if per_line else ([bbox_union] if bbox_union is not None else [])
+
+                if boxes and bd_alpha > 0.0:
+                    boxes_px: List[Tuple[int, int, int, int]] = []
+                    for b in boxes:
+                        boxes_px.append((b[0] - pad_x, b[1] - pad_y, b[2] + pad_x, b[3] + pad_y))
                     if mode in {"brush_stroke", "brushstroke", "brush"}:
                         try:
                             roughness = float(backdrop_cfg.get("roughness", 0.25))
@@ -1931,31 +1992,44 @@ def compose_text_layout(
                             blur_px = int(backdrop_cfg.get("blur_px", 1))
                         except Exception:
                             blur_px = 1
-                        out = _apply_brush_stroke_overlay(
-                            out,
-                            box_px=box_px,
-                            color=bd_color,
-                            alpha=bd_alpha,
-                            seed=seed,
-                            roughness=roughness,
-                            feather_px=feather_px,
-                            hole_count=hole_count,
-                            blur_px=blur_px,
-                        )
+                        for box_px in boxes_px:
+                            out = _apply_brush_stroke_overlay(
+                                out,
+                                box_px=box_px,
+                                color=bd_color,
+                                alpha=bd_alpha,
+                                seed=seed,
+                                roughness=roughness,
+                                feather_px=feather_px,
+                                hole_count=hole_count,
+                                blur_px=blur_px,
+                            )
                     else:
                         image_path = str(backdrop_cfg.get("image_path") or "").strip()
                         if image_path:
                             fit_mode = str(backdrop_cfg.get("fit") or "cover").strip().lower()
                             colorize = bool(backdrop_cfg.get("colorize", False))
-                            out = _apply_backdrop_image_overlay(
-                                out,
-                                box_px=box_px,
-                                image_path=image_path,
-                                fit=fit_mode,
-                                colorize=colorize,
-                                color=bd_color,
-                                alpha=bd_alpha,
-                            )
+                            if per_line and colorize:
+                                out = _apply_backdrop_image_overlay_multi(
+                                    out,
+                                    boxes_px=boxes_px,
+                                    image_path=image_path,
+                                    fit=fit_mode,
+                                    colorize=colorize,
+                                    color=bd_color,
+                                    alpha=bd_alpha,
+                                )
+                            else:
+                                for box_px in boxes_px:
+                                    out = _apply_backdrop_image_overlay(
+                                        out,
+                                        box_px=box_px,
+                                        image_path=image_path,
+                                        fit=fit_mode,
+                                        colorize=colorize,
+                                        color=bd_color,
+                                        alpha=bd_alpha,
+                                    )
 
         out = _render_text_lines(
             out,

@@ -33,8 +33,7 @@
       "engine": "voicepeak",
       "character": "Japanese Male 3",
       "engine_options": {
-        "narrator": "Japanese Male 3",
-        "pitch": -60
+        "narrator": "Japanese Male 3"
       }
     },
     "pyopenjtalk_basic": {

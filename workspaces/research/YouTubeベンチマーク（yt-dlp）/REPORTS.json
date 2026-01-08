@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2025-12-29T09:31:23.390104+00:00",
+  "generated_at": "2026-01-08T10:30:17.625741+00:00",
   "entries": [
     {
       "playlist_channel_id": "UC06rREl2zUsv6_qbtqYAHmw",
@@ -8,8 +8,8 @@
       "playlist_channel": "偉人の言霊",
       "channel_avatar_url": "https://yt3.googleusercontent.com/Xra1DgzTnDYSh0pdSqaz6C4TidySG40oGYuqGtidW38brLyzl0BOSr0qgQvN9pI1h8y0tHH8Dw=s0",
       "source_url": "https://www.youtube.com/@偉人の言霊-q4r/videos",
-      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
-      "playlist_end": 120,
+      "fetched_at": "2026-01-08T10:29:48.571280+00:00",
+      "playlist_end": 80,
       "video_count": 41,
       "report_md_path": "YouTubeベンチマーク（yt-dlp）/UC06rREl2zUsv6_qbtqYAHmw/report.md",
       "report_json_path": "YouTubeベンチマーク（yt-dlp）/UC06rREl2zUsv6_qbtqYAHmw/report.json",
@@ -18,13 +18,13 @@
         "title": "【話すと危険】口が裂けても他人に話してはいけない７つのこと｜松下幸之助の言葉で学ぶ人生の知恵」",
         "url": "https://www.youtube.com/watch?v=hbVyx5cAYuo",
         "duration_sec": 1807.0,
-        "view_count": 245558,
+        "view_count": 248030,
         "thumbnail_url": "https://i.ytimg.com/vi/hbVyx5cAYuo/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBaQR8AAL0FA8B2MNSSiCE1AZ9pww",
         "playlist_index": 21
       },
       "stats": {
-        "view_count_median": 3778.0,
-        "view_count_p75": 23829.0,
+        "view_count_median": 3866.0,
+        "view_count_p75": 23922.0,
         "duration_median_sec": 1610.0,
         "title_starts_with_bracket_ratio": 0.5365853658536586,
         "top_bracket_prefix": "人間関係の真実"
@@ -36,25 +36,25 @@
       "playlist_channel": "人生これから - ブッダの教え",
       "channel_avatar_url": "https://yt3.googleusercontent.com/lpIereXDsuqfuHEl6OOqJNpXpXHnW_ZQUUKziHUlz2vrz8MQcPU4_LAhOt7vE4V0u6glRmLIxBU=s0",
       "source_url": "https://www.youtube.com/@buddha-no09/videos",
-      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
-      "playlist_end": 120,
-      "video_count": 120,
+      "fetched_at": "2026-01-08T10:04:17.342714+00:00",
+      "playlist_end": 80,
+      "video_count": 80,
       "report_md_path": "YouTubeベンチマーク（yt-dlp）/UC9fcd5KCJfOeRsdRJZdSaGQ/report.md",
       "report_json_path": "YouTubeベンチマーク（yt-dlp）/UC9fcd5KCJfOeRsdRJZdSaGQ/report.json",
       "top_video": {
-        "id": "bgh4e-ntLao",
-        "title": "【逆転の一言】見下された時に使えるブッダの知恵｜仏教の教えで心が軽くなる",
-        "url": "https://www.youtube.com/watch?v=bgh4e-ntLao",
-        "duration_sec": 1172.0,
-        "view_count": 851831,
-        "thumbnail_url": "https://i.ytimg.com/vi/bgh4e-ntLao/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLD35rAMHE4cJgRgVBdizY2INFMEzA",
-        "playlist_index": 104
+        "id": "ZbSneYw5enA",
+        "title": "【絶対に助けてはいけない人】関わった瞬間 “人生が不幸になる相手”の特徴",
+        "url": "https://www.youtube.com/watch?v=ZbSneYw5enA",
+        "duration_sec": 966.0,
+        "view_count": 239085,
+        "thumbnail_url": "https://i.ytimg.com/vi/ZbSneYw5enA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC2hx3jz2yYwoSDj8TdRJGXLkJEpw",
+        "playlist_index": 28
       },
       "stats": {
-        "view_count_median": 4999.0,
-        "view_count_p75": 11543.25,
-        "duration_median_sec": 1344.5,
-        "title_starts_with_bracket_ratio": 0.7833333333333333,
+        "view_count_median": 5030.0,
+        "view_count_p75": 8178.0,
+        "duration_median_sec": 1313.5,
+        "title_starts_with_bracket_ratio": 0.7125,
         "top_bracket_prefix": "ブッダの警鐘"
       }
     },
@@ -148,9 +148,9 @@
       "playlist_channel": "前略、偉人より",
       "channel_avatar_url": "https://yt3.googleusercontent.com/BI2Jaa_F0s_BA66ibqMh00oQJlT5bC4Obx4gWr8fWhIOVIbFlf01sy4MZEXf0WlT1kzwIcxQNg=s0",
       "source_url": "https://www.youtube.com/@前略偉人より/videos",
-      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
-      "playlist_end": 120,
-      "video_count": 60,
+      "fetched_at": "2026-01-08T10:04:48.304397+00:00",
+      "playlist_end": 80,
+      "video_count": 67,
       "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCeUpwmP1xKY2Tgc8qH-I0Tw/report.md",
       "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCeUpwmP1xKY2Tgc8qH-I0Tw/report.json",
       "top_video": {
@@ -158,15 +158,15 @@
         "title": "【ニコラ・テスラ流】力を抜いて結果を引き寄せる思考術｜偉人の名言・言葉",
         "url": "https://www.youtube.com/watch?v=VbyyBhoFmjM",
         "duration_sec": 1678.0,
-        "view_count": 196617,
+        "view_count": 198630,
         "thumbnail_url": "https://i.ytimg.com/vi/VbyyBhoFmjM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLArcihRQj_AFZ7SJrFmdK1BYorl7w",
-        "playlist_index": 54
+        "playlist_index": 61
       },
       "stats": {
-        "view_count_median": 5676.5,
-        "view_count_p75": 20664.5,
+        "view_count_median": 5820.0,
+        "view_count_p75": 18086.0,
         "duration_median_sec": 1401.0,
-        "title_starts_with_bracket_ratio": 0.9666666666666667,
+        "title_starts_with_bracket_ratio": 0.9701492537313433,
         "top_bracket_prefix": "ニコラ・テスラ流"
       }
     },
@@ -232,9 +232,9 @@
       "playlist_channel": "人生は考え方【偉人から学ぶ】",
       "channel_avatar_url": "https://yt3.googleusercontent.com/quB4dgHlGIT75rePVC_P6yRx7bpwkziVT7u4ITSmZ5WOoSrvLF8F65tjEgrJWPu0fZO0jEda8ok=s0",
       "source_url": "https://www.youtube.com/@人生は考え方で変わる/videos",
-      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
-      "playlist_end": 120,
-      "video_count": 36,
+      "fetched_at": "2026-01-08T10:30:09.592786+00:00",
+      "playlist_end": 80,
+      "video_count": 47,
       "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCsaJfLdsX___zc1OcWHQRWg/report.md",
       "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCsaJfLdsX___zc1OcWHQRWg/report.json",
       "top_video": {
@@ -242,15 +242,15 @@
         "title": "【99%が知らない】「寝ながら聞くだけ」枕元で流して眠りなさい。朝、別世界で目覚めます。テスラが隠した「脳の書き換え」/潜在意識/睡眠導入/引き寄せ/ニコラ・テスラ",
         "url": "https://www.youtube.com/watch?v=U7TZyNQeN5s",
         "duration_sec": 3013.0,
-        "view_count": 212100,
+        "view_count": 232970,
         "thumbnail_url": "https://i.ytimg.com/vi/U7TZyNQeN5s/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAjhI8Qah4Jw8gi48kFNJP8Sj5GbQ",
-        "playlist_index": 24
+        "playlist_index": 35
       },
       "stats": {
-        "view_count_median": 5947.0,
-        "view_count_p75": 17304.0,
-        "duration_median_sec": 3656.0,
-        "title_starts_with_bracket_ratio": 0.8888888888888888,
+        "view_count_median": 5918.5,
+        "view_count_p75": 13389.0,
+        "duration_median_sec": 3753.0,
+        "title_starts_with_bracket_ratio": 0.9148936170212766,
         "top_bracket_prefix": "99％が知らない"
       }
     },
@@ -288,9 +288,9 @@
       "playlist_channel": "偉人のコトバ",
       "channel_avatar_url": "https://yt3.googleusercontent.com/UAEd_ovu6NeNVLJHE35ITxKbs0xZPYlUJDy5L9vlCFuY2rDa6TGeU-1QOfKHf8GdTbSaG5rP=s0",
       "source_url": "https://www.youtube.com/@ijinnnokotoba/videos",
-      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
-      "playlist_end": 120,
-      "video_count": 33,
+      "fetched_at": "2026-01-08T10:29:48.571280+00:00",
+      "playlist_end": 80,
+      "video_count": 43,
       "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCv1e_rsyknQyiyga_NW6LSw/report.md",
       "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCv1e_rsyknQyiyga_NW6LSw/report.json",
       "top_video": {
@@ -298,14 +298,14 @@
         "title": "【テスラのコトバ】※99%が知らない！12月31日23時59分までの過ごし方で2026年が180度激変します。【感謝｜ありがとう｜名言｜言霊｜偉人】ニコラ・テスラ",
         "url": "https://www.youtube.com/watch?v=4XAv5PZOXkg",
         "duration_sec": 1601.0,
-        "view_count": 53527,
+        "view_count": 64115,
         "thumbnail_url": "https://i.ytimg.com/vi/4XAv5PZOXkg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBYoq84J-TFOT6wL3CMbh4QqmMyOg",
-        "playlist_index": 4
+        "playlist_index": 14
       },
       "stats": {
-        "view_count_median": 1090.0,
-        "view_count_p75": 7241.0,
-        "duration_median_sec": 1183.0,
+        "view_count_median": 2741.0,
+        "view_count_p75": 16859.5,
+        "duration_median_sec": 1252.0,
         "title_starts_with_bracket_ratio": 1.0,
         "top_bracket_prefix": "田中角栄のコトバ"
       }

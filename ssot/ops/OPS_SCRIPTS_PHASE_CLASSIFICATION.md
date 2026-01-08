@@ -159,6 +159,10 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/ops/research_genre_index.py`（dry-run）
 - `python3 scripts/ops/research_genre_index.py --apply`（`workspaces/research/**/INDEX.md` を生成し、参照の迷いを減らす）
 
+### Thumbnails（補助/ベンチマーク）
+- 競合メタ収集（yt-dlp）: `python3 scripts/ops/yt_dlp_benchmark_analyze.py --channel CHxx --apply`（SSOT: `ssot/ops/OPS_YT_DLP.md`）
+- サムネ特徴抽出/テンプレ雛形: `python3 scripts/ops/thumbnail_styleguide.py --help`（SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`）
+
 ### Health / Audit
 - `python3 scripts/check_env.py --env-file .env`（start_all内でも実行）
 - `python3 scripts/api_health_check.py --base-url http://127.0.0.1:8000`

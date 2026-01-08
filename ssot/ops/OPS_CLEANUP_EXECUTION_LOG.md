@@ -2223,3 +2223,87 @@ projects.json 整理:
 - `~/Movies/CapCut/Archive_20260106_093139/`
 - `~/Movies/CapCut/Archive_20260106_134641/`
 - `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH02-0[4-8][0-9]_*_draft*`（旧試行ドラフト。`★CH02-*` の安定名ドラフトのみ残す）
+
+### 3) CapCut root の「完成」/壊れ/バックアップドラフト削除（disk逼迫対応 / local）
+
+意図:
+- CapCut UI 上に「完成」やバックアップが残ると探索ノイズになり、ディスクも逼迫するため削除。
+- **テンプレは削除しない**（`テンプレ`/`template` を含むものは除外）。
+
+削除（external, untracked）:
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/完成*`（29件）
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/*_bak_*`（32件）
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/BAD__*`（2件）
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/_codex*`（1件）
+
+---
+
+## 2026-01-07
+
+### 1) CH04 CapCut バックアップドラフト削除（disk逼迫対応 / local）
+
+意図:
+- safe_image_swap が自動作成した `*_draft_bak_*` が CapCut UI の探索ノイズ/ディスク逼迫の原因になったため削除。
+
+削除（external, untracked）:
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH04-*_draft_bak_*`（16件、約3.0G）
+
+### 2) local fallback drafts 削除（disk逼迫対応 / workspace生成物）
+
+意図:
+- CapCut root が書けない環境向けのローカル退避ドラフト（`workspaces/video/_capcut_drafts/`）が蓄積し、探索ノイズ/ディスク逼迫の原因になったため、既に real draft root にコピー済みのものを削除。
+
+削除（workspace, untracked）:
+- `workspaces/video/_capcut_drafts/<candidates from archive_capcut_local_drafts>`（52件、約10G）
+
+証跡（report）:
+- `workspaces/logs/regression/capcut_local_drafts_archive/capcut_local_drafts_archive_20260107T085139Z.json`
+
+### 3) repo-local draft cache 削除（disk逼迫対応 / workspace生成物）
+
+意図:
+- Codex 作業用に生成されたドラフトコピー（参照0）を削除してディスクを回復。
+
+削除（repo, tracked）:
+- `workspaces/video/_capcut_drafts_codex/`（dir、約2.4G）
+
+### 4) CH04 非★ドラフトの削除（重複排除 / local）
+
+意図:
+- `★CH04-001..030` の安定名ドラフトを揃えた後、旧run名ドラフトが探索ノイズ/ディスク逼迫の原因になるため削除。
+
+削除（external, untracked）:
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH04-018_capcut_unpub_20260106_v1_draft`（約237M）
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH04-018_capcut_unpub_noimg_20260106_v1_draft`（約207M）
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH04-019_capcut_unpub_noimg_20260106_v1_draft`（約176M）
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH04-020_capcut_unpub_noimg_20260106_v1_draft`（約154M）
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH04-021_capcut_unpub_noimg_20260106_v1_draft`（約186M）
+
+---
+
+## 2026-01-08
+
+### 1) CH04 投稿済みドラフト/不要生成物の削除（ノイズ/容量逼迫対応）
+
+背景:
+- ユーザー指示: **未投稿は CH04-018〜029 のみ**。投稿済み(001〜015)等のドラフトは探索ノイズ/容量逼迫のため削除。
+- CapCut が落ちる/壊れドラフト混在が発生していたため、対象外ドラフトを除去して探索ノイズを最小化。
+- **LLM/有料画像生成は実行しない**（コスト抑制）。
+
+削除（external, untracked）:
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH04-001-*` 〜 `★CH04-017-*` および `★CH04-030-*`（計18件、約3.0G）
+
+削除（workspace, untracked）:
+- `workspaces/video/runs/CH04-001_capcut_rebuild_20260107_v1` 〜 `workspaces/video/runs/CH04-015_capcut_rebuild_20260107_v1`（計15件）
+- `workspaces/video/runs/CH04-016_capcut_unpub_noimg_20260106_v1`（1件）
+- `workspaces/video/runs/CH04-017_capcut_unpub_noimg_20260106_v1`（1件）
+- `workspaces/video/runs/CH04-030_capcut_unpub_noimg_20260106_v1`（1件）
+- `workspaces/video/runs/CH04-`（stray、1件）
+- 合計19件、約1.9G
+
+削除（workspace, untracked / 追加生成物）:
+- `workspaces/audio/final/CH04/001..015/CH04-XXX.wav`（15ファイル、約0.72G。元の `*.flac` は保持）
+
+保持:
+- `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH04-018..029-*`（未投稿分のみ残す）
+- `workspaces/video/runs/CH04-018..029_*`

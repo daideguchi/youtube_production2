@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Tuple
 import yaml
 
 from factory_common.paths import repo_root
-from factory_common.routing_lockdown import assert_env_absent
+from factory_common.routing_lockdown import assert_env_absent, lockdown_active
 
 
 DEFAULT_CODEX_EXEC_CONFIG: Dict[str, Any] = {
@@ -164,6 +164,11 @@ def _codex_exec_globally_enabled(cfg: Dict[str, Any]) -> bool:
         slot_override = None
     if slot_override is not None:
         return bool(slot_override)
+
+    # Under routing lockdown, Codex exec must be explicitly enabled per-run via exec-slot.
+    # (Prevents surprise subscription calls in Codex-managed shells.)
+    if lockdown_active():
+        return False
 
     if _truthy(cfg.get("enabled")):
         return True

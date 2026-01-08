@@ -53,6 +53,11 @@ yt-dlp --flat-playlist --playlist-end 80 --extractor-args "youtube:lang=ja" \
 python3 scripts/ops/yt_dlp_benchmark_analyze.py --all --apply
 ```
 
+チャンネル単位（`CHxx` の `benchmarks.channels` のみ）:
+```bash
+python3 scripts/ops/yt_dlp_benchmark_analyze.py --channel CHxx --apply
+```
+
 単体（1競合）:
 ```bash
 python3 scripts/ops/yt_dlp_benchmark_analyze.py --url "https://www.youtube.com/@HANDLE" --apply
@@ -69,4 +74,3 @@ python3 scripts/ops/yt_dlp_benchmark_analyze.py --url "https://www.youtube.com/@
 - 競合チャンネルの CTR は取得できない（Analyticsの所有者指標）。
 - 投稿日/いいね/コメント等が必要なら、まず `report.md` で「当たり候補」を絞ってから深掘りする（全件深掘りは重い）。
 - `--skip-download` などを混ぜて複雑化しない（まずは `--flat-playlist` で十分）。
-

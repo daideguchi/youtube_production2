@@ -18,7 +18,7 @@ from ..cues_plan import (
     plan_sections_via_router,
 )
 from ..llm_context_analyzer import LLMContextAnalyzer
-from ..prompt_builder import build_prompt_from_template
+from ..prompt_builder import build_prompt_for_image_model, _looks_like_fireworks_flux_schnell
 from ..llm_prompt_refiner import PromptRefiner
 from ..role_asset_router import RoleAssetRouter
 from ..generators import get_image_generator
@@ -144,6 +144,10 @@ def run_pipeline(args):
         "true",
         "plan",
     )
+    # CH02 defaults to FLUX schnell and needs per-cue "refined_prompt" to avoid repeated compositions.
+    # Prefer deterministic cues_plan (single LLM task; THINK/AGENT friendly) over multi-pass refiners.
+    if channel_upper == "CH02":
+        use_cues_plan = True
     # CH12: slower pacing (~25s per image) is required; prefer deterministic cues_plan.
     if channel_upper == "CH12":
         use_cues_plan = True
@@ -265,6 +269,7 @@ def run_pipeline(args):
                             summary=s.summary,
                             visual_focus=s.visual_focus,
                             emotional_tone=s.emotional_tone,
+                            refined_prompt=getattr(s, "refined_prompt", "") or "",
                             persona_needed=bool(s.persona_needed),
                             role_tag=s.role_tag,
                             section_type=s.section_type,
@@ -301,6 +306,7 @@ def run_pipeline(args):
                                 "summary": s.summary,
                                 "visual_focus": s.visual_focus,
                                 "emotional_tone": s.emotional_tone,
+                                "refined_prompt": getattr(s, "refined_prompt", "") or "",
                                 "persona_needed": bool(s.persona_needed),
                                 "role_tag": s.role_tag,
                                 "section_type": s.section_type,
@@ -416,10 +422,11 @@ def run_pipeline(args):
                 random.shuffle(hints)
                 cue["diversity_note"] = "前後のカットと構図・距離・ポーズ・時間帯・前景を変える: " + " / ".join(hints[:2])
 
-    try:
-        _add_diversity_notes(cues)
-    except Exception as e:
-        logging.warning("Diversity hint generation skipped: %s", e)
+    if _env_truthy("SRT2IMAGES_ENABLE_HEURISTIC_DIVERSITY_NOTES"):
+        try:
+            _add_diversity_notes(cues)
+        except Exception as e:
+            logging.warning("Diversity hint generation skipped: %s", e)
 
     # 3) Build prompts per cue
     prompt_tpl_path = Path(args.prompt_template)
@@ -526,10 +533,83 @@ def run_pipeline(args):
             if _has_word("note"):
                 return "Small blank note by pillow, soft moonlight, quiet room"
             if _has_any(("journal", "notebook", "paper", "page")):
-                return "Hand with pen above blank notebook page, warm lantern light"
-            return "Hand holding pen above blank paper, warm lantern light"
+                return "Open blank notebook page with a pen resting beside it, warm lantern light"
+            return "Blank paper with a pen resting on it, warm lantern light"
 
         return s
+
+    # Deterministic per-cue seeds:
+    # - Increases variety for models that otherwise converge to similar compositions (notably FLUX schnell).
+    # - Keeps regeneration reproducible across agents (same run_dir + cue index -> same seed).
+    seed_mode = (os.getenv("SRT2IMAGES_CUE_SEED_MODE") or "").strip().lower()
+    seed_overwrite = (os.getenv("SRT2IMAGES_CUE_SEED_OVERWRITE") or "").strip().lower() in {"1", "true", "yes", "on"}
+    if seed_mode not in {"0", "false", "off", "no"}:
+        import hashlib
+
+        try:
+            base_seed = int(args.seed or 0)
+        except Exception:
+            base_seed = 0
+
+        def _stable_seed(label: str) -> int:
+            # 31-bit positive integer seed
+            h = hashlib.sha256(label.encode("utf-8")).hexdigest()[:8]
+            v = int(h, 16)
+            v = (v + base_seed) % 2147483647
+            return v or 1
+
+        if seed_mode in {"fixed"}:
+            fixed = _stable_seed(out_dir.name)
+            for cue in cues:
+                if not seed_overwrite and str(cue.get("seed") or "").strip().isdigit():
+                    continue
+                cue["seed"] = fixed
+        else:
+            for pos, cue in enumerate(cues, start=1):
+                if not seed_overwrite and str(cue.get("seed") or "").strip().isdigit():
+                    continue
+                raw_idx = cue.get("index")
+                try:
+                    idx = int(raw_idx)
+                except Exception:
+                    idx = pos
+                cue["seed"] = _stable_seed(f"{out_dir.name}:{idx}")
+
+    # Variation notes (heuristic; disabled by default):
+    # apply light-but-deterministic shot variation for FLUX schnell cues
+    # to avoid repeated "same lobby/storefront" compositions.
+    if _env_truthy("SRT2IMAGES_ENABLE_HEURISTIC_DIVERSITY_NOTES"):
+        try:
+            import random
+
+            def _is_flux_schnell(key: str | None) -> bool:
+                mk = str(key or "").strip().lower()
+                return mk in {"f-1", "img-flux-schnell-1", "fireworks_flux_1_schnell_fp8", "fireworks_flux_1_dev_fp8"}
+
+            ANGLES = ["overhead", "eye-level", "low-angle", "3/4 angle", "side view"]
+            DISTANCES = ["close-up", "medium shot", "wide shot"]
+            LIGHTING = ["soft morning light", "warm dusk light", "cool twilight", "candle-like soft glow", "diffuse cloudy daylight"]
+
+            for cue in cues:
+                mk = str(cue.get("image_model_key") or forced_model_key or "").strip()
+                if not _is_flux_schnell(mk):
+                    continue
+                if cue.get("use_persona") is True:
+                    # Keep persona shots stable: vary only camera angle/distance.
+                    pool = [f"Variation: {a}, {d}" for a in ANGLES for d in DISTANCES]
+                else:
+                    pool = [f"Variation: {a}, {d}, {l}" for a in ANGLES for d in DISTANCES for l in LIGHTING]
+                seed_val = cue.get("seed")
+                try:
+                    rng = random.Random(int(seed_val))
+                except Exception:
+                    rng = random.Random(0)
+                note = rng.choice(pool)
+                existing = str(cue.get("diversity_note") or "").strip()
+                cue["diversity_note"] = f"{existing}\n{note}".strip() if existing else note
+        except Exception:
+            # Fail-soft: prompts still work without variation notes.
+            pass
 
     for cue in cues:
         parts = []
@@ -597,12 +677,37 @@ def run_pipeline(args):
         # Determine if we should prepend summary (Subject-First) for CH01
         is_ch01 = (args.channel or detected_channel or "").upper() == "CH01"
 
-        cue["prompt"] = build_prompt_from_template(
+        # Prefer per-cue model_key when present (e.g., image_source_mix assigns it).
+        # Otherwise fall back to the run-level forced key (preset/env) so prompt shaping can match the model.
+        cue_model_key = str(cue.get("image_model_key") or "").strip() or (forced_model_key or None)
+        if _looks_like_fireworks_flux_schnell(cue_model_key):
+            rp = str(cue.get("refined_prompt") or "").strip()
+            if not rp:
+                raise SystemExit(
+                    "❌ FLUX schnell requires per-cue refined_prompt (SSOT).\n"
+                    f"- Fix: fill {out_dir / 'visual_cues_plan.json'} sections[*].refined_prompt (THINK/AGENT), then rerun.\n"
+                    "- Do NOT rely on local heuristics for prompt diversity."
+                )
+        gen_conf = None
+        try:
+            gen_conf = channel_preset.config_model.image_generation if channel_preset and channel_preset.config_model else None
+        except Exception:
+            gen_conf = None
+        personless_default = bool(getattr(gen_conf, "personless_default", False))
+        main_character = ""
+        if personless_default:
+            main_character = "None (personless scene; do not draw humans)."
+        elif cue.get("use_persona") is True:
+            main_character = "Use recurring main character/persona (keep identical face/clothes/age)."
+        cue["prompt"] = build_prompt_for_image_model(
             template_text,
+            model_key=cue_model_key,
             prepend_summary=is_ch01,
             summary=summary_for_prompt,
+            visual_focus=str(cue.get("visual_focus") or ""),
+            main_character=main_character,
             style=args.style,
-            seed=args.seed,
+            seed=cue.get("seed") if str(cue.get("seed") or "").strip().isdigit() else args.seed,
             size=f"{size['width']}x{size['height']}",
             negative=args.negative,
         )

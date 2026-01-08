@@ -22,7 +22,10 @@
 # - Env vars override both (see `ssot/ops/OPS_ENV_VARS.md`).
 
 enabled: false
-auto_enable_when_codex_managed: true
+# IMPORTANT (ops default):
+# - Codex exec must be explicitly enabled per-run via LLM_EXEC_SLOT (slot 1).
+# - Do NOT auto-enable just because the shell happens to be Codex-managed.
+auto_enable_when_codex_managed: false
 
 # Codex CLI profile from `~/.codex/config.toml` (ensures non-interactive runs don't require approvals).
 profile: claude-code

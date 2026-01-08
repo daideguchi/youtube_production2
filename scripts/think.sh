@@ -13,8 +13,11 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# Defaults: text tasks only (avoid image generation tasks)
-PREFIXES_DEFAULT="script_,tts_,visual_,title_,belt_"
+# Defaults: intercept ALL LLM tasks (avoid paid external LLM API spend),
+# while excluding non-text/expensive image generation tasks.
+#
+# You can narrow interception with --script/--tts/--visual/--all-text.
+PREFIXES_DEFAULT=""
 EXCLUDE_TASKS_DEFAULT="visual_image_gen,image_generation"
 AUTO_BUNDLE=1
 LOOP=0
@@ -36,7 +39,7 @@ Options:
   --script        Only intercept script_* tasks
   --tts           Only intercept tts_* tasks
   --visual        Only intercept visual_* tasks (text only; image_generation is excluded)
-  --all-text      Intercept script_/tts_/visual_/title_/belt_ (default)
+  --all-text      Intercept script_/tts_/visual_/title_/belt_ (narrower than default)
   --agent-name <name>
                  Set LLM_AGENT_NAME for claim/completed_by metadata
   --no-bundle     Do not generate bundle markdown files for pending tasks
@@ -66,7 +69,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --all-text)
-      PREFIXES="$PREFIXES_DEFAULT"
+      PREFIXES="script_,tts_,visual_,title_,belt_"
       shift
       ;;
     --agent-name)
@@ -136,9 +139,11 @@ while :; do
     # Use exec-slot (not LLM_MODE) to avoid drift across agents.
     LLM_EXEC_SLOT=3
     LLM_AGENT_QUEUE_DIR="$QUEUE_DIR"
-    LLM_AGENT_TASK_PREFIXES="$PREFIXES"
     LLM_AGENT_EXCLUDE_TASKS="$EXCLUDE_TASKS"
   )
+  if [[ -n "$PREFIXES" ]]; then
+    ENV_VARS+=(LLM_AGENT_TASK_PREFIXES="$PREFIXES")
+  fi
   if [[ -n "$AGENT_NAME_OVERRIDE" ]]; then
     ENV_VARS+=(LLM_AGENT_NAME="$AGENT_NAME_OVERRIDE")
   fi

@@ -108,6 +108,7 @@ class PlannedSection:
     summary: str = ""
     visual_focus: str = ""
     emotional_tone: str = ""
+    refined_prompt: str = ""
     persona_needed: bool = False
     role_tag: str = ""
     section_type: str = ""
@@ -132,7 +133,7 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
     for item in raw:
         if isinstance(item, list):
             # Legacy compact format:
-            # [start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type]
+            # [start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type,refined_prompt]
             start = item[0] if len(item) > 0 else None
             end = item[1] if len(item) > 1 else None
             summary = str(item[2]) if len(item) > 2 and item[2] is not None else ""
@@ -141,12 +142,14 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
             persona_needed = bool(item[5]) if len(item) > 5 else False
             role_tag = str(item[6]) if len(item) > 6 and item[6] is not None else ""
             section_type = str(item[7]) if len(item) > 7 and item[7] is not None else ""
+            refined_prompt = str(item[8]) if len(item) > 8 and item[8] is not None else ""
         elif isinstance(item, dict):
             start = item.get("start_segment") or item.get("start") or item.get("start_idx")
             end = item.get("end_segment") or item.get("end") or item.get("end_idx")
             summary = str(item.get("summary") or "")
             visual_focus = str(item.get("visual_focus") or "")
             emotional_tone = str(item.get("emotional_tone") or "")
+            refined_prompt = str(item.get("refined_prompt") or item.get("prompt") or "")
             persona_needed = bool(item.get("persona_needed") or False)
             role_tag = str(item.get("role_tag") or "")
             section_type = str(item.get("section_type") or "")
@@ -173,6 +176,7 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
                 summary=_truncate(summary, 60),
                 visual_focus=_truncate(visual_focus, 180),
                 emotional_tone=_truncate(emotional_tone, 40),
+                refined_prompt=_truncate(refined_prompt, 420),
                 persona_needed=bool(persona_needed),
                 role_tag=_truncate(role_tag, 40),
                 section_type=_truncate(section_type, 40),
@@ -204,6 +208,7 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
                 summary=sec.summary,
                 visual_focus=sec.visual_focus,
                 emotional_tone=sec.emotional_tone,
+                refined_prompt=sec.refined_prompt,
                 persona_needed=sec.persona_needed,
                 role_tag=sec.role_tag,
                 section_type=sec.section_type,
@@ -222,6 +227,7 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
             summary=last.summary,
             visual_focus=last.visual_focus,
             emotional_tone=last.emotional_tone,
+            refined_prompt=last.refined_prompt,
             persona_needed=last.persona_needed,
             role_tag=last.role_tag,
             section_type=last.section_type,
@@ -234,6 +240,7 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
             summary=first.summary,
             visual_focus=first.visual_focus,
             emotional_tone=first.emotional_tone,
+            refined_prompt=first.refined_prompt,
             persona_needed=first.persona_needed,
             role_tag=first.role_tag,
             section_type=first.section_type,
@@ -254,6 +261,7 @@ def _coerce_sections(obj: Any, *, segment_count: int) -> List[PlannedSection]:
                 summary=sec.summary,
                 visual_focus=sec.visual_focus,
                 emotional_tone=sec.emotional_tone,
+                refined_prompt=sec.refined_prompt,
                 persona_needed=sec.persona_needed,
                 role_tag=sec.role_tag,
                 section_type=sec.section_type,
@@ -383,13 +391,14 @@ Each section must:
 {extra_slow}
 {extra_buddhist}
 Return ONLY a JSON object (no markdown) with this schema:
-{{"sections":[[start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type],...]}}
+{{"sections":[[start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type,refined_prompt],...]}}
 
 Field rules:
 - start_segment/end_segment: 1-based inclusive indices from the markers.
 - summary: <= 30 Japanese characters (short label).
 - visual_focus: <= 14 English words, concrete camera-ready subject (must differ from adjacent).
 - emotional_tone: <= 2 words.
+- refined_prompt: <= 220 chars, English, camera-ready scene (action/pose + setting/props + lighting + camera angle/distance). Must be distinct across sections; avoid repetition; NO text in image.
 - persona_needed: boolean; true ONLY if recurring characters must stay consistent.
 - role_tag: one of explanation|story|dialogue|list_item|metaphor|quote|hook|cta|recap|transition|viewer_address
 - section_type: one of story|dialogue|exposition|list|analysis|instruction|context|other
@@ -407,6 +416,7 @@ Script:
     max_tokens = min(hard_cap, max(base_cap, per_section * max_sections))
     attempt_note = ""
     last_repeats: Dict[str, List[int]] = {}
+    last_missing_refined: List[int] = []
     for attempt in range(2):
         prompt_run = prompt
         if attempt_note:
@@ -452,6 +462,7 @@ Script:
                     summary=_truncate((a.summary or b.summary or ""), 60),
                     visual_focus=_truncate((a.visual_focus or b.visual_focus or ""), 180),
                     emotional_tone=_truncate((a.emotional_tone or b.emotional_tone or ""), 40),
+                    refined_prompt=_truncate((a.refined_prompt or b.refined_prompt or ""), 420),
                     persona_needed=bool(a.persona_needed or b.persona_needed),
                     role_tag=_truncate((a.role_tag or b.role_tag or ""), 40),
                     section_type=_truncate((a.section_type or b.section_type or ""), 40),
@@ -459,25 +470,30 @@ Script:
                 sections = sections[:best_i] + [merged] + sections[best_i + 2 :]
 
         repeats = _find_duplicate_visual_focus(sections)
-        if not repeats:
+        missing_refined = [i for i, s in enumerate(sections, start=1) if not str(s.refined_prompt or "").strip()]
+        if not repeats and not missing_refined:
             return sections
 
         last_repeats = repeats
+        last_missing_refined = missing_refined
         logger.warning(
-            "cues_plan: duplicate visual_focus detected (attempt=%d, unique_repeats=%d). Retrying once.",
+            "cues_plan: plan issues detected (attempt=%d, unique_repeats=%d, missing_refined=%d). Retrying once.",
             attempt + 1,
             len(repeats),
+            len(missing_refined),
         )
         attempt_note = (
-            "IMPORTANT: Your previous output repeated identical `visual_focus` across multiple sections.\n"
-            "- Fix by making every section's `visual_focus` distinct and faithful to THAT section.\n"
-            "- Do NOT reuse the same main prop/symbol across sections.\n"
+            "IMPORTANT: Fix your previous output.\n"
+            "- `refined_prompt` is REQUIRED for every section (short English scene prompt; no text in image).\n"
+            "- `visual_focus` must be distinct and faithful to THAT section.\n"
+            "- Do NOT reuse the same main prop/symbol/location across sections.\n"
             "Return ONLY the full JSON object in the original schema."
         )
 
     raise RuntimeError(
-        "visual_image_cues_plan produced repetitive visual_focus across sections "
-        f"(unique_repeats={len(last_repeats)}). Use THINK/AGENT mode and edit visual_cues_plan.json manually."
+        "visual_image_cues_plan output is not acceptable "
+        f"(unique_repeats={len(last_repeats)}, missing_refined_prompt={len(last_missing_refined)}). "
+        "Use THINK/AGENT mode and edit visual_cues_plan.json manually."
     )
 
 
@@ -855,6 +871,7 @@ def make_cues_from_sections(
             "summary": sec.summary or _truncate(text_joined, 60),
             "visual_focus": sec.visual_focus.strip(),
             "emotional_tone": sec.emotional_tone.strip(),
+            "refined_prompt": sec.refined_prompt.strip(),
             "context_reason": "",
             "section_type": sec.section_type.strip(),
             "role_tag": sec.role_tag.strip(),

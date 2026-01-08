@@ -25,6 +25,36 @@ models:
       supports_seed: true
       max_batch_n: 1
 
+  gemini_2_5_flash_image_preview:
+    provider: gemini
+    model_name: gemini-2.5-flash-image-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  gemini_2_0_flash_exp_image_generation:
+    provider: gemini
+    model_name: gemini-2.0-flash-exp-image-generation
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  gemini_3_pro_image_preview:
+    provider: gemini
+    model_name: gemini-3-pro-image-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
   openrouter_gemini_2_5_flash_image_preview:
     provider: openrouter
     model_name: google/gemini-2.5-flash-image-preview
@@ -152,8 +182,8 @@ tiers:
     - openrouter_riverflow_v2_fast_preview
     - openrouter_riverflow_v2_standard_preview
   video_image_gen:
-    - fireworks_flux_1_schnell_fp8
-    # NOTE: No automatic fallback here (cost control). Switch via profile/override when needed.
+    - gemini_2_5_flash_image
+    # NOTE: Keep this single-candidate in normal ops (drift prevention). Switch via slot/profile when needed.
   thumbnail_image_gen:
     - gemini_2_5_flash_image
     # NOTE:

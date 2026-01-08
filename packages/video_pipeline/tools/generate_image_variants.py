@@ -38,7 +38,7 @@ tool_bootstrap(load_env=False)
 from factory_common.paths import repo_root
 
 from video_pipeline.src.config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
-from video_pipeline.src.srt2images.prompt_builder import build_prompt_from_template  # noqa: E402
+from video_pipeline.src.srt2images.prompt_builder import build_prompt_for_image_model  # noqa: E402
 from video_pipeline.src.srt2images.nanobanana_client import generate_image_batch  # noqa: E402
 
 
@@ -163,6 +163,7 @@ def _build_prompt(
     cue: Dict[str, Any],
     *,
     template_text: str,
+    model_key: str | None,
     style: str,
     negative: str,
     size_str: str,
@@ -179,14 +180,15 @@ def _build_prompt(
         parts.append(diversity)
 
     summary_for_prompt = " \\n".join([p for p in parts if p.strip()])
-    return build_prompt_from_template(
+    return build_prompt_for_image_model(
         template_text,
+        model_key=model_key,
         prepend_summary=prepend_summary,
         summary=summary_for_prompt,
         visual_focus=str(cue.get("visual_focus") or ""),
         main_character=str(cue.get("main_character") or ""),
         style=style or "",
-        seed=0,
+        seed=(int(cue.get("seed")) if str(cue.get("seed") or "").strip().isdigit() else 0),
         size=size_str,
         negative=negative or "",
     )
@@ -361,6 +363,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             prompt = _build_prompt(
                 cue_copy,
                 template_text=template_text,
+                model_key=forced_model_key,
                 style=style_text,
                 negative=negative,
                 size_str=size_str,

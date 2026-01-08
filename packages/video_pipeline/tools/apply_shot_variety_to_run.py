@@ -76,7 +76,7 @@ def _shot_cycle_for_channel(channel: str) -> List[ShotSpec]:
             ),
             ShotSpec(
                 "closeup_reaction",
-                "Shot: close-up reaction (eyes/mouth). Subtle emotion; background softly blurred.",
+                "Shot: close-up reaction (eyes/mouth). Subtle emotion; avoid extreme face-filling close-ups (include some shoulders/hands/context). Background softly blurred.",
             ),
             ShotSpec(
                 "hands_prop_detail",
@@ -85,6 +85,27 @@ def _shot_cycle_for_channel(channel: str) -> List[ShotSpec]:
             ShotSpec(
                 "over_shoulder",
                 "Shot: over-the-shoulder (OTS). Change angle vs previous; keep room/layout consistent if same scene.",
+            ),
+            # Reduce close-up frequency: keep the variety cycle but bias toward medium/wide/hands/OTS.
+            ShotSpec(
+                "wide_establishing",
+                "Shot: wide establishing (environment + characters). Keep characters smaller; show context clearly.",
+            ),
+            ShotSpec(
+                "medium_two_shot",
+                "Shot: medium two-shot (waist-up). Emphasize distance/position between the two people.",
+            ),
+            ShotSpec(
+                "hands_prop_detail",
+                "Shot: hands/prop detail. Natural anatomy. If phone/paper appears: blank/blurred screen, NO letters/numbers.",
+            ),
+            ShotSpec(
+                "over_shoulder",
+                "Shot: over-the-shoulder (OTS). Change angle vs previous; keep room/layout consistent if same scene.",
+            ),
+            ShotSpec(
+                "wide_establishing",
+                "Shot: wide establishing (environment + characters). Keep characters smaller; show context clearly.",
             ),
         ]
 
@@ -212,4 +233,3 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

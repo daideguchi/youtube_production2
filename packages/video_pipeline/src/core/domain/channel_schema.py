@@ -12,6 +12,11 @@ class ImageGenConfig(BaseModel):
     min_sections: int = 10
     # ImageClient model key (configs/image_models.yaml -> models.*)
     model_key: Optional[str] = None
+    # Prompt defaults / guardrails (optional; can be overridden by CLI/env at runtime)
+    personless_default: bool = False
+    forbid_text_default: bool = True
+    avoid_props: Optional[str] = None
+    negative_prompt: Optional[str] = None
 
 class LayoutConfig(BaseModel):
     beltTopPct: float = Field(82.0, description="Belt top position in percentage")

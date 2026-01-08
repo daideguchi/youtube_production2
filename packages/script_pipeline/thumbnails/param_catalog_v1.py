@@ -34,8 +34,10 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
 
     # overrides.bg_pan_zoom.*
     "overrides.bg_pan_zoom.zoom": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1.0),
-    "overrides.bg_pan_zoom.pan_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-1.0, max_value=1.0),
-    "overrides.bg_pan_zoom.pan_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-1.0, max_value=1.0),
+    # NOTE: Canva-like editor allows pushing the background outside the canvas.
+    # -1..1 stays within the "cover" range; wider values intentionally reveal the base fill.
+    "overrides.bg_pan_zoom.pan_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-5.0, max_value=5.0),
+    "overrides.bg_pan_zoom.pan_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-5.0, max_value=5.0),
 
     # overrides.bg_enhance.*
     "overrides.bg_enhance.brightness": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9),
@@ -90,8 +92,8 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
     # overrides.text_* (text rendering tuning)
     "overrides.text_scale": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.5, max_value=2.0),
     # NOTE: Canva-like editor allows moving text out of frame; keep wide bounds.
-    "overrides.text_offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
-    "overrides.text_offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
+    "overrides.text_offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-5.0, max_value=5.0),
+    "overrides.text_offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-5.0, max_value=5.0),
 
     # overrides.text_fills.* (solid fill color overrides; keys must exist in authored specs)
     "overrides.text_fills.white_fill.color": ParamSpec(kind="color", engine="layer_specs_v3"),
@@ -105,8 +107,8 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
     "overrides.portrait.suppress_bg": ParamSpec(kind="bool", engine="layer_specs_v3"),
     "overrides.portrait.zoom": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.5, max_value=2.0),
     # NOTE: Canva-like editor allows moving portrait out of frame; keep wide bounds.
-    "overrides.portrait.offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
-    "overrides.portrait.offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-2.0, max_value=2.0),
+    "overrides.portrait.offset_x": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-5.0, max_value=5.0),
+    "overrides.portrait.offset_y": ParamSpec(kind="float", engine="layer_specs_v3", min_value=-5.0, max_value=5.0),
     "overrides.portrait.trim_transparent": ParamSpec(kind="bool", engine="layer_specs_v3"),
     "overrides.portrait.fg_brightness": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9, max_value=3.0),
     "overrides.portrait.fg_contrast": ParamSpec(kind="float", engine="layer_specs_v3", min_value=1e-9, max_value=3.0),

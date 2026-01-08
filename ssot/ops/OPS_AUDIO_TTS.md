@@ -29,8 +29,16 @@
   - `audio_manifest.json`（契約）
 - Voicepeak user dict（GUIの辞書を repo と揃える用途）:
   - SoT: `packages/audio_tts/data/voicepeak/dic.json`
+  - 自動: `run_tts` は engine=voicepeak のとき、実行開始時に上記 SoT を best-effort でローカル設定へ **追記同期（add-only）** する（人間がローカルで追加した辞書は消さない）。
   - Sync: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict [--dry-run]`
   - Destination: `~/Library/Application Support/Dreamtonics/Voicepeak/settings/dic.json`
+  - strict 読み置換: ローカル `dic.json` に加えて `~/Library/Application Support/Dreamtonics/Voicepeak/settings/user.csv` も best-effort で取り込み（安全な語のみ）
+- Voicepeak CLI 安定化（クラッシュ抑制）:
+  - 既定: VOICEPEAK の同時起動で落ちやすいため、CLI 呼び出しを **プロセス間ロックで直列化** する（multi-agent安全）。
+  - 調整（必要時のみ）: `VOICEPEAK_CLI_TIMEOUT_SEC`, `VOICEPEAK_CLI_RETRY_COUNT`, `VOICEPEAK_CLI_RETRY_SLEEP_SEC`, `VOICEPEAK_CLI_COOLDOWN_SEC`
+  - 例外: `VOICEPEAK_CLI_GLOBAL_LOCK=0` で直列化を無効化（非推奨）
+- 読点（、）の間引き（Voicepeakテンポ改善）:
+  - `packages/script_pipeline/audio/channels/<CH>/voice_config.json` の voicepeak `engine_options` に `comma_policy: "particles"` を設定すると、`は/が/に/で/も/へ/を` の直後の `、` を strict 側で間引く（字幕テキストは維持、読み入力のみ変更）。
 
 ---
 

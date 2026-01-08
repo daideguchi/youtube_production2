@@ -296,6 +296,7 @@ class TextBackdropSpec:
     colorize: bool
     pad_x_px: int
     pad_y_px: int
+    per_line: bool
     roughness: float
     feather_px: int
     hole_count: int
@@ -595,6 +596,7 @@ def _parse_slot(
                 "colorize",
                 "pad_x_px",
                 "pad_y_px",
+                "per_line",
                 "roughness",
                 "feather_px",
                 "hole_count",
@@ -622,6 +624,7 @@ def _parse_slot(
             colorize = _as_bool(spec_path, [*bp, "colorize"], bd.get("colorize", False))
         pad_x_px = _as_int(spec_path, [*bp, "pad_x_px"], bd.get("pad_x_px", 84), min_value=0)
         pad_y_px = _as_int(spec_path, [*bp, "pad_y_px"], bd.get("pad_y_px", 24), min_value=0)
+        per_line = _as_bool(spec_path, [*bp, "per_line"], bd.get("per_line", False))
         roughness = _as_float(spec_path, [*bp, "roughness"], bd.get("roughness", 0.25))
         feather_px = _as_int(spec_path, [*bp, "feather_px"], bd.get("feather_px", 22), min_value=0)
         hole_count = _as_int(spec_path, [*bp, "hole_count"], bd.get("hole_count", 18), min_value=0)
@@ -641,6 +644,7 @@ def _parse_slot(
             colorize=colorize,
             pad_x_px=pad_x_px,
             pad_y_px=pad_y_px,
+            per_line=per_line,
             roughness=float(roughness),
             feather_px=feather_px,
             hole_count=hole_count,

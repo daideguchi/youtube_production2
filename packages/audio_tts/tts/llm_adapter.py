@@ -554,20 +554,56 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
 
     max_lines = max(1, _to_int(os.getenv("SRT_LINEBREAK_MAX_LINES", "2"), 2))
     max_chars = max(4, _to_int(os.getenv("SRT_LINEBREAK_MAX_CHARS_PER_LINE", str(target_len)), int(target_len)))
+    overflow_chars = max(0, _to_int(os.getenv("SRT_LINEBREAK_OVERFLOW_CHARS", "2"), 2))
     retry_limit = max(0, _to_int(os.getenv("SRT_LINEBREAK_RETRY_LIMIT", "1"), 1))
     bs = max(1, _to_int(batch_size, 20))
 
     # --- Heuristic line break (fast, deterministic, no LLM) ---
     _OPEN_BRACKETS = set("（(「『【〈《[")
     _CLOSE_BRACKETS = set("）)」』】〉》]")
-    _BAD_LINE_START = set("、。，．。！？!?」』】）)〉》]")
+    # Avoid starting a new line with punctuation/small separators (視認性が悪い).
+    _BAD_LINE_START = set("、。，．。！？!?・」』】）)〉》]")
     _SMALL_KANA = set("ぁぃぅぇぉゃゅょっァィゥェォャュョッー")
     _PARTICLES = set("はがをにでともへやの")
+    _HONORIFIC_PREFIX = set("おご")
     _PUNCT_STRONG = set("。！？!?…")
-    _PUNCT_WEAK = set("、，,;；:：")
+    _PUNCT_WEAK = set("、，,;；:：・")
+    # Common function words that must not be split across a line break (字幕の禁則).
+    _NO_BREAK_BIGRAMS = {
+        "たち",
+        "とき",
+        "よう",
+        "ほど",
+        "だけ",
+        "から",
+        "まで",
+        "ので",
+        "のに",
+        # 否定: く|ない / な|い を避ける
+        "くな",
+        "ない",
+        # 「という」系: と|い / い|う を避ける
+        "とい",
+        "いう",
+        # 丁寧語: で|す / ま|す / で|し / ま|し を避ける
+        "です",
+        "ます",
+        "でし",
+        "まし",
+    }
+    try:
+        from audio_tts.tts.mecab_tokenizer import tokenize_with_mecab  # type: ignore
+    except Exception:
+        tokenize_with_mecab = None  # type: ignore
 
     def _is_kanji(ch: str) -> bool:
         return "\u4e00" <= ch <= "\u9fff"
+
+    def _is_hiragana(ch: str) -> bool:
+        return "\u3040" <= ch <= "\u309f"
+
+    def _is_katakana(ch: str) -> bool:
+        return "\u30a0" <= ch <= "\u30ff"
 
     def _choose_break_two_lines(text: str, *, hard_max: int, max_lines: int) -> str:
         """
@@ -589,6 +625,31 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
         center = n / 2.0
         hard_possible = n <= (hard_max * max_lines)
 
+        def _candidate_break_positions() -> list[int]:
+            """
+            Prefer MeCab token boundaries to avoid splitting inside words.
+            Fallback to full character scan when MeCab is unavailable or yields no usable candidates.
+            """
+            if tokenize_with_mecab is None:
+                return list(range(1, n))
+            try:
+                toks = tokenize_with_mecab(text)
+            except Exception:
+                return list(range(1, n))
+            ends: set[int] = set()
+            for t in toks or []:
+                if not isinstance(t, dict):
+                    continue
+                try:
+                    end = int(t.get("char_end"))  # type: ignore[arg-type]
+                except Exception:
+                    continue
+                if 0 < end < n:
+                    ends.add(end)
+            if not ends:
+                return list(range(1, n))
+            return sorted(ends)
+
         def _valid(i: int) -> bool:
             if i <= 0 or i >= n:
                 return False
@@ -602,7 +663,14 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
                 return False
             if prev in _OPEN_BRACKETS or prev in _SMALL_KANA:
                 return False
-            if hard_possible and (left_len > hard_max or right_len > hard_max):
+            # Avoid splitting okurigana (e.g., 話す → 話|す) which looks like a broken word.
+            if _is_kanji(prev) and _is_hiragana(nxt):
+                return False
+            # Avoid splitting Kanji compounds (e.g., 理想像 → 理想|像).
+            if _is_kanji(prev) and _is_kanji(nxt):
+                return False
+            hard_limit = hard_max + overflow_chars
+            if hard_possible and (left_len > hard_limit or right_len > hard_limit):
                 return False
             return True
 
@@ -616,11 +684,16 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
             max_len = max(left_len, right_len)
 
             s = 0.0
-            s += abs(left_len - right_len) * 0.85
-            s += abs(i - center) * 0.10
+            # Balance matters, but never at the expense of breaking Japanese words
+            # (e.g., よ|う, と|いう, アドレス|帳).
+            s += abs(left_len - right_len) * 0.55
+            s += abs(i - center) * 0.05
 
             if not hard_possible and max_len > hard_max:
                 s += (max_len - hard_max) * 4.0
+            # Even when we allow a small overflow, keep it expensive.
+            if hard_possible and max_len > hard_max:
+                s += (max_len - hard_max) * 6.0
 
             if prev in _PUNCT_STRONG:
                 s -= 10.0
@@ -629,11 +702,38 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
             elif prev in _CLOSE_BRACKETS:
                 s -= 2.0
 
+            # Prefer breaking after particles (readability), but keep this mild:
+            # over-weighting can create awkward very-short lines.
+            if prev in _PARTICLES:
+                s -= 2.0
+
             if _is_kanji(prev) and _is_kanji(nxt):
                 s += 10.0
+            # Avoid splitting okurigana (Kanji + Hiragana) and prefix-kana (Hiragana + Kanji).
+            if _is_kanji(prev) and _is_hiragana(nxt):
+                s += 18.0
+            # Hiragana → Kanji is usually a safe boundary (e.g., に|載, な|誇),
+            # but penalize honorific prefixes (お茶 / ご飯) which look broken.
+            if prev in _HONORIFIC_PREFIX and _is_kanji(nxt):
+                s += 8.0
+
+            # Avoid splitting compound nouns like アドレス|帳, SNS|投稿.
+            if _is_katakana(prev) and _is_kanji(nxt):
+                s += 14.0
+            if prev.isascii() and prev.isalnum() and (_is_kanji(nxt) or _is_katakana(nxt) or _is_hiragana(nxt)):
+                s += 10.0
+
+            # Avoid splitting inside contiguous kana words (e.g., ラジオ / おしゃべり).
+            if prev not in _SMALL_KANA and nxt not in _SMALL_KANA:
+                if _is_hiragana(prev) and _is_hiragana(nxt):
+                    s += 14.0
+                    if (prev + nxt) in _NO_BREAK_BIGRAMS:
+                        s += 40.0
+                if prev != "・" and nxt != "・" and _is_katakana(prev) and _is_katakana(nxt):
+                    s += 16.0
 
             if nxt in _PARTICLES:
-                s += 3.5
+                s += 6.0
 
             if prev.isascii() and nxt.isascii() and prev.isalnum() and nxt.isalnum():
                 s += 6.0
@@ -642,9 +742,13 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
 
             return s
 
-        best_i = min(range(1, n), key=_score)
+        candidates = _candidate_break_positions()
+        best_i = min(candidates, key=_score)
         if _score(best_i) >= 1e8:
-            return text
+            # Fallback: full scan (still deterministic).
+            best_i = min(range(1, n), key=_score)
+            if _score(best_i) >= 1e8:
+                return text
         return text[:best_i] + "\n" + text[best_i:]
 
     def _needs_rewrap(raw_text: str) -> bool:
@@ -671,11 +775,27 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
 
         compact = "".join(lines)
         if len(lines) == 2 and lines[0] and lines[1]:
-            if _is_kanji(lines[0][-1]) and _is_kanji(lines[1][0]):
+            a_last = lines[0][-1]
+            b_first = lines[1][0]
+            # Bad boundary: splitting Kanji compounds / okurigana across lines.
+            if _is_kanji(a_last) and (_is_kanji(b_first) or _is_hiragana(b_first)):
+                return True
+            # Bad boundary: mid-word kana split (e.g., よ|う, と|き, と|い, い|う).
+            if _is_hiragana(a_last) and _is_hiragana(b_first) and (a_last + b_first) in _NO_BREAK_BIGRAMS:
+                return True
+            # Bad boundary: compound noun split (e.g., アドレス|帳, SNS|投稿).
+            if _is_katakana(a_last) and _is_kanji(b_first):
+                return True
+            # Bad boundary: Latin word split across lines (e.g., SNS|, URL|).
+            if a_last.isascii() and b_first.isascii() and a_last.isalnum() and b_first.isalnum():
+                return True
+            # Honorific prefix split (e.g., お|茶, ご|飯).
+            if a_last in _HONORIFIC_PREFIX and _is_kanji(b_first):
                 return True
 
-        if len(compact) <= (max_chars * max_lines):
-            if any(len(ln) > max_chars for ln in lines):
+        hard_limit = max_chars + overflow_chars
+        if len(compact) <= (hard_limit * max_lines):
+            if any(len(ln) > hard_limit for ln in lines):
                 return True
         return False
 

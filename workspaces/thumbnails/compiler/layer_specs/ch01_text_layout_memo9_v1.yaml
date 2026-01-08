@@ -117,6 +117,49 @@ templates:
         shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
         glow: false
 
+  M09_left_3line_ch24_black_compact:
+    description: 'メモ9: 左3行固定（CH24 Black / 行間を詰めてバランス改善）'
+    slots:
+      line1:
+        box: [0.0400, 0.0700, 0.5600, 0.2200]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 210
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 22
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+      line2:
+        box: [0.0400, 0.2900, 0.5600, 0.3600]
+        font: headline_sans_ch24_black
+        fill: yellow_fill
+        base_size_px: 450
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 32
+        shadow: true
+        shadow_override: {alpha: 0.98, offset_px: [18,18], blur_px: 12}
+        glow: false
+      line3:
+        box: [0.0400, 0.6400, 0.5600, 0.2600]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 250
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 24
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+
   M09_left_3line_ch24_benchmark_030:
     description: 'CH24ベンチマーク(030)の比率で3行（上=条件/中=キーワード/下=結論を強調）'
     slots:

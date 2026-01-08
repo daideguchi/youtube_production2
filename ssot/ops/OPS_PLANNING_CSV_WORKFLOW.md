@@ -251,6 +251,8 @@ API（UI内部利用）:
 
 リセット後:
 - `workspaces/scripts/{CH}/{NNN}/status.json` が `pending` へ戻り、工程を最初から再実行できる。
+- 既存の `metadata.redo_note`（リテイクメモ）は維持する（人間メモを誤って消さない）。
+- `redo_script` / `redo_audio` は未設定に戻るため、UI/運用上はデフォルト（`true` 扱い）として再収録/再生成対象になる。
 
 ---
 

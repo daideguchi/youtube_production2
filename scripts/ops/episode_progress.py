@@ -91,11 +91,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--channel", required=True, help="e.g. CH12")
     parser.add_argument("--videos", default="", help="Comma-separated (e.g. 012,013)")
-    parser.add_argument("--format", choices=["tsv", "json", "summary"], default="tsv")
+    parser.add_argument("--format", choices=["tsv", "json", "summary", "table"], default="tsv")
     parser.add_argument("--issues-only", action="store_true", help="Only include episodes where issues[] is non-empty")
     parser.add_argument("--include-unplanned", action="store_true", help="Include episodes present in workspaces/scripts even if missing in CSV")
     parser.add_argument("--include-hidden-runs", action="store_true", help="Also scan runs starting with _ or .")
     args = parser.parse_args(argv)
+
+    fmt = str(args.format or "tsv").strip().lower()
+    if fmt == "table":
+        fmt = "tsv"
 
     videos = [v for v in str(args.videos or "").split(",") if v.strip()] if args.videos else None
     view = build_episode_progress_view(
@@ -126,11 +130,11 @@ def main(argv: list[str] | None = None) -> int:
             "issues_summary": dict(sorted(issues_summary.items(), key=lambda kv: (-kv[1], kv[0]))),
         }
 
-    if args.format == "json":
+    if fmt == "json":
         print(json.dumps(view, ensure_ascii=False, indent=2))
         return 0
 
-    if args.format == "summary":
+    if fmt == "summary":
         _print_summary(view)
         return 0
 

@@ -24,6 +24,20 @@
 - 索引整合は `python3 scripts/ops/ssot_audit.py` で確認する。
 - push前の最終整合チェックは `python3 scripts/ops/pre_push_final_check.py` を通す（SSOT↔実装の逸脱を防ぐ）。
 
+## 「いまの最新ロジック」はどれか（盤石化）
+
+基本:
+- **最新ロジック = このリポジトリの現在のチェックアウト（git HEAD + ローカル差分）**。
+- SSOTの入口は `START_HERE.md` と `DOCS_INDEX.md`（この2つから辿れるものを正本として扱う）。
+
+確認コマンド（推奨）:
+- いまのロジック/索引の状態: `./ops ssot status`
+- SSOT索引整合（必須）: `./ops ssot audit --strict`
+- 実装↔SSOTの最終チェック（push前）: `./ops ssot check`（= `scripts/ops/pre_push_final_check.py`）
+
+運用ログ:
+- `./ops` の実行は `workspaces/logs/ops/ops_cli/ops_cli_events.jsonl` に時系列で記録され、git情報も残る。
+
 ## 環境変数の原則
 - 秘密鍵（例: `GEMINI_API_KEY`）はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/` 配下への複製は禁止。
 - 具体的な必須キー一覧は `ssot/ops/OPS_ENV_VARS.md` を参照。導線/整合チェックは `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` と `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md` を参照。

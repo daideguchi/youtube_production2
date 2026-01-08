@@ -83,6 +83,52 @@ templates:
         shadow: true
         shadow_override: {alpha: 0.90, offset_px: [0,12], blur_px: 18}
         glow: true
+  CH26_top_band_center_v1:
+    description: 'CH26: 上帯センター1行（白） / ベンチ（前略偉人より）寄せ'
+    slots:
+      top:
+        box: [0.0200, 0.0200, 0.9600, 0.2600]
+        font: top_white_bench_priority
+        fill: white_fill
+        base_size_px: 240
+        align: center
+        valign: top
+        tracking: -12
+        max_lines: 1
+        stroke: false
+        shadow: true
+        shadow_override: {alpha: 0.82, offset_px: [0,6], blur_px: 16}
+        glow: false
+  CH26_bottom_band_two_line_v1:
+    description: 'CH26: 上白＋下赤（2行許容） / 長めの結論用'
+    slots:
+      top:
+        box: [0.0730, 0.0650, 0.8540, 0.2000]
+        font: top_white_bench_priority
+        fill: white_fill
+        base_size_px: 150
+        align: center
+        valign: top
+        tracking: -18
+        max_lines: 1
+        stroke: false
+        shadow: true
+        shadow_override: {alpha: 0.78, offset_px: [0,6], blur_px: 16}
+        glow: false
+      accent:
+        box: [0.0599, 0.6100, 0.8901, 0.3100]
+        font: accent_red_bench_priority
+        fill: red_fill
+        base_size_px: 210
+        align: center
+        valign: bottom
+        tracking: -10
+        max_lines: 2
+        stroke: true
+        stroke_width_px: 16
+        shadow: true
+        shadow_override: {alpha: 0.90, offset_px: [0,12], blur_px: 18}
+        glow: true
   CH26_bench_fixed_red260_v1:
     description: 'CH26: ベンチ完全固定（上白/下赤=260px）'
     slots:

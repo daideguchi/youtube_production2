@@ -29,21 +29,25 @@
   - report: `YouTubeベンチマーク（yt-dlp）/UCKAXg84Mg4FighZJ14bxJvA/report.md`
   - median views: `8154.5` / median duration: `15:10`
 - **人生は考え方【偉人から学ぶ】** `@人生は考え方で変わる`
-  - id: `UCsaJfLdsX___zc1OcWHQRWg` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
+  - id: `UCsaJfLdsX___zc1OcWHQRWg` / fetched_at: `2026-01-08T10:30:09.592786+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UCsaJfLdsX___zc1OcWHQRWg/report.md`
-  - median views: `5947.0` / median duration: `60:56`
+  - median views: `5918.5` / median duration: `62:33`
 - **前略、偉人より** `@前略偉人より`
-  - id: `UCeUpwmP1xKY2Tgc8qH-I0Tw` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
+  - id: `UCeUpwmP1xKY2Tgc8qH-I0Tw` / fetched_at: `2026-01-08T10:04:48.304397+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UCeUpwmP1xKY2Tgc8qH-I0Tw/report.md`
-  - median views: `5676.5` / median duration: `23:21`
+  - median views: `5820.0` / median duration: `23:21`
 - **人生これから - ブッダの教え** `@buddha-no09`
-  - id: `UC9fcd5KCJfOeRsdRJZdSaGQ` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
+  - id: `UC9fcd5KCJfOeRsdRJZdSaGQ` / fetched_at: `2026-01-08T10:04:17.342714+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UC9fcd5KCJfOeRsdRJZdSaGQ/report.md`
-  - median views: `4999.0` / median duration: `22:24`
+  - median views: `5030.0` / median duration: `21:54`
 - **偉人の言霊** `@偉人の言霊-q4r`
-  - id: `UC06rREl2zUsv6_qbtqYAHmw` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
+  - id: `UC06rREl2zUsv6_qbtqYAHmw` / fetched_at: `2026-01-08T10:29:48.571280+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UC06rREl2zUsv6_qbtqYAHmw/report.md`
-  - median views: `3778.0` / median duration: `26:50`
+  - median views: `3866.0` / median duration: `26:50`
+- **偉人のコトバ** `@ijinnnokotoba`
+  - id: `UCv1e_rsyknQyiyga_NW6LSw` / fetched_at: `2026-01-08T10:29:48.571280+00:00`
+  - report: `YouTubeベンチマーク（yt-dlp）/UCv1e_rsyknQyiyga_NW6LSw/report.md`
+  - median views: `2741.0` / median duration: `20:52`
 - **幻想と神話の扉** `@幻想と神話の扉`
   - id: `UC_wQ5hHiTgCN8JP_wPupCWA` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UC_wQ5hHiTgCN8JP_wPupCWA/report.md`
@@ -52,7 +56,3 @@
   - id: `UCg-rxafnhzN6hiiakU1NGYw` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UCg-rxafnhzN6hiiakU1NGYw/report.md`
   - median views: `1708.0` / median duration: `21:27`
-- **偉人のコトバ** `@ijinnnokotoba`
-  - id: `UCv1e_rsyknQyiyga_NW6LSw` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
-  - report: `YouTubeベンチマーク（yt-dlp）/UCv1e_rsyknQyiyga_NW6LSw/report.md`
-  - median views: `1090.0` / median duration: `19:43`

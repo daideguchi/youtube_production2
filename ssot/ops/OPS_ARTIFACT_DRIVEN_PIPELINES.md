@@ -63,4 +63,10 @@
 ## 運用のコツ
 - まず `srt_segments.json` の `source_srt.sha1` を見る（入力取り違えが最悪事故）。
 - 画像が等間隔/画風崩れなどの品質問題は、最初に `visual_cues_plan.json` と `image_cues.json` を見て原因を切り分ける。
+- **f-1（FLUX schnell）等で「似た絵が量産」された時の復旧**（外部LLMでプロンプト生成しない）:
+  - `audit_fix_drafts.py` の `--refine-prompts-local` は **非決定（SystemRandom）**でローカルに `refined_prompt` を再合成し、固定モチーフ/固定seedでの量産を避ける。
+  - 既存の `refined_prompt` を横断で見て subject 重複を潰す: `--regen-refined-subject-dupes --refined-subject-dupe-min-count 2`
+  - 実行例（CHxx/範囲は都度指定）:
+    - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1 PYTHONPATH=".:packages" python3 -m video_pipeline.tools.audit_fix_drafts --channel CHxx --min-id 43 --max-id 82 --refine-prompts-local --regen-refined-subject-dupes --refined-subject-dupe-min-count 2`
+  - 文字/数字を誘発する小道具は `--avoid-props` / `YTM_DRAFT_AVOID_PROPS` で動的に避ける（チャンネル固有分岐を増やさない）。
 - `visual_cues_plan.json` を作り直したい場合は `SRT2IMAGES_FORCE_CUES_PLAN=1` を使う。

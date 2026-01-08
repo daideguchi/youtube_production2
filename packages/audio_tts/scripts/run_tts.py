@@ -569,6 +569,20 @@ def main() -> None:
     if engine not in ("voicevox", "voicepeak", "elevenlabs"):
         raise SystemExit(f"[ERROR] Unsupported engine: {engine}")
 
+    # SSOT: Keep Voicepeak's local user dictionary in sync with the repo-managed SoT
+    # to prevent "dict not applied" regressions across machines/sessions.
+    if engine == "voicepeak" and not args.finalize_existing:
+        try:
+            from audio_tts.scripts.sync_voicepeak_user_dict import sync_voicepeak_user_dict
+
+            res = sync_voicepeak_user_dict(dry_run=False)
+            if res.changed:
+                print(f"[VoicepeakDict] synced: {res.dst}")
+            else:
+                print(f"[VoicepeakDict] already up-to-date: {res.dst}")
+        except Exception as e:
+            print(f"[WARN] Voicepeak dict sync failed (continuing): {e}")
+
     if engine == "voicevox" and not args.finalize_existing:
         vv_url = cfg.voicevox_url
         try:

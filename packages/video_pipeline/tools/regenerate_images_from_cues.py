@@ -2,10 +2,11 @@
 """
 Regenerate real images for an existing srt2images run_dir that already has `image_cues.json`.
 
-Why this exists (CH02 issue):
-- Some CH02 drafts were built in placeholder mode (noise PNGs) to avoid image API calls.
-- The CapCut draft *does* have an image track, but the assets are noise placeholders, which looks like "no images".
-- This tool fills `cue.prompt` using the channel preset template/style and regenerates PNGs via ImageClient (Gemini).
+Why this exists:
+- Some drafts are built in placeholder mode (noise PNGs) to avoid image API calls during planning.
+- The CapCut draft can have an image track, but assets are placeholders, which looks like "no images".
+- This tool fills `cue.prompt` using the channel preset template/style and regenerates PNGs via ImageClient
+  (model selection is controlled by routing; call-time overrides are guarded under lockdown).
 
 No text LLM calls are made here. It only uses the image generation API.
 """
@@ -13,6 +14,7 @@ No text LLM calls are made here. It only uses the image generation API.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -29,52 +31,76 @@ except Exception:
 tool_bootstrap(load_env=False)
 
 from factory_common.paths import video_pkg_root  # noqa: E402
+from factory_common.routing_lockdown import lockdown_active  # noqa: E402
 
 PROJECT_ROOT = video_pkg_root()
 
 from video_pipeline.src.config.channel_resolver import ChannelPresetResolver, infer_channel_id_from_path  # noqa: E402
-from video_pipeline.src.srt2images.prompt_builder import build_prompt_from_template  # noqa: E402
+from video_pipeline.src.srt2images.prompt_builder import build_prompt_for_image_model  # noqa: E402
 from video_pipeline.src.srt2images.nanobanana_client import generate_image_batch  # noqa: E402
 
 
-DEFAULT_CH02_NEGATIVE = (
-    "people, human, face, portrait, body, hands, crowd, child, man, woman, elderly, old man, old woman, "
-    "grandfather, grandmother, senior, wrinkles, japanese, asian, character design, mascot, "
-    "text, letters, subtitle, caption, logo, watermark, UI, interface, signage, poster, typography"
+DEFAULT_PERSONLESS_VISUAL_FOCUS = "symbolic still life, negative space, soft gold light"
+
+DEFAULT_NEGATIVE_PERSONLESS = (
+    "people, person, human, face, portrait, body, hands, fingers, crowd, child, man, woman"
+)
+DEFAULT_NEGATIVE_NO_TEXT = (
+    "text, letters, numbers, subtitle, caption, logo, watermark, UI, interface, signage, poster, typography, handwriting"
 )
 
-
-def _is_ch02(channel: str) -> bool:
-    return str(channel).upper() == "CH02"
-
-
-def _write_persona_mode_off(run_dir: Path) -> None:
-    # Ensure persona never leaks into CH02 prompts even if persona.txt exists.
-    try:
-        (run_dir / "persona_mode.txt").write_text("off\n", encoding="utf-8")
-    except Exception:
-        pass
-
-
-_CH02_HUMAN_PATTERNS = re.compile(
-    r"(老人|高齢|おじい|おばあ|老夫婦|年寄|爺|婆|老女|老婆|"
-    r"\b(elderly|old man|old woman|grandfather|grandmother|senior|man|woman|boy|girl|person|people|portrait|face)\b"
+_HUMAN_PATTERNS = re.compile(
+    r"(人物|人間|顔|手|指|子供|子ども|男|女|老人|高齢|おじい|おばあ|老夫婦|年寄|爺|婆|"
+    r"身体|肉体|裸体|裸|肌|"
+    r"疲れた体|体調|体の状態|"
+    r"\b(elderly|old man|old woman|grandfather|grandmother|senior|man|woman|boy|girl|person|people|portrait|face|hand|hands)\b"
+    r"|\b(body|nude|naked|skin|torso|legs|arms|breast)\b"
     r")",
     re.IGNORECASE,
 )
 
 
-def _derive_ch02_visual_focus(cue: Dict[str, Any]) -> str:
-    # SSOT: Do NOT pick `visual_focus` via keyword dictionaries / fixed motif pools.
-    # Use the cue's planned `visual_focus` as-is; keep CH02 personless by default.
+def _derive_personless_visual_focus(cue: Dict[str, Any]) -> str:
     vf = str(cue.get("visual_focus") or "").strip()
-    if vf and not _CH02_HUMAN_PATTERNS.search(vf):
+    summary = str(cue.get("summary") or "").strip()
+    text = f"{vf} {summary}".strip()
+
+    # Common body-state cues: keep the key prop but avoid depicting a person.
+    if ("体温計" in text) or ("thermometer" in text.lower()):
+        return "体温計が置かれた、しわのあるベッドシーツ／無人の部屋／柔らかな朝の光"
+    if ("呼吸" in text) or ("breath" in text.lower()):
+        return "冷たいガラスにうっすら残る曇りと空気の流れ／無人の静かな室内／淡い光"
+
+    if vf and not _HUMAN_PATTERNS.search(text):
         return vf
-    return "symbolic still life, negative space, soft gold light"
+    return DEFAULT_PERSONLESS_VISUAL_FOCUS
 
 
-def _derive_ch02_main_character(_: Dict[str, Any]) -> str:
-    return "None (personless scene; do not draw humans)"
+def _join_negative(*parts: str) -> str:
+    items: list[str] = []
+    for raw in parts:
+        for tok in str(raw or "").split(","):
+            s = tok.strip()
+            if s:
+                items.append(s)
+    # stable unique
+    out: list[str] = []
+    seen: set[str] = set()
+    for s in items:
+        key = s.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(s)
+    return ", ".join(out)
+
+
+def _stable_cue_seed(run_dir: Path, idx: int, *, base_seed: int = 0) -> int:
+    # Keep aligned with orchestration/pipeline.py (31-bit positive seed).
+    label = f"{run_dir.name}:{idx}"
+    h = hashlib.sha256(label.encode("utf-8")).hexdigest()[:8]
+    v = (int(h, 16) + int(base_seed or 0)) % 2147483647
+    return v or 1
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -98,7 +124,9 @@ def _truncate(text: str, limit: int = 120) -> str:
     return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
 
 
-def _sanitize_visual_focus_for_no_text(visual_focus: str) -> str:
+def _sanitize_visual_focus_for_no_text(
+    visual_focus: str, *, enabled: bool, avoid_props: str = ""
+) -> str:
     """
     Avoid accidentally prompting the model to render in-image text.
 
@@ -106,9 +134,38 @@ def _sanitize_visual_focus_for_no_text(visual_focus: str) -> str:
     sanitization small but practical (paper-like props often cause text hallucination).
     """
     s = str(visual_focus or "").strip()
+    if not enabled:
+        return s
     if not s:
         return ""
     lower = s.lower()
+
+    # Targeted rewrites for high-risk props that often cause the model to invent letters/symbols.
+    # Keep meaning but force "blank/unmarked" variants.
+    if "チェックリスト" in s or "チェックボックス" in s:
+        s = s.replace("チェックリスト", "石板に刻まれた空の正方形の枠（すべて空、印なし、文字なし）")
+        s = s.replace("チェックボックス", "空の正方形の枠（印なし、文字なし）")
+        lower = s.lower()
+    if "checklist" in lower or "checkbox" in lower:
+        s = re.sub(
+            r"(?i)checklist|checkbox",
+            "grid of empty squares (all blank, no marks, no symbols, no writing)",
+            s,
+        )
+        lower = s.lower()
+    if "カレンダー" in s:
+        s = s.replace("カレンダー", "無地のカードが並んだ壁（文字なし・数字なし・印なし）")
+        lower = s.lower()
+    if "calendar" in lower:
+        s = re.sub(r"(?i)calendar", "blank card grid on a wall (no writing, no numbers)", s)
+        lower = s.lower()
+    if "メモ" in s or "付箋" in s:
+        s = s.replace("メモ", "無地のメモ用紙（印なし・文字なし）")
+        s = s.replace("付箋", "無地のメモ用紙（印なし・文字なし）")
+        lower = s.lower()
+    if "memo" in lower or "sticky note" in lower:
+        s = re.sub(r"(?i)sticky\\s*note|memo", "blank note paper (unmarked)", s)
+        lower = s.lower()
 
     # Anything that tends to make the model draw letters/numbers.
     risky_words = (
@@ -127,6 +184,32 @@ def _sanitize_visual_focus_for_no_text(visual_focus: str) -> str:
         "write",
         "writing",
         "calligraphy",
+        "memo",
+        "sticky note",
+        # Japanese (text/signage)
+        "文字",
+        "看板",
+        "掲示板",
+        "標識",
+        "ロゴ",
+        "字幕",
+        # Number-prone props
+        "clock",
+        "watch",
+        "timer",
+        "stopwatch",
+        "thermometer",
+        "gauge",
+        "meter",
+        "時計",
+        "懐中時計",
+        "タイマー",
+        "ストップウォッチ",
+        "体温計",
+        "温度計",
+        "メーター",
+        "ゲージ",
+        "計器",
         # Paper-like props:
         "paper",
         "page",
@@ -141,16 +224,47 @@ def _sanitize_visual_focus_for_no_text(visual_focus: str) -> str:
         "schedule",
         "calendar",
         "mail",
+        # Japanese (paper-like)
+        "紙",
+        "本",
+        "ページ",
+        "ノート",
+        "手帳",
+        "日記",
+        "書類",
+        "書面",
+        "メモ",
+        "付箋",
+        "レシート",
+        "フォーム",
+        "申請書",
+        "予定表",
+        "カレンダー",
+        "日付",
     )
-    if any(w in lower for w in risky_words):
-        # Keep the action but enforce "no readable text". Ensure idempotency.
-        if "no readable text" in lower:
+
+    avoid = [p.strip().lower() for p in str(avoid_props or "").split(",") if p.strip()]
+    risky_hit = any(w in lower for w in risky_words) or any(tok in lower for tok in avoid)
+
+    if risky_hit:
+        # Keep the action but enforce "no readable text or numerals". Ensure idempotency.
+        clause = "(NO readable text; blank/unmarked/unlabeled; no letters/numbers)"
+        if clause.lower() in lower:
             # Collapse duplicates (some earlier runs may have appended the clause repeatedly).
-            clause = "(NO readable text; blank/blurred pages; no letters/numbers)"
             parts = [p.strip() for p in s.split(clause) if p.strip()]
             return f"{parts[0]} {clause}" if parts else clause
-        return f"{s} (NO readable text; blank/blurred pages; no letters/numbers)"
+        return f"{s} {clause}"
     return s
+
+
+def _sanitize_summary_for_no_text(summary: str, *, enabled: bool) -> str:
+    s = str(summary or "").strip()
+    if not enabled or not s:
+        return s
+    # Remove short quoted labels/titles that tend to be rendered as literal on-image text.
+    s = re.sub(r"[「『\"][^」』\"]{1,60}[」』\"]", "", s)
+    s = re.sub(r"(?i)\\b(question|title|caption|subtitle|label)\\b", "", s)
+    return " ".join(s.split()).strip()
 
 
 def _resolve_anchor_path(run_dir: Path, mode: str) -> Optional[str]:
@@ -198,11 +312,14 @@ def _build_prompt(
     cue: Dict[str, Any],
     *,
     template_text: str,
+    model_key: str | None,
     style: str,
     negative: str,
     size_str: str,
     extra_suffix: str,
     include_script_excerpt: bool,
+    forbid_text: bool,
+    avoid_props: str,
     visual_focus: str,
     main_character: str,
 ) -> str:
@@ -212,10 +329,14 @@ def _build_prompt(
     if refined:
         parts.append(refined)
     else:
-        vf = _sanitize_visual_focus_for_no_text((cue.get("visual_focus") or "").strip())
+        vf = _sanitize_visual_focus_for_no_text(
+            (cue.get("visual_focus") or "").strip(),
+            enabled=bool(forbid_text),
+            avoid_props=str(avoid_props or ""),
+        )
         if vf:
             parts.append(f"Visual Focus: {vf}")
-        summary = (cue.get("summary") or "").strip()
+        summary = _sanitize_summary_for_no_text((cue.get("summary") or "").strip(), enabled=bool(forbid_text))
         if summary:
             parts.append(f"Scene: {summary}")
         tone = (cue.get("emotional_tone") or "").strip()
@@ -240,15 +361,16 @@ def _build_prompt(
         parts.append(diversity)
 
     summary_for_prompt = " \\n".join([p for p in parts if p.strip()])
-    return build_prompt_from_template(
+    return build_prompt_for_image_model(
         template_text,
+        model_key=model_key,
         # Subject-first improves prompt adherence and reduces style overrides.
         prepend_summary=True,
         summary=summary_for_prompt,
         visual_focus=visual_focus,
         main_character=main_character,
         style=style or "",
-        seed=0,
+        seed=(int(cue.get("seed")) if str(cue.get("seed") or "").strip().isdigit() else 0),
         size=size_str,
         negative=negative or "",
     )
@@ -294,6 +416,89 @@ def _verify_images(images_dir: Path, expected: int) -> Tuple[bool, List[int]]:
     return (len(missing) == 0), missing
 
 
+def _verify_selected_images(images_dir: Path, indices: List[int]) -> Tuple[bool, List[int]]:
+    missing: List[int] = []
+    for i in indices:
+        p = images_dir / f"{i:04d}.png"
+        if not p.exists():
+            missing.append(i)
+    return (len(missing) == 0), missing
+
+
+def _parse_indices(expr: str) -> List[int]:
+    """
+    Parse a comma-separated list of indices and ranges.
+
+    Examples:
+      "6,8,10-12" -> [6, 8, 10, 11, 12]
+      "28-30" -> [28, 29, 30]
+    """
+    raw = str(expr or "").strip()
+    if not raw:
+        return []
+    out: List[int] = []
+    for token in raw.split(","):
+        t = token.strip()
+        if not t:
+            continue
+        if "-" in t:
+            a, b = [x.strip() for x in t.split("-", 1)]
+            if not a.isdigit() or not b.isdigit():
+                raise SystemExit(f"Invalid --indices range: {t!r}")
+            lo = int(a)
+            hi = int(b)
+            if hi < lo:
+                lo, hi = hi, lo
+            out.extend(list(range(lo, hi + 1)))
+            continue
+        if not t.isdigit():
+            raise SystemExit(f"Invalid --indices item: {t!r}")
+        out.append(int(t))
+    # Stable unique order
+    return sorted(set([i for i in out if i > 0]))
+
+
+def _diversity_note_for_index(idx: int) -> str:
+    variants = [
+        "Variation: different camera angle (high angle), slightly wider framing.",
+        "Variation: close-up detail shot, shallow depth of field.",
+        "Variation: side angle, asymmetrical composition, negative space.",
+        "Variation: top-down flat lay composition, clean subject separation.",
+        "Variation: low angle, longer lens feel, cinematic perspective.",
+        "Variation: backlit silhouette / rim light, gentle haze.",
+        "Variation: tighter crop on the key object, minimal background.",
+        "Variation: wider establishing shot, different setting context.",
+    ]
+    return variants[(idx - 1) % len(variants)]
+
+
+def _resolve_fixed_routing_model_key(*, task: str) -> Optional[str]:
+    """
+    Resolve the expected model key when image routing is fixed by env/profile.
+
+    This mirrors ImageClient's lockdown check and is used to:
+    - shape prompts for the expected model without forcing call-time overrides
+    - avoid model_key conflicts when routing is fixed
+    """
+    try:
+        from factory_common.image_client import ImageClient
+
+        client = ImageClient()
+        selector = client._resolve_forced_model_key(task=task)  # type: ignore[attr-defined]
+        if not selector:
+            override = client._resolve_profile_task_override(task=task)  # type: ignore[attr-defined]
+            mk = override.get("model_key") if isinstance(override, dict) else None
+            if isinstance(mk, str) and mk.strip():
+                selector = mk.strip()
+        if not selector:
+            return None
+        resolved = client._resolve_model_key_selector(task=task, selector=selector)  # type: ignore[attr-defined]
+        out = (resolved or selector).strip()
+        return out or None
+    except Exception:
+        return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True, help="srt2images output run dir (contains image_cues.json)")
@@ -314,6 +519,19 @@ def main() -> None:
     ap.add_argument("--style", help="Override style string")
     ap.add_argument("--negative", default="", help="Optional negative prompt string")
     ap.add_argument(
+        "--model-key",
+        help="Force image model key for this run (e.g., f-1, g-1, img-gemini-flash-1). If omitted, uses cue.image_model_key or env.",
+    )
+    ap.add_argument(
+        "--indices",
+        help="Regenerate only these 1-based cue indices (comma-separated, supports ranges: 6,8,10-12).",
+    )
+    ap.add_argument(
+        "--ensure-diversity-note",
+        action="store_true",
+        help="If diversity_note is missing, add a deterministic variation hint per cue index (helps avoid repeated compositions).",
+    )
+    ap.add_argument(
         "--include-script-excerpt",
         action="store_true",
         help="Include a short script excerpt in prompts (may cause in-image text).",
@@ -327,6 +545,29 @@ def main() -> None:
     ap.add_argument("--timeout-sec", type=int, default=300, help="Per-image timeout seconds")
     ap.add_argument("--retry-until-success", action="store_true", help="Do not write placeholders when generation fails")
     ap.add_argument("--max-retries", type=int, default=6, help="Max retries per image (used by generator)")
+    ap.add_argument(
+        "--personless",
+        default=None,
+        action=argparse.BooleanOptionalAction,
+        help="Force personless scenes (no humans). Default comes from channel preset.",
+    )
+    ap.add_argument(
+        "--forbid-text",
+        default=None,
+        action=argparse.BooleanOptionalAction,
+        help="If true, add extra 'blank/unmarked' hints for text/number-prone props. Default comes from channel preset.",
+    )
+    ap.add_argument(
+        "--use-persona",
+        default=None,
+        action=argparse.BooleanOptionalAction,
+        help="Force persona prompt injection. Default comes from channel preset persona_required.",
+    )
+    ap.add_argument(
+        "--avoid-props",
+        default="",
+        help="Comma-separated props to treat as text/number-prone when --forbid-text is enabled.",
+    )
     args = ap.parse_args()
 
     run_dir = Path(args.run).resolve()
@@ -343,6 +584,15 @@ def main() -> None:
     if not tpl_path and preset and preset.prompt_template:
         tpl_path = preset.resolved_prompt_template()
     style = args.style or (preset.style if preset and preset.style else "")
+    # Historical default: these channels require strict visual continuity (characters/settings) across frames.
+    legacy_persona_channels = {"CH01", "CH05", "CH22", "CH23"}
+    use_persona_default = bool((preset.persona_required if preset else False) or (channel in legacy_persona_channels))
+    gen_conf = preset.config_model.image_generation if preset and preset.config_model else None
+    model_key_default = str(getattr(gen_conf, "model_key", "") or "")
+    personless_default = bool(getattr(gen_conf, "personless_default", False))
+    forbid_text_default = bool(getattr(gen_conf, "forbid_text_default", True))
+    avoid_props_default = str(getattr(gen_conf, "avoid_props", "") or "")
+    negative_default = str(getattr(gen_conf, "negative_prompt", "") or "")
 
     extra_suffix_parts: List[str] = []
     if preset and preset.prompt_suffix:
@@ -372,15 +622,41 @@ def main() -> None:
     anchor_mode = str(args.anchor or "auto").strip().lower()
     anchor_path = None if anchor_mode == "none" else _resolve_anchor_path(run_dir, anchor_mode)
 
-    if _is_ch02(channel):
-        _write_persona_mode_off(run_dir)
-        if not (args.negative or "").strip():
-            args.negative = DEFAULT_CH02_NEGATIVE
+    personless = bool(args.personless) if args.personless is not None else personless_default
+    forbid_text = bool(args.forbid_text) if args.forbid_text is not None else forbid_text_default
+    use_persona = bool(args.use_persona) if args.use_persona is not None else use_persona_default
+    if personless:
+        use_persona = False
+    avoid_props = str(args.avoid_props or avoid_props_default)
+
+    if not (args.negative or "").strip():
+        if negative_default.strip():
+            args.negative = negative_default.strip()
+        else:
+            args.negative = _join_negative(
+                DEFAULT_NEGATIVE_PERSONLESS if personless else "",
+                DEFAULT_NEGATIVE_NO_TEXT if forbid_text else "",
+            )
 
     total = len(cues)
     limit = int(args.max or 0)
     if limit > 0:
         total = min(total, limit)
+
+    fixed_routing_model_key: Optional[str] = None
+    if lockdown_active():
+        fixed_routing_model_key = _resolve_fixed_routing_model_key(task="visual_image_gen")
+
+    selected_indices: List[int] = []
+    if args.indices:
+        selected_indices = _parse_indices(args.indices)
+        if limit > 0:
+            # Keep historical behavior: --max applies to the overall run length, but indices is explicit.
+            pass
+        # Validate against full cue length, not `total` (which may be --max limited).
+        bad = [i for i in selected_indices if i < 1 or i > len(cues)]
+        if bad:
+            raise SystemExit(f"--indices out of range (1..{len(cues)}): {bad}")
 
     images_dir = run_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
@@ -395,33 +671,77 @@ def main() -> None:
 
     # Fill prompts + image_path for the subset we generate.
     gen_cues: List[Dict[str, Any]] = []
-    for i in range(1, total + 1):
+    generated_indices: List[int] = []
+    iter_indices = selected_indices if selected_indices else list(range(1, total + 1))
+    for i in iter_indices:
         cue = cues[i - 1]
         if not isinstance(cue, dict):
             continue
+        if cue.get("asset_relpath"):
+            # Never regenerate b-roll / asset-backed frames.
+            continue
+        if not str(cue.get("seed") or "").strip().isdigit():
+            cue["seed"] = _stable_cue_seed(run_dir, int(cue.get("index") or i))
+        if args.ensure_diversity_note and not str(cue.get("diversity_note") or "").strip():
+            cue["diversity_note"] = _diversity_note_for_index(i)
 
-        # Channels that require strict visual continuity (characters/settings) across frames.
-        if channel in {"CH01", "CH05", "CH22", "CH23"}:
-            cue["use_persona"] = True
+        # Default persona policy (can be overridden via CLI).
+        cue["use_persona"] = bool(use_persona)
 
         visual_focus = (cue.get("visual_focus") or "").strip()
         main_character = ""
-        if _is_ch02(channel):
-            visual_focus = _derive_ch02_visual_focus(cue)
-            main_character = _derive_ch02_main_character(cue)
+        if personless:
+            visual_focus = _derive_personless_visual_focus(cue)
+            main_character = "None (personless scene; do not draw humans)"
             cue["use_persona"] = False
+
+        if visual_focus:
+            visual_focus = _sanitize_visual_focus_for_no_text(
+                visual_focus, enabled=bool(forbid_text), avoid_props=avoid_props
+            )
             cue["visual_focus"] = visual_focus
-        elif visual_focus:
-            cue["visual_focus"] = _sanitize_visual_focus_for_no_text(visual_focus)
+
+        cue_model_key = str(cue.get("image_model_key") or "").strip()
+        cli_model_key = str(args.model_key or "").strip()
+
+        # If routing is fixed (env/profile) under lockdown, per-call model overrides are forbidden.
+        # Avoid conflicts by removing cue-level overrides for regenerated indices.
+        if fixed_routing_model_key:
+            if cli_model_key:
+                raise SystemExit(
+                    "\n".join(
+                        [
+                            "[LOCKDOWN] --model-key is forbidden under fixed image routing.",
+                            f"- expected: {fixed_routing_model_key}",
+                            f"- call_time: {cli_model_key}",
+                            "- fix: unset --model-key and let routing select, or change routing via UI (/image-model-routing).",
+                            "- debug: set YTM_EMERGENCY_OVERRIDE=1 for this run (not for normal ops).",
+                        ]
+                    )
+                )
+            cue.pop("image_model_key", None)
+            model_key_for_prompt = fixed_routing_model_key
+        else:
+            # No fixed routing: only override when explicitly requested.
+            if cli_model_key:
+                cue["image_model_key"] = cli_model_key
+                model_key_for_prompt = cli_model_key
+            elif cue_model_key:
+                model_key_for_prompt = cue_model_key
+            else:
+                model_key_for_prompt = model_key_default or None
 
         prompt = _build_prompt(
             cue,
             template_text=template_text,
+            model_key=(model_key_for_prompt or None),
             style=style,
             negative=args.negative,
             size_str=size_str,
             extra_suffix=extra_suffix,
             include_script_excerpt=include_script_excerpt,
+            forbid_text=bool(forbid_text),
+            avoid_props=avoid_props,
             visual_focus=visual_focus,
             main_character=main_character,
         )
@@ -430,6 +750,12 @@ def main() -> None:
         if anchor_path:
             cue["input_images"] = [anchor_path]
         gen_cues.append(cue)
+        generated_indices.append(i)
+
+    if selected_indices:
+        skipped = sorted(set(selected_indices) - set(generated_indices))
+        if skipped:
+            print(f"[SKIP] asset_relpath indices skipped: {skipped}")
 
     if args.only_missing:
         missing: List[Dict[str, Any]] = []
@@ -494,7 +820,10 @@ def main() -> None:
         placeholder_text=None,
     )
 
-    ok, missing = _verify_images(images_dir, expected=total)
+    if selected_indices:
+        ok, missing = _verify_selected_images(images_dir, generated_indices)
+    else:
+        ok, missing = _verify_images(images_dir, expected=total)
     if not ok:
         raise SystemExit(f"Image generation incomplete: missing={missing[:10]} (total_missing={len(missing)})")
     print(f"[DONE] images={total} dir={images_dir}")

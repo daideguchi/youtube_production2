@@ -25,6 +25,18 @@ import yaml
 
 from factory_common import paths as repo_paths
 from factory_common import fireworks_keys
+from factory_common.routing_lockdown import lockdown_active
+
+IMAGE_MODEL_KEY_BLOCKLIST = {
+    # Policy: Gemini 3 image models are forbidden for video images (visual_image_gen).
+    "gemini_3_pro_image_preview",
+    "openrouter_gemini_3_pro_image_preview",
+}
+IMAGE_MODEL_KEY_BLOCKLIST_TASKS = {
+    # Video images (SRT→images). Thumbnails are allowed to use Gemini 3 when explicitly selected.
+    "visual_image_gen",
+    "image_generation",
+}
 
 IMAGE_TRACE_SCHEMA_V1 = "ytm.image_trace.v1"
 def _deep_merge_dict(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
@@ -581,6 +593,7 @@ class ImageClient:
             raise ImageGenerationError(f"No tier candidates found for tier '{tier_name}'")
 
         forced_model_key: Optional[str] = None
+        call_time_selector: Optional[str] = None
         # Policy: when a model_key is explicitly selected (call/env/profile), do not silently
         # degrade to other tier candidates. Allowing fallback must be an explicit choice.
         allow_fallback = False
@@ -588,11 +601,62 @@ class ImageClient:
         if isinstance(options.extra, dict):
             raw_forced = options.extra.get("model_key")
             if isinstance(raw_forced, str) and raw_forced.strip():
-                forced_model_key = raw_forced.strip()
+                call_time_selector = raw_forced.strip()
+                forced_model_key = call_time_selector
             raw_allow_fallback = options.extra.get("allow_fallback")
             if raw_allow_fallback is not None:
                 allow_fallback = bool(raw_allow_fallback)
                 allow_fallback_explicit = True
+
+        # Lockdown guard:
+        # Prevent per-call model overrides (and allow_fallback=true) from silently diverging from
+        # operator-selected routing (env override or profile overrides).
+        if lockdown_active():
+            expected_selector: Optional[str] = self._resolve_forced_model_key(task=options.task)
+            expected_source = "env"
+            if not expected_selector:
+                override = self._resolve_profile_task_override(task=options.task)
+                mk = override.get("model_key") if isinstance(override, dict) else None
+                if isinstance(mk, str) and mk.strip():
+                    expected_selector = mk.strip()
+                    expected_source = "profile"
+
+            if expected_selector:
+                expected_key = (
+                    self._resolve_model_key_selector(task=options.task, selector=expected_selector) or expected_selector
+                )
+                if allow_fallback_explicit and allow_fallback:
+                    raise ImageGenerationError(
+                        "\n".join(
+                            [
+                                "[LOCKDOWN] Forbidden allow_fallback=true under fixed routing.",
+                                f"- task: {options.task}",
+                                f"- expected({expected_source}): {expected_selector} -> {expected_key}",
+                                "- policy: When routing is fixed (env/profile), fallback can silently switch models and is not allowed.",
+                                "- fix: unset SRT2IMAGES_IMAGE_ALLOW_FALLBACK or pass allow_fallback=false.",
+                                "- debug: set YTM_EMERGENCY_OVERRIDE=1 for this run (not for normal ops).",
+                            ]
+                        )
+                    )
+
+                if call_time_selector:
+                    call_key = (
+                        self._resolve_model_key_selector(task=options.task, selector=call_time_selector) or call_time_selector
+                    )
+                    if expected_key != call_key:
+                        raise ImageGenerationError(
+                            "\n".join(
+                                [
+                                    "[LOCKDOWN] Conflicting image model override detected.",
+                                    f"- task: {options.task}",
+                                    f"- expected({expected_source}): {expected_selector} -> {expected_key}",
+                                    f"- call_time: {call_time_selector} -> {call_key}",
+                                    "- policy: Do not override model_key per call when routing is already fixed by env/profile.",
+                                    "- fix: remove cue.image_model_key / --model-key, or change the routing via UI (/image-model-routing).",
+                                    "- debug: set YTM_EMERGENCY_OVERRIDE=1 for this run (not for normal ops).",
+                                ]
+                            )
+                        )
         if not forced_model_key:
             forced_model_key = self._resolve_forced_model_key(task=options.task)
         forced_model_from_profile = False
@@ -632,6 +696,24 @@ class ImageClient:
         if forced_model_key:
             forced_selector = forced_model_key
             forced_model_key = self._resolve_model_key_selector(task=options.task, selector=forced_selector) or forced_selector
+            if (
+                lockdown_active()
+                and str(options.task or "").strip() in IMAGE_MODEL_KEY_BLOCKLIST_TASKS
+                and forced_model_key in IMAGE_MODEL_KEY_BLOCKLIST
+            ):
+                raise ImageGenerationError(
+                    "\n".join(
+                        [
+                            "[LOCKDOWN] Forbidden image model key detected for video images (Gemini 3 image models are not allowed for visual_image_gen).",
+                            f"- task: {options.task}",
+                            f"- selector: {forced_selector}",
+                            f"- resolved_model_key: {forced_model_key}",
+                            "- policy: Gemini 3 系の画像モデルは動画内画像では使用禁止です（サムネは許可）。",
+                            "- fix: use slot/codes like img-gemini-flash-1 (g-1) for video images, or remove the override env var.",
+                            "- debug: set YTM_EMERGENCY_OVERRIDE=1 for this run (not for normal ops).",
+                        ]
+                    )
+                )
             forced_conf = self._config.get("models", {}).get(forced_model_key)
             if not forced_conf:
                 hint = ""

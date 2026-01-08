@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from pprint import pprint
@@ -172,6 +173,16 @@ def parse_args() -> argparse.Namespace:
     audio_p = sub.add_parser("audio", parents=[common], help="Run audio synthesis")
     audio_p.add_argument("--resume", action="store_true", help="Resume from existing chunks")
     audio_p.add_argument(
+        "--indices",
+        default="",
+        help="Comma-separated segment indices to regenerate (0-based). Example: '3,10'",
+    )
+    audio_p.add_argument(
+        "--prepass",
+        action="store_true",
+        help="Reading-only pass (no wav synthesis). Generates/updates audio log for inspection.",
+    )
+    audio_p.add_argument(
         "--allow-unvalidated",
         action="store_true",
         help="Allow TTS even when script_validation is not completed (not recommended).",
@@ -321,6 +332,10 @@ def main() -> None:
         ]
         if getattr(args, "allow_unvalidated", False):
             cmd.append("--allow-unvalidated")
+        if getattr(args, "indices", ""):
+            cmd.extend(["--indices", str(args.indices)])
+        if getattr(args, "prepass", False):
+            cmd.append("--prepass")
 
         # NOTE: Do not force --out-wav/--log here.
         # run_tts writes intermediates under workspaces/scripts/**/audio_prep/ and then syncs
@@ -338,11 +353,35 @@ def main() -> None:
         env = os.environ.copy()
         env.pop("PYTHONPATH", None)
 
+        env.setdefault("VOICEPEAK_CLI_GLOBAL_LOCK", "1")
+        env.setdefault("VOICEPEAK_CLI_COOLDOWN_SEC", "0.35")
+        env.setdefault("VOICEPEAK_CLI_TIMEOUT_SEC", "45")
+        env.setdefault("VOICEPEAK_CLI_RETRY_COUNT", "4")
+        env.setdefault("VOICEPEAK_CLI_RETRY_SLEEP_SEC", "0.5")
+
+        max_retries = 0
         try:
-            subprocess.run(cmd, cwd=base_dir, env=env, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Audio synthesis failed with exit code {e.returncode}")
-            sys.exit(e.returncode)
+            max_retries = int(str(env.get("YTM_AUDIO_RETRY_COUNT") or "2").strip() or "2")
+        except Exception:
+            max_retries = 2
+        max_retries = max(0, min(10, max_retries))
+
+        last_rc = 1
+        for attempt in range(max_retries + 1):
+            cmd_try = list(cmd)
+            if attempt > 0 and "--resume" not in cmd_try:
+                cmd_try.append("--resume")
+            try:
+                subprocess.run(cmd_try, cwd=base_dir, env=env, check=True)
+                return
+            except subprocess.CalledProcessError as e:
+                last_rc = int(e.returncode or 1)
+                if attempt >= max_retries:
+                    print(f"Audio synthesis failed with exit code {last_rc}")
+                    sys.exit(last_rc)
+                backoff = float(min(10.0, 1.5 * (attempt + 1)))
+                print(f"Audio synthesis failed (exit={last_rc}); retrying in {backoff:.1f}s... ({attempt+1}/{max_retries})")
+                time.sleep(backoff)
         return
 
     if args.command == "semantic-align":

@@ -259,10 +259,22 @@ THUMBNAIL_QC_NOTES_LOCK = threading.Lock()
 VIDEO_CHANNEL_PRESETS_PATH = VIDEO_PIPELINE_ROOT / "config" / "channel_presets.json"
 VIDEO_CHANNEL_PRESETS_LOCK = threading.Lock()
 IMAGE_MODEL_KEY_BLOCKLIST = {
-    # User policy: do not use or set Gemini 3 preview for images (ban risk).
+    # Policy: Gemini 3 image models are blocked for video images, but allowed for thumbnails.
     "gemini_3_pro_image_preview",
     "openrouter_gemini_3_pro_image_preview",
 }
+
+
+def _image_model_key_blocked(model_key: str, *, task: Optional[str]) -> bool:
+    mk = str(model_key or "").strip()
+    if not mk:
+        return False
+    if mk not in IMAGE_MODEL_KEY_BLOCKLIST:
+        return False
+    # Thumbnails are allowed to use Gemini 3 (explicitly).
+    if str(task or "").strip() == "thumbnail_image_gen":
+        return False
+    return True
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
 OPENROUTER_GENERATION_URL = "https://openrouter.ai/api/v1/generation"
 OPENROUTER_MODELS_CACHE_LOCK = threading.Lock()
@@ -5965,6 +5977,16 @@ class ThumbnailLibraryAssignResponse(BaseModel):
     public_url: str
 
 
+class ThumbnailAssetReplaceResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    slot: str
+    file_name: str
+    image_path: str
+    public_url: str
+
+
 class ThumbnailProjectUpdateRequest(BaseModel):
     owner: Optional[str] = Field(default=None)
     summary: Optional[str] = Field(default=None)
@@ -7548,7 +7570,7 @@ def _resolve_image_model_key_info(
     mk = str(model_key or "").strip()
     if not mk:
         return None, None, False, None, {}
-    if mk in IMAGE_MODEL_KEY_BLOCKLIST:
+    if _image_model_key_blocked(mk, task=task):
         return None, None, True, f"blocked model key: {mk}", {"blocked": True, "model_key": mk}
 
     meta = index.get(mk)
@@ -7561,7 +7583,7 @@ def _resolve_image_model_key_info(
         resolved = _resolve_image_model_slot_selector(mk, task=str(task), slots_conf=slots_conf)
         if resolved is not None:
             resolved_key, slot_meta = resolved
-            if resolved_key in IMAGE_MODEL_KEY_BLOCKLIST:
+            if _image_model_key_blocked(resolved_key, task=task):
                 return None, None, True, f"blocked model key: {resolved_key}", slot_meta
             meta2 = index.get(resolved_key)
             if isinstance(meta2, dict):
@@ -7740,11 +7762,11 @@ def _build_image_model_routing_catalog(
             note=note,
         )
 
-    def _mk_opt(model_key: Optional[str], *, fallback_note: str) -> tuple[Optional[str], bool, Optional[str]]:
+    def _mk_opt(model_key: Optional[str], *, fallback_note: str, task: str) -> tuple[Optional[str], bool, Optional[str]]:
         if not model_key:
             return None, False, fallback_note
-        if model_key in IMAGE_MODEL_KEY_BLOCKLIST:
-            return None, False, "運用ポリシーにより無効（Gemini 3 preview は使用禁止）"
+        if _image_model_key_blocked(model_key, task=task):
+            return None, False, "運用ポリシーにより無効（動画内画像では Gemini 3 は使用禁止）"
         if model_key not in known_keys:
             return None, False, f"未登録モデル: {model_key}"
         return model_key, True, None
@@ -7766,9 +7788,9 @@ def _build_image_model_routing_catalog(
             if isinstance(desc, str) and desc.strip():
                 note_parts.append(desc.strip())
 
-            if resolved_key in IMAGE_MODEL_KEY_BLOCKLIST:
+            if _image_model_key_blocked(resolved_key, task=task):
                 enabled = False
-                note_parts.append("運用ポリシーにより無効（Gemini 3 preview は使用禁止）")
+                note_parts.append("運用ポリシーにより無効（動画内画像では Gemini 3 は使用禁止）")
             elif resolved_key not in known_keys:
                 enabled = False
                 note_parts.append(f"未登録モデル: {resolved_key}")
@@ -7799,16 +7821,30 @@ def _build_image_model_routing_catalog(
         return out
 
     # Curated options (requested by user):
-    fw_schnell, fw_schnell_ok, fw_schnell_note = _mk_opt("fireworks_flux_1_schnell_fp8", fallback_note="未設定")
-    fw_pro, fw_pro_ok, fw_pro_note = _mk_opt("fireworks_flux_kontext_pro", fallback_note="未設定")
-    fw_max, fw_max_ok, fw_max_note = _mk_opt("fireworks_flux_kontext_max", fallback_note="未設定")
+    fw_schnell, fw_schnell_ok, fw_schnell_note = _mk_opt(
+        "fireworks_flux_1_schnell_fp8", fallback_note="未設定", task="thumbnail_image_gen"
+    )
+    fw_pro, fw_pro_ok, fw_pro_note = _mk_opt(
+        "fireworks_flux_kontext_pro", fallback_note="未設定", task="thumbnail_image_gen"
+    )
+    fw_max, fw_max_ok, fw_max_note = _mk_opt(
+        "fireworks_flux_kontext_max", fallback_note="未設定", task="thumbnail_image_gen"
+    )
 
-    g_flash, g_flash_ok, g_flash_note = _mk_opt("gemini_2_5_flash_image", fallback_note="未設定")
-    # Gemini 3 is intentionally disabled (ban risk).
-    g_three, g_three_ok, g_three_note = (None, False, "無効: Gemini 3 は設定/使用しません（BANリスク）")
+    g_flash, g_flash_ok, g_flash_note = _mk_opt("gemini_2_5_flash_image", fallback_note="未設定", task="thumbnail_image_gen")
+    # Gemini 3 is allowed for thumbnails, but disabled for video images.
+    g_three_thumb, g_three_thumb_ok, g_three_thumb_note = _mk_opt(
+        "gemini_3_pro_image_preview", fallback_note="未設定", task="thumbnail_image_gen"
+    )
+    g_three_video, g_three_video_ok, g_three_video_note = _mk_opt(
+        "gemini_3_pro_image_preview", fallback_note="未設定", task="visual_image_gen"
+    )
 
-    or_flash, or_flash_ok, or_flash_note = _mk_opt("openrouter_gemini_2_5_flash_image", fallback_note="未設定")
-    or_three, or_three_ok, or_three_note = (None, False, "無効: Gemini 3 は設定/使用しません（BANリスク）")
+    or_flash, or_flash_ok, or_flash_note = _mk_opt(
+        "openrouter_gemini_2_5_flash_image", fallback_note="未設定", task="thumbnail_image_gen"
+    )
+    # OpenRouter Gemini 3 image preview is not configured in normal ops.
+    or_three, or_three_ok, or_three_note = (None, False, "未設定: OpenRouter Gemini 3 は運用で使いません")
 
     # fal.ai is planned but not configured yet.
     fal_note = "未対応: fal.ai はこれから拡張予定"
@@ -7852,12 +7888,12 @@ def _build_image_model_routing_catalog(
         ),
         _opt(
             id="2_google:gemini_3_pro_image",
-            label="2_google · Gemini 3 Pro Image (disabled)",
+            label="2_google · Gemini 3 Pro Image",
             provider_group="2_google",
             variant="gemini_3_pro_image",
-            model_key=g_three,
-            enabled=g_three_ok,
-            note=g_three_note,
+            model_key=g_three_thumb,
+            enabled=g_three_thumb_ok,
+            note=g_three_thumb_note,
         ),
         _opt(
             id="3_fal.ai:flux_schnell",
@@ -7906,12 +7942,25 @@ def _build_image_model_routing_catalog(
         ),
     ]
 
+    video_opts = [
+        *[opt for opt in thumbnail_opts if opt.id != "2_google:gemini_3_pro_image"],
+        _opt(
+            id="2_google:gemini_3_pro_image",
+            label="2_google · Gemini 3 Pro Image (disabled for video images)",
+            provider_group="2_google",
+            variant="gemini_3_pro_image",
+            model_key=g_three_video,
+            enabled=g_three_video_ok,
+            note=g_three_video_note,
+        ),
+    ]
+
     # Video-image opts are the same catalog (the engine differs; selection is per-channel).
     slot_thumbnail = _slot_options("thumbnail_image_gen")
     slot_video = _slot_options("visual_image_gen")
     return ImageModelRoutingCatalog(
         thumbnail=slot_thumbnail + thumbnail_opts,
-        video_image=slot_video + thumbnail_opts,
+        video_image=slot_video + video_opts,
     )
 
 
@@ -10699,26 +10748,49 @@ def _normalize_thumbnail_stable_id(raw: Optional[str]) -> Optional[str]:
 
     Accepts:
       - 00_thumb_1
-      - 00_thumb_1.png
+      - 00_thumb_1.png / 00_thumb_1.jpg / 00_thumb_1.webp
       - thumb_1 / thumb_2 (legacy labels)
+      - a / b (legacy labels)
+      - default / __default__ / 00_thumb / thumb (treated as non-stable / canonical output)
     """
     if raw is None:
         return None
     value = str(raw or "").strip()
     if not value:
         return None
-    base = Path(value).name
-    if base.lower().endswith(".png"):
-        base = base[: -len(".png")]
+    cleaned = value.split("?", 1)[0].split("#", 1)[0].strip()
+    if not cleaned:
+        return None
+    base = Path(cleaned).name.strip()
+    for ext in (".png", ".jpg", ".jpeg", ".webp"):
+        if base.lower().endswith(ext):
+            base = base[: -len(ext)]
+            break
     lowered = base.strip().lower()
-    if lowered in {"thumb_1", "thumb1", "1"}:
+    if lowered in {"default", "__default__", "00_thumb", "thumb"}:
+        return None
+    if lowered in {"thumb_1", "thumb1", "1", "a"}:
         return "00_thumb_1"
-    if lowered in {"thumb_2", "thumb2", "2"}:
+    if lowered in {"thumb_2", "thumb2", "2", "b"}:
         return "00_thumb_2"
     normalized = base.strip()
     if normalized.startswith("00_thumb_") and normalized[len("00_thumb_") :].isdigit():
         return normalized
-    raise HTTPException(status_code=400, detail="stable must be like 00_thumb_1 or 00_thumb_2")
+
+    # Be permissive: accept strings that contain a stable id (e.g. "00_thumb_1 (selected)").
+    match = re.search(r"(00_thumb_\d+)", lowered)
+    if match:
+        return match.group(1)
+
+    # Also accept strings containing legacy labels like "thumb_1 (selected)".
+    match = re.search(r"(?:^|[^a-z0-9])(thumb[_-]?(1|2))(?:$|[^a-z0-9])", lowered)
+    if match:
+        return "00_thumb_1" if match.group(2) == "1" else "00_thumb_2"
+
+    raise HTTPException(
+        status_code=400,
+        detail="stable must be like 00_thumb_1 / 00_thumb_2 (or 00_thumb_<n>)",
+    )
 
 
 def _thumb_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
@@ -11127,8 +11199,9 @@ def upsert_thumbnail_elements_spec(
             opacity = float(element.opacity)
         except Exception:
             continue
-        x = max(-2.0, min(3.0, x))
-        y = max(-2.0, min(3.0, y))
+        # Allow moving elements far outside the canvas (pasteboard-style editing).
+        x = max(-5.0, min(6.0, x))
+        y = max(-5.0, min(6.0, y))
         w = max(0.01, min(4.0, w))
         h = max(0.01, min(4.0, h))
         rotation_deg = max(-180.0, min(180.0, rotation_deg))
@@ -11240,6 +11313,9 @@ def get_thumbnail_editor_context(
     template_id_default: Optional[str] = None
     template_options: List[ThumbnailTextTemplateOptionResponse] = []
     text_slots: Dict[str, str] = {}
+    if not (isinstance(text_layout_id, str) and text_layout_id.strip()):
+        # Allow UI tuning even when a channel is not explicitly configured.
+        text_layout_id = "text_layout_v3"
     if isinstance(text_layout_id, str) and text_layout_id.strip():
         try:
             text_layout_spec = load_layer_spec_yaml(text_layout_id.strip())
@@ -11306,6 +11382,8 @@ def get_thumbnail_editor_context(
                         slots=slots_meta,
                     )
                 )
+    if not template_id_default and template_options:
+        template_id_default = template_options[0].id
 
     # Existing per-video thumb_spec overrides (normalized leaf paths)
     overrides_source: Optional[Dict[str, Any]] = None
@@ -11545,6 +11623,8 @@ def preview_thumbnail_text_layer(
         _, text_layout_id = resolve_channel_layer_spec_ids(channel_code)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to resolve text_layout spec id: {exc}") from exc
+    if not (isinstance(text_layout_id, str) and str(text_layout_id).strip()):
+        text_layout_id = "text_layout_v3"
 
     try:
         text_layout_spec = load_layer_spec_yaml(str(text_layout_id).strip())
@@ -11556,16 +11636,19 @@ def preview_thumbnail_text_layer(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to resolve video item in text_layout spec: {exc}") from exc
 
-    if not isinstance(item, dict):
-        raise HTTPException(status_code=404, detail="video item not found in text_layout spec")
-
     templates_payload = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
     if not isinstance(templates_payload, dict):
         raise HTTPException(status_code=500, detail="text_layout.templates is missing")
 
-    template_id = str(item.get("template_id") or "").strip()
+    template_id = str(item.get("template_id") or "").strip() if isinstance(item, dict) else ""
     template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
     effective_template_id = str(template_id_override or template_id).strip()
+    if not effective_template_id:
+        candidates = [str(k).strip() for k in templates_payload.keys() if str(k).strip()]
+        candidates.sort()
+        effective_template_id = candidates[0] if candidates else ""
+    if not effective_template_id:
+        raise HTTPException(status_code=500, detail="template_id is missing")
     tpl_payload = templates_payload.get(effective_template_id)
     if not isinstance(tpl_payload, dict):
         raise HTTPException(status_code=500, detail=f"template_id not found: {effective_template_id}")
@@ -11593,8 +11676,28 @@ def preview_thumbnail_text_layer(
                     scaled = int(round(float(base_size) * float(text_scale)))
                     slot_cfg["base_size_px"] = max(1, scaled)
 
+    # If the video is not present in the spec, synthesize a minimal item so the compositor can run.
+    if not isinstance(item, dict):
+        if not isinstance(text_layout_spec, dict):
+            raise HTTPException(status_code=500, detail="text_layout spec is invalid")
+        text_layout_spec = copy.deepcopy(text_layout_spec)
+        items_payload = text_layout_spec.get("items")
+        if not isinstance(items_payload, list):
+            items_payload = []
+            text_layout_spec["items"] = items_payload
+        slot_keys = [str(k).strip() for k in slots_payload.keys() if isinstance(k, str) and str(k).strip()]
+        if not slot_keys:
+            slot_keys = ["main"]
+        item = {
+            "video_id": video_id,
+            "title": video_id,
+            "template_id": effective_template_id,
+            "text": {k: "" for k in slot_keys},
+        }
+        items_payload.append(item)
+
     # Build text_override: slot-specific manual overrides win, then fall back to authored text, then planning copy.
-    text_payload = item.get("text") if isinstance(item.get("text"), dict) else {}
+    text_payload = item.get("text") if isinstance(item, dict) and isinstance(item.get("text"), dict) else {}
     planning_copy = _load_planning_copy(channel_code, video_number)
 
     copy_upper = str(overrides_leaf.get("overrides.copy_override.upper") or "").strip()
@@ -11768,6 +11871,8 @@ def preview_thumbnail_text_layer_slots(
         _, text_layout_id = resolve_channel_layer_spec_ids(channel_code)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to resolve text_layout spec id: {exc}") from exc
+    if not (isinstance(text_layout_id, str) and str(text_layout_id).strip()):
+        text_layout_id = "text_layout_v3"
 
     try:
         text_layout_spec = load_layer_spec_yaml(str(text_layout_id).strip())
@@ -11779,16 +11884,19 @@ def preview_thumbnail_text_layer_slots(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to resolve video item in text_layout spec: {exc}") from exc
 
-    if not isinstance(item, dict):
-        raise HTTPException(status_code=404, detail="video item not found in text_layout spec")
-
     templates_payload = text_layout_spec.get("templates") if isinstance(text_layout_spec, dict) else None
     if not isinstance(templates_payload, dict):
         raise HTTPException(status_code=500, detail="text_layout.templates is missing")
 
-    template_id = str(item.get("template_id") or "").strip()
+    template_id = str(item.get("template_id") or "").strip() if isinstance(item, dict) else ""
     template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
     effective_template_id = str(template_id_override or template_id).strip()
+    if not effective_template_id:
+        candidates = [str(k).strip() for k in templates_payload.keys() if str(k).strip()]
+        candidates.sort()
+        effective_template_id = candidates[0] if candidates else ""
+    if not effective_template_id:
+        raise HTTPException(status_code=500, detail="template_id is missing")
     tpl_payload = templates_payload.get(effective_template_id)
     if not isinstance(tpl_payload, dict):
         raise HTTPException(status_code=500, detail=f"template_id not found: {effective_template_id}")
@@ -11818,8 +11926,28 @@ def preview_thumbnail_text_layer_slots(
                     scaled = int(round(float(base_size) * float(text_scale)))
                     slot_cfg["base_size_px"] = max(1, scaled)
 
+    # If the video is not present in the spec, synthesize a minimal item so the compositor can run.
+    if not isinstance(item, dict):
+        if not isinstance(text_layout_spec, dict):
+            raise HTTPException(status_code=500, detail="text_layout spec is invalid")
+        text_layout_spec = copy.deepcopy(text_layout_spec)
+        items_payload = text_layout_spec.get("items")
+        if not isinstance(items_payload, list):
+            items_payload = []
+            text_layout_spec["items"] = items_payload
+        slot_keys_for_item = [str(k).strip() for k in slots_payload.keys() if isinstance(k, str) and str(k).strip()]
+        if not slot_keys_for_item:
+            slot_keys_for_item = ["main"]
+        item = {
+            "video_id": video_id,
+            "title": video_id,
+            "template_id": effective_template_id,
+            "text": {k: "" for k in slot_keys_for_item},
+        }
+        items_payload.append(item)
+
     # Resolve text for each slot.
-    text_payload = item.get("text") if isinstance(item.get("text"), dict) else {}
+    text_payload = item.get("text") if isinstance(item, dict) and isinstance(item.get("text"), dict) else {}
     planning_copy = _load_planning_copy(channel_code, video_number)
 
     copy_upper = str(overrides_leaf.get("overrides.copy_override.upper") or "").strip()
@@ -13032,6 +13160,135 @@ async def upload_thumbnail_variant_asset(
         make_selected=bool(make_selected),
     )
     return variant
+
+
+@app.post(
+    "/api/workspaces/thumbnails/{channel}/{video}/assets/{slot}",
+    response_model=ThumbnailAssetReplaceResponse,
+)
+async def replace_thumbnail_video_asset(
+    channel: str,
+    video: str,
+    slot: str,
+    file: UploadFile = File(...),
+):
+    """
+    Replace a canonical per-video thumbnail asset (e.g. 10_bg / 00_thumb_1).
+
+    Intended for manual operations in UI:
+    - Swap in a PNG exported from CapCut, etc.
+    - Keep stable filenames (00_thumb_1.png) so downstream ZIP/download remains consistent.
+    """
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    slot_key = str(slot or "").strip()
+    if not slot_key:
+        raise HTTPException(status_code=400, detail="slot is required")
+
+    cleaned = slot_key.split("?", 1)[0].split("#", 1)[0].strip()
+    if not cleaned:
+        raise HTTPException(status_code=400, detail="slot is required")
+    base = Path(cleaned).name.strip()
+    for ext in (".png", ".jpg", ".jpeg", ".webp"):
+        if base.lower().endswith(ext):
+            base = base[: -len(ext)]
+            break
+    lowered = base.strip().lower()
+
+    slot_alias = {
+        "bg": "10_bg",
+        "background": "10_bg",
+        "10_bg": "10_bg",
+        "portrait": "20_portrait",
+        "20_portrait": "20_portrait",
+        "bg_ai_raw": "90_bg_ai_raw",
+        "90_bg_ai_raw": "90_bg_ai_raw",
+        # Canonical output (single).
+        "00_thumb": "00_thumb",
+        "thumb": "00_thumb",
+        # Two-up stable outputs (aliases).
+        "00_thumb_1": "00_thumb_1",
+        "thumb_1": "00_thumb_1",
+        "thumb1": "00_thumb_1",
+        "a": "00_thumb_1",
+        "1": "00_thumb_1",
+        "00_thumb_2": "00_thumb_2",
+        "thumb_2": "00_thumb_2",
+        "thumb2": "00_thumb_2",
+        "b": "00_thumb_2",
+        "2": "00_thumb_2",
+    }
+
+    normalized_slot = slot_alias.get(lowered) or slot_alias.get(slot_key.strip().lower())
+    slot_to_filename = {
+        "10_bg": "10_bg.png",
+        "20_portrait": "20_portrait.png",
+        "90_bg_ai_raw": "90_bg_ai_raw.png",
+        "00_thumb": "00_thumb.png",
+        "00_thumb_1": "00_thumb_1.png",
+        "00_thumb_2": "00_thumb_2.png",
+    }
+    if normalized_slot not in slot_to_filename:
+        raise HTTPException(
+            status_code=400,
+            detail=f"unsupported slot: {slot_key} (supported: {sorted(slot_to_filename.keys())})",
+        )
+
+    if not file or not file.filename:
+        raise HTTPException(status_code=400, detail="画像ファイルを指定してください。")
+
+    # Validate extension early (content is verified by PIL during normalization).
+    _sanitize_library_filename(file.filename, default_prefix=normalized_slot)
+
+    raw_bytes = await file.read()
+    await file.seek(0)
+    if not raw_bytes:
+        raise HTTPException(status_code=400, detail="empty file")
+
+    filename = slot_to_filename[normalized_slot]
+    dest_dir = THUMBNAIL_ASSETS_DIR / channel_code / video_number
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    destination = dest_dir / filename
+
+    if normalized_slot == "20_portrait":
+        try:
+            with Image.open(io.BytesIO(raw_bytes)) as img:
+                out = io.BytesIO()
+                img.convert("RGBA").save(out, format="PNG", optimize=True)
+                png_bytes = out.getvalue()
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=f"画像の読み込みに失敗しました: {exc}") from exc
+    else:
+        png_bytes = _normalize_thumbnail_image_bytes(raw_bytes, width=1920, height=1080)
+
+    tmp = destination.with_suffix(destination.suffix + ".tmp")
+    try:
+        tmp.write_bytes(png_bytes)
+        tmp.replace(destination)
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail=f"failed to write thumbnail asset: {exc}") from exc
+
+    # Keep canonical 00_thumb.png in sync for two-up channels (legacy views).
+    if normalized_slot == "00_thumb_1":
+        try:
+            canonical = dest_dir / "00_thumb.png"
+            tmp_canonical = canonical.with_suffix(canonical.suffix + ".tmp")
+            tmp_canonical.write_bytes(png_bytes)
+            tmp_canonical.replace(canonical)
+        except Exception:
+            pass
+
+    rel_path = f"{channel_code}/{video_number}/{destination.name}"
+    public_url = f"/thumbnails/assets/{rel_path}"
+    return ThumbnailAssetReplaceResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        slot=normalized_slot,
+        file_name=destination.name,
+        image_path=rel_path,
+        public_url=public_url,
+    )
 
 
 @app.post(
