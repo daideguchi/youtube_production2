@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from dataclasses import asdict, dataclass
@@ -39,10 +40,15 @@ class RefResult:
     target: str
     exists: bool
     size_bytes: int | None
+    created: str
+    updated: str
     code_refs: int
     docs_refs: int
     code_example: str | None
     docs_example: str | None
+
+
+_GIT_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def _run_rg(*, repo_root: Path, pattern: str, roots: Sequence[str]) -> list[str]:
@@ -123,15 +129,92 @@ def _iter_targets(repo_root: Path, patterns: Iterable[str]) -> list[str]:
     return sorted(set(out))
 
 
+def _chunks(items: list[str], size: int) -> Iterable[list[str]]:
+    for i in range(0, len(items), size):
+        yield items[i : i + size]
+
+
+def _git_first_seen_dates(
+    *,
+    repo_root: Path,
+    paths: set[str],
+    reverse: bool,
+) -> dict[str, str]:
+    """
+    Returns a map {path: YYYY-MM-DD} for the first time each path appears in `git log`.
+
+    - reverse=False: newest-first => first-seen == latest commit date per path
+    - reverse=True:  oldest-first => first-seen == earliest commit date per path
+    """
+    if not paths:
+        return {}
+
+    cmd = [
+        "git",
+        "log",
+        "--date=short",
+        "--format=%ad",
+        "--name-only",
+    ]
+    if reverse:
+        cmd.insert(2, "--reverse")
+    cmd += ["--", *sorted(paths)]
+
+    proc = subprocess.run(
+        cmd,
+        cwd=str(repo_root),
+        capture_output=True,
+        text=True,
+        stdin=subprocess.DEVNULL,
+    )
+    if proc.returncode != 0:
+        return {}
+
+    found: dict[str, str] = {}
+    current_date = ""
+    for raw in proc.stdout.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if _GIT_DATE_RE.match(line):
+            current_date = line
+            continue
+        if not current_date:
+            continue
+        if line in paths and line not in found:
+            found[line] = current_date
+            if len(found) >= len(paths):
+                break
+    return found
+
+
+def _git_created_updated(repo_root: Path, paths: list[str]) -> dict[str, tuple[str, str]]:
+    out: dict[str, tuple[str, str]] = {p: ("-", "-") for p in paths}
+    if not paths:
+        return out
+
+    latest_all: dict[str, str] = {}
+    earliest_all: dict[str, str] = {}
+
+    for chunk in _chunks(paths, size=120):
+        chunk_set = set(chunk)
+        latest_all.update(_git_first_seen_dates(repo_root=repo_root, paths=chunk_set, reverse=False))
+        earliest_all.update(_git_first_seen_dates(repo_root=repo_root, paths=chunk_set, reverse=True))
+
+    for p in paths:
+        out[p] = (earliest_all.get(p, "-"), latest_all.get(p, "-"))
+    return out
+
+
 def _render_markdown(results: list[RefResult]) -> str:
     lines: list[str] = []
     lines.append("# REPO_REF_AUDIT — 参照棚卸し（自動生成）")
     lines.append("")
-    lines.append("| target | code_refs | docs_refs | code_example | docs_example |")
-    lines.append("| --- | ---: | ---: | --- | --- |")
+    lines.append("| target | created | updated | code_refs | docs_refs | code_example | docs_example |")
+    lines.append("| --- | ---: | ---: | ---: | ---: | --- | --- |")
     for r in results:
         lines.append(
-            f"| `{r.target}` | {r.code_refs} | {r.docs_refs} | {r.code_example or '—'} | {r.docs_example or '—'} |"
+            f"| `{r.target}` | {r.created} | {r.updated} | {r.code_refs} | {r.docs_refs} | {r.code_example or '—'} | {r.docs_example or '—'} |"
         )
     lines.append("")
     zeros = [r.target for r in results if r.exists and r.code_refs == 0 and r.docs_refs == 0]
@@ -177,17 +260,21 @@ def main() -> int:
     docs_roots = args.docs_root or ["ssot", "README.md", "START_HERE.md", "prompts"]
 
     results: list[RefResult] = []
+    created_updated = _git_created_updated(repo_root, targets)
     for rel in targets:
         path = repo_root / rel
         exists = path.exists()
         size_bytes = path.stat().st_size if exists else None
         code_refs, code_ex = _count_refs(repo_root=repo_root, target_rel=rel, search_roots=code_roots)
         docs_refs, docs_ex = _count_refs(repo_root=repo_root, target_rel=rel, search_roots=docs_roots)
+        created, updated = created_updated.get(rel, ("-", "-"))
         results.append(
             RefResult(
                 target=rel,
                 exists=exists,
                 size_bytes=size_bytes,
+                created=created,
+                updated=updated,
                 code_refs=code_refs,
                 docs_refs=docs_refs,
                 code_example=code_ex,

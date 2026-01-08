@@ -34,6 +34,7 @@ class RefLoc:
 
 SCRIPT_PATH_RE = re.compile(r"scripts/[A-Za-z0-9_./-]+\.(?:py|sh|md)")
 MODULE_RE = re.compile(r"-m\s+scripts\.([A-Za-z0-9_]+)")
+_GIT_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def _collect_scripts(repo_root: Path) -> list[str]:
@@ -47,6 +48,68 @@ def _collect_scripts(repo_root: Path) -> list[str]:
             continue
         out.append(rel)
     return sorted(out)
+
+
+def _git_first_seen_dates(
+    *,
+    repo_root: Path,
+    paths: set[str],
+    reverse: bool,
+) -> dict[str, str]:
+    """
+    Returns a map {path: YYYY-MM-DD} for the first time each path appears in `git log`.
+
+    - reverse=False: newest-first => first-seen == latest commit date per path
+    - reverse=True:  oldest-first => first-seen == earliest commit date per path
+    """
+    cmd = [
+        "git",
+        "log",
+        "--date=short",
+        "--format=%ad",
+        "--name-only",
+    ]
+    if reverse:
+        cmd.insert(2, "--reverse")
+    cmd += ["--", "scripts"]
+
+    proc = subprocess.run(
+        cmd,
+        cwd=str(repo_root),
+        capture_output=True,
+        text=True,
+        stdin=subprocess.DEVNULL,
+    )
+    if proc.returncode != 0:
+        return {}
+
+    found: dict[str, str] = {}
+    current_date = ""
+    for raw in proc.stdout.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if _GIT_DATE_RE.match(line):
+            current_date = line
+            continue
+        if not current_date:
+            continue
+        if line in paths and line not in found:
+            found[line] = current_date
+            if len(found) >= len(paths):
+                break
+
+    return found
+
+
+def _collect_git_created_updated(repo_root: Path, scripts: list[str]) -> dict[str, tuple[str, str]]:
+    paths = set(scripts)
+    latest = _git_first_seen_dates(repo_root=repo_root, paths=paths, reverse=False)
+    earliest = _git_first_seen_dates(repo_root=repo_root, paths=paths, reverse=True)
+    out: dict[str, tuple[str, str]] = {}
+    for p in scripts:
+        out[p] = (earliest.get(p, "-"), latest.get(p, "-"))
+    return out
 
 
 def _parse_ssot_classification(repo_root: Path) -> tuple[set[str], set[str], set[str]]:
@@ -223,6 +286,7 @@ def _render_markdown(
     p1: set[str],
     p2: set[str],
     refs: dict[str, set[RefLoc]],
+    created_updated: dict[str, tuple[str, str]],
 ) -> str:
     lines: list[str] = []
     lines += ["# OPS_SCRIPTS_INVENTORY — scripts/ 全ファイル棚卸し（工程別 / 使う・使わない）", ""]
@@ -248,13 +312,14 @@ def _render_markdown(
         "- `scripts=*` は **スクリプト間依存**（他の運用スクリプトが呼ぶ可能性）",
         "- `ssot=*` / `README=*` は **ドキュメント参照**（手動実行の可能性）",
         "- `refs=0` かつ SSOT未記載のものは “未確認レガシー候補” として扱い、削除は `PLAN_LEGACY_AND_TRASH_CLASSIFICATION` の条件を満たしてから行う。",
+        "- `created/updated` は git 履歴から推定した日付（YYYY-MM-DD）。未追跡は `-`。",
         "",
     ]
     lines += [
         "---",
         "",
-        "| script | phase | P | listed-in-SSOT | refs (apps/packages/ui/scripts/ssot/readme/other) | example ref |",
-        "|---|---:|:--:|:--:|---:|---|",
+        "| script | phase | P | listed-in-SSOT | created | updated | refs (apps/packages/ui/scripts/ssot/readme/other) | example ref |",
+        "|---|---:|:--:|:--:|---:|---:|---:|---|",
     ]
 
     for s in scripts:
@@ -275,8 +340,9 @@ def _render_markdown(
             p = "P1"
             listed = "no"
 
+        created, updated = created_updated.get(s, ("-", "-"))
         refs_str, example = _ref_summary(refs.get(s, set()))
-        lines.append(f"| `{s}` | {phase} | {p} | {listed} | {refs_str} | `{example}` |")
+        lines.append(f"| `{s}` | {phase} | {p} | {listed} | {created} | {updated} | {refs_str} | `{example}` |")
 
     return "\n".join(lines) + "\n"
 
@@ -292,7 +358,8 @@ def main() -> int:
     scripts = _collect_scripts(repo_root)
     p0, p1, p2 = _parse_ssot_classification(repo_root)
     refs = _collect_refs(repo_root, scripts)
-    md = _render_markdown(scripts=scripts, p0=p0, p1=p1, p2=p2, refs=refs)
+    created_updated = _collect_git_created_updated(repo_root, scripts)
+    md = _render_markdown(scripts=scripts, p0=p0, p1=p1, p2=p2, refs=refs, created_updated=created_updated)
 
     out_path = repo_root / "ssot" / "ops" / "OPS_SCRIPTS_INVENTORY.md"
     if args.write:
