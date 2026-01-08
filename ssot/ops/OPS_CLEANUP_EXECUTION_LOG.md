@@ -2307,3 +2307,24 @@ projects.json 整理:
 保持:
 - `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH04-018..029-*`（未投稿分のみ残す）
 - `workspaces/video/runs/CH04-018..029_*`
+
+### 2) legacy LLM registry / ゾンビスクリプトの整理（誤誘導ノイズ削減）
+
+意図:
+- LLM設定SSOTを `configs/llm_router.yaml` 系へ統一する方針（`ssot/DECISIONS.md:D-010`）に従い、参照が残っていた legacy registry を撤去。
+- `listed-in-SSOT=no` のスクリプト（refs=0/低頻度の一回系）を除去して探索ノイズを減らす。
+
+archive-first（repo, tracked）:
+- `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`（`manifest.tsv` あり）
+
+削除（repo, tracked）:
+- `configs/llm_registry.json`
+- `configs/llm_model_registry.yaml`
+- `scripts/ops/lint_llm_config.py`
+- `scripts/py`
+- `scripts/thumbnails/gen_buddha_channel_bases.py`
+- `scripts/thumbnails/portraits_wikimedia.py`
+
+更新（SSOT）:
+- `ssot/ops/OPS_ZOMBIE_CODE_REGISTER.md`（解消として記録）
+- `ssot/ops/OPS_SCRIPTS_INVENTORY.md`（再生成: `python3 scripts/ops/scripts_inventory.py --write`）

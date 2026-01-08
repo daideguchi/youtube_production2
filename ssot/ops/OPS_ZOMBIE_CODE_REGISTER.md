@@ -20,10 +20,10 @@
 
 | path | 観測 | 暫定提案 |
 | --- | --- | --- |
-| `scripts/ops/lint_llm_config.py` | `configs/llm.yml` 系の lint（現行主線は `llm_router.yaml`） | **legacy候補**: 残すなら SSOT 入口へ昇格 / 不要なら archive→delete |
-| `scripts/py` | repo用の python wrapper（手動実行用途の可能性） | **keep候補**: 使うなら SSOT 入口へ記載 / 使わないなら隔離 |
-| `scripts/thumbnails/gen_buddha_channel_bases.py` | “一回きりの生成” に見える（要中身確認） | **legacy候補**: 不要なら archive→delete |
-| `scripts/thumbnails/portraits_wikimedia.py` | Wikimedia 取得系（要中身確認） | **legacy候補**: 不要なら archive→delete |
+| scripts/ops/lint_llm_config.py | `configs/llm.yml` 系の lint（現行主線は `llm_router.yaml`） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |
+| scripts/py | repo用の python wrapper（手動実行用途の可能性） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |
+| scripts/thumbnails/gen_buddha_channel_bases.py | “一回きりの生成” に見える（要中身確認） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |
+| scripts/thumbnails/portraits_wikimedia.py | Wikimedia 取得系（要中身確認） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |
 
 ### A-2) legacy系 ops（cleanup log に参照が残る）
 
@@ -55,7 +55,7 @@
 | --- | --- | --- | --- |
 | Router系（現行主線） | `configs/llm_router.yaml`, `configs/llm_task_overrides.yaml`, `packages/factory_common/llm_router.py` | script/audio/video が主に使用 | ✅ 主線。ここへ統一したい |
 | YML系（legacy） | `configs/llm.yml`, `configs/llm.local.yml`, `packages/factory_common/llm_client.py`, `packages/factory_common/llm_config.py` | `llm_client` 以外の実利用がほぼ無い（監査/テスト中心） | “どれが正本か”が崩れる |
-| Registry系（legacy/UI補助） | `configs/llm_registry.json`, `configs/llm_model_registry.yaml` | UI/backend・Remotion等に残存参照 | Routerと二重管理になりやすい |
+| Registry系（legacy/UI補助） | （deleted; was: configs/llm_registry.json, configs/llm_model_registry.yaml） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） | Routerと二重管理になりやすい |
 
 対応（提案）:
 - 意思決定は `ssot/DECISIONS.md` の **D-010（LLM設定SSOTの一本化）** に集約する。
@@ -64,10 +64,10 @@
 
 | 参照元 | 参照しているもの | 役割 | 暫定提案 |
 | --- | --- | --- | --- |
-| `apps/ui-backend/backend/main.py` | `configs/llm_registry.json` | UI設定の読み書き（phase→モデル定義） | Router由来に置換（“UIが書く”SoTを廃止し、SSOT=UI(view)へ） |
-| `apps/ui-backend/backend/routers/llm_usage.py` | `configs/llm_model_registry.yaml` | model key の検証/一覧 | Routerの `models` から生成するAPIへ置換 |
+| `apps/ui-backend/backend/main.py` | （deleted; was: configs/llm_registry.json） | UI設定の読み書き（phase→モデル定義） | ✅ 解消（2026-01-08）: `ui_settings.json` のみに統一し、旧 registry の読み書きを撤去 |
+| `apps/ui-backend/backend/routers/llm_usage.py` | （deleted; was: configs/llm_model_registry.yaml） | model key の検証/一覧 | ✅ 解消（2026-01-08）: `llm_router.yaml` / `llm_model_codes.yaml` 由来の表示に統一（旧 registry は撤去） |
 | `apps/remotion/scripts/gen_belt_from_srt.js` | 両方 | belt生成の旧スクリプト | 使うなら router に統一 / 使わないなら隔離→archive-first |
-| `packages/video_pipeline/src/srt2images/nanobanana_client.py` | `configs/llm_registry.json`（定数） | legacy分岐の残骸 | legacy分岐削除の対象候補（C-2参照） |
+| `packages/video_pipeline/src/srt2images/nanobanana_client.py` | （deleted; was: configs/llm_registry.json） | legacy分岐の残骸 | ✅ 解消（2026-01-08）: 未使用の `LLM_REGISTRY_PATH` 定数を撤去 |
 
 ---
 
