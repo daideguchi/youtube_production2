@@ -117,6 +117,7 @@
 ### 3.3 UI / ワークスペース
 - `plans/PLAN_UI_WORKSPACE_CLEANUP.md` (Active): UI整理と辞書ハブ化の計画。
 - `plans/PLAN_UI_EPISODE_STUDIO.md` (Active): 企画→台本→音声→動画をUIだけで完結させる統合スタジオ計画。
+- `plans/PLAN_UI_BACKEND_MAIN_SPLIT.md` (Draft): UI Backend `main.py` の肥大化を段階的に解消（entrypoint維持）。
 
 ### 3.4 OPS / 生成物整理
 - `plans/PLAN_OPS_VOICEVOX_READING_REFORM.md` (Active): VOICEVOX読み誤り対策とTTS改善計画。

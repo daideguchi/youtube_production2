@@ -221,5 +221,6 @@ UIの複雑さを減らすため、フロントが複数APIを繋ぎ合わせる
 - VideoProduction（UI）: `apps/ui-frontend/src/pages/ProductionPage.tsx`
 - VideoProduction（中核）: `apps/ui-frontend/src/components/VideoProductionWorkspace.tsx`
 - Backend（UI API）: `apps/ui-backend/backend/main.py`
+- Backend（`main.py` 分割計画）: `ssot/plans/PLAN_UI_BACKEND_MAIN_SPLIT.md`
 - Backend（AutoDraft）: `apps/ui-backend/backend/routers/auto_draft.py`
 - Backend（VideoProduction）: `apps/ui-backend/backend/video_production.py`
