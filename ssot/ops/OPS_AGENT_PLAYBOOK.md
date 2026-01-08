@@ -13,6 +13,7 @@
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 確定ロジック（最終チェック）: `ssot/reference/【消さないで！人間用】確定ロジック.md`
 - 入口索引: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
+- 処理パターン（CLIレシピ索引）: `ssot/ops/OPS_EXECUTION_PATTERNS.md`（CLI: `./ops patterns list/show`）
 - 全体TODO（次に何をやるか）: `ssot/ops/OPS_GLOBAL_TODO.md`
 - I/Oスキーマ: `ssot/ops/OPS_IO_SCHEMAS.md`
 - ログ配置: `ssot/ops/OPS_LOGGING_MAP.md`
@@ -220,15 +221,20 @@ SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI�
 ### 4.1 台本→音声→動画（主線）
 入口は `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` を正とする。
 
-- 台本（入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
-- 音声: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
-- 動画/CapCut: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run ...`
+- 台本（入口固定）: `./ops script <MODE> --channel CHxx --video NNN`
+- 音声: `./ops audio --channel CHxx --video NNN`
+- 動画/CapCut: `./ops video auto-capcut -- --channel CHxx --video NNN`
+- 迷ったら:
+  - `./ops patterns list`（パターン索引）
+  - `./ops reconcile --channel CHxx --video NNN`（issue→固定復帰の配線; dry-run）
 
 ### 4.2 THINK MODE（APIなしで止めて続行）
 ```bash
-./scripts/think.sh --script -- ./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH06 --video 033
-python scripts/agent_runner.py list
-python scripts/agent_runner.py prompt <TASK_ID>
+./ops think script new --channel CH06 --video 033
+./ops agent list
+./ops agent prompt <TASK_ID>
+# 生成 → ./ops agent complete <TASK_ID> --content-file /path/to/content.txt
+# pendingが消えたら、同じ ./ops think ... を再実行して続行
 ```
 注:
 - `script_*` は **API失敗時に自動でTHINKへ落ちない**（即停止・記録が正）。THINK MODE は明示的に使う。

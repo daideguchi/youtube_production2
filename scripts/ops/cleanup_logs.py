@@ -102,6 +102,9 @@ def _should_keep(path: Path) -> bool:
         return True
     if path.name.endswith("__latest.json") or path.name.endswith("__latest.md"):
         return True
+    # ops_cli keep-latest pointers (L1; used for "what is the latest run?" lookups)
+    if "ops_cli" in path.parts and "latest" in path.parts:
+        return True
     if path.suffix in KEEP_ALWAYS_SUFFIXES:
         return True
     if path.suffix == ".pid":

@@ -26,6 +26,9 @@
 - `packages/script_pipeline/channels/README.md` (Reference): チャンネル定義ディレクトリの補足メモ（正本: `packages/script_pipeline/channels/CHxx-*/channel_info.json` と SSOT）。
 - `ops/OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
+- `ops/OPS_EXECUTION_PATTERNS.md`: 処理パターン×CLIレシピ（索引付き。新パターンは必ず追記）。
+- `ops/OPS_FIXED_RECOVERY_COMMANDS.md`: 復帰コマンドの固定（途中で落ちても同じコマンドで復帰）。
+- `ops/OPS_RECONCILE_RUNBOOK.md`: Reconcile（episode_progress の issues を根拠に固定復帰コマンドを配線）。
 - `ops/OPS_IDEA_CARDS.md`: 企画カード運用（追加/整理/評価/配置）SSOT（pre-planning 在庫）。
 - `ops/OPS_EPISODE_PROGRESS_VIEW.md`: エピソード進捗ビュー（derived view）の仕様と見方。
 - `ops/OPS_GIT_SAFETY.md`: Gitロールバック事故の再発防止（`.git` write-lock + push前チェック）。
@@ -70,6 +73,7 @@
 - `ops/OPS_ALIGNMENT_CHECKPOINTS.md`: SoT整合チェック（壊さないための確定チェックリスト）。
 - `ops/OPS_SEMANTIC_ALIGNMENT.md`: タイトル/サムネ訴求 ↔ 台本コア の意味整合チェック/最小修正（明らかなズレのみ）。
 - `ops/OPS_THUMBNAILS_PIPELINE.md`: サムネ量産/修正（ローカル合成）の運用SSOT（Compiler/retake/QC/明るさ補正）。
+- `ops/OPS_VISION_PACK.md`: スクショ/サムネ画像の前処理パック（読み取り精度を上げる任意ツール）。
 - `ops/OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
 - `ops/OPS_YT_DLP.md`: yt-dlp運用（競合タイトル/メタ収集）のSSOT（DLせず公開メタのみ）。
 - `ops/OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。

@@ -197,6 +197,21 @@
     - `*__latest.{json,md}`（keep-latest pointer）は **L1**（監査/差分の入口。`scripts/ops/cleanup_logs.py` で保護）
     - それ以外は **L3**
 
+- `workspaces/logs/ops/ops_cli/ops_cli_events.jsonl`  
+  - Writer: `scripts/ops/ops_cli.py`（`./ops` 統一入口）
+  - 役割: ops 実行の **時系列レジャー**（start/finish, cmd/op, llm mode, episode_id, exit_code, duration_ms, argv）
+  - Reader: `./ops history`
+  - 種別: **L3（30日ローテ。迷子/復帰のための短期参照）**
+
+- `workspaces/logs/ops/ops_cli/latest/*.json`  
+  - Writer: `scripts/ops/ops_cli.py`（`./ops` 統一入口）
+  - 役割: **keep-latest pointer**（「最新はどれ？」を即答するための上書きポインタ）
+    - `latest.json`: 直近の `./ops` 実行（finish）
+    - `{CHxx-NNN}.json`: エピソード別の直近（finish）
+    - `cmd__<cmd>.json`: top-level cmd 別の直近（finish）
+  - Reader: `./ops latest`
+  - 種別: **L1（上書きポインタ。`cleanup_logs` が保護）**
+
 - `workspaces/logs/ops/<operation>/<...>.log`  
   - Writer: 手動/単発の運用スクリプト（例: CapCutテンプレ正規化, 大量修復, 検証などの stdout リダイレクト）
   - 種別: **L3（短期保持。ローテ対象）**

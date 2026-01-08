@@ -1,5 +1,23 @@
 # START_HERE — 迷わないための入口
 
+- 推奨の統一入口（P0ランチャー）: `./ops list`
+  - 事前点検: `./ops doctor`
+  - 外部LLM APIコストを使わない（サブスク/手動で埋める）: `./ops ... --llm think ...`
+  - 迷わない用の短縮（強制）:
+    - `./ops think <cmd> ...`（常に THINK MODE）
+    - `./ops api <cmd> ...`（常に API）
+    - `./ops codex <cmd> ...`（常に codex exec。明示した時だけ）
+  - ヒント表示（stderr）: default ON（無効化したい時は `YTM_OPS_TIPS=0`）
+  - `codex exec` を使う（明示した時だけ）: `./ops ... --llm codex ...`
+  - 迷子/復帰（最新の把握）:
+    - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
+    - “最新の実行” ポインタ: `./ops latest --channel CHxx --video NNN`
+    - 実行タイムライン（opsレジャー）: `./ops history --tail 50 --channel CHxx`
+    - 処理パターン索引（CLIレシピSSOT）: `./ops patterns list`（正本: `ssot/ops/OPS_EXECUTION_PATTERNS.md`）
+  - 復帰コマンド固定（SSOT）: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`
+  - Reconcile（issues→復帰コマンドを配線; dry-run既定）: `./ops reconcile --channel CHxx --video NNN`
+  - SSOTの最新ロジック確認: `./ops ssot status`
+
 - 全体像（まず読む）: `ssot/OPS_SYSTEM_OVERVIEW.md`
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`

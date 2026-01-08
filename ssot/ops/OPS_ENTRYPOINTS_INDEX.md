@@ -9,6 +9,40 @@
 
 ---
 
+## 0. 統一入口（迷わないための推奨）
+
+- 一覧: `./ops list`
+- 事前点検: `./ops doctor`
+- 迷子/復帰:
+  - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
+  - “最新の実行” ポインタ（keep-latest）: `./ops latest --channel CHxx --video NNN`
+  - 実行タイムライン（opsレジャー）: `./ops history --tail 50 --channel CHxx --video NNN`
+  - 復帰（固定）: `./ops resume <episode|script|audio|video|thumbnails> ...`（正本: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`）
+- Reconcile（fixed recoveryの配線）:
+  - `./ops reconcile --channel CHxx --video NNN`（dry-run）
+  - `./ops reconcile --channel CHxx --video NNN --llm think --run`
+- SSOT（最新ロジック確認）:
+  - `./ops ssot status`
+  - `./ops ssot audit --strict`
+- 処理パターン（CLIレシピSSOT）:
+  - `./ops patterns list`
+  - `./ops patterns show PAT-VIDEO-DRAFT-001`
+  - 正本: `ssot/ops/OPS_EXECUTION_PATTERNS.md`
+- 代表例（P0ラッパー）:
+  - Script: `./ops script <MODE> --channel CHxx --video NNN`
+  - Audio: `./ops audio --channel CHxx --video NNN`
+  - Publish: `./ops publish ...`
+- LLM実行の明示（重要）:
+  - `--llm think`: **外部LLM APIコストを使わない**（agent queue に pending を作る → `./ops agent ...` で埋める）
+  - `--llm api`: 外部LLM API（通常）
+  - `--llm codex`: `codex exec`（**明示した時だけ**）
+- 迷わない短縮（強制; `--llm` の付け忘れ防止）:
+  - `./ops think <cmd> ...`（常に THINK MODE）
+  - `./ops api <cmd> ...`（常に API）
+  - `./ops codex <cmd> ...`（常に codex exec。明示した時だけ）
+  - `YTM_OPS_TIPS=0` で `./ops` のヒント表示（stderr）を無効化できる（default: ON）
+- 復帰コマンド固定（SSOT）: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`
+
 ## 1. 最重要（E2E主動線）
 
 - 企画（Planning SoT）: `workspaces/planning/channels/CHxx.csv`
@@ -33,8 +67,11 @@
         - 解像度上限（既定=720p）: `YTM_BROLL_MAX_W=1280`, `YTM_BROLL_MAX_H=720`
     - CH02（既定mix）: gemini:schnell:フリー動画 = `4:3:3`
       - SoT: `configs/sources.yaml: channels.CH02.image_source_mix`
-      - 適用: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix --run <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels`
-      - 画像生成を止めている場合: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.regenerate_images_from_cues --run <run_dir> --only-missing` → `auto_capcut_run --resume` でドラフト再構築
+      - 適用（dry-run推奨）:
+        - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels --dry-run`
+        - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels`
+      - 画像を埋めた/直した後のドラフト再構築（推奨）:
+        - `./ops resume video --llm think --channel CHxx --video NNN`
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
   - 最小（uploadのみ）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
@@ -200,14 +237,20 @@
   - リテイク: `python scripts/thumbnails/build.py retake --channel CHxx`（`projects.json: status=in_progress` を対象）
   - QC: `python scripts/thumbnails/build.py qc --channel CHxx --status in_progress`
 
-### 3.6 Episode（A→B→音声→SRT→run の1:1整備）
+### 3.6 Vision（スクショ/サムネ読み取り補助）
+- SSOT: `ssot/ops/OPS_VISION_PACK.md`
+- CLI: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py --help`
+  - スクショ: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py screenshot /path/to/screenshot.png`
+  - サムネ: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py thumbnail /path/to/thumb.png`
+
+### 3.7 Episode（A→B→音声→SRT→run の1:1整備）
 - `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
 - 進捗の統一ビュー（派生 / read-only）:
   - SSOT: `ssot/ops/OPS_EPISODE_PROGRESS_VIEW.md`
   - CLI: `python3 scripts/ops/episode_progress.py --channel CHxx`
   - API: `GET /api/channels/{ch}/episode-progress`（UI `/planning` が参照）
 
-### 3.7 Alignment（Planning↔Script 整合スタンプ）
+### 3.8 Alignment（Planning↔Script 整合スタンプ）
 - `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）
   - UIの進捗一覧は `整合/整合理由` を表示し、「どれが完成版？」の混乱を早期に検出する。
   - 注意: これは **整合スタンプ専用**。`redo_script` / `redo_note`（要対応の編集判断）は対話AI監査の管轄で、ここでは変更しない。
@@ -215,7 +258,7 @@
 - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
   - 運用SoT: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 
-### 3.8 Remotion（実験ライン / 再レンダ）
+### 3.9 Remotion（実験ライン / 再レンダ）
 - UI（推奨 / 3100起動）: `/video-remotion` → 「Studio (3100) 起動」ボタン（`POST /api/remotion/restart_preview`）
   - deps未導入なら: `(cd apps/remotion && npm ci)`
 - 直接レンダ（1本）: `node apps/remotion/scripts/render.js --help`
