@@ -38,10 +38,11 @@ jobs:
           set -e
           python3 scripts/ops/repo_sanity_audit.py --verbose
 
-      - name: Lint unified LLM config
+      - name: LLM routing sanity
         run: |
           set -e
-          python3 scripts/ops/lint_llm_config.py
+          python3 scripts/ops/build_ssot_catalog.py --check
+          python3 scripts/ops/llm_hardcode_audit.py --verbose
 
       - name: Validate prompt templates (video_pipeline)
         run: |
