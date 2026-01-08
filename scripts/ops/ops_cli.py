@@ -669,6 +669,8 @@ def _print_list() -> None:
     print("    ./ops video bootstrap-run -- <args for -m video_pipeline.tools.bootstrap_placeholder_run_dir>")
     print("    ./ops video regen-images -- <args for -m video_pipeline.tools.regenerate_images_from_cues>")
     print("    ./ops video variants -- <args for -m video_pipeline.tools.generate_image_variants>")
+    print("    ./ops video refresh-prompts -- <args for -m video_pipeline.tools.refresh_run_prompts>")
+    print("    ./ops video audit-fix-drafts -- <args for -m video_pipeline.tools.audit_fix_drafts>")
     print("    ./ops video validate-prompts   # prompt template registry check (P1)")
     print("")
     print("  Thumbnails:")
@@ -923,7 +925,10 @@ def cmd_video(args: argparse.Namespace) -> int:
         return _run(inner)
     if action == "refresh-prompts":
         inner = ["python3", "-m", "video_pipeline.tools.refresh_run_prompts", *forwarded]
-        return _run(inner)
+        return _run_with_llm_mode(args.llm, inner)
+    if action == "audit-fix-drafts":
+        inner = ["python3", "-m", "video_pipeline.tools.audit_fix_drafts", *forwarded]
+        return _run_with_llm_mode(args.llm, inner)
     if action == "validate-prompts":
         inner = ["python3", "-m", "video_pipeline.tools.validate_prompt_template_registry", *forwarded]
         return _run(inner)
@@ -1666,6 +1671,7 @@ def build_parser() -> argparse.ArgumentParser:
             "regen-images",
             "variants",
             "refresh-prompts",
+            "audit-fix-drafts",
             "validate-prompts",
             "apply-source-mix",
         ],

@@ -39,6 +39,7 @@ LLMコスト制御（最重要）:
 | `PAT-AUDIO-TTS-001` | AUDIO | 音声+SRTを作る/復帰 | `./ops audio --channel CHxx --video NNN` |
 | `PAT-VIDEO-DRAFT-001` | VIDEO | SRT→画像→CapCutドラフト | `./ops video auto-capcut -- ...` |
 | `PAT-VIDEO-REGEN-001` | VIDEO | 画像が欠損/失敗/差し替え | `./ops video regen-images -- ...` |
+| `PAT-VIDEO-AUDIT-FIX-DRAFTS-001` | VIDEO | placeholder/重複/プロンプト事故の修復 | `./ops video audit-fix-drafts -- ...` |
 | `PAT-VIDEO-VARIANTS-001` | VIDEO | 画像バリエーション生成 | `./ops video variants -- ...` |
 | `PAT-VIDEO-REFRESH-PROMPTS-001` | VIDEO | プロンプトだけ最新化 | `./ops video refresh-prompts -- ...` |
 | `PAT-VIDEO-SOURCE-MIX-CH02-001` | VIDEO | CH02の画像ソースmix適用 | `./ops video apply-source-mix -- ...` |
@@ -252,6 +253,32 @@ LLMコスト制御（最重要）:
 
 関連SSOT:
 - `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`
+
+## PAT-VIDEO-AUDIT-FIX-DRAFTS-001 — Draft監査+placeholder/重複修復（audit-fix-drafts）
+
+目的:
+- placeholder/欠損/近似重複を検出し、可能なら sibling run からコピーして修復する。
+- 残るものは cue を根拠に再生成し、CapCut draft の assets に同期する。
+- 画像プロンプトは `--refine-prompts` を THINK MODE で **エージェントが推論して埋める**（局所heuristicで単調量産しない）。
+
+入口（固定）:
+- `./ops video audit-fix-drafts -- <args>`
+
+推奨（外部LLM APIコストを使わない）:
+- `./ops think video audit-fix-drafts -- <args> --refine-prompts`
+
+例:
+- CH02 43-82（プロンプト事故/単調量産の復旧）:
+  - `./ops think video audit-fix-drafts -- --channel CH02 --min-id 43 --max-id 82 --refine-prompts --regen-refined-subject-dupes --refined-subject-dupe-min-count 2`
+- fallback（LLM無し）:
+  - `./ops video audit-fix-drafts -- --channel CH02 --min-id 43 --max-id 82 --refine-prompts-local --regen-refined-subject-dupes --refined-subject-dupe-min-count 2`
+
+検証:
+- `./ops history --tail 50 --channel CHxx --failed-only`
+- 画像を再生成したら `./ops resume video --llm think --channel CHxx --video NNN` でドラフトを再構築する。
+
+注意:
+- `refresh-prompts` は “テンプレ最新化” 用（LLM無し）。多様性を増やしたい場合は `audit-fix-drafts --refine-prompts` を使う。
 
 ## PAT-VIDEO-VARIANTS-001 — 画像バリエーション生成（variants）
 

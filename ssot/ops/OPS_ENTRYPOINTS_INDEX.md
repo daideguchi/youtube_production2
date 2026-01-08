@@ -199,7 +199,9 @@
 - `packages/video_pipeline/tools/patch_draft_audio_subtitles_from_manifest.py`（テンプレdraftに audio/subtitles を SoT(manifest) から注入）
 - `packages/video_pipeline/tools/validate_ch02_drafts.py`（CH02 draft 破壊検知: belt/voice/subtitles）
 - `packages/video_pipeline/tools/regenerate_images_from_cues.py`（既存 run_dir の `image_cues.json` から `images/*.png` を実生成で再作成して置換）
+- `packages/video_pipeline/tools/refresh_run_prompts.py`（既存 run_dir の `image_cues.json` を更新して prompt だけ最新化。LLM/画像生成なし）
 - `packages/video_pipeline/tools/generate_image_variants.py`（既存 run_dir の `image_cues.json` から画像バリアントを生成。UI の Quick Job からも実行）
+- `packages/video_pipeline/tools/audit_fix_drafts.py`（placeholder/欠損/近似重複の修復→再生成→CapCut assets同期。プロンプト推論は `--refine-prompts` + THINK MODE を推奨）
 - `packages/video_pipeline/tools/sync_*`（同期/保守）
 
 ### 3.4 Agent/THINK MODE（複数AIエージェント運用）

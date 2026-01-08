@@ -262,7 +262,104 @@ def _llm_refine_chunk(
     forbid_text: bool,
     avoid_props: str,
 ) -> Dict[int, str]:
-    raise RuntimeError("LLM refine is disabled. Use --refine-prompts-local (LLM-free).")
+    from factory_common.llm_router import LLMRouter
+
+    items: List[Dict[str, Any]] = []
+    for cue in cues:
+        if not isinstance(cue, dict) or cue.get("asset_relpath"):
+            continue
+        try:
+            idx = int(cue.get("index") or 0)
+        except Exception:
+            continue
+        if idx <= 0:
+            continue
+        item: Dict[str, Any] = {
+            "index": idx,
+            "summary": _one_line(str(cue.get("summary") or "")),
+            "text": _one_line(str(cue.get("text") or "")),
+            "visual_focus": _one_line(str(cue.get("visual_focus") or "")),
+            "emotional_tone": _one_line(str(cue.get("emotional_tone") or "")),
+            "role_tag": _one_line(str(cue.get("role_tag") or "")),
+            "section_type": _one_line(str(cue.get("section_type") or "")),
+            "shot_hint": _one_line(str(cue.get("shot_hint") or "")),
+        }
+        existing = _one_line(str(cue.get("refined_prompt") or ""))
+        if existing:
+            item["existing_refined_prompt"] = existing
+        items.append(item)
+
+    if not items:
+        return {}
+
+    avoid_list = [_one_line(p) for p in str(avoid_props or "").split(",")]
+    avoid_list = [p for p in avoid_list if p]
+    if len(avoid_list) > 18:
+        avoid_list = avoid_list[:18]
+
+    constraints = {
+        "refined_max_chars": int(refined_max_chars),
+        "require_personless": bool(require_personless),
+        "forbid_text": bool(forbid_text),
+        "avoid_props": avoid_list,
+        "format_hint": "<shot> <setting>: <subject>. <lighting>. Cinematic, high-detail, shallow depth of field.",
+    }
+    payload = {"channel": str(channel or "").strip().upper(), "constraints": constraints, "items": items}
+
+    system = (
+        "You refine per-cue image prompts for generating cinematic B-roll images for YouTube.\n"
+        "Return ONLY JSON. No markdown. No commentary.\n"
+        "Each refined_prompt must be one line and MUST describe a concrete, unique subject per cue.\n"
+        "Never include humans/people/hands/faces when require_personless=true.\n"
+        "Never include any text/letters/numbers/signage/logos/UI/screens when forbid_text=true."
+    )
+    user = (
+        "Input JSON:\n"
+        f"{json.dumps(payload, ensure_ascii=False)}\n\n"
+        "Task:\n"
+        "- For EACH item, output a refined_prompt (one line, no newlines) that matches the cue content.\n"
+        "- Keep refined_prompt <= refined_max_chars characters.\n"
+        "- Avoid repeating the same subject across different indices.\n"
+        "- If avoid_props is provided, do not mention those props.\n\n"
+        "Output JSON ONLY in this schema:\n"
+        "{\"items\":[{\"index\":43,\"refined_prompt\":\"...\"}, ...]}\n"
+    )
+
+    router = LLMRouter()
+    result = router.call_with_raw(
+        task=str(llm_task or "").strip() or "visual_prompt_refine",
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+        response_format="json_object",
+    )
+    obj = _extract_json_object(str(result.get("content") or ""))
+    if not obj:
+        raise RuntimeError("LLM refine: invalid JSON output")
+
+    out: Dict[int, str] = {}
+    items_obj = obj.get("items")
+    if isinstance(items_obj, list):
+        for it in items_obj:
+            if not isinstance(it, dict):
+                continue
+            try:
+                idx = int(it.get("index") or 0)
+            except Exception:
+                continue
+            rp = str(it.get("refined_prompt") or it.get("prompt") or "").strip()
+            rp = _one_line(rp)
+            if idx > 0 and rp:
+                out[idx] = rp
+        return out
+
+    # Fallback: allow {"43": "...", "44": "..."} style.
+    for k, v in obj.items():
+        ks = str(k).strip()
+        if not ks.isdigit():
+            continue
+        rp = _one_line(str(v or ""))
+        if rp:
+            out[int(ks)] = rp
+    return out
 
 
 def refine_run_refined_prompts(
@@ -278,7 +375,67 @@ def refine_run_refined_prompts(
     forbidden_re: Optional[re.Pattern[str]],
     dry_run: bool,
 ) -> Tuple[int, int]:
-    raise RuntimeError("LLM refine is disabled. Use --refine-prompts-local (LLM-free).")
+    cues_path = run_dir / "image_cues.json"
+    payload = json.loads(cues_path.read_text(encoding="utf-8"))
+    cues = _load_cues(cues_path)
+    if not cues:
+        raise RuntimeError(f"No cues: {cues_path}")
+
+    wanted = set(int(i) for i in indices)
+    targets: List[Dict[str, Any]] = []
+    for cue in cues:
+        if not isinstance(cue, dict) or cue.get("asset_relpath"):
+            continue
+        try:
+            idx = int(cue.get("index") or 0)
+        except Exception:
+            continue
+        if idx in wanted:
+            targets.append(cue)
+
+    if not targets:
+        return 0, 0
+
+    # Keep requests bounded; in THINK MODE each chunk becomes a pending task.
+    chunk_size = 24
+    updated = 0
+    failed = 0
+    for start in range(0, len(targets), chunk_size):
+        chunk = targets[start : start + chunk_size]
+        mapping = _llm_refine_chunk(
+            cues=chunk,
+            channel=channel,
+            llm_task=llm_task,
+            refined_max_chars=int(refined_max_chars),
+            require_personless=bool(require_personless),
+            forbid_text=bool(forbid_text),
+            avoid_props=str(avoid_props or ""),
+        )
+        for cue in chunk:
+            if not isinstance(cue, dict):
+                continue
+            try:
+                idx = int(cue.get("index") or 0)
+            except Exception:
+                continue
+            rp = _one_line(str(mapping.get(idx, "") or ""))
+            if not rp:
+                failed += 1
+                continue
+            reason = _validate_refined_prompt(prompt=rp, forbidden_re=forbidden_re)
+            if reason:
+                failed += 1
+                continue
+            if cue.get("refined_prompt") != rp:
+                cue["refined_prompt"] = rp
+                updated += 1
+
+    if dry_run:
+        return updated, failed
+
+    payload["cues"] = cues
+    _write_json_with_backup(cues_path, payload, backup_suffix="refined_prompts_llm")
+    return updated, failed
 
 
 _SPACE_RE = re.compile(r"\s+")
@@ -1423,7 +1580,8 @@ def main() -> int:
         "--refine-prompts",
         default=False,
         action=argparse.BooleanOptionalAction,
-        help="(disabled) LLM refine is not allowed here. Use --refine-prompts-local.",
+        help="If true, refine cue.refined_prompt via LLM (task=visual_prompt_refine) before regenerating images. "
+        "Run under THINK MODE to avoid external LLM API spend.",
     )
     ap.add_argument(
         "--refine-prompts-local",
@@ -1579,8 +1737,8 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="Do not write files or call APIs.")
     args = ap.parse_args()
 
-    if bool(getattr(args, "refine_prompts", False)):
-        raise SystemExit("LLM refine (--refine-prompts) is disabled. Use --refine-prompts-local.")
+    if bool(getattr(args, "refine_prompts", False)) and bool(getattr(args, "refine_prompts_local", False)):
+        raise SystemExit("Choose only one: --refine-prompts or --refine-prompts-local.")
 
     channel = str(args.channel or "").strip().upper()
     global PLACEHOLDER_MAD_THRESHOLD
@@ -1805,7 +1963,21 @@ def main() -> int:
                 )
                 if cleared:
                     print(f"  cleared cue.image_model_key for {cleared} cue(s)")
-            if bool(args.refine_prompts_local):
+            if bool(args.refine_prompts):
+                updated, failed = refine_run_refined_prompts(
+                    run_dir=run_dir,
+                    indices=need_regen,
+                    channel=channel,
+                    llm_task="visual_prompt_refine",
+                    refined_max_chars=int(args.refined_max_chars),
+                    require_personless=bool(args.require_personless),
+                    forbid_text=bool(args.forbid_text),
+                    avoid_props=str(args.avoid_props),
+                    forbidden_re=forbidden_re,
+                    dry_run=bool(args.dry_run),
+                )
+                print(f"  refined_prompts_llm updated={updated} failed={failed}")
+            elif bool(args.refine_prompts_local):
                 ignore_visual_focus: Set[int] = set()
                 if bool(args.refine_ignore_vf_on_vf_dupes):
                     ignore_visual_focus |= set(vf_dupe_indices)
