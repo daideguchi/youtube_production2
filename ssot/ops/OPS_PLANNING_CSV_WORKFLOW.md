@@ -8,7 +8,7 @@
 - I/Oスキーマ: `ssot/ops/OPS_IO_SCHEMAS.md`
 - 整合チェック: `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md`
 - 入力契約（タイトル=正 / 補助 / 禁止）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
-- 台本の型（kata1〜3 / `台本型` カラム）: `ssot/ops/OPS_SCRIPT_KATAS.md`
+※ 注（2026-01-09）: `台本型`（kata1〜3）カラム運用は廃止。既存CSVに列が残っていても台本生成は参照しない。
 
 ---
 

@@ -57,7 +57,6 @@
 - `ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`: 高品質Aテキスト大量生産の設計（パターン→生成→Judge→最小修正）。
 - `ops/OPS_LONGFORM_SCRIPT_SCALING.md`: 2〜3時間級の超長尺でも破綻しない台本生成設計（Marathonモード）。
 - `ops/OPS_SCRIPT_PATTERNS.yaml`: Aテキスト構成パターン集（骨格/字数配分のSSOT）。
-- `ops/OPS_SCRIPT_KATAS.md`: 台本の「型」（kata1〜3）を Planning SoT に固定し、生成を自動で型に沿わせる。
 - `ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`: Aテキストの品質ゲート（LLM Judge→Fixer で「字数だけ合格」を禁止）。
 - `ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`: 対話AIによる台本監査（LLM API禁止 / 企画整合+流れを目視で確定し redo_script を運用）。
 - `ops/OPS_AUDIO_TTS.md`: 音声（TTS）運用手順とSoT/cleanup。

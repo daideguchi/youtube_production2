@@ -12,6 +12,7 @@
 ## 0. 統一入口（迷わないための推奨）
 
 - 一覧: `./ops list`
+- 実体（P0 launcher）: `python3 scripts/ops/ops_cli.py --help`（`./ops` が呼ぶ）
 - 事前点検: `./ops doctor`
 - 迷子/復帰:
   - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
@@ -24,6 +25,11 @@
 - SSOT（最新ロジック確認）:
   - `./ops ssot status`
   - `./ops ssot audit --strict`
+  - SSOT catalog生成（コード由来）: `python3 scripts/ops/build_ssot_catalog.py --write`（検査のみ: `--check`）
+  - LLMルーティングlint（CI同等）: `python3 scripts/ops/lint_llm_config.py --strict`
+    - 直叩き（同等）: `python3 scripts/ops/lint_llm_router_config.py --strict`
+  - LLM直叩き検出（事故防止）: `python3 scripts/ops/llm_hardcode_audit.py --verbose`
+  - Fireworks keyring（キー運用; 値は出さない）: `python3 scripts/ops/fireworks_keyring.py --help`
 - 処理パターン（CLIレシピSSOT）:
   - `./ops patterns list`
   - `./ops patterns show PAT-VIDEO-DRAFT-001`
@@ -46,6 +52,7 @@
 ## 1. 最重要（E2E主動線）
 
 - 企画（Planning SoT）: `workspaces/planning/channels/CHxx.csv`
+  - 注（2026-01-09）: 台本型（kata1/2/3）運用は廃止。既存CSVに列が残っていても台本生成は参照しない。
 - 企画カード在庫（pre-planning SoT）: `workspaces/planning/ideas/CHxx.jsonl`
   - CLI: `python3 scripts/ops/idea.py --help`
   - 運用SSOT: `ssot/ops/OPS_IDEA_CARDS.md`

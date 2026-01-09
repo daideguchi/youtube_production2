@@ -18,6 +18,7 @@
   - したがって、このファイル作成時点では **削除は未実行**。
 - ただし、`OPS_SCRIPTS_INVENTORY` 上で `listed-in-SSOT=no` が 25 件あり、運用導線としてはノイズ源なので、
   **「削除」ではなく「SSOT掲載の漏れ修正（=迷い防止）」** が先に必要（後述）。
+- 別途決定（2026-01-09）: 台本3パターン（`台本型`/kata1〜3）運用は廃止。関連スクリプトは archive-first で削除する。
 
 ---
 
@@ -45,7 +46,7 @@
 | `scripts/ops/pages_script_viewer_index.py` | OPS | P1 | 2025-12-28 | 2026-01-03 | scripts=3 ssot=2 other=2 | `docs/README.md:14` | SSOT掲載(推奨) |
 | `scripts/ops/pages_snapshot_export.py` | OPS | P1 | 2025-12-29 | 2026-01-06 | scripts=2 other=3 | `docs/data/snapshot/channels.json:4` | SSOT掲載(推奨) |
 | `scripts/ops/parallel_ops_preflight.py` | OPS | P1 | 2025-12-30 | 2025-12-31 | scripts=2 ssot=2 | `scripts/ops/ops_cli.py:748` | SSOT掲載(推奨) |
-| `scripts/ops/planning_assign_script_kata.py` | OPS | P1 | 2025-12-31 | 2025-12-31 | scripts=3 ssot=3 | `scripts/ops/planning_assign_script_kata.py:16` | SSOT掲載(推奨) |
+| `scripts/ops/planning_assign_script_kata.py` | OPS | P1 | 2025-12-31 | 2025-12-31 | scripts=3 ssot=3 | `scripts/ops/planning_assign_script_kata.py:16` | archive-first削除（決定 2026-01-09） |
 | `scripts/ops/pre_push_final_check.py` | OPS | P1 | 2025-12-29 | 2026-01-09 | apps=2 scripts=4 ssot=9 | `apps/ui-backend/backend/README.md:19` | SSOT掲載(推奨) |
 | `scripts/ops/prune_broken_scripts.py` | OPS | P1 | 2026-01-01 | 2026-01-01 | ssot=2 | `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md:266` | dd判断(keep/legacy) |
 | `scripts/ops/research_bundle.py` | OPS | P1 | 2025-12-31 | 2025-12-31 | ssot=2 | `ssot/ops/OPS_RESEARCH_BUNDLE.md:120` | dd判断(keep/legacy) |
@@ -69,4 +70,3 @@
   - `scripts/ops/orchestrator_bootstrap.py`
   - `scripts/ops/prune_broken_scripts.py`
   - `scripts/thumbnails/ch26_make_two_variants.py`
-

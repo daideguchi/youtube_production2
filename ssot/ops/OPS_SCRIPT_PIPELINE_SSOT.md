@@ -239,7 +239,8 @@ flowchart LR
 - **架空の現代人物ストーリーは禁止**（例: `田村幸子、六十七歳。` のような人物紹介から始めない）。
 - 現代例は「匿名の生活導線」だけ（名前/年齢/職業/台詞の作り込み禁止）。
 - 史実・逸話を1〜2件に絞って深掘りし、視聴者の日常へ橋渡しして「今夜からの一歩」へ落とす。
-- パターンは `ssot/ops/OPS_SCRIPT_PATTERNS.yaml` の `ch01_historical_proof_bridge_v1` を使用し、Planning の `台本型`（kata1/2/3）に依存させない（runner 側で固定）。
+- パターンは `ssot/ops/OPS_SCRIPT_PATTERNS.yaml` の `ch01_historical_proof_bridge_v1` を使用する（固定）。
+- 注: Planning の `台本型`（kata1/2/3）運用は廃止（2026-01-09）。既存CSVに列が残っていても台本生成は参照しない。
 - 自動検出: `packages/script_pipeline/validator.py` は **行全体が** `姓名、年齢(歳/才)。` の形（例: `田村幸子、六十七歳。`）を `ch01_fictional_person_intro` としてエラー扱いにする。  
   - `ブッダが29歳のとき…` のような **文中の年齢言及**は対象外（通常の日本語の文として書く）。
 - 台本パイプライン（`script_*`）は **Codex exec を使わない**（本文/非本文を問わず）。`configs/codex_exec.yaml` で `script_*` を除外し、文体ドリフトを防ぐ。
