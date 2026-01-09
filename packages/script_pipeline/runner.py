@@ -637,10 +637,24 @@ def _sanitize_quality_gate_context(text: str, *, max_chars: int = 900) -> str:
     raw = str(text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
     if not raw:
         return ""
-    # Remove punctuation that tends to cause hallucinated "quote counts" and TTS-hazard examples.
-    # Also remove backticks/code-ish markers from persona/planning templates.
-    for ch in ("`", "「", "」", "『", "』", "（", "）", "(", ")"):
-        raw = raw.replace(ch, "")
+    # Reduce "quote count confusion" without destroying meaning:
+    # - keep the *fact* that brackets exist (by mapping to safe alternatives),
+    # - but avoid the exact glyphs counted by validate_a_text() (`「」`/`『』`/`（）`/`()`).
+    raw = raw.translate(
+        str.maketrans(
+            {
+                "`": "",
+                "「": "【",
+                "」": "】",
+                "『": "【",
+                "』": "】",
+                "（": "［",
+                "）": "］",
+                "(": "［",
+                ")": "］",
+            }
+        )
+    )
     # Normalize whitespace to reduce token bloat.
     raw = "\n".join([ln.strip() for ln in raw.split("\n") if ln.strip()])
     if len(raw) > max_chars:
@@ -802,124 +816,54 @@ def _sanitize_a_text_bullet_prefixes(text: str) -> str:
     return "\n".join(out_lines).rstrip() + "\n"
 
 
-def _sanitize_a_text_forbidden_statistics(text: str) -> str:
+def _sanitize_a_text_term_quotes(text: str) -> str:
     """
-    Best-effort: remove percent/percentage expressions that are forbidden by A-text rules.
-    This is a safety/credibility repair to avoid accidental fake-statistics vibes.
+    Best-effort: remove 「」/『』 when they are used for *terms/emphasis* (not dialogue).
+
+    Policy:
+    - `「」` is dialogue-only.
+    - Term labels like `「老い」とは...` / `「正義」の声` should be rewritten without quotes.
+
+    This sanitizer is intentionally conservative:
+    - Only targets short quoted fragments followed by definition/particle markers.
+    - Keeps dialogue quotes (line-ending or `「...」と...` patterns) intact.
     """
     normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
-    if not normalized:
-        return text or ""
-    if "%" not in normalized and "％" not in normalized and "パーセント" not in normalized:
+    if not normalized.strip():
         return text or ""
 
-    fullwidth_to_ascii = str.maketrans("０１２３４５６７８９", "0123456789")
+    # Do not match dialogue-like quotes that contain sentence punctuation.
+    kakko = re.compile(
+        r"「([^「」\n。！？!?]{1,16})」(?=(?:とは|という|といった|と呼|の|は|が|を|に|で|へ|から|まで|より|だけ|など|と(?=[「『])))"
+    )
+    kagi = re.compile(
+        r"『([^『』\n。！？!?]{1,16})』(?=(?:とは|という|といった|と呼|の|は|が|を|に|で|へ|から|まで|より|だけ|など|と(?=[「『])))"
+    )
 
-    def _to_int(raw: str) -> int | None:
-        s = (raw or "").translate(fullwidth_to_ascii).strip()
-        if not s:
-            return None
-        try:
-            return int(s)
-        except Exception:
-            return None
-
+    out_lines: List[str] = []
     changed = False
-
-    def repl_people(m: re.Match[str]) -> str:
-        nonlocal changed
-        n = _to_int(m.group(1))
-        suffix = str(m.group(2) or "人")
-        if n is None:
+    for ln in normalized.split("\n"):
+        ln2, n1 = kakko.subn(r"\1", ln)
+        ln3, n2 = kagi.subn(r"\1", ln2)
+        if n1 or n2:
             changed = True
-            return f"一部の{suffix}"
-        if n >= 70:
-            prefix = "多くの"
-        elif n >= 40:
-            prefix = "少なくない"
-        elif n >= 10:
-            prefix = "一部の"
-        else:
-            prefix = "ごく一部の"
-        changed = True
-        return f"{prefix}{suffix}"
-
-    def repl_probability(m: re.Match[str]) -> str:
-        nonlocal changed
-        n = _to_int(m.group(1))
-        kind = str(m.group(2) or "可能性")
-        if n is None:
-            changed = True
-            return f"一定の{kind}"
-        if n >= 90:
-            prefix = "非常に高い"
-        elif n >= 70:
-            prefix = "高い"
-        elif n >= 40:
-            prefix = "それなりの"
-        elif n >= 10:
-            prefix = "低い"
-        else:
-            prefix = "ごく低い"
-        changed = True
-        return f"{prefix}{kind}"
-
-    def repl_general(m: re.Match[str]) -> str:
-        nonlocal changed
-        n = _to_int(m.group(1))
-        if n is None:
-            changed = True
-            return "ある程度"
-        # If followed by "の", prefer noun-like expressions (e.g., ほとんどの人).
-        after = normalized[m.end() :]
-        i = 0
-        while i < len(after) and after[i] in (" ", "\t", "\u3000"):
-            i += 1
-        follows_no = after[i : i + 1] == "の"
-        if follows_no:
-            if n >= 100:
-                out = "すべて"
-            elif n >= 90:
-                out = "ほとんど"
-            elif n >= 70:
-                out = "多く"
-            elif n >= 40:
-                out = "半分ほど"
-            elif n >= 10:
-                out = "一部"
-            else:
-                out = "ごく一部"
-        else:
-            if n >= 100:
-                out = "完全に"
-            elif n >= 90:
-                out = "ほぼ"
-            elif n >= 70:
-                out = "たいてい"
-            elif n >= 40:
-                out = "半分ほど"
-            elif n >= 10:
-                out = "ときどき"
-            else:
-                out = "まれに"
-        changed = True
-        return out
-
-    out = normalized
-    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)\s*の\s*(人(?:々|たち)?)", repl_people, out)
-    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)\s*の\s*(確率|可能性)", repl_probability, out)
-    out = re.sub(r"([0-9０-９]{1,3})\s*(?:[%％]|パーセント)", repl_general, out)
-
-    if "%" in out or "％" in out or "パーセント" in out:
-        changed = True
-        out = out.replace("%", "").replace("％", "").replace("パーセント", "")
+        out_lines.append(ln3)
 
     if not changed:
         return text or ""
-    # Preserve trailing newline if the original had it.
+    out = "\n".join(out_lines)
     if normalized.endswith("\n") and not out.endswith("\n"):
         out += "\n"
     return out
+
+
+def _sanitize_a_text_forbidden_statistics(text: str) -> str:
+    """
+    NOTE:
+    - `%/％/パーセント` 表記は許容（SSOT: OPS_A_TEXT_GLOBAL_RULES.md）。
+    - 意味を変える自動言い換え/除去は事故りやすいので、この段階では一切しない。
+    """
+    return text or ""
 
 
 def _sanitize_inline_pause_markers(text: str) -> str:
@@ -1399,126 +1343,23 @@ def _ensure_min_pause_lines(a_text: str, min_pause_lines: int) -> str:
 
 
 def _reduce_quote_marks(a_text: str, max_marks: int) -> str:
-    """Best-effort: remove non-dialogue quote pairs like 「短い語」 to reduce TTS hazards."""
-    try:
-        limit = int(max_marks)
-    except Exception:
-        return a_text or ""
+    """
+    Intentionally disabled.
 
-    text = a_text or ""
-    if limit <= 0:
-        if not text:
-            return ""
-        return text.replace("「", "").replace("」", "").replace("『", "").replace("』", "")
-
-    def _count_marks(t: str) -> int:
-        return t.count("「") + t.count("」") + t.count("『") + t.count("』")
-
-    marks = _count_marks(text)
-    if marks <= limit:
-        return text
-
-    # Pass 1: Remove short emphasis quotes first (avoid punctuation-heavy phrases).
-    patterns = [
-        r"「([^「」\n]{1,24})」",
-        r"『([^『』\n]{1,30})』",
-    ]
-    while marks > limit:
-        changed = False
-        for pat in patterns:
-            for m in re.finditer(pat, text):
-                inner = m.group(1) or ""
-                if any(ch in inner for ch in "、。！？!?"):
-                    continue
-                # Replace just this occurrence
-                text = text[: m.start()] + inner + text[m.end() :]
-                marks = _count_marks(text)
-                changed = True
-                break
-            if changed:
-                break
-        if not changed:
-            break
-
-    # Pass 2: If still above the limit, strip quote wrappers even when punctuation exists.
-    # This is a pragmatic TTS-safety fallback: keep inner text, drop the brackets.
-    patterns2 = [
-        r"「([^「」\n]{1,60})」",
-        r"『([^『』\n]{1,60})』",
-    ]
-    while marks > limit:
-        changed = False
-        for pat in patterns2:
-            m = re.search(pat, text)
-            if not m:
-                continue
-            inner = (m.group(1) or "").strip()
-            if not inner:
-                continue
-            text = text[: m.start()] + inner + text[m.end() :]
-            marks = _count_marks(text)
-            changed = True
-            break
-        if not changed:
-            break
-
-    # Pass 3 (last resort): if we still exceed the limit, strip remaining quote characters.
-    # This preserves the inner content and prevents TTS from stuttering on excessive brackets.
-    if marks > limit:
-        text = (
-            text.replace("「", "")
-            .replace("」", "")
-            .replace("『", "")
-            .replace("』", "")
-        )
-    return text
+    Users allow `「」/『』` usage as long as it isn't excessive, and automatic stripping can
+    change tone/meaning. Keep the text as-is; only report counts via validation stats.
+    """
+    return a_text or ""
 
 
 def _reduce_paren_marks(a_text: str, max_marks: int) -> str:
-    """Best-effort: remove aside parentheses like （短い注）/(short) to reduce TTS hazards."""
-    try:
-        limit = int(max_marks)
-    except Exception:
-        return a_text or ""
+    """
+    Intentionally disabled.
 
-    text = a_text or ""
-
-    def _count_marks(t: str) -> int:
-        return t.count("（") + t.count("）") + t.count("(") + t.count(")")
-
-    marks = _count_marks(text)
-    if limit <= 0:
-        if marks <= 0:
-            return text
-        return text.replace("（", "").replace("）", "").replace("(", "").replace(")", "")
-    if marks <= limit:
-        return text
-
-    # Pass 1: Remove short parenthetical asides first (keep inner content).
-    patterns = [
-        r"（([^（）\n]{1,40})）",
-        r"\(([^()\n]{1,40})\)",
-    ]
-    while marks > limit:
-        changed = False
-        for pat in patterns:
-            m = re.search(pat, text)
-            if not m:
-                continue
-            inner = (m.group(1) or "").strip()
-            if not inner:
-                continue
-            text = text[: m.start()] + inner + text[m.end() :]
-            marks = _count_marks(text)
-            changed = True
-            break
-        if not changed:
-            break
-
-    # Pass 2 (last resort): strip remaining parenthesis characters.
-    if marks > limit:
-        text = text.replace("（", "").replace("）", "").replace("(", "").replace(")", "")
-    return text
+    Users allow `（）/()` usage as long as it isn't excessive, and automatic stripping can
+    change tone/meaning. Keep the text as-is; only report counts via validation stats.
+    """
+    return a_text or ""
 
 
 def _build_planning_hint(meta: Dict[str, Any]) -> str:
@@ -2286,6 +2127,79 @@ def _prune_spurious_pause_requirement(
     removed = False
     for it in must_fix:
         if isinstance(it, dict) and str(it.get("type") or "").strip() == "channel_requirement" and _is_pause_claim(it):
+            removed = True
+            continue
+        filtered.append(it)
+    if not removed:
+        return judge_obj
+
+    out = dict(judge_obj)
+    out["must_fix"] = filtered
+    if not filtered and str(out.get("verdict") or "").strip().lower() == "fail":
+        out["verdict"] = "pass"
+    return out
+
+
+def _prune_spurious_length_requirement(judge_obj: Dict[str, Any], stats: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Guard against overly-strict Judge "channel_requirement" failures on length.
+
+    Our deterministic validator allows some slack vs target_min:
+      - length_too_short is a hard error only when ratio < 0.80
+      - otherwise it's a warning (acceptable per user policy)
+
+    Some LLM judges still fail whenever char_count < target_min, even when within the allowed slack.
+    When that happens, drop the length-only must-fix so the quality gate can focus on real quality issues.
+    """
+    if not isinstance(judge_obj, dict):
+        return {}
+    must_fix = judge_obj.get("must_fix")
+    if not isinstance(must_fix, list) or not must_fix:
+        return judge_obj
+
+    try:
+        char_count = int(stats.get("char_count")) if stats.get("char_count") is not None else None
+    except Exception:
+        char_count = None
+    try:
+        target_min = int(stats.get("target_chars_min")) if stats.get("target_chars_min") is not None else None
+    except Exception:
+        target_min = None
+    if not isinstance(char_count, int) or not isinstance(target_min, int) or target_min <= 0:
+        return judge_obj
+
+    # Eligible for pruning only when:
+    # - already meets target_min, OR
+    # - within the allowed slack (>= 80% of target_min)
+    if char_count < target_min:
+        ratio = char_count / target_min
+        if ratio < 0.80:
+            return judge_obj
+
+    def _is_length_claim(item: Dict[str, Any]) -> bool:
+        loc = str(item.get("location_hint") or "")
+        why = str(item.get("why_bad") or "")
+        fs = str(item.get("fix_strategy") or "")
+        blob = f"{loc}\n{why}\n{fs}"
+        # Don't touch pause requirements (handled elsewhere).
+        if ("---" in blob) or ("ポーズ" in blob):
+            return False
+        # Heuristic: length-related wording / numeric min references.
+        needles = [
+            "文字数",
+            "字数",
+            "target_min",
+            "target_chars_min",
+            "8,000",
+            "8000",
+            "未満",
+        ]
+        return any(n in blob for n in needles)
+
+    filtered: list[Any] = []
+    removed = False
+    for it in must_fix:
+        if isinstance(it, dict) and str(it.get("type") or "").strip() == "channel_requirement" and _is_length_claim(it):
             removed = True
             continue
         filtered.append(it)
@@ -4864,7 +4778,8 @@ def _ensure_web_search_results(base: Path, st: Status) -> None:
     out_path = base / "content/analysis/research/search_results.json"
     sources = _load_sources(st.channel)
     web_search_policy = _normalize_web_search_policy((sources or {}).get("web_search_policy"))
-    provider = str(os.getenv("YTM_WEB_SEARCH_PROVIDER") or "auto").strip()
+    # Default: disabled (cost control). If you want search, set YTM_WEB_SEARCH_PROVIDER explicitly.
+    provider = str(os.getenv("YTM_WEB_SEARCH_PROVIDER") or "disabled").strip()
     force = str(os.getenv("YTM_WEB_SEARCH_FORCE") or "0").strip().lower() in {"1", "true", "yes", "on"}
 
     topic = st.metadata.get("title") or st.metadata.get("expected_title") or st.script_id
@@ -6956,6 +6871,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             if cleaned2 != cleaned:
                 cleaned = cleaned2
                 cleanup_details["bullet_prefixes_stripped"] = True
+
+            cleaned2 = _sanitize_a_text_term_quotes(cleaned)
+            if cleaned2 != cleaned:
+                cleaned = cleaned2
+                cleanup_details["term_quotes_stripped"] = True
 
             cleaned2 = _sanitize_a_text_forbidden_statistics(cleaned)
             if cleaned2 != cleaned:
@@ -9434,6 +9354,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 if _truthy_env("SCRIPT_VALIDATION_PRUNE_JUDGE_OBJECTIVE_MISCOUNTS", "1"):
                     judge_obj = _prune_spurious_pause_requirement(judge_obj, det_stats, pause_target)
                     judge_obj = _prune_spurious_tts_hazard(judge_obj, det_stats)
+                    judge_obj = _prune_spurious_length_requirement(judge_obj, det_stats)
                     # Guard against false "modern_examples_count" failures (generic hypotheticals miscounted as person stories).
                     max_examples_target: int | None = None
                     try:
@@ -12691,4 +12612,21 @@ def run_next(channel: str, video: str, title: str | None = None) -> Status:
         except Exception:
             pass
         return st
-    return run_stage(channel, video, stage_name, title=st.metadata.get("title") or title)
+    try:
+        return run_stage(channel, video, stage_name, title=st.metadata.get("title") or title)
+    except SystemExit as exc:
+        # If a stage exits early (THINK/AGENT pending, failover, artifact mismatch, etc),
+        # ensure status.json does not remain "processing".
+        try:
+            cur = load_status(channel, video)
+            state = cur.stages.get(stage_name)
+            if state is not None:
+                state.status = "pending"
+                if isinstance(getattr(state, "details", None), dict):
+                    state.details.setdefault("error", "system_exit")
+                    state.details["system_exit"] = str(exc)[:2000]
+            cur.status = "script_in_progress"
+            save_status(cur)
+        except Exception:
+            pass
+        raise

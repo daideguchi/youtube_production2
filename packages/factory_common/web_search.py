@@ -5,6 +5,7 @@ import os
 import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -113,6 +114,158 @@ def _extract_json_object(text: str) -> Dict[str, Any] | None:
         return None
 
 
+def _web_search_openrouter_task() -> str:
+    return (os.getenv("YTM_WEB_SEARCH_OPENROUTER_TASK") or "web_search_openrouter").strip() or "web_search_openrouter"
+
+
+def _openrouter_search_messages(query: str, *, count: int) -> List[Dict[str, str]]:
+    q = (query or "").strip()
+    prompt = (
+        "以下のクエリでWeb検索した結果を、厳密なJSONのみで返してください。\n"
+        f"- 最大{int(count)}件\n"
+        "- URLは検索で実際に見つかったものだけ（捏造禁止）。不確かな場合は省略。\n"
+        "- 形式: {\"hits\": [{\"title\": str, \"url\": str, \"snippet\": str|null, \"source\": str|null, \"age\": str|null}]}\n"
+        f"\nquery: {q}\n"
+    )
+    return [
+        {"role": "system", "content": "You are a web search assistant. Output JSON only."},
+        {"role": "user", "content": prompt},
+    ]
+
+
+@lru_cache(maxsize=1)
+def _load_llm_router_config() -> Dict[str, Any]:
+    """
+    Best-effort loader for configs/llm_router.yaml (no secrets).
+    Used to keep agent-queued tasks consistent with router defaults (task_id stability).
+    """
+    try:
+        import yaml
+
+        from factory_common import paths as repo_paths
+
+        path = repo_paths.repo_root() / "configs" / "llm_router.yaml"
+        if not path.exists():
+            return {}
+        raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return raw if isinstance(raw, dict) else {}
+    except Exception:
+        return {}
+
+
+def _router_task_plan(task: str) -> tuple[List[str], Dict[str, Any], Optional[str]]:
+    """
+    Returns: (model_chain, options_defaults, response_format)
+    """
+    cfg = _load_llm_router_config()
+    tasks = cfg.get("tasks") if isinstance(cfg, dict) else None
+    ent = (tasks or {}).get(task) if isinstance(tasks, dict) else None
+    ent = ent if isinstance(ent, dict) else {}
+    tier = str(ent.get("tier") or "").strip()
+    defaults = ent.get("defaults") if isinstance(ent.get("defaults"), dict) else {}
+    response_format = defaults.get("response_format") if isinstance(defaults, dict) else None
+
+    tiers = cfg.get("tiers") if isinstance(cfg, dict) else None
+    chain_raw = (tiers or {}).get(tier) if isinstance(tiers, dict) else None
+    chain: List[str] = []
+    if isinstance(chain_raw, list):
+        for x in chain_raw:
+            s = str(x or "").strip()
+            if s:
+                chain.append(s)
+
+    opts: Dict[str, Any] = {}
+    if isinstance(defaults, dict):
+        opts.update(defaults)
+    # Keep task_id stable with router/failover artifacts.
+    if chain:
+        opts["_model_chain"] = chain
+    return chain, opts, str(response_format).strip() if response_format not in (None, "") else None
+
+
+def agent_queue_web_search(
+    query: str,
+    *,
+    count: int = 8,
+) -> WebSearchResult:
+    """
+    Queue-only web search: do not call external APIs.
+
+    - If cached agent results exist, reuse them.
+    - Otherwise, create a pending agent task and stop (SystemExit).
+    """
+    q = (query or "").strip()
+    if not q:
+        raise ValueError("query is empty")
+
+    task = _web_search_openrouter_task()
+    messages = _openrouter_search_messages(q, count=int(count))
+    _, options, response_format = _router_task_plan(task)
+
+    try:
+        from factory_common.agent_mode import (
+            compute_task_id,
+            ensure_pending_task,
+            get_queue_dir,
+            pending_path,
+            read_result_content,
+            results_path,
+        )
+    except Exception as exc:  # pragma: no cover - optional dependency mismatch
+        raise WebSearchError(f"agent_mode is not available: {exc}") from exc
+
+    queue_dir = get_queue_dir()
+    task_id = compute_task_id(task, messages, options)
+    r_path = results_path(task_id, queue_dir=queue_dir)
+    if r_path.exists():
+        content = read_result_content(task_id, queue_dir=queue_dir)
+        obj = _extract_json_object(content) or {}
+        raw_hits = obj.get("hits") or obj.get("results") or []
+        hits: List[WebSearchHit] = []
+        seen: set[str] = set()
+        if isinstance(raw_hits, list):
+            for item in raw_hits:
+                if not isinstance(item, dict):
+                    continue
+                url = str(item.get("url") or item.get("link") or "").strip()
+                if not url or not (url.startswith("http://") or url.startswith("https://")):
+                    continue
+                if url in seen:
+                    continue
+                seen.add(url)
+                title = str(item.get("title") or item.get("name") or url).strip()
+                snippet = str(item.get("snippet") or item.get("description") or item.get("summary") or "").strip() or None
+                source = str(item.get("source") or item.get("site") or item.get("publisher") or "").strip() or None
+                age = str(item.get("age") or item.get("date") or item.get("published") or "").strip() or None
+                hits.append(WebSearchHit(title=title or url, url=url, snippet=snippet, source=source, age=age))
+                if len(hits) >= int(count):
+                    break
+        return WebSearchResult(provider=f"agent_queue:{task}", query=q, retrieved_at=_utc_now_iso(), hits=hits)
+
+    ensure_pending_task(
+        task_id=task_id,
+        task=task,
+        messages=messages,
+        options=options,
+        response_format=response_format,
+        queue_dir=queue_dir,
+    )
+    p_path = pending_path(task_id, queue_dir=queue_dir)
+    msg_lines = [
+        "[WEB_SEARCH_AGENT] Web search queued (no external API call).",
+        f"- task_id: {task_id}",
+        f"- task: {task}",
+        f"- pending: {p_path}",
+        f"- expected result: {r_path}",
+        "- next:",
+        "  - python scripts/agent_runner.py show " + task_id,
+        "  - follow the runbook/messages, then:",
+        "    python scripts/agent_runner.py complete " + task_id + " --content-file /path/to/content.txt",
+        "  - rerun: the same pipeline command",
+    ]
+    raise SystemExit("\n".join(msg_lines))
+
+
 def brave_web_search(
     query: str,
     *,
@@ -193,7 +346,7 @@ def openrouter_web_search(
     if model_override and lockdown_active():
         # Drift prevention: model selection must be controlled via numeric slots, not per-call overrides.
         model_override = None
-    task = (os.getenv("YTM_WEB_SEARCH_OPENROUTER_TASK") or "web_search_openrouter").strip() or "web_search_openrouter"
+    task = _web_search_openrouter_task()
 
     try:
         from factory_common.llm_router import get_router
@@ -201,19 +354,10 @@ def openrouter_web_search(
         raise WebSearchError(f"LLMRouter is not available: {exc}") from exc
 
     router = get_router()
-    prompt = (
-        "以下のクエリでWeb検索した結果を、厳密なJSONのみで返してください。\n"
-        f"- 最大{int(count)}件\n"
-        "- URLは検索で実際に見つかったものだけ（捏造禁止）。不確かな場合は省略。\n"
-        "- 形式: {\"hits\": [{\"title\": str, \"url\": str, \"snippet\": str|null, \"source\": str|null, \"age\": str|null}]}\n"
-        f"\nquery: {q}\n"
-    )
+    messages = _openrouter_search_messages(q, count=int(count))
     result = router.call_with_raw(
         task=task,
-        messages=[
-            {"role": "system", "content": "You are a web search assistant. Output JSON only."},
-            {"role": "user", "content": prompt},
-        ],
+        messages=messages,
         model_keys=[model_override] if model_override else None,
         timeout=int(timeout_s),
     )
@@ -263,6 +407,7 @@ def web_search(
       - auto (default): brave if BRAVE_SEARCH_API_KEY else openrouter if OPENROUTER_API_KEY else disabled
       - brave
       - openrouter
+      - agent (queue-only; no external API call)
       - disabled
     """
     prov = _normalize_provider(provider or os.getenv("YTM_WEB_SEARCH_PROVIDER") or "auto")
@@ -277,6 +422,9 @@ def web_search(
             return openrouter_web_search(query, count=count, timeout_s=max(int(timeout_s), 20))
         q = (query or "").strip()
         return WebSearchResult(provider="disabled", query=q, retrieved_at=_utc_now_iso(), hits=[])
+
+    if prov in {"agent", "queue"}:
+        return agent_queue_web_search(query, count=count)
 
     if prov == "brave":
         return brave_web_search(query, count=count, timeout_s=timeout_s)
