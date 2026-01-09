@@ -13,6 +13,11 @@
 目的:
 - 長時間処理（script/audio/video/thumbnails 等）が終わった/止まった（THINK pending）タイミングで、Slackに通知して取りこぼしを防ぐ。
 
+重要（漏洩対策 / 強制）:
+- Slackへ **環境変数のダンプ（`env` / `set` / `typeset` 等の出力）を貼らない**。キーを含む可能性が高く、貼った時点で漏洩扱い。
+- `scripts/ops/slack_notify.py` は **secretっぽいトークン/KEY行を検知したら送信をブロック**する（誤爆防止のため）。  
+  もし「Slackに貼ってしまった」場合は、削除だけで安心せず **必ずローテ/無効化**する。
+
 有効化:
 - Webhook方式:
   - `YTM_SLACK_WEBHOOK_URL`（または `SLACK_WEBHOOK_URL`）に Incoming Webhook URL を設定する（git管理しない）。

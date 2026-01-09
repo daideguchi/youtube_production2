@@ -75,6 +75,126 @@ def _slack_api_get(token: str, endpoint: str, params: Dict[str, Any]) -> Dict[st
     return obj if isinstance(obj, dict) else {}
 
 
+_SUSPECT_SECRET_TOKEN_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b"), "slack_token_like"),
+    (re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"), "openai_key_like"),
+    (re.compile(r"\bfw_[A-Za-z0-9]{8,}\b"), "fireworks_key_like"),
+    (re.compile(r"\bghp_[A-Za-z0-9]{20,}\b"), "github_token_like"),
+    (re.compile(r"\bgithub_pat_[A-Za-z0-9_]{10,}\b"), "github_pat_like"),
+    (re.compile(r"\bya29\.[A-Za-z0-9_-]{20,}\b"), "google_oauth_like"),
+]
+
+_ENV_ASSIGNMENT_RE = re.compile(r"^(?P<name>[A-Za-z_][A-Za-z0-9_]*)=(?P<value>.*)$")
+_SUSPECT_SECRET_NAME_HINTS = (
+    "TOKEN",
+    "API_KEY",
+    "SECRET",
+    "PASSWORD",
+    "PRIVATE_KEY",
+    "ACCESS_KEY",
+)
+
+
+def _looks_like_env_dump(text: str) -> bool:
+    """
+    Detect obvious environment dumps (env/set/typeset output).
+
+    Rationale: even if values are redacted, dumping environment into Slack is noisy and risky.
+    """
+    lines = [ln for ln in str(text or "").splitlines() if ln.strip()]
+    if len(lines) < 20:
+        return False
+    envish = 0
+    for ln in lines:
+        s = ln.strip()
+        if _ENV_ASSIGNMENT_RE.match(s):
+            envish += 1
+            continue
+        # zsh `typeset -p` style: "tied path PATH=..." / "integer 10 ..."
+        if s.startswith("tied ") or s.startswith("integer "):
+            envish += 1
+            continue
+    return envish >= 20
+
+
+def _detect_sensitive_reasons(text: str) -> list[str]:
+    reasons: list[str] = []
+    raw = str(text or "")
+
+    for pat, label in _SUSPECT_SECRET_TOKEN_PATTERNS:
+        if pat.search(raw):
+            reasons.append(label)
+
+    for ln in raw.splitlines():
+        m = _ENV_ASSIGNMENT_RE.match(ln.strip())
+        if not m:
+            continue
+        name = str(m.group("name") or "").strip()
+        val = str(m.group("value") or "").strip()
+        if not name or not val:
+            continue
+        upper = name.upper()
+        if any(h in upper for h in _SUSPECT_SECRET_NAME_HINTS):
+            reasons.append(f"env_var:{name}")
+
+    if _looks_like_env_dump(raw):
+        reasons.append("env_dump_like")
+
+    # Stable order / dedupe.
+    out: list[str] = []
+    seen: set[str] = set()
+    for r in reasons:
+        if r in seen:
+            continue
+        seen.add(r)
+        out.append(r)
+    return out
+
+
+def _redact_for_local_log(text: str) -> str:
+    raw = str(text or "").replace("\r\n", "\n").replace("\r", "\n")
+    out = raw
+    for pat, _label in _SUSPECT_SECRET_TOKEN_PATTERNS:
+        out = pat.sub("[REDACTED]", out)
+    redacted_lines: list[str] = []
+    for ln in out.splitlines():
+        m = _ENV_ASSIGNMENT_RE.match(ln.strip())
+        if not m:
+            redacted_lines.append(ln)
+            continue
+        name = str(m.group("name") or "").strip()
+        val = str(m.group("value") or "").strip()
+        upper = name.upper()
+        if name and val and any(h in upper for h in _SUSPECT_SECRET_NAME_HINTS):
+            redacted_lines.append(f"{name}=[REDACTED]")
+        else:
+            redacted_lines.append(ln)
+    return "\n".join(redacted_lines).rstrip() + "\n"
+
+
+def _guard_slack_text_or_block(text: str) -> bool:
+    """
+    Safety guard:
+    - Do NOT send messages that look like env dumps or contain secret-like tokens/vars.
+    - Return True if OK to send; False if blocked.
+    """
+    reasons = _detect_sensitive_reasons(text)
+    if not reasons:
+        return True
+
+    try:
+        out_dir = PROJECT_ROOT / "workspaces" / "logs" / "ops"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        p = out_dir / f"slack_notify_blocked_{ts}.txt"
+        p.write_text(_redact_for_local_log(text), encoding="utf-8")
+        print(f"[slack_notify] blocked: suspicious content ({', '.join(reasons[:6])}); wrote {p}", file=sys.stderr)
+    except Exception:
+        print(f"[slack_notify] blocked: suspicious content ({', '.join(reasons[:6])})", file=sys.stderr)
+
+    return False
+
+
 _SLACK_CONVERSATION_ID_RE = re.compile(r"^[CDG][A-Z0-9]{8,}$")
 
 
@@ -480,6 +600,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     payload = {"text": text}
     if args.dry_run:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    if not _guard_slack_text_or_block(text):
         return 0
 
     thread_ts = str(getattr(args, "thread_ts", "") or "").strip() or None
