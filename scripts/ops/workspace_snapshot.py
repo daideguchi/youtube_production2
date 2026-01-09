@@ -146,12 +146,13 @@ def _du_depth1_kb(path: Path) -> tuple[dict[str, int], str, Optional[str]]:
         rel = path.as_posix()
 
     # BSD (macOS): du -d 1
-    p = _run(["du", "-sk", "-d", "1", rel])
+    # NOTE: macOS du treats (-s) and (-d) as mutually exclusive, so do NOT combine them.
+    p = _run(["du", "-k", "-d", "1", rel])
     if p.returncode == 0 and p.stdout:
         return _parse_du_lines(p.stdout), "du_bsd", None
 
     # GNU: du --max-depth=1
-    p2 = _run(["du", "-sk", "--max-depth=1", rel])
+    p2 = _run(["du", "-k", "--max-depth=1", rel])
     if p2.returncode == 0 and p2.stdout:
         return _parse_du_lines(p2.stdout), "du_gnu", None
 
@@ -287,4 +288,3 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
