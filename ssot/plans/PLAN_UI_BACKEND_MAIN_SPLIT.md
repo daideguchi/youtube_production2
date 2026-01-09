@@ -57,6 +57,7 @@
 | 2d | 影響が小さい1ドメイン（例: `/api/audio-tts/health`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 2e | channel_info の読み込み/キャッシュ（+ D-012 stats マージ）を `app/` に切り出し、`main.py` は import 利用へ | dd | - | Done（2026-01-09） |
 | 2f | Prompt Manager（`/api/prompts`）を `routers/` + `app/` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-09） |
+| 2g | Channels 系の Pydantic モデル（`ChannelProfileResponse` など）+ video_workflow 定義を `app/channels_models.py` に切り出し | dd | - | Done（2026-01-09） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
