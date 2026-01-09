@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
 import urllib.error
 import urllib.request
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -50,9 +52,40 @@ def _post_webhook(url: str, payload: Dict[str, Any]) -> None:
         resp.read()
 
 
-def _post_chat_post_message(token: str, channel: str, *, text: str) -> None:
+def _slack_api_get(token: str, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    q = urllib.parse.urlencode({k: str(v) for k, v in params.items() if v is not None and str(v) != ""})
+    url = f"{endpoint}?{q}" if q else endpoint
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "User-Agent": "factory_commentary/slack_notify",
+        },
+        method="GET",
+    )
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        body = (resp.read() or b"").decode("utf-8", errors="ignore")
+    try:
+        obj = json.loads(body) if body else {}
+    except Exception:
+        obj = {}
+    if isinstance(obj, dict) and obj.get("ok") is False:
+        raise RuntimeError(f"slack api failed: {obj.get('error')}")
+    return obj if isinstance(obj, dict) else {}
+
+
+def _post_chat_post_message(
+    token: str,
+    channel: str,
+    *,
+    text: str,
+    thread_ts: str | None = None,
+) -> Dict[str, Any]:
     api = "https://slack.com/api/chat.postMessage"
-    data = json.dumps({"channel": channel, "text": text}, ensure_ascii=False).encode("utf-8")
+    payload: Dict[str, Any] = {"channel": channel, "text": text}
+    if thread_ts:
+        payload["thread_ts"] = thread_ts
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(
         api,
         data=data,
@@ -71,6 +104,68 @@ def _post_chat_post_message(token: str, channel: str, *, text: str) -> None:
         obj = {}
     if isinstance(obj, dict) and obj.get("ok") is False:
         raise RuntimeError(f"slack chat.postMessage failed: {obj.get('error')}")
+    return obj if isinstance(obj, dict) else {}
+
+
+def _queue_dir() -> Optional[Path]:
+    try:
+        from factory_common.agent_mode import get_queue_dir
+
+        return Path(get_queue_dir())
+    except Exception:
+        return None
+
+
+def _memo_id_for_slack_reply(channel: str, thread_ts: str, msg_ts: str) -> str:
+    compact = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    key = f"slack:{channel}:{thread_ts}:{msg_ts}"
+    suffix = hashlib.sha256(key.encode("utf-8")).hexdigest()[:10]
+    return f"memo__{compact}__slack__{suffix}"
+
+
+def _write_slack_reply_memo(*, channel: str, thread_ts: str, msg: Dict[str, Any]) -> Optional[Path]:
+    q = _queue_dir()
+    if not q:
+        return None
+    memos_dir = q / "coordination" / "memos"
+    memos_dir.mkdir(parents=True, exist_ok=True)
+
+    msg_ts = str(msg.get("ts") or "").strip()
+    if not msg_ts:
+        return None
+    memo_id = _memo_id_for_slack_reply(channel, thread_ts, msg_ts)
+    path = memos_dir / f"{memo_id}.json"
+    if path.exists():
+        return path
+
+    user = str(msg.get("user") or msg.get("username") or "-").strip() or "-"
+    text = str(msg.get("text") or "").rstrip()
+    if not text:
+        text = "-"
+
+    memo = {
+        "schema_version": 1,
+        "kind": "memo",
+        "id": memo_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "from": f"slack:{user}",
+        "to": ["*"],
+        "subject": f"Slack reply intake (thread={thread_ts})",
+        "body": "\n".join(
+            [
+                "Slack返信を取り込みました。",
+                f"- channel: {channel}",
+                f"- thread_ts: {thread_ts}",
+                f"- msg_ts: {msg_ts}",
+                f"- user: {user}",
+                "",
+                text,
+            ]
+        ),
+        "tags": ["slack", "reply_intake"],
+    }
+    path.write_text(json.dumps(memo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return path
 
 
 def _format_duration_ms(ms: Any) -> str:
@@ -220,12 +315,73 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--event-json", default="", help="JSON string describing an event")
     ap.add_argument("--event-file", default="", help="Path to JSON file describing an event")
     ap.add_argument("--text", default="", help="Send raw text (Slack mrkdwn) instead of formatting an event")
+    ap.add_argument("--channel", default="", help="Override Slack channel (default: env SLACK_CHANNEL)")
+    ap.add_argument("--thread-ts", default="", help="Post as a reply in this thread (bot mode only)")
+    ap.add_argument("--out-json", default="", help="Write Slack API response JSON to this path (bot mode only)")
+    ap.add_argument("--print-ts", action="store_true", help="Print Slack message ts (bot mode only)")
+    ap.add_argument("--poll-thread", default="", help="Poll replies for this thread ts (bot mode only)")
+    ap.add_argument("--poll-limit", type=int, default=200, help="Max replies to fetch (bot mode only)")
+    ap.add_argument("--poll-oldest", default="", help="Only replies newer than this ts (bot mode only)")
+    ap.add_argument("--poll-out-json", default="", help="Write polled replies JSON to this path (bot mode only)")
+    ap.add_argument("--poll-write-memos", action="store_true", help="Write each reply as agent_org memo")
     ap.add_argument("--dry-run", action="store_true", help="Print payload to stdout without sending")
     args = ap.parse_args(argv)
 
     url = _webhook_url(args)
     token = _bot_token()
-    channel = _channel()
+    channel = str(args.channel or "").strip() or _channel()
+
+    poll_thread = str(getattr(args, "poll_thread", "") or "").strip()
+    if poll_thread:
+        if not (token and channel):
+            return 0
+        try:
+            data = _slack_api_get(
+                token,
+                "https://slack.com/api/conversations.replies",
+                {
+                    "channel": channel,
+                    "ts": poll_thread,
+                    "limit": max(1, int(args.poll_limit or 200)),
+                    "oldest": (str(args.poll_oldest or "").strip() or None),
+                },
+            )
+        except Exception as exc:
+            print(f"[slack_notify] poll failed: {exc}", file=sys.stderr)
+            return 0
+
+        msgs = data.get("messages") if isinstance(data, dict) else None
+        messages = msgs if isinstance(msgs, list) else []
+        # Exclude the parent message itself.
+        replies = [m for m in messages if isinstance(m, dict) and str(m.get("ts") or "") != poll_thread]
+        out = {
+            "ok": True,
+            "channel": channel,
+            "thread_ts": poll_thread,
+            "fetched_at": _now_iso_utc(),
+            "reply_count": len(replies),
+            "replies": replies,
+        }
+        if args.poll_write_memos:
+            memo_paths: list[str] = []
+            for msg in replies:
+                p = _write_slack_reply_memo(channel=channel, thread_ts=poll_thread, msg=msg)
+                if p:
+                    try:
+                        memo_paths.append(str(p.resolve().relative_to(PROJECT_ROOT)))
+                    except Exception:
+                        memo_paths.append(str(p))
+            out["memo_paths"] = memo_paths
+
+        if args.dry_run:
+            print(json.dumps(out, ensure_ascii=False, indent=2))
+            return 0
+        if str(args.poll_out_json or "").strip():
+            Path(str(args.poll_out_json)).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            return 0
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+        return 0
+
     if not url and not (token and channel):
         return 0
 
@@ -253,11 +409,21 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
 
+    thread_ts = str(getattr(args, "thread_ts", "") or "").strip() or None
     try:
         if url:
             _post_webhook(url, payload)
         else:
-            _post_chat_post_message(token, channel, text=text)
+            resp = _post_chat_post_message(token, channel, text=text, thread_ts=thread_ts)
+            out_path = str(getattr(args, "out_json", "") or "").strip()
+            if out_path:
+                Path(out_path).write_text(json.dumps(resp, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            if bool(getattr(args, "print_ts", False)):
+                ts = str(resp.get("ts") or "")
+                if not ts and isinstance(resp.get("message"), dict):
+                    ts = str(resp["message"].get("ts") or "")
+                if ts:
+                    print(ts)
     except urllib.error.HTTPError as exc:
         print(f"[slack_notify] http_error status={exc.code}", file=sys.stderr)
         return 0

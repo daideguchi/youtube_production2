@@ -113,8 +113,11 @@
 ### 3.1 Script pipeline
 - `packages/script_pipeline/cli.py`
 - `packages/script_pipeline/job_runner.py`
-- `packages/script_pipeline/tools/channel_prompt_sync.py`
+- `packages/script_pipeline/tools/channel_prompt_sync.py`（注意: 既存 `script_prompt.txt` と YAML が不一致の場合、デフォルトでは上書きを拒否。意図した上書きは `--force`）
 - `packages/script_pipeline/tools/channel_registry.py`（新チャンネル追加: handle→channel_id 解決 + sources.yaml/CSV/Persona 雛形生成）
+- プロンプト整合監査（SoT/ミラーのズレ検出）:
+  - `python3 scripts/ops/script_prompt_integrity_audit.py --all --write-latest`
+  - `python3 scripts/ops/script_prompt_integrity_audit.py --channel CHxx --write-latest`
 - 完成台本ファクトチェック（単発）:
   - `./scripts/with_ytm_env.sh python3 scripts/ops/fact_check_codex.py --channel CHxx --video NNN`
 - ベンチマーク/タグ/説明文の一括整備（channel_info 正規化 + カタログ再生成）:
@@ -159,6 +162,7 @@
   - `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM --apply --write-latest`
 - Aテキスト lint（機械チェック・反復/禁則混入検知）:
   - `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
+  - バッチ（未投稿・ログ1つ）: `python3 scripts/ops/a_text_quality_scan.py --all --write-latest`
 - 台本監査（対話AI・LLM API禁止 / 企画整合+流れを目視で確定）:
   - SSOT: `ssot/ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`
   - 対象スキャン: `python3 scripts/ops/dialog_ai_script_audit.py scan`
@@ -230,6 +234,10 @@
 	    - `POST /api/agent-org/board/status`（status更新）
 	    - `POST /api/agent-org/board/note`（note投稿/返信）
 	    - `POST /api/agent-org/board/area`（ownership更新）
+- Slack通知/返信（任意）:
+  - 設定: `ssot/ops/OPS_ENV_VARS.md` の「Slack通知（任意）」参照（Webhook/Bot両対応）
+  - 報告送信: `python3 scripts/ops/slack_notify.py --text "..."`
+  - Slack返信の取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
 
 ### 3.5 Thumbnails（サムネ量産/修正）
 - SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`

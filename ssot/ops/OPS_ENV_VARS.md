@@ -32,6 +32,11 @@
 備考:
 - `--llm think` で pending が出た場合は「失敗」ではなく `PENDING` として通知される（task埋め→再実行で続行）。
 - `packages/script_pipeline/job_runner.py` の通知（`scripts/notifications.py`）も同じ Slack 設定を使う（Webhook/Bot 両対応）。
+- Slack返信の取り込み（任意; Bot方式のみ）:
+  - 目的: Slackスレッド返信で dd の意思決定を返し、repo作業へ反映しやすくする（copy/pasteミス防止）。
+  - 送信（thread_ts取得）: `python3 scripts/ops/slack_notify.py --text "...(報告本文)..." --out-json workspaces/logs/ops/slack_sent.json --print-ts`
+  - 返信取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
+    - 取り込み先: `workspaces/logs/agent_tasks/coordination/memos/`（UIのBoard/Overviewから参照できる）
 - `./ops` の “迷わない” レバー（任意）:
   - `./ops think <cmd> ...` / `./ops api <cmd> ...` / `./ops codex <cmd> ...` を使う（`--llm` の付け忘れを物理的に防ぐ）
   - `YTM_OPS_DEFAULT_LLM=think|api|codex` を設定すると、`./ops` で `--llm` を省略した時の既定を切り替えられる（例: 「今日は外部APIを使わない」→ `think`）
