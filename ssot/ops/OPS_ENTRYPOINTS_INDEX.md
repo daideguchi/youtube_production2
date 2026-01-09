@@ -290,6 +290,7 @@
 - `scripts/purge_audio_final_chunks.py`（final/chunks削除）
 - `scripts/cleanup_data.py --run`（workspaces/scripts の古い中間生成物/ログを削除。`audio_prep/` は final 音声が揃っている動画のみ対象）
 - `scripts/ops/cleanup_logs.py --run`（workspaces/logs 直下の L3 ログを日数ローテで削除。report: `workspaces/logs/regression/logs_cleanup/`）
+- `./ops snapshot workspace --write-report`（= `python3 scripts/ops/workspace_snapshot.py --write-report`。workspaces 全体の容量スナップショット（観測用）。report: `workspaces/logs/regression/workspace_snapshot/`）
 - `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `workspaces/logs/regression/broken_symlinks/`）

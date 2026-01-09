@@ -2,7 +2,7 @@
 
 ## Plan metadata
 - **Plan ID**: PLAN_OPS_STORAGE_LIGHTWEIGHT
-- **ステータス**: Draft
+- **ステータス**: Active
 - **担当/レビュー**: Owner: dd / Reviewer: dd
 - **対象範囲 (In Scope)**: `workspaces/**`（audio/video/scripts/logs/thumbnails/tmp）、`log_research/`、ローカルキャッシュ（`__pycache__` 等）
 - **非対象 (Out of Scope)**: git履歴の圧縮（filter-repo 等）、外部CapCutドラフトrootの削除方針（個別運用）
@@ -10,6 +10,7 @@
   - `ssot/ops/OPS_LOGGING_MAP.md`
   - `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
   - `ssot/plans/PLAN_UI_WORKSPACE_CLEANUP.md`
+  - `python3 scripts/ops/workspace_snapshot.py`
   - `python -m scripts.cleanup_workspace`
   - `python3 scripts/ops/cleanup_logs.py`
   - `python3 scripts/cleanup_data.py`
@@ -28,6 +29,7 @@
 - 生成物分類（L0/L1/L2/L3）は `PLAN_OPS_ARTIFACT_LIFECYCLE.md` を正本とする。
 - **削除は原則 workspaces（untracked）だけ**。repo tracked を消す場合は `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の条件 + archive-first（`backups/graveyard/`）を必須にする。
 - 実行は必ず `--dry-run` を先に走らせ、問題が無ければ `--run`。
+- `workspaces/video/_archive/**` の **MOVE（退避）** は「探索ノイズ削減」には効くが、同一ディスク内では容量は減らない。容量削減が目的なら「削除」か「別ボリュームへ退避」が必要（削除は別途合意/ログを残して実施）。
 
 ## 4. 推奨コマンド（定期）
 
@@ -55,6 +57,10 @@ python -m scripts.cleanup_workspace --video-runs --run --yes
 
 ## 5. 計測（肥大化の可視化）
 ```bash
+# まずこれ（統一スナップショット。report も残す）
+./ops snapshot workspace --write-report
+# (= python3 scripts/ops/workspace_snapshot.py --write-report)
+
 python3 scripts/ops/logs_snapshot.py
 du -sh workspaces/audio workspaces/video workspaces/scripts workspaces/logs 2>/dev/null | sort -h
 ```

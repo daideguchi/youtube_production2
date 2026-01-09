@@ -716,6 +716,8 @@ def _print_list() -> None:
     print("    ./ops cleanup workspace --dry-run ...")
     print("    ./ops cleanup logs --run")
     print("    ./ops cleanup caches")
+    print("    ./ops snapshot workspace --write-report")
+    print("    ./ops snapshot logs")
     print("")
     print("  Agent queue helpers:")
     print("    ./ops agent list|show|prompt|chat|bundle|claim|complete ...")
@@ -1053,6 +1055,19 @@ def cmd_cleanup(args: argparse.Namespace) -> int:
         inner = ["bash", "scripts/ops/cleanup_caches.sh"]
         return _run(inner)
     print(f"unknown cleanup action: {action}", file=sys.stderr)
+    return 2
+
+
+def cmd_snapshot(args: argparse.Namespace) -> int:
+    forwarded = _strip_leading_double_dash(list(args.args))
+    action = str(args.action or "").strip()
+    if action == "workspace":
+        inner = ["python3", "scripts/ops/workspace_snapshot.py", *forwarded]
+        return _run(inner)
+    if action == "logs":
+        inner = ["python3", "scripts/ops/logs_snapshot.py", *forwarded]
+        return _run(inner)
+    print(f"unknown snapshot action: {action}", file=sys.stderr)
     return 2
 
 
@@ -1769,6 +1784,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("action", choices=["workspace", "logs", "caches"], help="cleanup operation")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying cleanup tool")
     sp.set_defaults(func=cmd_cleanup)
+
+    sp = sub.add_parser("snapshot", help="snapshot helpers (safe; read-only)")
+    sp.add_argument("action", choices=["workspace", "logs"], help="snapshot operation")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying snapshot tool")
+    sp.set_defaults(func=cmd_snapshot)
 
     sp = sub.add_parser("history", help="show recent ops runs (ops ledger)")
     sp.add_argument("--tail", type=int, default=30)
