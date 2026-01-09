@@ -7,8 +7,8 @@
 #
 # Safety:
 # - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
-# - Never route any task that writes/overwrites the **A-text body** (chapters / assembled*.md) through Codex exec.
-#   A-text is always produced via the LLM API path (Fireworks) to avoid Codex phrasing in spoken Japanese.
+# - Never route any **台本パイプライン task** (`script_*`) through Codex exec.
+#   台本は LLM API（Fireworks / DeepSeek）固定にして、文体ドリフトを防ぐ。
 # - Non-A-text tasks (research/outline/validation reports/visual planning) can attempt Codex first and fall back
 #   to the existing LLMRouter API path.
 #
@@ -36,11 +36,6 @@ sandbox: read-only
 # Default timeout per `codex exec` call (seconds).
 timeout_s: 180
 timeout_s_by_task:
-  # Other heavy script steps can also exceed the default 180s under xhigh.
-  script_topic_research: 420
-  script_outline: 300
-  script_master_plan: 420
-  script_chapter_brief: 420
   # Visual planning can be long (large SRT + JSON schema); allow enough time to avoid API fallback.
   visual_section_plan: 900
   visual_image_cues_plan: 900
@@ -54,7 +49,6 @@ selection:
   include_task_prefixes:
     - tts_
     - visual_
-    - script_
 
   # And/or explicit tasks (useful for non-script tasks).
   include_tasks:

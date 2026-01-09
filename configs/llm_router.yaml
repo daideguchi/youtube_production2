@@ -183,25 +183,15 @@ models:
 tiers:
   # High intelligence, reasoning capable
   heavy_reasoning:
-    - or_deepseek_v3_2_exp
-    - fw_glm_4p7
-    - fw_kimi_k2_thinking
-    - fw_mixtral_8x22b_instruct
     - or_kimi_k2_thinking
   
   # Standard tasks
   standard:
-    - or_deepseek_v3_2_exp
     - or_hunyuan_a13b_instruct
-    - or_qwen_2_5_7b_instruct
-    - or_gemma_3n_e2b_it_free
 
   # Cost effective
   cheap:
-    - or_gemma_3n_e2b_it_free
-    - or_hunyuan_a13b_instruct
     - or_mistral_7b_instruct_free
-    - or_qwen_2_5_7b_instruct
 
   # Special purpose: Image generation ONLY
   image_gen:
@@ -229,7 +219,6 @@ tasks:
     tier: heavy_reasoning
     timeout: 180
     retry_policy: standard
-    fallback_policy: tier_down
 
   script_chapter_brief:
     tier: heavy_reasoning

@@ -162,10 +162,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - script-main-1
-      - script-fallback-glm-1
-      - script-fallback-kimi-1
-      - script-fallback-mixtral-1
-    allow_fallback: true
     options:
       temperature: 0.2
       extra_body:
@@ -177,15 +173,9 @@ tasks:
     tier: heavy_reasoning
     models:
       - script-main-1
-      - script-fallback-glm-1
-      - script-fallback-kimi-1
-      - script-fallback-mixtral-1
-    allow_fallback: true
     options:
       temperature: 0.0
       response_format: json_object
-      # IMPORTANT: local llm_router config may not define per-task defaults for this task.
-      # Without an explicit cap, OpenRouter can assume a very large max_tokens budget and 402 due to credits.
       max_tokens: 3600
       extra_body:
         reasoning:
@@ -196,15 +186,8 @@ tasks:
     tier: heavy_reasoning
     models:
       - script-main-1
-      - script-fallback-glm-1
-      - script-fallback-kimi-1
-      - script-fallback-mixtral-1
-    allow_fallback: true
     options:
       temperature: 0.25
-      # IMPORTANT: Keep below typical OpenRouter credit-limit ceilings to avoid 402 loops.
-      # Must still be large enough to output a full A-text rewrite for long-form scripts.
-      # NOTE: 11k is too small for CH10-class long A-text; it triggers finish_reason=length and a second paid retry.
       max_tokens: 22000
       extra_body:
         reasoning:
@@ -217,10 +200,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - script-main-1
-      - script-fallback-glm-1
-      - script-fallback-kimi-1
-      - script-fallback-mixtral-1
-    allow_fallback: true
     options:
       temperature: 0.2
       # NOTE: Whole-script rewrite; allow enough headroom to avoid finish_reason=length retries.
@@ -249,10 +228,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - script-main-1
-      - script-fallback-glm-1
-      - script-fallback-kimi-1
-      - script-fallback-mixtral-1
-    allow_fallback: true
     options:
       temperature: 0.2
       response_format: json_object
@@ -269,10 +244,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - script-main-1
-      - script-fallback-glm-1
-      - script-fallback-kimi-1
-      - script-fallback-mixtral-1
-    allow_fallback: true
     options:
       temperature: 0.2
       response_format: json_object
@@ -288,10 +259,6 @@ tasks:
     tier: heavy_reasoning
     models:
       - script-main-1
-      - script-fallback-glm-1
-      - script-fallback-kimi-1
-      - script-fallback-mixtral-1
-    allow_fallback: true
     options:
       temperature: 0.2
       max_tokens: 11000
