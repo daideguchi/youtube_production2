@@ -18,7 +18,7 @@ function escapeAttr(text) {
 function guessGitHubRepoFromPages() {
   const host = window.location.hostname;
   if (!host.endsWith(".github.io")) return null;
-  const owner = host.replace(/\\.github\\.io$/, "");
+  const owner = host.replace(/\.github\.io$/, "");
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   const repo = pathParts.length ? pathParts[0] : null;
   return repo ? { owner, repo } : null;
@@ -38,7 +38,7 @@ function resolveRepoInfo() {
 function resolveRawBase() {
   const params = new URLSearchParams(window.location.search);
   const rawBaseOverride = params.get("rawBase");
-  if (rawBaseOverride) return rawBaseOverride.replace(/\\/+$/, "") + "/";
+  if (rawBaseOverride) return rawBaseOverride.replace(/\/+$/, "") + "/";
 
   const info = resolveRepoInfo();
   if (info) return `https://raw.githubusercontent.com/${info.owner}/${info.repo}/${info.branch}/`;
@@ -54,8 +54,8 @@ function resolveGitHubBlobBase() {
 }
 
 function joinUrl(base, path) {
-  const safeBase = String(base || "").replace(/\\/+$/, "") + "/";
-  const safePath = String(path || "").replace(/^\\/+/, "");
+  const safeBase = String(base || "").replace(/\/+$/, "") + "/";
+  const safePath = String(path || "").replace(/^\/+/, "");
   return safeBase + safePath;
 }
 
@@ -86,8 +86,10 @@ function resolveRelativePath(basePath, href) {
   if (/^[a-z]+:/i.test(rel)) return rel;
   // Resolve as URL path without relying on the current origin.
   const baseDir = base.includes("/") ? base.slice(0, base.lastIndexOf("/") + 1) : "";
-  const resolved = new URL(rel, `https://example.invalid/${baseDir}`).pathname.replace(/^\\//, "");
-  return resolved;
+  const u = new URL(rel, `https://example.invalid/${baseDir}`);
+  const pathname = u.pathname.replace(/^\//, "");
+  const hash = String(u.hash || "");
+  return pathname + hash;
 }
 
 const DOC_SECTIONS = [
@@ -154,6 +156,7 @@ const rawBase = resolveRawBase();
 const githubBlobBase = resolveGitHubBlobBase();
 
 let currentDocPath = "";
+let currentDocHash = "";
 const docCache = new Map();
 
 function setFooter(text) {
@@ -247,9 +250,10 @@ function configureMarked() {
   });
 }
 
-function toDocUrl(path) {
+function toDocUrl(path, hash) {
   const base = new URL(window.location.href);
   base.searchParams.set("doc", path);
+  base.hash = String(hash || "");
   return base.toString();
 }
 
@@ -312,23 +316,39 @@ function installDocLinkInterceptor() {
     if (!href || href.startsWith("#")) return;
     if (/^[a-z]+:/i.test(href)) return;
 
-    const resolved = resolveRelativePath(currentDocPath, href);
-    const normalized = normalizeDocPath(resolved);
-    if (!normalized) return;
-    if (!isAllowedDocPath(normalized)) return;
     ev.preventDefault();
-    openDoc(normalized);
+    const resolved = resolveRelativePath(currentDocPath, href);
+    const hashIdx = resolved.indexOf("#");
+    const resolvedPath = hashIdx >= 0 ? resolved.slice(0, hashIdx) : resolved;
+    const resolvedHash = hashIdx >= 0 ? resolved.slice(hashIdx) : "";
+
+    const normalized = normalizeDocPath(resolvedPath);
+    if (!normalized) {
+      docStatus.textContent = "（リンク解決に失敗しました）";
+      return;
+    }
+    if (!isAllowedDocPath(normalized)) {
+      docStatus.textContent = `（閲覧対象外: ${normalized}）`;
+      return;
+    }
+    openDoc(normalized + resolvedHash);
   });
 }
 
 async function openDoc(path, titleOverride) {
-  const normalized = normalizeDocPath(path);
+  const rawRef = String(path || "").trim();
+  const hashIdx = rawRef.indexOf("#");
+  const refPath = hashIdx >= 0 ? rawRef.slice(0, hashIdx) : rawRef;
+  const refHash = hashIdx >= 0 ? rawRef.slice(hashIdx) : "";
+
+  const normalized = normalizeDocPath(refPath);
   if (!normalized || !isAllowedDocPath(normalized)) {
     docStatus.textContent = "（このパスは閲覧対象外）";
     return;
   }
 
   currentDocPath = normalized;
+  currentDocHash = String(refHash || "");
   const title = String(titleOverride || "").trim() || normalized.split("/").slice(-1)[0] || normalized;
   docTitle.textContent = title;
   docPath.textContent = normalized;
@@ -378,20 +398,33 @@ async function openDoc(path, titleOverride) {
 
   buildToc();
   setFooter(`rawBase: ${rawBase}  |  doc: ${normalized}`);
-  window.scrollTo({ top: 0, behavior: "auto" });
+  if (currentDocHash) {
+    const id = currentDocHash.replace(/^#/, "");
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: "auto", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+  } else {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
 
   const url = new URL(window.location.href);
   url.searchParams.set("doc", normalized);
+  url.hash = currentDocHash;
   window.history.replaceState(null, "", url.toString());
 }
 
 function clearDocSelection() {
   currentDocPath = "";
+  currentDocHash = "";
   setPortalVisible(true);
   docBody.innerHTML = "";
   tocInline.innerHTML = "";
   const url = new URL(window.location.href);
   url.searchParams.delete("doc");
+  url.hash = "";
   window.history.replaceState(null, "", url.toString());
   setFooter(`rawBase: ${rawBase}`);
 }
@@ -421,7 +454,7 @@ function boot() {
 
   copyLink.addEventListener("click", async () => {
     if (!currentDocPath) return;
-    const url = toDocUrl(currentDocPath);
+    const url = toDocUrl(currentDocPath, currentDocHash);
     const ok = await copyTextToClipboard(url);
     docStatus.textContent = ok ? "リンクをコピーしました" : "コピーに失敗しました";
     window.setTimeout(() => {
@@ -441,8 +474,9 @@ function boot() {
   // Deep link support.
   const params = new URLSearchParams(window.location.search);
   const initial = normalizeDocPath(params.get("doc") || "");
+  const initialHash = String(window.location.hash || "");
   if (initial && isAllowedDocPath(initial)) {
-    openDoc(initial);
+    openDoc(initial + initialHash);
   } else {
     setFooter(`rawBase: ${rawBase}`);
   }
