@@ -8,7 +8,9 @@ model_policy_snapshot — チャンネル別「どの処理がどのモデルか
 - 時点情報を残す（任意で JSON レポートを書き出せる）
 
 対象（固定の3点セット）:
-- サムネ画像: thumbnail_image_gen（SoT: workspaces/thumbnails/templates.json）
+- サムネ:
+  - `layer_specs_v3` の場合: 背景生成= `thumbnail_image_gen`（SoT: workspaces/thumbnails/templates.json）
+  - `buddha_3line_v1` の場合: **ローカル合成のみ**（画像生成モデルは使わない）
 - 台本LLM: script_*（SoT: configs/llm_model_slots.yaml + SSOT catalog task_defs）
 - 動画内画像: visual_image_gen（SoT: packages/video_pipeline/config/channel_presets.json）
 
@@ -39,7 +41,7 @@ from factory_common.paths import logs_root, repo_root  # noqa: E402
 from factory_common.ssot_catalog import build_ssot_catalog  # noqa: E402
 
 
-REPORT_SCHEMA = "ytm.model_policy_snapshot.v1"
+REPORT_SCHEMA = "ytm.model_policy_snapshot.v2"
 
 
 def _utc_now_iso() -> str:
@@ -163,6 +165,29 @@ def _pick_thumbnail_selector(channel_obj: Dict[str, Any] | None) -> str:
     if not isinstance(chosen, dict):
         return ""
     return str(chosen.get("image_model_key") or "").strip()
+
+
+def _thumb_engine(ch: str, channel_obj: Dict[str, Any] | None, *, stylepack_channels: set[str]) -> str:
+    """
+    Mirror scripts/thumbnails/build.py engine auto detection (simplified):
+    - templates.json.channels[CH].layer_specs configured => layer_specs_v3
+    - else, stylepack exists => buddha_3line_v1
+    - else => missing
+    """
+    code = str(ch or "").strip().upper()
+    if isinstance(channel_obj, dict):
+        layer = channel_obj.get("layer_specs") if isinstance(channel_obj.get("layer_specs"), dict) else None
+        if isinstance(layer, dict):
+            img_id = layer.get("image_prompts_id")
+            txt_id = layer.get("text_layout_id")
+            if isinstance(img_id, str) and img_id.strip() and isinstance(txt_id, str) and txt_id.strip():
+                return "layer_specs_v3"
+    return "buddha_3line_v1" if code in (stylepack_channels or set()) else "missing"
+
+
+def _policy_piece(value: str, *, fallback: str) -> str:
+    s = str(value or "").strip()
+    return s if s else str(fallback).strip()
 
 
 def _resolve_script_policy(catalog: Dict[str, Any]) -> Dict[str, Any]:
@@ -308,6 +333,7 @@ def _print_table(rows: List[Dict[str, Any]]) -> None:
         "thumb_code",
         "thumb_model",
         "thumb_src",
+        "thumb_engine",
         "script_code",
         "script_model",
         "video_code",
@@ -386,6 +412,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not isinstance(preset_channels, dict):
         preset_channels = {}
 
+    stylepacks_dir = root / "workspaces" / "thumbnails" / "compiler" / "stylepacks"
+    stylepack_channels: set[str] = set()
+    if stylepacks_dir.exists():
+        for p in sorted(stylepacks_dir.glob("CH*_*.yaml")):
+            m = re.match(r"^(CH\d+)_", p.name.strip().upper())
+            if m:
+                stylepack_channels.add(m.group(1))
+
     channels_all = sorted({*_list_planning_channel_codes(), *thumb_channels.keys(), *preset_channels.keys()}, key=_channel_sort_key)
     filt = {s.strip().upper() for s in str(args.channels or "").split(",") if s.strip()}
     if filt:
@@ -412,9 +446,26 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     rows: List[Dict[str, Any]] = []
     for ch in channels_all:
-        thumb_raw = _pick_thumbnail_selector(thumb_channels.get(ch) if isinstance(thumb_channels.get(ch), dict) else None)
+        channel_obj = thumb_channels.get(ch) if isinstance(thumb_channels.get(ch), dict) else None
+        thumb_engine = _thumb_engine(ch, channel_obj, stylepack_channels=stylepack_channels)
+
+        thumb_raw = _pick_thumbnail_selector(channel_obj)
         thumb_code = _canonicalize_image_code(thumb_raw, canonical_by_id)
-        thumb_src = "templates.json" if thumb_raw else "missing"
+        thumb_src = "templates.json" if thumb_raw else ("stylepacks" if thumb_engine == "buddha_3line_v1" else "missing")
+
+        thumb_model = ""
+        if thumb_raw:
+            thumb_sel = _resolve_image_selection(
+                code=thumb_code,
+                task="thumbnail_image_gen",
+                slot_map=slot_task_map,
+                model_registry=image_registry,
+            )
+            if thumb_sel.get("provider") or thumb_sel.get("model_name"):
+                thumb_model = " / ".join([p for p in [thumb_sel.get("provider"), thumb_sel.get("model_name")] if p])
+        elif thumb_engine == "buddha_3line_v1":
+            thumb_code = "local"
+            thumb_model = "local / buddha_3line_v1"
 
         video_raw = ""
         video_src = "tier_default"
@@ -441,14 +492,15 @@ def main(argv: Optional[List[str]] = None) -> int:
             model_registry=image_registry,
         )
 
-        thumb_model = ""
-        if thumb_sel.get("provider") or thumb_sel.get("model_name"):
-            thumb_model = " / ".join([p for p in [thumb_sel.get("provider"), thumb_sel.get("model_name")] if p])
         video_model = ""
         if video_sel.get("provider") or video_sel.get("model_name"):
             video_model = " / ".join([p for p in [video_sel.get("provider"), video_sel.get("model_name")] if p])
 
-        policy_code = f"{thumb_code or '?'}_{script_code or '?'}_{video_code or '?'}"
+        policy_code = (
+            f"{_policy_piece(thumb_code, fallback='unset')}"
+            f"_{_policy_piece(script_code, fallback='unset')}"
+            f"_{_policy_piece(video_code, fallback='unset')}"
+        )
         if args.with_exec_suffix and exec_slot_id is not None:
             policy_code = f"{policy_code}@x{exec_slot_id}"
 
@@ -459,6 +511,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 "thumb_code": thumb_code,
                 "thumb_model": thumb_model,
                 "thumb_src": thumb_src,
+                "thumb_engine": thumb_engine,
                 "script_code": script_code,
                 "script_model": script_model_text,
                 "video_code": video_code,

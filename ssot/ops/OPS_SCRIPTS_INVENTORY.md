@@ -77,8 +77,8 @@ ref の見方:
 | `scripts/ops/build_ssot_catalog.py` | OPS | P1 | no | 2026-01-01 | 2026-01-09 | scripts=6 ssot=4 | `scripts/ops/build_ssot_catalog.py:6` |
 | `scripts/ops/channel_info_normalize.py` | OPS | P1 | yes | 2025-12-26 | 2025-12-27 | ssot=9 | `ssot/ops/OPS_CHANNEL_BENCHMARKS.md:97` |
 | `scripts/ops/cleanup_broken_symlinks.py` | OPS | P1 | yes | 2025-12-18 | 2025-12-23 | ssot=5 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:296` |
-| `scripts/ops/cleanup_caches.sh` | OPS | P1 | yes | 2025-12-13 | 2025-12-13 | scripts=2 ssot=5 | `scripts/ops/ops_cli.py:1041` |
-| `scripts/ops/cleanup_logs.py` | OPS | P1 | yes | 2025-12-13 | 2026-01-08 | scripts=2 ssot=11 other=1 | `scripts/ops/ops_cli.py:1036` |
+| `scripts/ops/cleanup_caches.sh` | OPS | P1 | yes | 2025-12-13 | 2025-12-13 | scripts=2 ssot=5 | `scripts/ops/ops_cli.py:1042` |
+| `scripts/ops/cleanup_logs.py` | OPS | P1 | yes | 2025-12-13 | 2026-01-08 | scripts=2 ssot=11 other=1 | `scripts/ops/ops_cli.py:1037` |
 | `scripts/ops/cleanup_remotion_artifacts.py` | OPS | P1 | yes | 2025-12-18 | 2025-12-26 | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:297` |
 | `scripts/ops/cleanup_video_runs.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-27 | scripts=1 ssot=3 | `scripts/ops/restore_video_runs.py:6` |
 | `scripts/ops/dialog_ai_script_audit.py` | OPS | P1 | no | 2026-01-01 | 2026-01-01 | ssot=4 | `ssot/ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md:125` |
@@ -86,26 +86,27 @@ ref の見方:
 | `scripts/ops/episode_progress.py` | OPS | P1 | no | 2025-12-30 | 2026-01-08 | scripts=6 ssot=3 | `scripts/ops/episode_progress.py:12` |
 | `scripts/ops/fact_check_codex.py` | OPS | P1 | no | 2025-12-30 | 2025-12-30 | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:119` |
 | `scripts/ops/fireworks_key_report.py` | OPS | P1 | yes | 2026-01-06 | 2026-01-06 | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:314` |
-| `scripts/ops/fireworks_keyring.py` | OPS | P1 | no | 2026-01-02 | 2026-01-06 | packages=1 ssot=9 | `packages/factory_common/ssot_catalog.py:4701` |
+| `scripts/ops/fireworks_keyring.py` | OPS | P1 | no | 2026-01-02 | 2026-01-06 | packages=1 ssot=9 | `packages/factory_common/ssot_catalog.py:4765` |
 | `scripts/ops/git_write_lock.py` | OPS | P1 | no | 2025-12-29 | 2026-01-08 | scripts=9 ssot=13 | `scripts/ops/git_write_lock.py:19` |
 | `scripts/ops/idea.py` | OPS | P1 | yes | 2025-12-31 | 2025-12-31 | packages=2 scripts=10 ssot=18 other=1 | `packages/factory_common/ssot_catalog.py:3392` |
 | `scripts/ops/init_workspaces.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | scripts=2 ssot=1 | `scripts/ops/init_workspaces.py:11` |
 | `scripts/ops/lint_llm_config.py` | OPS | P1 | no | 2025-12-28 | 2026-01-09 | scripts=1 ssot=2 | `scripts/ops/lint_llm_config.py:6` |
 | `scripts/ops/lint_llm_router_config.py` | OPS | P1 | no | 2026-01-09 | 2026-01-09 | scripts=3 ssot=2 | `scripts/ops/lint_llm_config.py:10` |
 | `scripts/ops/llm_hardcode_audit.py` | OPS | P1 | no | 2025-12-30 | 2025-12-30 | scripts=1 | `scripts/ops/pre_push_final_check.py:68` |
-| `scripts/ops/llm_usage_report.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | ssot=2 | `ssot/ops/OPS_ENV_VARS.md:135` |
-| `scripts/ops/logs_snapshot.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-18 | scripts=1 ssot=5 | `scripts/ops/ops_cli.py:1068` |
+| `scripts/ops/llm_usage_report.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | ssot=2 | `ssot/ops/OPS_ENV_VARS.md:136` |
+| `scripts/ops/logs_snapshot.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-18 | scripts=1 ssot=5 | `scripts/ops/ops_cli.py:1069` |
+| `scripts/ops/model_policy_snapshot.py` | OPS | P1 | no | 2026-01-09 | 2026-01-09 | scripts=1 | `scripts/ops/ops_cli.py:1072` |
 | `scripts/ops/ops_cli.py` | OPS | P1 | no | 2026-01-08 | 2026-01-09 | scripts=1 ssot=2 other=1 | `ops:8` |
 | `scripts/ops/orchestrator_bootstrap.py` | OPS | P1 | no | 2025-12-30 | 2026-01-08 | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:212` |
 | `scripts/ops/pages_script_viewer_index.py` | OPS | P1 | no | 2025-12-28 | 2026-01-03 | scripts=3 ssot=2 other=2 | `docs/README.md:14` |
 | `scripts/ops/pages_snapshot_export.py` | OPS | P1 | no | 2025-12-29 | 2026-01-06 | scripts=2 other=3 | `docs/data/snapshot/channels.json:4` |
-| `scripts/ops/parallel_ops_preflight.py` | OPS | P1 | no | 2025-12-30 | 2025-12-31 | scripts=2 ssot=2 | `scripts/ops/ops_cli.py:748` |
+| `scripts/ops/parallel_ops_preflight.py` | OPS | P1 | no | 2025-12-30 | 2025-12-31 | scripts=2 ssot=2 | `scripts/ops/ops_cli.py:749` |
 | `scripts/ops/planning_apply_patch.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-28 | scripts=4 ssot=8 other=5 | `scripts/ops/idea.py:589` |
 | `scripts/ops/planning_assign_script_kata.py` | OPS | P1 | no | 2025-12-31 | 2025-12-31 | scripts=3 ssot=3 | `scripts/ops/planning_assign_script_kata.py:16` |
 | `scripts/ops/planning_lint.py` | OPS | P0 | yes | 2025-12-20 | 2025-12-29 | apps=1 packages=2 scripts=11 ssot=21 other=10 | `apps/ui-backend/backend/main.py:3251` |
 | `scripts/ops/planning_patch_gen.py` | OPS | P1 | yes | 2025-12-28 | 2025-12-28 | ssot=3 other=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:138` |
 | `scripts/ops/planning_realign_to_title.py` | OPS | P1 | yes | 2025-12-25 | 2025-12-29 | scripts=3 ssot=5 | `scripts/ops/planning_realign_to_title.py:31` |
-| `scripts/ops/planning_sanitize.py` | OPS | P0 | yes | 2025-12-22 | 2025-12-27 | scripts=5 ssot=6 | `scripts/ops/ops_cli.py:917` |
+| `scripts/ops/planning_sanitize.py` | OPS | P0 | yes | 2025-12-22 | 2025-12-27 | scripts=5 ssot=6 | `scripts/ops/ops_cli.py:918` |
 | `scripts/ops/pre_push_final_check.py` | OPS | P1 | no | 2025-12-29 | 2026-01-09 | apps=2 scripts=4 ssot=9 | `apps/ui-backend/backend/README.md:19` |
 | `scripts/ops/preproduction_audit.py` | OPS | P1 | yes | 2025-12-28 | 2025-12-28 | scripts=15 ssot=11 other=1 | `scripts/ops/preproduction_audit.py:11` |
 | `scripts/ops/preproduction_issue_catalog.py` | OPS | P1 | yes | 2025-12-28 | 2026-01-03 | ssot=1 other=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:138` |
@@ -123,12 +124,12 @@ ref の見方:
 | `scripts/ops/restore_video_runs.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-26 | ssot=6 other=1 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:286` |
 | `scripts/ops/save_patch.sh` | OPS | P1 | yes | 2025-12-13 | 2025-12-31 | scripts=4 ssot=7 other=1 | `AGENTS.md:28` |
 | `scripts/ops/script_runbook.py` | OPS | P0 | yes | 2025-12-25 | 2026-01-06 | packages=3 scripts=9 ssot=71 | `packages/factory_common/ssot_catalog.py:1408` |
-| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | 2025-12-22 | 2026-01-09 | scripts=4 ssot=3 | `scripts/ops/ops_cli.py:1358` |
+| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | 2025-12-22 | 2026-01-09 | scripts=4 ssot=3 | `scripts/ops/ops_cli.py:1362` |
 | `scripts/ops/secret_guard.py` | OPS | P1 | yes | 2026-01-04 | 2026-01-04 | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:313` |
 | `scripts/ops/slack_notify.py` | OPS | P1 | no | 2026-01-08 | 2026-01-08 | scripts=2 ssot=1 | `scripts/agent_runner.py:76` |
 | `scripts/ops/ssot_audit.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-28 | scripts=3 ssot=6 | `scripts/ops/docs_inventory.py:10` |
 | `scripts/ops/thumbnail_styleguide.py` | OPS | P1 | yes | 2026-01-08 | 2026-01-08 | ssot=4 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:241` |
-| `scripts/ops/workspace_snapshot.py` | OPS | P1 | no | 2026-01-09 | 2026-01-09 | scripts=1 ssot=3 | `scripts/ops/ops_cli.py:1065` |
+| `scripts/ops/workspace_snapshot.py` | OPS | P1 | no | 2026-01-09 | 2026-01-09 | scripts=1 ssot=3 | `scripts/ops/ops_cli.py:1066` |
 | `scripts/ops/yt_dlp_benchmark_analyze.py` | OPS | P1 | yes | 2025-12-29 | 2025-12-29 | apps=1 scripts=6 ssot=5 other=1 | `apps/ui-frontend/src/pages/BenchmarksPage.tsx:1424` |
 | `scripts/ops/yt_dlp_thumbnail_analyze.py` | OPS | P1 | no | 2025-12-29 | 2025-12-29 | apps=1 scripts=4 | `apps/ui-frontend/src/pages/BenchmarksPage.tsx:1325` |
 | `scripts/prompt_audit.py` | OPS | P1 | yes | 2025-12-10 | 2025-12-26 | apps=2 ssot=2 | `apps/ui-backend/tools/start_manager.py:582` |
@@ -143,14 +144,14 @@ ref の見方:
 | `scripts/sync_all_scripts.py` | MISC | P1 | yes | 2025-12-10 | 2025-12-27 | scripts=2 ssot=2 | `scripts/start_all.sh:169` |
 | `scripts/sync_audio_prep_to_final.py` | AUDIO | P1 | yes | 2025-12-13 | 2025-12-18 | scripts=2 ssot=4 | `scripts/sync_audio_prep_to_final.py:15` |
 | `scripts/sync_thumbnail_inventory.py` | THUMB | P0 | yes | 2025-12-10 | 2025-12-18 | apps=2 scripts=1 ssot=1 | `apps/ui-backend/tools/start_manager.py:616` |
-| `scripts/think.sh` | MISC | P1 | yes | 2025-12-13 | 2026-01-08 | apps=1 packages=2 scripts=5 ssot=10 | `apps/ui-frontend/src/pages/ChannelModelPolicyPage.tsx:1606` |
-| `scripts/thumbnails/build.py` | MISC | P0 | yes | 2025-12-26 | 2026-01-08 | apps=1 packages=2 scripts=3 ssot=20 other=5 | `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx:6000` |
+| `scripts/think.sh` | MISC | P1 | yes | 2025-12-13 | 2026-01-08 | apps=1 packages=2 scripts=5 ssot=10 | `apps/ui-frontend/src/pages/ChannelModelPolicyPage.tsx:1651` |
+| `scripts/thumbnails/build.py` | MISC | P0 | yes | 2025-12-26 | 2026-01-08 | apps=1 packages=2 scripts=4 ssot=20 other=5 | `apps/ui-frontend/src/components/ThumbnailWorkspace.tsx:6000` |
 | `scripts/thumbnails/ch26_make_two_variants.py` | MISC | P1 | no | 2025-12-29 | 2025-12-30 | ssot=4 | `ssot/plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md:16` |
 | `scripts/validate_status_sweep.py` | MISC | P1 | yes | 2025-12-10 | 2025-12-27 | apps=2 ssot=2 | `apps/ui-backend/tools/start_manager.py:572` |
 | `scripts/verify_srt_sync.py` | AUDIO | P1 | yes | 2025-12-10 | 2025-12-18 | scripts=2 ssot=2 | `scripts/check_all_srt.sh:34` |
-| `scripts/vision/vision_pack.py` | MISC | P1 | no | 2026-01-08 | 2026-01-08 | scripts=3 ssot=6 | `scripts/ops/ops_cli.py:1009` |
+| `scripts/vision/vision_pack.py` | MISC | P1 | no | 2026-01-08 | 2026-01-08 | scripts=3 ssot=6 | `scripts/ops/ops_cli.py:1010` |
 | `scripts/with_agent_mode.sh` | COORD | P1 | yes | 2025-12-13 | 2026-01-06 | scripts=3 ssot=1 | `scripts/with_agent_mode.sh:3` |
-| `scripts/with_ytm_env.sh` | MISC | P0 | yes | 2025-12-10 | 2026-01-08 | apps=1 packages=3 scripts=17 ssot=156 other=4 | `apps/remotion/REMOTION_PLAN.md:15` |
+| `scripts/with_ytm_env.sh` | MISC | P0 | yes | 2025-12-10 | 2026-01-09 | apps=1 packages=3 scripts=17 ssot=155 other=4 | `apps/remotion/REMOTION_PLAN.md:15` |
 | `scripts/youtube_publisher/README.md` | PUBLISH | P1 | yes | 2025-12-10 | 2025-12-17 | ssot=1 README=1 | `README.md:69` |
 | `scripts/youtube_publisher/oauth_setup.py` | PUBLISH | P1 | yes | 2025-12-10 | 2025-12-17 | apps=1 scripts=1 ssot=1 README=1 | `apps/ui-backend/backend/app/publish_sheet_client.py:122` |
 | `scripts/youtube_publisher/publish_from_sheet.py` | PUBLISH | P0 | yes | 2025-12-10 | 2026-01-03 | packages=2 scripts=3 ssot=9 README=1 | `packages/factory_common/ssot_catalog.py:3023` |

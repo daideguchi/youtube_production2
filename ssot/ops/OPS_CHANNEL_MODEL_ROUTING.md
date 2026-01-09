@@ -239,6 +239,9 @@ SoT（正本）:
 - CLI（read-only / 時点スナップショット）:
   - `./ops snapshot model-policy`（CH×サムネ/台本/動画内画像の「3点コード」+ 実モデルを1表で出す）
   - `./ops snapshot model-policy --write-report`（`workspaces/logs/regression/model_policy_snapshot/` に timestamp 付きで保存）
+    - `thumb_engine` はサムネの合成エンジン（`layer_specs_v3` / `buddha_3line_v1`）の目安
+    - `thumb_code=local` は「templates 未設定だが stylepack はある（= AI背景生成のモデルは未設定 / ローカル合成のみ）」の意味
+    - `policy_code` の `unset` は「その要素が未設定（SoT不足）」の意味（迷子防止の明示）
     - `video_src=tier_default` は「channel preset 未設定なので tier default（通常 g-1）」の意味
 - 編集: UI `/image-model-routing`（画像） / SSOT（台本LLM・スロット）
 - 生成チェック: `python3 scripts/ops/build_ssot_catalog.py --check`
