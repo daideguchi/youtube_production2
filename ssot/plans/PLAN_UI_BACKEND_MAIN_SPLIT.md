@@ -54,6 +54,7 @@
 | 2 | 影響が小さい1ドメイン（例: `/api/llm-usage`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 2b | 影響が小さい1ドメイン（例: `/api/remotion/restart_preview`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 2c | 影響が小さい1ドメイン（例: `/api/workspaces/video/input/{run_id}/{asset_path}`）を router に移設し、`include_router` へ接続 | dd | - | Done |
+| 2d | 影響が小さい1ドメイン（例: `/api/audio-tts/health`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
