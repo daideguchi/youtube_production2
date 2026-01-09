@@ -50,9 +50,14 @@ python -m scripts.cleanup_workspace --scripts --run --scripts-keep-days 14
 
 ### 4.3 月次（video runs の整理）
 ```bash
-python -m scripts.cleanup_workspace --video-runs --dry-run
+# 全チャンネル対象（推奨: まず dry-run）
+python -m scripts.cleanup_workspace --video-runs --dry-run --all
+
+# チャンネル指定で絞る（例）
+python -m scripts.cleanup_workspace --video-runs --dry-run --channel CH04 --channel CH23
+
 # 運用の合意が取れてから:
-python -m scripts.cleanup_workspace --video-runs --run --yes
+python -m scripts.cleanup_workspace --video-runs --run --all --yes
 ```
 
 ## 5. 計測（肥大化の可視化）
@@ -74,6 +79,10 @@ du -sh workspaces/audio workspaces/video workspaces/scripts workspaces/logs 2>/d
 - `workspaces/logs`: 約 337M
 - `workspaces/_scratch`: 約 238M
 - `workspaces/tmp`: 約 44M
+
+注:
+- `./ops snapshot workspace --write-report` の出力に `report=...json` が出るので、数値は常にその時点の観測を正とする。
+- 環境によっては `workspaces/video` / `workspaces/scripts` が 0B のこともある（別worktree/別ディスクを使っている等）。
 
 優先順位（迷わない順）:
 1) **キャッシュ/ログ（低リスク）**: `bash scripts/ops/cleanup_caches.sh` / `python -m scripts.cleanup_workspace --logs --dry-run` → `--run`
