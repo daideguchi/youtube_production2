@@ -48,6 +48,17 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 - チャンネルごとに台本モデルを切り替える運用は **基本しない**（ブレ防止）。
 - 台本の固定は `configs/llm_task_overrides.yaml` / 数字スロットで統制する（モデル名/YAML書き換え運用をしない）。
 
+### 0.4 ルーティング優先順位（固定・迷わない）
+
+通常運用（`YTM_ROUTING_LOCKDOWN=1`）の優先順位は **この順**:
+
+1. `configs/llm_task_overrides.yaml` の `tasks.<task>.models`（pin: 台本/一部タスク）
+2. `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml` の tier→model code）
+3. `configs/llm_router.yaml` の `tiers`（最後のデフォルト）
+
+例外（debug/incident のみ）:
+- `LLM_FORCE_MODELS` / `LLM_FORCE_TASK_MODELS_JSON` などの “直接上書き” は通常運用では禁止（`YTM_EMERGENCY_OVERRIDE=1` の時だけ）。
+
 注:
 
 - 画像は `IMAGE_CLIENT_FORCE_MODEL_KEY_*` による **実行時 override** があるため、UIでは `effective` と `config` を併記する。

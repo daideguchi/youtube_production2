@@ -60,19 +60,22 @@
 
 ### 2.1 テキストLLM（台本/読み/補助）
 - `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（原則）。
-  - 現行（Fireworks(text) 停止中）: `open-kimi-thinking-1`（OpenRouter / Kimi K2 Thinking）
-  - 参考（復旧/比較用; いまは使わない）: `fw-d-1`, `fw-g-1`, `fw-m-1`（Fireworks）
-  - 切替レバー: `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）のみ（`YTM_SCRIPT_ALLOW_OPENROUTER` はロックダウンONでは禁止）
+  - 既定: `script-main-1`（Fireworks / DeepSeek V3.2 exp + thinking）
+  - fallback（`allow_fallback=true` の task のみ）: `script-fallback-glm-1`, `script-fallback-kimi-1`, `script-fallback-mixtral-1`
+  - 重要: 台本系のモデル指定は `configs/llm_task_overrides.yaml` の `models` が正（slot は未指定の task/tier のみに適用）
 
-#### 2.1.1 Decision（2026-01-06）: Fireworks(text) を停止し、台本系は OpenRouter 固定
+#### 2.1.1 Decision（2026-01-09）: 台本は Fireworks DeepSeek V3.2 exp(thinking) を既定に戻す（固定ロジック）
 対象（正本）:
 - `configs/llm_router.yaml`
 - `configs/llm_task_overrides.yaml`
 
 結論:
-- 現運用は **Fireworks(text) を使わない**（412/suspended 対策）。
-- `script_pipeline`（台本）の **“本文執筆/品質審査/字数救済/最終磨き込み”** は `open-kimi-thinking-1` に固定する。
-- 切替は `configs/llm_model_slots.yaml: slots.0.script_tiers` を更新して行う（モデル名直書き/散発上書きは禁止）。
+- 台本（`script_*`）は `configs/llm_task_overrides.yaml` の `models` を正として `script-main-1` を使う（provider=Fireworks）。
+- thinking は `configs/llm_task_overrides.yaml: options.extra_body.reasoning` を正として固定する（本文に混入させない）。
+- OpenRouter を台本へ流すのは incident/debug のみ（通常運用では禁止。必要なら SSOT に沿って手順化する）。
+
+#### 2.1.2 Legacy（2026-01-06）: Fireworks(text) を停止し、台本系は OpenRouter 固定（当時の判断）
+※ 2026-01-09 の Decision で方針を更新済み。履歴として残す。
 
 理由（品質×コスト）:
 - 執筆は thinking 必須（指示）。モデルチェーンを増やすと「文体ぶれ/契約ぶれ/収束不安定」を増やし、結果的にコストが上がる。

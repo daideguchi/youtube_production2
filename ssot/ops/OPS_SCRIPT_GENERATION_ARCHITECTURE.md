@@ -177,13 +177,19 @@ SSOT配置（正本）:
 
 モデル方針（本文/台本）:
 - **既定は slot 0**（`configs/llm_model_slots.yaml`）。
-  - `script_*` は slot の `script_tiers` に従う（現行: OpenRouter `open-kimi-thinking-1`）。
-  - “モデル名を書き換えない” ため、運用の切替は `--llm-slot <N>` / `LLM_MODEL_SLOT=<N>` だけで行う。
-- **Fireworks（text/台本） は通常運用で無効**（412/課金事故防止・メモキー誤投入防止）。
-  - ガード: `YTM_DISABLE_FIREWORKS_TEXT=1`（`scripts/with_ytm_env.sh` 既定 / ルーター側でも除外）
-  - 例外（デバッグのみ）: `YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=0` のうえで `--llm-slot 3/4/5` 等を選ぶ
-  - `script_*` は API 停止時に **即停止**（THINK フォールバックしない）
-- Fireworks script keyring（`FIREWORKS_SCRIPT*` / `FIREWORKS_SCRIPT_KEYS_*`）は **現行運用では使わない**（pool は空/隔離済み）。
+  - 非台本の一般タスクは slot の `tiers` に従う（運用の切替は `--llm-slot <N>` / `LLM_MODEL_SLOT=<N>`）。
+  - **台本（`script_*`）は slot ではなく task override を正にする**（次項）。
+
+- **台本（`script_*`）は `configs/llm_task_overrides.yaml` の `models` を正として固定**（=モデル名直書き運用を撲滅）。
+  - 既定: `script-main-1`（Fireworks / DeepSeek v3.2 exp）
+  - thinking 固定: `options.extra_body.reasoning.enabled=true` + `exclude=true`（本文に混入させない）
+  - fallback は `allow_fallback=true` の task のみ（例: `script_semantic_alignment_fix` / `script_a_text_quality_fix` など）
+  - 重要: `models` を指定した task は **slot より優先**（slot は未pin の task/tier のみに適用）
+
+- Fireworks（text/台本）運用:
+  - 既定で有効（必要キー: `.env` の `FIREWORKS_SCRIPT`。gitには絶対に入れない）
+  - 止血スイッチ: `YTM_DISABLE_FIREWORKS_TEXT=1`（Fireworksを完全無効化。incident時のみ）
+  - `script_*` は API 停止時に **即停止**（THINK フォールバックしない / “勝手に別モデルへ逃げない”）
 
 観測（比較で迷わない）:
 - 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。
