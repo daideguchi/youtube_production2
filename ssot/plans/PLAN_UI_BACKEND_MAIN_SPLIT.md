@@ -11,7 +11,7 @@
   - `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
   - `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`
   - `packages/factory_common/paths.py`（パスSSOT）
-- **最終更新日**: 2026-01-08
+- **最終更新日**: 2026-01-09
 
 ## 1. 背景と目的
 - `apps/ui-backend/backend/main.py` が肥大化し、変更差分のレビュー/探索/衝突（並列運用）が起きやすい。
@@ -55,6 +55,7 @@
 | 2b | 影響が小さい1ドメイン（例: `/api/remotion/restart_preview`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 2c | 影響が小さい1ドメイン（例: `/api/workspaces/video/input/{run_id}/{asset_path}`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 2d | 影響が小さい1ドメイン（例: `/api/audio-tts/health`）を router に移設し、`include_router` へ接続 | dd | - | Done |
+| 2e | channel_info の読み込み/キャッシュ（+ D-012 stats マージ）を `app/` に切り出し、`main.py` は import 利用へ | dd | - | Done（2026-01-09） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
