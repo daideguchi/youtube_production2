@@ -74,7 +74,7 @@ ref の見方:
 | `scripts/ops/archive_capcut_local_drafts.py` | OPS | P1 | yes | 2025-12-18 | 2025-12-26 | ssot=4 other=1 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:300` |
 | `scripts/ops/archive_published_episodes.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | ssot=4 | `ssot/ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md:12` |
 | `scripts/ops/archive_thumbnails_legacy_channel_dirs.py` | OPS | P1 | yes | 2025-12-18 | 2025-12-18 | ssot=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:301` |
-| `scripts/ops/build_ssot_catalog.py` | OPS | P1 | no | 2026-01-01 | 2026-01-01 | scripts=6 ssot=3 | `scripts/ops/build_ssot_catalog.py:6` |
+| `scripts/ops/build_ssot_catalog.py` | OPS | P1 | no | 2026-01-01 | 2026-01-09 | scripts=6 ssot=4 | `scripts/ops/build_ssot_catalog.py:6` |
 | `scripts/ops/channel_info_normalize.py` | OPS | P1 | yes | 2025-12-26 | 2025-12-27 | ssot=9 | `ssot/ops/OPS_CHANNEL_BENCHMARKS.md:97` |
 | `scripts/ops/cleanup_broken_symlinks.py` | OPS | P1 | yes | 2025-12-18 | 2025-12-23 | ssot=5 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:296` |
 | `scripts/ops/cleanup_caches.sh` | OPS | P1 | yes | 2025-12-13 | 2025-12-13 | scripts=2 ssot=5 | `scripts/ops/ops_cli.py:1041` |
@@ -90,7 +90,8 @@ ref の見方:
 | `scripts/ops/git_write_lock.py` | OPS | P1 | no | 2025-12-29 | 2026-01-08 | scripts=9 ssot=13 | `scripts/ops/git_write_lock.py:19` |
 | `scripts/ops/idea.py` | OPS | P1 | yes | 2025-12-31 | 2025-12-31 | packages=2 scripts=10 ssot=18 other=1 | `packages/factory_common/ssot_catalog.py:3392` |
 | `scripts/ops/init_workspaces.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | scripts=2 ssot=1 | `scripts/ops/init_workspaces.py:11` |
-| `scripts/ops/lint_llm_router_config.py` | OPS | P1 | no | 2026-01-09 | 2026-01-09 | scripts=1 | `scripts/ops/pre_push_final_check.py:71` |
+| `scripts/ops/lint_llm_config.py` | OPS | P1 | no | 2025-12-28 | 2026-01-09 | scripts=1 ssot=2 | `scripts/ops/lint_llm_config.py:6` |
+| `scripts/ops/lint_llm_router_config.py` | OPS | P1 | no | 2026-01-09 | 2026-01-09 | scripts=3 ssot=2 | `scripts/ops/lint_llm_config.py:10` |
 | `scripts/ops/llm_hardcode_audit.py` | OPS | P1 | no | 2025-12-30 | 2025-12-30 | scripts=1 | `scripts/ops/pre_push_final_check.py:68` |
 | `scripts/ops/llm_usage_report.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | ssot=2 | `ssot/ops/OPS_ENV_VARS.md:135` |
 | `scripts/ops/logs_snapshot.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-18 | scripts=1 ssot=5 | `scripts/ops/ops_cli.py:1068` |
@@ -105,7 +106,7 @@ ref の見方:
 | `scripts/ops/planning_patch_gen.py` | OPS | P1 | yes | 2025-12-28 | 2025-12-28 | ssot=3 other=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:138` |
 | `scripts/ops/planning_realign_to_title.py` | OPS | P1 | yes | 2025-12-25 | 2025-12-29 | scripts=3 ssot=5 | `scripts/ops/planning_realign_to_title.py:31` |
 | `scripts/ops/planning_sanitize.py` | OPS | P0 | yes | 2025-12-22 | 2025-12-27 | scripts=5 ssot=6 | `scripts/ops/ops_cli.py:917` |
-| `scripts/ops/pre_push_final_check.py` | OPS | P1 | no | 2025-12-29 | 2026-01-09 | apps=2 scripts=4 ssot=8 | `apps/ui-backend/backend/README.md:19` |
+| `scripts/ops/pre_push_final_check.py` | OPS | P1 | no | 2025-12-29 | 2026-01-09 | apps=2 scripts=4 ssot=9 | `apps/ui-backend/backend/README.md:19` |
 | `scripts/ops/preproduction_audit.py` | OPS | P1 | yes | 2025-12-28 | 2025-12-28 | scripts=15 ssot=11 other=1 | `scripts/ops/preproduction_audit.py:11` |
 | `scripts/ops/preproduction_issue_catalog.py` | OPS | P1 | yes | 2025-12-28 | 2026-01-03 | ssot=1 other=1 | `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md:138` |
 | `scripts/ops/production_pack.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-28 | scripts=8 ssot=10 other=3 | `scripts/ops/preproduction_issue_catalog.py:64` |
