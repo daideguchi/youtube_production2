@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1020" />
+    <title>SSOT Guide</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./vendor/marked.min.js"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app guide">
+      <header class="header guide-header">
+        <div class="guide-header__left">
+          <button id="navToggle" class="btn btn--ghost guide-header__menu" type="button" aria-label="メニューを開閉">☰</button>
+          <div>
+            <h1>SSOT Guide</h1>
+            <p class="muted">SSOT/運用/全体像をスマホで読む（静的 / read-only）</p>
+          </div>
+        </div>
+        <div class="header__right">
+          <a class="btn btn--ghost" href="../">Script Viewer</a>
+          <a class="btn btn--ghost" href="../snapshot/">Snapshot</a>
+          <button id="reloadDoc" class="btn btn--ghost" type="button">再読み込み</button>
+        </div>
+      </header>
+
+      <div class="guide-layout">
+        <aside id="nav" class="guide-nav" aria-label="SSOT ナビゲーション">
+          <div class="guide-nav__search">
+            <input id="navSearch" class="control__input" placeholder="Search (例: entrypoints / model / CH01)" />
+          </div>
+          <div id="navList" class="guide-nav__list"></div>
+        </aside>
+
+        <div id="navOverlay" class="guide-overlay" hidden></div>
+
+        <main class="guide-main">
+          <section id="portal" class="guide-portal">
+            <div class="guide-portal__box">
+              <div class="guide-portal__title">最初の1分（迷ったらここだけ）</div>
+              <ol class="guide-portal__steps">
+                <li>まず `START_HERE.md` を読む（全体像/入口）。</li>
+                <li>次に `ssot/DECISIONS.md`（意思決定台帳）で “今の正解” を確認。</li>
+                <li>困ったら `ssot/DOCS_INDEX.md` から目的の正本へ飛ぶ。</li>
+              </ol>
+            </div>
+
+            <div class="guide-cards" aria-label="主要ショートカット">
+              <button class="guide-card guide-card--primary" type="button" data-doc="START_HERE.md">
+                <div class="guide-card__title">START_HERE</div>
+                <div class="guide-card__desc">入口（最優先）</div>
+                <div class="guide-card__meta mono">START_HERE.md</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="ssot/DECISIONS.md">
+                <div class="guide-card__title">DECISIONS</div>
+                <div class="guide-card__desc">意思決定台帳（SSOTトップ）</div>
+                <div class="guide-card__meta mono">ssot/DECISIONS.md</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md">
+                <div class="guide-card__title">Pipeline Flow</div>
+                <div class="guide-card__desc">確定フロー（正本）</div>
+                <div class="guide-card__meta mono">OPS_CONFIRMED_PIPELINE_FLOW.md</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_ENTRYPOINTS_INDEX.md">
+                <div class="guide-card__title">Entrypoints</div>
+                <div class="guide-card__desc">CLI/API/入口索引</div>
+                <div class="guide-card__meta mono">OPS_ENTRYPOINTS_INDEX.md</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_LOGGING_MAP.md">
+                <div class="guide-card__title">Logging Map</div>
+                <div class="guide-card__desc">ログ配置/証跡（正本）</div>
+                <div class="guide-card__meta mono">OPS_LOGGING_MAP.md</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md">
+                <div class="guide-card__title">Model Routing</div>
+                <div class="guide-card__desc">チャンネル→処理→モデル</div>
+                <div class="guide-card__meta mono">OPS_CHANNEL_MODEL_ROUTING.md</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="packages/script_pipeline/channels/CH01-人生の道標/script_prompt.txt">
+                <div class="guide-card__title">CH01 Prompt</div>
+                <div class="guide-card__desc">人生の道標（固定プロンプト）</div>
+                <div class="guide-card__meta mono">script_prompt.txt</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="ssot/DOCS_INDEX.md">
+                <div class="guide-card__title">Docs Index</div>
+                <div class="guide-card__desc">SSOTドキュメント索引</div>
+                <div class="guide-card__meta mono">ssot/DOCS_INDEX.md</div>
+              </button>
+            </div>
+          </section>
+
+          <section id="docPane" class="guide-doc" hidden>
+            <div class="guide-doc__meta">
+              <div class="guide-doc__title" id="docTitle">—</div>
+              <div class="guide-doc__sub">
+                <code id="docPath">—</code>
+                <span class="muted" id="docStatus"></span>
+              </div>
+              <div class="guide-doc__actions">
+                <a id="openRaw" class="btn btn--ghost" target="_blank" rel="noreferrer">raw</a>
+                <a id="openGitHub" class="btn btn--ghost" target="_blank" rel="noreferrer">GitHub</a>
+                <button id="copyLink" class="btn btn--ghost" type="button">リンクをコピー</button>
+                <button id="backToPortal" class="btn btn--ghost" type="button">ポータルへ戻る</button>
+              </div>
+            </div>
+
+            <details id="tocDetails" class="guide-toc-details" open>
+              <summary>目次</summary>
+              <div id="tocInline" class="guide-toc"></div>
+            </details>
+
+            <article id="docBody" class="guide-markdown"></article>
+          </section>
+        </main>
+      </div>
+
+      <footer class="footer muted">
+        <span id="footerMeta">—</span>
+      </footer>
+    </div>
+  </body>
+</html>

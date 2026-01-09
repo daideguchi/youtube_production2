@@ -59,6 +59,14 @@ body {
   font-size: 12px;
 }
 
+.header__right {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .controls {
   display: grid;
   grid-template-columns: minmax(240px, 360px) minmax(140px, 200px) 1fr;
@@ -252,7 +260,22 @@ body {
 }
 
 @media (max-width: 860px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header__right {
+    justify-content: flex-start;
+  }
+
   .controls {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .control__input {
+    font-size: 16px; /* iOS zoom prevention */
   }
 }

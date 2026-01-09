@@ -64,6 +64,9 @@ def main(argv: list[str] | None = None) -> int:
     flow_doc = REPO_ROOT / "ssot" / "ops" / "OPS_CONFIRMED_PIPELINE_FLOW.md"
     rc = max(rc, _assert_not_contains(flow_doc, "redoフラグは Planning CSV"))
 
+    # Channel prompt integrity (SSOT vs UI/legacy copies).
+    rc = max(rc, _run([sys.executable, "scripts/ops/script_prompt_integrity_audit.py", "--all", "--label", "pre_push"]))
+
     # LLM hardcode guard (prevent direct provider calls outside LLMRouter/ImageClient).
     rc = max(rc, _run([sys.executable, "scripts/ops/llm_hardcode_audit.py"]))
 
