@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -74,6 +75,61 @@ def _slack_api_get(token: str, endpoint: str, params: Dict[str, Any]) -> Dict[st
     return obj if isinstance(obj, dict) else {}
 
 
+_SLACK_CONVERSATION_ID_RE = re.compile(r"^[CDG][A-Z0-9]{8,}$")
+
+
+def _looks_like_conversation_id(value: str) -> bool:
+    return bool(_SLACK_CONVERSATION_ID_RE.match((value or "").strip()))
+
+
+def _resolve_channel_id(token: str, channel: str) -> str:
+    """
+    Resolve env-friendly channel spec to Slack conversation id.
+
+    - If a conversation id (C*/D*/G*) is provided, return as-is.
+    - Otherwise treat it as a channel name (#name or name) and look it up via conversations.list.
+    """
+
+    raw = str(channel or "").strip()
+    if not raw:
+        return raw
+    if _looks_like_conversation_id(raw):
+        return raw
+
+    name = raw[1:] if raw.startswith("#") else raw
+    name_norm = name.lower()
+    cursor = ""
+    for _ in range(20):
+        data = _slack_api_get(
+            token,
+            "https://slack.com/api/conversations.list",
+            {
+                "limit": 200,
+                "cursor": cursor or None,
+                "types": "public_channel,private_channel,im,mpim",
+                "exclude_archived": "true",
+            },
+        )
+        chans = data.get("channels") if isinstance(data, dict) else None
+        channels = chans if isinstance(chans, list) else []
+        for ch in channels:
+            if not isinstance(ch, dict):
+                continue
+            ch_id = str(ch.get("id") or "").strip()
+            ch_name = str(ch.get("name") or "").strip()
+            if ch_id and ch_id == raw:
+                return raw
+            if ch_id and ch_name and ch_name.lower() == name_norm:
+                return ch_id
+
+        meta = data.get("response_metadata") if isinstance(data, dict) else None
+        cursor = str((meta or {}).get("next_cursor") or "").strip() if isinstance(meta, dict) else ""
+        if not cursor:
+            break
+
+    return raw
+
+
 def _post_chat_post_message(
     token: str,
     channel: str,
@@ -82,7 +138,8 @@ def _post_chat_post_message(
     thread_ts: str | None = None,
 ) -> Dict[str, Any]:
     api = "https://slack.com/api/chat.postMessage"
-    payload: Dict[str, Any] = {"channel": channel, "text": text}
+    channel_id = _resolve_channel_id(token, channel)
+    payload: Dict[str, Any] = {"channel": channel_id, "text": text}
     if thread_ts:
         payload["thread_ts"] = thread_ts
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -116,10 +173,18 @@ def _queue_dir() -> Optional[Path]:
         return None
 
 
-def _memo_id_for_slack_reply(channel: str, thread_ts: str, msg_ts: str) -> str:
-    compact = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+def _slack_reply_memo_suffix(channel: str, thread_ts: str, msg_ts: str) -> str:
     key = f"slack:{channel}:{thread_ts}:{msg_ts}"
-    suffix = hashlib.sha256(key.encode("utf-8")).hexdigest()[:10]
+    return hashlib.sha256(key.encode("utf-8")).hexdigest()[:10]
+
+
+def _memo_id_for_slack_reply(channel: str, thread_ts: str, msg_ts: str) -> str:
+    # Use the Slack message timestamp for stable id/dedup across polls.
+    suffix = _slack_reply_memo_suffix(channel, thread_ts, msg_ts)
+    try:
+        compact = datetime.fromtimestamp(float(msg_ts), tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    except Exception:
+        compact = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     return f"memo__{compact}__slack__{suffix}"
 
 
@@ -133,6 +198,13 @@ def _write_slack_reply_memo(*, channel: str, thread_ts: str, msg: Dict[str, Any]
     msg_ts = str(msg.get("ts") or "").strip()
     if not msg_ts:
         return None
+
+    # Stable dedupe: avoid writing duplicates when polling multiple times.
+    suffix = _slack_reply_memo_suffix(channel, thread_ts, msg_ts)
+    existing = sorted(memos_dir.glob(f"memo__*__slack__{suffix}.json"))
+    if existing:
+        return existing[0]
+
     memo_id = _memo_id_for_slack_reply(channel, thread_ts, msg_ts)
     path = memos_dir / f"{memo_id}.json"
     if path.exists():
@@ -335,12 +407,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     if poll_thread:
         if not (token and channel):
             return 0
+        channel_id = _resolve_channel_id(token, channel)
         try:
             data = _slack_api_get(
                 token,
                 "https://slack.com/api/conversations.replies",
                 {
-                    "channel": channel,
+                    "channel": channel_id,
                     "ts": poll_thread,
                     "limit": max(1, int(args.poll_limit or 200)),
                     "oldest": (str(args.poll_oldest or "").strip() or None),
@@ -356,7 +429,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         replies = [m for m in messages if isinstance(m, dict) and str(m.get("ts") or "") != poll_thread]
         out = {
             "ok": True,
-            "channel": channel,
+            "channel": channel_id,
             "thread_ts": poll_thread,
             "fetched_at": _now_iso_utc(),
             "reply_count": len(replies),
@@ -365,7 +438,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         if args.poll_write_memos:
             memo_paths: list[str] = []
             for msg in replies:
-                p = _write_slack_reply_memo(channel=channel, thread_ts=poll_thread, msg=msg)
+                p = _write_slack_reply_memo(channel=channel_id, thread_ts=poll_thread, msg=msg)
                 if p:
                     try:
                         memo_paths.append(str(p.resolve().relative_to(PROJECT_ROOT)))
