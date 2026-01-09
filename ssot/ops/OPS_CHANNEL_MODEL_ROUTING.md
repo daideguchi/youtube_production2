@@ -26,6 +26,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 - CH02 を「サムネ=Gemini / 台本=共通 / 動画内画像=Flux schnell」で回す（例）: `g-1_script-main-1_f-1`
 - THINK MODE で回す（例）: `g-1_script-main-1_f-1@x3`
   - 意味: `LLM_EXEC_SLOT=3`（`configs/llm_exec_slots.yaml`）
+  - 注: `script_*` は THINK/AGENT では実行しない（固定ルール）。台本は `@x0` で実行する。
 
 ### 0.1 コード早見表（画像）
 
@@ -41,7 +42,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 | `@xN` | 意味 |
 |---|---|
 | `@x0` | 通常（LLM API） |
-| `@x3` | THINK（エージェントが代行 / pending） |
+| `@x3` | THINK（非台本タスクのみエージェントが代行 / pending。`script_*` は停止） |
 
 ### 0.3 台本（`script_*`）は基本 “共通” です
 

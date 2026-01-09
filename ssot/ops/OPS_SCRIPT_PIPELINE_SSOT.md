@@ -243,6 +243,7 @@ flowchart LR
 - 自動検出: `packages/script_pipeline/validator.py` は **行全体が** `姓名、年齢(歳/才)。` の形（例: `田村幸子、六十七歳。`）を `ch01_fictional_person_intro` としてエラー扱いにする。  
   - `ブッダが29歳のとき…` のような **文中の年齢言及**は対象外（通常の日本語の文として書く）。
 - 台本パイプライン（`script_*`）は **Codex exec を使わない**（本文/非本文を問わず）。`configs/codex_exec.yaml` で `script_*` を除外し、文体ドリフトを防ぐ。
+  - 注: `LLM_EXEC_SLOT=3/4`（THINK/AGENT）では `script_*` は停止する（台本は `--exec-slot 0` で実行）。
 
 ルール:
 - 補助がタイトルと食い違っている/内容汚染が疑われる場合は、**タイトルを正として補助を無視**する（ズレ事故を安く止める）。
