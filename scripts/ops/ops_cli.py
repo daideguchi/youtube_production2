@@ -718,6 +718,7 @@ def _print_list() -> None:
     print("    ./ops cleanup caches")
     print("    ./ops snapshot workspace --write-report")
     print("    ./ops snapshot logs")
+    print("    ./ops snapshot model-policy --write-report")
     print("")
     print("  Agent queue helpers:")
     print("    ./ops agent list|show|prompt|chat|bundle|claim|complete ...")
@@ -1066,6 +1067,9 @@ def cmd_snapshot(args: argparse.Namespace) -> int:
         return _run(inner)
     if action == "logs":
         inner = ["python3", "scripts/ops/logs_snapshot.py", *forwarded]
+        return _run(inner)
+    if action == "model-policy":
+        inner = ["python3", "scripts/ops/model_policy_snapshot.py", *forwarded]
         return _run(inner)
     print(f"unknown snapshot action: {action}", file=sys.stderr)
     return 2
@@ -1786,7 +1790,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_cleanup)
 
     sp = sub.add_parser("snapshot", help="snapshot helpers (safe; read-only)")
-    sp.add_argument("action", choices=["workspace", "logs"], help="snapshot operation")
+    sp.add_argument("action", choices=["workspace", "logs", "model-policy"], help="snapshot operation")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying snapshot tool")
     sp.set_defaults(func=cmd_snapshot)
 
