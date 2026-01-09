@@ -347,10 +347,24 @@ def maybe_handle_agent_mode(
     - Return cached results when present
     - Otherwise, enqueue a pending task and stop the process (SystemExit)
     """
+    t = str(task or "").strip()
+    mode = _llm_mode()
+    if t.startswith("script_") and mode in {"agent", "think"}:
+        raise SystemExit(
+            "\n".join(
+                [
+                    "[POLICY] script_* tasks must not run in THINK/AGENT mode.",
+                    f"- task: {t}",
+                    f"- mode: {mode}",
+                    "- rule: 台本は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。",
+                    "- action: rerun with exec-slot=0 (API)",
+                    "  - ./scripts/with_ytm_env.sh --exec-slot 0 ...",
+                ]
+            )
+        )
     if not agent_mode_enabled_for_task(task):
         return None
 
-    mode = _llm_mode()
     q = get_queue_dir()
     task_id = compute_task_id(task, messages, options)
     r_path = results_path(task_id, queue_dir=q)
