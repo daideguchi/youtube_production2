@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend import main
+from backend.app import channel_info_store
 from backend.main import app
 
 
@@ -55,10 +56,12 @@ def redo_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
     monkeypatch.setattr(main, "SCRIPT_PIPELINE_ROOT", script_pipeline_root)
+    monkeypatch.setattr(channel_info_store, "CHANNELS_DIR", channels_dir)
+    monkeypatch.setattr(channel_info_store, "CHANNEL_INFO_PATH", channels_dir / "channels_info.json")
+    monkeypatch.setattr(channel_info_store, "CHANNEL_INFO", {})
+    monkeypatch.setattr(channel_info_store, "CHANNEL_INFO_MTIME", 0.0)
     monkeypatch.setattr(main, "CHANNELS_DIR", channels_dir)
     monkeypatch.setattr(main, "CHANNEL_INFO_PATH", channels_dir / "channels_info.json")
-    monkeypatch.setattr(main, "CHANNEL_INFO", {})
-    monkeypatch.setattr(main, "CHANNEL_INFO_MTIME", 0.0)
     monkeypatch.setattr(main, "YOUTUBE_CLIENT", None)
 
     with TestClient(app) as client:
@@ -72,4 +75,3 @@ def test_redo_summary_uses_status_meta_and_published_lock(redo_test_env):
     assert response.status_code == 200
     payload = response.json()
     assert payload == [{"channel": "CH01", "redo_script": 0, "redo_audio": 1, "redo_both": 0}]
-

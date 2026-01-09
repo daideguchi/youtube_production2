@@ -13094,6 +13094,8 @@ def get_video_detail(channel: str, video: str):
         srt_exists=srt_exists,
         published_locked=published_locked,
     )
+    if status_missing and not published_locked:
+        status_value = "pending"
     script_validated = _stage_status_value(stages_meta.get("script_validation")) == "completed" or str(
         raw_status_value or ""
     ).strip().lower() == "script_validated"
