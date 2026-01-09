@@ -89,7 +89,6 @@ ref の見方:
 | `scripts/ops/fireworks_keyring.py` | OPS | P1 | no | 2026-01-02 | 2026-01-06 | packages=1 ssot=9 | `packages/factory_common/ssot_catalog.py:4701` |
 | `scripts/ops/git_write_lock.py` | OPS | P1 | no | 2025-12-29 | 2026-01-08 | scripts=9 ssot=13 | `scripts/ops/git_write_lock.py:19` |
 | `scripts/ops/idea.py` | OPS | P1 | yes | 2025-12-31 | 2025-12-31 | packages=2 scripts=10 ssot=18 other=1 | `packages/factory_common/ssot_catalog.py:3392` |
-| `scripts/ops/import_ch01_legacy_scripts.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | scripts=1 ssot=2 | `scripts/ops/import_ch01_legacy_scripts.py:13` |
 | `scripts/ops/init_workspaces.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | scripts=2 ssot=1 | `scripts/ops/init_workspaces.py:11` |
 | `scripts/ops/lint_llm_router_config.py` | OPS | P1 | no | 2026-01-09 | 2026-01-09 | scripts=1 | `scripts/ops/pre_push_final_check.py:71` |
 | `scripts/ops/llm_hardcode_audit.py` | OPS | P1 | no | 2025-12-30 | 2025-12-30 | scripts=1 | `scripts/ops/pre_push_final_check.py:68` |
@@ -116,14 +115,14 @@ ref の見方:
 | `scripts/ops/publish_lock_cli.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | ssot=2 | `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md:195` |
 | `scripts/ops/purge_legacy_agent_task_queues.py` | OPS | P1 | yes | 2025-12-18 | 2025-12-18 | ssot=3 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:301` |
 | `scripts/ops/render_remotion_batch.py` | OPS | P0 | yes | 2025-12-20 | 2025-12-27 | packages=2 ssot=5 | `packages/factory_common/ssot_catalog.py:3176` |
-| `scripts/ops/repo_ref_audit.py` | OPS | P1 | yes | 2025-12-26 | 2025-12-26 | scripts=4 ssot=4 | `scripts/ops/repo_ref_audit.py:11` |
+| `scripts/ops/repo_ref_audit.py` | OPS | P1 | yes | 2025-12-26 | 2026-01-09 | scripts=4 ssot=4 | `scripts/ops/repo_ref_audit.py:11` |
 | `scripts/ops/repo_sanity_audit.py` | OPS | P1 | yes | 2025-12-26 | 2026-01-09 | scripts=3 ssot=4 | `scripts/ops/pre_push_final_check.py:55` |
 | `scripts/ops/research_bundle.py` | OPS | P1 | no | 2025-12-31 | 2025-12-31 | ssot=2 | `ssot/ops/OPS_RESEARCH_BUNDLE.md:120` |
 | `scripts/ops/research_genre_index.py` | OPS | P1 | yes | 2025-12-27 | 2025-12-27 | scripts=5 ssot=5 other=15 | `scripts/ops/research_genre_index.py:17` |
 | `scripts/ops/restore_video_runs.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-26 | ssot=6 other=1 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:286` |
 | `scripts/ops/save_patch.sh` | OPS | P1 | yes | 2025-12-13 | 2025-12-31 | scripts=4 ssot=7 other=1 | `AGENTS.md:28` |
 | `scripts/ops/script_runbook.py` | OPS | P0 | yes | 2025-12-25 | 2026-01-06 | packages=3 scripts=9 ssot=71 | `packages/factory_common/ssot_catalog.py:1408` |
-| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | 2025-12-22 | 2025-12-27 | scripts=4 ssot=3 | `scripts/ops/ops_cli.py:1343` |
+| `scripts/ops/scripts_inventory.py` | OPS | P1 | yes | 2025-12-22 | 2026-01-09 | scripts=4 ssot=3 | `scripts/ops/ops_cli.py:1343` |
 | `scripts/ops/secret_guard.py` | OPS | P1 | yes | 2026-01-04 | 2026-01-04 | ssot=2 | `ssot/ops/OPS_ENTRYPOINTS_INDEX.md:312` |
 | `scripts/ops/slack_notify.py` | OPS | P1 | no | 2026-01-08 | 2026-01-08 | scripts=2 ssot=1 | `scripts/agent_runner.py:76` |
 | `scripts/ops/ssot_audit.py` | OPS | P1 | yes | 2025-12-17 | 2025-12-28 | scripts=3 ssot=6 | `scripts/ops/docs_inventory.py:10` |
@@ -137,7 +136,7 @@ ref の見方:
 | `scripts/remotion_export.py` | VIDEO | P1 | yes | 2025-12-13 | 2025-12-27 | apps=2 packages=3 ssot=1 | `apps/ui-frontend/src/components/RemotionWorkspace.tsx:1212` |
 | `scripts/repair_manager.py` | MISC | P1 | yes | 2025-12-10 | 2025-12-18 | packages=2 scripts=1 ssot=2 | `packages/audio_tts/docs/SRT_SYNC_PROTOCOL.md:36` |
 | `scripts/run_srt2images.sh` | AUDIO | P1 | yes | 2025-12-10 | 2025-12-26 | packages=3 ssot=1 | `packages/factory_common/ssot_catalog.py:2129` |
-| `scripts/sanitize_a_text.py` | SCRIPT | P1 | yes | 2025-12-17 | 2025-12-27 | packages=1 ssot=5 | `packages/script_pipeline/runner.py:8176` |
+| `scripts/sanitize_a_text.py` | SCRIPT | P1 | yes | 2025-12-17 | 2025-12-27 | packages=1 ssot=5 | `packages/script_pipeline/runner.py:8166` |
 | `scripts/start_all.sh` | MISC | P0 | yes | 2025-12-10 | 2025-12-28 | apps=3 scripts=1 ssot=8 other=1 | `apps/ui-backend/backend/__init__.py:5` |
 | `scripts/sync_all_scripts.py` | MISC | P1 | yes | 2025-12-10 | 2025-12-27 | scripts=2 ssot=2 | `scripts/start_all.sh:169` |
 | `scripts/sync_audio_prep_to_final.py` | AUDIO | P1 | yes | 2025-12-13 | 2025-12-18 | scripts=2 ssot=4 | `scripts/sync_audio_prep_to_final.py:15` |

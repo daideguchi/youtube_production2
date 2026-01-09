@@ -32,7 +32,7 @@
 | `scripts/ops/archive_thumbnails_legacy_channel_dirs.py` | “掃除ツール”として有用だが常用入口ではない | **ops/cleanup に残す**（危険度/手順をSSOT明記） |
 | `scripts/ops/prune_video_run_legacy_files.py` | 同上 | **ops/cleanup に残す** |
 | `scripts/ops/purge_legacy_agent_task_queues.py` | 同上 | **ops/cleanup に残す** |
-| `scripts/ops/import_ch01_legacy_scripts.py` | “一回きりの移行” に見える | **legacy候補**（archive→delete or `_adhoc`隔離） |
+| scripts/ops/import_ch01_legacy_scripts.py (deleted) | “一回きりの移行” に見える | ✅ 解消（2026-01-09）: archive-first→delete（graveyard: `backups/graveyard/20260109T000025Z__remove_import_ch01_legacy_scripts/`） |
 
 ---
 

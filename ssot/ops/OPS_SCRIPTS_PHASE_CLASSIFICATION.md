@@ -149,8 +149,6 @@ notes: <消し忘れ防止の一言>
 - CH01（人生の道標）執筆補助:
   - `python3 scripts/ch01/generate_prompt_input.py --video-id CH01-216`
   - `python3 scripts/ch01/check_script.py workspaces/scripts/CH01/216/content/assembled_human.md`
-- CH01（人生の道標）移行（legacy台本のtext-only import）:
-  - `python3 scripts/ops/import_ch01_legacy_scripts.py --help`
 - channel_info 正規化（benchmarks/説明文/voice_config の足場）:
   - `python3 scripts/ops/channel_info_normalize.py`（dry-run）
   - `python3 scripts/ops/channel_info_normalize.py --apply`

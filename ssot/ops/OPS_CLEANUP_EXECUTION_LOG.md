@@ -2340,3 +2340,47 @@ archive-first（repo, tracked）:
 
 削除（repo, tracked / worktree）:
 - `workspaces/scripts/CH16/012..030/content/assembled.md`（19ファイル）
+
+---
+
+## 2026-01-09
+
+### 1) CH01 legacy import script の整理（誤誘導ノイズ削減）
+
+意図:
+- `scripts/ops/import_ch01_legacy_scripts.py` は code refs=0 の “一回きり移行” で、SSOT導線に残ると誤誘導になるため撤去。
+- archive-first + SSOT記録で復元可能性を残す。
+
+archive-first（repo, tracked）:
+- `backups/graveyard/20260109T000025Z__remove_import_ch01_legacy_scripts/`（`manifest.tsv` あり）
+
+削除（repo, tracked）:
+- `scripts/ops/import_ch01_legacy_scripts.py`
+
+更新（SSOT）:
+- `ssot/ops/OPS_ZOMBIE_CODE_REGISTER.md`（解消として記録）
+- `ssot/ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`（該当入口を削除）
+- `ssot/ops/OPS_SCRIPTS_INVENTORY.md`（再生成: `python3 scripts/ops/scripts_inventory.py --write`）
+
+### 4) CH13-16 Tier0 ゴミ台本（assembled.md）の退避/削除（再生成前の止血）
+
+背景:
+- ユーザー指示: CH13-16 の低品質台本が大量に混入しており、**明らかな破綻/明らかな字数不足**は “台本量産ロジックで再生成” が必要。
+- 人が読む前に、破綻した `assembled.md` を worktree から除去して探索ノイズを消す（復元可能な形で退避）。
+
+判定基準（Tier0 / purge）:
+- `validate_a_text` の hard error（例: `markdown_heading`, `forbidden_statistics`, `forbidden_numbered_list` 等）
+- `too_many_quotes`
+- `length_too_short` かつ `char_count < 90% * target_min`（明らかな字数不足）
+
+証跡（一覧）:
+- `workspaces/logs/ops/ch13_16_quality_audit_20260108T225907Z/purge_list.md`（60本）
+
+archive-first（repo, tracked）:
+- `backups/graveyard/20260108T231510Z__purge_CH13-16_tier0_assembled_for_regen/`（退避コピー + `MANIFEST.json`）
+
+削除（repo, tracked / worktree）:
+- CH13: `workspaces/scripts/CH13/{009,019..030}/content/assembled.md`（13本）
+- CH14: `workspaces/scripts/CH14/{004..011,015..030}/content/assembled.md`（24本）
+- CH15: `workspaces/scripts/CH15/{009..019,022..030}/content/assembled.md`（20本）
+- CH16: `workspaces/scripts/CH16/{009..011}/content/assembled.md`（3本）
