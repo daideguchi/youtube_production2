@@ -99,10 +99,10 @@
 ### 3.1 Repo / 構造
 - `plans/PLAN_REPO_DIRECTORY_REFACTOR.md`: モノレポ全体のディレクトリ/生成物/レガシー再編計画。
 - `completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md` (Legacy/Reference): Stage1（物理移動なし）Path SSOT導入と置換順序の正本（完了済み）。
-- `plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`: レガシー隔離/確実ゴミ判定の正本。
+- `plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` (Draft): レガシー隔離/確実ゴミ判定の正本。
 
 ### 3.2 LLM / ルーティング
-- `plans/PLAN_LLM_PIPELINE_REFACTOR.md` (Active): 台本/TTS/画像のLLM呼び出し統合計画。
+- `plans/PLAN_LLM_PIPELINE_REFACTOR.md` (Superseded): 数字スロット `LLM_MODEL_SLOT` 運用へ統一済みのため参照用。
 - `plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md` (Active): API LLM を AIエージェント運用（Runbook/キュー）へ置換する計画。
 - `plans/PLAN_AGENT_ORG_COORDINATION.md` (Active): Orchestrator + Workers（複数AIエージェント）協調の仕組み。
 - `plans/PLAN_LLM_USAGE_MODEL_EVAL.md`: LLMコスト/トークン/モデル適性の評価計画。
@@ -122,8 +122,8 @@
 ### 3.4 OPS / 生成物整理
 - `plans/PLAN_OPS_VOICEVOX_READING_REFORM.md` (Active): VOICEVOX読み誤り対策とTTS改善計画。
 - `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`: 処理が遅い/詰まる課題の集約（観測→DoD付き改善）。
-- `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`: 中間生成物/ログ/最終成果物の保持・削除・アーカイブ規約とcleanup計画。
-- `plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md` (Draft): ディスク軽量化（生成物/ログ/キャッシュの定期整理）。
+- `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` (Draft): 中間生成物/ログ/最終成果物の保持・削除・アーカイブ規約とcleanup計画。
+- `plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md` (Active): ディスク軽量化（生成物/ログ/キャッシュの定期整理）。
 - `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md` (Draft): サムネ作成・編集を「高品質×高速×スケール」させる計画（Spec-first/SoT分離/UI-CLI統合）。
 
 ### 3.5 テンプレ

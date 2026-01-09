@@ -13,19 +13,21 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 - `plans/PLAN_UI_EPISODE_STUDIO.md`（最終更新 2025-12-17）: 企画→台本→音声→動画を UI だけで完結させる統合スタジオ。
 - `plans/PLAN_UI_WORKSPACE_CLEANUP.md`（最終更新 2025-12-12）: UI の導線整理と辞書/ハブ化。
 - `plans/PLAN_OPS_VOICEVOX_READING_REFORM.md`（最終更新 2025-12-11）: VOICEVOX 読み誤り対策（実装/運用 TODO 管理の正本）。
-- `plans/PLAN_LLM_PIPELINE_REFACTOR.md`（最終更新 2025-12-10）: 台本/TTS/画像の LLM 呼び出し統合。
 - `plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`（最終更新 2025-12-12）: API LLM を agent/think-mode（Runbook/キュー）へ置換。
-- `plans/PLAN_AGENT_ORG_COORDINATION.md`（最終更新 2025-12-12）: Orchestrator + Workers 協調（スコープロック/申し送り/割当）。
+- `plans/PLAN_AGENT_ORG_COORDINATION.md`（最終更新 2025-12-29）: Orchestrator + Workers 協調（スコープロック/申し送り/割当）。
 - `plans/PLAN_REPO_DIRECTORY_REFACTOR.md`（最終更新 2025-12-25）: モノレポ整備（tracked symlink 撤去 + 参照統一）。
+- `plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md`（最終更新 2026-01-09）: ディスク軽量化（生成物/ログ/キャッシュの定期整理）。
 
 ## Draft（設計中）
-- `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（最終更新 2025-12-17）: 生成物/ログ/中間物の保持・削除・アーカイブ規約（cleanup）。
-- `plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md`（最終更新 2026-01-08）: ディスク軽量化（生成物/ログ/キャッシュの定期整理）。
+- `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（最終更新 2025-12-18）: 生成物/ログ/中間物の保持・削除・アーカイブ規約（cleanup）。
 - `plans/PLAN_UI_BACKEND_MAIN_SPLIT.md`（最終更新 2026-01-08）: UI Backend `main.py` の肥大化を段階的に解消（entrypoint維持）。
-- `plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`（最終更新 2025-12-17）: レガシー隔離/確実ゴミ判定の基準と段階実行。
+- `plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md`（最終更新 2025-12-12）: レガシー隔離/確実ゴミ判定の基準と段階実行。
 - `plans/PLAN_LLM_USAGE_MODEL_EVAL.md`（最終更新 2025-12-12）: LLM コスト/トークン/モデル適性の評価。
 - `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md`（最終更新 2025-12-29）: サムネ作成・編集を「高品質×高速×スケール」させる計画。
 - `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`（最終更新 2025-12-29）: 処理が遅い/詰まる課題の集約（DoD付き）。
+
+## Superseded（参照）
+- `plans/PLAN_LLM_PIPELINE_REFACTOR.md`（最終更新 2025-12-10）: 数字スロット `LLM_MODEL_SLOT` 運用へ統一済みのため参照用。
 
 ## Completed（完了/参照）
 `ssot/completed/` を参照。
