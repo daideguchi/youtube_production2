@@ -236,5 +236,9 @@ SoT（正本）:
 チャンネル別の「現状」は更新頻度が高く、SSOTに **手書きのスナップショット表**を置くとズレます。
 
 - 一覧（推奨）: UI `/model-policy`（effective + config + ENV override）
+- CLI（read-only / 時点スナップショット）:
+  - `./ops snapshot model-policy`（CH×サムネ/台本/動画内画像の「3点コード」+ 実モデルを1表で出す）
+  - `./ops snapshot model-policy --write-report`（`workspaces/logs/regression/model_policy_snapshot/` に timestamp 付きで保存）
+    - `video_src=tier_default` は「channel preset 未設定なので tier default（通常 g-1）」の意味
 - 編集: UI `/image-model-routing`（画像） / SSOT（台本LLM・スロット）
 - 生成チェック: `python3 scripts/ops/build_ssot_catalog.py --check`

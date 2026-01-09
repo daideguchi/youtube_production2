@@ -14,6 +14,7 @@
     - “最新の実行” ポインタ: `./ops latest --channel CHxx --video NNN`
     - 実行タイムライン（opsレジャー）: `./ops history --tail 50 --channel CHxx`
     - 処理パターン索引（CLIレシピSSOT）: `./ops patterns list`（正本: `ssot/ops/OPS_EXECUTION_PATTERNS.md`）
+    - モデル配線（CH×サムネ/台本/動画内画像）: `./ops snapshot model-policy --write-report`
   - 復帰コマンド固定（SSOT）: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`
   - Reconcile（issues→復帰コマンドを配線; dry-run既定）: `./ops reconcile --channel CHxx --video NNN`
   - SSOTの最新ロジック確認: `./ops ssot status`

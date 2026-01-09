@@ -61,6 +61,30 @@ def _channel_sort_key(code: str) -> Tuple[int, str]:
     return 9999, s
 
 
+def _list_planning_channel_codes() -> List[str]:
+    """
+    Enumerate channels based on Planning SoT (workspaces/planning/channels/CHxx.csv).
+    """
+    out: List[str] = []
+    root = repo_root()
+    p = root / "workspaces" / "planning" / "channels"
+    if not p.exists():
+        return out
+    for path in sorted(p.glob("CH*.csv")):
+        code = str(path.stem or "").strip().upper()
+        if len(code) == 4 and code.startswith("CH") and code[2:].isdigit():
+            out.append(code)
+    # de-dup while preserving order
+    seen: set[str] = set()
+    uniq: List[str] = []
+    for code in out:
+        if code in seen:
+            continue
+        seen.add(code)
+        uniq.append(code)
+    return uniq
+
+
 def _is_short_image_code(raw: str) -> bool:
     return re.fullmatch(r"[a-z]-\d+", str(raw or "").strip()) is not None
 
@@ -184,6 +208,9 @@ def _resolve_image_selection(
     c = str(code or "").strip()
     t = str(task or "").strip()
     model_key = str(slot_map.get(c, {}).get(t, "")).strip()
+    # Config may already store a real model_key (not a slot code).
+    if not model_key and c and isinstance(model_registry.get(c), dict):
+        model_key = c
     provider = model_name = ""
     meta = model_registry.get(model_key) if model_key else None
     if isinstance(meta, dict):
@@ -215,6 +242,37 @@ def _build_image_slot_task_map(image_slots: Iterable[Dict[str, Any]], canonical_
             if tk and mk:
                 out[canonical][tk] = mk
     return out
+
+
+def _pick_preferred_image_code(codes: List[str]) -> str:
+    if not codes:
+        return ""
+    return sorted(
+        [str(c).strip() for c in codes if str(c).strip()],
+        key=lambda x: (0 if _is_short_image_code(x) else 1, len(x), x),
+    )[0]
+
+
+def _image_code_for_model_key(
+    *,
+    task: str,
+    model_key: str,
+    slot_map: Dict[str, Dict[str, str]],
+) -> str:
+    """
+    Find a stable slot code (prefer short codes like g-1/f-1) for a given ImageClient task+model_key.
+    """
+    t = str(task or "").strip()
+    mk = str(model_key or "").strip()
+    if not t or not mk:
+        return ""
+    hits: List[str] = []
+    for code, tasks in (slot_map or {}).items():
+        if not isinstance(tasks, dict):
+            continue
+        if str(tasks.get(t) or "").strip() == mk:
+            hits.append(str(code).strip())
+    return _pick_preferred_image_code(hits)
 
 
 def _git_head_sha() -> str | None:
@@ -249,10 +307,12 @@ def _print_table(rows: List[Dict[str, Any]]) -> None:
         "policy_code",
         "thumb_code",
         "thumb_model",
+        "thumb_src",
         "script_code",
         "script_model",
         "video_code",
         "video_model",
+        "video_src",
     ]
 
     def cell(row: Dict[str, Any], key: str) -> str:
@@ -326,22 +386,47 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not isinstance(preset_channels, dict):
         preset_channels = {}
 
-    channels_all = sorted({*thumb_channels.keys(), *preset_channels.keys()}, key=_channel_sort_key)
+    channels_all = sorted({*_list_planning_channel_codes(), *thumb_channels.keys(), *preset_channels.keys()}, key=_channel_sort_key)
     filt = {s.strip().upper() for s in str(args.channels or "").split(",") if s.strip()}
     if filt:
         channels_all = [c for c in channels_all if str(c).strip().upper() in filt]
+
+    # Default image selector (used when channel preset is missing):
+    image_task_defs = catalog.get("image", {}).get("task_defs", {})
+    visual_default_model_key = ""
+    try:
+        ent = image_task_defs.get("visual_image_gen") if isinstance(image_task_defs, dict) else None
+        if isinstance(ent, dict):
+            mk = ent.get("model_keys")
+            if isinstance(mk, list) and mk:
+                visual_default_model_key = str(mk[0] or "").strip()
+    except Exception:
+        visual_default_model_key = ""
+    visual_default_code = _image_code_for_model_key(
+        task="visual_image_gen",
+        model_key=visual_default_model_key,
+        slot_map=slot_task_map,
+    )
+    if not visual_default_code:
+        visual_default_code = _canonicalize_image_code("img-gemini-flash-1", canonical_by_id) or "g-1"
 
     rows: List[Dict[str, Any]] = []
     for ch in channels_all:
         thumb_raw = _pick_thumbnail_selector(thumb_channels.get(ch) if isinstance(thumb_channels.get(ch), dict) else None)
         thumb_code = _canonicalize_image_code(thumb_raw, canonical_by_id)
+        thumb_src = "templates.json" if thumb_raw else "missing"
+
         video_raw = ""
+        video_src = "tier_default"
         preset_ent = preset_channels.get(ch) if isinstance(preset_channels.get(ch), dict) else None
         if isinstance(preset_ent, dict):
             ig = preset_ent.get("image_generation") if isinstance(preset_ent.get("image_generation"), dict) else None
             if isinstance(ig, dict):
                 video_raw = str(ig.get("model_key") or "").strip()
-        video_code = _canonicalize_image_code(video_raw, canonical_by_id)
+        if video_raw:
+            video_src = "channel_presets.json"
+        video_effective_raw = video_raw or visual_default_code
+        video_code = _canonicalize_image_code(video_effective_raw, canonical_by_id)
 
         thumb_sel = _resolve_image_selection(
             code=thumb_code,
@@ -373,11 +458,17 @@ def main(argv: Optional[List[str]] = None) -> int:
                 "policy_code": policy_code,
                 "thumb_code": thumb_code,
                 "thumb_model": thumb_model,
+                "thumb_src": thumb_src,
                 "script_code": script_code,
                 "script_model": script_model_text,
                 "video_code": video_code,
                 "video_model": video_model,
-                "raw": {"thumb_selector": thumb_raw, "video_selector": video_raw},
+                "video_src": video_src,
+                "raw": {
+                    "thumb_selector_configured": thumb_raw,
+                    "video_selector_configured": video_raw,
+                    "video_selector_effective": video_effective_raw,
+                },
             }
         )
 

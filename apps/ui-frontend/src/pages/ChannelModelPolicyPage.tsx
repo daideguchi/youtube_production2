@@ -96,6 +96,45 @@ function canonicalizeImageCode(raw: string | null | undefined, canonicalById: Re
   return canonicalById[s] ?? s;
 }
 
+function pickPreferredImageCode(codes: string[]): string {
+  const list = (codes ?? []).map((x) => String(x ?? "").trim()).filter(Boolean);
+  if (list.length === 0) return "";
+  return (
+    list
+      .slice()
+      .sort((a, b) => {
+        const aShort = isShortImageCode(a) ? 0 : 1;
+        const bShort = isShortImageCode(b) ? 0 : 1;
+        if (aShort !== bShort) return aShort - bShort;
+        if (a.length !== b.length) return a.length - b.length;
+        return a.localeCompare(b);
+      })[0] ?? ""
+  );
+}
+
+function resolveDefaultImageSelectorForTask(
+  catalog: SsotCatalog | null,
+  imageSlots: any[],
+  canonicalById: Record<string, string>,
+  task: string
+): string {
+  const t = String(task ?? "").trim();
+  if (!t) return "";
+  const modelKey = String((catalog as any)?.image?.task_defs?.[t]?.model_keys?.[0] ?? "").trim();
+  if (!modelKey) return "";
+  const hits: string[] = [];
+  for (const s of imageSlots as any[]) {
+    const rawId = String((s as any)?.id ?? "").trim();
+    if (!rawId) continue;
+    const canonical = canonicalizeImageCode(rawId, canonicalById) || rawId;
+    const tasks = (s as any)?.tasks;
+    if (!tasks || typeof tasks !== "object" || Array.isArray(tasks)) continue;
+    const mk = String((tasks as any)?.[t] ?? "").trim();
+    if (mk && mk === modelKey) hits.push(canonical);
+  }
+  return pickPreferredImageCode(hits);
+}
+
 function humanImageCodeTitle(code: string): string {
   const c = String(code ?? "").trim();
   if (!c) return "未設定";
@@ -212,7 +251,7 @@ function resolveScriptPolicy(catalog: SsotCatalog | null): ScriptPolicyInfo {
 type VideoImagePolicy = { requirement: string };
 
 const VIDEO_IMAGE_POLICY_DEFAULT: VideoImagePolicy = {
-  requirement: "デフォ: img-flux-schnell-1（= f-1）",
+  requirement: "未設定時: tier default（通常は g-1 = Gemini）。通常運用は preset で明示してブレを潰す",
 };
 
 const VIDEO_IMAGE_POLICY_BY_CHANNEL: Record<string, VideoImagePolicy> = {
@@ -783,8 +822,14 @@ export function ChannelModelPolicyPage() {
   const forcedVideo = useMemo(() => pickImageOverride(activeOverrides, "visual_image_gen"), [activeOverrides]);
   const forcedAny = useMemo(() => pickImageOverride(activeOverrides, "*"), [activeOverrides]);
 
-  const defaultVideoSelector = useMemo(() => canonicalizeImageCode("img-flux-schnell-1", imageCanonicalById) || "f-1", [imageCanonicalById]);
-  const defaultThumbSelector = useMemo(() => canonicalizeImageCode("img-flux-max-1", imageCanonicalById) || "f-4", [imageCanonicalById]);
+  const defaultVideoSelector = useMemo(() => {
+    const resolved = resolveDefaultImageSelectorForTask(catalog, imageSlots as any[], imageCanonicalById, "visual_image_gen");
+    return resolved || canonicalizeImageCode("img-gemini-flash-1", imageCanonicalById) || "g-1";
+  }, [catalog, imageSlots, imageCanonicalById]);
+  const defaultThumbSelector = useMemo(() => {
+    const resolved = resolveDefaultImageSelectorForTask(catalog, imageSlots as any[], imageCanonicalById, "thumbnail_image_gen");
+    return resolved || canonicalizeImageCode("img-gemini-flash-1", imageCanonicalById) || "g-1";
+  }, [catalog, imageSlots, imageCanonicalById]);
 
   const effectiveThumbNowCode = useMemo(() => {
     const raw = (forcedThumb?.selector ?? forcedAny?.selector ?? null) || defaultThumbSelector;
@@ -1759,7 +1804,7 @@ export function ChannelModelPolicyPage() {
                     const videoConfiguredRaw = row?.video_image?.model_key ?? null;
                     const videoConfigured = canonicalizeImageCode(videoConfiguredRaw, imageCanonicalById) || "";
                     const videoEffectiveRaw =
-                      (forcedVideo?.selector ?? forcedAny?.selector ?? null) || (videoConfiguredRaw || "img-flux-schnell-1");
+                      (forcedVideo?.selector ?? forcedAny?.selector ?? null) || (videoConfiguredRaw || defaultVideoSelector);
                     const videoEffective = canonicalizeImageCode(videoEffectiveRaw, imageCanonicalById) || "";
 
                     const thumbConfigCode = thumbConfigured || (thumbConfiguredRaw ? String(thumbConfiguredRaw) : "");
@@ -1913,7 +1958,7 @@ export function ChannelModelPolicyPage() {
 
                 const videoConfiguredRaw = row?.video_image?.model_key ?? null;
                 const videoConfigured = canonicalizeImageCode(videoConfiguredRaw, imageCanonicalById) || "";
-                const videoEffectiveRaw = (forcedVideo?.selector ?? forcedAny?.selector ?? null) || (videoConfiguredRaw || "img-flux-schnell-1");
+                const videoEffectiveRaw = (forcedVideo?.selector ?? forcedAny?.selector ?? null) || (videoConfiguredRaw || defaultVideoSelector);
                 const videoEffective = canonicalizeImageCode(videoEffectiveRaw, imageCanonicalById) || "";
 
                 const thumbConfigCode = thumbConfigured || (thumbConfiguredRaw ? String(thumbConfiguredRaw) : "");
