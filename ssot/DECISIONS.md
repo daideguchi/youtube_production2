@@ -29,7 +29,7 @@
 | D-009 | P2 | “ゾンビ候補”の扱い | **隔離→入口索引から除外→archive-first削除**（確実ゴミのみ） | Proposed |
 | D-010 | P1 | LLM設定SSOTの一本化 | **`llm_router.yaml` 系へ統一**（`llm.yml`/registryは段階廃止） | Done |
 | D-011 | P1 | Script Pipelineのno-op stage | **stageは“明示output契約”必須**（`script_enhancement`は削除/実装） | Done |
-| D-012 | P2 | channel_info の“同期メタ” | **動的メタは `workspaces/` へ分離**（packagesは静的設定のみ） | Proposed |
+| D-012 | P2 | channel_info の“同期メタ” | **動的メタは `workspaces/` へ分離**（packagesは静的設定のみ） | Done |
 
 ---
 
@@ -139,8 +139,8 @@
 
 ### Recommended（推奨）
 1) `packages/script_pipeline/channels/**/channel_info.json` は **静的設定のみ**（prompt template / channel code / handle / 方針など）  
-2) 動的なチャンネル統計/同期時刻は `workspaces/channels/<CH>/channel_stats.json` のような **SoT=workspaces** に保存  
-3) UI/SSOT は “静的設定” と “統計” を分けて表示（混ぜない）
+2) 動的なチャンネル統計/同期時刻は **`workspaces/channels/<CH>/channel_stats.json`**（SoT=workspaces）に保存  
+3) UI/SSOT は “静的設定（packages）” と “統計（workspaces）” を分けて表示（混ぜない）
 
 ### Rationale（根拠）
 - `packages/` はコードと同じく “安定した履歴” を持たせたいが、統計/同期時刻は **更新頻度が高く差分ノイズ**になる。
@@ -151,7 +151,8 @@
 - B) `channel_info.json` を workspaces へ移す: 依存解決/参照変更が大きくなる（段階移行なら可）。
 
 ### Impact（影響/作業）
-- sync スクリプト（YouTube metadata fetch）を `workspaces/` 出力へ変更し、`packages/` 側の動的フィールド更新を止める。
+- sync（YouTube metadata fetch）の出力先を `workspaces/` に変更し、`packages/` 側の動的フィールド更新を止める。
+- 既存の `channel_info.json` 内の統計フィールドは **legacy（残っていても更新しない）** として扱い、UI は `workspaces/channels/<CH>/channel_stats.json` を優先する。
 
 ---
 

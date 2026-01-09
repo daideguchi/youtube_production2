@@ -104,7 +104,7 @@
 
 | path | 観測 | 暫定提案 |
 | --- | --- | --- |
-| `packages/script_pipeline/channels/**/channel_info.json` | `synced_at`/`view_count`/`subscriber_count` 等が更新され、tracked 差分ノイズになりやすい | `ssot/DECISIONS.md:D-012` で **動的メタは `workspaces/` へ分離** を確定し、sync出力を移す |
+| `packages/script_pipeline/channels/**/channel_info.json` | `synced_at`/`view_count`/`subscriber_count` 等が更新され、tracked 差分ノイズになりやすい | ✅ 解消（2026-01-09）: `ssot/DECISIONS.md:D-012` に従い、統計/同期メタは `workspaces/channels/<CH>/channel_stats.json` へ分離（packages側の自動更新を停止）。 |
 
 ---
 
