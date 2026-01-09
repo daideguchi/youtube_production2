@@ -242,7 +242,7 @@ flowchart LR
 - パターンは `ssot/ops/OPS_SCRIPT_PATTERNS.yaml` の `ch01_historical_proof_bridge_v1` を使用し、Planning の `台本型`（kata1/2/3）に依存させない（runner 側で固定）。
 - 自動検出: `packages/script_pipeline/validator.py` は **行全体が** `姓名、年齢(歳/才)。` の形（例: `田村幸子、六十七歳。`）を `ch01_fictional_person_intro` としてエラー扱いにする。  
   - `ブッダが29歳のとき…` のような **文中の年齢言及**は対象外（通常の日本語の文として書く）。
-- 台本本文生成（`script_*`）は Codex exec を使わない（`configs/codex_exec.yaml` で除外し、品質ドリフトを防ぐ）。
+- 台本パイプライン（`script_*`）は **Codex exec を使わない**（本文/非本文を問わず）。`configs/codex_exec.yaml` で `script_*` を除外し、文体ドリフトを防ぐ。
 
 ルール:
 - 補助がタイトルと食い違っている/内容汚染が疑われる場合は、**タイトルを正として補助を無視**する（ズレ事故を安く止める）。
@@ -484,10 +484,8 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
     - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
     - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
-    - 注（固定ルール）: `script_*` の本文生成は Codex exec を使わない（章草稿も含む）。必要な場合は LLMRouter（API）側のモデルで収束させる。
-      - 最終本文を上書きする task（品質ゲート/修正/最終ポリッシュ/意味整合Fix）は Codex exec layer では実行しない（`configs/codex_exec.yaml: selection.exclude_tasks`）。
-        - 対象: `script_chapter_draft`, `script_cta`, `script_format`, `script_chapter_review`, `script_a_text_seed`, `script_a_text_quality_fix`, `script_a_text_quality_extend`, `script_a_text_quality_expand`, `script_a_text_quality_shrink`, `script_a_text_final_polish`, `script_a_text_rebuild_plan`, `script_a_text_rebuild_draft`, `script_semantic_alignment_fix`
-      - それ以外の **非本文タスク**（例: `tts_*` / `visual_*` / レポート生成）は Codex exec を試してよい（失敗時は LLMRouter API へフォールバック）。
+    - 注（固定ルール）: `script_*` は **Codex exec を使わない**（全task）。台本は `script-main-1`（Fireworks）固定で、失敗時に別LLM/APIへ自動フォールバックしない（停止して記録する）。
+      - Codex exec を使うのは **非台本タスク**（例: `tts_*` / `visual_*` / レポート生成）のみ（失敗時は LLMRouter API へフォールバック可）。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
   - minorも直す: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`

@@ -56,6 +56,10 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 2. `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml` の tier→model code）
 3. `configs/llm_router.yaml` の `tiers`（最後のデフォルト）
 
+注（固定）:
+- **LLM API 間の自動フォールバックはしない**（別プロバイダ/別モデルへ勝手にすり替えない）。
+- 通常運用は “先頭1つ固定” を前提にし、切替は **数字スロット**で明示する。
+
 例外（debug/incident のみ）:
 - `LLM_FORCE_MODELS` / `LLM_FORCE_TASK_MODELS_JSON` などの “直接上書き” は通常運用では禁止（`YTM_EMERGENCY_OVERRIDE=1` の時だけ）。
 
@@ -103,7 +107,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
   - `vision_caption=txt-vision-caption-1`
   - `web_search=txt-web-search-1`
   - `master_plan_opus=txt-master-plan-opus-1`
-  - `script_*` は `script-main-1`（OpenRouterへは流さない）
+  - `script_*` は `script-main-1`（Fireworks固定 / 自動フォールバックしない）
 - `slot 1` `openrouter_kimi_all`（全 tier を Kimi 固定）
 - `slot 2` `openrouter_mistral_all`（全 tier を Mistral free 固定）
 - `slot 3` `fireworks_deepseek_v3_2`（全 tier を Fireworks DeepSeek 固定）
@@ -117,10 +121,9 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 `configs/llm_task_overrides.yaml`
 
 - main: `script-main-1`
-- fallback（`allow_fallback=true` の task のみ）:
-  - `script-fallback-glm-1`
-  - `script-fallback-kimi-1`
-  - `script-fallback-mixtral-1`
+- 固定: 自動フォールバックしない（`models` は常に1つ）
+- 参考（比較用・自動では使わない）:
+  - `fw-glm-4p7-1`, `fw-kimi-thinking-1`, `fw-mixtral-8x22b-1`
 - 非台本でも pin されるタスク（例）:
   - `visual_image_cues_plan=visual-cues-plan-main-1`
 

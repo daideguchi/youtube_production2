@@ -61,8 +61,9 @@
 ### 2.1 テキストLLM（台本/読み/補助）
 - `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（原則）。
   - 既定: `script-main-1`（Fireworks / DeepSeek V3.2 exp + thinking）
-  - fallback（`allow_fallback=true` の task のみ）: `script-fallback-glm-1`, `script-fallback-kimi-1`, `script-fallback-mixtral-1`
+  - 固定: **自動フォールバック禁止**（別モデルへ自動すり替えしない）。失敗時は停止して原因を残す。
   - 重要: 台本系のモデル指定は `configs/llm_task_overrides.yaml` の `models` が正（slot は未指定の task/tier のみに適用）
+  - 参考（比較用・自動では使わない）: `fw-glm-4p7-1`, `fw-kimi-thinking-1`, `fw-mixtral-8x22b-1`
 
 #### 2.1.1 Decision（2026-01-09）: 台本は Fireworks DeepSeek V3.2 exp(thinking) を既定に戻す（固定ロジック）
 対象（正本）:
@@ -125,7 +126,7 @@
 - `script_cta`（既定OFF）: CTA/締め（任意。コスト削減のため既定OFF）
 - `script_quality_check`（廃止）: 全体品質チェック（`script_validation` に統合。通常は使わない）
 - `script_format`: 体裁整形（標準）
-- `script_a_text_quality_judge` / `script_a_text_quality_fix`: `script_validation` の QC（judge→fix）。fix は安定性優先で Kimi を先に試す（コスト増だが「途中で切れる/部分出力」事故を減らす）。
+- `script_a_text_quality_judge` / `script_a_text_quality_fix`: `script_validation` の QC（judge→fix）。モデルは `script-main-1` 固定（自動フォールバックしない）。
 
 ### 3.2 TTS（音声）
 - `tts_annotate`: 注釈付け（json_object）
