@@ -4631,6 +4631,32 @@ def build_ssot_catalog() -> Dict[str, Any]:
     llm_router_path = repo / "packages" / "factory_common" / "llm_router.py"
     llm_router_lines = _safe_read_text(llm_router_path).splitlines()
     strict_llm_line = _find_first_line_containing(llm_router_lines, "Strict model selection policy (NO silent downgrade)")
+    routing_slots_line = _find_first_line_containing(llm_router_lines, "Ops routing is controlled by numeric slots/codes")
+
+    llm_config_path = repo / "packages" / "factory_common" / "llm_config.py"
+    llm_config_lines = _safe_read_text(llm_config_path).splitlines()
+    llm_config_lockdown_line = _find_first_line_containing(
+        llm_config_lines,
+        "Legacy LLM config is disabled under routing lockdown.",
+    )
+
+    llm_client_path = repo / "packages" / "factory_common" / "llm_client.py"
+    llm_client_lines = _safe_read_text(llm_client_path).splitlines()
+    llm_client_lockdown_line = _find_first_line_containing(
+        llm_client_lines,
+        "LLMClient is legacy and disabled under routing lockdown.",
+    )
+
+    ops_channel_routing_path = repo / "ssot" / "ops" / "OPS_CHANNEL_MODEL_ROUTING.md"
+    ops_channel_routing_lines = _safe_read_text(ops_channel_routing_path).splitlines()
+    ops_channel_routing_arch_line = _find_first_line_containing(
+        ops_channel_routing_lines,
+        "Architecture（固定の解決順 / 迷子ゼロ）",
+    )
+
+    ssot_catalog_router_path = repo / "apps" / "ui-backend" / "backend" / "routers" / "ssot_catalog.py"
+    ssot_catalog_router_lines = _safe_read_text(ssot_catalog_router_path).splitlines()
+    ssot_catalog_router_line = _find_def_line(ssot_catalog_router_lines, "get_ssot_catalog")
 
     fw_keys_path = repo / "packages" / "factory_common" / "fireworks_keys.py"
     fw_keys_lines = _safe_read_text(fw_keys_path).splitlines()
@@ -4685,6 +4711,30 @@ def build_ssot_catalog() -> Dict[str, Any]:
                         strict_llm_line,
                         symbol="policy:strict_model_selection",
                     )
+                ]
+                if r
+            ],
+        },
+        {
+            "id": "POLICY-MODEL-ARCH-001",
+            "title": "Model routing is router+codes/slots (SSOT)",
+            "description": "\n".join(
+                [
+                    "モデル管理（routing）は router + codes/slots による固定ロジックで運用し、モデル名/設定ファイルを散らして矛盾を作らない。",
+                    "- 正本: configs/llm_router.yaml + configs/llm_task_overrides.yaml + LLM_MODEL_SLOT / LLM_EXEC_SLOT（codes/slotsで解決）",
+                    "- UI確認: /model-policy（effective + config + ENV） / /ssot/map（Policies）",
+                    "- 禁止: configs/llm.yml / factory_common.llm_client / factory_common.llm_config（legacy）。通常運用では使わない。",
+                    "- ロックダウン既定: YTM_ROUTING_LOCKDOWN=1（legacy経由は停止）。debug/testsのみ YTM_ROUTING_LOCKDOWN=0 or YTM_EMERGENCY_OVERRIDE=1。",
+                ]
+            ),
+            "impl_refs": [
+                r
+                for r in [
+                    _make_code_ref(repo, ops_channel_routing_path, ops_channel_routing_arch_line, symbol="ssot:channel_model_routing_arch"),
+                    _make_code_ref(repo, llm_router_path, routing_slots_line, symbol="llm_router:slots_codes_routing"),
+                    _make_code_ref(repo, llm_config_path, llm_config_lockdown_line, symbol="lockdown:disable_legacy_llm_config"),
+                    _make_code_ref(repo, llm_client_path, llm_client_lockdown_line, symbol="lockdown:disable_legacy_llm_client"),
+                    _make_code_ref(repo, ssot_catalog_router_path, ssot_catalog_router_line, symbol="ui_backend:get_ssot_catalog"),
                 ]
                 if r
             ],

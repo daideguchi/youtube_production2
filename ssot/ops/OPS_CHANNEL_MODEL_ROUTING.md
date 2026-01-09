@@ -4,6 +4,34 @@
 
 ---
 
+## Architecture（固定の解決順 / 迷子ゼロ）
+
+モデル決定は「どこを見れば何が変わるか」を固定し、**人間/AIが迷う余地を消す**。
+
+### テキストLLM（LLMRouter）
+- 入力: `task` 名（コードはモデル名を書かない）
+- 解決順（固定）:
+  1) `configs/llm_task_overrides.yaml`（taskごとの pin / tier / allow_fallback）
+  2) `configs/llm_router.yaml`（task→tier→models のベース）
+  3) `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`：tier→model code）
+  4) `configs/llm_model_codes.yaml`（model code → `llm_router.yaml:models.<model_key>`）
+  5) `llm_router.yaml:models.<model_key>`（provider / model_name or deployment / capabilities）
+- 実行モード（固定）:
+  - `LLM_EXEC_SLOT`（`configs/llm_exec_slots.yaml`：api/think/agent/codex exec/failover）
+
+### 画像（ImageClient）
+- 入力: image task（例: `thumbnail_image_gen`, `visual_image_gen`）
+- 解決順（固定）:
+  1) `configs/image_task_overrides.yaml`（profile: `IMAGE_CLIENT_PROFILE`）
+  2) `configs/image_models.yaml`（task→tier→models）
+  3) `configs/image_model_slots.yaml`（運用で固定したい場合のコード）
+  4) 入口SoTでの明示（ブレ防止）:
+     - 動画内画像: `packages/video_pipeline/config/channel_presets.json`
+     - サムネ: `workspaces/thumbnails/templates.json`
+
+### UI（SSOT = read-only）
+- UI は `GET /api/ssot/catalog` を参照し、**config と effective（env/slot/profile込み）**を同じ画面で見られるようにする。
+
 ## 0) まず覚える3点（チャンネル差分）
 
 チャンネルで基本的に違うのは **この3つだけ**:
@@ -70,6 +98,12 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 - **台本は task override で固定**（= `configs/llm_task_overrides.yaml`）
 - UI/デバッグ上書きは `configs/llm_task_overrides.local.yaml`（git管理しない）にのみ書く（SSOTの破壊防止）
 - `script_*` は **失敗時に停止・記録**（THINK へフォールバックしない）
+
+### 禁止（通常運用）: legacy LLM config（`llm.yml` / `llm_client` / `llm_config`）
+- LLM routing の正本は **router + codes/slots**（`configs/llm_router.yaml` + `configs/llm_task_overrides.yaml` + `LLM_MODEL_SLOT` / `LLM_EXEC_SLOT`）。
+- `configs/llm.yml` / `factory_common.llm_client` / `factory_common.llm_config` は **互換/テスト用の legacy**。通常運用では使わない（迷子/矛盾を作るため）。
+- 2026-01-09: ロックダウン（`YTM_ROUTING_LOCKDOWN=1` / default ON）では legacy 経由の実行を **停止**する。
+  - 解除（debug only）: `YTM_ROUTING_LOCKDOWN=0` または `YTM_EMERGENCY_OVERRIDE=1`
 
 ### 画像（動画用 / サムネ）
 - **画像コード**: `configs/image_model_slots.yaml`

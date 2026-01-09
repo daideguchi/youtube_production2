@@ -34,6 +34,7 @@
 - 量産投入前のProduction Pack（QA/差分ログ）: `ssot/ops/OPS_PRODUCTION_PACK.md`
 - 企画の上書き/追加/部分更新（差分運用）: `ssot/ops/OPS_PLANNING_PATCHES.md`
 - モデル使い分け: `ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md`
+- チャンネル別モデル方針（UI: `/model-policy`）: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md`
 - 環境・キー設定: `ssot/ops/OPS_ENV_VARS.md`
 - タイトル/サムネ↔台本の意味整合: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 - 低知能エージェント運用: `ssot/ops/OPS_AGENT_PLAYBOOK.md`（repo全体のルールは `AGENTS.md`）
