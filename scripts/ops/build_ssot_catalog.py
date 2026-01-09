@@ -21,9 +21,9 @@ from pathlib import Path
 
 from _bootstrap import bootstrap
 
-from factory_common.ssot_catalog import CATALOG_SCHEMA_V1, build_ssot_catalog
-
 REPO_ROOT = bootstrap(load_env=False)
+
+from factory_common.ssot_catalog import CATALOG_SCHEMA_V1, build_ssot_catalog  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -63,4 +63,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
