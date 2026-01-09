@@ -2384,3 +2384,23 @@ archive-first（repo, tracked）:
 - CH14: `workspaces/scripts/CH14/{004..011,015..030}/content/assembled.md`（24本）
 - CH15: `workspaces/scripts/CH15/{009..019,022..030}/content/assembled.md`（20本）
 - CH16: `workspaces/scripts/CH16/{009..011}/content/assembled.md`（3本）
+
+### 5) 台本3パターン（`台本型` / kata1〜3）運用の撤去（ユーザー指示）
+
+意図:
+- AIの能力/品質的に「3つの型（kata）」運用は混乱と品質劣化を招くため、運用/実装/ドキュメントを含めて撤去する。
+- 既存 Planning CSV に `台本型` 列が残っていても、台本生成は参照しない（runner 側で無視）。
+
+archive-first（repo, tracked）:
+- `backups/graveyard/20260109T220757Z__remove_script_katas_kata1_2_3/`（退避コピー + `manifest.tsv`）
+
+削除（repo, tracked）:
+- `scripts/ops/planning_assign_script_kata.py`
+- `ssot/ops/OPS_SCRIPT_KATAS.md`
+- `packages/script_pipeline/prompts/templates/script_katas_6000_10000.txt`
+
+更新（実装/SSOT）:
+- `packages/script_pipeline/runner.py`（`台本型` を参照してパターン強制する分岐を撤去）
+- `packages/script_pipeline/tools/optional_fields_registry.py`（`台本型` を optional fields から除外）
+- `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`（kata pattern を削除）
+- `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md` / `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md` / `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`（廃止注記）
