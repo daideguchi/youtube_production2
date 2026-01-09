@@ -1,3 +1,15 @@
+"""
+LEGACY (compat/tests) — `configs/llm.yml` based client wrapper.
+
+Normal ops routing SSOT:
+- `configs/llm_router.yaml` + `configs/llm_task_overrides.yaml` (+ codes/slots/exec slots)
+- See `ssot/DECISIONS.md:D-010`.
+
+時点情報（git log --follow 根拠）:
+- created: 2025-12-13
+- updated: 2025-12-26
+"""
+
 from __future__ import annotations
 
 import json
