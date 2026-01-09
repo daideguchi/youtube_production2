@@ -103,6 +103,7 @@ from backend.core.tools import workflow_precheck as workflow_precheck_tools
 from backend.core.tools.content_processor import ContentProcessor
 from backend.core.tools.audio_manager import AudioManager
 from backend.core.tools.channel_profile import load_channel_profile
+from backend.core.tools.channel_stats_store import merge_channel_stats_into_channel_info, write_channel_stats
 from backend.core.tools.prompt_utils import auto_placeholder_values
 # 移行先: script_pipeline/tools 配下の簡易実装を利用
 from script_pipeline.tools import planning_requirements, planning_store
@@ -4646,6 +4647,8 @@ def load_channel_info() -> Dict[str, dict]:
                 continue
             existing = mapping.get(channel_code.upper(), {"channel_id": channel_code.upper()})
             mapping[channel_code.upper()] = _merge_channel_payload(existing, entry)
+    for code, info in list(mapping.items()):
+        mapping[code] = merge_channel_stats_into_channel_info(code, info)
     return mapping
 
 
@@ -4663,9 +4666,10 @@ def _has_essential_branding(info: dict) -> bool:
 def _ensure_youtube_metrics(channel_code: str, info: dict) -> dict:
     if YOUTUBE_CLIENT is None:
         return info
+    info = merge_channel_stats_into_channel_info(channel_code, info)
     branding = info.get("branding") or {}
     youtube_payload = info.get("youtube") or {}
-    synced_at = youtube_payload.get("synced_at") or branding.get("updated_at")
+    synced_at = youtube_payload.get("synced_at") or branding.get("updated_at") or info.get("synced_at")
     needs_refresh = not _has_essential_branding(info) or YouTubeDataClient.is_stale(synced_at)
     if not needs_refresh:
         return info
@@ -4673,8 +4677,7 @@ def _ensure_youtube_metrics(channel_code: str, info: dict) -> dict:
         ensure_channel_branding(channel_code, info, force_refresh=True, ignore_backoff=False, strict=False)
     except HTTPException:
         return info
-    refreshed = refresh_channel_info(force=True).get(channel_code)
-    return refreshed or info
+    return merge_channel_stats_into_channel_info(channel_code, info)
 
 
 def refresh_channel_info(force: bool = False) -> Dict[str, dict]:
@@ -4837,12 +4840,20 @@ def ensure_channel_branding(
     info.setdefault("youtube", {})
     youtube_payload = metadata.to_youtube_payload()
     youtube_payload["source"] = identifier
-    youtube_payload["synced_at"] = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    youtube_payload["synced_at"] = now_iso
     info["youtube"].update(youtube_payload)
     YOUTUBE_BRANDING_BACKOFF.pop(channel_code, None)
 
-    persist_channel_entry(channel_code, info)
-    refresh_channel_info(force=True)
+    write_channel_stats(
+        channel_code,
+        {
+            "channel_id": channel_code.upper(),
+            "synced_at": now_iso,
+            "branding": branding_payload,
+            "youtube": dict(info.get("youtube") or {}),
+        },
+    )
     return branding_payload
 
 
