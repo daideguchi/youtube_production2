@@ -18,6 +18,9 @@
 2. `rg` 等で **コード参照ゼロ**が確認できる（Docs/Legacyの言及は除外可）。
 3. 管理者（dd）が **不要と明示確認**。
 
+候補台帳:
+- `ssot/ops/OPS_SCRIPTS_CLEANUP_CANDIDATES.md`（scripts/ の削除候補・承認待ちリスト）
+
 > 条件1 or 2が曖昧なものは **Legacy隔離**（read‑only移設）に留め、即削除しない。
 
 ### 1.1 実施済み（証跡）

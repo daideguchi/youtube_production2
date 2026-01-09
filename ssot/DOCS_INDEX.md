@@ -39,6 +39,7 @@
 - `ops/OPS_OPEN_QUESTIONS.md`: 意思決定が必要な不明点（固定ロジック化の前提を明確化）。
 - `ops/OPS_SCRIPTS_PHASE_CLASSIFICATION.md`: 工程別「使う/使わない」スクリプト確定表（迷子/誤実行防止）。
 - `ops/OPS_SCRIPTS_INVENTORY.md`: `scripts/**` の全ファイル棚卸し（工程別 / P0-P3 / ref付き）。
+- `ops/OPS_SCRIPTS_CLEANUP_CANDIDATES.md`: `scripts/**` のレガシー掃除候補台帳（要 dd 承認 / archive-first）。
 - `ops/OPS_PRODUCTION_PACK.md`: 量産投入前の「Production Pack」定義（スナップショット + QA gate + 差分ログ）。
 - `ops/OPS_PREPRODUCTION_FRAME.md`: 入口〜量産投入直前の参照フレーム（SoT/拡張/差分ログの線引き）。
 - `ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`: 入口〜投入前の入力カタログ（SoT/必須/任意/上書きの一覧）。
