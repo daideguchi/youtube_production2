@@ -120,6 +120,7 @@ Web検索 provider（実装側: env）:
   - `openrouter`: LLMRouter task `web_search_openrouter`（OpenRouter経由）
     - 重要: OpenRouter残高不足等で失敗すると、設定によっては agent_tasks に pending を作って停止する（SSOT: `RUNBOOK_THINK_MODE_OPERATOR` 参照）
   - `agent`: **外部APIを叩かず** agent_tasks に pending を作って停止する（OpenRouter検索を止めている期間のデフォルト運用）
+    - runbook: `ssot/agent_runbooks/RUNBOOK_WEB_SEARCH.md`
   - `auto`: `brave` キーがあれば brave → なければ openrouter → どちらもなければ disabled
 
 運用（OpenRouter検索停止中）:

@@ -71,18 +71,12 @@ def _fireworks_text_disabled() -> bool:
     Safety switch: disable Fireworks provider for text/chat calls.
 
     Default behavior:
-    - Fireworks(text) is disabled unless explicitly enabled.
-      This prevents accidental spend / 412 loops and avoids using "memo keys".
+    - Fireworks(text) is enabled by default.
+      Use `YTM_DISABLE_FIREWORKS_TEXT=1` to hard-disable (incident stopgap).
 
     Overrides:
-    - Set `YTM_DISABLE_FIREWORKS_TEXT=0` to re-enable Fireworks(text) explicitly.
-    - Set `YTM_EMERGENCY_OVERRIDE=1` to bypass lockdown defaults for one-off debugging.
+    - Set `YTM_DISABLE_FIREWORKS_TEXT=1` to disable Fireworks(text).
     """
-    if lockdown_active():
-        return True
-    raw = (os.getenv("YTM_DISABLE_FIREWORKS_TEXT") or "").strip()
-    if raw == "":
-        return True
     return _env_truthy("YTM_DISABLE_FIREWORKS_TEXT", default="0")
 
 
@@ -1473,6 +1467,23 @@ class LLMRouter:
                 if forced:
                     logger.warning("LLM_FORCE_MODELS: unknown model keys: %s", forced)
 
+        # Per-task explicit pin (config/overrides) must win over numeric slots.
+        explicit_models = None
+        try:
+            if isinstance(override_conf, dict) and override_conf.get("models"):
+                explicit_models = override_conf.get("models")
+            elif isinstance(task_conf, dict) and task_conf.get("models"):
+                explicit_models = task_conf.get("models")
+        except Exception:
+            explicit_models = None
+        if explicit_models:
+            forced = _split_model_keys(explicit_models)
+            forced_valid = _normalize_forced_models(forced)
+            if forced_valid:
+                return _filter_disallowed_models(task, tier_name, forced_valid)
+            if forced:
+                logger.warning("task models: unknown model keys for task=%s: %s", task, forced)
+
         slot_raw = self._model_slot_models_raw(task=task, tier=tier_name)
         if slot_raw is not None:
             forced = _split_model_keys(slot_raw)
@@ -1482,30 +1493,25 @@ class LLMRouter:
             if forced:
                 logger.warning("LLM_MODEL_SLOT=%s: unknown model keys: %s", self._model_slot_id(), forced)
         
-        tier_models = []
-        # explicit models override wins
-        if override_conf.get("models"):
-            tier_models = override_conf["models"]
-        else:
-            # base tier models
-            tier_models = self.config.get("tiers", {}).get(tier, [])
-            # Allow tier override from llm_tier_candidates.yaml (opt-in)
-            enable_candidates_override = os.getenv("LLM_ENABLE_TIER_CANDIDATES_OVERRIDE", "").lower() in (
-                "1",
-                "true",
-                "yes",
-                "on",
-            )
-            config_dir = _BASE_CONFIG_PATH.parent
-            local_candidates = config_dir / "llm_tier_candidates.local.yaml"
-            candidates_path = local_candidates if local_candidates.exists() else (config_dir / "llm_tier_candidates.yaml")
-            if enable_candidates_override and candidates_path.exists():
-                try:
-                    candidates = yaml.safe_load(candidates_path.read_text()).get("tiers", {})
-                    if tier in candidates and candidates[tier]:
-                        tier_models = candidates[tier]
-                except Exception as e:
-                    logger.warning(f"Failed to load tier candidates override: {e}")
+        # base tier models
+        tier_models = self.config.get("tiers", {}).get(tier, [])
+        # Allow tier override from llm_tier_candidates.yaml (opt-in)
+        enable_candidates_override = os.getenv("LLM_ENABLE_TIER_CANDIDATES_OVERRIDE", "").lower() in (
+            "1",
+            "true",
+            "yes",
+            "on",
+        )
+        config_dir = _BASE_CONFIG_PATH.parent
+        local_candidates = config_dir / "llm_tier_candidates.local.yaml"
+        candidates_path = local_candidates if local_candidates.exists() else (config_dir / "llm_tier_candidates.yaml")
+        if enable_candidates_override and candidates_path.exists():
+            try:
+                candidates = yaml.safe_load(candidates_path.read_text()).get("tiers", {})
+                if tier in candidates and candidates[tier]:
+                    tier_models = candidates[tier]
+            except Exception as e:
+                logger.warning(f"Failed to load tier candidates override: {e}")
         resolved = _normalize_forced_models(_split_model_keys(tier_models))
         if resolved:
             return _filter_disallowed_models(task, tier_name, resolved)
@@ -1617,6 +1623,7 @@ class LLMRouter:
         last_error = None
         last_status = None
         last_error_class = None
+        skipped_no_client: List[Dict[str, Optional[str]]] = []
 
         task_conf = self.config.get("tasks", {}).get(task, {})
         override_conf = self.task_overrides.get(task, {}) if hasattr(self, "task_overrides") else {}
@@ -1872,12 +1879,31 @@ class LLMRouter:
         # Optional: Codex exec (subscription) first layer with API fallback.
         # - Runs `codex exec --sandbox read-only` to avoid writing to the repo/workspaces.
         # - If Codex is unavailable or output is invalid, fall back to the existing API router path.
-        routing: Dict[str, Any] | None = None
-        codex_content, codex_meta = try_codex_exec(
-            task=task,
-            messages=messages,  # type: ignore[arg-type]
-            response_format=str(base_options.get("response_format") or response_format or "").strip() or None,
+        forced_env_models = bool(
+            (os.getenv("LLM_FORCE_TASK_MODELS_JSON") or "").strip()
+            or (os.getenv("LLM_FORCE_MODELS") or os.getenv("LLM_FORCE_MODEL") or "").strip()
         )
+        explicit_models_from_conf = False
+        try:
+            explicit_models_from_conf = bool(
+                (override_conf.get("models") if isinstance(override_conf, dict) else None)
+                or (task_conf.get("models") if isinstance(task_conf, dict) else None)
+            )
+        except Exception:
+            explicit_models_from_conf = False
+
+        # When the model chain is explicitly pinned, do not try Codex exec first.
+        # (It would be a silent model/provider swap relative to caller intent.)
+        skip_codex_exec = bool(model_keys) or forced_env_models or explicit_models_from_conf
+        routing: Dict[str, Any] | None = None
+        codex_content = None
+        codex_meta: Dict[str, Any] = {"attempted": False, "reason": "strict_model_selection"} if skip_codex_exec else {}
+        if not skip_codex_exec:
+            codex_content, codex_meta = try_codex_exec(
+                task=task,
+                messages=messages,  # type: ignore[arg-type]
+                response_format=str(base_options.get("response_format") or response_format or "").strip() or None,
+            )
         if codex_meta.get("attempted") and codex_content is not None:
             latency_ms = int((codex_meta or {}).get("latency_ms") or 0)
             task_id = None
@@ -1973,6 +1999,7 @@ class LLMRouter:
             client = self.clients.get(provider_name)
 
             if not client:
+                skipped_no_client.append({"model": str(model_key), "provider": str(provider_name) if provider_name else None})
                 logger.debug(f"Client for {provider_name} not ready. Skipping {model_key}")
                 continue
             if provider_name == "fireworks":
@@ -2283,6 +2310,22 @@ class LLMRouter:
                     time.sleep(sleep_for)  # short backoff to avoid hammering provider
                     total_wait += sleep_for
                 continue
+
+        if last_error is None and not tried and skipped_no_client:
+            providers = sorted({ent.get("provider") for ent in skipped_no_client if ent.get("provider")})
+            hints: List[str] = []
+            if "fireworks" in providers:
+                hints.append("FIREWORKS_SCRIPT")
+            if "openrouter" in providers:
+                hints.append("OPENROUTER_API_KEY")
+            if "azure" in providers:
+                hints.append("AZURE_OPENAI_API_KEY/AZURE_OPENAI_ENDPOINT")
+            if "gemini" in providers:
+                hints.append("GEMINI_API_KEY")
+            hint_txt = f" (set: {', '.join(hints)})" if hints else ""
+            tried = [str(ent["model"]) for ent in skipped_no_client if ent.get("model")]
+            last_error = RuntimeError(f"No LLM client configured for provider(s): {providers}{hint_txt}")
+            last_error_class = last_error.__class__.__name__
 
         self._log_usage(
             {

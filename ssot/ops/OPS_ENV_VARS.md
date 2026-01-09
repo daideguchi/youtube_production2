@@ -44,7 +44,7 @@
   - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗時は非`script_*`はTHINKへ）
   - 注:
     - `script_*` は THINK フォールバックしない（API停止時は即停止・記録）
-    - `script_*` は **現運用では OpenRouter 固定**（Fireworks(text) は使わない / 412対策）。切替は slot 定義（`configs/llm_model_slots.yaml` の `script_tiers` / `script_allow_openrouter`）で行う
+    - `script_*` は **既定は Fireworks 固定**（`script-main-1` / DeepSeek v3.2 exp + thinking）。pin は `configs/llm_task_overrides.yaml` が正（slotは未pinのtask/tierのみ）
 - 実行モード選択は **exec slot** で行う（env直書きの増殖を防ぐ）。
   - `LLM_EXEC_SLOT`（default: `0`）: `configs/llm_exec_slots.yaml` の `slots` から選ぶ
   - 例:
@@ -134,6 +134,9 @@
   - `llm_usage.jsonl` には `routing_key`（例: `CH10-010`）が記録されるため、1本あたりの呼び出し回数/トークン量を後追いできる。
   - 例: `python3 scripts/ops/llm_usage_report.py --channel CH10 --video 010 --task-prefix script_`
 - TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（デフォルトは削除）。
+- TTS（運用）:
+  - `SKIP_TTS_READING=1`（default: 0）: 読みLLM経路を完全にスキップし、辞書/override + 手動監査で運用する。
+  - 誤読防止（常時ON）: VOICEVOX実読と期待読みが1件でもズレたら停止し、`workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json` を出力する（誤読混入を禁止）。
 
 ## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
 `packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/search_results.json` に保存される。

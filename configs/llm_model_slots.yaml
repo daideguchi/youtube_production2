@@ -35,18 +35,19 @@ slots:
       master_plan_opus:
         - txt-master-plan-opus-1
     # Script tasks are special:
-    # - 通常運用では「Fireworks (text) は使わない」前提に寄せる。
-    # - そのため slot 0 でも script_* は OpenRouter に固定する（失敗時は停止。THINKへは行かない）。
-    script_allow_openrouter: true
+    # - 台本（script_*）は task override で pin される（configs/llm_task_overrides.yaml）。
+    # - ここは “未pinのscript_* task” が出た時に迷わないためのデフォルト（通常は触らない）。
+    # - 通常運用では script_* を OpenRouter に流さない（Fireworks-only; 失敗時は停止）。
+    script_allow_openrouter: false
     script_tiers:
       heavy_reasoning:
-        - open-kimi-thinking-1
+        - script-main-1
       standard:
-        - open-kimi-thinking-1
+        - script-main-1
       cheap:
-        - open-kimi-thinking-1
+        - script-main-1
       master_plan_opus:
-        - open-kimi-thinking-1
+        - script-main-1
 
   1:
     label: openrouter_kimi_all

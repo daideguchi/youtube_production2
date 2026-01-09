@@ -8,6 +8,10 @@ def _make_router(monkeypatch, *, models):
     lr.LLMRouter._instance = None
     router = lr.LLMRouter()
 
+    # Unit tests rely on explicit per-call model chains; disable routing lockdown here.
+    monkeypatch.setenv("YTM_ROUTING_LOCKDOWN", "0")
+    monkeypatch.delenv("YTM_EMERGENCY_OVERRIDE", raising=False)
+
     # Disable cache + agent-mode hooks for deterministic unit tests.
     monkeypatch.setattr(lr, "_api_cache_enabled_for_task", lambda _task: False)
     monkeypatch.setattr(lr, "maybe_handle_agent_mode", lambda **_kw: None)
