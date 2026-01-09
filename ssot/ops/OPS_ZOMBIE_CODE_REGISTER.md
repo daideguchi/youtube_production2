@@ -20,7 +20,7 @@
 
 | path | 観測 | 暫定提案 |
 | --- | --- | --- |
-| scripts/ops/lint_llm_config.py | `configs/llm.yml` 系の lint（現行主線は `llm_router.yaml`） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |
+| scripts/ops/lint_llm_config.py | legacy名（`configs/llm.yml` 系 lint の名残。CI/Docs drift防止の互換入口） | ✅ 解消（2026-01-09）: 旧実装は archive-first→delete 済み（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`）。現行は compat shim として復活し `scripts/ops/lint_llm_router_config.py` を呼ぶ（正本入口: `lint_llm_router_config.py` / `./ops ssot check`）。 |
 | scripts/py | repo用の python wrapper（手動実行用途の可能性） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |
 | scripts/thumbnails/gen_buddha_channel_bases.py | “一回きりの生成” に見える（要中身確認） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |
 | scripts/thumbnails/portraits_wikimedia.py | Wikimedia 取得系（要中身確認） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） |

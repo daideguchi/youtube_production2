@@ -35,6 +35,14 @@
 - `configs/llm_exec_slots.yaml`
   - **数字スロット** `LLM_EXEC_SLOT`（api/think/agent/codex exec/failover）で「どこで動くか」を固定
 
+### 1.1.1 変更後の固定チェック（必須）
+- 最短（推奨）: `./ops ssot check`（内部: `scripts/ops/pre_push_final_check.py`）
+- ルーティング整合（router+codes+slots+overrides）: `python3 scripts/ops/lint_llm_router_config.py`
+- カタログ整合（UI/SSOT）: `python3 scripts/ops/build_ssot_catalog.py --check`
+
+注:
+- `scripts/ops/lint_llm_config.py` は旧名の互換入口（shim）。新規運用では使わない（中身は `lint_llm_router_config.py`）。
+
 ### 1.2 Legacy（原則使わない）: Tier上書き
 この repo では運用切替は **`LLM_MODEL_SLOT`** に統一しているため、ここは原則使わない（混乱/ズレ防止）。
 
