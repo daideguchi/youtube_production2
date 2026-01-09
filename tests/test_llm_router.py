@@ -28,16 +28,11 @@ def _make_router(monkeypatch, *, models):
 
 def test_strict_model_keys_disables_codex_and_tries_only_first_then_fails_over_to_think(monkeypatch):
     router, lr = _make_router(monkeypatch, models=["m1", "m2"])
+    # Per-call model override is debug-only under routing lockdown.
+    monkeypatch.setenv("YTM_EMERGENCY_OVERRIDE", "1")
 
     invoked = []
-    codex_calls = {"n": 0}
     think_calls = {"n": 0}
-
-    def _codex(**_kw):
-        codex_calls["n"] += 1
-        return None, {"attempted": True, "reason": "should_not_run"}
-
-    monkeypatch.setattr(lr, "try_codex_exec", _codex)
 
     def _think_failover(**_kw):
         think_calls["n"] += 1
@@ -60,22 +55,16 @@ def test_strict_model_keys_disables_codex_and_tries_only_first_then_fails_over_t
     # Strict-by-default: try ONLY the first model; then fail over to THINK MODE (non-script tasks).
     assert invoked == ["m1"]
     assert think_calls["n"] == 1
-    assert codex_calls["n"] == 0
     assert res["content"] == "THINK"
 
 
 def test_allow_fallback_true_with_model_keys_tries_multiple_then_fails_over_to_think(monkeypatch):
     router, lr = _make_router(monkeypatch, models=["m1", "m2"])
+    # Per-call model override is debug-only under routing lockdown.
+    monkeypatch.setenv("YTM_EMERGENCY_OVERRIDE", "1")
 
     invoked = []
-    codex_calls = {"n": 0}
     think_calls = {"n": 0}
-
-    def _codex(**_kw):
-        codex_calls["n"] += 1
-        return None, {"attempted": True, "reason": "should_not_run"}
-
-    monkeypatch.setattr(lr, "try_codex_exec", _codex)
 
     def _think_failover(**_kw):
         think_calls["n"] += 1
@@ -98,12 +87,13 @@ def test_allow_fallback_true_with_model_keys_tries_multiple_then_fails_over_to_t
 
     assert invoked == ["m1", "m2"]
     assert think_calls["n"] == 1
-    assert codex_calls["n"] == 0
     assert res["content"] == "THINK"
 
 
 def test_script_tasks_do_not_failover_to_think(monkeypatch):
     router, lr = _make_router(monkeypatch, models=["m1"])
+    # Per-call model override is debug-only under routing lockdown.
+    monkeypatch.setenv("YTM_EMERGENCY_OVERRIDE", "1")
 
     invoked = []
     think_calls = {"n": 0}

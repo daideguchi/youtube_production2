@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 from factory_common.llm_config import load_llm_config, resolve_task
 from factory_common.agent_mode import maybe_handle_agent_mode
 from factory_common.llm_api_failover import maybe_failover_to_think
+from factory_common.routing_lockdown import lockdown_active
 from factory_common.llm_api_cache import (
     cache_enabled_for_task as _api_cache_enabled_for_task,
     cache_path as _api_cache_path,
@@ -39,10 +40,15 @@ class LLMResult:
 
 class LLMClient:
     """
-    Capability-aware LLM caller with task→tier→model resolution.
-    - Uses configs/llm.yml as the primary source.
-    - Optional overrides via tier mapping/candidates files.
-    - Supports Azure (responses/chat) and OpenRouter chat; Gemini text is not yet wired.
+    Legacy capability-aware LLM caller with task→tier→model resolution.
+
+    DO NOT USE FOR OPS.
+
+    SSOT (2026-01-09):
+    - Normal ops routing is slot-based via `factory_common.llm_router` + `configs/llm_router.yaml`
+      (+ `llm_task_overrides.yaml` + codes/slots).
+    - This legacy client is disabled under routing lockdown (`YTM_ROUTING_LOCKDOWN=1` / default ON).
+      Debug/tests only: set `YTM_ROUTING_LOCKDOWN=0` or `YTM_EMERGENCY_OVERRIDE=1` to bypass.
     """
 
     def __init__(
@@ -52,6 +58,17 @@ class LLMClient:
         tier_candidates_path: Optional[str] = None,
         provider_clients: Optional[Dict[str, Any]] = None,
     ) -> None:
+        if lockdown_active():
+            raise RuntimeError(
+                "\n".join(
+                    [
+                        "[LOCKDOWN] factory_common.llm_client.LLMClient is legacy and disabled under routing lockdown.",
+                        "- policy: Use factory_common.llm_router.LLMRouter (slot-based) for ops.",
+                        "- hint: Use LLM_MODEL_SLOT / LLM_EXEC_SLOT and configs/llm_router.yaml (+ codes/slots/overrides).",
+                        "- debug: set YTM_ROUTING_LOCKDOWN=0 or YTM_EMERGENCY_OVERRIDE=1 for this run (tests only).",
+                    ]
+                )
+            )
         self.config = load_llm_config(
             config_path=config_path,
             tier_mapping_path=tier_mapping_path,

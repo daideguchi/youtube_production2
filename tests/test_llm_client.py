@@ -34,11 +34,26 @@ class DummyClient:
 
 class TestLLMClient(unittest.TestCase):
     def setUp(self):
+        self._prev_env = {
+            "LLM_API_CACHE_DISABLE": os.environ.get("LLM_API_CACHE_DISABLE"),
+            "YTM_ROUTING_LOCKDOWN": os.environ.get("YTM_ROUTING_LOCKDOWN"),
+            "YTM_EMERGENCY_OVERRIDE": os.environ.get("YTM_EMERGENCY_OVERRIDE"),
+        }
         # Unit tests should not depend on or pollute disk cache.
         os.environ["LLM_API_CACHE_DISABLE"] = "1"
+        # LLMClient is legacy and disabled under routing lockdown by default.
+        os.environ["YTM_ROUTING_LOCKDOWN"] = "0"
+        os.environ.pop("YTM_EMERGENCY_OVERRIDE", None)
         # Inject dummy clients to avoid real HTTP
         self.azure_client = DummyClient(fail=False, content="azure")
         self.or_client = DummyClient(fail=False, content="openrouter")
+
+    def tearDown(self):
+        for key, value in (self._prev_env or {}).items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
 
     def test_reasoning_strips_temperature(self):
         cfg_text = """
