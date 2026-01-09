@@ -36,16 +36,13 @@
 
 ---
 
-## B) LLM “旧設定系” の残骸候補（要方針決定）
+## B) LLM “旧設定系” の残骸候補（方針確定済み / D-010）
 
-観測:
-- `packages/factory_common/llm_router.py` / `configs/llm_router.yaml` が現行主線。
-- 一方で `configs/llm.yml` / `packages/factory_common/llm_client.py` / `packages/factory_common/llm_config.py` が残存し、docs でも言及がある（完全廃止か未確定）。
-
-暫定提案:
-- **方針決定が先**:
-  - 「LLMは `llm_router` に一本化する」を確定できるなら、`llm.yml` 系 + `llm_client/llm_config` + 関連テストを **legacy隔離→削除** の対象にできる。
-  - 併用するなら、SSOT側で「どのフェーズがどちらを使うか」を明記し、運用者が迷わない形に寄せる。
+方針（SSOT / `ssot/DECISIONS.md:D-010`）:
+- LLM routing の正本は **`configs/llm_router.yaml` + `configs/llm_task_overrides.yaml` + codes/slots**。
+- `configs/llm.yml` + `factory_common.llm_config` / `factory_common.llm_client` は **互換/テスト用の legacy**。通常運用では使わない。
+  - 2026-01-09: 迷子防止のため、**ロックダウン（`YTM_ROUTING_LOCKDOWN=1` / default ON）では legacy 経由の実行を停止**し、必要なら `YTM_ROUTING_LOCKDOWN=0` または `YTM_EMERGENCY_OVERRIDE=1` で明示的に解除する（debug only）。
+- 削除は別PRで archive-first 手順に従って実施する（tracked 削除ログ必須）。
 
 ### B-1) “設定SSOTが複数ある”こと自体がゾンビ増殖源
 
@@ -54,7 +51,7 @@
 | ファミリ | 代表ファイル | 現状 | リスク |
 | --- | --- | --- | --- |
 | Router系（現行主線） | `configs/llm_router.yaml`, `configs/llm_task_overrides.yaml`, `packages/factory_common/llm_router.py` | script/audio/video が主に使用 | ✅ 主線。ここへ統一したい |
-| YML系（legacy） | `configs/llm.yml`, `configs/llm.local.yml`, `packages/factory_common/llm_client.py`, `packages/factory_common/llm_config.py` | `llm_client` 以外の実利用がほぼ無い（監査/テスト中心） | “どれが正本か”が崩れる |
+| YML系（legacy） | `configs/llm.yml`, `configs/llm.local.yml`, `packages/factory_common/llm_client.py`, `packages/factory_common/llm_config.py` | `llm_client` 以外の実利用がほぼ無い（監査/テスト中心） | “どれが正本か”が崩れる（通常運用ではロックダウンで停止） |
 | Registry系（legacy/UI補助） | （deleted; was: configs/llm_registry.json, configs/llm_model_registry.yaml） | ✅ 解消（2026-01-08）: archive-first→delete（graveyard: `backups/graveyard/20260108T160909Z__remove_legacy_llm_registry_and_zombie_scripts/`） | Routerと二重管理になりやすい |
 
 対応（提案）:
@@ -103,4 +100,4 @@
 
 ## 次に必要な意思決定（ユーザー確認）
 1) A-1 の4件は「残す（SSOT入口へ昇格）」か「不要（archive→delete）」か？
-2) LLM設定は `llm_router` へ一本化するか？（= `llm.yml`/registry 系の扱い。`ssot/DECISIONS.md:D-010`）
+2) LLM legacy（`llm.yml`/`llm_client`/`llm_config`）をいつ削除するか？（通常運用は既にロックダウンで禁止。削除は archive-first の別PRで実施）

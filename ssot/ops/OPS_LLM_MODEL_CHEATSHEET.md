@@ -53,6 +53,7 @@
 - `configs/llm.yml` / `configs/llm.local.yml`
   - legacy tooling/tests 互換のために残っている設定。通常運用のルーティングSSOTではない。
   - `script_pipeline`（台本生成の主線）は現状こちらを見ない。
+  - 2026-01-09: **ロックダウン（`YTM_ROUTING_LOCKDOWN=1` / default ON）では legacy 経由の実行を停止**し、必要なら `YTM_ROUTING_LOCKDOWN=0` または `YTM_EMERGENCY_OVERRIDE=1` で明示的に解除する（debug only）。
 
 ---
 

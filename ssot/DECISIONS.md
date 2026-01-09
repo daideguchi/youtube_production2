@@ -85,6 +85,7 @@
 ### Decision
 - LLMの「タスク→モデル/プロバイダ」設定を **`configs/llm_router.yaml` + `configs/llm_task_overrides.yaml`（+ codes/slots）** に統一する。  
   旧 registry（`llm_registry.json`, `llm_model_registry.yaml`）は **archive-first→削除済み（2026-01-08）** のため復活禁止。`llm.yml` + `factory_common.llm_client` は legacy（互換）扱い。
+- 2026-01-09: 迷子防止 — **ロックダウン（`YTM_ROUTING_LOCKDOWN=1` / default ON）では legacy（`llm.yml` / `llm_client` / `llm_config`）を通常運用で実行不能**にし、例外は `YTM_ROUTING_LOCKDOWN=0` または `YTM_EMERGENCY_OVERRIDE=1` のみ（debug only）。
 
 ### Recommended（推奨）
 1) SSOT（正本）: `llm_router.yaml`（tiers/models/tasks） + `llm_task_overrides.yaml`（taskごとの上書き）  
@@ -105,6 +106,7 @@
 - SSOT側: `ops/OPS_LLM_MODEL_CHEATSHEET.md` 等の「正本: llm.yml」記述を `llm_router.yaml` に寄せて統一する。
 - 実装側: UI backend / 集計が `llm_registry.json` を参照している箇所を router由来に置換する（段階導入）。  
   - UI backend: 置換済み（2026-01-08）
+- 実装側: legacy 経由（`llm.yml` / `llm_client` / `llm_config`）の参照が残る間は、**ロックダウン既定で停止**し、解除は明示（`YTM_ROUTING_LOCKDOWN=0` or `YTM_EMERGENCY_OVERRIDE=1`）のみに限定する。
 
 ---
 
