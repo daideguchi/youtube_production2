@@ -7,10 +7,15 @@ Validates that:
     - models.*.provider exists in providers
     - tiers.* references existing models
     - tasks.*.tier (when set) exists in tiers
+    - policy: tiers.* is single-model (no automatic fallback)
   - configs/llm_model_codes.yaml codes resolve to existing llm_router models
   - configs/llm_model_slots.yaml slot tiers/script_tiers resolve (codes -> model_key -> models)
+    - policy: slot tiers/script_tiers are single-model (no automatic fallback)
   - configs/llm_task_overrides.yaml override models resolve (codes -> model_key -> models)
-  - Policy guard: script_* tasks must not route to provider=azure
+    - policy: allow_fallback=true is forbidden (no silent model/provider swap)
+    - policy: script_* tasks must not route to provider=azure/openrouter (Fireworks-only by default)
+  - configs/codex_exec.yaml policy guards
+    - policy: codex exec must not include `script_*` tasks
 
 Exit code:
   - 0: ok (warnings allowed unless --strict)
@@ -121,6 +126,11 @@ def main(argv: list[str] | None = None) -> int:
         root / "configs" / "llm_task_overrides.yaml",
         prefer_local=bool(args.prefer_local),
     )
+    codex_path = _pick_local_or_base(
+        root / "configs" / "codex_exec.local.yaml",
+        root / "configs" / "codex_exec.yaml",
+        prefer_local=bool(args.prefer_local),
+    )
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -161,6 +171,12 @@ def main(argv: list[str] | None = None) -> int:
         if not _as_str(model_cfg.get("deployment")) and not _as_str(model_cfg.get("model_name")):
             warnings.append(f"models.{mk} has neither deployment nor model_name: {router_path.as_posix()}")
 
+    def _provider_for_model_key(model_key: str) -> str:
+        cfg = models.get(model_key)
+        if not isinstance(cfg, dict):
+            return ""
+        return _as_str(cfg.get("provider"))
+
     # tiers.* -> models
     for tier_name, tier_models in tiers.items():
         tn = _as_str(tier_name)
@@ -170,6 +186,20 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(tier_models, list):
             errors.append(f"tiers.{tn} must be a list: {router_path.as_posix()}")
             continue
+        # Policy: avoid automatic fallback by keeping each tier single-model.
+        normalized = [_as_str(x) for x in tier_models if _as_str(x)]
+        if len(normalized) != 1:
+            errors.append(f"policy: tiers.{tn} must contain exactly 1 model (no automatic fallback): {router_path.as_posix()}")
+        tier_providers_set: set[str] = set()
+        for tok in normalized:
+            prov = _provider_for_model_key(tok)
+            if prov:
+                tier_providers_set.add(prov)
+        tier_providers = sorted(tier_providers_set)
+        if len(tier_providers) > 1:
+            errors.append(
+                f"policy: tiers.{tn} mixes providers {tier_providers} (no LLM API fallback allowed): {router_path.as_posix()}"
+            )
         for raw in tier_models:
             token = _as_str(raw)
             if not token:
@@ -244,6 +274,11 @@ def main(argv: list[str] | None = None) -> int:
             if not isinstance(sel_list, list):
                 errors.append(f"llm_model_slots: slots.{slot_id}.{kind}.{tn} must be a list")
                 continue
+            normalized = [_as_str(x) for x in sel_list if _as_str(x)]
+            if len(normalized) != 1:
+                errors.append(
+                    f"policy: llm_model_slots: slots.{slot_id}.{kind}.{tn} must contain exactly 1 selector (no automatic fallback)"
+                )
             for raw in sel_list:
                 sel = _as_str(raw)
                 if not sel:
@@ -293,6 +328,8 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(ent, dict):
             errors.append(f"llm_task_overrides: tasks.{t} must be a mapping")
             continue
+        if ent.get("allow_fallback") is True:
+            errors.append(f"policy: llm_task_overrides: tasks.{t}.allow_fallback=true is forbidden (no automatic fallback)")
         tier = ent.get("tier")
         if tier is not None and _as_str(tier) != "":
             tn = _as_str(tier)
@@ -304,6 +341,9 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(model_list, list):
             errors.append(f"llm_task_overrides: tasks.{t}.models must be a list")
             continue
+        normalized = [_as_str(x) for x in model_list if _as_str(x)]
+        if len(normalized) != 1:
+            errors.append(f"policy: llm_task_overrides: tasks.{t}.models must contain exactly 1 selector (no automatic fallback)")
         for raw in model_list:
             sel = _as_str(raw)
             if not sel:
@@ -315,6 +355,24 @@ def main(argv: list[str] | None = None) -> int:
                 continue
             if t.startswith("script_") and provider_of(mk) == "azure":
                 errors.append(f"policy: script_* must not use azure provider (task={t} selector={sel!r} -> {mk})")
+            if t.startswith("script_") and provider_of(mk) == "openrouter":
+                errors.append(f"policy: script_* must not use openrouter provider (task={t} selector={sel!r} -> {mk})")
+
+    # Codex exec policy: do not allow script_* tasks.
+    codex_cfg, err = _load_yaml(codex_path)
+    if err:
+        errors.append(err)
+        codex_cfg = {}
+    selection = _as_dict(codex_cfg.get("selection"))
+    prefixes = [_as_str(x) for x in _as_list(selection.get("include_task_prefixes")) if _as_str(x)]
+    include_tasks = [_as_str(x) for x in _as_list(selection.get("include_tasks")) if _as_str(x)]
+    if "script_" in prefixes:
+        errors.append(f"policy: codex_exec.yaml: selection.include_task_prefixes must not include 'script_' ({codex_path.as_posix()})")
+    script_includes = [t for t in include_tasks if t.startswith("script_")]
+    if script_includes:
+        errors.append(
+            f"policy: codex_exec.yaml: selection.include_tasks must not include script_* tasks: {script_includes} ({codex_path.as_posix()})"
+        )
 
     if warnings:
         print("⚠️ warnings:")
