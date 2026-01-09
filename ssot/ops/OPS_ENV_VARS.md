@@ -44,7 +44,8 @@
   - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗時は非`script_*`はTHINKへ）
   - 注:
     - `script_*` は THINK フォールバックしない（API停止時は即停止・記録）
-    - `script_*` は **現運用では OpenRouter 固定**（Fireworks(text) は使わない / 412対策）。切替は slot 定義（`configs/llm_model_slots.yaml` の `script_tiers` / `script_allow_openrouter`）で行う
+    - `script_*` は **現運用では Fireworks（DeepSeek v3.2 exp + thinking）固定**（slot 0 の `script_tiers`）。切替は slot 定義（`configs/llm_model_slots.yaml` の `script_tiers` / `script_allow_openrouter`）で行う
+      - Fireworks(text) を止めるのはデバッグ専用（`YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=1`）
 - 実行モード選択は **exec slot** で行う（env直書きの増殖を防ぐ）。
   - `LLM_EXEC_SLOT`（default: `0`）: `configs/llm_exec_slots.yaml` の `slots` から選ぶ
   - 例:

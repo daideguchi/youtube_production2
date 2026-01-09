@@ -177,13 +177,12 @@ SSOT配置（正本）:
 
 モデル方針（本文/台本）:
 - **既定は slot 0**（`configs/llm_model_slots.yaml`）。
-  - `script_*` は slot の `script_tiers` に従う（現行: OpenRouter `open-kimi-thinking-1`）。
+  - `script_*` は slot の `script_tiers` に従う（現行: Fireworks `script-main-1` = DeepSeek v3.2 exp + thinking）。
   - “モデル名を書き換えない” ため、運用の切替は `--llm-slot <N>` / `LLM_MODEL_SLOT=<N>` だけで行う。
-- **Fireworks（text/台本） は通常運用で無効**（412/課金事故防止・メモキー誤投入防止）。
-  - ガード: `YTM_DISABLE_FIREWORKS_TEXT=1`（`scripts/with_ytm_env.sh` 既定 / ルーター側でも除外）
-  - 例外（デバッグのみ）: `YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=0` のうえで `--llm-slot 3/4/5` 等を選ぶ
+- **Fireworks（text/台本） は通常運用で有効**（台本の既定が Fireworks / DeepSeek v3.2 exp のため）。
+  - 例外（デバッグのみ）: `YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=1`（この実行だけ Fireworks を止める）
   - `script_*` は API 停止時に **即停止**（THINK フォールバックしない）
-- Fireworks script keyring（`FIREWORKS_SCRIPT*` / `FIREWORKS_SCRIPT_KEYS_*`）は **現行運用では使わない**（pool は空/隔離済み）。
+- Fireworks script keyring（`FIREWORKS_SCRIPT*` / `FIREWORKS_SCRIPT_KEYS_*`）でキーを管理する（複数キーは自動ローテーション + 排他lease）。
 
 観測（比較で迷わない）:
 - 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。

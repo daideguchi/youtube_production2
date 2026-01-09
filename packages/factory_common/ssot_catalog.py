@@ -4401,7 +4401,10 @@ def build_ssot_catalog() -> Dict[str, Any]:
     active_slot_id = max(0, active_slot_id)
 
     active_slot_tiers: Dict[str, Any] = {}
-    active_slot_script_tiers: Dict[str, Any] = {}
+    # NOTE: match LLMRouter semantics:
+    # - When `script_tiers` exists for the active slot, `script_*` tasks do NOT fall back to `tiers`.
+    # - When `script_tiers` is absent, `script_*` tasks use `tiers`.
+    active_slot_script_tiers: Dict[str, Any] | None = None
     if isinstance(llm_model_slots, dict):
         for ent in llm_model_slots.get("slots") if isinstance(llm_model_slots.get("slots"), list) else []:
             if not isinstance(ent, dict):
@@ -4425,8 +4428,11 @@ def build_ssot_catalog() -> Dict[str, Any]:
         if not tier:
             return []
         is_script = str(task or "").startswith("script_")
-        if is_script and isinstance(active_slot_script_tiers.get(tier), list):
-            return [str(x) for x in active_slot_script_tiers.get(tier) if str(x).strip()]
+        if is_script and isinstance(active_slot_script_tiers, dict):
+            v = active_slot_script_tiers.get(tier)
+            if isinstance(v, list):
+                return [str(x) for x in v if str(x).strip()]
+            return []
         if isinstance(active_slot_tiers.get(tier), list):
             return [str(x) for x in active_slot_tiers.get(tier) if str(x).strip()]
         return []
@@ -4449,21 +4455,29 @@ def build_ssot_catalog() -> Dict[str, Any]:
 
         model_keys: List[str] = []
         model_source: str | None = None
-        explicit_models = override.get("models") if "models" in override else base.get("models")
-        if explicit_models:
-            if isinstance(explicit_models, list):
-                model_keys = [str(x) for x in explicit_models if str(x).strip()]
-            elif isinstance(explicit_models, str):
-                model_keys = [explicit_models.strip()]
-            model_source = "task_override.models" if "models" in override else "task_config.models"
-        elif tier:
+        # IMPORTANT: follow runtime precedence (LLMRouter.get_models_for_task):
+        #   slot (tiers/script_tiers) > task_override.models > task_config.models > llm_router.tiers
+        if tier:
             slot_keys = _models_from_slot(task=task, tier=tier)
             if slot_keys:
                 model_keys = slot_keys
-                model_source = f"llm_model_slots:{active_slot_id}:{'script_tiers' if str(task).startswith('script_') else 'tiers'}:{tier}"
-            elif isinstance(tiers.get(tier), list):
-                model_keys = [str(x) for x in tiers.get(tier) if str(x).strip()]
-                model_source = f"llm_router.tiers:{tier}"
+                slot_group = "tiers"
+                if str(task).startswith("script_") and isinstance(active_slot_script_tiers, dict):
+                    slot_group = "script_tiers"
+                model_source = f"llm_model_slots:{active_slot_id}:{slot_group}:{tier}"
+
+        if not model_keys:
+            explicit_models = override.get("models") if "models" in override else base.get("models")
+            if explicit_models:
+                if isinstance(explicit_models, list):
+                    model_keys = [str(x) for x in explicit_models if str(x).strip()]
+                elif isinstance(explicit_models, str):
+                    model_keys = [explicit_models.strip()]
+                model_source = "task_override.models" if "models" in override else "task_config.models"
+
+        if not model_keys and tier and isinstance(tiers.get(tier), list):
+            model_keys = [str(x) for x in tiers.get(tier) if str(x).strip()]
+            model_source = f"llm_router.tiers:{tier}"
 
         resolved_models: List[Dict[str, Any]] = []
         for mk in model_keys:

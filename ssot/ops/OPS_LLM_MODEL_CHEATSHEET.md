@@ -61,32 +61,39 @@
 
 ### 2.1 テキストLLM（台本/読み/補助）
 - `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（原則）。
-  - 現行（Fireworks(text) 停止中）: `open-kimi-thinking-1`（OpenRouter / Kimi K2 Thinking）
-  - 参考（復旧/比較用; いまは使わない）: `fw-d-1`, `fw-g-1`, `fw-m-1`（Fireworks）
+  - 現行（既定）: `script-main-1`（Fireworks / DeepSeek v3.2 exp + thinking）
+  - 予備/比較用（スロットで選ぶ）:
+    - `open-kimi-thinking-1`（Kimi K2 Thinking）
+    - `fw-glm-4p7-1`（GLM 4.7）
   - 切替レバー: `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）のみ（`YTM_SCRIPT_ALLOW_OPENROUTER` はロックダウンONでは禁止）
 
-#### 2.1.1 Decision（2026-01-06）: Fireworks(text) を停止し、台本系は OpenRouter 固定
+#### 2.1.1 Decision（2026-01-09）: 台本の既定を Fireworks（DeepSeek v3.2 exp + thinking）に固定
 対象（正本）:
-- `configs/llm_router.yaml`
-- `configs/llm_task_overrides.yaml`
+- `configs/llm_model_slots.yaml`
+- `configs/llm_router.yaml`（モデル定義 / Fireworksは OpenAI互換）
+- `packages/factory_common/llm_router.py`（Fireworks/OpenRouterの差異吸収）
 
 結論:
-- 現運用は **Fireworks(text) を使わない**（412/suspended 対策）。
-- `script_pipeline`（台本）の **“本文執筆/品質審査/字数救済/最終磨き込み”** は `open-kimi-thinking-1` に固定する。
-- 切替は `configs/llm_model_slots.yaml: slots.0.script_tiers` を更新して行う（モデル名直書き/散発上書きは禁止）。
+- `script_pipeline`（台本）の既定は **DeepSeek v3.2 exp + thinking**（`script-main-1`）に固定する。
+- ルーティングは **数字スロット + モデルコード**で統制し、モデル名の書き換え運用はしない。
+  - 既定: `configs/llm_model_slots.yaml: slots.0.script_tiers`
+  - 比較/切替: `--llm-slot <N>` / `LLM_MODEL_SLOT=<N>`（Kimi/GLM4.7はスロットで選ぶ）
 
 理由（品質×コスト）:
 - 執筆は thinking 必須（指示）。モデルチェーンを増やすと「文体ぶれ/契約ぶれ/収束不安定」を増やし、結果的にコストが上がる。
-- Kimi K2 Thinking（OpenRouter）は `extra_body.reasoning.enabled` が無いと空文字になり得るため、`packages/factory_common/llm_router.py` が自動付与でガードしている（呼び出し側の付け忘れ耐性）。
-- （参考）Fireworks を復旧した場合でも、台本系は provider 変更でブレやすいので、slot の切替で一括管理する。
+- OpenRouter と Fireworks では request/拡張パラメータ形態が異なるため、台本の本線は **Fireworksに固定**し、差異は router で吸収する。
+- thinking必須の安全ガードは `packages/factory_common/llm_router.py` が担保する（呼び出し側の付け忘れ耐性）。
 
 運用ルール（重要: 憶測でパラメータを決めない）:
 - モデル仕様（reasoning対応/上限等）は鮮度が命。必要なら以下で **実在と仕様**を確認してから調整する。
   - OpenRouter: `https://openrouter.ai/api/v1/models`（ローカル更新: `packages/script_pipeline/config/openrouter_models.json`）
   - Fireworks（参考）: `https://api.fireworks.ai/inference/v1/models`（Bearer: `$FIREWORKS_SCRIPT`）
-- thinking必須の実装（主に“執筆/審査”タスク）:
-  - `configs/llm_task_overrides.yaml` で `options.extra_body.reasoning.enabled=true` を付与（章執筆/品質ゲート等）
-  - `script_semantic_alignment_check` は **出力が厳格JSON** のため、`response_format: json_object` を使って「思考ありでもJSONが壊れにくい」側に寄せる（DeepSeek固定 / Kimiへフォールバックしない）。
+  - thinking必須の実装（主に“執筆/審査”タスク）:
+    - `configs/llm_task_overrides.yaml` で `options.extra_body.reasoning.enabled=true` を付与（章執筆/品質ゲート等）
+    - `script_semantic_alignment_check` は **出力が厳格JSON** のため、`response_format: json_object` を使って「思考ありでもJSONが壊れにくい」側に寄せる（DeepSeek固定 / Kimiへフォールバックしない）。
+
+#### 2.1.2 Decision（2026-01-06 / superseded）: Fireworks(text) を停止し、台本系は OpenRouter 固定
+この判断は **2026-01-09 の方針で置き換え**（DeepSeek v3.2 exp を既定に復帰）されました。
 
 ### 2.2 画像生成（サムネ / 動画内画像）
 
@@ -164,7 +171,7 @@
 目的: 実験/比較/コスト最適化のため、**設定ファイルを編集せず**に「この実行だけ」モデルを差し替える。
 
 - **推奨: 数字スロットで固定（モデル名を書かない）**
-  - `LLM_MODEL_SLOT=0`（default）: `configs/llm_model_slots.yaml: slots.0`（現行: non-script=OpenRouter主線 / script=OpenRouter主線）
+  - `LLM_MODEL_SLOT=0`（default）: `configs/llm_model_slots.yaml: slots.0`（現行: non-script=OpenRouter主線 / script=Fireworks DeepSeek v3.2 exp）
   - `LLM_MODEL_SLOT=1/2/...`: `configs/llm_model_slots.yaml: slots.<N>` を選ぶ
   - 個別調整は `configs/llm_model_slots.local.yaml`（git管理しない）で上書きする
   - 使い方（例）:
@@ -192,11 +199,11 @@
 
 - 互換/緊急デバッグ（通常運用では使わない。`YTM_ROUTING_LOCKDOWN=1` では停止）:
   - 全タスク共通（model chain を固定）:
-    - `LLM_FORCE_MODELS="open-kimi-thinking-1"`（カンマ区切り。**モデルコード**は `configs/llm_model_codes.yaml`）
+    - `LLM_FORCE_MODELS="script-main-1"`（カンマ区切り。**モデルコード**は `configs/llm_model_codes.yaml`）
       - 互換: `deepseek/deepseek-v3.2-exp`（model id）や `gpt-5-mini`（Azure deployment）も **一意に解決できる場合のみ** model key に自動解決される（推奨は常に model code 指定）。
       - 注: `script_*` task の OpenRouter 許可は slot 定義（`configs/llm_model_slots.yaml: script_allow_openrouter`）で固定する。
   - タスク別（task→model chain）:
-    - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["open-kimi-thinking-1"]}'`
+    - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["script-main-1"]}'`
   - 使う場合は `YTM_EMERGENCY_OVERRIDE=1` を同時にセットして「この実行だけ」例外扱いにする
 - CLI対応（入口側が上記 env を自動セット）:
   - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --llm-slot 0`

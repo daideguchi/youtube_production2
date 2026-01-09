@@ -10,12 +10,21 @@
 
 ### テキストLLM（LLMRouter）
 - 入力: `task` 名（コードはモデル名を書かない）
-- 解決順（固定）:
-  1) `configs/llm_task_overrides.yaml`（taskごとの pin / tier / allow_fallback）
-  2) `configs/llm_router.yaml`（task→tier→models のベース）
-  3) `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`：tier→model code）
-  4) `configs/llm_model_codes.yaml`（model code → `llm_router.yaml:models.<model_key>`）
-  5) `llm_router.yaml:models.<model_key>`（provider / model_name or deployment / capabilities）
+- 解決順（固定 / lockdown既定ON）:
+  1) **tier決定**:
+     - `configs/llm_task_overrides.yaml:tasks.<task>.tier`（任意）
+     - `configs/llm_router.yaml:tasks.<task>.tier`（ベース）
+     - 未定義は `standard`
+  2) **model selector chain決定（最重要）**:
+     - `configs/llm_model_slots.yaml`（`LLM_MODEL_SLOT` / 既定は `default_slot=0`）
+       - `script_*` は `script_tiers` がある時は **必ず `script_tiers`** を使う（`tiers` へはフォールバックしない）
+       - `script_allow_openrouter=true` の slot だけが OpenRouter を許可（それ以外は script_* で OpenRouter を弾いて停止する）
+  3) slot が該当 tier を持たない場合のフォールバック（通常は出ない）:
+     - `configs/llm_task_overrides.yaml:tasks.<task>.models`（任意）
+     - `configs/llm_router.yaml:tiers.<tier>`（ベース）
+  4) selector を実体へ解決:
+     - `configs/llm_model_codes.yaml`（code → `llm_router.yaml:models.<model_key>`）
+     - `configs/llm_router.yaml:models.<model_key>`（provider / model_name or deployment / capabilities）
 - 実行モード（固定）:
   - `LLM_EXEC_SLOT`（`configs/llm_exec_slots.yaml`：api/think/agent/codex exec/failover）
 
@@ -44,7 +53,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 
 - 形式: `<thumb>_<script>_<video>`（必要なら suffix `@xN` を付ける）
   - `<thumb>`: サムネ画像の **画像コード**（例: `g-1`, `f-4`）
-  - `<script>`: 台本の **LLMコード**（例: `script-main-1`）
+  - `<script>`: 台本の **LLMコード**（slot0 既定: `script-main-1`）
   - `<video>`: 動画内画像の **画像コード**（例: `g-1`, `f-1`）
   - `@xN`（任意）: 実行モードの共有用（例: `@x3` = THINK MODE）
 
@@ -74,12 +83,12 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 ### 0.3 台本（`script_*`）は基本 “共通” です
 
 - チャンネルごとに台本モデルを切り替える運用は **基本しない**（ブレ防止）。
-- 台本の固定は `configs/llm_task_overrides.yaml` / 数字スロットで統制する（モデル名/YAML書き換え運用をしない）。
+- 台本の固定は **数字スロット（`configs/llm_model_slots.yaml` の `script_tiers`）**で統制する（モデル名/YAML書き換え運用をしない）。
 
 注:
 
 - 画像は `IMAGE_CLIENT_FORCE_MODEL_KEY_*` による **実行時 override** があるため、UIでは `effective` と `config` を併記する。
-- 台本（`script_*`）は **現状チャンネルごとの切替は無い**（task override / 数字スロットで統制）。必要ならSSOTで設計を追加する。
+- 台本（`script_*`）は **現状チャンネルごとの切替は無い**（slotで統制）。必要ならSSOTで設計を追加する。
 
 ---
 
@@ -95,8 +104,11 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 - 推奨: `./scripts/with_ytm_env.sh --exec-slot <N> ...`（env直書きの増殖を防ぐ）
 
 ### 台本（script_*）
-- **台本は task override で固定**（= `configs/llm_task_overrides.yaml`）
-- UI/デバッグ上書きは `configs/llm_task_overrides.local.yaml`（git管理しない）にのみ書く（SSOTの破壊防止）
+- **台本モデルは slot の `script_tiers` が正本**（= `configs/llm_model_slots.yaml`）
+- task override（`configs/llm_task_overrides.yaml`）は tier/options/allow_fallback の統制に使う（モデル pin は原則ここでやらない）
+- デバッグ用のローカル上書きは `.local.yaml` にのみ書く（git管理しない）:
+  - slot: `configs/llm_model_slots.local.yaml`
+  - task override: `configs/llm_task_overrides.local.yaml`
 - `script_*` は **失敗時に停止・記録**（THINK へフォールバックしない）
 
 ### 禁止（通常運用）: legacy LLM config（`llm.yml` / `llm_client` / `llm_config`）
@@ -126,7 +138,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
   - `vision_caption=txt-vision-caption-1`
   - `web_search=txt-web-search-1`
   - `master_plan_opus=txt-master-plan-opus-1`
-  - `script_*` は `script-main-1`（OpenRouterへは流さない）
+  - `script_*` は `script-main-1`（Fireworks / DeepSeek v3.2 exp + thinking。失敗時は停止）
 - `slot 1` `openrouter_kimi_all`（全 tier を Kimi 固定）
 - `slot 2` `openrouter_mistral_all`（全 tier を Mistral free 固定）
 - `slot 3` `fireworks_deepseek_v3_2`（全 tier を Fireworks DeepSeek 固定）
@@ -135,17 +147,17 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 
 ---
 
-## 3) 台本（script_*）: 固定チェーン（概要）
+## 3) 台本（script_*）: 正本は slot の `script_tiers`
 
-`configs/llm_task_overrides.yaml`
+正本（モデル選択）:
+- `configs/llm_model_slots.yaml` の `slots.<id>.script_tiers.<tier>`（`LLM_MODEL_SLOT` / 既定は slot 0）
+  - slot 0 既定（現状）:
+    - `heavy_reasoning/standard/cheap → script-main-1`（DeepSeek v3.2 exp）
+    - `master_plan_opus → txt-master-plan-opus-1`（Opus 4.5 / optional）
+  - `script_allow_openrouter=true` の slot だけが OpenRouter を許可（false の slot で open-* を指定してもフィルタされ、結果は空→停止）
 
-- main: `script-main-1`
-- fallback（`allow_fallback=true` の task のみ）:
-  - `script-fallback-glm-1`
-  - `script-fallback-kimi-1`
-  - `script-fallback-mixtral-1`
-- 非台本でも pin されるタスク（例）:
-  - `visual_image_cues_plan=visual-cues-plan-main-1`
+補助（品質/出力仕様）:
+- `configs/llm_task_overrides.yaml` は tier/options/allow_fallback/system_prompt を持つ（モデル pin は原則ここでやらない）
 
 （コード→実体の対応は `configs/llm_model_codes.yaml`）
 

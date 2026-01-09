@@ -31,7 +31,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
         - 注意: 動画内画像（`visual_image_gen`）では Gemini 3 は禁止（別SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md`）。
   - Fireworks（画像）キー運用（固定）:
     - 台本用（`FIREWORKS_SCRIPT*`）とは **別プール**（`FIREWORKS_IMAGE*`）で運用する（コスト/枯渇の混線防止）
-      - ただし現行運用では **Fireworks（text/台本）は無効**（`YTM_DISABLE_FIREWORKS_TEXT=1`）
+      - 現行運用では **Fireworks（text/台本）は有効**（`YTM_DISABLE_FIREWORKS_TEXT=0`）。無効化はデバッグ時のみ（`YTM_EMERGENCY_OVERRIDE=1`）。
     - キーローテ（任意・推奨）: `~/.ytm/secrets/fireworks_image_keys.txt`
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
       - token-free状態更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`

@@ -44,8 +44,9 @@ codes:
     label: text_master_plan_opus
 
   # Script pipeline (台本).
-  # - Current ops default is OpenRouter via `configs/llm_model_slots.yaml` (Fireworks(text) is paused).
-  # - Fireworks codes remain registered for recovery/comparison (do not assume they are active).
+  # - Ops default (slot 0): Fireworks DeepSeek v3.2 exp (thinking enabled by router).
+  #   Note: model_key is named `or_*` for compatibility, but provider is Fireworks in `configs/llm_router.yaml`.
+  # - Alternate models (Kimi / GLM 4.7) are registered for recovery/comparison; not selected by default tiers.
   script-main-1:
     model_key: or_deepseek_v3_2_exp
     label: script_main

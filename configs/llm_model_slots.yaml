@@ -20,7 +20,7 @@ default_slot: 0
 slots:
   0:
     label: openrouter_main
-    description: OpenRouterを主線（デフォルト）。tierごとに1モデル固定。
+    description: テキストはOpenRouter主線（デフォルト）。台本（script_*）はFireworks（DeepSeek v3.2 exp）に固定。
     tiers:
       heavy_reasoning:
         - txt-main-hr-1
@@ -35,18 +35,19 @@ slots:
       master_plan_opus:
         - txt-master-plan-opus-1
     # Script tasks are special:
-    # - 通常運用では「Fireworks (text) は使わない」前提に寄せる。
-    # - そのため slot 0 でも script_* は OpenRouter に固定する（失敗時は停止。THINKへは行かない）。
+    # - 台本（script_*）は DeepSeek v3.2 exp + thinking を既定にする（Fireworks / OpenAI互換）。
+    # - OpenRouter と Fireworks では request 形態が異なるため、台本の既定は Fireworks に固定する。
+    # - 失敗時は停止（THINKへは行かない）。切替は `--llm-slot <N>` / `LLM_MODEL_SLOT=<N>` で明示する。
     script_allow_openrouter: true
     script_tiers:
       heavy_reasoning:
-        - open-kimi-thinking-1
+        - script-main-1
       standard:
-        - open-kimi-thinking-1
+        - script-main-1
       cheap:
-        - open-kimi-thinking-1
+        - script-main-1
       master_plan_opus:
-        - open-kimi-thinking-1
+        - txt-master-plan-opus-1
 
   1:
     label: openrouter_kimi_all

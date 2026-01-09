@@ -36,10 +36,10 @@ export YTM_WEB_SEARCH_PROVIDER
 export YTM_ROUTING_LOCKDOWN
 export YTM_EMERGENCY_OVERRIDE
 
-# Fireworks(text) is disabled in normal ops (ban/412 + drift prevention).
-# Re-enable ONLY for one-off debugging with:
-#   YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=0
-: "${YTM_DISABLE_FIREWORKS_TEXT:=1}"
+# Fireworks(text) is enabled in normal ops for script-writing (DeepSeek v3.2 exp).
+# If you must disable it (debug only), use:
+#   YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=1
+: "${YTM_DISABLE_FIREWORKS_TEXT:=0}"
 export YTM_DISABLE_FIREWORKS_TEXT
 
 # Optional: numeric slots (operator-friendly; avoids editing configs).
@@ -168,11 +168,13 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
     echo "❌ [LOCKDOWN] LLM_FORCE_TASK_MODELS_JSON is forbidden. Use SSOT task routing + slots instead." >&2
     exit 3
   fi
+  # Fireworks(text) is allowed in normal ops (台本の既定).
+  # If an operator explicitly disables it, require emergency override to avoid silent drift.
   if [[ -n "${YTM_DISABLE_FIREWORKS_TEXT:-}" ]]; then
     _v="$(printf '%s' "${YTM_DISABLE_FIREWORKS_TEXT:-}" | tr '[:upper:]' '[:lower:]')"
-    if [[ "${_v}" == "" || "${_v}" == "0" || "${_v}" == "false" || "${_v}" == "no" || "${_v}" == "off" ]]; then
-      echo "❌ [LOCKDOWN] Fireworks(text) must remain disabled in normal ops." >&2
-      echo "    debug only: YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=0" >&2
+    if [[ "${_v}" != "" && "${_v}" != "0" && "${_v}" != "false" && "${_v}" != "no" && "${_v}" != "off" ]]; then
+      echo "❌ [LOCKDOWN] Disabling Fireworks(text) is debug-only in this repo (台本の既定がFireworks)." >&2
+      echo "    debug only: YTM_EMERGENCY_OVERRIDE=1 YTM_DISABLE_FIREWORKS_TEXT=1" >&2
       exit 3
     fi
   fi

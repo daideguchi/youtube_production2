@@ -71,18 +71,14 @@ def _fireworks_text_disabled() -> bool:
     Safety switch: disable Fireworks provider for text/chat calls.
 
     Default behavior:
-    - Fireworks(text) is disabled unless explicitly enabled.
-      This prevents accidental spend / 412 loops and avoids using "memo keys".
+    - Fireworks(text) is enabled (台本の既定モデルが Fireworks / DeepSeek v3.2 exp のため).
 
     Overrides:
-    - Set `YTM_DISABLE_FIREWORKS_TEXT=0` to re-enable Fireworks(text) explicitly.
-    - Set `YTM_EMERGENCY_OVERRIDE=1` to bypass lockdown defaults for one-off debugging.
+    - Set `YTM_DISABLE_FIREWORKS_TEXT=1` to disable Fireworks(text) explicitly (debug only in ops).
     """
-    if lockdown_active():
-        return True
     raw = (os.getenv("YTM_DISABLE_FIREWORKS_TEXT") or "").strip()
     if raw == "":
-        return True
+        return False
     return _env_truthy("YTM_DISABLE_FIREWORKS_TEXT", default="0")
 
 
