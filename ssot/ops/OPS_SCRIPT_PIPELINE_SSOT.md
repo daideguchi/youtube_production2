@@ -110,8 +110,21 @@ LLMがやること（柔軟性が必要な領域）:
 SoT（チャンネル別ポリシー）:
 - `configs/sources.yaml: channels.CHxx.web_search_policy`（default: `auto`。ただし運用では明示設定を推奨）
   - `disabled`: 検索しない（`search_results.json` は必ず `provider=disabled, hits=[]` を書く）
-  - `auto`: 通常どおり検索を試す（provider は `YTM_WEB_SEARCH_PROVIDER`。失敗してもパイプラインは止めない）
-  - `required`: 検索を必ず試す（失敗してもパイプラインは止めないが、`status.json` に decision/reason が残る）
+  - `auto`: 可能なら検索する（provider は `YTM_WEB_SEARCH_PROVIDER`）。失敗しても **台本パイプラインは原則止めない**（`search_results.json` を `disabled` で埋め、`status.json` に decision/reason を残す）
+  - `required`: 必ず「検索の試行」を行う（provider が `disabled` でも継続する）。ただし `status.json` に decision/reason を必ず残す（=運用で追える）
+
+Web検索 provider（実装側: env）:
+- `YTM_WEB_SEARCH_PROVIDER`（推奨 default: `disabled`）
+  - `disabled`: 検索しない（空の `search_results.json` を書く）
+  - `brave`: Brave Search API（`BRAVE_SEARCH_API_KEY` が必要）
+  - `openrouter`: LLMRouter task `web_search_openrouter`（OpenRouter経由）
+    - 重要: OpenRouter残高不足等で失敗すると、設定によっては agent_tasks に pending を作って停止する（SSOT: `RUNBOOK_THINK_MODE_OPERATOR` 参照）
+  - `agent`: **外部APIを叩かず** agent_tasks に pending を作って停止する（OpenRouter検索を止めている期間のデフォルト運用）
+  - `auto`: `brave` キーがあれば brave → なければ openrouter → どちらもなければ disabled
+
+運用（OpenRouter検索停止中）:
+- まずは `YTM_WEB_SEARCH_PROVIDER=agent` を明示して実行し、pending を解決してから再実行する（検索品質を落とさない）。
+- 急ぎで検索を省略して先に台本を進めたい場合のみ `YTM_WEB_SEARCH_PROVIDER=disabled`（品質トレードオフ）。
 
 いまのデフォルト（= `configs/sources.yaml` の現行設定）:
 - `disabled`: CH05
