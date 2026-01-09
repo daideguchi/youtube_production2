@@ -39,12 +39,15 @@
 | --- | --- | --- |
 | `/api/agent-org` | `apps/ui-backend/backend/routers/agent_org.py` / `apps/ui-backend/backend/routers/agent_board.py` | Agents/Locks/Memos/Board |
 | `/api/jobs` | `apps/ui-backend/backend/routers/jobs.py` | ジョブ一覧/削除 |
+| `/api/audio-tts` | `apps/ui-backend/backend/routers/audio_tts.py` | Audio/TTS ヘルスチェック |
 | `/api/tts-progress` | `apps/ui-backend/backend/routers/tts_progress.py` | TTS進捗 |
 | `/api/auto-draft` | `apps/ui-backend/backend/routers/auto_draft.py` | AutoDraft |
 | `/api/research` | `apps/ui-backend/backend/routers/research_files.py` | ファイル閲覧（workspaces/research / workspaces/scripts / ssot, read-only） |
 | `/api/swap` | `apps/ui-backend/backend/routers/swap.py` | 画像差し替え（Swap UI） |
 | `/api/params` | `apps/ui-backend/backend/routers/params.py` | UIパラメータ/設定 |
 | `/api/video-production` | `apps/ui-backend/backend/video_production.py` | run_dir/画像/CapCut関連 |
+| `/api/workspaces/video/input` | `apps/ui-backend/backend/routers/video_input.py` | Remotion preview 用の入力アセット配信 |
+| `/api/remotion` | `apps/ui-backend/backend/routers/remotion.py` | Remotion preview 再起動（local dev） |
 | `/api/llm-usage` | `apps/ui-backend/backend/routers/llm_usage.py` | LLM使用量ログ/override |
 
 注:
