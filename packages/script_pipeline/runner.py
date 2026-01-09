@@ -2843,86 +2843,15 @@ def _pattern_triggers_match(triggers: Any, title: str) -> tuple[bool, int]:
     return True, score
 
 
-_SCRIPT_KATA_TO_PATTERN_ID_BY_CHANNEL: dict[str, dict[str, str]] = {
-    "*": {
-        "kata1": "kata1_conclusion_reason_examples_v1",
-        "kata2": "kata2_three_doors_v1",
-        "kata3": "kata3_repeat_frame_examples_v1",
-    },
-    # CH01（人生の道標）は「史実で証明→日常へ橋渡し→実践」で固定し、
-    # 架空の現代人物ストーリーに寄りやすい型を選ばない。
-    "CH01": {
-        "kata1": "ch01_historical_proof_bridge_v1",
-        "kata2": "ch01_historical_proof_bridge_v1",
-        "kata3": "ch01_historical_proof_bridge_v1",
-    },
-}
-
-
-def _canonical_script_kata(raw: Any) -> str:
-    """
-    Canonicalize Planning `script_kata` values.
-
-    SoT: Planning CSV column `台本型` -> metadata.planning.script_kata
-    Accepted (examples):
-      - kata1/kata2/kata3
-      - 王道 / 3章 / 3つの扉 / 例回し
-    """
-    s_raw = unicodedata.normalize("NFKC", str(raw or "")).strip()
-    if not s_raw:
-        return ""
-    low = s_raw.lower().strip()
-    low_compact = re.sub(r"[\s\u3000]+", "", low)
-    if low_compact in {"kata1", "type1", "1"}:
-        return "kata1"
-    if low_compact in {"kata2", "type2", "2"}:
-        return "kata2"
-    if low_compact in {"kata3", "type3", "3"}:
-        return "kata3"
-
-    jp = re.sub(r"[\s\u3000]+", "", s_raw)
-    if "王道" in jp or ("結論" in jp and "理由" in jp):
-        return "kata1"
-    if "扉" in jp or "3章" in jp or "三章" in jp or "3つ" in jp or "三つ" in jp:
-        return "kata2"
-    if "例回" in jp or "例を回" in jp or "反復" in jp:
-        return "kata3"
-    return ""
-
-
-def _pattern_by_id(patterns_doc: Dict[str, Any], pattern_id: str) -> Dict[str, Any]:
-    pid = str(pattern_id or "").strip()
-    if not pid:
-        return {}
-    patterns = patterns_doc.get("patterns")
-    if not isinstance(patterns, list):
-        return {}
-    for pat in patterns:
-        if not isinstance(pat, dict):
-            continue
-        if str(pat.get("id") or "").strip() == pid:
-            return pat
-    return {}
-
-
 def _select_a_text_pattern_for_status(patterns_doc: Dict[str, Any], st: "Status", title: str) -> Dict[str, Any]:
     """
-    Prefer Planning-assigned script kata over title triggers.
-    This keeps "which structure to use" in Planning SoT (reproducible, human-auditable).
+    Select A-text structure pattern by channel + title triggers.
+
+    NOTE (2026-01-09): Planning CSV optional column `台本型`（kata1/kata2/kata3）運用は廃止。
+    既存CSVに列が残っていても台本生成は参照しない（= ここでは無視する）。
     """
-    meta = st.metadata if isinstance(st, Status) else {}
-    planning = meta.get("planning") if isinstance(meta, dict) else None
-    planning = planning if isinstance(planning, dict) else {}
-    raw_kata = planning.get("script_kata") if isinstance(planning, dict) else ""
-    kata = _canonical_script_kata(raw_kata)
-    chan = str(st.channel or "").strip().upper() if isinstance(st, Status) else ""
-    chan_map = _SCRIPT_KATA_TO_PATTERN_ID_BY_CHANNEL.get(chan) or _SCRIPT_KATA_TO_PATTERN_ID_BY_CHANNEL.get("*") or {}
-    override_id = chan_map.get(kata, "")
-    if override_id:
-        forced = _pattern_by_id(patterns_doc, override_id)
-        if forced:
-            return forced
-    return _select_a_text_pattern(patterns_doc, st.channel, title)
+    channel = st.channel if isinstance(st, Status) else ""
+    return _select_a_text_pattern(patterns_doc, channel, title)
 
 
 def _select_a_text_pattern(patterns_doc: Dict[str, Any], channel: str, title: str) -> Dict[str, Any]:
