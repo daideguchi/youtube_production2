@@ -102,6 +102,7 @@ const DOC_SECTIONS = [
       { title: "Flow Map", path: "__FLOW__", desc: "処理フロー（まずここ）" },
       { title: "START_HERE", path: "START_HERE.md", desc: "入口（最優先）" },
       { title: "DECISIONS", path: "ssot/DECISIONS.md", desc: "意思決定台帳（SSOTトップ）" },
+      { title: "PM Inbox (Slack digest)", path: "ssot/history/HISTORY_slack_pm_inbox.md", desc: "Slack要約（指示/決定の取りこぼし防止）" },
       { title: "SSOT Docs Index", path: "ssot/DOCS_INDEX.md", desc: "SSOTドキュメント索引" },
       { title: "System Overview", path: "ssot/OPS_SYSTEM_OVERVIEW.md", desc: "プロジェクト全貌（概説）" },
     ],
