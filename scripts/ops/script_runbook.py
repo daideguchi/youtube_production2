@@ -94,6 +94,22 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
     - --exec-slot N → LLM_EXEC_SLOT
     - --llm-task-model TASK=MODELKEY[,MODELKEY...] (repeatable) → LLM_FORCE_TASK_MODELS_JSON
     """
+    # Compatibility shim (operator ergonomics):
+    # - Some operators reach for `--llm api|think|codex` (used by `./ops`).
+    # - Script pipeline is API-only; we accept `--llm api` as a convenience and block others.
+    raw_llm = getattr(args, "llm", None)
+    if raw_llm is not None and str(raw_llm).strip() != "":
+        llm = str(raw_llm).strip().lower()
+        if llm != "api":
+            raise SystemExit(
+                "[POLICY] script pipeline is API-only (no THINK/AGENT/Codex for A-text).\n"
+                "- rule: 台本（script_*）は LLM API（Fireworks/DeepSeek）固定。Codex/agent 代行で台本を書かない。\n"
+                "- action: rerun with `./ops api script ...` (or omit --llm / use --llm api)."
+            )
+        # Force API exec-slot unless explicitly overridden via --exec-slot.
+        if getattr(args, "exec_slot", None) is None:
+            os.environ["LLM_EXEC_SLOT"] = "0"
+
     if getattr(args, "llm_slot", None) is not None:
         try:
             slot = int(args.llm_slot)
@@ -155,7 +171,28 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
 
 
+def _assert_script_api_only() -> None:
+    from factory_common.llm_exec_slots import active_llm_exec_slot_id, effective_llm_mode
+
+    mode = str(effective_llm_mode() or "").strip().lower()
+    if mode == "api":
+        return
+    slot = active_llm_exec_slot_id()
+    raise SystemExit(
+        "[POLICY] script pipeline is API-only (no THINK/AGENT).\n"
+        f"- effective llm_mode: {mode}\n"
+        f"- LLM_EXEC_SLOT: {slot.get('id')} (source={slot.get('source')})\n"
+        "- action: rerun with `./ops api script ...` (or `--exec-slot 0`)."
+    )
+
+
 def _add_llm_override_flags(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--llm",
+        choices=["api", "think", "codex"],
+        default=None,
+        help="(compat) LLM mode hint. NOTE: script pipeline is API-only; use `api`.",
+    )
     p.add_argument(
         "--llm-model",
         action="append",
@@ -197,6 +234,63 @@ def _iter_range(start: str, end: str) -> Iterable[str]:
         a, b = b, a
     for n in range(a, b + 1):
         yield f"{n:03d}"
+
+
+def _should_skip_deleted_episode(st, *, include_deleted: bool) -> tuple[bool, str]:
+    """
+    Prevent accidental resurrection of episodes that humans deliberately deleted.
+
+    Convention:
+    - metadata.deleted_by_human=1 (preferred)
+    - metadata.skip_script_regeneration=1 / metadata.skip_script_generation=1
+    """
+    if include_deleted:
+        return False, ""
+    meta = getattr(st, "metadata", None) or {}
+    if not isinstance(meta, dict):
+        return False, ""
+    if _truthy(meta.get("deleted_by_human")):
+        return True, "deleted_by_human=1"
+    if _truthy(meta.get("skip_script_regeneration")) or _truthy(meta.get("skip_script_generation")):
+        return True, "skip_script_regeneration=1"
+    redo_note = str(meta.get("redo_note") or "").strip().lower()
+    if "do not resurrect" in redo_note:
+        return True, "redo_note contains 'do not resurrect'"
+    return False, ""
+
+
+def _skipped_item(channel: str, video: str, *, mode: str, note: str) -> ItemResult:
+    channel = _norm_channel(channel)
+    video = _norm_video(video)
+    st = None
+    try:
+        if status_path(channel, video).exists():
+            st = load_status(channel, video)
+    except Exception:
+        st = None
+    status = str(getattr(st, "status", "") or "") if st is not None else ""
+    return ItemResult(
+        channel=channel,
+        video=video,
+        mode=mode,
+        ok=True,
+        status=status,
+        script_validation_status=_safe_stage_status(st, "script_validation") if st is not None else "",
+        judge_verdict="",
+        judge_report_json="",
+        semantic_verdict=_safe_semantic_verdict(st) if st is not None else "",
+        semantic_alignment_report_json="",
+        a_text_path="",
+        a_text_local_ok=False,
+        a_text_hard_issue_codes=[],
+        a_text_stats={},
+        a_text_validated_script_hash="",
+        a_text_current_script_hash="",
+        a_text_hash_match=None,
+        planning_coherence=_safe_planning_coherence(st) if st is not None else "",
+        status_json=str(status_path(channel, video)),
+        note=note,
+    )
 
 
 def _safe_semantic_verdict(st) -> str:
@@ -1005,22 +1099,27 @@ def cmd_redo(args: argparse.Namespace) -> int:
     for no in _iter_range(args.from_video, args.to_video):
         note = ""
         try:
+            st_cached = load_status(ch, no) if status_path(ch, no).exists() else None
+            if st_cached is not None:
+                skip, why = _should_skip_deleted_episode(st_cached, include_deleted=bool(getattr(args, "include_deleted", False)))
+                if skip:
+                    items.append(_skipped_item(ch, no, mode=f"redo:{mode}", note=f"skipped ({why})"))
+                    continue
+
             if mode == "validate":
                 # Validation should follow the latest channel targets even for existing status.json.
-                if status_path(ch, no).exists():
-                    st = load_status(ch, no)
-                    if _refresh_episode_targets_from_sources(st):
-                        save_status(st)
+                if st_cached is not None:
+                    if _refresh_episode_targets_from_sources(st_cached):
+                        save_status(st_cached)
                 run_stage(ch, no, "script_validation", title=None)
                 _stamp_script_validation_hash(ch, no)
                 note = "validated"
             elif mode == "continue":
                 # Resume without reset: reconcile + run pending stages until `until`.
                 # If status.json doesn't exist yet, fall back to regenerate for that episode.
-                if status_path(ch, no).exists():
-                    st = load_status(ch, no)
-                    if _refresh_episode_targets_from_sources(st):
-                        save_status(st)
+                if st_cached is not None:
+                    if _refresh_episode_targets_from_sources(st_cached):
+                        save_status(st_cached)
                     reconcile_status(ch, no, allow_downgrade=False)
                     if until in {"script_validation", "audio_synthesis"}:
                         _maybe_force_revalidate_script_validation_on_input_change(ch, no)
@@ -1315,6 +1414,11 @@ def main() -> int:
     redo_p.add_argument("--mode", choices=["validate", "continue", "regenerate"], default="validate")
     redo_p.add_argument("--wipe-research", action="store_true", help="When regenerating, also wipe research outputs.")
     redo_p.add_argument(
+        "--include-deleted",
+        action="store_true",
+        help="Also run on episodes marked deleted_by_human/skip_script_regeneration (default: skip to prevent resurrection).",
+    )
+    redo_p.add_argument(
         "--until",
         default="script_validation",
         help="(continue/regenerate) stop when this stage is completed (default: script_validation).",
@@ -1328,6 +1432,11 @@ def main() -> int:
     redo_full_p.add_argument("--from", dest="from_video", required=True)
     redo_full_p.add_argument("--to", dest="to_video", required=True)
     redo_full_p.add_argument("--wipe-research", action="store_true", help="Also wipe research outputs.")
+    redo_full_p.add_argument(
+        "--include-deleted",
+        action="store_true",
+        help="Also run on episodes marked deleted_by_human/skip_script_regeneration (default: skip to prevent resurrection).",
+    )
     redo_full_p.add_argument("--until", default="script_validation", help="Stop when this stage is completed (default: script_validation).")
     redo_full_p.add_argument("--max-iter", type=int, default=30, help="Max stage executions per video.")
     redo_full_p.set_defaults(func=cmd_redo_full)
@@ -1378,6 +1487,7 @@ def main() -> int:
     assert_no_llm_model_overrides(context="script_runbook.py (startup)")
     assert_task_overrides_unchanged(context="script_runbook.py (startup)")
     _apply_llm_overrides_from_args(args)
+    _assert_script_api_only()
     return int(args.func(args))
 
 
