@@ -266,7 +266,6 @@ THUMBNAIL_LIBRARY_MAX_BYTES = 15 * 1024 * 1024
 THUMBNAIL_REMOTE_FETCH_TIMEOUT = 15
 LOGS_ROOT = ssot_logs_root()
 SSOT_SYNC_LOG_DIR = LOGS_ROOT / "regression" / "ssot_sync"
-LLM_MODEL_SCORES_PATH = PROJECT_ROOT / "ssot" / "HISTORY_llm_model_scores.json"
 KB_PATH = audio_pkg_root() / "data" / "global_knowledge_base.json"
 UI_LOG_DIR = LOGS_ROOT / "ui"
 TASK_LOG_DIR = UI_LOG_DIR / "batch_workflow"
@@ -308,23 +307,6 @@ def _safe_mtime(path: Path) -> Optional[float]:
         return None
     except Exception:
         return None
-
-
-def _load_llm_model_scores() -> List[LlmModelInfo]:
-    if not LLM_MODEL_SCORES_PATH.exists():
-        return []
-    try:
-        raw_entries = json.loads(LLM_MODEL_SCORES_PATH.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:  # pragma: no cover - configuration error
-        logger.error("Failed to parse %s: %s", LLM_MODEL_SCORES_PATH, exc)
-        raise HTTPException(status_code=500, detail="LLMモデル情報の読み込みに失敗しました。")
-    models: List[LlmModelInfo] = []
-    for entry in raw_entries:
-        try:
-            models.append(LlmModelInfo(**entry))
-        except Exception as exc:  # pragma: no cover - validation issue
-            logger.warning("Skipping invalid LLM model entry: %s", exc)
-    return models
 
 
 def _normalize_llm_settings(raw: Optional[dict]) -> dict:
@@ -5891,24 +5873,6 @@ class ImageModelRoutingUpdate(BaseModel):
     video_image_model_key: Optional[str] = None
 
 
-class LlmMetric(BaseModel):
-    name: str
-    value: float
-    source: Optional[str] = None
-
-
-class LlmModelInfo(BaseModel):
-    id: str
-    label: str
-    provider: str
-    model_id: Optional[str] = None
-    iq: int
-    knowledge_metric: LlmMetric
-    specialist_metric: LlmMetric
-    notes: Optional[str] = None
-    last_updated: Optional[str] = None
-
-
 def _coerce_video_from_dir(name: str) -> Optional[str]:
     if not name:
         return None
@@ -6412,6 +6376,12 @@ if llm_usage:
     app.include_router(llm_usage.router)
 elif _llm_usage_import_error:
     logger.error("Failed to load llm_usage router: %s", _llm_usage_import_error)
+try:
+    from backend.routers import llm_models
+
+    app.include_router(llm_models.router)
+except Exception as e:
+    logger.error("Failed to load llm_models router: %s", e)
 app.include_router(jobs.router)
 app.include_router(swap.router)
 app.include_router(params.router)
@@ -7436,11 +7406,6 @@ def patch_image_model_routing(channel: str, payload: ImageModelRoutingUpdate):
         slots_conf=slots_conf,
     )
     return ChannelImageModelRouting(channel=channel_code, thumbnail=thumb, video_image=vid)
-
-
-@app.get("/api/llm/models", response_model=List[LlmModelInfo])
-def list_llm_models() -> List[LlmModelInfo]:
-    return _load_llm_model_scores()
 
 
 @app.post("/api/channels/{channel}/videos", status_code=201)
@@ -15338,9 +15303,11 @@ def _build_llm_settings_response() -> LLMSettingsResponse:
         if not model_ids:
             return []
         try:
+            from backend.app.llm_models import load_llm_model_scores
+
             curated = []
             seen = set()
-            for model in _load_llm_model_scores():
+            for model in load_llm_model_scores():
                 mid = getattr(model, "model_id", None)
                 if mid and mid in model_ids and mid not in seen:
                     curated.append(mid)
