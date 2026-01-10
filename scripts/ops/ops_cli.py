@@ -792,8 +792,7 @@ def _print_list() -> None:
     print("")
     print("  Script (runbook):")
     print("    ./ops script <MODE> --channel CHxx --video NNN")
-    print("    ./ops script <MODE> --llm think  --channel CHxx --video NNN   # no external LLM API spend")
-    print("    ./ops script <MODE> --llm codex  --channel CHxx --video NNN   # codex exec (explicit)")
+    print("    ./ops api script <MODE> --channel CHxx --video NNN   # 台本はAPI固定（THINK/CODEX禁止）")
     print("")
     print("  Audio/TTS:")
     print("    ./ops audio --channel CHxx --video NNN")
@@ -834,7 +833,7 @@ def _print_list() -> None:
     print("")
     print("  Recovery (fixed commands):")
     print("    ./ops resume episode --channel CHxx --video NNN")
-    print("    ./ops resume script --llm think --channel CHxx --video NNN")
+    print("    ./ops resume script --llm api --channel CHxx --video NNN   # 台本はAPI固定")
     print("    ./ops resume audio --llm think --channel CHxx --video NNN")
     print("    ./ops resume video --llm think --channel CHxx --video NNN")
     print("    ./ops resume thumbnails --llm think --channel CHxx")
@@ -1020,8 +1019,14 @@ def cmd_cmd(args: argparse.Namespace) -> int:
 
 
 def cmd_script(args: argparse.Namespace) -> int:
+    llm = _apply_forced_llm(args.llm)
+    if llm != "api":
+        print("[POLICY] script pipeline is API-only (no THINK/CODEX).", file=sys.stderr)
+        print("- rule: 台本（script_*）は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。", file=sys.stderr)
+        print("- action: rerun with `./ops api script ...` (or `--llm api`)", file=sys.stderr)
+        return 2
     inner = ["python3", "scripts/ops/script_runbook.py", args.mode, *args.args]
-    return _run_with_llm_mode(args.llm, inner)
+    return _run_with_llm_mode(llm, inner)
 
 
 def cmd_audio(args: argparse.Namespace) -> int:
