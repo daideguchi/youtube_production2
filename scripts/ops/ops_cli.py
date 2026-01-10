@@ -19,6 +19,25 @@ PROJECT_ROOT = Path(bootstrap())
 
 from factory_common.paths import logs_root, repo_root
 
+# ---------------------------------------------------------------------------
+# Ops run context (best-effort)
+#
+# Purpose:
+# - Keep Slack notifications actionable: include where to look next (logs/pointers).
+# - Avoid "exit=2" spam when the underlying tool uses exit=2 to signal WARN (non-fatal).
+# ---------------------------------------------------------------------------
+_OPS_RUN_ID: str | None = None
+_OPS_TOP_CMD: str | None = None
+_OPS_TOP_OP: str | None = None
+_OPS_CAPTURE_RUN_LOGS: bool = False
+_OPS_RUN_SEQ: int = 0
+_OPS_RUN_LOG_DIR: Path | None = None
+_OPS_LAST_RUN_LOG: Path | None = None
+_OPS_LAST_FAILED_RUN: dict | None = None
+_OPS_LAST_WARN_RUN: dict | None = None
+_OPS_WARNINGS: dict | None = None
+_OPS_EXIT_CODE_RAW: int | None = None
+
 
 def _root() -> Path:
     # Prefer canonical helper (avoid Path(__file__).parents footguns).
@@ -31,9 +50,126 @@ def _env_with_llm_exec_slot(slot: int) -> Dict[str, str]:
     return env
 
 
+def _ops_runs_dir() -> Path:
+    return _ops_log_dir() / "runs"
+
+
+def _set_ops_run_context(*, run_id: str, cmd: str | None, op: str | None, capture_logs: bool) -> None:
+    global _OPS_RUN_ID, _OPS_TOP_CMD, _OPS_TOP_OP, _OPS_CAPTURE_RUN_LOGS, _OPS_RUN_SEQ, _OPS_RUN_LOG_DIR
+    global _OPS_LAST_RUN_LOG, _OPS_LAST_FAILED_RUN, _OPS_LAST_WARN_RUN, _OPS_WARNINGS, _OPS_EXIT_CODE_RAW
+    _OPS_RUN_ID = str(run_id or "").strip() or None
+    _OPS_TOP_CMD = str(cmd or "").strip().lower() or None
+    _OPS_TOP_OP = str(op or "").strip().lower() or None
+    _OPS_CAPTURE_RUN_LOGS = bool(capture_logs)
+    _OPS_RUN_SEQ = 0
+    _OPS_RUN_LOG_DIR = _ops_runs_dir() / _OPS_RUN_ID if _OPS_RUN_ID else None
+    _OPS_LAST_RUN_LOG = None
+    _OPS_LAST_FAILED_RUN = None
+    _OPS_LAST_WARN_RUN = None
+    _OPS_WARNINGS = None
+    _OPS_EXIT_CODE_RAW = None
+
+
+def _safe_log_stem(raw: str) -> str:
+    s = re.sub(r"[^a-zA-Z0-9._-]+", "_", str(raw or "").strip())
+    s = s.strip("._-") or "run"
+    return s[:80]
+
+
+def _log_label_for_argv(argv: List[str]) -> str:
+    toks = [str(x) for x in (argv or []) if str(x).strip()]
+    if not toks:
+        return "run"
+    # Prefer "python3 <script> <subcmd>" → "<script>__<subcmd>"
+    if len(toks) >= 2 and toks[0].endswith("python3"):
+        script = Path(toks[1]).name
+        stem = script[:-3] if script.endswith(".py") else script
+        sub = toks[2] if len(toks) >= 3 and not toks[2].startswith("-") else ""
+        return _safe_log_stem("__".join([p for p in [stem, sub] if p]))
+    # Otherwise: "<cmd>__<arg1>"
+    head = Path(toks[0]).name
+    sub = toks[1] if len(toks) >= 2 and not toks[1].startswith("-") else ""
+    return _safe_log_stem("__".join([p for p in [head, sub] if p]))
+
+
 def _run(argv: List[str], *, env: Optional[Dict[str, str]] = None) -> int:
-    proc = subprocess.run(argv, cwd=str(_root()), env=env)
-    return int(proc.returncode)
+    """
+    Run an inner command.
+    - Default: inherit stdio (operator-friendly).
+    - When capture is enabled for this ops run, tee stdout/stderr to a per-run log file
+      under workspaces/logs/ops/ops_cli/runs/<run_id>/.
+    """
+    global _OPS_RUN_SEQ, _OPS_LAST_RUN_LOG, _OPS_LAST_FAILED_RUN, _OPS_LAST_WARN_RUN
+
+    if not (_OPS_CAPTURE_RUN_LOGS and _OPS_RUN_LOG_DIR):
+        proc = subprocess.run(argv, cwd=str(_root()), env=env)
+        return int(proc.returncode)
+
+    _OPS_RUN_SEQ += 1
+    label = _log_label_for_argv(argv)
+    log_path = _OPS_RUN_LOG_DIR / f"{_OPS_RUN_SEQ:02d}__{label}.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Merge stderr into stdout for a single readable log (keep it simple).
+    with log_path.open("w", encoding="utf-8", errors="replace") as out:
+        out.write("# argv: " + " ".join([str(x) for x in argv]) + "\n")
+        out.flush()
+        proc = subprocess.Popen(
+            argv,
+            cwd=str(_root()),
+            env=env,
+            stdin=None,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        assert proc.stdout is not None
+        for line in proc.stdout:
+            try:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+            except Exception:
+                pass
+            try:
+                out.write(line)
+                out.flush()
+            except Exception:
+                pass
+        rc = int(proc.wait())
+
+    _OPS_LAST_RUN_LOG = log_path
+    if rc != 0:
+        _OPS_LAST_FAILED_RUN = {"argv": [str(x) for x in argv], "exit_code": rc, "log_path": str(log_path)}
+    return rc
+
+
+def _ops_latest_pointer_path_for_event(event_finish: dict) -> Path:
+    """
+    Convenience: where `./ops latest` would read from.
+    (We still write latest pointers separately.)
+    """
+    latest_dir = _ops_latest_dir()
+    ep = event_finish.get("episode") if isinstance(event_finish.get("episode"), dict) else {}
+    episode_id = str(ep.get("episode_id") or "").strip() if isinstance(ep, dict) else ""
+    if episode_id:
+        return latest_dir / f"{episode_id}.json"
+    cmd = str(event_finish.get("cmd") or "").strip().lower()
+    if cmd:
+        return latest_dir / f"cmd__{cmd}.json"
+    return latest_dir / "latest.json"
+
+
+def _set_ops_warnings(*, warnings: List[str], manifest_path: Path | None = None, note: str | None = None) -> None:
+    global _OPS_WARNINGS
+    items = [str(w).strip() for w in (warnings or []) if str(w).strip()]
+    payload: dict = {"count": len(items), "items": items[:8]}
+    if manifest_path is not None:
+        payload["manifest_path"] = str(manifest_path)
+    if note:
+        payload["note"] = str(note)
+    _OPS_WARNINGS = payload
+
 
 
 def _run_think(inner_cmd: List[str]) -> int:
@@ -1389,8 +1525,31 @@ def cmd_resume(args: argparse.Namespace) -> int:
 
     target = str(args.target or "").strip().lower()
     if target == "episode":
+        global _OPS_EXIT_CODE_RAW, _OPS_LAST_FAILED_RUN, _OPS_LAST_WARN_RUN
+        channel = _normalize_channel(_find_flag_value(forwarded, "--channel"))
+        video = _normalize_video(_find_flag_value(forwarded, "--video"))
         inner = ["python3", "scripts/episode_ssot.py", "ensure", *forwarded]
-        return _run(inner)
+        rc = _run(inner)
+        # episode_ssot.py uses exit=2 to signal WARN (manifest warnings). Treat it as non-fatal at the ops entrypoint.
+        if rc == 2 and channel and video:
+            _OPS_EXIT_CODE_RAW = 2
+            # Move the captured log into WARN bucket (avoid "FAILED" summary downstream).
+            if _OPS_LAST_FAILED_RUN is not None:
+                _OPS_LAST_WARN_RUN = _OPS_LAST_FAILED_RUN
+                _OPS_LAST_FAILED_RUN = None
+            manifest_path = _root() / "workspaces" / "episodes" / channel / video / "episode_manifest.json"
+            warnings: List[str] = []
+            try:
+                if manifest_path.exists():
+                    obj = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    raw = obj.get("warnings") if isinstance(obj, dict) else None
+                    if isinstance(raw, list):
+                        warnings = [str(x) for x in raw]
+            except Exception:
+                warnings = []
+            _set_ops_warnings(warnings=warnings, manifest_path=manifest_path, note="episode_manifest warnings (non-fatal)")
+            return 0
+        return rc
 
     if target == "script":
         inner = ["python3", "scripts/ops/script_runbook.py", "resume", *forwarded]
@@ -1860,6 +2019,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     actor = _actor_info()
     started_at = _now_iso_utc()
     started = time.time()
+    # Capture inner command logs only for high-value entrypoints (keeps noise down).
+    cmd_name_norm = str(getattr(args, "cmd", "") or "").strip().lower() or None
+    capture_logs = bool(cmd_name_norm and cmd_name_norm in _slack_notify_cmd_allowlist())
+    _set_ops_run_context(run_id=run_id, cmd=cmd_name_norm, op=op, capture_logs=capture_logs)
     _append_ops_event(
         {
             "schema_version": 1,
@@ -1913,6 +2076,24 @@ def main(argv: Optional[List[str]] = None) -> int:
             "duration_ms": elapsed_ms,
             "exit_code": rc,
         }
+        # Attach "next places to look" (Slack triage).
+        try:
+            finish_event["ops_latest"] = {"path": _fmt_relpath(_ops_latest_pointer_path_for_event(finish_event))}
+        except Exception:
+            pass
+        if _OPS_CAPTURE_RUN_LOGS and _OPS_RUN_LOG_DIR is not None:
+            try:
+                finish_event["run_logs"] = {"dir": _fmt_relpath(_OPS_RUN_LOG_DIR)}
+            except Exception:
+                finish_event["run_logs"] = {"dir": str(_OPS_RUN_LOG_DIR)}
+        if isinstance(_OPS_LAST_FAILED_RUN, dict):
+            finish_event["failed_run"] = _OPS_LAST_FAILED_RUN
+        if isinstance(_OPS_LAST_WARN_RUN, dict):
+            finish_event["warn_run"] = _OPS_LAST_WARN_RUN
+        if isinstance(_OPS_WARNINGS, dict):
+            finish_event["warnings"] = _OPS_WARNINGS
+        if _OPS_EXIT_CODE_RAW is not None:
+            finish_event["exit_code_raw"] = _OPS_EXIT_CODE_RAW
         if isinstance(pending, dict):
             finish_event["pending"] = pending
         _append_ops_event(finish_event)

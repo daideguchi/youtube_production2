@@ -398,6 +398,9 @@ def _status_label(event: Dict[str, Any]) -> str:
     pending = event.get("pending")
     if isinstance(pending, dict) and int(pending.get("count") or 0) > 0:
         return "PENDING"
+    warnings = event.get("warnings")
+    if isinstance(warnings, dict) and int(warnings.get("count") or 0) > 0:
+        return "WARN"
     try:
         code = int(event.get("exit_code"))
     except Exception:
@@ -458,6 +461,53 @@ def _build_text_from_ops_event(event: Dict[str, Any]) -> str:
         except Exception:
             run_rel = run_dir
         lines.append(f"run_dir: {run_rel}")
+
+    ops_latest = event.get("ops_latest") if isinstance(event.get("ops_latest"), dict) else {}
+    ops_latest_path = str(ops_latest.get("path") or "").strip() if isinstance(ops_latest, dict) else ""
+    if ops_latest_path:
+        lines.append(f"ops_latest: {ops_latest_path}")
+
+    run_logs = event.get("run_logs") if isinstance(event.get("run_logs"), dict) else {}
+    run_logs_dir = str(run_logs.get("dir") or "").strip() if isinstance(run_logs, dict) else ""
+    if run_logs_dir:
+        lines.append(f"run_logs: {run_logs_dir}")
+
+    exit_raw = event.get("exit_code_raw")
+    if exit_raw not in (None, ""):
+        lines.append(f"exit_raw: {exit_raw}")
+
+    failed_run = event.get("failed_run") if isinstance(event.get("failed_run"), dict) else {}
+    failed_log = str(failed_run.get("log_path") or "").strip() if isinstance(failed_run, dict) else ""
+    if failed_log:
+        try:
+            failed_rel = str(Path(failed_log).resolve().relative_to(PROJECT_ROOT))
+        except Exception:
+            failed_rel = failed_log
+        lines.append(f"failed_log: {failed_rel}")
+
+    warn_run = event.get("warn_run") if isinstance(event.get("warn_run"), dict) else {}
+    warn_log = str(warn_run.get("log_path") or "").strip() if isinstance(warn_run, dict) else ""
+    if warn_log:
+        try:
+            warn_rel = str(Path(warn_log).resolve().relative_to(PROJECT_ROOT))
+        except Exception:
+            warn_rel = warn_log
+        lines.append(f"warn_log: {warn_rel}")
+
+    warnings = event.get("warnings") if isinstance(event.get("warnings"), dict) else {}
+    warn_count = int(warnings.get("count") or 0) if isinstance(warnings, dict) else 0
+    if warn_count > 0:
+        lines.append(f"warnings: {warn_count}")
+        manifest_path = str(warnings.get("manifest_path") or "").strip()
+        if manifest_path:
+            try:
+                manifest_rel = str(Path(manifest_path).resolve().relative_to(PROJECT_ROOT))
+            except Exception:
+                manifest_rel = manifest_path
+            lines.append(f"manifest: {manifest_rel}")
+        items = warnings.get("items") if isinstance(warnings.get("items"), list) else []
+        for w in [str(x) for x in items if str(x).strip()][:3]:
+            lines.append(f"- {w}")
 
     body = "```" + "\n".join(lines) + "\n```"
     return title + "\n" + body
