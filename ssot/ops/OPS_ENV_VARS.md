@@ -44,6 +44,13 @@
   - 送信（thread_ts取得）: `python3 scripts/ops/slack_notify.py --text "...(報告本文)..." --out-json workspaces/logs/ops/slack_sent.json --print-ts`
   - 返信取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
     - 取り込み先: `workspaces/logs/agent_tasks/coordination/memos/`（UIのBoard/Overviewから参照できる）
+  - チャンネル履歴の棚卸（任意）:
+    - 目的: Slackに流れてくるエラー/失敗報告をまとめて取得し、一次切り分けを速くする
+    - 例: `python3 scripts/ops/slack_notify.py --history --history-grep '(error|failed|traceback)' --history-limit 200 --history-out-json workspaces/logs/ops/slack_history.json`
+  - Git書庫（PM Inbox）への要約保存（推奨）:
+    - 目的: ddの指示/決定がSlackログに埋もれないように、**要約だけ**をgitへ残す（スマホで読む用）
+    - SSOT: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`
+    - 同期: `python3 scripts/ops/slack_inbox_sync.py sync`（出力: `ssot/history/HISTORY_slack_pm_inbox.md`）
 - `./ops` の “迷わない” レバー（任意）:
   - `./ops think <cmd> ...` / `./ops api <cmd> ...` / `./ops codex <cmd> ...` を使う（`--llm` の付け忘れを物理的に防ぐ）
   - `YTM_OPS_DEFAULT_LLM=think|api|codex` を設定すると、`./ops` で `--llm` を省略した時の既定を切り替えられる（例: 「今日は外部APIを使わない」→ `think`）

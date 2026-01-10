@@ -23,6 +23,7 @@
 | D-003 | P0 | Publish→ローカル投稿済みロック | **publisherに“任意フラグで”同期**（忘れ事故を防ぐ） | Proposed |
 | D-013 | P0 | TTSのCodex（agent vs codex exec） | **TTSはAIエージェントCodex（pending）固定 / codex execと区別** | Done |
 | D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
+| D-015 | P1 | Slack→Git書庫（PM Inbox） | **Slack→memos→git要約（hash keyで識別 / IDは残さない）** | Proposed |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
 | D-006 | P2 | Video入口の一本化 | **`auto_capcut_run` 主線固定**（capcut engine stubは非推奨） | Proposed |
@@ -137,6 +138,36 @@
 
 ### Alternatives（代替案）
 - A) なんでも辞書で直す（非推奨）: 一時的には楽だが、後で必ず誤読回収が発生する。
+
+---
+
+## D-015（P1）Slackの指示/決定をどう“取りこぼさず”書庫化する？（Git as archive）
+
+### Decision
+- Slackは一次受け（通知/会話）として使い、**Git（SSOT）には “要約Inbox” だけを残す**。  
+  生ログ/識別子（channel_id/user_id/thread_ts 等）は git に固定しない。
+
+### Recommended（推奨）
+1) Slack返信（dd意思決定）は `scripts/ops/slack_notify.py` で取り込み（memos化）
+2) 取り込んだ内容は PM Inbox として **要約だけ** git に残す
+   - 出力: `ssot/history/HISTORY_slack_pm_inbox.md`
+   - 同期: `python3 scripts/ops/slack_inbox_sync.py sync`
+3) Inboxの各項目は **hash key** で識別し、Slack IDは保存しない（公開repoでも安全にする）
+4) 実データ（対応表/JSON）は `workspaces/logs/ops/` に保存（git管理しない）
+
+### Rationale（根拠）
+- Slackはメッセージ量が増えると埋もれやすく、指示の取りこぼしが事故要因になる。
+- その一方で、生ログをgitに入れるのは機微/ノイズ/容量の面でコストが大きい。
+- “要約Inbox + SSOT反映” に寄せると、PMが追える形でプロダクトを前に進められる。
+
+### Alternatives（代替案）
+- A) Slackだけで運用（非推奨）: 取りこぼし/認識ズレが発生しやすい
+- B) Slack生ログをgitに保存（非推奨）: 機微/容量/公開時リスクが大きい
+- C) 外部のチケット管理（Jira等）へ移管: 既存導線と二重化しやすい（導入するなら別Decisionで）
+
+### Impact（影響/作業）
+- SSOT: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md` を運用正本にする
+- Tool: `scripts/ops/slack_inbox_sync.py` を追加（要約Inbox生成）
 
 ### Impact（影響/作業）
 - `ssot/ops/OPS_AUDIO_TTS.md` / `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md` に辞書運用（A/B/C）を明記して固定する。

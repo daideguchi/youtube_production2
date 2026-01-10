@@ -245,6 +245,8 @@
   - 設定: `ssot/ops/OPS_ENV_VARS.md` の「Slack通知（任意）」参照（Webhook/Bot両対応）
   - 報告送信: `python3 scripts/ops/slack_notify.py --text "..."`
   - Slack返信の取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
+  - チャンネル履歴の棚卸（エラー抽出）: `python3 scripts/ops/slack_notify.py --history --history-grep '(error|failed|traceback)' --history-limit 200`
+  - PM Inbox（git書庫; 要約のみ）: `python3 scripts/ops/slack_inbox_sync.py sync`（SSOT: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`）
 
 ### 3.5 Thumbnails（サムネ量産/修正）
 - SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
