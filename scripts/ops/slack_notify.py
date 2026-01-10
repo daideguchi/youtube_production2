@@ -331,8 +331,16 @@ def _write_slack_reply_memo(*, channel: str, thread_ts: str, msg: Dict[str, Any]
         return path
 
     user = str(msg.get("user") or msg.get("username") or "-").strip() or "-"
-    text = str(msg.get("text") or "").rstrip()
-    if not text:
+    raw_text = str(msg.get("text") or "")
+    already_redacted = bool(msg.get("redacted") is True)
+    if already_redacted:
+        raw_reasons = msg.get("redact_reasons") if isinstance(msg.get("redact_reasons"), list) else None
+        reasons = [str(x) for x in (raw_reasons or ["already_redacted"]) if str(x).strip()]
+        text = raw_text.rstrip()
+    else:
+        reasons = _detect_sensitive_reasons(raw_text)
+        text = _redact_for_local_log(raw_text).rstrip("\n") if reasons else raw_text.rstrip()
+    if not text.strip():
         text = "-"
 
     memo = {
@@ -350,14 +358,147 @@ def _write_slack_reply_memo(*, channel: str, thread_ts: str, msg: Dict[str, Any]
                 f"- thread_ts: {thread_ts}",
                 f"- msg_ts: {msg_ts}",
                 f"- user: {user}",
+                f"- redacted: {'yes' if reasons else 'no'}",
                 "",
                 text,
             ]
         ),
-        "tags": ["slack", "reply_intake"],
+        "tags": ["slack", "reply_intake"] + (["redacted"] if reasons else []),
     }
     path.write_text(json.dumps(memo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path
+
+
+def _write_slack_message_memo(*, channel: str, msg: Dict[str, Any]) -> Optional[Path]:
+    """
+    Intake a top-level Slack message (or reply) as a memo.
+
+    Note: message text is best-effort redacted to avoid storing secret-like tokens locally.
+    """
+    q = _queue_dir()
+    if not q:
+        return None
+    memos_dir = q / "coordination" / "memos"
+    memos_dir.mkdir(parents=True, exist_ok=True)
+
+    msg_ts = str(msg.get("ts") or "").strip()
+    if not msg_ts:
+        return None
+    thread_ts = str(msg.get("thread_ts") or msg_ts).strip()
+
+    suffix = _slack_reply_memo_suffix(channel, thread_ts, msg_ts)
+    existing = sorted(memos_dir.glob(f"memo__*__slack__{suffix}.json"))
+    if existing:
+        return existing[0]
+
+    memo_id = _memo_id_for_slack_reply(channel, thread_ts, msg_ts)
+    path = memos_dir / f"{memo_id}.json"
+    if path.exists():
+        return path
+
+    user = str(msg.get("user") or msg.get("username") or "-").strip() or "-"
+    raw_text = str(msg.get("text") or "")
+    already_redacted = bool(msg.get("redacted") is True)
+    if already_redacted:
+        raw_reasons = msg.get("redact_reasons") if isinstance(msg.get("redact_reasons"), list) else None
+        reasons = [str(x) for x in (raw_reasons or ["already_redacted"]) if str(x).strip()]
+        text = raw_text.rstrip()
+    else:
+        reasons = _detect_sensitive_reasons(raw_text)
+        text = _redact_for_local_log(raw_text).rstrip("\n") if reasons else raw_text.rstrip()
+    if not text.strip():
+        text = "-"
+
+    memo = {
+        "schema_version": 1,
+        "kind": "memo",
+        "id": memo_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "from": f"slack:{user}",
+        "to": ["*"],
+        "subject": f"Slack message intake (thread={thread_ts})",
+        "body": "\n".join(
+            [
+                "Slackメッセージを取り込みました。",
+                f"- channel: {channel}",
+                f"- thread_ts: {thread_ts}",
+                f"- msg_ts: {msg_ts}",
+                f"- user: {user}",
+                f"- redacted: {'yes' if reasons else 'no'}",
+                "",
+                text,
+            ]
+        ),
+        "tags": ["slack", "message_intake"] + (["redacted"] if reasons else []),
+    }
+    path.write_text(json.dumps(memo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def _sanitize_slack_message_for_local_store(msg: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(msg or {})
+    raw_text = str(out.get("text") or "")
+    reasons = _detect_sensitive_reasons(raw_text)
+    if reasons:
+        out["text"] = _redact_for_local_log(raw_text).rstrip("\n")
+        out["redacted"] = True
+        out["redact_reasons"] = reasons
+    return out
+
+
+def _poll_channel_history(
+    token: str,
+    channel_id: str,
+    *,
+    limit: int,
+    oldest: str | None,
+    latest: str | None,
+    include_replies: bool,
+    grep: str | None,
+) -> list[Dict[str, Any]]:
+    out: list[Dict[str, Any]] = []
+    cursor = ""
+    pattern = re.compile(grep, re.IGNORECASE) if grep else None
+
+    for _ in range(30):
+        remaining = max(0, int(limit) - len(out))
+        if remaining <= 0:
+            break
+        data = _slack_api_get(
+            token,
+            "https://slack.com/api/conversations.history",
+            {
+                "channel": channel_id,
+                "limit": min(200, remaining),
+                "cursor": cursor or None,
+                "oldest": (str(oldest).strip() if oldest else None),
+                "latest": (str(latest).strip() if latest else None),
+                "inclusive": "false",
+            },
+        )
+        msgs = data.get("messages") if isinstance(data, dict) else None
+        messages = msgs if isinstance(msgs, list) else []
+        for m in messages:
+            if not isinstance(m, dict):
+                continue
+            ts = str(m.get("ts") or "").strip()
+            thread_ts = str(m.get("thread_ts") or "").strip()
+            if not include_replies and thread_ts and ts and thread_ts != ts:
+                continue
+            if pattern:
+                txt = str(m.get("text") or "")
+                if not pattern.search(txt):
+                    continue
+            out.append(_sanitize_slack_message_for_local_store(m))
+            if len(out) >= int(limit):
+                break
+
+        meta = data.get("response_metadata") if isinstance(data, dict) else None
+        cursor = str((meta or {}).get("next_cursor") or "").strip() if isinstance(meta, dict) else ""
+        if not cursor:
+            break
+
+    return out
 
 
 def _format_duration_ms(ms: Any) -> str:
@@ -566,6 +707,18 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--poll-oldest", default="", help="Only replies newer than this ts (bot mode only)")
     ap.add_argument("--poll-out-json", default="", help="Write polled replies JSON to this path (bot mode only)")
     ap.add_argument("--poll-write-memos", action="store_true", help="Write each reply as agent_org memo")
+    ap.add_argument("--history", action="store_true", help="Poll recent channel history (bot mode only)")
+    ap.add_argument("--history-limit", type=int, default=200, help="Max messages to fetch (bot mode only)")
+    ap.add_argument("--history-oldest", default="", help="Only messages newer than this ts (bot mode only)")
+    ap.add_argument("--history-latest", default="", help="Only messages older than this ts (bot mode only)")
+    ap.add_argument("--history-grep", default="", help="Only include messages whose text matches this regex (case-insensitive)")
+    ap.add_argument(
+        "--history-include-replies",
+        action="store_true",
+        help="Include thread replies in channel history (default: top-level only)",
+    )
+    ap.add_argument("--history-out-json", default="", help="Write polled history JSON to this path (bot mode only)")
+    ap.add_argument("--history-write-memos", action="store_true", help="Write each message as agent_org memo")
     ap.add_argument("--dry-run", action="store_true", help="Print payload to stdout without sending")
     args = ap.parse_args(argv)
 
@@ -596,7 +749,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         msgs = data.get("messages") if isinstance(data, dict) else None
         messages = msgs if isinstance(msgs, list) else []
         # Exclude the parent message itself.
-        replies = [m for m in messages if isinstance(m, dict) and str(m.get("ts") or "") != poll_thread]
+        replies_raw = [m for m in messages if isinstance(m, dict) and str(m.get("ts") or "") != poll_thread]
+        replies = [_sanitize_slack_message_for_local_store(m) for m in replies_raw]
         out = {
             "ok": True,
             "channel": channel_id,
@@ -621,6 +775,53 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 0
         if str(args.poll_out_json or "").strip():
             Path(str(args.poll_out_json)).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            return 0
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+        return 0
+
+    history_mode = bool(getattr(args, "history", False)) or bool(str(getattr(args, "history_out_json", "") or "").strip())
+    if history_mode:
+        if not (token and channel):
+            return 0
+        channel_id = _resolve_channel_id(token, channel)
+        try:
+            messages = _poll_channel_history(
+                token,
+                channel_id,
+                limit=max(1, int(getattr(args, "history_limit", 200) or 200)),
+                oldest=(str(getattr(args, "history_oldest", "") or "").strip() or None),
+                latest=(str(getattr(args, "history_latest", "") or "").strip() or None),
+                include_replies=bool(getattr(args, "history_include_replies", False)),
+                grep=(str(getattr(args, "history_grep", "") or "").strip() or None),
+            )
+        except Exception as exc:
+            print(f"[slack_notify] history poll failed: {exc}", file=sys.stderr)
+            return 0
+
+        out = {
+            "ok": True,
+            "channel": channel_id,
+            "fetched_at": _now_iso_utc(),
+            "message_count": len(messages),
+            "messages": messages,
+        }
+        if bool(getattr(args, "history_write_memos", False)):
+            memo_paths: list[str] = []
+            for msg in messages:
+                p = _write_slack_message_memo(channel=channel_id, msg=msg)
+                if p:
+                    try:
+                        memo_paths.append(str(p.resolve().relative_to(PROJECT_ROOT)))
+                    except Exception:
+                        memo_paths.append(str(p))
+            out["memo_paths"] = memo_paths
+
+        if args.dry_run:
+            print(json.dumps(out, ensure_ascii=False, indent=2))
+            return 0
+        out_path = str(getattr(args, "history_out_json", "") or "").strip()
+        if out_path:
+            Path(out_path).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             return 0
         print(json.dumps(out, ensure_ascii=False, indent=2))
         return 0
