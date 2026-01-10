@@ -40,7 +40,8 @@ slots:
       Force codex exec ON (for eligible tasks) before API.
       - mode: API
       - codex exec: forced ON
-      - fixed (tts): `tts_*` is Codex-primary and MUST NOT fall back to LLM APIs on codex failure (stop instead)
+      - NOTE: `codex exec`（非対話CLI）は「AIエージェントCodex（pending運用）」とは別物。
+        TTS（`tts_*`）は codex exec に寄せず、`./scripts/think.sh --tts -- ...` で pending を作って解決する。
     llm_mode: api
     codex_exec:
       enabled: true

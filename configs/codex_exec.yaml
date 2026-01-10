@@ -4,13 +4,13 @@
 # - Replace high-frequency "LLM API" calls with `codex exec` (subscription) when possible.
 # - Default behavior (non-tts): if `codex exec` fails (logged out / rate-limited / unavailable / bad output),
 #   fall back to the existing LLMRouter (OpenRouter/Azure/etc) path.
-# - Fixed policy (tts): when the operator selects `LLM_EXEC_SLOT=1`, `tts_*` must use Codex exec and
-#   MUST NOT fall back to LLM APIs (stop and leave a clear error instead).
 #
 # Safety:
 # - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
 # - Never route any **台本パイプライン task** (`script_*`) through Codex exec.
 #   台本は LLM API（Fireworks / DeepSeek）固定にして、文体ドリフトを防ぐ。
+# - IMPORTANT (TTS): `tts_*` は AIエージェント（Codex）主担当（pending運用）に寄せる。
+#   ここでの codex exec（非対話CLI）とは別物なので、TTSを codex exec へ寄せない。
 # - Non-A-text tasks (research/outline/validation reports/visual planning) can attempt Codex first and fall back
 #   to the existing LLMRouter API path.
 #
@@ -49,7 +49,6 @@ model: ""
 selection:
   # Try Codex first when task name matches these prefixes.
   include_task_prefixes:
-    - tts_
     - visual_
 
   # And/or explicit tasks (useful for non-script tasks).

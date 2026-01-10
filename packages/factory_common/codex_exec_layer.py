@@ -28,7 +28,7 @@ DEFAULT_CODEX_EXEC_CONFIG: Dict[str, Any] = {
     "timeout_s_by_task": {},
     "model": "",
     "selection": {
-        "include_task_prefixes": ["tts_", "visual_"],
+        "include_task_prefixes": ["visual_"],
         "include_tasks": [],
         "exclude_task_prefixes": [],
         "exclude_tasks": ["image_generation", "web_search_openrouter"],
@@ -81,19 +81,10 @@ def _env_int(name: str, default: int) -> int:
 def _codex_exec_required_for_task(task: str) -> bool:
     """
     Fixed policy:
-    - For TTS pipeline tasks (`tts_*`), when the operator explicitly selects exec-slot=1,
-      Codex exec must be used and MUST NOT fall back to LLM APIs.
+    - No task requires Codex exec by default.
+      (TTS is handled by AI agent/pending workflow; `codex exec` is a different mechanism.)
     """
-    t = str(task or "").strip()
-    if not t.startswith("tts_"):
-        return False
-    try:
-        from factory_common.llm_exec_slots import active_llm_exec_slot_id
-
-        slot = int(active_llm_exec_slot_id().get("id") or 0)
-    except Exception:
-        slot = 0
-    return slot == 1
+    return False
 
 
 def _raise_codex_exec_required(task: str, *, reason: str, meta: Dict[str, Any] | None = None) -> None:
@@ -107,7 +98,7 @@ def _raise_codex_exec_required(task: str, *, reason: str, meta: Dict[str, Any] |
     raise SystemExit(
         "\n".join(
             [
-                "[POLICY] tts_* tasks require Codex exec in exec-slot=1 (no LLM API fallback).",
+                "[POLICY] This task requires Codex exec (no LLM API fallback).",
                 f"- task: {str(task or '').strip()}",
                 f"- reason: {reason}",
                 *details,
