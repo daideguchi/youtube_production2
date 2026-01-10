@@ -487,43 +487,6 @@ def _ensure_planning_store_ready() -> None:
     raise HTTPException(status_code=503, detail=detail)
 
 
-def _persona_doc_path(channel_code: str) -> Path:
-    return ssot_persona_path(channel_code)
-
-
-def _planning_template_path(channel_code: str) -> Path:
-    return ssot_planning_root() / "templates" / f"{channel_code}_planning_template.csv"
-
-
-def _relative_path(path: Path) -> str:
-    try:
-        return str(path.relative_to(PROJECT_ROOT))
-    except ValueError:
-        return str(path)
-
-
-def _collect_required_columns(channel_code: str) -> List[str]:
-    specs = planning_requirements.get_channel_requirement_specs(channel_code)
-    columns: List[str] = []
-    for spec in specs:
-        spec_columns = spec.get("required_columns") or []
-        for column in spec_columns:
-            if column not in columns:
-                columns.append(column)
-    return columns
-
-
-def _preview_csv_content(content: str) -> Tuple[List[str], List[str]]:
-    stream = io.StringIO(content)
-    reader = csv.reader(stream)
-    try:
-        headers = next(reader)
-    except StopIteration as exc:
-        raise HTTPException(status_code=400, detail="CSVにヘッダー行がありません。") from exc
-    sample = next(reader, [])
-    return headers, sample
-
-
 def _build_spreadsheet_from_planning(channel_code: str) -> PlanningSpreadsheetResponse:
     _ensure_planning_store_ready()
     rows = planning_store.get_rows(channel_code, force_refresh=False)
@@ -6423,6 +6386,13 @@ except Exception as e:
     logger.error("Failed to load ssot_catalog router: %s", e)
 
 try:
+    from backend.routers import ssot_docs
+
+    app.include_router(ssot_docs.router)
+except Exception as e:
+    logger.error("Failed to load ssot_docs router: %s", e)
+
+try:
     from backend.routers import agent_org
 
     app.include_router(agent_org.router)
@@ -8171,73 +8141,6 @@ def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
         _append_channel_profile_log(channel_code, changes)
 
     return _build_channel_profile_response(channel_code)
-
-
-@app.get("/api/ssot/persona/{channel}", response_model=PersonaDocumentResponse)
-def get_persona_document(channel: str):
-    channel_code = normalize_channel_code(channel)
-    path = _persona_doc_path(channel_code)
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"{channel_code} のペルソナファイルが見つかりません。")
-    content = path.read_text(encoding="utf-8")
-    return PersonaDocumentResponse(channel=channel_code, path=_relative_path(path), content=content)
-
-
-@app.put("/api/ssot/persona/{channel}", response_model=PersonaDocumentResponse)
-def update_persona_document(channel: str, payload: PersonaDocumentUpdateRequest):
-    channel_code = normalize_channel_code(channel)
-    path = _persona_doc_path(channel_code)
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"{channel_code} のペルソナファイルが見つかりません。")
-    content = payload.content
-    if not content.strip():
-        raise HTTPException(status_code=400, detail="内容を入力してください。")
-    if not content.endswith("\n"):
-        content += "\n"
-    write_text_with_lock(path, content)
-    planning_requirements.clear_persona_cache()
-    return PersonaDocumentResponse(channel=channel_code, path=_relative_path(path), content=content)
-
-
-@app.get("/api/ssot/templates/{channel}", response_model=PlanningTemplateResponse)
-def get_planning_template(channel: str):
-    channel_code = normalize_channel_code(channel)
-    path = _planning_template_path(channel_code)
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"{channel_code} のテンプレートCSVが見つかりません。")
-    content = path.read_text(encoding="utf-8")
-    headers, sample = _preview_csv_content(content)
-    return PlanningTemplateResponse(
-        channel=channel_code,
-        path=_relative_path(path),
-        content=content,
-        headers=headers,
-        sample=sample,
-    )
-
-
-@app.put("/api/ssot/templates/{channel}", response_model=PlanningTemplateResponse)
-def update_planning_template(channel: str, payload: PlanningTemplateUpdateRequest):
-    channel_code = normalize_channel_code(channel)
-    path = _planning_template_path(channel_code)
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"{channel_code} のテンプレートCSVが見つかりません。")
-    content = payload.content
-    headers, sample = _preview_csv_content(content)
-    required_columns = _collect_required_columns(channel_code)
-    if required_columns:
-        missing = [column for column in required_columns if column not in headers]
-        if missing:
-            joined = ", ".join(missing)
-            raise HTTPException(status_code=400, detail=f"テンプレートに必須列が不足しています: {joined}")
-    write_text_with_lock(path, content if content.endswith("\n") else content + "\n")
-    return PlanningTemplateResponse(
-        channel=channel_code,
-        path=_relative_path(path),
-        content=content if content.endswith("\n") else content + "\n",
-        headers=headers,
-        sample=sample,
-    )
 
 
 @app.get("/api/dashboard/overview", response_model=DashboardOverviewResponse)
