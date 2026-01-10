@@ -22,6 +22,7 @@
 | D-002 | P0 | サイレント降格禁止（モデル/品質） | **明示モデル選択時はfallback禁止**（止めて報告） | Proposed |
 | D-003 | P0 | Publish→ローカル投稿済みロック | **publisherに“任意フラグで”同期**（忘れ事故を防ぐ） | Proposed |
 | D-013 | P0 | TTSのCodex（agent vs codex exec） | **TTSはAIエージェントCodex（pending）固定 / codex execと区別** | Done |
+| D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
 | D-006 | P2 | Video入口の一本化 | **`auto_capcut_run` 主線固定**（capcut engine stubは非推奨） | Proposed |
@@ -105,6 +106,40 @@
 
 ### Impact（影響/作業）
 - SSOT/Guide/UIの文言を「Codex agent」と「codex exec」で分離し、誤解が起きない導線に更新する。
+
+---
+
+## D-014（P0）TTS辞書登録をどう固定する？（ユニーク誤読 vs 曖昧語）
+
+### Decision
+- VOICEVOX / VOICEPEAK の辞書登録は **「正解読みが1つに確定できる（ユニーク）」な誤読のみ**に限定する。  
+  読みが文脈で揺れる語（多義語/多読み）は **グローバル辞書に登録しない**（=事故の温床）。
+
+### Recommended（推奨）
+1) 3階層で固定する（どれを触るか迷わない）
+   - A) グローバル（全チャンネル共通）: `packages/audio_tts/configs/learning_dict.json`
+     - 追加条件: **ユニーク誤読のみ**（例: 「午前」など、読みが一意）
+   - B) チャンネル辞書（そのCHだけ）: `packages/audio_tts/data/reading_dict/CHxx.yaml`
+     - 追加条件: **そのチャンネルの運用上 “読みが一意”** であること
+   - C) 動画ローカル（その回だけ）: `workspaces/scripts/{CH}/{VID}/audio_prep/`
+     - **原則**: Bテキスト（TTS入力）をカナ表記にして個別対応する（最も分かりやすい）
+     - 文脈で読みが割れる/同一台本内で読みを変えたい: `local_token_overrides.json`（位置指定）で対応する
+     - `local_reading_dict.json`（surface→readingの一括置換）は **原則使わない**（台本内で一意に固定できる語だけに限定）
+2) 「曖昧語」は辞書に入れない（例）
+   - 例: 「人」「辛い」「行った」「怒り」など（文脈で読みが変わり得る/誤登録の影響が大きい）
+3) VOICEPEAK/VOICEVOX の“公式辞書（ユーザー辞書）”は、上記SoTから **同期**して使う（運用の利便性のため）
+   - VOICEPEAK: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（`run_tts` 開始時にもbest-effortで追記同期される）
+   - VOICEVOX: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx`（必要時に手動実行）
+
+### Rationale（根拠）
+- 辞書（特にグローバル）は影響範囲が大きく、曖昧語の登録は **静かに全動画へ事故を拡散**する。
+- 「辞書で直す」か「動画ローカルで直す」かを先に固定すると、TTSの停止→修正→再実行が迷わない。
+
+### Alternatives（代替案）
+- A) なんでも辞書で直す（非推奨）: 一時的には楽だが、後で必ず誤読回収が発生する。
+
+### Impact（影響/作業）
+- `ssot/ops/OPS_AUDIO_TTS.md` / `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md` に辞書運用（A/B/C）を明記して固定する。
 
 ---
 

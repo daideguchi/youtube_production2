@@ -1,6 +1,6 @@
 # OPS_TTS_MANUAL_READING_AUDIT (SSOT)
 
-- 最終更新日: 2025-12-12  
+- 最終更新日: 2026-01-10  
 - 目的: **LLM読み監査を使わず**、エージェントが手動推論で VOICEVOX 読み誤りをゼロに近づけるための再現性100%手順書。  
 - 適用範囲: `packages/audio_tts/scripts/run_tts.py` による strict TTS パイプライン（VOICEVOX）。  
 - 本書は **手動監査の唯一の正本**。運用・引き継ぎは必ず本書に従う。
@@ -19,6 +19,7 @@
   - 停止時のレポート: `workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json`
 - 監査対象は **候補の全件**。候補抽出・確認・記録までを1セットとする。
 - 修正が必要なら **辞書/位置パッチを手で追加 → 該当動画のみ再合成**。
+- 辞書登録の固定ルールは `ssot/DECISIONS.md` の **D-014** に従う（ユニーク誤読のみ辞書へ / 曖昧語は辞書に入れない）。
 - 進捗・証跡は `ssot/history/HISTORY_tts_reading_audit.md` に動画ごとに記録する（後述テンプレに従う）。
 
 ---
@@ -159,9 +160,12 @@ PY
 > 本ステップは **文脈テキストを読んだ上での人間的判断**が正本。
 
 ### 3.4 誤読があった場合の修正分類
-**(1) 文脈依存しない誤読 → グローバル辞書へ**
-- どの文脈でも読みが一意で事故らない語のみ。
+**(1) ユニーク誤読（正解読みが1つ） → グローバル辞書へ**
+- どの文脈でも読みが一意で事故らない語のみ（= D-014）。
 - 追記先: `packages/audio_tts/configs/learning_dict.json`
+- 反映（公式ユーザー辞書）:
+  - VOICEVOX: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx`
+  - VOICEPEAK: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（または voicepeak 実行時の追記同期）
 - 例:
   ```json
   {
@@ -170,8 +174,8 @@ PY
   }
   ```
 
-**(2) 文脈依存 / 行単位の誤読 → 位置パッチへ**
-- 例: 同じ表記でも行で読みが変わる・迷いがある語。
+**(2) 曖昧語/文脈依存 → 動画ローカルで個別対応（辞書に入れない）**
+- 例: 同じ表記でも文脈で読みが変わる・迷いがある語（例: 「人」「辛い」「行った」「怒り」など）。
 - 追記先: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`
 - 形式:
   ```json
@@ -180,6 +184,9 @@ PY
     {"section_id": 10, "token_index": 6, "reading": "カエリ"}
   ]
   ```
+ - 代替（より分かりやすい場合）: Bテキスト（TTS入力）をカナ表記で上書きして再生成する
+   - 編集: `workspaces/scripts/{CH}/{VID}/audio_prep/script_sanitized.txt`
+   - 再生成: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/audio_prep/script_sanitized.txt`
 
 ### 3.5 再合成
 - 辞書/位置パッチを追加したら **3.0 に戻って再合成**し、修正反映を確認。

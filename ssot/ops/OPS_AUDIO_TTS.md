@@ -33,6 +33,16 @@
   - Sync: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict [--dry-run]`
   - Destination: `~/Library/Application Support/Dreamtonics/Voicepeak/settings/dic.json`
   - strict 読み置換: ローカル `dic.json` に加えて `~/Library/Application Support/Dreamtonics/Voicepeak/settings/user.csv` も best-effort で取り込み（安全な語のみ）
+- VOICEVOX user dict（公式ユーザー辞書 / ローカル確認用）:
+  - SoT（repo / strict側の読み置換）:
+    - グローバル: `packages/audio_tts/configs/learning_dict.json`（全CH共通。ユニーク誤読のみ）
+    - チャンネル: `packages/audio_tts/data/reading_dict/CHxx.yaml`（そのCHで読みが一意な語のみ）
+    - 動画ローカル（その回だけ）:
+      - **原則**: Bテキスト（`audio_prep/script_sanitized.txt`）をカナ表記にして個別対応
+      - 文脈で読みを割る必要がある場合: `audio_prep/local_token_overrides.json`（位置指定）
+      - `audio_prep/local_reading_dict.json`（surface→readingの一括置換）は **原則使わない**（台本内で一意に固定できる語だけ）
+  - Sync（repo → engine）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx`
+    - 注: 安全語のみ反映・衝突（チャンネル間で読みが違う語）は skip（固定ルール: `ssot/DECISIONS.md` の D-014）
 - Voicepeak CLI 安定化（クラッシュ抑制）:
   - 既定: VOICEPEAK の同時起動で落ちやすいため、CLI 呼び出しを **プロセス間ロックで直列化** する（multi-agent安全）。
   - 調整（必要時のみ）: `VOICEPEAK_CLI_TIMEOUT_SEC`, `VOICEPEAK_CLI_RETRY_COUNT`, `VOICEPEAK_CLI_RETRY_SLEEP_SEC`, `VOICEPEAK_CLI_COOLDOWN_SEC`
