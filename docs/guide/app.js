@@ -866,7 +866,8 @@ function boot() {
   if (initial && isAllowedDocPath(initial)) {
     openDoc(initial + initialHash);
   } else {
-    setFooter(`rawBase: ${rawBase}`);
+    // Default to Overview on first load to reduce "where do I start?" confusion on mobile.
+    openOverview();
   }
 }
 
