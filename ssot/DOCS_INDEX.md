@@ -137,6 +137,7 @@
 - `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`: 処理が遅い/詰まる課題の集約（観測→DoD付き改善）。
 - `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`: 中間生成物/ログ/最終成果物の保持・削除・アーカイブ規約とcleanup計画。
 - `plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md` (Draft): ディスク軽量化（生成物/ログ/キャッシュの定期整理）。
+- `plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md` (Active): SlackやりとりをGitへ“安全に”要約アーカイブ（PM Inbox）。
 - `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md` (Draft): サムネ作成・編集を「高品質×高速×スケール」させる計画（Spec-first/SoT分離/UI-CLI統合）。
 
 ### 3.5 テンプレ

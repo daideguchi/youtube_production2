@@ -17,6 +17,7 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 - `plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`（最終更新 2025-12-12）: API LLM を agent/think-mode（Runbook/キュー）へ置換。
 - `plans/PLAN_AGENT_ORG_COORDINATION.md`（最終更新 2025-12-12）: Orchestrator + Workers 協調（スコープロック/申し送り/割当）。
 - `plans/PLAN_REPO_DIRECTORY_REFACTOR.md`（最終更新 2025-12-25）: モノレポ整備（tracked symlink 撤去 + 参照統一）。
+- `plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`（最終更新 2026-01-10）: Slack→Git “PM Inbox” 要約書庫（指示/決定の取りこぼし防止）。
 
 ## Draft（設計中）
 - `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（最終更新 2025-12-17）: 生成物/ログ/中間物の保持・削除・アーカイブ規約（cleanup）。
