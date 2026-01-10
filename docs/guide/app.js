@@ -71,6 +71,7 @@ function normalizeDocPath(raw) {
 function isAllowedDocPath(path) {
   const p = String(path || "").trim();
   if (!p) return false;
+  if (p === "__FLOW__") return true;
   if (p === "START_HERE.md") return true;
   if (p.startsWith("ssot/")) return true;
   if (p.startsWith("packages/script_pipeline/channels/") && p.endsWith("/script_prompt.txt")) return true;
@@ -96,6 +97,7 @@ const DOC_SECTIONS = [
   {
     title: "Start",
     items: [
+      { title: "Flow Map", path: "__FLOW__", desc: "処理フロー（まずここ）" },
       { title: "START_HERE", path: "START_HERE.md", desc: "入口（最優先）" },
       { title: "DECISIONS", path: "ssot/DECISIONS.md", desc: "意思決定台帳（SSOTトップ）" },
       { title: "SSOT Docs Index", path: "ssot/DOCS_INDEX.md", desc: "SSOTドキュメント索引" },
@@ -140,6 +142,10 @@ const navSearch = $("navSearch");
 const navList = $("navList");
 const reloadDoc = $("reloadDoc");
 const portal = $("portal");
+const flowPane = $("flowPane");
+const flowBody = $("flowBody");
+const copyFlowLink = $("copyFlowLink");
+const backToPortalFromFlow = $("backToPortalFromFlow");
 const docPane = $("docPane");
 const docTitle = $("docTitle");
 const docPath = $("docPath");
@@ -281,7 +287,178 @@ async function copyTextToClipboard(text) {
 
 function setPortalVisible(on) {
   portal.hidden = !on;
+  flowPane.hidden = true;
   docPane.hidden = on;
+}
+
+function setFlowVisible(on) {
+  portal.hidden = on;
+  flowPane.hidden = !on;
+  docPane.hidden = true;
+}
+
+function createEl(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined && text !== null) el.textContent = String(text);
+  return el;
+}
+
+const FLOW_SPEC = {
+  updatedAt: "2026-01-10",
+  purpose: "YouTube量産の「入力→台本→音声→動画→公開」を SSOT中心で再現性高く回す。",
+  rails: [
+    { title: "SSOT-first", desc: "ルール/運用/フローはSSOTが正。変更はSSOT→実装の順。" },
+    { title: "Lock", desc: "複数AI並列運用の衝突防止。触る前に lock を置く。" },
+    { title: "No Drift", desc: "勝手なモデル切替/フォールバック禁止。台本はAPI固定。" },
+  ],
+  steps: [
+    {
+      n: 1,
+      title: "Planning（入力SoT）",
+      summary: "動画タイトル/タグ/要件を確定して、台本生成の入力を作る。",
+      artifacts: ["workspaces/planning/channels/CHxx.csv", "packages/script_pipeline/channels/CHxx-*/channel_info.json"],
+      docs: [
+        { title: "入口（START_HERE）", path: "START_HERE.md" },
+        { title: "確定フロー（Pipeline）", path: "ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md" },
+        { title: "入口索引（Entrypoints）", path: "ssot/ops/OPS_ENTRYPOINTS_INDEX.md" },
+      ],
+      stop: ["入力不足/欠損があれば Planning を直す（SSOTに戻る）。"],
+    },
+    {
+      n: 2,
+      title: "Script Pipeline（A-text/台本）",
+      summary: "台本を生成し、品質ゲートで止める/通す。止まったら修正して resume。",
+      rails: ["台本（script_*）は Fireworks/DeepSeek 固定", "Codex/AGENT は台本を書かない（遮断済み）"],
+      docs: [
+        { title: "台本パイプラインSSOT", path: "ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md" },
+        { title: "モデル固定ルール", path: "ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md" },
+      ],
+      stop: ["quality gate / fact check などで fail → 指摘に沿って修正 → 同じコマンドで resume。"],
+    },
+    {
+      n: 3,
+      title: "Audio/TTS（Bテキスト/voicevox_kana）",
+      summary: "TTS用の整形/読み監査/VOICEVOX合成。誤読ゼロで止めて直す。",
+      rails: ["`tts_*` は Codex 主担当（推奨: LLM_EXEC_SLOT=1）", "exec-slot=1 の `tts_*` はCodex失敗時にAPIへ落とさず停止"],
+      docs: [
+        { title: "VOICEVOX Reading Reform（SSOT）", path: "ssot/plans/PLAN_OPS_VOICEVOX_READING_REFORM.md" },
+        { title: "TTS 手動監査（誤読ゼロ）", path: "ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md" },
+      ],
+      stop: ["mismatch 検出→停止→辞書/パッチ修正→再合成（混入を許さない）。"],
+    },
+    {
+      n: 4,
+      title: "Video Pipeline（CapCut）",
+      summary: "音声/SRT/画像素材から動画を組む（不足があれば止めて補完）。",
+      docs: [
+        { title: "確定フロー（Pipeline）", path: "ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md" },
+        { title: "モデル/実行モード（@xN）", path: "ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md" },
+        { title: "ログ配置（証跡）", path: "ssot/ops/OPS_LOGGING_MAP.md" },
+      ],
+      stop: ["pending（THINK/agent）や素材欠損があれば、該当runbook/ログに従って解消して再実行。"],
+    },
+    {
+      n: 5,
+      title: "Publish / Evidence（証跡）",
+      summary: "成果物とログを揃えて、いつでも再現できる状態にする。",
+      docs: [
+        { title: "ログ配置（証跡）", path: "ssot/ops/OPS_LOGGING_MAP.md" },
+        { title: "意思決定（DECISIONS）", path: "ssot/DECISIONS.md" },
+      ],
+      stop: ["迷ったら「どのSoTが正か」を先に確認してから動く。"],
+    },
+  ],
+};
+
+function renderFlow() {
+  flowBody.innerHTML = "";
+
+  const hero = createEl("div", "guide-flow__hero");
+  hero.appendChild(createEl("div", "guide-flow__kicker", "まずは全体の処理フローだけ掴む"));
+  hero.appendChild(createEl("div", "guide-flow__purpose", FLOW_SPEC.purpose));
+
+  const rails = createEl("div", "guide-flow__rails");
+  for (const r of FLOW_SPEC.rails) {
+    const card = createEl("div", "guide-flow__rail");
+    card.appendChild(createEl("div", "guide-flow__rail-title", r.title));
+    card.appendChild(createEl("div", "guide-flow__rail-desc muted", r.desc));
+    rails.appendChild(card);
+  }
+  hero.appendChild(rails);
+  flowBody.appendChild(hero);
+
+  const stepsWrap = createEl("div", "guide-flow__steps");
+  for (const st of FLOW_SPEC.steps) {
+    const step = createEl("section", "guide-flow__step");
+
+    const head = createEl("div", "guide-flow__step-head");
+    head.appendChild(createEl("div", "guide-flow__step-num mono", String(st.n)));
+    const headMain = createEl("div", "guide-flow__step-head-main");
+    headMain.appendChild(createEl("div", "guide-flow__step-title", st.title));
+    headMain.appendChild(createEl("div", "guide-flow__step-summary muted", st.summary));
+    head.appendChild(headMain);
+    step.appendChild(head);
+
+    if (st.rails && st.rails.length) {
+      const pills = createEl("div", "guide-flow__pills");
+      for (const raw of st.rails) {
+        pills.appendChild(createEl("div", "guide-flow__pill", raw));
+      }
+      step.appendChild(pills);
+    }
+
+    if (st.artifacts && st.artifacts.length) {
+      const box = createEl("div", "guide-flow__box");
+      box.appendChild(createEl("div", "guide-flow__box-title", "SoT / artifacts"));
+      const ul = createEl("ul", "guide-flow__list");
+      for (const a of st.artifacts) ul.appendChild(createEl("li", "", a));
+      box.appendChild(ul);
+      step.appendChild(box);
+    }
+
+    if (st.stop && st.stop.length) {
+      const box = createEl("div", "guide-flow__box guide-flow__box--warn");
+      box.appendChild(createEl("div", "guide-flow__box-title", "停止条件 / 次にやること"));
+      const ul = createEl("ul", "guide-flow__list");
+      for (const s of st.stop) ul.appendChild(createEl("li", "", s));
+      box.appendChild(ul);
+      step.appendChild(box);
+    }
+
+    if (st.docs && st.docs.length) {
+      const links = createEl("div", "guide-flow__links");
+      for (const d of st.docs) {
+        const btn = createEl("button", "btn btn--ghost btn--small");
+        btn.type = "button";
+        btn.dataset.doc = d.path;
+        btn.textContent = d.title;
+        links.appendChild(btn);
+      }
+      step.appendChild(links);
+    }
+
+    stepsWrap.appendChild(step);
+  }
+  flowBody.appendChild(stepsWrap);
+
+  const footer = createEl("div", "guide-flow__footer muted", `updated: ${FLOW_SPEC.updatedAt}  |  doc: __FLOW__`);
+  flowBody.appendChild(footer);
+}
+
+function openFlow() {
+  currentDocPath = "__FLOW__";
+  currentDocHash = "";
+  setFlowVisible(true);
+  closeNav();
+  renderFlow();
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("doc", "__FLOW__");
+  url.hash = "";
+  window.history.replaceState(null, "", url.toString());
+  setFooter(`doc: __FLOW__`);
+  window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function buildToc() {
@@ -344,6 +521,10 @@ async function openDoc(path, titleOverride) {
   const normalized = normalizeDocPath(refPath);
   if (!normalized || !isAllowedDocPath(normalized)) {
     docStatus.textContent = "（このパスは閲覧対象外）";
+    return;
+  }
+  if (normalized === "__FLOW__") {
+    openFlow();
     return;
   }
 
@@ -451,6 +632,7 @@ function boot() {
   });
 
   backToPortal.addEventListener("click", clearDocSelection);
+  backToPortalFromFlow.addEventListener("click", clearDocSelection);
 
   copyLink.addEventListener("click", async () => {
     if (!currentDocPath) return;
@@ -459,6 +641,15 @@ function boot() {
     docStatus.textContent = ok ? "リンクをコピーしました" : "コピーに失敗しました";
     window.setTimeout(() => {
       if (docStatus.textContent.includes("リンク")) docStatus.textContent = "";
+    }, 1800);
+  });
+
+  copyFlowLink.addEventListener("click", async () => {
+    const url = toDocUrl("__FLOW__", "");
+    const ok = await copyTextToClipboard(url);
+    setFooter(ok ? "リンクをコピーしました" : "コピーに失敗しました");
+    window.setTimeout(() => {
+      if (footerMeta.textContent.includes("リンク")) setFooter("doc: __FLOW__");
     }, 1800);
   });
 

@@ -42,16 +42,21 @@
             <div class="guide-portal__box">
               <div class="guide-portal__title">最初の1分（迷ったらここだけ）</div>
               <ol class="guide-portal__steps">
-                <li>まず `START_HERE.md` を読む（全体像/入口）。</li>
-                <li>次に `ssot/DECISIONS.md`（意思決定台帳）で “今の正解” を確認。</li>
-                <li>困ったら `ssot/DOCS_INDEX.md` から目的の正本へ飛ぶ。</li>
+                <li>まず「Flow Map」で <b>処理フロー（全体像）</b> を掴む。</li>
+                <li>次に `START_HERE.md`（入口）を読む。</li>
+                <li>最後に `ssot/DECISIONS.md`（意思決定台帳）で “今の正解” を確認。</li>
               </ol>
             </div>
 
             <div class="guide-cards" aria-label="主要ショートカット">
-              <button class="guide-card guide-card--primary" type="button" data-doc="START_HERE.md">
+              <button class="guide-card guide-card--primary" type="button" data-doc="__FLOW__">
+                <div class="guide-card__title">Flow Map</div>
+                <div class="guide-card__desc">処理フロー（まずここ）</div>
+                <div class="guide-card__meta mono">__FLOW__</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="START_HERE.md">
                 <div class="guide-card__title">START_HERE</div>
-                <div class="guide-card__desc">入口（最優先）</div>
+                <div class="guide-card__desc">入口（SSOT導線）</div>
                 <div class="guide-card__meta mono">START_HERE.md</div>
               </button>
               <button class="guide-card" type="button" data-doc="ssot/DECISIONS.md">
@@ -90,6 +95,20 @@
                 <div class="guide-card__meta mono">ssot/DOCS_INDEX.md</div>
               </button>
             </div>
+          </section>
+
+          <section id="flowPane" class="guide-doc guide-flow" hidden>
+            <div class="guide-doc__meta">
+              <div class="guide-doc__title">Flow Map</div>
+              <div class="guide-doc__sub">
+                <span class="muted">処理フロー（Happy Path + 停止条件）</span>
+              </div>
+              <div class="guide-doc__actions">
+                <button id="copyFlowLink" class="btn btn--ghost" type="button">リンクをコピー</button>
+                <button id="backToPortalFromFlow" class="btn btn--ghost" type="button">ポータルへ戻る</button>
+              </div>
+            </div>
+            <article id="flowBody" class="guide-flow__body"></article>
           </section>
 
           <section id="docPane" class="guide-doc" hidden>
