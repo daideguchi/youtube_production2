@@ -42,6 +42,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 | `@xN` | 意味 |
 |---|---|
 | `@x0` | 通常（LLM API） |
+| `@x1` | Codex exec 強制ON（`tts_*` 推奨。`script_*` は対象外） |
 | `@x3` | THINK（非台本タスクのみエージェントが代行 / pending。`script_*` は停止） |
 
 ### 0.3 台本（`script_*`）は基本 “共通” です
@@ -194,6 +195,7 @@ SoT（正本）:
   - `visual_prompt_refine`（画像プロンプト整形）
   - `visual_thumbnail_caption`（サムネ要約）
   - `tts_segment`（TTS分割）
+- TTS（`tts_*`）は `@x1`（`LLM_EXEC_SLOT=1`）を推奨（Codex 主担当）。`@x1` で Codex exec が失敗した場合は停止し、LLM APIへ自動フォールバックしない（すり替え禁止）。
 - これらは `configs/llm_router.yaml` の `tasks.<task>.tier` で tier が決まり、
   **tier は `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）でモデルコードに解決**される。
 - 一覧はUI `/model-policy` の「その他のLLM処理（共通）」表で確認する。

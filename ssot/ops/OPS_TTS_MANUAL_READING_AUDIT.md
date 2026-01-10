@@ -15,6 +15,8 @@
 
 ### 1.2 絶対ルール
 - `SKIP_TTS_READING=1` を必ず付け、読みLLM経路を完全にスキップする。
+- VOICEVOX の実読と期待読みが1件でもズレたら **停止** する（誤読混入を禁止 / 常時ON）。
+  - 停止時のレポート: `workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json`
 - 監査対象は **候補の全件**。候補抽出・確認・記録までを1セットとする。
 - 修正が必要なら **辞書/位置パッチを手で追加 → 該当動画のみ再合成**。
 - 進捗・証跡は `ssot/history/HISTORY_tts_reading_audit.md` に動画ごとに記録する（後述テンプレに従う）。
@@ -80,6 +82,10 @@
      PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts \
        --channel {CH} --video {VID} --input ... --resume
      ```
+3. **部分再生成（`--indices`）はSSOTでは使わない（原則禁止）**
+   - 手動監査フローは「全件監査 → 必要なら辞書/位置パッチ → **全体を再合成**」が正本。
+   - `--indices` による部分更新は、過去生成物の混入・セグメントずれ・未監査区間の残存が起きやすく、**誤読ゼロ運用に反する**ため本書では採用しない。
+   - 例外的に `--indices` を使う場合でも、**本書の完了条件（全候補の全件目視）**は満たす必要がある。原則は 3.0 に戻って `audio_prep` を作り直す。
 3. 生成物確認:
    - `audio_prep/CHxx-yyy.wav`
    - `audio_prep/CHxx-yyy.srt`

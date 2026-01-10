@@ -134,6 +134,10 @@
 - `tts_segment`: セグメント分割（json_object）
 - `tts_pause`: 間の推定（json_object）
 - `tts_reading`: 読み解決（重い推論）
+- 実行（固定）:
+  - `tts_*` は **Codex 主担当**（`LLM_EXEC_SLOT=1` 推奨）。`voicevox_kana` の差分/読み推論を Codex 側へ寄せる。
+  - `LLM_EXEC_SLOT=1` で Codex exec が失敗した場合は **LLM APIへ自動フォールバックしない**（停止して原因を残す）。
+  - 比較/デバッグが必要な場合のみ `LLM_EXEC_SLOT=2`（Codex exec 強制OFF）でAPI実行する（通常運用で勝手に切り替えない）。
 
 ### 3.3 Video/Visual（画像文脈・プロンプト）
 - `visual_section_plan`: セクション設計
