@@ -135,9 +135,11 @@
 - `tts_pause`: 間の推定（json_object）
 - `tts_reading`: 読み解決（重い推論）
 - 実行（固定）:
-  - `tts_*` は **Codex 主担当**（`LLM_EXEC_SLOT=1` 推奨）。`voicevox_kana` の差分/読み推論を Codex 側へ寄せる。
-  - `LLM_EXEC_SLOT=1` で Codex exec が失敗した場合は **LLM APIへ自動フォールバックしない**（停止して原因を残す）。
-  - 比較/デバッグが必要な場合のみ `LLM_EXEC_SLOT=2`（Codex exec 強制OFF）でAPI実行する（通常運用で勝手に切り替えない）。
+  - `tts_*` は **AIエージェント（Codex）主担当**（`voicevox_kana` の差分/読み推論を Codex 側へ寄せる）。
+  - 推奨実行: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+    - これにより `tts_*` は **pending で停止**し、Codex（AIエージェント）が output を作って `complete` → rerun する。
+    - 注: ここで言う「Codex」は **codex exec（非対話CLI）ではない**（別物）。TTSは codex exec へ寄せない。
+  - 比較/デバッグで API 実行が必要な場合のみ、THINK MODE を使わずに実行する（通常運用で勝手に切り替えない）。
 
 ### 3.3 Video/Visual（画像文脈・プロンプト）
 - `visual_section_plan`: セクション設計

@@ -17,7 +17,9 @@
   1) Planning（入力SoT）→ 2) Script（A-text/台本）→ 3) TTS（Bテキスト/voicevox_kana）→ 4) Video（CapCut）→ 5) Publish
 - 事故防止の固定ルール（最重要）:
   - **台本（`script_*`）は LLM API（Fireworks/DeepSeek）固定**。**Codex/THINK/AGENT に流さない**（失敗時も停止して原因を直す）。
-  - **TTS（`tts_*`）は Codex 主担当**（推奨: `LLM_EXEC_SLOT=1`）。exec-slot=1 の `tts_*` は Codex 失敗時に **APIへフォールバックせず停止**。
+  - **TTS（`tts_*`）は AIエージェント（Codex）主担当**（THINK/AGENT の pending 運用で止めて直す）。
+    - 推奨: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+    - 注: ここで言う「Codex」は **codex exec（非対話CLI）ではない**（別物）。TTSは codex exec へ寄せない。
   - **勝手なモデル/プロバイダ切替や自動ローテは禁止**（切替はコード/スロットで明示）。
 - 迷ったら（まずここ）:
   - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`

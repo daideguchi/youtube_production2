@@ -21,6 +21,7 @@
 | D-001 | P0 | redoフラグの正本 | **`status.json` 正本**（CSVは派生ビュー） | Proposed |
 | D-002 | P0 | サイレント降格禁止（モデル/品質） | **明示モデル選択時はfallback禁止**（止めて報告） | Proposed |
 | D-003 | P0 | Publish→ローカル投稿済みロック | **publisherに“任意フラグで”同期**（忘れ事故を防ぐ） | Proposed |
+| D-013 | P0 | TTSのCodex（agent vs codex exec） | **TTSはAIエージェントCodex（pending）固定 / codex execと区別** | Done |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
 | D-006 | P2 | Video入口の一本化 | **`auto_capcut_run` 主線固定**（capcut engine stubは非推奨） | Proposed |
@@ -77,6 +78,33 @@
 ### Alternatives（代替案）
 - A) fallbackを常時許可（非推奨）: 目先の完了を優先し、品質が崩れる。
 - B) provider内だけ許可: provider差分が大きい場合、結局品質差が出る（慎重に）。
+
+---
+
+## D-013（P0）TTSの「Codex」をどう固定する？（AIエージェント vs codex exec）
+
+### Decision
+- **TTS（`tts_*` / `voicevox_kana`）は AIエージェント（Codex）主担当（pending運用）に固定**し、**codex exec（非対話CLI）とは明確に区別**する。
+
+### Recommended（推奨）
+1) TTSは THINK MODE を入口にする（pendingを作って止める）
+   - 例: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+2) pending は Codex（AIエージェント）が runbook に沿って output を作って `complete` → rerun
+3) **用語固定**:
+   - 「Codex（AIエージェント）」= pending の output を作る担当
+   - 「codex exec」= `codex exec` コマンドによる自動実行レイヤ（別物。TTSには寄せない）
+
+### Rationale（根拠）
+- TTSの `voicevox_kana` は “読み/誤読/根拠” の判断が重要で、雑な自動化は事故になりやすい。
+- 「Codex」という言葉が “AIエージェント” と “codex exec（非対話CLI）” の両方を指し得て混乱源になるため、**先に言葉を固定**するほうが事故を減らせる。
+- 台本（`script_*`）は API固定なので、TTSも “勝手に別経路へ流れない” 形（pending運用）に寄せると整合が取れる。
+
+### Alternatives（代替案）
+- A) codex exec をTTSに使う（非推奨）: 自動化の成功/失敗が運用理解に依存しやすく、混乱しやすい。
+- B) LLM APIでTTS補助を完結する（非推奨）: コスト/品質/再現性の面で “止めて直す” 運用と相性が悪い。
+
+### Impact（影響/作業）
+- SSOT/Guide/UIの文言を「Codex agent」と「codex exec」で分離し、誤解が起きない導線に更新する。
 
 ---
 
