@@ -5,6 +5,19 @@
 
 ---
 
+## 0. 最初の10分（スマホ/初見向け）
+
+迷子にならない “読む順”:
+
+1. `docs/guide/` の `Overview`（`?doc=__OVERVIEW__`）: 目的/成果物/固定ルール
+2. `docs/guide/` の `Flow Map`（`?doc=__FLOW__`）: 処理フロー（停止条件つき）
+3. `ops/OPS_CHANNEL_MODEL_ROUTING.md`: どの処理がどのモデルか（固定ルール）
+4. `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/UI）
+5. `ops/OPS_LOGGING_MAP.md`: 証跡（詰まったらまずここ）
+6. `DECISIONS.md`: “今の正解” の確定（方針が変わる場所）
+
+（深掘りは `OPS_SYSTEM_OVERVIEW.md` と本索引から）
+
 ## 1. 最上位SSOT / 参照仕様
 - `README.md`: SSOTの更新/移動/完了移設ルール（索引運用の正本）。
 - `DECISIONS.md`: 意思決定台帳（SSOTトップ）。P0/P1をここで確定→SSOT→実装へ反映する。

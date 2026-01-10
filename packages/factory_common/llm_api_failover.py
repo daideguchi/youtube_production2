@@ -106,6 +106,13 @@ def maybe_failover_to_think(
     - If results already exist for the computed task_id, return them.
     - Otherwise create pending + stop (SystemExit).
     """
+    # Fixed safety rule:
+    # - Never fail over script pipeline tasks to THINK MODE.
+    #   台本（script_*）は LLM API 固定で、失敗時は停止して原因を直す。
+    t = str(task or "").strip()
+    if t.startswith("script_"):
+        return None
+
     if not _failover_enabled():
         return None
 

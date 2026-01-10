@@ -8,6 +8,22 @@
 - 詳細な確定フロー（観測ベースの正本）は `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`。
 - 本書は **全体像のSSOT**（overview）。ドメイン個別の細部はリンク先のSSOTを正とする。
 
+---
+
+## TL;DR（1分で掴む）
+
+- これは「**YouTube量産**（企画→台本→音声→動画→公開）」を **SSOT中心**で再現性高く回す工場です。
+- 主線（Happy Path）:
+  1) Planning（入力SoT）→ 2) Script（A-text/台本）→ 3) TTS（Bテキスト/voicevox_kana）→ 4) Video（CapCut）→ 5) Publish
+- 事故防止の固定ルール（最重要）:
+  - **台本（`script_*`）は LLM API（Fireworks/DeepSeek）固定**。**Codex/THINK/AGENT に流さない**（失敗時も停止して原因を直す）。
+  - **TTS（`tts_*`）は Codex 主担当**（推奨: `LLM_EXEC_SLOT=1`）。exec-slot=1 の `tts_*` は Codex 失敗時に **APIへフォールバックせず停止**。
+  - **勝手なモデル/プロバイダ切替や自動ローテは禁止**（切替はコード/スロットで明示）。
+- 迷ったら（まずここ）:
+  - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
+  - 証跡/ログ: `ssot/ops/OPS_LOGGING_MAP.md`
+  - “今の正解”: `ssot/DECISIONS.md`
+
 最重要リンク（迷ったらここから）
 - 入口: `START_HERE.md`
 - 確定フロー/I-O/SoT: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`

@@ -340,6 +340,16 @@ const OVERVIEW_SPEC = {
     "tts_* は Codex 主担当（推奨: LLM_EXEC_SLOT=1）。exec-slot=1のtts_*は失敗時にAPIへ自動フォールバックしない（停止）。",
     "モデル/プロバイダの自動ローテ禁止（勝手に切り替えない）。",
   ],
+  pmBullets: [
+    "要件（固定ルール）は SSOT（DECISIONS / Model Routing）に集約し、実装はそれに追従する。",
+    "進捗は PLAN の状態と Slack スレッドで追う（コードの途中状態は lock で衝突防止）。",
+    "変更手順: lock → SSOT更新 → 実装 → チェック → push → Slack（この順で固定）。",
+  ],
+  pmLinks: [
+    { title: "Plan Status（Active/Draft/Completed）", path: "ssot/plans/PLAN_STATUS.md" },
+    { title: "DECISIONS（今の正解）", path: "ssot/DECISIONS.md" },
+    { title: "Agent Playbook（運用ルール）", path: "ssot/ops/OPS_AGENT_PLAYBOOK.md" },
+  ],
   shortcuts: [
     { title: "Flow Map（処理フロー）", path: "__FLOW__" },
     { title: "Entrypoints（コマンド入口）", path: "ssot/ops/OPS_ENTRYPOINTS_INDEX.md" },
@@ -411,6 +421,22 @@ function renderOverview() {
   }
   navBox.appendChild(links);
   overviewBody.appendChild(navBox);
+
+  const pm = createEl("div", "guide-overview__box");
+  pm.appendChild(createEl("div", "guide-overview__box-title", "進捗/要件管理（PM）"));
+  const pmUl = createEl("ul", "guide-overview__list");
+  for (const r of OVERVIEW_SPEC.pmBullets || []) pmUl.appendChild(createEl("li", "", r));
+  pm.appendChild(pmUl);
+  const pmLinks = createEl("div", "guide-overview__links");
+  for (const s of OVERVIEW_SPEC.pmLinks || []) {
+    const btn = createEl("button", "btn btn--ghost btn--small");
+    btn.type = "button";
+    btn.dataset.doc = s.path;
+    btn.textContent = s.title;
+    pmLinks.appendChild(btn);
+  }
+  pm.appendChild(pmLinks);
+  overviewBody.appendChild(pm);
 
   const ex = createEl("div", "guide-overview__box");
   ex.appendChild(createEl("div", "guide-overview__box-title", "実行例（コピペ）"));
