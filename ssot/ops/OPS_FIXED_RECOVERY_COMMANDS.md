@@ -46,6 +46,10 @@ LLMコスト制御（重要）:
 同義（明示したい場合）:
 - `./ops episode ensure --channel CHxx --video NNN`
 
+注意（WARN扱い）:
+- `scripts/episode_ssot.py ensure/materialize` は `episode_manifest.json` に warnings があると `exit=2` を返す（例: audio未生成）。
+- `./ops resume episode` はこれを **WARN（継続可）** として扱う（失敗扱いにしない）。warnings の内容は `workspaces/episodes/<CH>/<NNN>/episode_manifest.json` を参照する。
+
 ---
 
 ## 2) Script（台本）

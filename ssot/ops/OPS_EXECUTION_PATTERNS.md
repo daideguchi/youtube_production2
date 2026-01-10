@@ -168,6 +168,10 @@ LLMコスト制御（最重要）:
 注意:
 - `./ops` は終了時に best-effort で通知する（失敗しても処理自体は落とさない）。
 - THINK MODEは「pendingが出た」こと自体が重要イベントなので、pendingがあれば通知される（allowlistに無くても）。
+- 通知本文には、原則として「次に見るべき場所」を含める:
+  - `ops_latest`: `workspaces/logs/ops/ops_cli/latest/<episode>.json`（または `latest.json`）
+  - `run_log`: `workspaces/logs/ops/ops_cli/runs/<run_id>/...log`（内側コマンドのstdout/stderr）
+- `exit=2` は「警告（WARN）」の意味で返ることがある（例: `scripts/episode_ssot.py ensure` の warnings）。その場合は `FAILED` ではなく `WARN` として通知し、warnings を添付する（継続可）。
 
 関連:
 - `scripts/ops/slack_notify.py`

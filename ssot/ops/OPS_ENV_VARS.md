@@ -36,6 +36,8 @@
 
 備考:
 - `--llm think` で pending が出た場合は「失敗」ではなく `PENDING` として通知される（task埋め→再実行で続行）。
+- `./ops` の通知は、原則として `ops_latest`（keep-latest pointer）と `run_log`（内側コマンドのstdout/stderr）を添えて、Slackだけで一次切り分けができる形にする。
+- `exit=2` は「警告（WARN）」の意味で返ることがある（例: episode SSOT）。この場合は継続可能なので、manifestの warnings を見て対応する。
 - `packages/script_pipeline/job_runner.py` の通知（`scripts/notifications.py`）も同じ Slack 設定を使う（Webhook/Bot 両対応）。
 - Slack返信の取り込み（任意; Bot方式のみ）:
   - 目的: Slackスレッド返信で dd の意思決定を返し、repo作業へ反映しやすくする（copy/pasteミス防止）。
