@@ -649,6 +649,18 @@ def _maybe_print_ops_tips(args: argparse.Namespace, *, llm: str, exec_slot: int 
         print(f"[ops] note: {note} for cmd={cmd}{(' op=' + op) if op else ''}.", file=sys.stderr)
         return
 
+    # Script pipeline is API-only (fixed safety rule).
+    # Avoid printing generic THINK/CODEX/API tips that would mislead operators.
+    is_script = (cmd == "script") or (cmd == "resume" and op == "script")
+    if is_script:
+        if eff != "api":
+            print("[ops] POLICY: script pipeline is API-only (no THINK/CODEX).", file=sys.stderr)
+            print("[ops] action: use `./ops api script ...` / `./ops api resume script ...`.", file=sys.stderr)
+            return
+        print("[ops] API MODE: script pipeline is API-only (no THINK/CODEX).", file=sys.stderr)
+        print("[ops] help: `./ops patterns list` / `./ops latest --channel CHxx --video NNN`", file=sys.stderr)
+        return
+
     if eff == "think":
         qdir = _fmt_relpath(_agent_queue_dir())
         print(
@@ -977,7 +989,7 @@ def cmd_mode(args: argparse.Namespace) -> int:
     if not forwarded:
         print(f"usage: ./ops {mode} <cmd> ...", file=sys.stderr)
         print("example:", file=sys.stderr)
-        print(f"  ./ops {mode} script new --channel CHxx --video NNN", file=sys.stderr)
+        print(f"  ./ops {mode} audio --channel CHxx --video NNN", file=sys.stderr)
         return 2
 
     env = dict(os.environ)
@@ -1557,8 +1569,14 @@ def cmd_resume(args: argparse.Namespace) -> int:
         return rc
 
     if target == "script":
+        eff = _apply_forced_llm(llm)
+        if eff != "api":
+            print("[POLICY] resume script is API-only (no THINK/CODEX).", file=sys.stderr)
+            print("- rule: 台本（script_*）は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。", file=sys.stderr)
+            print("- action: rerun with `./ops api resume script ...` (or add `--llm api`)", file=sys.stderr)
+            return 2
         inner = ["python3", "scripts/ops/script_runbook.py", "resume", *forwarded]
-        return _run_with_llm_mode(llm, inner)
+        return _run_with_llm_mode(eff, inner)
 
     if target == "audio":
         inner = ["python3", "-m", "script_pipeline.cli", "audio", *forwarded]
