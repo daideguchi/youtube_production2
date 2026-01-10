@@ -190,14 +190,27 @@ function renderNav(filterText) {
   navList.innerHTML = "";
 
   for (const section of DOC_SECTIONS) {
-    const sectionEl = document.createElement("div");
-    sectionEl.className = "guide-nav__section";
-    sectionEl.textContent = section.title;
-    navList.appendChild(sectionEl);
-
+    const matched = [];
     for (const item of section.items) {
       const hay = `${item.title} ${item.desc || ""} ${item.path}`.toLowerCase();
       if (q && !hay.includes(q)) continue;
+      matched.push(item);
+    }
+    if (!matched.length) continue;
+
+    const group = document.createElement("details");
+    group.className = "guide-nav__group";
+    group.open = Boolean(q) || section.title === "Start";
+
+    const summary = document.createElement("summary");
+    summary.className = "guide-nav__section";
+    summary.textContent = `${section.title} (${matched.length})`;
+    group.appendChild(summary);
+
+    const itemsEl = document.createElement("div");
+    itemsEl.className = "guide-nav__group-items";
+
+    for (const item of matched) {
 
       const btn = document.createElement("button");
       btn.type = "button";
@@ -225,8 +238,11 @@ function renderNav(filterText) {
       btn.addEventListener("click", () => {
         openDoc(item.path, item.title);
       });
-      navList.appendChild(btn);
+      itemsEl.appendChild(btn);
     }
+
+    group.appendChild(itemsEl);
+    navList.appendChild(group);
   }
 }
 

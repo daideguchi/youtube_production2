@@ -48,6 +48,26 @@
   gap: 10px;
 }
 
+.guide-nav__group {
+  border: 0;
+}
+
+.guide-nav__group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.guide-nav__group > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.guide-nav__group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .guide-nav__section {
   padding: 6px 2px 4px;
   font-size: 12px;
