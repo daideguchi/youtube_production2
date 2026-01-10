@@ -308,11 +308,12 @@
       "belt": {
         "enabled": true,
         "opening_offset": 3.0,
-        "requires_config": true
+        "requires_config": false
       },
       "belt_labels": "",
       "persona_required": true,
       "image_min_bytes": 60000,
+      "video_style_id": "portrait_left_subtitles_v1",
       "notes": "「7つの教え」形式。偉人の肖像と哲学的な背景。",
       "status": "active"
     },
@@ -658,6 +659,34 @@
       "image_min_bytes": 60000,
       "notes": "画像は20〜30秒/枚を目安に分割。夫婦/家族/介護の摩耗を“心理描写”で見せる。人物一貫性を最優先。",
       "status": "draft"
+    },
+    "CH26": {
+      "name": "拝啓、偉人より",
+      "capcut_template": "CH09_テンプレ",
+      "prompt_template": "templates/default.txt",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 3.0,
+        "requires_config": false
+      },
+      "belt_labels": "",
+      "persona_required": true,
+      "image_min_bytes": 60000,
+      "video_style_id": "portrait_left_subtitles_v1",
+      "notes": "右に偉人ポートレート、左に黒背景＋中央字幕、下段に偉人情報。",
+      "status": "active"
     }
   }
 }
