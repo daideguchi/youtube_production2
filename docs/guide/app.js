@@ -354,6 +354,7 @@ const OVERVIEW_SPEC = {
     "Lock: 触る前に lock（並列衝突防止）。",
     "台本（script_*）は LLM API（Fireworks/DeepSeek）固定。Codex/agent は台本を書かない。",
     "tts_* は AIエージェント（Codex）主担当（THINK/AGENTのpending運用）。codex exec（非対話CLI）とは別物。",
+    "TTS辞書運用: ユニーク誤読のみ辞書へ。曖昧語は辞書に入れず、Bテキストのカナ化/位置overrideで対応（DECISIONS:D-014）。",
     "モデル/プロバイダの自動ローテ禁止（勝手に切り替えない）。",
   ],
   pmBullets: [
