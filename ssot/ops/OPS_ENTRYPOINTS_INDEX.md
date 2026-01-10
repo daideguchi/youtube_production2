@@ -35,7 +35,7 @@
   - `./ops patterns show PAT-VIDEO-DRAFT-001`
   - 正本: `ssot/ops/OPS_EXECUTION_PATTERNS.md`
 - 代表例（P0ラッパー）:
-  - Script: `./ops script <MODE> --channel CHxx --video NNN`
+  - Script: `./ops api script <MODE> --channel CHxx --video NNN`（台本はAPI固定）
   - Audio: `./ops audio --channel CHxx --video NNN`
   - Publish: `./ops publish ...`
 - LLM実行の明示（重要）:
