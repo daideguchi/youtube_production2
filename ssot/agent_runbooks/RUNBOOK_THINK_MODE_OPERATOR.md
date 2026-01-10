@@ -3,9 +3,9 @@
 ## Runbook metadata
 - **Runbook ID**: RUNBOOK_THINK_MODE_OPERATOR
 - **ステータス**: Active
-- **対象**: THINK MODE（`LLM_EXEC_SLOT=3`）で発生する `workspaces/logs/agent_tasks/pending/*.json`
+- **対象**: THINK MODE（`LLM_EXEC_SLOT=3`）で発生する `workspaces/logs/agent_tasks/pending/*.json`（非`script_*`）
 - **想定利用者**: AIエージェント（端末操作・ファイル編集・コマンド実行ができる）
-- **最終更新日**: 2025-12-12
+- **最終更新日**: 2026-01-10
 
 ## 1. 目的（DoD）
 - 任意のパイプラインコマンドを THINK MODE で完走させる。
@@ -16,6 +16,7 @@
 - THINK MODE は「API LLM 呼び出しの代わりに pending を作って停止」する。
 - 重要: **API LLM が落ちた場合も自動で THINK MODE にフォールバック**する（デフォルト有効。無効化は `LLM_EXEC_SLOT=5`）。
 - 複数エージェント運用では `LLM_AGENT_NAME` を設定し、作業前に pending を **claim** して衝突を避ける。
+- 固定ルール: `script_*`（台本）は THINK/AGENT の対象外（Codex/agent 代行で台本を書かない）。台本は `LLM_EXEC_SLOT=0`（API）で実行する。
 
 ## 3. 実行プロトコル（ループ）
 
@@ -23,8 +24,10 @@
 推奨: `scripts/think.sh`（.envロード＋THINK MODE＋pending一覧/バンドル作成まで一発）
 
 ```bash
-./scripts/think.sh --all-text <command> [args...]
+./scripts/think.sh --all-text -- <command> [args...]
 ```
+
+注: `--all-text` は非`script_*`のテキスト系（`tts_/visual_/title_/belt_`）向け。台本生成の入口には使わない。
 
 `--loop` を付けると「pending が消えるまで待機→自動で再実行」になる。  
 同一ターミナルで手作業する場合は **ブロックして不便** なので、基本は `--loop` なし（pending 解決→手で再実行）を推奨。

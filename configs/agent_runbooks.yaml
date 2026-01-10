@@ -6,7 +6,6 @@ default_runbook: ssot/agent_runbooks/RUNBOOK_GENERIC_LLM_TASK.md
 
 task_prefix:
   web_search_: ssot/agent_runbooks/RUNBOOK_WEB_SEARCH.md
-  script_: ssot/agent_runbooks/RUNBOOK_SCRIPT_WRITING.md
   tts_: ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md
   visual_: ssot/agent_runbooks/RUNBOOK_GENERIC_LLM_TASK.md
   title_: ssot/agent_runbooks/RUNBOOK_GENERIC_LLM_TASK.md

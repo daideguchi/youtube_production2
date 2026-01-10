@@ -4,10 +4,9 @@
 # - When the command stops due to pending tasks, it prints the queue and (optionally) writes bundle files.
 #
 # Usage:
-#   ./scripts/think.sh [--script|--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--loop] [--] <command> [args...]
+#   ./scripts/think.sh [--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--loop] [--] <command> [args...]
 #
 # Examples:
-#   ./scripts/think.sh --script -- python -m script_pipeline.cli run-all --channel CH06 --video 033
 #   ./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CH06 --video 033
 set -euo pipefail
 
@@ -33,13 +32,12 @@ usage() {
 THINK MODE — "エージェントが思考するモード"
 
 Usage:
-  ./scripts/think.sh [--script|--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--] <command> [args...]
+  ./scripts/think.sh [--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--] <command> [args...]
 
 Options:
-  --script        Only intercept script_* tasks
   --tts           Only intercept tts_* tasks
   --visual        Only intercept visual_* tasks (text only; image_generation is excluded)
-  --all-text      Intercept script_/tts_/visual_/title_/belt_ (narrower than default)
+  --all-text      Intercept tts_/visual_/title_/belt_ (non-script text tasks)
   --agent-name <name>
                  Set LLM_AGENT_NAME for claim/completed_by metadata
   --no-bundle     Do not generate bundle markdown files for pending tasks
@@ -51,14 +49,16 @@ Options:
 Notes:
   - Results are written under workspaces/logs/agent_tasks/ (or LLM_AGENT_QUEUE_DIR)
   - Use python scripts/agent_runner.py list/show/prompt/chat/bundle/complete to manage tasks.
+  - Fixed policy: script_* (台本) is NOT supported in THINK/AGENT mode. Use exec-slot=0 (API) for script pipeline.
 USAGE
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --script)
-      PREFIXES="script_"
-      shift
+      echo "[POLICY] --script is no longer supported. script_* (台本) must run in exec-slot=0 (API)." >&2
+      echo "action: rerun without THINK MODE (e.g., ./scripts/with_ytm_env.sh --exec-slot 0 ...)" >&2
+      exit 2
       ;;
     --tts)
       PREFIXES="tts_"
@@ -69,7 +69,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --all-text)
-      PREFIXES="script_,tts_,visual_,title_,belt_"
+      PREFIXES="tts_,visual_,title_,belt_"
       shift
       ;;
     --agent-name)

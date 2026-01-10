@@ -2,9 +2,13 @@
 
 ## Runbook metadata
 - **Runbook ID**: RUNBOOK_SCRIPT_WRITING
-- **ステータス**: Active
-- **対象**: `script_*`
-- **最終更新日**: 2025-12-12
+- **ステータス**: Legacy
+- **対象**: （参照用。現運用では使わない）
+- **最終更新日**: 2026-01-10
+
+NOTE（2026-01-10）:
+- `script_*`（台本）は **LLM API（Fireworks）固定**。THINK/AGENT/Codex で台本を書かせない（実装で遮断済み）。
+- このRunbookは過去運用の記録として残す。現運用の入口は `ssot/agent_runbooks/RUNBOOK_JOB_SCRIPT_PIPELINE.md` を参照。
 
 ## 1. 目的（DoD）
 - `messages` の要件に従い、台本生成に必要な **本文だけ** を出力する（余計な説明を混ぜない）。
@@ -22,4 +26,3 @@
 ## 3. チェック
 - `messages` で指定された制約（文字数/構造/終端トークン等）を満たす
 - 「出力コンテンツだけ」になっている
-

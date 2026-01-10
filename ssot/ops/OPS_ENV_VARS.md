@@ -315,8 +315,10 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
   - 対象（例）: `script_chapter_draft`, `script_cta`, `script_format`, `script_chapter_review`, `script_a_text_*`, `script_semantic_alignment_fix`
   - 理由: Codex の言い回しが本文へ混入する事故を構造的に防ぐ（本文は常に LLM API 側で統一）
   - SoT: `configs/codex_exec.yaml: selection.exclude_tasks`
-- それ以外の非本文タスク（`script_outline`/`script_topic_research`/各種 JSON 生成/判定など）は Codex exec 優先（失敗時は LLMRouter API へフォールバック）。
-  - 例外（固定）: `image_generation`, `web_search_openrouter` は Codex exec 対象外（既定でも除外）。
+- 固定: `script_*` は Codex exec 対象外（台本文体/モデル混入防止）。台本は LLM API（Fireworks）固定。
+- 固定: `LLM_EXEC_SLOT=1` の `tts_*` は Codex exec 必須（失敗時に LLM APIへ自動フォールバックしない=停止）。
+- Codex exec の対象は `configs/codex_exec.yaml: selection.include_task_prefixes` に一致する **非台本** task のみ（例: `tts_*`, `visual_*`）。
+- 例外（固定）: `image_generation`, `web_search_openrouter` は Codex exec 対象外（既定でも除外）。
   - 詳細SSOT: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`（2.4）
 
 ### 設定（SoT）
@@ -332,7 +334,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `YTM_CODEX_EXEC_MODEL`（任意）: `codex exec -m` に渡すモデル名
 - `YTM_CODEX_EXEC_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout（秒）
 - `YTM_CODEX_EXEC_SANDBOX`（default: `read-only`）: `codex exec --sandbox`（運用では read-only 固定推奨）
-- `YTM_CODEX_EXEC_EXCLUDE_TASKS`（任意）: `codex exec` を **試さない task** をカンマ区切りで指定（例: `script_outline,script_topic_research`）
+- `YTM_CODEX_EXEC_EXCLUDE_TASKS`（任意）: `codex exec` を **試さない task** をカンマ区切りで指定（例: `visual_bible,visual_image_cues_plan`）
 - `YTM_SCRIPT_ALLOW_OPENROUTER`（legacy）: 旧運用互換。`YTM_ROUTING_LOCKDOWN=1`（既定）では **検出した時点で停止**するため、通常運用では使わない（slot定義で固定する）
 
 ## Script pipeline: Planning整合（内容汚染の安全弁）
@@ -368,8 +370,8 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - CLIでの上書き: `python scripts/agent_runner.py --agent-name Mike claim <TASK_ID>`
 
 ### 対象タスクの絞り込み（任意）
-- `LLM_AGENT_TASKS`（任意）: 例 `script_outline,tts_reading`（完全一致 allowlist）
-- `LLM_AGENT_TASK_PREFIXES`（任意）: 例 `script_,tts_`（prefix allowlist）
+- `LLM_AGENT_TASKS`（任意）: 例 `tts_reading,visual_image_cues_plan`（完全一致 allowlist）
+- `LLM_AGENT_TASK_PREFIXES`（任意）: 例 `tts_,visual_,title_,belt_`（prefix allowlist）
 - `LLM_AGENT_EXCLUDE_TASKS`（任意）: 例 `image_generation`（完全一致 blocklist）
 - `LLM_AGENT_EXCLUDE_PREFIXES`（任意）: 例 `visual_`（prefix blocklist）
 
@@ -378,11 +380,12 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 
 ### 実行例
 - THINK MODE（一発）:
-  - `./scripts/think.sh --all-text -- python -m script_pipeline.cli run-all --channel CH06 --video 033`
+  - `./scripts/think.sh --all-text -- <command> [args...]`
+  - 注: `script_*`（台本）は THINK/AGENT の対象外。台本は `LLM_EXEC_SLOT=0`（API）で実行する。
 - agent-mode（手動）:
   - `export LLM_EXEC_SLOT=4`
-  - `export LLM_AGENT_TASK_PREFIXES=script_`
-  - `python -m script_pipeline.cli run-all --channel CH06 --video 033`
+  - `export LLM_AGENT_TASK_PREFIXES=visual_`
+  - `<command> [args...]`
 
 ### srt2images（CapCut/画像）向け補足
 - THINK MODE 時の cues 計画は `visual_image_cues_plan` に集約（複数回 stop/resume しないため）。

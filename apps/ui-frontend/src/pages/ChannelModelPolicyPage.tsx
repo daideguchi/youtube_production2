@@ -1603,10 +1603,23 @@ export function ChannelModelPolicyPage() {
                         type="button"
                         className="workspace-button workspace-button--ghost workspace-button--compact"
                         onClick={() =>
-                          void copyToClipboard("./scripts/think.sh --all-text -- python -m script_pipeline.cli run-all --channel CH06 --video 033")
+                          void copyToClipboard(
+                            "./scripts/think.sh --visual -- python3 packages/video_pipeline/tools/auto_capcut_run.py --channel CH06 --srt /path/to/input.srt --dry-run"
+                          )
                         }
                       >
-                        think.sh（例）をコピー
+                        think.sh（非台本例）をコピー
+                      </button>
+                      <button
+                        type="button"
+                        className="workspace-button workspace-button--ghost workspace-button--compact"
+                        onClick={() =>
+                          void copyToClipboard(
+                            "./scripts/with_ytm_env.sh --exec-slot 0 python3 scripts/ops/script_runbook.py new --channel CH06 --video 033 --until script_validation --max-iter 6"
+                          )
+                        }
+                      >
+                        台本runbook（API例）をコピー
                       </button>
                     </div>
                     <div className="muted small-text" style={{ marginTop: 6, lineHeight: 1.55 }}>
