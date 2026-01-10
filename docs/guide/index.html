@@ -42,59 +42,84 @@
             <div class="guide-portal__box">
               <div class="guide-portal__title">最初の1分（迷ったらここだけ）</div>
               <ol class="guide-portal__steps">
-                <li>まず「Flow Map」で <b>処理フロー（全体像）</b> を掴む。</li>
-                <li>次に `START_HERE.md`（入口）を読む。</li>
-                <li>最後に `ssot/DECISIONS.md`（意思決定台帳）で “今の正解” を確認。</li>
+                <li>まず「Overview」で <b>目的/成果物/固定ルール</b> を掴む。</li>
+                <li>次に「Flow Map」で <b>処理フロー（全体像）</b> を掴む。</li>
+                <li>実行は `OPS_ENTRYPOINTS_INDEX` / 証跡は `OPS_LOGGING_MAP`（迷ったら `DECISIONS`）。</li>
               </ol>
             </div>
 
             <div class="guide-cards" aria-label="主要ショートカット">
-              <button class="guide-card guide-card--primary" type="button" data-doc="__FLOW__">
+              <button class="guide-card guide-card--primary" type="button" data-doc="__OVERVIEW__">
+                <div class="guide-card__title">Overview</div>
+                <div class="guide-card__desc">目的/成果物/固定ルール（まずここ）</div>
+                <div class="guide-card__meta mono">__OVERVIEW__</div>
+              </button>
+              <button class="guide-card" type="button" data-doc="__FLOW__">
                 <div class="guide-card__title">Flow Map</div>
-                <div class="guide-card__desc">処理フロー（まずここ）</div>
+                <div class="guide-card__desc">処理フロー（全体像）</div>
                 <div class="guide-card__meta mono">__FLOW__</div>
-              </button>
-              <button class="guide-card" type="button" data-doc="START_HERE.md">
-                <div class="guide-card__title">START_HERE</div>
-                <div class="guide-card__desc">入口（SSOT導線）</div>
-                <div class="guide-card__meta mono">START_HERE.md</div>
-              </button>
-              <button class="guide-card" type="button" data-doc="ssot/DECISIONS.md">
-                <div class="guide-card__title">DECISIONS</div>
-                <div class="guide-card__desc">意思決定台帳（SSOTトップ）</div>
-                <div class="guide-card__meta mono">ssot/DECISIONS.md</div>
-              </button>
-              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md">
-                <div class="guide-card__title">Pipeline Flow</div>
-                <div class="guide-card__desc">確定フロー（正本）</div>
-                <div class="guide-card__meta mono">OPS_CONFIRMED_PIPELINE_FLOW.md</div>
-              </button>
-              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_ENTRYPOINTS_INDEX.md">
-                <div class="guide-card__title">Entrypoints</div>
-                <div class="guide-card__desc">CLI/API/入口索引</div>
-                <div class="guide-card__meta mono">OPS_ENTRYPOINTS_INDEX.md</div>
-              </button>
-              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_LOGGING_MAP.md">
-                <div class="guide-card__title">Logging Map</div>
-                <div class="guide-card__desc">ログ配置/証跡（正本）</div>
-                <div class="guide-card__meta mono">OPS_LOGGING_MAP.md</div>
               </button>
               <button class="guide-card" type="button" data-doc="ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md">
                 <div class="guide-card__title">Model Routing</div>
-                <div class="guide-card__desc">チャンネル→処理→モデル</div>
+                <div class="guide-card__desc">どの処理がどのモデルか</div>
                 <div class="guide-card__meta mono">OPS_CHANNEL_MODEL_ROUTING.md</div>
               </button>
-              <button class="guide-card" type="button" data-doc="packages/script_pipeline/channels/CH01-人生の道標/script_prompt.txt">
-                <div class="guide-card__title">CH01 Prompt</div>
-                <div class="guide-card__desc">人生の道標（固定プロンプト）</div>
-                <div class="guide-card__meta mono">script_prompt.txt</div>
-              </button>
-              <button class="guide-card" type="button" data-doc="ssot/DOCS_INDEX.md">
-                <div class="guide-card__title">Docs Index</div>
-                <div class="guide-card__desc">SSOTドキュメント索引</div>
-                <div class="guide-card__meta mono">ssot/DOCS_INDEX.md</div>
+              <button class="guide-card" type="button" data-doc="ssot/ops/OPS_ENTRYPOINTS_INDEX.md">
+                <div class="guide-card__title">Entrypoints</div>
+                <div class="guide-card__desc">コマンド入口（実行するとき）</div>
+                <div class="guide-card__meta mono">OPS_ENTRYPOINTS_INDEX.md</div>
               </button>
             </div>
+
+            <details class="guide-portal__more">
+              <summary>よく使う正本（詳細）</summary>
+              <div class="guide-cards guide-cards--compact" aria-label="詳細ショートカット">
+                <button class="guide-card" type="button" data-doc="START_HERE.md">
+                  <div class="guide-card__title">START_HERE</div>
+                  <div class="guide-card__desc">入口（SSOT導線）</div>
+                  <div class="guide-card__meta mono">START_HERE.md</div>
+                </button>
+                <button class="guide-card" type="button" data-doc="ssot/DECISIONS.md">
+                  <div class="guide-card__title">DECISIONS</div>
+                  <div class="guide-card__desc">意思決定台帳（今の正解）</div>
+                  <div class="guide-card__meta mono">ssot/DECISIONS.md</div>
+                </button>
+                <button class="guide-card" type="button" data-doc="ssot/ops/OPS_LOGGING_MAP.md">
+                  <div class="guide-card__title">Logging Map</div>
+                  <div class="guide-card__desc">ログ配置/証跡（詰まったら）</div>
+                  <div class="guide-card__meta mono">OPS_LOGGING_MAP.md</div>
+                </button>
+                <button class="guide-card" type="button" data-doc="ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md">
+                  <div class="guide-card__title">Pipeline Flow</div>
+                  <div class="guide-card__desc">確定フロー（正本）</div>
+                  <div class="guide-card__meta mono">OPS_CONFIRMED_PIPELINE_FLOW.md</div>
+                </button>
+                <button class="guide-card" type="button" data-doc="packages/script_pipeline/channels/CH01-人生の道標/script_prompt.txt">
+                  <div class="guide-card__title">CH01 Prompt</div>
+                  <div class="guide-card__desc">人生の道標（固定プロンプト）</div>
+                  <div class="guide-card__meta mono">script_prompt.txt</div>
+                </button>
+                <button class="guide-card" type="button" data-doc="ssot/DOCS_INDEX.md">
+                  <div class="guide-card__title">Docs Index</div>
+                  <div class="guide-card__desc">SSOTドキュメント索引</div>
+                  <div class="guide-card__meta mono">ssot/DOCS_INDEX.md</div>
+                </button>
+              </div>
+            </details>
+          </section>
+
+          <section id="overviewPane" class="guide-doc guide-overview" hidden>
+            <div class="guide-doc__meta">
+              <div class="guide-doc__title">Overview</div>
+              <div class="guide-doc__sub">
+                <span class="muted">目的 / 成果物 / 固定ルール（1分で掴む）</span>
+              </div>
+              <div class="guide-doc__actions">
+                <button id="copyOverviewLink" class="btn btn--ghost" type="button">リンクをコピー</button>
+                <button id="backToPortalFromOverview" class="btn btn--ghost" type="button">ポータルへ戻る</button>
+              </div>
+            </div>
+            <article id="overviewBody" class="guide-overview__body"></article>
           </section>
 
           <section id="flowPane" class="guide-doc guide-flow" hidden>

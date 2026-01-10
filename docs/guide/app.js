@@ -71,6 +71,7 @@ function normalizeDocPath(raw) {
 function isAllowedDocPath(path) {
   const p = String(path || "").trim();
   if (!p) return false;
+  if (p === "__OVERVIEW__") return true;
   if (p === "__FLOW__") return true;
   if (p === "START_HERE.md") return true;
   if (p.startsWith("ssot/")) return true;
@@ -97,6 +98,7 @@ const DOC_SECTIONS = [
   {
     title: "Start",
     items: [
+      { title: "Overview", path: "__OVERVIEW__", desc: "目的/成果物/固定ルール（まずここ）" },
       { title: "Flow Map", path: "__FLOW__", desc: "処理フロー（まずここ）" },
       { title: "START_HERE", path: "START_HERE.md", desc: "入口（最優先）" },
       { title: "DECISIONS", path: "ssot/DECISIONS.md", desc: "意思決定台帳（SSOTトップ）" },
@@ -142,6 +144,10 @@ const navSearch = $("navSearch");
 const navList = $("navList");
 const reloadDoc = $("reloadDoc");
 const portal = $("portal");
+const overviewPane = $("overviewPane");
+const overviewBody = $("overviewBody");
+const copyOverviewLink = $("copyOverviewLink");
+const backToPortalFromOverview = $("backToPortalFromOverview");
 const flowPane = $("flowPane");
 const flowBody = $("flowBody");
 const copyFlowLink = $("copyFlowLink");
@@ -287,12 +293,21 @@ async function copyTextToClipboard(text) {
 
 function setPortalVisible(on) {
   portal.hidden = !on;
+  overviewPane.hidden = true;
   flowPane.hidden = true;
   docPane.hidden = on;
 }
 
+function setOverviewVisible(on) {
+  portal.hidden = on;
+  overviewPane.hidden = !on;
+  flowPane.hidden = true;
+  docPane.hidden = true;
+}
+
 function setFlowVisible(on) {
   portal.hidden = on;
+  overviewPane.hidden = true;
   flowPane.hidden = !on;
   docPane.hidden = true;
 }
@@ -302,6 +317,140 @@ function createEl(tag, className, text) {
   if (className) el.className = className;
   if (text !== undefined && text !== null) el.textContent = String(text);
   return el;
+}
+
+const OVERVIEW_SPEC = {
+  updatedAt: "2026-01-10",
+  purpose: "YouTube量産の「入力→台本→音声→動画→公開」を、SSOT中心で再現性高く回す。",
+  what: [
+    { title: "Planning（入力SoT）", desc: "タイトル/要件を確定して、台本生成の入力を作る。" },
+    { title: "Script（A-text/台本）", desc: "台本を生成し、品質ゲートで止める/通す。" },
+    { title: "TTS（B/voicevox_kana）", desc: "誤読ゼロで止めて直す（音声品質を固定）。" },
+    { title: "Video（CapCut）", desc: "音声/SRT/画像素材からドラフトを組む。" },
+  ],
+  deliverables: [
+    { title: "台本（A-text）", path: "workspaces/scripts/CHxx/NNN/content/assembled.md" },
+    { title: "音声（TTS）", path: "workspaces/audio/final/<CH>/<NNN>/*" },
+    { title: "動画（CapCut draft）", path: "workspaces/video/runs/<run_name>/*" },
+  ],
+  fixedRules: [
+    "SSOT-first: 迷ったらSSOTが正。変更はSSOT→実装の順。",
+    "Lock: 触る前に lock（並列衝突防止）。",
+    "台本（script_*）は LLM API（Fireworks/DeepSeek）固定。Codex/agent は台本を書かない。",
+    "tts_* は Codex 主担当（推奨: LLM_EXEC_SLOT=1）。exec-slot=1のtts_*は失敗時にAPIへ自動フォールバックしない（停止）。",
+    "モデル/プロバイダの自動ローテ禁止（勝手に切り替えない）。",
+  ],
+  shortcuts: [
+    { title: "Flow Map（処理フロー）", path: "__FLOW__" },
+    { title: "Entrypoints（コマンド入口）", path: "ssot/ops/OPS_ENTRYPOINTS_INDEX.md" },
+    { title: "Model Routing（どの処理がどのモデルか）", path: "ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md" },
+    { title: "Logging Map（ログ/証跡）", path: "ssot/ops/OPS_LOGGING_MAP.md" },
+    { title: "DECISIONS（今の正解）", path: "ssot/DECISIONS.md" },
+  ],
+  examples: [
+    {
+      title: "台本runbook（API固定）",
+      cmd: "./scripts/with_ytm_env.sh --exec-slot 0 python3 scripts/ops/script_runbook.py new --channel CH06 --video 033 --until script_validation --max-iter 6",
+      note: "台本は exec-slot=0（API）で実行（THINK/AGENT/Codexに流さない）。",
+    },
+    {
+      title: "TTS（Codex主担当）",
+      cmd: "./scripts/with_ytm_env.sh --exec-slot 1 python3 -m script_pipeline.cli audio --channel CH06 --video 033",
+      note: "tts_* は exec-slot=1 推奨（Codex失敗時にAPIへ落とさず停止）。",
+    },
+    {
+      title: "THINK MODE（非台本の保留処理）",
+      cmd: "./scripts/think.sh --all-text -- <command> [args...]",
+      note: "非scriptのテキスト系だけ。台本生成の入口には使わない。",
+    },
+  ],
+};
+
+function renderOverview() {
+  overviewBody.innerHTML = "";
+
+  const hero = createEl("div", "guide-overview__hero");
+  hero.appendChild(createEl("div", "guide-overview__kicker", "1分で「目的/全体像/固定ルール」を掴む"));
+  hero.appendChild(createEl("div", "guide-overview__purpose", OVERVIEW_SPEC.purpose));
+
+  const grid = createEl("div", "guide-overview__grid");
+  for (const row of OVERVIEW_SPEC.what) {
+    const card = createEl("div", "guide-overview__card");
+    card.appendChild(createEl("div", "guide-overview__card-title", row.title));
+    card.appendChild(createEl("div", "guide-overview__card-desc muted", row.desc));
+    grid.appendChild(card);
+  }
+  hero.appendChild(grid);
+  overviewBody.appendChild(hero);
+
+  const deliv = createEl("div", "guide-overview__box");
+  deliv.appendChild(createEl("div", "guide-overview__box-title", "成果物（アウトプット）"));
+  const ul = createEl("ul", "guide-overview__list mono");
+  for (const d of OVERVIEW_SPEC.deliverables) {
+    ul.appendChild(createEl("li", "", `${d.title}: ${d.path}`));
+  }
+  deliv.appendChild(ul);
+  overviewBody.appendChild(deliv);
+
+  const rules = createEl("div", "guide-overview__box guide-overview__box--warn");
+  rules.appendChild(createEl("div", "guide-overview__box-title", "固定ルール（事故防止）"));
+  const rUl = createEl("ul", "guide-overview__list");
+  for (const r of OVERVIEW_SPEC.fixedRules) rUl.appendChild(createEl("li", "", r));
+  rules.appendChild(rUl);
+  overviewBody.appendChild(rules);
+
+  const navBox = createEl("div", "guide-overview__box");
+  navBox.appendChild(createEl("div", "guide-overview__box-title", "次に見る場所（迷ったらここ）"));
+  const links = createEl("div", "guide-overview__links");
+  for (const s of OVERVIEW_SPEC.shortcuts) {
+    const btn = createEl("button", "btn btn--ghost btn--small");
+    btn.type = "button";
+    btn.dataset.doc = s.path;
+    btn.textContent = s.title;
+    links.appendChild(btn);
+  }
+  navBox.appendChild(links);
+  overviewBody.appendChild(navBox);
+
+  const ex = createEl("div", "guide-overview__box");
+  ex.appendChild(createEl("div", "guide-overview__box-title", "実行例（コピペ）"));
+  for (const e of OVERVIEW_SPEC.examples) {
+    const row = createEl("div", "guide-overview__cmd");
+    row.appendChild(createEl("div", "guide-overview__cmd-title", e.title));
+    const pre = document.createElement("pre");
+    pre.className = "guide-overview__pre mono";
+    pre.textContent = String(e.cmd || "");
+    row.appendChild(pre);
+    const btn = createEl("button", "btn btn--ghost btn--small");
+    btn.type = "button";
+    btn.textContent = "コピー";
+    btn.addEventListener("click", async () => {
+      const ok = await copyTextToClipboard(String(e.cmd || ""));
+      setFooter(ok ? "コマンドをコピーしました" : "コピーに失敗しました");
+      window.setTimeout(() => setFooter("doc: __OVERVIEW__"), 1200);
+    });
+    row.appendChild(btn);
+    if (e.note) row.appendChild(createEl("div", "guide-overview__cmd-note muted", e.note));
+    ex.appendChild(row);
+  }
+  overviewBody.appendChild(ex);
+
+  overviewBody.appendChild(createEl("div", "guide-overview__footer muted", `updated: ${OVERVIEW_SPEC.updatedAt}  |  doc: __OVERVIEW__`));
+}
+
+function openOverview() {
+  currentDocPath = "__OVERVIEW__";
+  currentDocHash = "";
+  setOverviewVisible(true);
+  closeNav();
+  renderOverview();
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("doc", "__OVERVIEW__");
+  url.hash = "";
+  window.history.replaceState(null, "", url.toString());
+  setFooter("doc: __OVERVIEW__");
+  window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 const FLOW_SPEC = {
@@ -390,22 +539,28 @@ function renderFlow() {
 
   const stepsWrap = createEl("div", "guide-flow__steps");
   for (const st of FLOW_SPEC.steps) {
-    const step = createEl("section", "guide-flow__step");
+    const step = document.createElement("details");
+    step.className = "guide-flow__step";
+    step.open = false;
 
-    const head = createEl("div", "guide-flow__step-head");
+    const head = document.createElement("summary");
+    head.className = "guide-flow__step-head";
     head.appendChild(createEl("div", "guide-flow__step-num mono", String(st.n)));
     const headMain = createEl("div", "guide-flow__step-head-main");
     headMain.appendChild(createEl("div", "guide-flow__step-title", st.title));
     headMain.appendChild(createEl("div", "guide-flow__step-summary muted", st.summary));
     head.appendChild(headMain);
+    head.appendChild(createEl("div", "guide-flow__step-disclosure muted", "詳細"));
     step.appendChild(head);
+
+    const body = createEl("div", "guide-flow__step-body");
 
     if (st.rails && st.rails.length) {
       const pills = createEl("div", "guide-flow__pills");
       for (const raw of st.rails) {
         pills.appendChild(createEl("div", "guide-flow__pill", raw));
       }
-      step.appendChild(pills);
+      body.appendChild(pills);
     }
 
     if (st.artifacts && st.artifacts.length) {
@@ -414,7 +569,7 @@ function renderFlow() {
       const ul = createEl("ul", "guide-flow__list");
       for (const a of st.artifacts) ul.appendChild(createEl("li", "", a));
       box.appendChild(ul);
-      step.appendChild(box);
+      body.appendChild(box);
     }
 
     if (st.stop && st.stop.length) {
@@ -423,7 +578,7 @@ function renderFlow() {
       const ul = createEl("ul", "guide-flow__list");
       for (const s of st.stop) ul.appendChild(createEl("li", "", s));
       box.appendChild(ul);
-      step.appendChild(box);
+      body.appendChild(box);
     }
 
     if (st.docs && st.docs.length) {
@@ -435,8 +590,10 @@ function renderFlow() {
         btn.textContent = d.title;
         links.appendChild(btn);
       }
-      step.appendChild(links);
+      body.appendChild(links);
     }
+
+    step.appendChild(body);
 
     stepsWrap.appendChild(step);
   }
@@ -521,6 +678,10 @@ async function openDoc(path, titleOverride) {
   const normalized = normalizeDocPath(refPath);
   if (!normalized || !isAllowedDocPath(normalized)) {
     docStatus.textContent = "（このパスは閲覧対象外）";
+    return;
+  }
+  if (normalized === "__OVERVIEW__") {
+    openOverview();
     return;
   }
   if (normalized === "__FLOW__") {
@@ -632,6 +793,7 @@ function boot() {
   });
 
   backToPortal.addEventListener("click", clearDocSelection);
+  backToPortalFromOverview.addEventListener("click", clearDocSelection);
   backToPortalFromFlow.addEventListener("click", clearDocSelection);
 
   copyLink.addEventListener("click", async () => {
@@ -641,6 +803,15 @@ function boot() {
     docStatus.textContent = ok ? "リンクをコピーしました" : "コピーに失敗しました";
     window.setTimeout(() => {
       if (docStatus.textContent.includes("リンク")) docStatus.textContent = "";
+    }, 1800);
+  });
+
+  copyOverviewLink.addEventListener("click", async () => {
+    const url = toDocUrl("__OVERVIEW__", "");
+    const ok = await copyTextToClipboard(url);
+    setFooter(ok ? "リンクをコピーしました" : "コピーに失敗しました");
+    window.setTimeout(() => {
+      if (footerMeta.textContent.includes("リンク")) setFooter("doc: __OVERVIEW__");
     }, 1800);
   });
 
