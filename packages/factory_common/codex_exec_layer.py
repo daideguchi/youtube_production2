@@ -233,6 +233,12 @@ def should_try_codex_exec(task: str, *, cfg: Dict[str, Any] | None = None) -> bo
         return False
 
     # Hard safety rule (fixed):
+    # - NEVER route TTS tasks through Codex exec.
+    #   TTS (voicevox_kana) is handled by the AI agent (pending workflow), not by `codex exec`.
+    if t.startswith("tts_"):
+        return False
+
+    # Hard safety rule (fixed):
     # - NEVER route any task that writes/overwrites the A-text body through Codex exec.
     #   This is structural (independent of repo config) to prevent accidental drift.
     if _is_a_text_body_task(t):
