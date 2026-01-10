@@ -316,8 +316,10 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
   - 理由: Codex の言い回しが本文へ混入する事故を構造的に防ぐ（本文は常に LLM API 側で統一）
   - SoT: `configs/codex_exec.yaml: selection.exclude_tasks`
 - 固定: `script_*` は Codex exec 対象外（台本文体/モデル混入防止）。台本は LLM API（Fireworks）固定。
-- 固定: `LLM_EXEC_SLOT=1` の `tts_*` は Codex exec 必須（失敗時に LLM APIへ自動フォールバックしない=停止）。
-- Codex exec の対象は `configs/codex_exec.yaml: selection.include_task_prefixes` に一致する **非台本** task のみ（例: `tts_*`, `visual_*`）。
+- 固定（用語）: 「Codex（AIエージェント）」と「codex exec（非対話CLI）」は別物。TTSは前者（pending運用）に寄せる。
+- 既定（tracked）: `tts_*` は Codex exec 対象外。TTS（`voicevox_kana`）は **AIエージェント（Codex）主担当**として pending を解決する。
+  - 推奨: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+- Codex exec の対象は `configs/codex_exec.yaml: selection.include_task_prefixes` に一致する **非台本** task のみ（例: `visual_*`）。
 - 例外（固定）: `image_generation`, `web_search_openrouter` は Codex exec 対象外（既定でも除外）。
   - 詳細SSOT: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`（2.4）
 

@@ -337,7 +337,7 @@ const OVERVIEW_SPEC = {
     "SSOT-first: 迷ったらSSOTが正。変更はSSOT→実装の順。",
     "Lock: 触る前に lock（並列衝突防止）。",
     "台本（script_*）は LLM API（Fireworks/DeepSeek）固定。Codex/agent は台本を書かない。",
-    "tts_* は Codex 主担当（推奨: LLM_EXEC_SLOT=1）。exec-slot=1のtts_*は失敗時にAPIへ自動フォールバックしない（停止）。",
+    "tts_* は AIエージェント（Codex）主担当（THINK/AGENTのpending運用）。codex exec（非対話CLI）とは別物。",
     "モデル/プロバイダの自動ローテ禁止（勝手に切り替えない）。",
   ],
   pmBullets: [
@@ -365,8 +365,8 @@ const OVERVIEW_SPEC = {
     },
     {
       title: "TTS（Codex主担当）",
-      cmd: "./scripts/with_ytm_env.sh --exec-slot 1 python3 -m script_pipeline.cli audio --channel CH06 --video 033",
-      note: "tts_* は exec-slot=1 推奨（Codex失敗時にAPIへ落とさず停止）。",
+      cmd: "./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CH06 --video 033",
+      note: "TTSは pending で止めて、AIエージェント（Codex）が output を作って complete → rerun する。",
     },
     {
       title: "THINK MODE（非台本の保留処理）",
@@ -515,7 +515,7 @@ const FLOW_SPEC = {
       n: 3,
       title: "Audio/TTS（Bテキスト/voicevox_kana）",
       summary: "TTS用の整形/読み監査/VOICEVOX合成。誤読ゼロで止めて直す。",
-      rails: ["`tts_*` は Codex 主担当（推奨: LLM_EXEC_SLOT=1）", "exec-slot=1 の `tts_*` はCodex失敗時にAPIへ落とさず停止"],
+      rails: ["`tts_*` は AIエージェント（Codex）主担当（pending運用）", "codex exec（非対話CLI）とは別物。TTSはcodex execへ寄せない"],
       docs: [
         { title: "VOICEVOX Reading Reform（SSOT）", path: "ssot/plans/PLAN_OPS_VOICEVOX_READING_REFORM.md" },
         { title: "TTS 手動監査（誤読ゼロ）", path: "ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md" },
