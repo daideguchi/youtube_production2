@@ -23,10 +23,11 @@
 - KanaPatch は positions で全出現に適用し、accent_phrases で align。失敗時は長さクリップ＋fallback理由をログ。
 - vocab LLM は本番パイプラインから切り離し（enable_vocab=False デフォルト）。辞書育成はオフラインバッチ前提にする。
 - ログ: `tts_voicevox_reading.jsonl` に selected/adopted/rejected/calls、surface/mecab/voicevox/ruby、reason（hazard/trivial_skipped/banned/align_fallback 等）を記録し、集計でコール数≤2/件数≤40を確認する。
-- **実行モード（推奨・固定）**:
-  - TTS/Bテキスト系（`tts_*`）は `LLM_EXEC_SLOT=1`（Codex exec）を推奨（voicevox_kana の差分/読み推論を Codex 側へ寄せる）。
-  - `LLM_EXEC_SLOT=1` で Codex exec が失敗した場合は **LLM APIへフォールバックしない**（停止して原因を残す）。
-  - 比較/デバッグが必要な場合のみ `LLM_EXEC_SLOT=2`（Codex exec 強制OFF）でAPI実行する（通常運用で勝手に切り替えない）。
+- **実行モード（推奨・固定）**（更新: 2026-01-10 / `ssot/DECISIONS.md:D-013`）:
+  - TTS/Bテキスト系（`tts_*` / `voicevox_kana`）は **AIエージェント（Codex / pending運用）** を正とする（例: `./scripts/think.sh --tts -- <cmd>` または `LLM_EXEC_SLOT=3/4`）。
+  - 注: ここで言う Codex は **codex exec（非対話CLI）ではない**（別物）。TTSを codex exec へ寄せない。
+  - 失敗時は **LLM APIへ自動フォールバックしない**（停止して原因を残す）。
+  - 比較/デバッグでAPI実行する場合のみ `LLM_EXEC_SLOT=0` を明示して実行する（通常運用で勝手に切り替えない）。
 - **誤読ゼロ運用（グローバル確定）**:
   - `SKIP_TTS_READING=1`（読みLLM完全OFF）運用では、VOICEVOX の実読（`audio_query.kana`）と期待読み（MeCab+辞書/override）を突合する。
   - 1件でも不一致があれば **fail-fastで停止** し、`workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json` を出力して修正の入口にする（誤読混入を禁止）。
