@@ -1,9 +1,11 @@
-# Codex exec layer (non-interactive) → API fallback
+# Codex exec layer (non-interactive)
 #
 # Goal:
 # - Replace high-frequency "LLM API" calls with `codex exec` (subscription) when possible.
-# - If `codex exec` fails (logged out / rate-limited / unavailable / bad output), fall back to the
-#   existing LLMRouter (OpenRouter/Azure/etc) path without breaking the pipeline.
+# - Default behavior (non-tts): if `codex exec` fails (logged out / rate-limited / unavailable / bad output),
+#   fall back to the existing LLMRouter (OpenRouter/Azure/etc) path.
+# - Fixed policy (tts): when the operator selects `LLM_EXEC_SLOT=1`, `tts_*` must use Codex exec and
+#   MUST NOT fall back to LLM APIs (stop and leave a clear error instead).
 #
 # Safety:
 # - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.

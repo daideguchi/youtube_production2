@@ -78,6 +78,47 @@ def _env_int(name: str, default: int) -> int:
         return int(default)
 
 
+def _codex_exec_required_for_task(task: str) -> bool:
+    """
+    Fixed policy:
+    - For TTS pipeline tasks (`tts_*`), when the operator explicitly selects exec-slot=1,
+      Codex exec must be used and MUST NOT fall back to LLM APIs.
+    """
+    t = str(task or "").strip()
+    if not t.startswith("tts_"):
+        return False
+    try:
+        from factory_common.llm_exec_slots import active_llm_exec_slot_id
+
+        slot = int(active_llm_exec_slot_id().get("id") or 0)
+    except Exception:
+        slot = 0
+    return slot == 1
+
+
+def _raise_codex_exec_required(task: str, *, reason: str, meta: Dict[str, Any] | None = None) -> None:
+    meta = meta or {}
+    err = str(meta.get("error") or "").strip()
+    details = []
+    if err:
+        details.append(f"- error: {err}")
+    if meta.get("returncode") is not None:
+        details.append(f"- returncode: {meta.get('returncode')}")
+    raise SystemExit(
+        "\n".join(
+            [
+                "[POLICY] tts_* tasks require Codex exec in exec-slot=1 (no LLM API fallback).",
+                f"- task: {str(task or '').strip()}",
+                f"- reason: {reason}",
+                *details,
+                "- action:",
+                "  - Fix Codex exec environment (login/rate-limit) and rerun with the same command",
+                "  - Debug only: rerun with LLM_EXEC_SLOT=2 (force codex off) if you explicitly accept API execution",
+            ]
+        )
+    )
+
+
 def _strip_code_fences(text: str) -> str:
     s = (text or "").strip()
     if s.startswith("```"):
@@ -286,12 +327,19 @@ def try_codex_exec(
     - Otherwise plain text (trimmed)
     """
     cfg = cfg or load_codex_exec_config()
+    required = _codex_exec_required_for_task(task)
     if not should_try_codex_exec(task, cfg=cfg):
-        return None, {"attempted": False, "provider": "codex_exec", "task": task, "reason": "disabled_or_not_selected"}
+        meta = {"attempted": False, "provider": "codex_exec", "task": task, "reason": "disabled_or_not_selected"}
+        if required:
+            _raise_codex_exec_required(task, reason="codex_exec_disabled_or_not_selected", meta=meta)
+        return None, meta
 
     prompt = _build_codex_prompt(task, messages, response_format=response_format)
     if prompt is None:
-        return None, {"attempted": True, "provider": "codex_exec", "task": task, "error": "unsupported_multimodal"}
+        meta = {"attempted": True, "provider": "codex_exec", "task": task, "error": "unsupported_multimodal"}
+        if required:
+            _raise_codex_exec_required(task, reason="unsupported_multimodal", meta=meta)
+        return None, meta
 
     profile = _env("YTM_CODEX_EXEC_PROFILE") or str(cfg.get("profile") or "").strip()
     sandbox = _env("YTM_CODEX_EXEC_SANDBOX") or str(cfg.get("sandbox") or "read-only").strip()
@@ -342,25 +390,31 @@ def try_codex_exec(
                 check=False,
             )
         except FileNotFoundError as exc:
-            return None, {
+            meta = {
                 "attempted": True,
                 "provider": "codex_exec",
                 "task": task,
                 "error": "codex_binary_not_found",
                 "exception": str(exc),
             }
+            if required:
+                _raise_codex_exec_required(task, reason="codex_binary_not_found", meta=meta)
+            return None, meta
         except Exception as exc:
-            return None, {
+            meta = {
                 "attempted": True,
                 "provider": "codex_exec",
                 "task": task,
                 "error": "codex_exec_failed",
                 "exception": str(exc),
             }
+            if required:
+                _raise_codex_exec_required(task, reason="codex_exec_failed", meta=meta)
+            return None, meta
         latency_ms = int((time.time() - start) * 1000)
 
         if not out_path.exists():
-            return None, {
+            meta = {
                 "attempted": True,
                 "provider": "codex_exec",
                 "task": task,
@@ -371,6 +425,9 @@ def try_codex_exec(
                 "profile": profile or None,
                 "model": model or None,
             }
+            if required:
+                _raise_codex_exec_required(task, reason="codex_no_output", meta=meta)
+            return None, meta
 
         try:
             text = out_path.read_text(encoding="utf-8")
@@ -380,7 +437,7 @@ def try_codex_exec(
         if want_json:
             obj = _extract_json_value(text)
             if not isinstance(obj, (dict, list)):
-                return None, {
+                meta = {
                     "attempted": True,
                     "provider": "codex_exec",
                     "task": task,
@@ -391,11 +448,14 @@ def try_codex_exec(
                     "profile": profile or None,
                     "model": model or None,
                 }
+                if required:
+                    _raise_codex_exec_required(task, reason="codex_invalid_json", meta=meta)
+                return None, meta
             content = json.dumps(obj, ensure_ascii=False)
         else:
             content = str(text or "").strip()
             if not content:
-                return None, {
+                meta = {
                     "attempted": True,
                     "provider": "codex_exec",
                     "task": task,
@@ -406,6 +466,9 @@ def try_codex_exec(
                     "profile": profile or None,
                     "model": model or None,
                 }
+                if required:
+                    _raise_codex_exec_required(task, reason="codex_empty_output", meta=meta)
+                return None, meta
 
         return content, {
             "attempted": True,
