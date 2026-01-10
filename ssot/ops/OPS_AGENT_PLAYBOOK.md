@@ -222,7 +222,7 @@ SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI�
 ### 4.1 台本→音声→動画（主線）
 入口は `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` を正とする。
 
-- 台本（入口固定）: `./ops script <MODE> --channel CHxx --video NNN`
+- 台本（入口固定）: `./ops api script <MODE> --channel CHxx --video NNN`（台本はAPI固定）
 - 音声: `./ops audio --channel CHxx --video NNN`
 - 動画/CapCut: `./ops video auto-capcut -- --channel CHxx --video NNN`
 - 迷ったら:
@@ -231,14 +231,15 @@ SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI�
 
 ### 4.2 THINK MODE（APIなしで止めて続行）
 ```bash
-./ops think script new --channel CH06 --video 033
+./ops think audio --channel CH06 --video 033
 ./ops agent list
 ./ops agent prompt <TASK_ID>
 # 生成 → ./ops agent complete <TASK_ID> --content-file /path/to/content.txt
 # pendingが消えたら、同じ ./ops think ... を再実行して続行
 ```
 注:
-- `script_*` は **API失敗時に自動でTHINKへ落ちない**（即停止・記録が正）。THINK MODE は明示的に使う。
+- 台本（`script_*`）は LLM API（Fireworks）固定のため `./ops think script ...` は禁止（policyで停止する）。
+- `script_*` は **API失敗時に自動でTHINKへ落ちない**（即停止・記録が正）。
 
 ### 4.3 “確実ゴミ”の削除（強制手順）
 1) `rg` で参照ゼロ確認（Docs言及は除外してよい）  

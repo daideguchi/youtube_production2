@@ -106,7 +106,6 @@ LLMコスト制御（最重要）:
 
 典型手順:
 1) まずTHINKで走らせる（例）:
-   - `./ops think script new --channel CHxx --video NNN`
    - `./ops think audio --channel CHxx --video NNN`
    - `./ops think video auto-capcut -- --channel CHxx --video NNN`
 2) pending が出たら、キューを見る:
@@ -121,6 +120,7 @@ LLMコスト制御（最重要）:
 
 注意:
 - THINK MODEは「外部LLM APIを呼ばない」ための運用レイヤ。品質を落とすための “簡略化” ではない。
+- 台本（`script_*`）は LLM API（Fireworks）固定のため、`./ops think script ...` は禁止（policyで停止する）。台本を作る日は `./ops api script ...` を使う。
 
 関連SSOT:
 - `ssot/agent_runbooks/README.md`
@@ -140,7 +140,7 @@ LLMコスト制御（最重要）:
    - `./ops think reconcile --channel CHxx --video NNN --run`
 4) まだ直らない場合は、固定の復帰コマンドを直接叩く:
    - `./ops resume episode --channel CHxx --video NNN`
-   - `./ops resume script --llm think --channel CHxx --video NNN`
+   - `./ops resume script --llm api --channel CHxx --video NNN`（台本はAPI固定）
    - `./ops resume audio  --llm think --channel CHxx --video NNN`
    - `./ops resume video  --llm think --channel CHxx --video NNN`
 

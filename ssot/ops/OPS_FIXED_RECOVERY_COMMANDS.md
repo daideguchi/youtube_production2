@@ -59,8 +59,11 @@ LLMコスト制御（重要）:
 - status.json の stages が pending/failed/processing のまま
 
 復帰コマンド（固定）:
-- `./ops resume script --llm think --channel CHxx --video NNN`
 - `./ops resume script --llm api --channel CHxx --video NNN`
+
+注意（固定ルール）:
+- 台本（`script_*`）は **LLM API（Fireworks）固定**。THINK/AGENT（pending代行）で台本を書かない。
+  - `./ops think script ...` / `./ops resume script --llm think ...` は policy で停止する（誤運用防止）。
 
 ---
 
