@@ -352,7 +352,7 @@ const OVERVIEW_SPEC = {
   fixedRules: [
     "SSOT-first: 迷ったらSSOTが正。変更はSSOT→実装の順。",
     "Lock: 触る前に lock（並列衝突防止）。",
-    "台本（script_*）は LLM API（Fireworks/DeepSeek）固定。Codex/agent は台本を書かない。",
+    "台本（script_*）は LLM API（Fireworks/DeepSeek）固定。THINK/AGENT/Codex（exec）は台本を書かない（遮断済み）。",
     "tts_* は AIエージェント（Codex）主担当（THINK/AGENTのpending運用）。codex exec（非対話CLI）とは別物。",
     "TTS辞書運用: ユニーク誤読のみ辞書へ。曖昧語は辞書に入れず、Bテキストのカナ化/位置overrideで対応（DECISIONS:D-014）。",
     "モデル/プロバイダの自動ローテ禁止（勝手に切り替えない）。",
@@ -377,8 +377,8 @@ const OVERVIEW_SPEC = {
   examples: [
     {
       title: "台本runbook（API固定）",
-      cmd: "./scripts/with_ytm_env.sh --exec-slot 0 python3 scripts/ops/script_runbook.py new --channel CH06 --video 033 --until script_validation --max-iter 6",
-      note: "台本は exec-slot=0（API）で実行（THINK/AGENT/Codexに流さない）。",
+      cmd: "./ops api script new --channel CH06 --video 033 --until script_validation --max-iter 6",
+      note: "台本はAPI固定（THINK/AGENT/Codex禁止）。",
     },
     {
       title: "TTS（Codex主担当）",
@@ -521,7 +521,7 @@ const FLOW_SPEC = {
       n: 2,
       title: "Script Pipeline（A-text/台本）",
       summary: "台本を生成し、品質ゲートで止める/通す。止まったら修正して resume。",
-      rails: ["台本（script_*）は Fireworks/DeepSeek 固定", "Codex/AGENT は台本を書かない（遮断済み）"],
+      rails: ["台本（script_*）は Fireworks/DeepSeek 固定", "THINK/AGENT/Codex exec は台本を書かない（遮断済み）"],
       docs: [
         { title: "台本パイプラインSSOT", path: "ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md" },
         { title: "モデル固定ルール", path: "ssot/ops/OPS_LLM_MODEL_CHEATSHEET.md" },
