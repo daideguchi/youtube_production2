@@ -23,6 +23,8 @@
   - `YTM_SLACK_WEBHOOK_URL`（または `SLACK_WEBHOOK_URL`）に Incoming Webhook URL を設定する（git管理しない）。
 - Bot方式（既存のSlack設定がこれの場合）:
   - `SLACK_BOT_TOKEN` と `SLACK_CHANNEL` を設定する（git管理しない）。
+  - `YTM_SLACK_THREAD_TS`（任意）を設定すると、通知は **チャンネル直投げではなくスレ返信**に寄せられる（スパム低減）。
+    - 注意: thread返信は Bot方式のみ（Webhookでは不可）
 
 通知対象（任意）:
 - `YTM_SLACK_NOTIFY_CMDS`（default: `script,audio,video,thumbnails,publish,resume,reconcile`）

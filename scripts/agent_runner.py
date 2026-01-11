@@ -64,6 +64,18 @@ def _slack_notify_agent_tasks_enabled() -> bool:
         return True
     return _env_truthy("YTM_SLACK_NOTIFY_AGENT_TASKS")
 
+def _slack_thread_ts() -> str | None:
+    """
+    Optional: route agent-task notifications to a Slack thread to reduce channel spam.
+    Requires bot-token mode (webhook cannot reply in a thread).
+    """
+    ts = str(os.getenv("YTM_SLACK_THREAD_TS") or "").strip()
+    if not ts:
+        return None
+    if not (_slack_bot_token() and _slack_channel()):
+        return None
+    return ts
+
 
 def _maybe_slack_notify(event: dict) -> None:
     if not _slack_notify_agent_tasks_enabled():
@@ -72,8 +84,12 @@ def _maybe_slack_notify(event: dict) -> None:
         return
     try:
         payload = json.dumps(event, ensure_ascii=False)
+        cmd = ["python3", "scripts/ops/slack_notify.py", "--event-json", payload]
+        thread_ts = _slack_thread_ts()
+        if thread_ts:
+            cmd += ["--thread-ts", thread_ts]
         subprocess.run(
-            ["python3", "scripts/ops/slack_notify.py", "--event-json", payload],
+            cmd,
             cwd=str(PROJECT_ROOT_PATH),
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,

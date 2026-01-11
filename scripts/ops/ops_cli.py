@@ -565,6 +565,18 @@ def _slack_notify_configured() -> bool:
         return True
     return bool(_slack_bot_token() and _slack_channel())
 
+def _slack_thread_ts() -> str | None:
+    """
+    Optional: route notifications to a Slack thread to reduce channel spam.
+    Requires bot-token mode (webhook cannot reply in a thread).
+    """
+    ts = str(os.getenv("YTM_SLACK_THREAD_TS") or "").strip()
+    if not ts:
+        return None
+    if not (_slack_bot_token() and _slack_channel()):
+        return None
+    return ts
+
 
 def _env_truthy(name: str) -> bool:
     return (os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "on", "y"}
@@ -748,13 +760,11 @@ def _maybe_slack_notify(event_finish: dict) -> None:
 
     try:
         payload = json.dumps(event_finish, ensure_ascii=False)
-        subprocess.run(
-            ["python3", "scripts/ops/slack_notify.py", "--event-json", payload],
-            cwd=str(_root()),
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        cmd = ["python3", "scripts/ops/slack_notify.py", "--event-json", payload]
+        thread_ts = _slack_thread_ts()
+        if thread_ts:
+            cmd += ["--thread-ts", thread_ts]
+        subprocess.run(cmd, cwd=str(_root()), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
         return
 
