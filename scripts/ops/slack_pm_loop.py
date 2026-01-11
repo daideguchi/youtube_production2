@@ -41,6 +41,10 @@ def _process_report_path() -> Path:
     return PROJECT_ROOT / "scripts" / "ops" / "process_report.py"
 
 
+def _ops_error_triage_path() -> Path:
+    return PROJECT_ROOT / "scripts" / "ops" / "ops_error_triage.py"
+
+
 def _slack_notify_path() -> Path:
     return PROJECT_ROOT / "scripts" / "ops" / "slack_notify.py"
 
@@ -162,6 +166,26 @@ def cmd_run(args: argparse.Namespace) -> int:
         if rc != 0:
             return rc
 
+    if bool(getattr(args, "triage_ops_errors", False)):
+        triage_cmd: list[str] = [
+            sys.executable,
+            str(_ops_error_triage_path()),
+            "--inbox-md",
+            str(PM_INBOX_PATH.as_posix()),
+            "--max-events",
+            str(int(getattr(args, "triage_max_events", 200) or 200)),
+            "--top",
+            str(int(getattr(args, "triage_top", 5) or 5)),
+            "--slack",
+            "--channel",
+            channel,
+            "--thread-ts",
+            thread_ts,
+        ]
+        rc = _run(triage_cmd, dry_run=dry_run)
+        if rc != 0:
+            return rc
+
     if bool(args.git_push_if_clean):
         rc = _maybe_git_push_pm_inbox(dry_run=dry_run)
         if rc != 0:
@@ -206,6 +230,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--pid", action="append", default=[], help="PID to include (repeatable)")
     sp.add_argument("--auto-process", action="store_true", help="Auto-detect repo-related processes when --process (default)")
     sp.add_argument("--include-command", action="store_true", help="Include redacted command line in process snapshot")
+    sp.add_argument("--triage-ops-errors", action="store_true", help="Post ops failure triage (episode/status based) to the thread")
+    sp.add_argument("--triage-top", type=int, default=5, help="Top episodes to include in triage (default: 5)")
+    sp.add_argument("--triage-max-events", type=int, default=200, help="Max inbox events to scan for triage (default: 200)")
     sp.add_argument("--git-push-if-clean", action="store_true", help="Auto git add/commit/push ONLY when repo has no other changes")
     sp.add_argument("--flush-outbox", action="store_true", help="Flush local Slack outbox messages (best effort)")
     sp.add_argument("--flush-outbox-limit", type=int, default=50, help="Max outbox messages to try per flush (default: 50)")
