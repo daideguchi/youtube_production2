@@ -22,6 +22,7 @@ from typing import Optional
 from _bootstrap import bootstrap
 
 PROJECT_ROOT = Path(bootstrap(load_env=True))
+PM_INBOX_PATH = Path("ssot/history/HISTORY_slack_pm_inbox.md")
 
 
 def _run(cmd: list[str], *, dry_run: bool) -> int:
@@ -38,6 +39,56 @@ def _slack_inbox_sync_path() -> Path:
 
 def _process_report_path() -> Path:
     return PROJECT_ROOT / "scripts" / "ops" / "process_report.py"
+
+
+def _git(args: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(["git", *args], cwd=str(PROJECT_ROOT), capture_output=True, text=True, check=False)
+
+
+def _git_changed_paths(args: list[str]) -> set[str]:
+    p = _git(args)
+    if p.returncode != 0:
+        raise SystemExit((p.stderr or p.stdout or "").strip() or f"git failed: {' '.join(args)}")
+    out = (p.stdout or "").splitlines()
+    return {str(x).strip() for x in out if str(x).strip()}
+
+
+def _maybe_git_push_pm_inbox(*, dry_run: bool) -> int:
+    inbox_rel = str(PM_INBOX_PATH.as_posix())
+
+    unstaged = _git_changed_paths(["diff", "--name-only"])
+    staged = _git_changed_paths(["diff", "--cached", "--name-only"])
+    changed = set(unstaged) | set(staged)
+
+    if inbox_rel not in changed:
+        return 0
+
+    other = {p for p in changed if p != inbox_rel}
+    if other:
+        print("[pm-loop] skip git push: repo has other changes:", ", ".join(sorted(other)))
+        return 0
+
+    if dry_run:
+        print("[dry-run] git add", inbox_rel)
+        print("[dry-run] git commit -m \"ssot(history): auto sync PM inbox\"")
+        print("[dry-run] git push")
+        return 0
+
+    p = _git(["add", inbox_rel])
+    if p.returncode != 0:
+        raise SystemExit((p.stderr or p.stdout or "").strip() or "git add failed")
+
+    p = _git(["commit", "-m", "ssot(history): auto sync PM inbox"])
+    if p.returncode != 0:
+        msg = (p.stderr or p.stdout or "").strip()
+        if "nothing to commit" in msg.lower():
+            return 0
+        raise SystemExit(msg or "git commit failed")
+
+    p = _git(["push"])
+    if p.returncode != 0:
+        raise SystemExit((p.stderr or p.stdout or "").strip() or "git push failed")
+    return 0
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -107,6 +158,11 @@ def cmd_run(args: argparse.Namespace) -> int:
         if rc != 0:
             return rc
 
+    if bool(args.git_push_if_clean):
+        rc = _maybe_git_push_pm_inbox(dry_run=dry_run)
+        if rc != 0:
+            return rc
+
     return 0
 
 
@@ -132,6 +188,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--pid", action="append", default=[], help="PID to include (repeatable)")
     sp.add_argument("--auto-process", action="store_true", help="Auto-detect repo-related processes when --process (default)")
     sp.add_argument("--include-command", action="store_true", help="Include redacted command line in process snapshot")
+    sp.add_argument("--git-push-if-clean", action="store_true", help="Auto git add/commit/push ONLY when repo has no other changes")
     sp.add_argument("--dry-run", action="store_true", help="Print commands without executing")
     sp.set_defaults(func=cmd_run)
 
