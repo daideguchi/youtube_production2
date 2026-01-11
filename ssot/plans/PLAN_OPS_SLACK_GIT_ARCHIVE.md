@@ -28,6 +28,8 @@
 - PID稼働状況の可視化（ps→Slack通知）: `scripts/ops/process_report.py`
   - 自動検出: `python3 scripts/ops/process_report.py --auto --slack`
   - 明示PID: `python3 scripts/ops/process_report.py --pid 52211 --pid 52239 --slack`
+- PMループ（推奨: 1コマンド）: `scripts/ops/slack_pm_loop.py`
+  - Slack返信→PM Inbox更新→要点返信→（任意でPIDスナップショット）までをまとめて実行する
 
 安全（必須）:
 - Slack→git 取り込みは **token-like文字列を自動redact**し、本文は短く切る（長文は要約のみ）。
@@ -39,3 +41,6 @@
 3) `slack_inbox_sync.py sync` で **PM Inboxを更新**（gitへ要約）
    - 任意: `--post-digest` で「取り込んだ要点」をスレへ返信（取りこぼし/見落とし防止）
 4) SSOT/実装を更新 → push → Slackで報告
+
+推奨（PMループを1コマンド化）:
+- `python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest`
