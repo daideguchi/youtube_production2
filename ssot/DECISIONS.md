@@ -25,6 +25,7 @@
 | D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
 | D-015 | P1 | Slack→Git書庫（PM Inbox） | **Slack→memos→git要約（hash keyで識別 / IDは残さない）** | Proposed |
 | D-016 | P1 | 画像生成のコスト/待ち（Batch vs Sync） | **量産=Gemini Batch優先 / 即時=Imagen 4 Fast**（サイレント切替禁止） | Proposed |
+| D-017 | P2 | 台本LLMのBatch化（Fireworks） | **当面は非Batch（既存のAPI主線）/ Phase2で検討** | Proposed |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
 | D-006 | P2 | Video入口の一本化 | **`auto_capcut_run` 主線固定**（capcut engine stubは非推奨） | Proposed |
@@ -189,6 +190,7 @@
   - slot code（例）: `i-1`（Imagen 4 Fast）
 - 固定ルール:
   - **サイレント切替は禁止**（正本: `D-002`）。Batch⇄Syncの切替は slot code / model_key で必ず明示する。
+  - 目標（動画内画像）: Batch運用が実装できたら、`visual_image_gen` の既定を **FLUX schnell から Gemini（Batch）へ寄せる**（schnellは必要時の明示選択へ。削除はしない）。
 
 ### Rationale（根拠）
 - 量産は「安さ」が最重要だが、即時作業は「待ち」がボトルネックになるため、両方を同じ既定にすると運用が破綻しやすい。
@@ -202,6 +204,35 @@
 - `configs/image_models.yaml` / `configs/image_model_slots.yaml` にBatch/Syncの選択肢を明示追加する
 - `factory_common.image_client` がBatch運用（submit/poll/resume）に対応する
 - SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md` / `ssot/ops/OPS_THUMBNAILS_PIPELINE.md` に運用導線を追記する
+
+---
+
+## D-017（P2）台本LLM（Fireworks）のBatch化はやるべき？（コスト vs 複雑さ）
+
+### Decision
+- **当面は “既存のAPI主線（非Batch）” を維持**し、台本パイプラインのBatch化は **Phase2で検討**する。
+
+### Recommended（推奨）
+- いま（Phase1）:
+  - `script_*` は引き続き **LLM API（Fireworks / `script-main-1`）固定**で実行する（no fallback）。
+  - Batch導入のために “別経路（Codex exec / THINK）” へ流すことはしない（台本はAPI固定）。
+- Phase2（やるなら）:
+  - **stage単位のバッチ**（例: 1ステージを複数動画でまとめて submit → 完了待ち → 回収して次ステージへ）として設計する。
+  - 必須要件:
+    - 出力契約（どのファイルに何を書くか）が明確で、`status.json` で **resume** できる
+    - `models=[script-main-1]` を強制し、勝手なモデル切替/フォールバックを許さない
+    - 失敗時は “止めて報告”（silent fallback禁止）
+
+### Rationale（根拠）
+- Batchはコストに効く一方、台本は「段階的な生成/審査/修正」が多く、非同期化すると **オーケストレーションが一気に難しくなる**。
+- まず画像Batch（非同期の運用に慣れる）→その後に台本Batch、の順が事故りにくい。
+
+### Alternatives（代替案）
+- A) すべてBatchに寄せる: コストは下がるが、日中の反復速度が落ちやすい（非推奨）
+- B) 一切Batchにしない: 実装は簡単だが、長期コストが積み上がる（用途次第）
+
+### Impact（影響/作業）
+- Phase2開始時に、専用の submit/poll/resume CLI と `workspaces/` のjob_id管理（SoT）を追加する
 
 ---
 
