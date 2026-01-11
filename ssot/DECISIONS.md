@@ -25,7 +25,7 @@
 | D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
 | D-015 | P1 | Slack→Git書庫（PM Inbox） | **Slack→memos→git要約（hash keyで識別 / IDは残さない）** | Proposed |
 | D-016 | P1 | 画像生成のコスト/待ち（Batch vs Sync） | **量産=Gemini Batch優先 / 即時=Imagen 4 Fast**（サイレント切替禁止） | Proposed |
-| D-017 | P2 | 台本LLMのBatch化（Fireworks） | **当面は非Batch（既存のAPI主線）/ Phase2で検討** | Proposed |
+| D-017 | P2 | 台本LLMのBatch化（Fireworks） | **当面は非Batch（既存のAPI主線）/ Phase2で検討** | Done |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
 | D-006 | P2 | Video入口の一本化 | **`auto_capcut_run` 主線固定**（capcut engine stubは非推奨） | Proposed |
@@ -227,6 +227,7 @@
 ### Rationale（根拠）
 - Batchはコストに効く一方、台本は「段階的な生成/審査/修正」が多く、非同期化すると **オーケストレーションが一気に難しくなる**。
 - まず画像Batch（非同期の運用に慣れる）→その後に台本Batch、の順が事故りにくい。
+- なお Fireworks の Batch Inference は serverless より安いことが多い（目安: 約50%）。ただし本件はコストよりも “正確に完走する” を優先して Phase2 に送る。
 
 ### Alternatives（代替案）
 - A) すべてBatchに寄せる: コストは下がるが、日中の反復速度が落ちやすい（非推奨）
