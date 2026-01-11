@@ -15,12 +15,14 @@
 4. `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/UI）
 5. `ops/OPS_LOGGING_MAP.md`: 証跡（詰まったらまずここ）
 6. `DECISIONS.md`: “今の正解” の確定（方針が変わる場所）
+7. `SSOT_COMPASS.md`: SSOTがカオスに見えた時の読み方（効力の順）
 
 （深掘りは `OPS_SYSTEM_OVERVIEW.md` と本索引から）
 
 ## 1. 最上位SSOT / 参照仕様
 - `README.md`: SSOTの更新/移動/完了移設ルール（索引運用の正本）。
 - `DECISIONS.md`: 意思決定台帳（SSOTトップ）。P0/P1をここで確定→SSOT→実装へ反映する。
+- `SSOT_COMPASS.md`: SSOTがカオスに見えた時の読み方（効力の順）。
 - `reference/REFERENCE_ssot_このプロダクト設計について.md`: 管理者の手書き設計メモ（最上位の意図・方針）。
 - `ops/DATA_LAYOUT.md`: 現行データ格納の実態（SoT/生成物の場所対応）。
 - `ops/OPS_IO_SCHEMAS.md`: フェーズ別I/Oスキーマ（実データ観測ベース）。
@@ -30,6 +32,7 @@
 - `reference/REFERENCE_PATH_HARDCODE_INVENTORY.md`: 直書きパス/旧名参照の監査入口（現行正本）。スナップショットは `history/REFERENCE_PATH_HARDCODE_INVENTORY_20251212.md`。
 - `ops/master_styles.json`: チャンネル別スタイル・画風の正本。
 - `reference/【消さないで！人間用】確定ロジック.md`: 運用上の確定ルール（人間向けの最終チェック）。
+- `reference/CONTACT_BOX.md`: 管理者⇄AIエージェントの連絡箱（Git同期。スマホ編集OK）。
 - `reference/CHAT_AI_QUESTION_TEMPLATE.md`: AIへ依頼/相談するための質問テンプレ。
 
 ## 2. 運用マニュアル / OPS
