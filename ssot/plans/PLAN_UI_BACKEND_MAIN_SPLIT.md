@@ -68,6 +68,7 @@
 | 2o | Published lock（`/api/channels/{channel}/videos/{video}/published`）を `routers/publishing.py` + `app/publishing_models.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 2p | Thumbnail QC notes（`/api/workspaces/thumbnails/{channel}/qc-notes`）を `routers/thumbnails_qc_notes.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 2q | Thumbnail override（`/api/channels/{channel}/videos/{video}/thumbnail`）を `routers/thumbnails_overrides.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
+| 2r | Redo flags（`/api/channels/{channel}/videos/{video}/redo`）を `routers/redo_flags.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 

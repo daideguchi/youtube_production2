@@ -6159,6 +6159,13 @@ except Exception as e:
     logger.error("Failed to load redo router: %s", e)
 
 try:
+    from backend.routers import redo_flags
+
+    app.include_router(redo_flags.router)
+except Exception as e:
+    logger.error("Failed to load redo_flags router: %s", e)
+
+try:
     from backend.routers import thumbnails
 
     app.include_router(thumbnails.router)
@@ -12580,37 +12587,6 @@ def get_video_detail(channel: str, video: str):
         ),
     )
 
-
-@app.patch("/api/channels/{channel}/videos/{video}/redo", response_model=RedoUpdateResponse)
-def update_video_redo(channel: str, video: str, payload: RedoUpdateRequest):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    if is_episode_published_locked(channel_code, video_number):
-        raise HTTPException(status_code=423, detail="投稿済みロック中のためリテイク設定は変更できません。")
-
-    status = load_status(channel_code, video_number)
-    meta = status.setdefault("metadata", {})
-
-    redo_script = payload.redo_script if payload.redo_script is not None else meta.get("redo_script", True)
-    redo_audio = payload.redo_audio if payload.redo_audio is not None else meta.get("redo_audio", True)
-    redo_note = payload.redo_note if payload.redo_note is not None else meta.get("redo_note")
-
-    meta["redo_script"] = bool(redo_script)
-    meta["redo_audio"] = bool(redo_audio)
-    if redo_note is not None:
-        meta["redo_note"] = redo_note
-    status["metadata"] = meta
-    updated_at = current_timestamp()
-    status["updated_at"] = updated_at
-    save_status(channel_code, video_number, status)
-
-    return RedoUpdateResponse(
-        status="ok",
-        redo_script=bool(redo_script),
-        redo_audio=bool(redo_audio),
-        redo_note=redo_note,
-        updated_at=updated_at,
-    )
 
 def _clear_redo_flags(channel: str, video: str, *, redo_script: Optional[bool] = None, redo_audio: Optional[bool] = None):
     """
