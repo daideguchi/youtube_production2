@@ -316,6 +316,7 @@ const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
 const searchInput = $("searchInput");
 const searchResults = $("searchResults");
+const reloadIndexButton = $("reloadIndex");
 const metaTitle = $("metaTitle");
 const metaPath = $("metaPath");
 const openRaw = $("openRaw");
@@ -344,6 +345,14 @@ const thumbBody = $("thumbBody");
 
 function setLoading(on) {
   loading.hidden = !on;
+}
+
+function setControlsDisabled(on) {
+  const disabled = Boolean(on);
+  channelSelect.disabled = disabled;
+  videoSelect.disabled = disabled;
+  searchInput.disabled = disabled;
+  reloadIndexButton.disabled = disabled;
 }
 
 function setCopyStatus(text, isError = false) {
@@ -810,6 +819,14 @@ function findItem(channel, video) {
   return list.find((it) => it.video === video) || null;
 }
 
+function findItemByVideoId(videoId) {
+  const vid = String(videoId || "").trim().toUpperCase();
+  for (const it of items) {
+    if (String(it.video_id || "").toUpperCase() === vid) return it;
+  }
+  return null;
+}
+
 function hideSearchResults() {
   searchResults.hidden = true;
   searchResults.innerHTML = "";
@@ -939,6 +956,7 @@ function selectItem(channel, video) {
 
 async function reloadIndex() {
   setLoading(true);
+  setControlsDisabled(true);
   try {
     const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta()]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
@@ -981,6 +999,7 @@ async function reloadIndex() {
     footerMeta.textContent = "—";
   } finally {
     setLoading(false);
+    setControlsDisabled(false);
   }
 }
 
@@ -1029,6 +1048,44 @@ function setupEvents() {
       return;
     }
     showSearchResults(results);
+  });
+
+  searchInput.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Enter") return;
+    const raw = String(searchInput.value || "").trim();
+    if (!raw) return;
+
+    const parsed = parseVideoIdParam(raw);
+    if (parsed) {
+      const it = findItem(parsed.channel, parsed.video);
+      if (it) {
+        hideSearchResults();
+        selectItem(it.channel, it.video);
+        return;
+      }
+    }
+
+    // If only a video number is provided, assume current channel.
+    if (/^\d{1,4}$/.test(raw)) {
+      const ch = channelSelect.value;
+      const v = normalizeVideoParam(raw);
+      const it = findItem(ch, v);
+      if (it) {
+        hideSearchResults();
+        selectItem(it.channel, it.video);
+        return;
+      }
+    }
+
+    // Fallback: if user typed an exact video_id-like string.
+    const it2 = findItemByVideoId(raw);
+    if (it2) {
+      hideSearchResults();
+      selectItem(it2.channel, it2.video);
+      return;
+    }
+
+    setCopyStatus("見つかりません（CHxx-NNN 形式か検索結果から選択）", true);
   });
 
   $("copyPath").addEventListener("click", async () => {
