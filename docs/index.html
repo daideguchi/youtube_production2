@@ -60,6 +60,46 @@
         </div>
       </section>
 
+      <section class="assets" aria-label="音声/サムネ">
+        <details id="audioPrepDetails" class="details" open>
+          <summary>音声（TTS準備: audio_prep）</summary>
+          <div class="details__body">
+            <div class="assets__grid">
+              <div class="asset-card">
+                <div class="asset-card__head">
+                  <div class="asset-card__title">script_sanitized.txt</div>
+                  <div class="asset-card__actions">
+                    <button id="copyAudioPrepScript" class="btn btn--ghost" type="button">コピー</button>
+                    <a id="openAudioPrepScript" class="btn btn--ghost" target="_blank" rel="noreferrer">raw</a>
+                  </div>
+                </div>
+                <pre id="audioPrepScriptPre" class="pre pre--small muted"></pre>
+              </div>
+              <div class="asset-card">
+                <div class="asset-card__head">
+                  <div class="asset-card__title">inference_metadata.txt</div>
+                  <div class="asset-card__actions">
+                    <button id="copyAudioPrepMeta" class="btn btn--ghost" type="button">コピー</button>
+                    <a id="openAudioPrepMeta" class="btn btn--ghost" target="_blank" rel="noreferrer">raw</a>
+                  </div>
+                </div>
+                <pre id="audioPrepMetaPre" class="pre pre--small muted"></pre>
+              </div>
+            </div>
+            <div class="assets__note muted">
+              ※ `workspaces/audio/final/**` は gitignore のため Pages から直接参照できません（必要ならReleases書庫へ）。
+            </div>
+          </div>
+        </details>
+
+        <details id="thumbDetails" class="details">
+          <summary>サムネ（workspaces/thumbnails/projects.json）</summary>
+          <div class="details__body">
+            <div id="thumbBody" class="muted">—</div>
+          </div>
+        </details>
+      </section>
+
       <main class="content">
         <div id="loading" class="loading" hidden>読み込み中…</div>
         <pre id="contentPre" class="pre"></pre>

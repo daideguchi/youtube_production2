@@ -2,6 +2,7 @@
 
 const INDEX_URL = "./data/index.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
+const THUMB_PROJECTS_PATH = "workspaces/thumbnails/projects.json";
 const CHUNK_SIZE = 10_000;
 
 function $(id) {
@@ -86,9 +87,12 @@ function joinUrl(base, path) {
 
 const rawBase = resolveRawBase();
 const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
+const thumbProjectsUrl = joinUrl(rawBase, THUMB_PROJECTS_PATH);
 
 let channelMetaById = new Map();
 let channelMetaPromise = null;
+let thumbProjectByVideoId = new Map();
+let thumbProjectPromise = null;
 
 function pickChannelDisplayName(meta) {
   const yt = meta?.youtube || {};
@@ -129,12 +133,61 @@ function loadChannelMeta() {
   return channelMetaPromise;
 }
 
+function normalizeVideoId(channel, video) {
+  const ch = String(channel || "").trim();
+  const vv = String(video || "").trim();
+  return ch && vv ? `${ch}-${vv}` : "";
+}
+
+function loadThumbProjects() {
+  if (thumbProjectPromise) return thumbProjectPromise;
+  thumbProjectPromise = (async () => {
+    try {
+      const res = await fetch(thumbProjectsUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`projects.json fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const projects = Array.isArray(data?.projects) ? data.projects : [];
+      const next = new Map();
+      for (const p of projects) {
+        const videoId = normalizeVideoId(p?.channel, p?.video);
+        if (!videoId) continue;
+        const variantsRaw = Array.isArray(p?.variants) ? p.variants : [];
+        const variants = variantsRaw
+          .map((v) => ({
+            id: String(v?.id || "").trim(),
+            label: String(v?.label || "").trim(),
+            status: String(v?.status || "").trim(),
+            image_url: String(v?.image_url || "").trim(),
+          }))
+          .filter((v) => v.id || v.label || v.image_url);
+
+        next.set(videoId, {
+          channel: String(p?.channel || "").trim(),
+          video: String(p?.video || "").trim(),
+          title: String(p?.title || "").trim(),
+          status: String(p?.status || "").trim(),
+          selected_variant_id: String(p?.selected_variant_id || "").trim(),
+          variants,
+        });
+      }
+      thumbProjectByVideoId = next;
+    } catch (err) {
+      console.warn("[script_viewer] failed to load thumbnails projects.json", err);
+      thumbProjectByVideoId = new Map();
+    }
+    return thumbProjectByVideoId;
+  })();
+  return thumbProjectPromise;
+}
+
 let indexData = null;
 let items = [];
 let grouped = new Map();
 let selected = null;
 let loadedText = "";
 let loadedNoSepText = "";
+let audioPrepScriptText = "";
+let audioPrepMetaText = "";
 
 const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
@@ -148,6 +201,13 @@ const copyStatus = $("copyStatus");
 const copyNoSepChunks = $("copyNoSepChunks");
 const loading = $("loading");
 const footerMeta = $("footerMeta");
+const audioPrepScriptPre = $("audioPrepScriptPre");
+const audioPrepMetaPre = $("audioPrepMetaPre");
+const openAudioPrepScript = $("openAudioPrepScript");
+const openAudioPrepMeta = $("openAudioPrepMeta");
+const copyAudioPrepScript = $("copyAudioPrepScript");
+const copyAudioPrepMeta = $("copyAudioPrepMeta");
+const thumbBody = $("thumbBody");
 
 function setLoading(on) {
   loading.hidden = !on;
@@ -175,6 +235,146 @@ function buildGrouped(itemsList) {
     map.set(ch, arr);
   }
   return map;
+}
+
+function episodeBasePath(it) {
+  return `workspaces/scripts/${it.channel}/${it.video}`;
+}
+
+async function fetchTextOptional(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`fetch failed: ${res.status} ${res.statusText}`);
+  return await res.text();
+}
+
+async function loadAudioPrep(it) {
+  const currentId = it?.video_id || "";
+  audioPrepScriptText = "";
+  audioPrepMetaText = "";
+  copyAudioPrepScript.disabled = true;
+  copyAudioPrepMeta.disabled = true;
+  audioPrepScriptPre.textContent = "読み込み中…";
+  audioPrepMetaPre.textContent = "読み込み中…";
+
+  const base = episodeBasePath(it);
+  const scriptPath = `${base}/audio_prep/script_sanitized.txt`;
+  const metaPath = `${base}/audio_prep/inference_metadata.txt`;
+  const scriptUrl = joinUrl(rawBase, scriptPath);
+  const metaUrl = joinUrl(rawBase, metaPath);
+  openAudioPrepScript.href = scriptUrl;
+  openAudioPrepMeta.href = metaUrl;
+
+  try {
+    const [scriptText, metaText] = await Promise.all([fetchTextOptional(scriptUrl), fetchTextOptional(metaUrl)]);
+    if (selected?.video_id !== currentId) return;
+
+    if (scriptText == null) {
+      audioPrepScriptPre.textContent = "未生成（audio_prep/script_sanitized.txt が見つかりません）";
+    } else {
+      audioPrepScriptText = normalizeNewlines(scriptText);
+      audioPrepScriptPre.textContent = audioPrepScriptText;
+      copyAudioPrepScript.disabled = false;
+    }
+
+    if (metaText == null) {
+      audioPrepMetaPre.textContent = "未生成（audio_prep/inference_metadata.txt が見つかりません）";
+    } else {
+      audioPrepMetaText = normalizeNewlines(metaText);
+      audioPrepMetaPre.textContent = audioPrepMetaText;
+      copyAudioPrepMeta.disabled = false;
+    }
+  } catch (err) {
+    if (selected?.video_id !== currentId) return;
+    const msg = `読み込みに失敗しました。\n${String(err)}`;
+    audioPrepScriptPre.textContent = msg;
+    audioPrepMetaPre.textContent = msg;
+  }
+}
+
+function renderThumbProject(it, proj) {
+  thumbBody.innerHTML = "";
+
+  const head = document.createElement("div");
+  head.className = "thumb-head";
+  const selectedId = String(proj?.selected_variant_id || "").trim();
+  const status = String(proj?.status || "").trim();
+  head.textContent = `status=${status || "-"} / selected=${selectedId || "-"}`;
+  thumbBody.appendChild(head);
+
+  const variants = Array.isArray(proj?.variants) ? proj.variants : [];
+  if (!variants.length) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.textContent = "variants が空です（projects.json）";
+    thumbBody.appendChild(empty);
+    return;
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "thumb-grid";
+
+  for (const v of variants) {
+    const card = document.createElement("div");
+    card.className = "thumb-card";
+    if (selectedId && String(v?.id || "").trim() === selectedId) {
+      card.classList.add("thumb-card--selected");
+    }
+
+    const title = document.createElement("div");
+    title.className = "thumb-card__title";
+    const label = String(v?.label || v?.id || "").trim();
+    const st = String(v?.status || "").trim();
+    title.textContent = `${label || "(no label)"}${st ? " · " + st : ""}`;
+    card.appendChild(title);
+
+    const url = String(v?.image_url || "").trim();
+    if (url && /^https?:\\/\\//.test(url)) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      a.className = "thumb-card__imglink";
+      const img = document.createElement("img");
+      img.src = url;
+      img.loading = "lazy";
+      img.alt = `${it?.video_id || ""} thumbnail`;
+      a.appendChild(img);
+      card.appendChild(a);
+    } else if (url) {
+      const code = document.createElement("code");
+      code.className = "thumb-card__path";
+      code.textContent = url;
+      card.appendChild(code);
+    } else {
+      const none = document.createElement("div");
+      none.className = "muted";
+      none.textContent = "image_url なし";
+      card.appendChild(none);
+    }
+
+    grid.appendChild(card);
+  }
+
+  thumbBody.appendChild(grid);
+}
+
+async function loadThumb(it) {
+  const currentId = it?.video_id || "";
+  thumbBody.textContent = "読み込み中…";
+  try {
+    const map = await loadThumbProjects();
+    if (selected?.video_id !== currentId) return;
+    const proj = map.get(currentId);
+    if (!proj) {
+      thumbBody.textContent = "projects.json に未登録（thumb未作成 or 未同期）";
+      return;
+    }
+    renderThumbProject(it, proj);
+  } catch (err) {
+    if (selected?.video_id !== currentId) return;
+    thumbBody.textContent = `読み込みに失敗しました: ${String(err)}`;
+  }
 }
 
 function renderChannels() {
@@ -286,6 +486,8 @@ async function loadScript(it) {
   loadedText = "";
   loadedNoSepText = "";
   renderNoSepChunkButtons();
+  void loadAudioPrep(it);
+  void loadThumb(it);
 
   const chLabel = channelLabel(it.channel);
   metaTitle.textContent = it.title ? `${chLabel} · ${it.video} · ${it.title}` : `${chLabel} · ${it.video}`;
@@ -417,6 +619,24 @@ function setupEvents() {
     }
     const ok = await copyText(loadedText);
     setCopyStatus(ok ? "コピーしました" : "コピーに失敗しました", !ok);
+  });
+
+  copyAudioPrepScript.addEventListener("click", async () => {
+    if (!audioPrepScriptText.trim()) {
+      setCopyStatus("audio_prep が空です", true);
+      return;
+    }
+    const ok = await copyText(audioPrepScriptText);
+    setCopyStatus(ok ? "audio_prep（script_sanitized）をコピーしました" : "コピーに失敗しました", !ok);
+  });
+
+  copyAudioPrepMeta.addEventListener("click", async () => {
+    if (!audioPrepMetaText.trim()) {
+      setCopyStatus("audio_prep metadata が空です", true);
+      return;
+    }
+    const ok = await copyText(audioPrepMetaText);
+    setCopyStatus(ok ? "audio_prep（metadata）をコピーしました" : "コピーに失敗しました", !ok);
   });
 }
 
