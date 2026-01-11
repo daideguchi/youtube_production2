@@ -74,6 +74,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             str(int(args.errors_limit)),
             "--history-grep",
             grep,
+            "--history-ignore-dd-user",
+            "--history-include-bots",
         ]
     if bool(args.post_digest):
         inbox_cmd += ["--post-digest", "--digest-max", str(int(args.digest_max))]

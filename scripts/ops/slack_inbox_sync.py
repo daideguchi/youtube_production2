@@ -464,6 +464,8 @@ def _sync_from_channel_history(
     dd_user: str | None,
     limit: int,
     grep: str | None,
+    ignore_dd_user: bool,
+    include_bots: bool,
     tmp_dir: Path,
 ) -> Tuple[list[InboxItem], Dict[str, Any]]:
     tmp = tmp_dir / f"slack_history_{_hash_key(channel, str(grep or ''))}.json"
@@ -478,10 +480,11 @@ def _sync_from_channel_history(
     for msg in (messages or []):
         if not isinstance(msg, dict):
             continue
-        if _is_bot_message(msg):
+        is_bot = _is_bot_message(msg)
+        if is_bot and not include_bots:
             continue
         user = str(msg.get("user") or msg.get("username") or "").strip()
-        if dd_user and user != dd_user:
+        if dd_user and (not ignore_dd_user) and user != dd_user:
             continue
         msg_ts = str(msg.get("ts") or "").strip()
         if not msg_ts:
@@ -493,11 +496,12 @@ def _sync_from_channel_history(
         when_iso = _ts_to_iso(msg_ts)
 
         key = _hash_key("channel", msg_ts, user, text)
+        who = "bot" if is_bot else ("dd" if dd_user and user == dd_user else "human")
         items.append(
             InboxItem(
                 key=key,
                 when_iso=when_iso,
-                who=("dd" if dd_user and user == dd_user else "human"),
+                who=who,
                 source="channel",
                 kind=kind,
                 redacted=redacted,
@@ -556,6 +560,8 @@ def cmd_sync(args: argparse.Namespace) -> int:
             dd_user=dd_user,
             limit=int(args.history_limit),
             grep=(str(args.history_grep or "").strip() or None),
+            ignore_dd_user=bool(getattr(args, "history_ignore_dd_user", False)),
+            include_bots=bool(getattr(args, "history_include_bots", False)),
             tmp_dir=tmp_dir,
         )
         fetched_items.extend(items)
@@ -634,6 +640,16 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--include-history", action="store_true", help="Also include recent channel history messages (optional; can be noisy).")
     sp.add_argument("--history-limit", type=int, default=200, help="Max history messages (default: 200).")
     sp.add_argument("--history-grep", default="", help="Regex filter for history message text (case-insensitive; optional).")
+    sp.add_argument(
+        "--history-ignore-dd-user",
+        action="store_true",
+        help="When --include-history, do not filter channel history by --dd-user (thread replies are still filtered).",
+    )
+    sp.add_argument(
+        "--history-include-bots",
+        action="store_true",
+        help="When --include-history, include bot messages too (recommended with --history-grep for error triage).",
+    )
     sp.set_defaults(func=cmd_sync)
 
     args = ap.parse_args(argv)
