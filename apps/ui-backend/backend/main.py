@@ -6252,6 +6252,13 @@ try:
 except Exception as e:
     logger.error("Failed to load auto_draft router: %s", e)
 
+try:
+    from backend.routers import settings
+
+    app.include_router(settings.router)
+except Exception as e:
+    logger.error("Failed to load settings router: %s", e)
+
 
 def _collect_health_components() -> Dict[str, bool]:
     components: Dict[str, bool] = {
@@ -6299,12 +6306,10 @@ app.add_middleware(
 )
 
 
-@app.get("/api/settings/llm", response_model=LLMSettingsResponse)
 def get_llm_settings():
     return _build_llm_settings_response()
 
 
-@app.put("/api/settings/llm", response_model=LLMSettingsResponse)
 def update_llm_settings(payload: LLMSettingsUpdate):
     settings = _get_ui_settings()
     updated = copy.deepcopy(settings.get("llm", {}))
@@ -6363,12 +6368,10 @@ def update_llm_settings(payload: LLMSettingsUpdate):
     return _build_llm_settings_response()
 
 
-@app.get("/api/settings/codex", response_model=CodexSettingsResponse)
 def get_codex_settings():
     return _build_codex_settings_response()
 
 
-@app.put("/api/settings/codex", response_model=CodexSettingsResponse)
 def update_codex_settings(payload: CodexSettingsUpdate):
     with CODEX_SETTINGS_LOCK:
         # Update pipeline config (configs/codex_exec.local.yaml)
@@ -7024,7 +7027,6 @@ def _validate_image_model_key_for_routing(
     return mk
 
 
-@app.get("/api/settings/image-model-routing", response_model=ImageModelRoutingResponse)
 def get_image_model_routing():
     model_index = _load_image_models_index_simple()
     slots_conf = _load_image_model_slots_config()
@@ -7064,10 +7066,6 @@ def get_image_model_routing():
     )
 
 
-@app.patch(
-    "/api/settings/image-model-routing/{channel}",
-    response_model=ChannelImageModelRouting,
-)
 def patch_image_model_routing(channel: str, payload: ImageModelRoutingUpdate):
     channel_code = normalize_channel_code(channel)
     model_index = _load_image_models_index_simple()
