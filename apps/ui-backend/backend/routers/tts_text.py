@@ -4,21 +4,22 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 
-from backend.main import (
-    ScriptTextResponse,
-    audio_final_dir,
-    normalize_channel_code,
-    normalize_video_number,
-    resolve_text_file,
-    safe_relative_path,
-    video_base_dir,
-)
+from backend.app.scripts_models import ScriptTextResponse
 
 router = APIRouter(prefix="/api", tags=["tts"])
 
 
 @router.get("/channels/{channel}/videos/{video}/tts/plain", response_model=ScriptTextResponse)
 def get_tts_plain_text(channel: str, video: str) -> ScriptTextResponse:
+    from backend.main import (
+        audio_final_dir,
+        normalize_channel_code,
+        normalize_video_number,
+        resolve_text_file,
+        safe_relative_path,
+        video_base_dir,
+    )
+
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     base_dir = video_base_dir(channel_code, video_number)
@@ -39,4 +40,3 @@ def get_tts_plain_text(channel: str, video: str) -> ScriptTextResponse:
         content=content,
         updated_at=updated_at,
     )
-

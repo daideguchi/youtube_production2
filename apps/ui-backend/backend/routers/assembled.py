@@ -2,23 +2,24 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from backend.main import (
-    TextUpdateRequest,
-    current_timestamp,
-    ensure_expected_updated_at,
-    load_status,
-    normalize_channel_code,
-    normalize_video_number,
-    save_status,
-    video_base_dir,
-    write_text_with_lock,
-)
+from backend.app.scripts_models import TextUpdateRequest
 
 router = APIRouter(prefix="/api", tags=["scripts"])
 
 
 @router.put("/channels/{channel}/videos/{video}/assembled")
 def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
+    from backend.main import (
+        current_timestamp,
+        ensure_expected_updated_at,
+        load_status,
+        normalize_channel_code,
+        normalize_video_number,
+        save_status,
+        video_base_dir,
+        write_text_with_lock,
+    )
+
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     status = load_status(channel_code, video_number)
@@ -64,4 +65,3 @@ def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
     sv["details"] = details
     save_status(channel_code, video_number, status)
     return {"status": "ok", "updated_at": timestamp}
-

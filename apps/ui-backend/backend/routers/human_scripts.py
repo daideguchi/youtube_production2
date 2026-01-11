@@ -4,28 +4,23 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException
 
-from backend.main import (
-    HumanScriptResponse,
-    HumanScriptUpdateRequest,
-    _default_status_payload,
-    current_timestamp,
-    ensure_expected_updated_at,
-    load_or_init_status,
-    load_status_optional,
-    normalize_channel_code,
-    normalize_video_number,
-    resolve_text_file,
-    safe_relative_path,
-    save_status,
-    video_base_dir,
-    write_text_with_lock,
-)
+from backend.app.scripts_models import HumanScriptResponse, HumanScriptUpdateRequest
 
 router = APIRouter(prefix="/api", tags=["scripts"])
 
 
 @router.get("/channels/{channel}/videos/{video}/scripts/human", response_model=HumanScriptResponse)
 def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
+    from backend.main import (
+        _default_status_payload,
+        load_status_optional,
+        normalize_channel_code,
+        normalize_video_number,
+        resolve_text_file,
+        safe_relative_path,
+        video_base_dir,
+    )
+
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     status = load_status_optional(channel_code, video_number) or _default_status_payload(channel_code, video_number)
@@ -78,6 +73,17 @@ def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
 
 @router.put("/channels/{channel}/videos/{video}/scripts/human")
 def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateRequest) -> Dict[str, Any]:
+    from backend.main import (
+        current_timestamp,
+        ensure_expected_updated_at,
+        load_or_init_status,
+        normalize_channel_code,
+        normalize_video_number,
+        save_status,
+        video_base_dir,
+        write_text_with_lock,
+    )
+
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     status = load_or_init_status(channel_code, video_number)
@@ -155,4 +161,3 @@ def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateReq
         "updated_at": timestamp,
         "audio_reviewed": status.get("metadata", {}).get("audio_reviewed", False),
     }
-
