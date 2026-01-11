@@ -26,7 +26,8 @@
   - 重要: `--thread-ts` を使う場合は **Bot方式が必須**（webhookではスレ返信できない）
   - 重要: Slack送信に失敗した場合は **outbox（ローカル）に退避**して取りこぼさない（後述）
 - PM Inbox同期（gitへ要約保存）: `scripts/ops/slack_inbox_sync.py`（このPlanで追加）
-  - Slack側にも「取り込んだ要点」を返す（任意）: `slack_inbox_sync.py sync --post-digest`（新規Inboxのみをスレへ要約返信）
+  - Slack側にも「取り込んだ要点」を返す（任意）: `slack_inbox_sync.py sync --post-digest`
+    - 方針: **新規Inboxがある時だけ** スレへ要約返信する（新規0件での定期投稿はしない）。
     - digestの表示順は「ddのスレ返信（thread）優先」→「その他thread」→「channelエラー等」の順に寄せる（エラー洪水でddの指示が埋もれないため）。
 - PID稼働状況の可視化（ps→Slack通知）: `scripts/ops/process_report.py`
   - 自動検出: `python3 scripts/ops/process_report.py --auto --slack`

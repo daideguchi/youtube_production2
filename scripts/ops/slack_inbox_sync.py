@@ -625,13 +625,15 @@ def cmd_sync(args: argparse.Namespace) -> int:
                 -_iso_to_epoch_seconds(it.when_iso),
             ),
         )
-        digest_ts = _post_digest_to_slack(
-            channel=channel,
-            thread_ts=thread_ts_list[0],
-            items=new_items,
-            out_md=out_md,
-            limit=int(getattr(args, "digest_max", 8)),
-        )
+        # Do not spam periodic polls: post only when there are NEW items.
+        if new_items:
+            digest_ts = _post_digest_to_slack(
+                channel=channel,
+                thread_ts=thread_ts_list[0],
+                items=new_items,
+                out_md=out_md,
+                limit=int(getattr(args, "digest_max", 8)),
+            )
 
     summary = {
         "ok": True,
