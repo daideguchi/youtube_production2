@@ -1,0 +1,165 @@
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+.vscode/
+.venv/
+
+# Local override configs (keep out of git)
+configs/*.local.*
+# Local API key configs (never commit)
+**/.openrouter_config
+# Generated logs (prefer workspaces/logs as SoT)
+**/logs/
+!workspaces/logs/
+!workspaces/logs/README.md
+.DS_Store
+__pycache__/
+*.egg-info/
+/a
+/b
+/c
+/スクリーンショット 2025-11-04 10.34.37.png
+/スクリーンショット 2025-11-04 10.39.43.png
+/スクリーンショット 2025-11-04 11.09.45.png
+_local_archives/
+*.pyc
+*.pyo
+*.bak
+*~
+*.mp4
+*.wav
+*.srt
+
+50_tools/projects/kutikomi_srt/input/
+50_tools/projects/kutikomi_srt/output/
+50_tools/projects/kutikomi_srt/tmp/
+50_tools/projects/kutikomi_srt/natural-ether-*.json
+.coverage
+review_01_kutikomi_srt/input/
+review_01_kutikomi_srt/output/
+node_modules/
+50_tools/srt2images-timeline/output/
+memo.md
+めも*
+メモ*
+credentials/
+50_tools/projects/srtfile/srtfile_v2/archive/output_old/
+_old
+.pytest*
+.remotion*
+
+# Remotion runtime artifacts (generated; do not commit)
+apps/remotion/input/
+apps/remotion/out/
+apps/remotion/public/_auto/
+apps/remotion/public/_bgm/
+
+# Frontend build output (generated; do not commit)
+apps/ui-frontend/build/
+
+# Legacy/stray artifacts under packages/ (SoT is workspaces/**)
+packages/audio_tts/artifacts/
+
+# Backups (keep archive-first graveyard tracked; ignore everything else)
+backups/**
+!backups/README.md
+!backups/graveyard/
+!backups/graveyard/**
+*スクリーンショット*archive_20251206/
+_old
+
+# API Keys and sensitive configuration files
+*API_KEY*
+*api_key*
+
+# Secrets/tokens/keys (avoid hiding source code files from rg/audits)
+*secret*.json
+*secret*.txt
+*token*.json
+*token*.txt
+*_key*.json
+*_key*.txt
+
+# Allowlisted helper scripts (match *_key* but are not secrets)
+!scripts/openrouter_key_probe.py
+
+# Authentication and authorization
+# NOTE: JSON を一律で ignore しない（必要な JSON は repo に含める）。
+# 機密/トークン系は以下の個別パターンで除外する。
+credentials/
+*.credentials
+credential/
+*.token
+*.pem
+*.p12
+*.crt
+
+# Google related
+*client_secret*.json
+*credentials*.json
+*oauth*.json
+*google*.json
+*.gpg
+GOOGLE_APPLICATION_CREDENTIALS
+
+# Specific sensitive files
+configs/client_secret_*.json
+configs/srtfile-*.json
+credentials/*
+configs/drive_oauth_client.json
+credentials/drive_oauth_token.json
+credentials/gemini_config
+credentials/natural-ether-*.json
+credentials/srtfile-tts-credentials.json
+
+# Token files used in audio processing
+workspaces/scripts/CH*/**/tokens.json
+workspaces/scripts/**/audio_prep/
+
+# API response files
+workspaces/scripts/CH*/**/topic_research_response.json
+workspaces/scripts/CH*/**/script_outline_response.json
+workspaces/scripts/CH*/**/quality_check_response.json
+workspaces/scripts/CH*/**/chapter_brief_response.json
+workspaces/scripts/CH*/**/script_review_response.json
+workspaces/scripts/CH*/**/script_draft_response.json
+
+# Other sensitive data files
+workspaces/scripts/openrouter_models_snapshot.json
+
+# Old specification documents (not to be pushed)
+ssot_old/
+
+# Local scratch
+tmp/
+log_research/**
+!log_research/README.md
+!log_research/LATEST_ARCHIVE.txt
+workspaces/_scratch/**
+workspaces/research/_local/**
+# Thumbnail SoT scratch backups (keep out of git; archive under backups/_incident_archives when needed)
+workspaces/thumbnails/**/*.bak_*
+
+# Tests output (generated; do not commit)
+tests/_out/**
+
+# workspaces heavy artifacts (SoT on disk; keep out of git)
+workspaces/video/runs/**
+!workspaces/video/runs/.gitkeep
+workspaces/video/_capcut_drafts/**
+workspaces/video/remotion_exports/**
+workspaces/video/_archive/**
+workspaces/audio/final/**
+workspaces/audio/_archive_audio/**
+workspaces/logs/**
+!workspaces/logs/README.md
+
+# Adhoc scripts (temporary; keep out of git by default)
+scripts/_adhoc/**
+!scripts/_adhoc/README.md
+
+# Local caches (generated; keep out of git)
+data/visual_bible*.json

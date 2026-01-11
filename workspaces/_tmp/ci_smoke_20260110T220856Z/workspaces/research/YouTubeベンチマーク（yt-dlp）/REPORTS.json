@@ -1,0 +1,342 @@
+{
+  "version": 1,
+  "generated_at": "2026-01-08T10:30:17.625741+00:00",
+  "entries": [
+    {
+      "playlist_channel_id": "UC06rREl2zUsv6_qbtqYAHmw",
+      "playlist_uploader_id": "@偉人の言霊-q4r",
+      "playlist_channel": "偉人の言霊",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/Xra1DgzTnDYSh0pdSqaz6C4TidySG40oGYuqGtidW38brLyzl0BOSr0qgQvN9pI1h8y0tHH8Dw=s0",
+      "source_url": "https://www.youtube.com/@偉人の言霊-q4r/videos",
+      "fetched_at": "2026-01-08T10:29:48.571280+00:00",
+      "playlist_end": 80,
+      "video_count": 41,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UC06rREl2zUsv6_qbtqYAHmw/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UC06rREl2zUsv6_qbtqYAHmw/report.json",
+      "top_video": {
+        "id": "hbVyx5cAYuo",
+        "title": "【話すと危険】口が裂けても他人に話してはいけない７つのこと｜松下幸之助の言葉で学ぶ人生の知恵」",
+        "url": "https://www.youtube.com/watch?v=hbVyx5cAYuo",
+        "duration_sec": 1807.0,
+        "view_count": 248030,
+        "thumbnail_url": "https://i.ytimg.com/vi/hbVyx5cAYuo/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBaQR8AAL0FA8B2MNSSiCE1AZ9pww",
+        "playlist_index": 21
+      },
+      "stats": {
+        "view_count_median": 3866.0,
+        "view_count_p75": 23922.0,
+        "duration_median_sec": 1610.0,
+        "title_starts_with_bracket_ratio": 0.5365853658536586,
+        "top_bracket_prefix": "人間関係の真実"
+      }
+    },
+    {
+      "playlist_channel_id": "UC9fcd5KCJfOeRsdRJZdSaGQ",
+      "playlist_uploader_id": "@buddha-no09",
+      "playlist_channel": "人生これから - ブッダの教え",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/lpIereXDsuqfuHEl6OOqJNpXpXHnW_ZQUUKziHUlz2vrz8MQcPU4_LAhOt7vE4V0u6glRmLIxBU=s0",
+      "source_url": "https://www.youtube.com/@buddha-no09/videos",
+      "fetched_at": "2026-01-08T10:04:17.342714+00:00",
+      "playlist_end": 80,
+      "video_count": 80,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UC9fcd5KCJfOeRsdRJZdSaGQ/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UC9fcd5KCJfOeRsdRJZdSaGQ/report.json",
+      "top_video": {
+        "id": "ZbSneYw5enA",
+        "title": "【絶対に助けてはいけない人】関わった瞬間 “人生が不幸になる相手”の特徴",
+        "url": "https://www.youtube.com/watch?v=ZbSneYw5enA",
+        "duration_sec": 966.0,
+        "view_count": 239085,
+        "thumbnail_url": "https://i.ytimg.com/vi/ZbSneYw5enA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC2hx3jz2yYwoSDj8TdRJGXLkJEpw",
+        "playlist_index": 28
+      },
+      "stats": {
+        "view_count_median": 5030.0,
+        "view_count_p75": 8178.0,
+        "duration_median_sec": 1313.5,
+        "title_starts_with_bracket_ratio": 0.7125,
+        "top_bracket_prefix": "ブッダの警鐘"
+      }
+    },
+    {
+      "playlist_channel_id": "UCKAXg84Mg4FighZJ14bxJvA",
+      "playlist_uploader_id": "@aimaiaimaiaimai",
+      "playlist_channel": "曖昧な思考",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/TyP-9cP4oO8B_v3_tj0sU5PvvG9Nw3ScRxDKV3xcYHD-S_URGs7rJL5M24uS0xSCqutH0xFihg=s0",
+      "source_url": "https://www.youtube.com/channel/UCKAXg84Mg4FighZJ14bxJvA/videos",
+      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
+      "playlist_end": 120,
+      "video_count": 120,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCKAXg84Mg4FighZJ14bxJvA/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCKAXg84Mg4FighZJ14bxJvA/report.json",
+      "top_video": {
+        "id": "A6ygFlbLJp8",
+        "title": "【モテ哲学】なぜ“優しい男”は最後に捨てられるのか─冷酷な真実",
+        "url": "https://www.youtube.com/watch?v=A6ygFlbLJp8",
+        "duration_sec": 1512.0,
+        "view_count": 218567,
+        "thumbnail_url": "https://i.ytimg.com/vi/A6ygFlbLJp8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDKT4mAKYQsidFRd1zwcX6vlyiz9A",
+        "playlist_index": 119
+      },
+      "stats": {
+        "view_count_median": 8154.5,
+        "view_count_p75": 18910.5,
+        "duration_median_sec": 910.5,
+        "title_starts_with_bracket_ratio": 0.4083333333333333,
+        "top_bracket_prefix": "保存版"
+      }
+    },
+    {
+      "playlist_channel_id": "UCOmPg-Ncs7XA5Jt_JBUJDmg",
+      "playlist_uploader_id": "@kokoroshiawase",
+      "playlist_channel": "シニアの心が軽くなる物語",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/2vzYPukYzT8WT_n0XKL6DcUC0nOl1UGrKIEV8HUvs5U2R_q7SyRESIYPrKrQCnvdMbzMnPQMng=s0",
+      "source_url": "https://www.youtube.com/@kokoroshiawase/videos",
+      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
+      "playlist_end": 120,
+      "video_count": 22,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCOmPg-Ncs7XA5Jt_JBUJDmg/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCOmPg-Ncs7XA5Jt_JBUJDmg/report.json",
+      "top_video": {
+        "id": "U9YarMwCg4g",
+        "title": "親友の無神経な言葉で友情崩壊。50年の友情を終わらせた最後の旅 。仲良しだった友人と離れた理由とは？年齢を重ねて変化する友人関係 | シニアの旅行 | 老後の幸せ | 老後の友達",
+        "url": "https://www.youtube.com/watch?v=U9YarMwCg4g",
+        "duration_sec": 1283.0,
+        "view_count": 358226,
+        "thumbnail_url": "https://i.ytimg.com/vi/U9YarMwCg4g/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCXo9EXSLGNA4dMZiHvLlrKI4LNTQ",
+        "playlist_index": 9
+      },
+      "stats": {
+        "view_count_median": 32350.0,
+        "view_count_p75": 68227.0,
+        "duration_median_sec": 1063.5,
+        "title_starts_with_bracket_ratio": 0.18181818181818182,
+        "top_bracket_prefix": "40年以上の友情が崩壊"
+      }
+    },
+    {
+      "playlist_channel_id": "UC_wQ5hHiTgCN8JP_wPupCWA",
+      "playlist_uploader_id": "@幻想と神話の扉",
+      "playlist_channel": "幻想と神話の扉",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/_nM399OrHd2HjOIj6BnJg1LAzFdyUcsrf-mpMWRbIHCasPuQ3Fi45Qu3p9bwtGKpR6WiJG_Kt8k=s0",
+      "source_url": "https://www.youtube.com/@幻想と神話の扉/videos",
+      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
+      "playlist_end": 120,
+      "video_count": 120,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UC_wQ5hHiTgCN8JP_wPupCWA/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UC_wQ5hHiTgCN8JP_wPupCWA/report.json",
+      "top_video": {
+        "id": "wbDXf3mOx88",
+        "title": "【老後はこの3人以外に頼るな！】気づいた人だけが手にする「後悔しない人生」―空海大師の教え",
+        "url": "https://www.youtube.com/watch?v=wbDXf3mOx88",
+        "duration_sec": 1913.0,
+        "view_count": 213496,
+        "thumbnail_url": "https://i.ytimg.com/vi/wbDXf3mOx88/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBgbqV1FfwvVj7hWyMt7npfLkoUOg",
+        "playlist_index": 62
+      },
+      "stats": {
+        "view_count_median": 2482.5,
+        "view_count_p75": 7759.75,
+        "duration_median_sec": 2195.0,
+        "title_starts_with_bracket_ratio": 0.4583333333333333,
+        "top_bracket_prefix": "空海の教え"
+      }
+    },
+    {
+      "playlist_channel_id": "UCeUpwmP1xKY2Tgc8qH-I0Tw",
+      "playlist_uploader_id": "@前略偉人より",
+      "playlist_channel": "前略、偉人より",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/BI2Jaa_F0s_BA66ibqMh00oQJlT5bC4Obx4gWr8fWhIOVIbFlf01sy4MZEXf0WlT1kzwIcxQNg=s0",
+      "source_url": "https://www.youtube.com/@前略偉人より/videos",
+      "fetched_at": "2026-01-08T10:04:48.304397+00:00",
+      "playlist_end": 80,
+      "video_count": 67,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCeUpwmP1xKY2Tgc8qH-I0Tw/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCeUpwmP1xKY2Tgc8qH-I0Tw/report.json",
+      "top_video": {
+        "id": "VbyyBhoFmjM",
+        "title": "【ニコラ・テスラ流】力を抜いて結果を引き寄せる思考術｜偉人の名言・言葉",
+        "url": "https://www.youtube.com/watch?v=VbyyBhoFmjM",
+        "duration_sec": 1678.0,
+        "view_count": 198630,
+        "thumbnail_url": "https://i.ytimg.com/vi/VbyyBhoFmjM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLArcihRQj_AFZ7SJrFmdK1BYorl7w",
+        "playlist_index": 61
+      },
+      "stats": {
+        "view_count_median": 5820.0,
+        "view_count_p75": 18086.0,
+        "duration_median_sec": 1401.0,
+        "title_starts_with_bracket_ratio": 0.9701492537313433,
+        "top_bracket_prefix": "ニコラ・テスラ流"
+      }
+    },
+    {
+      "playlist_channel_id": "UCg-rxafnhzN6hiiakU1NGYw",
+      "playlist_uploader_id": "@Shikounokaku",
+      "playlist_channel": "思考の核",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/ApeJTA8HslJPsjJMWQfLL1uezNWxSP1uC9-KGW36czERz5ExDyH1_75eUl6Tb3vWlCXQGOIU=s0",
+      "source_url": "https://www.youtube.com/@Shikounokaku/videos",
+      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
+      "playlist_end": 120,
+      "video_count": 68,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCg-rxafnhzN6hiiakU1NGYw/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCg-rxafnhzN6hiiakU1NGYw/report.json",
+      "top_video": {
+        "id": "yEr2oiZnSpA",
+        "title": "【共感したら天才】IQが高い人だけが感じる「日常の違和感」7選",
+        "url": "https://www.youtube.com/watch?v=yEr2oiZnSpA",
+        "duration_sec": 1004.0,
+        "view_count": 162991,
+        "thumbnail_url": "https://i.ytimg.com/vi/yEr2oiZnSpA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB8KylTlg3v1Ns_bSbV4hvY7FH19g",
+        "playlist_index": 56
+      },
+      "stats": {
+        "view_count_median": 1708.0,
+        "view_count_p75": 5564.25,
+        "duration_median_sec": 1287.0,
+        "title_starts_with_bracket_ratio": 1.0,
+        "top_bracket_prefix": "雑学"
+      }
+    },
+    {
+      "playlist_channel_id": "UCmZhEZxSCQdaiVnwbf7p5Mg",
+      "playlist_uploader_id": "@himitu-o4p",
+      "playlist_channel": "秘密の図書館",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/V3DL5fXsGsdwGaFTNp8ZT8fgLUtaiAJB5e_HqESbIvNmj_xz1WqI-Zq6HnnpzbJ5mz6QMm-EiQ=s0",
+      "source_url": "https://www.youtube.com/@himitu-o4p/videos",
+      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
+      "playlist_end": 120,
+      "video_count": 120,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCmZhEZxSCQdaiVnwbf7p5Mg/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCmZhEZxSCQdaiVnwbf7p5Mg/report.json",
+      "top_video": {
+        "id": "0PjWZ6dj-1o",
+        "title": "「あなたの子供は、あなたのカルマです」この言葉の真の意味を知る時、過去からの”答え”が見つかる。",
+        "url": "https://www.youtube.com/watch?v=0PjWZ6dj-1o",
+        "duration_sec": 1191.0,
+        "view_count": 168726,
+        "thumbnail_url": "https://i.ytimg.com/vi/0PjWZ6dj-1o/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLD0SYXGQb3RjzVSqYzAQq2pdMVEvQ",
+        "playlist_index": 104
+      },
+      "stats": {
+        "view_count_median": 13223.5,
+        "view_count_p75": 27751.0,
+        "duration_median_sec": 1359.5,
+        "title_starts_with_bracket_ratio": 0.35833333333333334,
+        "top_bracket_prefix": "悪用厳禁"
+      }
+    },
+    {
+      "playlist_channel_id": "UCsaJfLdsX___zc1OcWHQRWg",
+      "playlist_uploader_id": "@人生は考え方で変わる",
+      "playlist_channel": "人生は考え方【偉人から学ぶ】",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/quB4dgHlGIT75rePVC_P6yRx7bpwkziVT7u4ITSmZ5WOoSrvLF8F65tjEgrJWPu0fZO0jEda8ok=s0",
+      "source_url": "https://www.youtube.com/@人生は考え方で変わる/videos",
+      "fetched_at": "2026-01-08T10:30:09.592786+00:00",
+      "playlist_end": 80,
+      "video_count": 47,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCsaJfLdsX___zc1OcWHQRWg/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCsaJfLdsX___zc1OcWHQRWg/report.json",
+      "top_video": {
+        "id": "U7TZyNQeN5s",
+        "title": "【99%が知らない】「寝ながら聞くだけ」枕元で流して眠りなさい。朝、別世界で目覚めます。テスラが隠した「脳の書き換え」/潜在意識/睡眠導入/引き寄せ/ニコラ・テスラ",
+        "url": "https://www.youtube.com/watch?v=U7TZyNQeN5s",
+        "duration_sec": 3013.0,
+        "view_count": 232970,
+        "thumbnail_url": "https://i.ytimg.com/vi/U7TZyNQeN5s/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAjhI8Qah4Jw8gi48kFNJP8Sj5GbQ",
+        "playlist_index": 35
+      },
+      "stats": {
+        "view_count_median": 5918.5,
+        "view_count_p75": 13389.0,
+        "duration_median_sec": 3753.0,
+        "title_starts_with_bracket_ratio": 0.9148936170212766,
+        "top_bracket_prefix": "99％が知らない"
+      }
+    },
+    {
+      "playlist_channel_id": "UCufmwDQEiqU5LCyeocpGSXw",
+      "playlist_uploader_id": "@shinririri",
+      "playlist_channel": "真理の扉",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/3Zz_ba30eHMQYjNIskHrwMv1hb956WBzzM6QUsqDMcS0urG6D-q23vdqvS_XbZOsqNKIf-X1pw=s0",
+      "source_url": "https://www.youtube.com/@shinririri/videos",
+      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
+      "playlist_end": 120,
+      "video_count": 120,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCufmwDQEiqU5LCyeocpGSXw/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCufmwDQEiqU5LCyeocpGSXw/report.json",
+      "top_video": {
+        "id": "q26WDYuipUY",
+        "title": "【思考で肉体が若返る】ハーバード大の実験。「これ」だけで身体が20歳若返った話",
+        "url": "https://www.youtube.com/watch?v=q26WDYuipUY",
+        "duration_sec": 1328.0,
+        "view_count": 223917,
+        "thumbnail_url": "https://i.ytimg.com/vi/q26WDYuipUY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBg8O178ki1VO4SjqtQtG6zmi7kXg",
+        "playlist_index": 71
+      },
+      "stats": {
+        "view_count_median": 15248.0,
+        "view_count_p75": 36071.5,
+        "duration_median_sec": 1626.0,
+        "title_starts_with_bracket_ratio": 0.3416666666666667,
+        "top_bracket_prefix": "警告"
+      }
+    },
+    {
+      "playlist_channel_id": "UCv1e_rsyknQyiyga_NW6LSw",
+      "playlist_uploader_id": "@ijinnnokotoba",
+      "playlist_channel": "偉人のコトバ",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/UAEd_ovu6NeNVLJHE35ITxKbs0xZPYlUJDy5L9vlCFuY2rDa6TGeU-1QOfKHf8GdTbSaG5rP=s0",
+      "source_url": "https://www.youtube.com/@ijinnnokotoba/videos",
+      "fetched_at": "2026-01-08T10:29:48.571280+00:00",
+      "playlist_end": 80,
+      "video_count": 43,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCv1e_rsyknQyiyga_NW6LSw/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCv1e_rsyknQyiyga_NW6LSw/report.json",
+      "top_video": {
+        "id": "4XAv5PZOXkg",
+        "title": "【テスラのコトバ】※99%が知らない！12月31日23時59分までの過ごし方で2026年が180度激変します。【感謝｜ありがとう｜名言｜言霊｜偉人】ニコラ・テスラ",
+        "url": "https://www.youtube.com/watch?v=4XAv5PZOXkg",
+        "duration_sec": 1601.0,
+        "view_count": 64115,
+        "thumbnail_url": "https://i.ytimg.com/vi/4XAv5PZOXkg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBYoq84J-TFOT6wL3CMbh4QqmMyOg",
+        "playlist_index": 14
+      },
+      "stats": {
+        "view_count_median": 2741.0,
+        "view_count_p75": 16859.5,
+        "duration_median_sec": 1252.0,
+        "title_starts_with_bracket_ratio": 1.0,
+        "top_bracket_prefix": "田中角栄のコトバ"
+      }
+    },
+    {
+      "playlist_channel_id": "UCxHAf2R9YIDIvYLV4UNCA_g",
+      "playlist_uploader_id": "@闇の都市伝説ラボ",
+      "playlist_channel": "闇の都市伝説ラボ",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/jFsq07za3JRIO8-_VSP1i2k9GsWgM4-V_NPQX2F4PsgY1SOfGBWs0tNCv1eCb0mHXTmgY0Ps=s0",
+      "source_url": "https://www.youtube.com/@闇の都市伝説ラボ/videos",
+      "fetched_at": "2025-12-29T00:17:37.578030+00:00",
+      "playlist_end": 120,
+      "video_count": 120,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCxHAf2R9YIDIvYLV4UNCA_g/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCxHAf2R9YIDIvYLV4UNCA_g/report.json",
+      "top_video": {
+        "id": "si5YhjImjSU",
+        "title": "人類の月探査を阻む恐るべき現実とは 55年間誰も月に行けない本当の理由【ミステリー 怖い話】",
+        "url": "https://www.youtube.com/watch?v=si5YhjImjSU",
+        "duration_sec": 2687.0,
+        "view_count": 448384,
+        "thumbnail_url": "https://i.ytimg.com/vi/si5YhjImjSU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBSB7Gy_aqgGWD6s5RGMfpDoKR39Q",
+        "playlist_index": 52
+      },
+      "stats": {
+        "view_count_median": 14806.5,
+        "view_count_p75": 33548.25,
+        "duration_median_sec": 2652.5,
+        "title_starts_with_bracket_ratio": 0.0,
+        "top_bracket_prefix": null
+      }
+    }
+  ]
+}

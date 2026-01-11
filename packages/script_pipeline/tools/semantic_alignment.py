@@ -407,7 +407,10 @@ def run_semantic_alignment(
     except Exception:
         paren_max_i = 10
 
-    char_min = str(max(target_min_i, cur_len)) if (target_min_i or cur_len) else ""
+    # Keep the semantic-alignment rewrite flexible within the allowed range.
+    # Using `max(target_min, current_len)` can create an overly tight window (e.g. 9700–10000),
+    # which makes it hard for the model to add required alignment details without going too long.
+    char_min = str(target_min_i) if target_min_i else (str(cur_len) if cur_len else "")
     char_max = str(target_max_i) if target_max_i else ""
 
     fix_prompt_name = "semantic_alignment_fix_minor_prompt.txt" if verdict == "minor" else "semantic_alignment_fix_prompt.txt"
@@ -472,15 +475,60 @@ def run_semantic_alignment(
                 last_issues = None
                 break
 
+            # If the only violation is length overflow, we can safely apply the draft and let the
+            # regular script_validation stage auto-shrink it (when validate_after=True).
+            # This avoids deadlocks where semantic alignment is fine but the model overshoots max chars.
+            codes_now = {str(it.get("code") or "") for it in errors if isinstance(it, dict) and it.get("code")}
+            auto_len_fix = str(os.getenv("SCRIPT_VALIDATION_AUTO_LENGTH_FIX", "0")).strip().lower() in {
+                "1",
+                "true",
+                "yes",
+                "y",
+                "on",
+            }
+            if validate_after and auto_len_fix and codes_now == {"length_too_long"}:
+                fix_meta = {
+                    "provider": fix_result.get("provider"),
+                    "model": fix_result.get("model"),
+                    "request_id": fix_result.get("request_id"),
+                    "chain": fix_result.get("chain"),
+                    "latency_ms": fix_result.get("latency_ms"),
+                    "usage": fix_result.get("usage") or {},
+                    "attempts": attempt,
+                    "stats": stats,
+                    "note": "applied_with_length_too_long; expect script_validation to auto-shrink",
+                }
+                last_issues = None
+                break
+
             last_issues = errors
             # Build a compact repair prompt (avoid re-sending planning/script twice).
             summary = "\n".join(f"- {it.get('code')}: {it.get('message')}" for it in errors[:12] if isinstance(it, dict))
             promised = str((report_obj or {}).get("promised_message") or "").strip()
             promised_line = f"企画の約束: {promised}\n" if promised else ""
+            codes = {str(it.get("code") or "") for it in errors if isinstance(it, dict)}
+            need_shorten = "length_too_long" in codes
+            need_lengthen = "length_too_short" in codes
+            min_s = str(target_min_i) if isinstance(target_min_i, int) and target_min_i > 0 else str(char_min or "").strip()
+            max_s = str(target_max_i) if isinstance(target_max_i, int) and target_max_i > 0 else str(char_max or "").strip()
+            if min_s and max_s:
+                length_req = f"必須: 文字数は {min_s}〜{max_s} に収める"
+            elif min_s:
+                length_req = f"必須: 文字数は {min_s} 文字以上"
+            elif max_s:
+                length_req = f"必須: 文字数は {max_s} 文字以下"
+            else:
+                length_req = "必須: 文字数は既存ルールに従う"
+            if need_shorten:
+                length_req += "（length_too_long を解消するため必要なら短くして良い）"
+            elif need_lengthen:
+                length_req += "（length_too_short を解消するため必要なら肉付けして良い）"
+            else:
+                length_req += "（内容はできるだけ維持）"
             fix_prompt = (
                 "次のAテキスト案はルール違反があります。違反だけを直し、内容はできるだけ維持してください。\n"
                 f"{promised_line}"
-                f"必須: 文字数は短くしない（>= {char_min} 文字） / quote_max={quote_max_i} / paren_max={paren_max_i}\n"
+                f"{length_req} / quote_max={quote_max_i} / paren_max={paren_max_i}\n"
                 "禁止: URL/脚注/箇条書き/番号リスト/見出し/制作メタ。ポーズは `---` だけ（1行単独）。\n"
                 f"違反一覧:\n{summary}\n\n"
                 "修正対象本文:\n"

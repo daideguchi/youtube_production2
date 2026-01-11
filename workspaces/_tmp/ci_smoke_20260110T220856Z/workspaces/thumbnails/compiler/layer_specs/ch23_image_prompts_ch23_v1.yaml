@@ -1,0 +1,217 @@
+version: 3
+name: CH23_image_prompts_ch23_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+policy:
+  forbid_text: true
+  reserved_text_area: 'left_35_percent'
+  note: 'CH23はCH22と同様に、背景(10_bg)をFireworks maxで生成し、文字はローカル合成（Layer Specs v3）で乗せる。'
+items:
+  - video_id: CH23-001
+    title: '退職した夫が家を占領｜家庭内別居の現実が始まった日'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Living room daytime, 60s husband occupying sofa arms crossed, wife standing tired, TV remote and laundry, heavy mood. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-002
+    title: 'たった一言で夫婦が冷えた｜家庭内別居の末路'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Dinner table night, wife looking down, husband turned away, empty seat, cold atmosphere, minimal props. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-003
+    title: '年金を握られた63歳｜私の老後が消える夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Home table daytime, wife hugging bankbook, husband reaching hand, stamp case, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-004
+    title: '義実家同居を迫られた｜逃げ場が消える現実'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Entrance daytime, wife looking away tense, husband insisting, suitcases hint, heavy air, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-005
+    title: '介護の負担が私だけに｜優しさが枯れた夫婦'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Bedroom evening, wife exhausted sitting, care用品 (pillbox, towel) on right, husband indifferent, heavy mood. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-006
+    title: '相続の話をした瞬間、家族が割れた｜お金で崩壊する夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Living room family meeting, documents piles (no readable text), tense faces, wife in center-right stressed, heavy mood. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-007
+    title: '夫の隠し借金が見つかった｜封筒の中が地獄だった'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Home table night, plain envelopes (no text) spread, wife shocked, husband looking away, heavy atmosphere, lamp light. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-008
+    title: '夫のスマホを見てしまった｜その名前、誰'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Bedroom night, wife holding phone shocked, husband back turned, phone screen abstract (no readable text), heavy mood. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-009
+    title: '熟年離婚を口にしたら脅された｜出ていけと言われた夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Entrance night, wife holding keys, husband angry posture, heavy mood, dim lighting, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-010
+    title: '私の病院代を渋る夫｜心が折れる現実'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Hospital waiting room, wife tearful, husband cold looking at phone, calm but heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-011
+    title: '息子夫婦との同居が限界｜嫁の一言で崩壊'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Living room day, wife tense, younger couple blurred on right, heavy mood, empty left space, subtle conflict. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-012
+    title: '退職後、夫の趣味に老後資金が吸われる｜止まらない現実'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Night desk, hobby items and receipts (no text), wife worried, husband excited, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-013
+    title: '介護認定の日、夫婦の本性が出た｜書類が現実を割る'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Table with official documents (no readable text) and pen, couple tense on right, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-014
+    title: '墓の話で初めて口をきかなかった｜死後の話が一番怖い'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Room with Buddhist altar, couple back-to-back, silent tension, warm dim light, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-015
+    title: '義実家の集まりで私だけ働く｜いつまで『嫁』なの'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Kitchen, wife cooking tired, relatives sitting chatting on right, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-016
+    title: '夫が家事をしない理由が最低｜言い訳が刺さる夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Kitchen, dishes pile, wife expressionless, husband relaxing on sofa, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-017
+    title: '親の介護で夫の兄弟が豹変｜家族の顔が変わる'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Night room, wife on phone stressed, shadowy figures implied, heavy mood, lamp light, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-018
+    title: '退職後の夫の怒りが止まらない｜家が息苦しい夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Living room night, husband angry posture, wife tense, dim light, heavy air, subject on right, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-019
+    title: '救急の夜、夫の優しさが枯れていた｜残ったのは虚しさ'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Night street with ambulance red light glow (abstract, no text), wife stunned, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-020
+    title: '介護施設を提案したら責められた｜私が悪いの？'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Family meeting, wife being blamed on right, husband and adult child stern, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-021
+    title: '年金分割を調べた夜｜離婚は準備で決まる'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Night desk, wife writing notes (no readable text), husband shadow behind, heavy mood, lamp light, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-022
+    title: '法事の席で孤立した妻｜親戚付き合いの地獄'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Memorial meal, wife isolated on right, relatives cold stares, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-023
+    title: '夫が『俺は悪くない』を繰り返す｜話が通じない現実'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Living room day, husband defensive posture, wife exhausted, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-024
+    title: '夫の投資失敗で老後が消えた｜取り返せない夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Night desk, laptop showing abstract red downward graph (no text), wife pale, husband anxious, heavy mood. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-025
+    title: '介護離職を迫られた私｜私の人生は誰のもの'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Workplace locker area, wife holding name tag (no text), conflicted expression, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-026
+    title: '離婚届を机に置いた朝｜もう戻れない現実'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Morning window light, divorce paper-like document (no readable text) and stamp, wife calm but sad, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-027
+    title: '子ども世代に頼れない｜老後の孤独が増える夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Night room, wife looking at phone contact list abstract (no text), lonely mood, small lamp light, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-028
+    title: '孤独死が怖い夫婦｜恐れが攻撃になる'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Bedroom night, wife awake staring, husband back turned, dark quiet mood, heavy air, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-029
+    title: '要介護の夫が放った最悪の一言｜心が冷える夜'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Bedroom, husband in bed grumpy, wife frozen, medicine box, heavy mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.
+
+  - video_id: CH23-030
+    title: '最後に残ったのは自由｜静かに始まる第二の人生'
+    person_key: ch23_senior_story
+    prompt_ja: |
+      16:9, Japanese seinen manga illustration style, clean bold lineart, subtle watercolor paper texture, calm but heavy mood, realistic Japanese interior, Japanese couple in their 60s, center-right subjects, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark, hands and fingers correct, natural anatomy. SCENE: Morning by window, wife looking outside calmly, bright clean background, hopeful but quiet mood, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, extra fingers, deformed hands, bad anatomy, lowres.
+      FULL COLOR ONLY: render in full color (NOT monochrome/grayscale/black-and-white). Keep subtle watercolor coloring.

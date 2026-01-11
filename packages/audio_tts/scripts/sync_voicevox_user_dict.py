@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import unicodedata
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -38,6 +39,17 @@ from factory_common.paths import audio_pkg_root
 from audio_tts.tts.routing import load_routing_config
 from audio_tts.tts.voicevox_api import VoicevoxClient
 from audio_tts.tts.voicevox_user_dict import VoicevoxUserDictClient
+
+
+def _norm_surface(surface: str) -> str:
+    """
+    Normalize surfaces for matching against VOICEVOX user-dict entries.
+
+    VOICEVOX may store ASCII surfaces as fullwidth forms; using NFKC on both sides
+    keeps sync idempotent (prevents duplicate entries across runs).
+    """
+
+    return unicodedata.normalize("NFKC", str(surface or "")).strip()
 
 
 def _channel_speaker_id(channel: str) -> int | None:
@@ -101,7 +113,7 @@ def main() -> None:
     for uuid, w in existing.items():
         surface = w.get("surface")
         if isinstance(surface, str) and surface:
-            existing_by_surface[surface] = uuid
+            existing_by_surface[_norm_surface(surface)] = uuid
 
     channels = [args.channel] if args.channel else _discover_channels()
 
@@ -117,24 +129,26 @@ def main() -> None:
                 continue
             entries.append((ch, surface, pronunciation, meta))
 
-    surface_map: Dict[str, Tuple[str, str, Dict[str, object]]] = {}
+    surface_map: Dict[str, Tuple[str, str, str, Dict[str, object]]] = {}
     conflicts: List[Tuple[str, str, str, str]] = []
     for ch, surface, pronunciation, meta in entries:
-        if surface in surface_map and surface_map[surface][1] != pronunciation:
-            conflicts.append((surface, surface_map[surface][1], pronunciation, ch))
+        key = _norm_surface(surface)
+        if key in surface_map and surface_map[key][2] != pronunciation:
+            conflicts.append((surface, surface_map[key][2], pronunciation, ch))
             continue
-        surface_map[surface] = (ch, pronunciation, meta)
+        surface_map[key] = (ch, surface, pronunciation, meta)
 
     added = updated = skipped = 0
 
-    for surface, (ch, pronunciation, meta) in sorted(surface_map.items()):
+    for _, (ch, surface, pronunciation, meta) in sorted(surface_map.items()):
         sid = _channel_speaker_id(ch) or 1
         accent_type = meta.get("accent_type")
         if not isinstance(accent_type, int):
             accent_type = _infer_accent_type(vv_client, pronunciation, sid)
 
-        if surface in existing_by_surface:
-            uuid = existing_by_surface[surface]
+        surface_key = _norm_surface(surface)
+        if surface_key in existing_by_surface:
+            uuid = existing_by_surface[surface_key]
             prev = existing.get(uuid, {})
             prev_pron = prev.get("pronunciation")
             prev_acc = prev.get("accent_type")

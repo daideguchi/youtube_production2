@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Script Viewer</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div>
+          <h1>Script Viewer</h1>
+          <p class="muted">workspaces/scripts の assembled.md を閲覧・コピー（静的）</p>
+        </div>
+        <div class="header__right">
+          <button id="reloadIndex" class="btn btn--ghost" type="button">索引を再読み込み</button>
+        </div>
+      </header>
+
+      <section class="controls">
+        <label class="control">
+          <span class="control__label">Channel</span>
+          <select id="channelSelect" class="control__input"></select>
+        </label>
+        <label class="control">
+          <span class="control__label">Video</span>
+          <select id="videoSelect" class="control__input"></select>
+        </label>
+        <label class="control control--wide">
+          <span class="control__label">Search</span>
+          <input id="searchInput" class="control__input" placeholder="例: CH10-005 / 005 / タイトル断片" />
+        </label>
+      </section>
+
+      <section id="searchResults" class="search-results" hidden></section>
+
+      <section class="meta">
+        <div class="meta__title" id="metaTitle">—</div>
+        <div class="meta__row">
+          <div class="meta__path">
+            <span class="muted">Path:</span>
+            <code id="metaPath">—</code>
+          </div>
+          <div class="meta__actions">
+            <button id="copyPath" class="btn btn--ghost" type="button">パスをコピー</button>
+            <a id="openRaw" class="btn btn--ghost" target="_blank" rel="noreferrer">raw を開く</a>
+          </div>
+        </div>
+        <div class="meta__row meta__row--buttons">
+          <button id="copyRaw" class="btn" type="button">コピー（そのまま）</button>
+          <div class="chunk-copy" aria-label="---なしでコピー（10,000文字ずつ）">
+            <span class="muted">---なし:</span>
+            <div id="copyNoSepChunks" class="chunk-copy__buttons"></div>
+          </div>
+          <span id="copyStatus" class="muted"></span>
+        </div>
+      </section>
+
+      <main class="content">
+        <div id="loading" class="loading" hidden>読み込み中…</div>
+        <pre id="contentPre" class="pre"></pre>
+      </main>
+
+      <footer class="footer muted">
+        <span id="footerMeta">—</span>
+      </footer>
+    </div>
+  </body>
+</html>

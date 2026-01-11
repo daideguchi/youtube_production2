@@ -18,6 +18,12 @@
         "path": "workspaces/thumbnails/compiler/layer_specs/ch01_image_prompts_memo9_v1.yaml",
         "name": "ch01_image_prompts_memo9_v1"
       },
+      "ch01_image_prompts_recent_post_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch01_image_prompts_recent_post_v1.yaml",
+        "name": "ch01_image_prompts_recent_post_v1"
+      },
       "text_layout_v3": {
         "kind": "text_layout",
         "version": 3,
@@ -102,6 +108,12 @@
         "path": "workspaces/thumbnails/compiler/layer_specs/ch04_text_layout_sample_v3.yaml",
         "name": "ch04_text_layout_sample_v3"
       },
+      "ch04_text_layout_mincho_v3": {
+        "kind": "text_layout",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch04_text_layout_mincho_v3.yaml",
+        "name": "ch04_text_layout_mincho_v3"
+      },
       "ch06_image_prompts_sample_v3": {
         "kind": "image_prompts",
         "version": 3,
@@ -160,7 +172,7 @@
         {
           "id": "ch01_memo9_background_right_subject_v1",
           "name": "CH01: 背景生成（メモ9 / NO TEXT / 右人物）v1",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "YouTube thumbnail background image, 16:9 (1920x1080).\\n\\nSTYLE (LOCKED):\\nStrong illustration look (NOT photoreal), Japanese ink + watercolor hybrid, visible brush strokes, subtle lineart, slightly poster-like shading, high contrast, cinematic lighting.\\n\\nCOMPOSITION (LOCKED):\\nPlace the main subject on the FAR RIGHT, pushing to the edge. The subject must occupy the rightmost 40–45% of the canvas with NO extra gap on the right. The left 55–60% must remain open for typography overlay (but keep it dark and smooth, low detail).\\n\\nSUBJECT (DEFAULT):\\nA powerful, dignified Buddhist monk, elderly, calm expression, shaved head, wearing traditional orange-brown robes, illustration style, strong silhouette.\\n\\nSUBJECT / PROP (OVERRIDE, optional):\\n{{thumbnail_prompt}}\\n\\nLIGHTING (LOCKED):\\nWarm golden halo behind the head, golden rim light, small ember-like particles concentrated near the monk only (avoid particles on the left text area).\\n\\nBACKGROUND (LOCKED):\\nNear-black / deep charcoal background, soft smoke/mist. Very faint temple silhouettes ONLY behind the subject on the right side. The left text area should be darker and smoother with minimal texture.\\n\\nABSOLUTE RESTRICTIONS:\\nNO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.\\n",
           "negative_prompt": "text, letters, numbers, watermark, logo, signature, UI",
           "notes": "メモ9: 背景は文字なし固定で再現性優先。文字はローカル合成（Layer Specs v3）で乗せる。",

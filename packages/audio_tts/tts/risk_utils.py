@@ -19,45 +19,86 @@ from factory_common.paths import audio_pkg_root, repo_root
 def _normalize(text: str) -> str:
     table = str.maketrans("０１２３４５６７８９．，", "0123456789.,")
     normalized = (text or "").translate(table)
-    return re.sub(r"[\s、。・,，\.．]", "", normalized)
+    # VOICEVOX kana contains accent markers and separators like: "' / _"
+    # Strip them so we can compare to MeCab readings (plain kana).
+    normalized = normalized.replace("'", "").replace("’", "").replace("/", "").replace("_", "")
+    # Treat mid-dot as punctuation for reading comparisons.
+    normalized = normalized.replace("・", "")
+    # Keep only kana + ASCII alnum (drop punctuation, quotes, brackets, etc.).
+    return re.sub(r"[^0-9A-Za-z\u3040-\u309f\u30a0-\u30ff]", "", normalized)
 
 def _katakana_to_hiragana(text: str) -> str:
     table = {code: code - 0x60 for code in range(ord("ァ"), ord("ヴ") + 1)}
     return text.translate(table)
 
+_VOWEL_A = set("アカサタナハマヤラワガザダバパァャヮ")
+_VOWEL_I = set("イキシチニヒミリギジヂビピィ")
+_VOWEL_U = set("ウクスツヌフムユルグズヅブプゥュヴ")
+_VOWEL_E = set("エケセテネヘメレゲゼデベペェ")
+_VOWEL_O = set("オコソトノホモヨロヲゴゾドボポォョ")
+
+def _collapse_long_vowels(text: str) -> str:
+    """
+    Collapse long vowels for safe comparisons.
+
+    Goal:
+    - Treat length differences as cosmetic (e.g., コーヒー vs コヒー vs コオヒイ).
+    - Avoid false positives in fail-fast mismatch detection.
+
+    Strategy:
+    - Drop the Katakana long-vowel mark "ー".
+    - Drop vowel-extension kana that follow a kana with the same vowel class:
+      - A-class + ア
+      - I-class + イ
+      - U-class + ウ
+      - E-class + (エ|イ)  # エー / エイ
+      - O-class + (オ|ウ)  # オー / オウ
+    """
+    if not text:
+        return text
+    out: list[str] = []
+    prev: str | None = None
+    for ch in str(text):
+        if ch == "ー":
+            continue
+        if prev:
+            if prev in _VOWEL_A and ch == "ア":
+                continue
+            if prev in _VOWEL_I and ch == "イ":
+                continue
+            if prev in _VOWEL_U and ch == "ウ":
+                continue
+            if prev in _VOWEL_E and ch in {"エ", "イ"}:
+                continue
+            if prev in _VOWEL_O and ch in {"オ", "ウ"}:
+                continue
+        out.append(ch)
+        prev = ch
+    return "".join(out)
 
 def normalize_for_compare(kana: str) -> str:
     """
     Normalize kana for comparing MeCab vs VOICEVOX:
     - Hiragana -> Katakana
-    - Remove long vowel marks
-    - Collapse typical VOICEVOX "audibility" variations (コオ/コウ, キョオ/キョウ, テエ/テイ, etc.)
+    - Strip VOICEVOX markers/punctuation
+    - Collapse long vowels (ー / vowel repeats / オウ / エイ)
+    - Unify orthographic variants (ヅ/ズ, ヂ/ジ, ヲ/オ)
     """
     if kana is None:
         return ""
     text = str(kana)
     text = text.translate({code: code + 0x60 for code in range(ord("ぁ"), ord("ゖ") + 1)})  # ひらがな→カタカナ
-    text = text.replace("ー", "")
-    replacements = [
-        ("オオ", "オウ"),
-        ("オー", "オウ"),
-        ("コオ", "コウ"),
-        ("ゴオ", "ゴウ"),
-        ("ソオ", "ソウ"),
-        ("ゾオ", "ゾウ"),
-        ("トオ", "トウ"),
-        ("ドオ", "ドウ"),
-        ("ホオ", "ホウ"),
-        ("モオ", "モウ"),
-        ("ョオ", "ョウ"),
-        ("テエ", "テイ"),
-        ("デエ", "デイ"),
-        ("キョオ", "キョウ"),
-        ("ギョオ", "ギョウ"),
-    ]
-    for a, b in replacements:
-        text = text.replace(a, b)
-    return _normalize(text)
+    text = _normalize(text)
+    # Orthographic variants that should not trigger audits
+    # (e.g., ヅ/ズ, ヂ/ジ, ヲ/オ are effectively the same in modern pronunciation).
+    text = text.replace("ヅ", "ズ").replace("ヂ", "ジ").replace("ヲ", "オ")
+    text = _collapse_long_vowels(text)
+    # Colloquial contraction normalization:
+    # - MeCab often yields: コウイウ / ソウイウ / ドウイウ
+    # - VOICEVOX often yields: コーユー / ソーユー / ドーユー (or similar)
+    # After long-vowel collapsing, these become: コイウ / ソイウ / ドイウ vs コユ / ソユ / ドユ.
+    text = text.replace("コイウ", "コユ").replace("ソイウ", "ソユ").replace("ドイウ", "ドユ")
+    return text
 
 
 def _normalize_voicevox_kana(text: str) -> str:

@@ -1,0 +1,78 @@
+# Codex exec layer (non-interactive)
+#
+# Goal:
+# - Replace high-frequency "LLM API" calls with `codex exec` (subscription) when possible.
+# - Default behavior (non-tts): if `codex exec` fails (logged out / rate-limited / unavailable / bad output),
+#   fall back to the existing LLMRouter (OpenRouter/Azure/etc) path.
+#
+# Safety:
+# - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
+# - Never route any **台本パイプライン task** (`script_*`) through Codex exec.
+#   台本は LLM API（Fireworks / DeepSeek）固定にして、文体ドリフトを防ぐ。
+# - IMPORTANT (TTS): `tts_*` は AIエージェント（Codex）主担当（pending運用）に寄せる。
+#   ここでの codex exec（非対話CLI）とは別物なので、TTSを codex exec へ寄せない。
+# - Non-A-text tasks (research/outline/validation reports/visual planning) can attempt Codex first and fall back
+#   to the existing LLMRouter API path.
+#
+# Enablement:
+# - In normal shells: disabled by default (enabled: false).
+# - In Codex-managed shells (CODEX_MANAGED_BY_NPM=1): auto-enable by default.
+# - During pytest: disabled unless explicitly allowed via env.
+#
+# Config precedence:
+# - `configs/codex_exec.local.yaml` (if present) overrides this file.
+# - Env vars override both (see `ssot/ops/OPS_ENV_VARS.md`).
+
+enabled: false
+# IMPORTANT (ops default):
+# - Codex exec must be explicitly enabled per-run via LLM_EXEC_SLOT (slot 1).
+# - Do NOT auto-enable just because the shell happens to be Codex-managed.
+auto_enable_when_codex_managed: false
+
+# Codex CLI profile from `~/.codex/config.toml` (ensures non-interactive runs don't require approvals).
+profile: claude-code
+
+# Always keep this read-only for pipeline runs.
+sandbox: read-only
+
+# Default timeout per `codex exec` call (seconds).
+timeout_s: 180
+timeout_s_by_task:
+  # Visual planning can be long (large SRT + JSON schema); allow enough time to avoid API fallback.
+  visual_section_plan: 900
+  visual_image_cues_plan: 900
+
+# Optional: pass `-m <MODEL>` to `codex exec`.
+# Empty means "use Codex CLI defaults".
+model: ""
+
+selection:
+  # Try Codex first when task name matches these prefixes.
+  include_task_prefixes:
+    - visual_
+
+  # And/or explicit tasks (useful for non-script tasks).
+  include_tasks:
+    - belt_generation
+    - title_generation
+    - thumbnail_comment_patch
+
+  # Never try Codex first for these tasks.
+  exclude_tasks:
+    - image_generation
+    - web_search_openrouter
+    # A-text body writing (chapters / assembled*.md)
+    - script_chapter_draft
+    - script_cta
+    - script_format
+    # Final A-text overwrites (quality gate / fixes / final polish)
+    - script_chapter_review
+    - script_a_text_seed
+    - script_a_text_quality_fix
+    - script_a_text_quality_extend
+    - script_a_text_quality_expand
+    - script_a_text_quality_shrink
+    - script_a_text_final_polish
+    - script_a_text_rebuild_plan
+    - script_a_text_rebuild_draft
+    - script_semantic_alignment_fix

@@ -202,6 +202,7 @@ flowchart TD
 入口:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to MMM`
   - 調査も消す（高確度で混入源を潰す）: `--wipe-research`
+  - 安全策（蘇生防止）: `metadata.deleted_by_human=1` または `metadata.skip_script_regeneration=1` が立っている回は **デフォルトでスキップ**される。意図して含める場合のみ `--include-deleted`。
 
 何が起きる:
 - 対象回を `reset` してから、`script_validation` まで再生成する（=旧台本を引きずらない）。

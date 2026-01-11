@@ -1,0 +1,613 @@
+version: 3
+name: CH01_text_layout_memo9_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+coordinate_system: 'normalized_0_to_1'
+global:
+  safe_zones:
+    left_TSZ: {x0: 0.00, x1: 0.60}
+  overlays:
+    left_tsz:
+      enabled: true
+      color: '#000000'
+      x0: 0.00
+      x1: 0.66
+      alpha_left: 0.60
+      alpha_right: 0.00
+  fonts:
+    # Match CH24-level impact: prefer "Black/Heavy" JP sans when available, then fall back to system-heavy fonts.
+    headline_sans_priority: ['Noto Sans JP Black','Source Han Sans JP Heavy','BIZ UDPGothic Bold','Hiragino Sans W9','Hiragino Sans W8','ヒラギノ角ゴシック W9','ヒラギノ角ゴシック W8','Hiragino Kaku Gothic Std W8','Yu Gothic UI Bold','Hiragino Sans W7','Hiragino Sans W6']
+    # CH01 251-256 font redo: use repo-tracked NotoSansJP variable font at "Black" weight for CH24-like impact.
+    headline_sans_ch24_black: ['workspaces/thumbnails/assets/_fonts/NotoSansJP_wght.ttf@Black','Hiragino Sans W9','ヒラギノ角ゴシック W9','Hiragino Sans W8','ヒラギノ角ゴシック W8']
+  effects_defaults:
+    # CH24 benchmark: extreme stroke + bold shadow (readable on any bg)
+    stroke: {color: '#000000', width_px: 24, join: 'round'}
+    shadow: {color: '#000000', alpha: 0.95, offset_px: [16,16], blur_px: 12}
+    glow: {color: '#ffffff', alpha: 0.00, blur_px: 0}
+    white_fill: {mode: 'solid', color: '#FFFFFF'}
+    yellow_fill: {mode: 'solid', color: '#FFD400'}
+    red_fill: {mode: 'solid', color: '#FF2A2A'}
+  fit_rules:
+    - '行数は可変。原則1行固定で、長い場合は縮小して収める。'
+    - '行内の色分けはタグで指定: [y]..[/y] [r]..[/r]（slot fill はデフォルト色）'
+
+templates:
+  M09_left_3line_strong:
+    description: 'メモ9: 左3行固定（右に人物、左に強い文字）'
+    slots:
+      line1:
+        box: [0.0400, 0.0700, 0.5600, 0.2200]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 220
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 22
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+      line2:
+        box: [0.0400, 0.2900, 0.5600, 0.3600]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 460
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 32
+        shadow: true
+        shadow_override: {alpha: 0.98, offset_px: [18,18], blur_px: 12}
+        glow: false
+      line3:
+        box: [0.0400, 0.7000, 0.5600, 0.2200]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 260
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 24
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+
+  M09_left_3line_ch24_black:
+    description: 'メモ9: 左3行固定（CH24相当フォント: NotoSansJP Black）'
+    slots:
+      line1:
+        box: [0.0400, 0.0700, 0.5600, 0.2200]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 220
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 22
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+      line2:
+        box: [0.0400, 0.2900, 0.5600, 0.3600]
+        font: headline_sans_ch24_black
+        fill: yellow_fill
+        base_size_px: 460
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 32
+        shadow: true
+        shadow_override: {alpha: 0.98, offset_px: [18,18], blur_px: 12}
+        glow: false
+      line3:
+        box: [0.0400, 0.7000, 0.5600, 0.2200]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 260
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 24
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+
+  M09_left_3line_ch24_black_compact:
+    description: 'メモ9: 左3行固定（CH24 Black / 行間を詰めてバランス改善）'
+    slots:
+      line1:
+        box: [0.0400, 0.0700, 0.5600, 0.2200]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 210
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 22
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+      line2:
+        box: [0.0400, 0.2900, 0.5600, 0.3600]
+        font: headline_sans_ch24_black
+        fill: yellow_fill
+        base_size_px: 450
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 32
+        shadow: true
+        shadow_override: {alpha: 0.98, offset_px: [18,18], blur_px: 12}
+        glow: false
+      line3:
+        box: [0.0400, 0.6400, 0.5600, 0.2600]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 250
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 24
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+
+  M09_left_3line_ch24_benchmark_030:
+    description: 'CH24ベンチマーク(030)の比率で3行（上=条件/中=キーワード/下=結論を強調）'
+    slots:
+      line1:
+        # CH24 kobo_text_layer_spec_30.json (1280x720) の box/size を 1920x1080 に合わせた比率
+        box: [0.0453, 0.0778, 0.5781, 0.2083]
+        font: headline_sans_ch24_black
+        fill: white_fill
+        base_size_px: 132
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 18
+        shadow: true
+        shadow_override: {alpha: 0.60, offset_px: [9,9], blur_px: 12}
+        glow: false
+      line2:
+        box: [0.0453, 0.3194, 0.5781, 0.2361]
+        font: headline_sans_ch24_black
+        fill: yellow_fill
+        base_size_px: 180
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 21
+        shadow: true
+        shadow_override: {alpha: 0.60, offset_px: [9,9], blur_px: 12}
+        glow: false
+      line3:
+        box: [0.0453, 0.5694, 0.5781, 0.2639]
+        font: headline_sans_ch24_black
+        fill: red_fill
+        base_size_px: 198
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 21
+        shadow: true
+        shadow_override: {alpha: 0.60, offset_px: [9,9], blur_px: 12}
+        glow: false
+
+  M09_left_2line_strong:
+    description: 'メモ9: 左2行（主張を太く・読みやすく）'
+    slots:
+      line1:
+        box: [0.0400, 0.1000, 0.5600, 0.3200]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 280
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 24
+        shadow: true
+        shadow_override: {alpha: 0.95, offset_px: [16,16], blur_px: 12}
+        glow: false
+      line2:
+        box: [0.0400, 0.4400, 0.5600, 0.4600]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 520
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 34
+        shadow: true
+        shadow_override: {alpha: 0.98, offset_px: [18,18], blur_px: 12}
+        glow: false
+
+  M09_left_1line_hero:
+    description: 'メモ9: 左1行（短い強ワード特化）'
+    slots:
+      line2:
+        box: [0.0400, 0.2800, 0.5600, 0.5600]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 650
+        align: left
+        tracking: -2
+        max_lines: 1
+        stroke: true
+        stroke_width_px: 36
+        shadow: true
+        shadow_override: {alpha: 0.98, offset_px: [20,20], blur_px: 12}
+        glow: false
+
+items:
+  - video_id: CH01-001
+    title: 'むしろ孤独は強みに変わる | ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-002
+    title: '完璧じゃなくていい | ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-003
+    title: '苦しみはむしろプラスになる | ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-004
+    title: '自分を縛る枠を壊す！自我の解体で見つける真の幸せ'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-005
+    title: '反逆の瞑想 - 「ルールを破る瞑想、心の自由を解き放つ」'
+    template_id: M09_left_3line_strong
+    text:
+      line1: ''
+      line2: ''
+      line3: ''
+
+  - video_id: CH01-251
+    title: '【言葉は刃】人間関係が壊れる「禁句」7つ。言った瞬間に信用が死にます｜ブッダの教え'
+    template_id: M09_left_3line_ch24_black
+    text:
+      line1: 'その一言で'
+      line2: '[r]地雷[/r]'
+      line3: '信用が死ぬ'
+
+  - video_id: CH01-252
+    title: '【ブッダの警鐘】関わると寿命が縮みます。あなたの「精気」を吸い取る人の正体（5タイプ）'
+    template_id: M09_left_3line_ch24_black
+    text:
+      line1: '離れろ'
+      line2: '[r]精気泥棒[/r]'
+      line3: '寿命が縮む'
+
+  - video_id: CH01-253
+    title: '友達がいなくても幸せな人の特徴。まともな人ほど「孤独」が強くなる理由'
+    template_id: M09_left_3line_ch24_black
+    text:
+      line1: 'まともな人ほど'
+      line2: '孤独'
+      line3: '強くなる'
+
+  - video_id: CH01-254
+    title: '【心を守る】陰口を叩かれても平気になる方法。ブッダが教える「受け流し3呼吸」'
+    template_id: M09_left_3line_ch24_black
+    text:
+      line1: '陰口でも'
+      line2: '3呼吸'
+      line3: '心は折れない'
+
+  - video_id: CH01-255
+    title: '正直者がバカを見ない生き方。尽くすほど雑に扱われる「優しすぎる人」への最終通告'
+    template_id: M09_left_3line_ch24_black
+    text:
+      line1: '尽くすな'
+      line2: '守れ'
+      line3: '自分の心'
+
+  - video_id: CH01-256
+    title: '【ブッダの教え】老後は友達を減らしなさい。それが最強の選択です'
+    template_id: M09_left_3line_ch24_black
+    text:
+      line1: '老後は'
+      line2: '友達'
+      line3: '減らせ'
+
+  - video_id: CH01-257
+    title: '【ブッダの警鐘】親の期待で人生が壊れます。「いい子」をやめられない人の苦しみ'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '親の期待で'
+      line2: 'いい子'
+      line3: '[r]人生崩壊[/r]'
+
+  - video_id: CH01-258
+    title: '【完全論破】マウントを取る人が一番嫌がること。自慢する人は最後に孤独になります'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '自慢は'
+      line2: '[r]毒[/r]'
+      line3: '最後は孤独'
+
+  - video_id: CH01-259
+    title: '【静かに勝つ一言】見下された瞬間に心が折れない返し方。使える「言葉」3選'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '見下しに'
+      line2: '一言'
+      line3: '即返す'
+
+  - video_id: CH01-260
+    title: '【警告】完璧主義は心を壊します。自信がない人ほど自分を追い詰める理由'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '完璧主義'
+      line2: '[r]地獄[/r]'
+      line3: '心が壊れる'
+
+  - video_id: CH01-261
+    title: '小さな「ありがとう」が人生を変える理由｜幸せな人がやっているたった一つの習慣'
+    template_id: M09_left_3line_strong
+    text:
+      line1: 'たった一つ'
+      line2: 'ありがとう'
+      line3: '人生が変わる'
+
+  - video_id: CH01-262
+    title: '妬まれたら勝ちです。嫉妬された時に絶対にやってはいけない3つ｜ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '妬まれたら'
+      line2: '勝ち'
+      line3: '3つやるな'
+
+  - video_id: CH01-263
+    title: '【絶対に関わるな】あなたの時間を奪う人の特徴7つ。人生が静かに壊れます'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '絶対に'
+      line2: '[r]時間泥棒[/r]'
+      line3: '関わるな'
+
+  - video_id: CH01-264
+    title: '貧乏神に取り憑かれます。老後のお金不安が消えない人が捨てられない「最悪の習慣」'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '老後の不安'
+      line2: '消える'
+      line3: '足るを知れ'
+
+  - video_id: CH01-265
+    title: '手遅れになる前に聞いてください。孤独死より怖い「後悔」を減らす話'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '手遅れ前に'
+      line2: '後悔'
+      line3: '減らせ'
+
+  - video_id: CH01-266
+    title: '【これが本当の罰】怒りは心を破壊します。イライラの正体は「悲しみ」でした'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '怒りは'
+      line2: '悲しみ'
+      line3: 'の仮面'
+
+  - video_id: CH01-267
+    title: '【絶対にやるな】断れない人が人生を損する理由。ノーと言える人が使う言い換え7選'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '断れない人'
+      line2: 'NO'
+      line3: '言い換え7選'
+
+  - video_id: CH01-268
+    title: '【ブッダの警鐘】優しすぎる人ほど壊れます。境界線がない人が最後に失うもの'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '壊れる前に'
+      line2: '境界線'
+      line3: '持て'
+
+  - video_id: CH01-269
+    title: '【言葉は刃】陰口が止まらない人が心で失っているもの｜ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '噂話は'
+      line2: '業'
+      line3: '自分に返る'
+
+  - video_id: CH01-270
+    title: '【因果の法則】運がいい人は不運を味方にします。人生が動く習慣3つ'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '不運は'
+      line2: '味方'
+      line3: '運が動く'
+
+  - video_id: CH01-271
+    title: '【黙らせ方】会話泥棒の心理と正しい対処法。人の話を奪う人が信頼を失う理由'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '会話泥棒'
+      line2: '黙らせる'
+      line3: '対処法'
+
+  - video_id: CH01-272
+    title: '【無心こそ最強】SNSの比較地獄から抜け出す方法。心が静かになる「無関心」の技術'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '見ない'
+      line2: '比べない'
+      line3: '無心が最強'
+
+  - video_id: CH01-273
+    title: '【警告】過去を捨てられない人は晩年が地獄になります。後悔と恨みを手放す「放下着」ルーティン'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '過去は'
+      line2: '捨てろ'
+      line3: '晩年が地獄'
+
+  - video_id: CH01-274
+    title: '去る者は追うな。縁が切れた時こそ運が上がる理由｜ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '去る者は'
+      line2: '追うな'
+      line3: '運が上がる'
+
+  - video_id: CH01-275
+    title: '【見抜き方】謝れない人のプライドが人生を壊します。最後に失うもの｜ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '謝れない'
+      line2: '[r]地獄[/r]'
+      line3: '関係が死ぬ'
+
+  - video_id: CH01-276
+    title: '最高の復讐は「無視」です。嫌味な人に効く仏教的な返し'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '最高の復讐'
+      line2: '無視'
+      line3: '怒らず勝て'
+
+  - video_id: CH01-277
+    title: '絶対に話してはいけない5つのこと。秘密を守れない人が失う「信用」'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '信用を守れ'
+      line2: '秘密'
+      line3: '絶対漏らすな'
+
+  - video_id: CH01-278
+    title: '【沈黙の智慧】賢い人が絶対にしない会話の癖｜ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '賢い人は'
+      line2: '言わない'
+      line3: 'この一言'
+
+  - video_id: CH01-279
+    title: '【関わると不幸になる】会うと疲れる人の正体。距離を置くべき相手の特徴'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '会うと'
+      line2: '削られる'
+      line3: '距離を置け'
+
+  - video_id: CH01-280
+    title: '人に期待するほど怒りが増えます。期待を捨てると心が静かになる理由'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '期待は'
+      line2: '毒'
+      line3: '怒りが増える'
+
+  - video_id: CH01-281
+    title: '【侘び寂びの真髄】本当に価値あるものは何か。執着を捨てると見える美しさ'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '執着を'
+      line2: '捨てろ'
+      line3: '引き算の美'
+
+  - video_id: CH01-282
+    title: '【嫉妬の毒】他人の成功を喜べない人の心が壊れていく理由'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '嫉妬は'
+      line2: '[r]毒[/r]'
+      line3: '自分を焼く'
+
+  - video_id: CH01-283
+    title: '【孤独の価値】一人を楽しめる人が最後に勝つ理由｜ブッダの教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '一人を'
+      line2: '楽しめ'
+      line3: '最後に勝つ'
+
+  - video_id: CH01-284
+    title: '【怒りの正体】カッとなる前に知っておくべき仏教の教え。冷静さを取り戻す方法'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '後悔する前に'
+      line2: '怒り'
+      line3: '制せ'
+
+  - video_id: CH01-285
+    title: '【老いを味方に】年を取るほど人生が良くなる人の共通点'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '老いは'
+      line2: '進化'
+      line3: '恐れるな'
+
+  - video_id: CH01-286
+    title: '【七転び八起き】失敗から立ち直れない人が知るべき仏教の教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '失敗は'
+      line2: '始まり'
+      line3: '七転八起'
+
+  - video_id: CH01-287
+    title: '【執着の手放し方】手放せないものが多い人ほど苦しむ理由'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '執着は'
+      line2: '苦しみ'
+      line3: '手放せ'
+
+  - video_id: CH01-288
+    title: '【他人の評価】人の目を気にしすぎる人が自分らしく生きる方法'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '他人の評価'
+      line2: '風'
+      line3: '気にするな'
+
+  - video_id: CH01-289
+    title: '【許しの力】許せない人がいる時に知るべき仏教の教え'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '許すと'
+      line2: '解放'
+      line3: '心が軽い'
+
+  - video_id: CH01-290
+    title: '【死の恐怖】死が怖い人が知るべき仏教の教え。恐怖を和らげる考え方'
+    template_id: M09_left_3line_strong
+    text:
+      line1: '死は'
+      line2: '変化'
+      line3: '怖がるな'

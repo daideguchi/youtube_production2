@@ -1,47 +1,47 @@
 {
   "ch01": {
-    "name": "仏教・科学 人生の道標",
-    "storage_name": "仏教・科学 人生の道標",
+    "name": "人生の道標 - 癒される仏教",
+    "storage_name": "人生の道標 - 癒される仏教",
     "spreadsheet_id": "1xfaUSqR2lE4MxC4_6O6aiodWmOm3quRBxAQzWk1eTzg",
     "description": "仏教の教えと現代科学を融合した人生哲学",
     "thumbnail_columns": ["サムネタイトル", "サムネ用DALL-Eプロンプト"],
     "specific_columns": []
   },
   "ch02": {
-    "name": "心理学・モチベ 静寂の哲学",
-    "storage_name": "心理学・モチベ 静寂の哲学",
+    "name": "静寂の哲学",
+    "storage_name": "静寂の哲学",
     "spreadsheet_id": "1cNyYk_BBUx2DZ3iTxNnOF8lxQ84Gx2e44An4eI1mQ5o",
     "description": "心理学とモチベーションを哲学的に考察",
     "thumbnail_columns": ["サムネタイトル", "DALL-Eプロンプト"],
     "specific_columns": ["ターゲット層"]
   },
   "ch03": {
-    "name": "シニア健康",
-    "storage_name": "シニア健康",
+    "name": "【シニアの健康】朗読図書館",
+    "storage_name": "【シニアの健康】朗読図書館",
     "spreadsheet_id": "1SRsNFxhJHYqAtDlzVO15l2y5iGm05HTBdlf7OzBmzIg",
     "description": "60歳以上の高齢者向け健康情報",
     "thumbnail_columns": ["サムネタイトル", "AI向け画像生成プロンプト (背景用)", "テキスト配置・デザイン指示 (人間/ツール向け)"],
     "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）", "DALL-Eプロンプト（URL・テキスト指示込み）"]
   },
   "ch04": {
-    "name": "心理・好奇心 隠れ書庫アカシック",
-    "storage_name": "心理・好奇心 隠れ書庫アカシック",
+    "name": "隠れ書庫アカシック",
+    "storage_name": "隠れ書庫アカシック",
     "spreadsheet_id": "1kuIX-pG7c8wBjtsIbnD0KCH-V0DIfznbfV9vP00aJew",
     "description": "心理学と好奇心をテーマにした知的コンテンツ",
     "thumbnail_columns": ["サムネタイトル", "AI向け画像生成プロンプト (背景用)", "テキスト配置・デザイン指示 (人間/ツール向け)"],
     "specific_columns": ["内容（企画要約）"]
   },
   "ch05": {
-    "name": "シニア・恋愛 シニア恋愛",
-    "storage_name": "シニア・恋愛 シニア恋愛",
+    "name": "シニアの温かい恋愛【体験談】",
+    "storage_name": "シニアの温かい恋愛【体験談】",
     "spreadsheet_id": "1c6SgGcNmHFPYO7LH-EYjhbOdDKqNl7ckxIEPTTsmlIw",
     "description": "シニア層の恋愛事情に寄り添うコンテンツ",
     "thumbnail_columns": ["サムネタイトル", "AI向け画像生成プロンプト (背景用)", "GPT用プロンプト（日本人シニア女性）"],
     "specific_columns": ["台本本文"]
   },
   "ch06": {
-    "name": "都市伝説・闇 都市伝説のダーク図書館",
-    "storage_name": "都市伝説・闇 都市伝説のダーク図書館",
+    "name": "都市伝説のダーク図書館",
+    "storage_name": "都市伝説のダーク図書館",
     "spreadsheet_id": "1nTiQ-LNLlq_IsXcZvN43AKpgKYxtwSf5RTz1SjsFtcM",
     "description": "都市伝説と闇の世界を探る",
     "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
@@ -72,8 +72,8 @@
     "specific_columns": ["企画意図", "ターゲット層", "具体的な内容（話の構成案）"]
   },
   "ch10": {
-    "name": "人生を変える偉人思考【今日から実装】",
-    "storage_name": "人生を変える偉人思考【今日から実装】",
+    "name": "人生を変える偉人思考",
+    "storage_name": "人生を変える偉人思考",
     "spreadsheet_id": "",
     "description": "偉人の思考を今日から実装できる形で届ける長尺チャンネル",
     "thumbnail_columns": ["サムネタイトル上", "サムネタイトル下", "サムネ画像プロンプト（URL・テキスト指示込み）"],
@@ -88,8 +88,8 @@
     "specific_columns": []
   },
   "ch12": {
-    "name": "ブッダの黄昏夜話",
-    "storage_name": "ブッダの黄昏夜話",
+    "name": "ブッダの教え【人生が輝く知恵】",
+    "storage_name": "ブッダの教え【人生が輝く知恵】",
     "spreadsheet_id": "",
     "description": "夜の不安を、ブッダの教えで“わかる言葉”にして静める。",
     "thumbnail_columns": [],
@@ -104,8 +104,8 @@
     "specific_columns": []
   },
   "ch14": {
-    "name": "ブッダの執着解除",
-    "storage_name": "ブッダの執着解除",
+    "name": "ブッダの教え【執着からの解放】",
+    "storage_name": "ブッダの教え【執着からの解放】",
     "spreadsheet_id": "",
     "description": "後悔・恨み・比較・お金不安…ほどけない執着を、静かにほどく。",
     "thumbnail_columns": [],
@@ -120,8 +120,8 @@
     "specific_columns": []
   },
   "ch16": {
-    "name": "ブッダの老後整え方",
-    "storage_name": "ブッダの老後整え方",
+    "name": "ブッダの教え【心を整える】",
+    "storage_name": "ブッダの教え【心を整える】",
     "spreadsheet_id": "",
     "description": "老後の不安を煽らず、安心が増える“整える順番”を渡す。",
     "thumbnail_columns": [],
@@ -168,8 +168,8 @@
     "specific_columns": []
   },
   "ch22": {
-    "name": "老後の友人関係ラボ",
-    "storage_name": "老後の友人関係ラボ",
+    "name": "シニアの心を軽くする物語",
+    "storage_name": "シニアの心を軽くする物語",
     "spreadsheet_id": "",
     "description": "老後の友人関係を、物語で整える。",
     "thumbnail_columns": [],

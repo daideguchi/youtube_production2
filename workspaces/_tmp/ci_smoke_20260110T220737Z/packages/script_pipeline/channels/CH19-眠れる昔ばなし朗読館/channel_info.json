@@ -1,0 +1,83 @@
+{
+  "channel_id": "CH19",
+  "name": "眠れる昔ばなし朗読館",
+  "description": "日本と世界の昔ばなし・童話・民話を、ゆっくり朗読する睡眠用チャンネルです。\n刺激の強い表現は抑え、寝落ち・作業用に淡々と進む長時間の語りに整えています。\n\n音声：VOICEVOX（青山流星）",
+  "youtube_description": "この動画は、日本と世界の昔ばなし・童話・民話を、静かに朗読する長時間コンテンツです。\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n\n【内容】\n・昔ばなし／童話／民話（刺激の強い表現は抑えて、やさしく整えます）\n\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n\n#昔ばなし #朗読 #寝落ち",
+  "default_tags": [
+    "昔ばなし",
+    "童話",
+    "民話",
+    "物語朗読",
+    "朗読",
+    "寝落ち",
+    "睡眠用",
+    "安眠",
+    "聞き流し",
+    "長時間",
+    "癒し",
+    "ナイトルーティン",
+    "作業用BGM",
+    "勉強用BGM",
+    "VOICEVOX",
+    "青山流星"
+  ],
+  "persona_path": "workspaces/planning/personas/CH19_PERSONA.md",
+  "template_path": "packages/script_pipeline/channels/CH19-眠れる昔ばなし朗読館/script_prompt.txt",
+  "script_prompt": "# CH19 台本プロンプト（眠れる昔ばなし朗読館）\n\n役割: あなたは「眠れる昔ばなし朗読館」の語り手。日本と世界の昔ばなし・童話・民話を、眠りへ誘うスローテンポで語る。\n\nゴール: 36,000〜44,000字の長尺台本。刺激を抑え、安心で終える。\n\n進め方: 導入は短く、すぐに物語へ入る。残酷・恐怖・大声の場面は刺激が強いので表現を和らげる。物語の区切りは `---` で静かな間を作る。最後に「今夜の言葉」や「一手」を短く渡して安心で終える。\n\n禁止: ホラー化、過激な残酷描写、ショッキングな展開の強調。原文の長文引用（現代翻訳の丸写し）。箇条書き・番号リストは禁止。\nポーズは `---` のみ許可。括弧や記号の多用は禁止。\n\n出力: 台本本文のみ。\n",
+  "audience_profile": "20〜60代中心。昔ばなしや童話を、ゆっくり朗読で聞き流しながら眠りたい人。",
+  "benchmarks": {
+    "version": 1,
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@kokoroshiawase",
+        "name": "こころしあわせ",
+        "url": "https://www.youtube.com/@kokoroshiawase",
+        "note": "体験談の語り口・結末の回収・余韻の残し方の参考"
+      }
+    ],
+    "script_samples": [
+      {
+        "base": "research",
+        "path": "シニア体験談/台本構成の参考",
+        "label": "参考台本/メモ",
+        "note": "構成/テンポ/表現を参考（表現は安全側へ調整）"
+      }
+    ],
+    "notes": "ベンチマークはUIから追加してください。"
+  },
+  "youtube_title": "眠れる昔ばなし朗読館",
+  "youtube_handle": "@nemureru_mukashibanashi",
+  "video_workflow": "capcut",
+  "production_sources": {
+    "voice_config_path": "packages/script_pipeline/audio/channels/CH19/voice_config.json",
+    "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
+    "thumbnails_default_template_id": null,
+    "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
+    "capcut_preset": null
+  },
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/ZQzWYjfFN8WgCfJj9veSMQfMyr4l6fQhEprLreOT16oAu-uT_ofUCYRqCBu421PUY-fd6_mj=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
+    "title": "眠れる昔ばなし朗読館",
+    "subscriber_count": 0,
+    "view_count": 0,
+    "video_count": 0,
+    "custom_url": "@nemureru_mukashibanashi",
+    "handle": "@nemureru_mukashibanashi",
+    "url": "https://www.youtube.com/channel/UCvqWiymij_Kcy6TY2IXS5Cw",
+    "updated_at": "2025-12-24T12:51:01.748513Z"
+  },
+  "youtube": {
+    "channel_id": "UCvqWiymij_Kcy6TY2IXS5Cw",
+    "title": "眠れる昔ばなし朗読館",
+    "custom_url": "@nemureru_mukashibanashi",
+    "handle": "@nemureru_mukashibanashi",
+    "url": "https://www.youtube.com/channel/UCvqWiymij_Kcy6TY2IXS5Cw",
+    "view_count": 0,
+    "subscriber_count": 0,
+    "video_count": 0,
+    "synced_at": "2026-01-07T23:41:03.545880+00:00",
+    "source": "UCvqWiymij_Kcy6TY2IXS5Cw"
+  }
+}

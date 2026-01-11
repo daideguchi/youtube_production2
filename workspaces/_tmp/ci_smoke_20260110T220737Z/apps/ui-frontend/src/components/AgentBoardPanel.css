@@ -1,0 +1,250 @@
+.agent-board {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agent-board__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.agent-board__title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.agent-board__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #666;
+  font-size: 12px;
+}
+
+.agent-board__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.agent-board__btn {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.agent-board__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.agent-board__btn--ghost {
+  background: #f7f7f7;
+}
+
+.agent-board__error {
+  padding: 10px;
+  border: 1px solid #f2b8b5;
+  background: #fff4f4;
+  color: #b3261e;
+  border-radius: 8px;
+  white-space: pre-wrap;
+}
+
+.agent-board__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 1100px) {
+  .agent-board__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .agent-board__panel:nth-child(3),
+  .agent-board__panel:nth-child(6) {
+    grid-column: 1 / -1;
+  }
+}
+
+.agent-board__panel {
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.agent-board__panel-title {
+  font-weight: 700;
+}
+
+.agent-board__table-wrap {
+  overflow: auto;
+}
+
+.agent-board__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.agent-board__table th,
+.agent-board__table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.agent-board__table th {
+  text-align: left;
+  color: #666;
+  font-weight: 600;
+}
+
+.agent-board__note {
+  max-width: 520px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-board__input,
+.agent-board__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.agent-board__threads {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+  max-height: 520px;
+}
+
+.agent-board__thread {
+  text-align: left;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fafafa;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.agent-board__thread--active {
+  border-color: #b4c6ff;
+  background: #f4f7ff;
+}
+
+.agent-board__thread-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.agent-board__thread-topic {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.agent-board__thread-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.agent-board__thread-sub {
+  font-size: 12px;
+  color: #444;
+  margin-top: 4px;
+}
+
+.agent-board__thread-preview {
+  font-size: 12px;
+  color: #666;
+  margin-top: 6px;
+  white-space: pre-wrap;
+}
+
+.agent-board__thread-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+  max-height: 560px;
+}
+
+.agent-board__thread-id {
+  color: #666;
+}
+
+.agent-board__note-card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+.agent-board__note-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.agent-board__note-topic {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.agent-board__note-body {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.agent-board__form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-board__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #444;
+}
+
+.agent-board__row {
+  display: flex;
+  gap: 8px;
+}
+
+.agent-board__mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.agent-board__muted {
+  color: #666;
+  font-size: 12px;
+}
+

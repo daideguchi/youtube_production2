@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="dark" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>案件概要ビュー（モック）</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Noto+Sans+JP:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              "surface-light": "#ffffff",
+              "surface-dark": "#1a202c",
+              "text-light": "#1a202c",
+              "text-dark": "#e2e8f0",
+              "text-muted-light": "#718096",
+              "text-muted-dark": "#a0aec0",
+              "border-light": "#e2e8f0",
+              "border-dark": "#4a5568",
+              "status-yellow": "#ECC94B",
+              "status-green": "#48BB78",
+              "status-red": "#F56565"
+            },
+            fontFamily: {
+              display: ["Space Grotesk", "Noto Sans JP", "sans-serif"]
+            },
+            borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="flex h-screen">
+      <aside class="flex-shrink-0 w-64 bg-surface-light dark:bg-surface-dark/30 border-r border-border-light dark:border-border-dark">
+        <div class="flex h-full flex-col justify-between p-4">
+          <div class="flex flex-col gap-6">
+            <div class="flex items-center gap-2 p-2">
+              <span class="material-symbols-outlined text-primary text-3xl">hub</span>
+              <h1 class="text-xl font-bold text-text-light dark:text-text-dark">AI品質管理ハブ</h1>
+            </div>
+            <div class="flex flex-col gap-2">
+              <a class="flex items-center gap-3 px-3 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-primary/10 rounded-lg" href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                <p class="text-sm font-medium leading-normal">ダッシュボード</p>
+              </a>
+              <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" href="#">
+                <span class="material-symbols-outlined">folder_managed</span>
+                <p class="text-sm font-bold leading-normal">案件管理</p>
+              </a>
+              <a class="flex items-center gap-3 px-3 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-primary/10 rounded-lg" href="#">
+                <span class="material-symbols-outlined">video_library</span>
+                <p class="text-sm font-medium leading-normal">ライブラリ</p>
+              </a>
+              <a class="flex items-center gap-3 px-3 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-primary/10 rounded-lg" href="#">
+                <span class="material-symbols-outlined">analytics</span>
+                <p class="text-sm font-medium leading-normal">分析</p>
+              </a>
+              <a class="flex items-center gap-3 px-3 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-primary/10 rounded-lg" href="#">
+                <span class="material-symbols-outlined">settings</span>
+                <p class="text-sm font-medium leading-normal">設定</p>
+              </a>
+            </div>
+          </div>
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3 p-2">
+              <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="山田太郎のアバター画像" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCvLAdUkTZKaz1CnQAn2E6P_eXgLx8DEQpzGEd1kApnEj-L3YsUyly-r3qP9UlsBam6nIW7AJI5VRPJouuj1fMXBYWXzLFye3PI8pfNelnTDWMVgjxZ2-8tWxZZTpVE5NFMTP9aT-ded7Jb5Ky2LJPgxFtH-_CNLBzXG8JiXEgHeStWmNAb7-GcZwOnsf8hc7tZaNk6xWPxKcFqZ5Dlhoujyi7QnDubXDi0ADz1gYmgTPs5SDeEFh5fQY6tpS6RAR3fxIG5HtaG4R8");'></div>
+              <div class="flex flex-col">
+                <h1 class="text-text-light dark:text-text-dark text-sm font-medium leading-normal">山田 太郎</h1>
+                <p class="text-text-muted-light dark:text-text-muted-dark text-xs font-normal leading-normal">管理者</p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-1">
+              <a class="flex items-center gap-3 px-3 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-primary/10 rounded-lg" href="#">
+                <span class="material-symbols-outlined">help</span>
+                <p class="text-sm font-medium leading-normal">ヘルプ</p>
+              </a>
+              <a class="flex items-center gap-3 px-3 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-primary/10 rounded-lg" href="#">
+                <span class="material-symbols-outlined">logout</span>
+                <p class="text-sm font-medium leading-normal">ログアウト</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <main class="flex-1 overflow-y-auto">
+        <div class="p-8 max-w-7xl mx-auto">
+          <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
+            <div class="flex flex-col gap-2">
+              <p class="text-3xl font-bold tracking-tight text-text-light dark:text-text-dark">AIナレーション動画案件#012</p>
+              <div class="flex items-center gap-2">
+                <p class="text-base text-text-muted-light dark:text-text-muted-dark">動画ID: AG-20241027-012</p>
+                <button class="flex items-center justify-center h-8 w-8 rounded-md bg-white dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-gray-700 border border-border-light dark:border-border-dark">
+                  <span class="material-symbols-outlined text-base">content_copy</span>
+                </button>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-white dark:bg-surface-dark text-text-light dark:text-text-dark text-sm font-bold border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-700">
+                <span class="material-symbols-outlined text-base">edit</span>
+                <span class="truncate">編集</span>
+              </button>
+              <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:bg-primary/90">
+                <span class="material-symbols-outlined text-base">play_circle</span>
+                <span class="truncate">プレビュー</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex gap-3 flex-wrap mb-6">
+            <div class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-status-yellow/20 px-3 text-status-yellow">
+              <span class="w-2 h-2 rounded-full bg-status-yellow"></span>
+              <p class="text-sm font-medium">校正中</p>
+            </div>
+            <div class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-gray-200 dark:bg-gray-700 px-3 text-text-muted-light dark:text-text-muted-dark">
+              <p class="text-sm font-medium">2023年度</p>
+            </div>
+            <div class="flex h-8 items-center justify-center gap-x-2 rounded-full bg-gray-200 dark:bg-gray-700 px-3 text-text-muted-light dark:text-text-muted-dark">
+              <p class="text-sm font-medium">製品紹介</p>
+            </div>
+          </div>
+          <div class="border-b border-border-light dark:border-border-dark mb-6">
+            <div class="flex gap-6">
+              <a class="flex items-center justify-center border-b-2 border-primary text-primary pb-3" href="#">
+                <p class="text-sm font-bold">概要</p>
+              </a>
+              <a class="flex items-center justify-center border-b-2 border-transparent text-text-muted-light dark:text-text-muted-dark pb-3 hover:text-text-light dark:hover:text-text-dark" href="#">
+                <p class="text-sm font-bold">台本</p>
+              </a>
+              <a class="flex items-center justify-center border-b-2 border-transparent text-text-muted-light dark:text-text-muted-dark pb-3 hover:text-text-light dark:hover:text-text-dark" href="#">
+                <p class="text-sm font-bold">音声・字幕</p>
+              </a>
+              <a class="flex items-center justify-center border-b-2 border-transparent text-text-muted-light dark:text-text-muted-dark pb-3 hover:text-text-light dark:hover:text-text-dark" href="#">
+                <p class="text-sm font-bold">履歴</p>
+              </a>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 flex flex-col gap-6">
+              <div class="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl">
+                <div class="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <div class="flex flex-col gap-1">
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">作成日</p>
+                    <p class="font-medium text-text-light dark:text-text-dark">2023-10-27</p>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">最終更新日</p>
+                    <p class="font-medium text-text-light dark:text-text-dark">2023-11-05</p>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">担当者</p>
+                    <p class="font-medium text-text-light dark:text-text-dark">佐藤 花子</p>
+                  </div>
+                  <div class="flex flex-col gap-1 col-span-1 sm:col-span-2 md:col-span-3">
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">プロジェクト</p>
+                    <p class="font-medium text-text-light dark:text-text-dark">2023年度Q4 新製品プロモーション</p>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl">
+                <div class="p-6">
+                  <h3 class="text-lg font-bold text-text-light dark:text-text-dark mb-4">コンテンツ要素ステータス</h3>
+                  <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                      <p class="font-medium text-text-light dark:text-text-dark">台本</p>
+                      <div class="flex h-7 items-center justify-center gap-x-2 rounded-full bg-status-green/20 px-3 text-status-green text-xs font-bold">完了</div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <p class="font-medium text-text-light dark:text-text-dark">音声</p>
+                      <div class="flex h-7 items-center justify-center gap-x-2 rounded-full bg-status-green/20 px-3 text-status-green text-xs font-bold">完了</div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <p class="font-medium text-text-light dark:text-text-dark">字幕</p>
+                      <div class="flex h-7 items-center justify-center gap-x-2 rounded-full bg-status-yellow/20 px-3 text-status-yellow text-xs font-bold">校正待ち</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lg:col-span-1 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl self-start">
+              <div class="p-6">
+                <h3 class="text-lg font-bold text-text-light dark:text-text-dark mb-4">アクティビティログ</h3>
+                <ul class="space-y-4">
+                  <li class="flex gap-4">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-lg">edit_note</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-text-light dark:text-text-dark">字幕の最終校正が完了しました。</p>
+                      <p class="text-xs text-text-muted-light dark:text-text-muted-dark">山田 太郎 • 2時間前</p>
+                    </div>
+                  </li>
+                  <li class="flex gap-4">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-lg">mic</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-text-light dark:text-text-dark">音声ファイルが生成されました。</p>
+                      <p class="text-xs text-text-muted-light dark:text-text-muted-dark">システム • 1日前</p>
+                    </div>
+                  </li>
+                  <li class="flex gap-4">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-lg">description</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-text-light dark:text-text-dark">台本が承認されました。</p>
+                      <p class="text-xs text-text-muted-light dark:text-text-muted-dark">佐藤 花子 • 3日前</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

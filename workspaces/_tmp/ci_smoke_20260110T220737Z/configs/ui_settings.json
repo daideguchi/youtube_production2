@@ -1,0 +1,66 @@
+{
+  "llm": {
+    "caption_provider": "openai",
+    "openai_api_key": null,
+    "openai_caption_model": "gpt-5-chat",
+    "openrouter_api_key": null,
+    "openrouter_caption_model": "qwen/qwen3-14b:free",
+    "phase_models": {
+      "caption": {
+        "label": "サムネキャプション",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      },
+      "script_rewrite": {
+        "label": "台本リライト",
+        "provider": "openrouter",
+        "model": "deepseek/deepseek-v3.2-exp"
+      },
+      "natural_command": {
+        "label": "ナチュラルコマンド",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      },
+      "research": {
+        "label": "リサーチ",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      },
+      "audio_text": {
+        "label": "音声テキスト生成",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      },
+      "review": {
+        "label": "レビュー",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      },
+      "enhance": {
+        "label": "エンハンス",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      },
+      "image_generation": {
+        "label": "画像生成",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash-image"
+      },
+      "context_analysis": {
+        "label": "文脈解析",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      },
+      "image_generation_gemini3": {
+        "label": "画像生成 (Gemini 3)",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash-image"
+      },
+      "context_analysis_gemini3": {
+        "label": "文脈解析 (Gemini 3)",
+        "provider": "azure",
+        "model": "gpt-5-mini"
+      }
+    }
+  }
+}

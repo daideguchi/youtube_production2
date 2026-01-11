@@ -1,6 +1,6 @@
 {
   "channel_id": "CH05",
-  "name": "シニア・恋愛 シニア恋愛",
+  "name": "シニアの温かい恋愛【体験談】",
   "persona_path": "workspaces/planning/personas/CH05_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH05-シニア恋愛/script_prompt.txt",
   "branding": {
@@ -73,7 +73,7 @@
     "VOICEVOX",
     "波音リツ"
   ],
-  "youtube_description": "この動画は、「シニア・恋愛 シニア恋愛」の長時間コンテンツです。\nシニア層の恋愛事情に寄り添うコンテンツ\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：波音リツ\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
+  "youtube_description": "この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。\nシニア層の恋愛事情に寄り添うコンテンツ\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：波音リツ\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
   "benchmarks": {
     "version": 1,
     "updated_at": "2025-12-27",

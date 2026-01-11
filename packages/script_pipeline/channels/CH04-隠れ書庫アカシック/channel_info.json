@@ -1,6 +1,6 @@
 {
   "channel_id": "CH04",
-  "name": "心理・好奇心 隠れ書庫アカシック",
+  "name": "隠れ書庫アカシック",
   "persona_path": "workspaces/planning/personas/CH04_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH04-隠れ書庫アカシック/script_prompt.txt",
   "branding": {
@@ -70,7 +70,7 @@
     "VOICEVOX",
     "青山流星"
   ],
-  "youtube_description": "この動画は、「心理・好奇心 隠れ書庫アカシック」の長時間コンテンツです。\n心理学と好奇心をテーマにした知的コンテンツ\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
+  "youtube_description": "この動画は、「隠れ書庫アカシック」の長時間コンテンツです。\n心理学と好奇心をテーマにした知的コンテンツ\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
   "benchmarks": {
     "version": 1,
     "updated_at": "2025-12-27",

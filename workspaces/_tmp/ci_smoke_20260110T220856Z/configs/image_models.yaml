@@ -1,0 +1,216 @@
+# Image generation model configuration
+# Defines providers, models, tiers, and task defaults for ImageClient
+
+providers:
+  gemini:
+    env_api_key: GEMINI_API_KEY
+  openrouter:
+    env_api_key: OPENROUTER_API_KEY
+    base_url: "https://openrouter.ai/api/v1"
+  fireworks:
+    # Prefer the dedicated image key; use the rotated fallback key when the primary is exhausted/invalid.
+    env_api_key: FIREWORKS_IMAGE
+    env_api_key_fallback: FIREWORKS_API_KEY_FALLBACK
+    env_account: FIREWORKS_ACCOUNT
+    base_url: "https://api.fireworks.ai/inference/v1"
+
+models:
+  gemini_2_5_flash_image:
+    provider: gemini
+    model_name: gemini-2.5-flash-image
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  gemini_2_5_flash_image_preview:
+    provider: gemini
+    model_name: gemini-2.5-flash-image-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  gemini_2_0_flash_exp_image_generation:
+    provider: gemini
+    model_name: gemini-2.0-flash-exp-image-generation
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  gemini_3_pro_image_preview:
+    provider: gemini
+    model_name: gemini-3-pro-image-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  openrouter_gemini_2_5_flash_image_preview:
+    provider: openrouter
+    model_name: google/gemini-2.5-flash-image-preview
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_gemini_2_5_flash_image:
+    provider: openrouter
+    model_name: google/gemini-2.5-flash-image
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_gpt_5_image:
+    provider: openrouter
+    model_name: openai/gpt-5-image
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_gpt_5_image_mini:
+    provider: openrouter
+    model_name: openai/gpt-5-image-mini
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_riverflow_v2_fast_preview:
+    provider: openrouter
+    model_name: sourceful/riverflow-v2-fast-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  openrouter_riverflow_v2_standard_preview:
+    provider: openrouter
+    model_name: sourceful/riverflow-v2-standard-preview
+    capabilities:
+      supports_aspect_ratio: false
+      supports_size: false
+      supports_negative_prompt: false
+      supports_seed: false
+      max_batch_n: 1
+
+  fireworks_flux_1_schnell_fp8:
+    provider: fireworks
+    model_name: flux-1-schnell-fp8
+    defaults:
+      # Fireworks defaults are 4 steps / guidance 3.5 (docs); keep explicit for determinism.
+      num_inference_steps: 4
+      guidance_scale: 3.5
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true   # adapter will resize to task default size when provided
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 4
+
+  fireworks_flux_1_dev_fp8:
+    provider: fireworks
+    model_name: flux-1-dev-fp8
+    defaults:
+      # Keep parity with schnell defaults unless overridden per-call.
+      num_inference_steps: 4
+      guidance_scale: 3.5
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 4
+
+  fireworks_flux_kontext_pro:
+    provider: fireworks
+    model_name: flux-kontext-pro
+    defaults:
+      max_prompt_chars: 8000
+      prompt_upsampling: false
+      safety_tolerance: 2
+      output_format: png
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true   # adapter will resize to task default size when provided
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+  fireworks_flux_kontext_max:
+    provider: fireworks
+    model_name: flux-kontext-max
+    defaults:
+      max_prompt_chars: 8000
+      prompt_upsampling: false
+      safety_tolerance: 2
+      output_format: png
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: true   # adapter will resize to task default size when provided
+      supports_negative_prompt: false
+      supports_seed: true
+      max_batch_n: 1
+
+# Tier-to-model resolution. The first entry is treated as the primary candidate.
+tiers:
+  image_gen:
+    - gemini_2_5_flash_image
+    - openrouter_gemini_2_5_flash_image_preview
+    - openrouter_gemini_2_5_flash_image
+    - openrouter_riverflow_v2_fast_preview
+    - openrouter_riverflow_v2_standard_preview
+  video_image_gen:
+    - gemini_2_5_flash_image
+    # NOTE: Keep this single-candidate in normal ops (drift prevention). Switch via slot/profile when needed.
+  thumbnail_image_gen:
+    - gemini_2_5_flash_image
+    # NOTE:
+    # - Normal ops: thumbnails are Gemini-first (user policy: gemini > max).
+    # - If you intentionally want FLUX max, switch via slot/code (do not edit this file per-run).
+
+# Task-level defaults. Options provided at call time override these values.
+tasks:
+  image_generation:
+    tier: video_image_gen
+    allow_fallback: false
+    defaults:
+      aspect_ratio: "16:9"
+      size: "1920x1080"
+      n: 1
+  visual_image_gen:
+    tier: video_image_gen
+    allow_fallback: false
+    defaults:
+      aspect_ratio: "16:9"
+      size: "1920x1080"
+      n: 1
+  thumbnail_image_gen:
+    tier: thumbnail_image_gen
+    allow_fallback: false
+    retries_per_model: 0
+    defaults:
+      aspect_ratio: "16:9"
+      size: "1920x1080"
+      n: 1

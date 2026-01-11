@@ -1,0 +1,102 @@
+{
+  "channel_id": "CH23",
+  "name": "熟年夫婦の現実ノート",
+  "description": "熟年夫婦の現実を、物語で整理する。",
+  "audience_profile": "60代以上中心（妻側視点多め）。夫婦・介護・同居で限界を感じ、誰にも言えないまま心がすり減っている人。",
+  "youtube_title": "熟年夫婦の現実ノート",
+  "youtube_handle": "@rougo_kokoro_lab2",
+  "youtube_description": "※本チャンネルの物語はフィクションです。\nこの動画は、「熟年夫婦の現実ノート」の長時間コンテンツです。\n熟年夫婦の現実を、物語で整理する。\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：波音リツ\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
+  "default_tags": [
+    "熟年夫婦",
+    "老後",
+    "家庭内別居",
+    "熟年離婚",
+    "介護",
+    "同居",
+    "義実家",
+    "年金",
+    "家族",
+    "物語",
+    "夫婦",
+    "寝落ち",
+    "睡眠用",
+    "作業用BGM",
+    "勉強用BGM",
+    "長時間",
+    "聞き流し",
+    "VOICEVOX",
+    "波音リツ"
+  ],
+  "persona_path": "workspaces/planning/personas/CH23_PERSONA.md",
+  "template_path": "packages/script_pipeline/channels/CH23-熟年夫婦の現実ノート/script_prompt.txt",
+  "script_prompt": "# CH23 台本プロンプト（熟年夫婦の現実ノート）\n\n役割: あなたは「熟年夫婦の現実ノート」の語り手。60代以上の視聴者に向けて、夫婦・家族・介護・同居で起きる摩耗を、静かな一人語りの物語として描く。\n\n狙い: 正しさで相手を裁く話ではなく、視聴者の「心と生活を守る選択肢」が増える内容にする。\n\n題材の境界（厳守）:\n- 主題は 夫婦／家庭内別居／熟年離婚／義実家／介護／同居／退職後の生活摩耗／年金・家計 など家庭領域に限定。\n- 友人コミュニティ（ランチ会/同窓会/近所付き合い）は CH22 の領域。触れる場合でも背景の1行に留め、主題化しない。\n\n構造（必須の型）:\n1) 導入: 結末の一場面を最初に提示し、すぐに「なぜそうなったか」を追わせる（理由回収）。\n2) 背景: 昔は良かった記憶＋今の差（役割/会話/疲労/お金）を短く置く。\n3) 棘の積み上げ: 大事件より「小さな棘」を複数回。例: 家事/介護の偏り、会話の不成立、ため息、生活リズム衝突、お金/年金の扱い、義実家/同居の圧。\n4) 決定打: 戻れない一言/場面で破局が必然になる。\n5) 再定義: 終盤まで一般論は遅らせ、出来事で納得させてから“見方”を1つだけ言語化。\n6) 余韻: 象徴アイテムで静かに着地し、視聴者に短い問いかけを1つだけ。\n\n時間の圧縮（必須）:\n- 年数/年齢などの時間情報を早めに入れ、「長い積み重ね×一瞬」の落差で重さを作る。\n\n登場人物（画像一貫性のため最重要）:\n- 登場人物は少数（基本: 妻側視点の主人公＋夫＋必要最小限の家族/周辺）。\n- 主人公と夫は、冒頭〜序盤で年齢感/関係性/雰囲気が自然に分かるように描写し、その後は呼称・口調・性格・立場をぶらさない。\n- “やたらと新キャラを増やす”のは禁止。モブは原則出さない（出すなら背景化）。\n\n描写ルール:\n- 進行は「内面→外界→内面」の往復。耳だけでも情景が立つ生活音/匂い/小道具を置く。\n- 冒頭に挨拶/自己紹介（例: 「こんばんは。〇〇です。」）は入れない。いきなり物語に入る。\n- 心理描写は大げさにしない。視線、口元、沈黙、手元、距離感で“現実の摩耗”を見せる。\n- セリフは短く。引用符は多用せず、できるだけ地の文で言い換える。主人公の反撃は長くしない（静かに線を引く）。\n- 終盤の持ち帰りは「今夜できる一手」を1つだけ。短く、小さく、生活を壊さない行動に落とす（励ましの言い換え連打で水増ししない）。\n\n禁止:\n- 実在の個人・団体・地域・店名・学校名など、特定につながる固有名詞/描写。誹謗中傷。\n- 暴力/復讐の推奨、医療/法律/投資の断定的助言、根拠のない統計や割合の断定。\n- “スカッと勝利”や相手を笑い者にする結末。\n- 離婚/別居を断定的に推奨する描写（あくまで「選択肢」に留め、押し付けない）。\n\n出力仕様（Aテキスト厳守）:\n- 8,000〜9,000字の一人語り台本（8〜15分目安）。\n- 見出し/章タイトル/箇条書き/番号リスト/タイムスタンプ/URL/脚注/制作メタは入れない。\n- ポーズ記号は `---` のみ可（使うなら1行単独）。それ以外の区切り記号は禁止。\n- 出力は台本本文のみ。\n",
+  "benchmarks": {
+    "version": 1,
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@kokoroshiawase",
+        "name": "（ベンチマーク）こころしあわせ",
+        "url": "https://www.youtube.com/@kokoroshiawase",
+        "note": "シニア向け物語×強い結末ワード×フィクション明記。夫婦系に寄せる際のトーン参考。"
+      }
+    ],
+    "script_samples": [
+      {
+        "base": "research",
+        "path": "シニア体験談/kokoroshiawase.md",
+        "label": "勝ちパターン要約",
+        "note": "タイトル/サムネ/注意書きの観測メモ"
+      },
+      {
+        "base": "research",
+        "path": "シニア体験談/台本構成の参考",
+        "label": "伸びる構造の分析",
+        "note": "結末先出し/棘/余韻などの観測まとめ"
+      },
+      {
+        "base": "research",
+        "path": "シニア体験談/体験談3",
+        "label": "体験談サンプル（会話のキャッチボール）",
+        "note": "友人系だが、内面→外界→内面の往復と持ち帰り行動が参考"
+      }
+    ],
+    "notes": "ベンチマークはUIで追記してください（競合追加/台本サンプル追加）。"
+  },
+  "video_workflow": "capcut",
+  "production_sources": {
+    "voice_config_path": "packages/script_pipeline/audio/channels/CH23/voice_config.json",
+    "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
+    "thumbnails_default_template_id": null,
+    "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
+    "capcut_preset": {
+      "capcut_template": "CH23-テンプレ",
+      "video_style_id": null,
+      "prompt_template": "templates/senior_story_friendly_psychology.txt"
+    }
+  },
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/lFxTFGwMgXpEfM6_LHRETzxiZAca8lsFOh2zwj929_1i091gpRocMN6DR5aOQaTidk49d43CkF4=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "",
+    "title": "熟年夫婦の現実ノート",
+    "subscriber_count": 0,
+    "view_count": 184,
+    "video_count": 3,
+    "custom_url": "@rougo_kokoro_lab2",
+    "handle": "@rougo_kokoro_lab2",
+    "url": "https://www.youtube.com/channel/UC-98qyN5DCMC7GKw2R2fpgw",
+    "updated_at": "2025-09-24T08:56:39.504663Z"
+  },
+  "youtube": {
+    "channel_id": "UC-98qyN5DCMC7GKw2R2fpgw",
+    "title": "熟年夫婦の現実ノート",
+    "custom_url": "@rougo_kokoro_lab2",
+    "handle": "@rougo_kokoro_lab2",
+    "url": "https://www.youtube.com/channel/UC-98qyN5DCMC7GKw2R2fpgw",
+    "view_count": 184,
+    "subscriber_count": 0,
+    "video_count": 3,
+    "synced_at": "2026-01-07T23:41:04.192368+00:00",
+    "source": "UC-98qyN5DCMC7GKw2R2fpgw"
+  }
+}

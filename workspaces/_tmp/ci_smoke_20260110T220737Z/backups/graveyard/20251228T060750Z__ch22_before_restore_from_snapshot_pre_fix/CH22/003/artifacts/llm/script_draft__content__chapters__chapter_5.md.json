@@ -1,0 +1,89 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:40:21+00:00",
+  "status": "ready",
+  "stage": "script_draft",
+  "task": "script_chapter_draft",
+  "channel": "CH22",
+  "video": "003",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/003/content/chapters/chapter_5.md",
+    "sha1": "b7dcbb121f686ae223a677ac0125c19456c548a7"
+  },
+  "content": "公民館の玄関を出て、暗い夜道を一人で歩きながら、彼女は思いました。\n\nすべてを失ったように感じるこの瞬間、いったい何ができるのだろうか。\n\n帰り道の街灯が、足元をぼんやり照らしています。鞄には今日描いた絵手紙が一枚、しまわれたままです。あの和室で過ごす木曜日の午後が、もう二度と戻らないような気がしました。長年通った場所が、たった一言で遠のいてしまう。居場所とは、こんなにも脆いものだったのか。\n\n家に着き、リビングの椅子に座ります。いつもならサークルの話題で頭がいっぱいになる時間です。今日はただ、静かです。テーブルの上には、以前サークルで作った色紙が飾ってあります。みんなでわいわい描いた時の笑い声が、遠い記憶のようによみがえります。\n\nあの空間が全てだったわけではありません。\n\nふと、そう気づきました。絵を描く喜びは、あの和室だけにあったわけじゃない。窓辺でひとりスケッチする朝も、孫に絵手紙を送るのも、同じ楽しみでした。サークルは、その楽しみを分かち合う場所の一つでしかなかった。それなのに、いつの間にか、あの場所にいること自体が目的になっていた。\n\n無理に戻ろうとしなくてもいい。\n\n我慢して通い続ける必要も、一切を断ち切ってしまう必要もない。そこに、もう一つの道がありました。関わる頻度と、その深さを、自分で選び直すという道です。\n\n完全に去るのではなく、少し距離を置く。毎週必ず行くのではなく、気が向いた時だけ顔を出す。作品展の準備のような負担の大きいことには参加せず、ただ描く時間だけを共有する。かつては、そんな選択肢があることさえ、考えられませんでした。サークルとはそういうものだ、和子さん中心の空気は変わらないものだ、と決めつけていたからです。\n\nでも、変えられるのは自分の関わり方だけです。\n\n相手を変えようとしたり、場の空気を一気に変えようとするのではなく、自分がどう関わるかを、静かに選び直す。それは、関係を壊すことではありません。むしろ、壊さずに続けるために、必要なたまの調整かもしれません。\n\n次回の集まりの案内が、携帯に届いています。\n\n以前なら、どんなに気が重くても、休む理由を探すことさえ罪悪感に感じたでしょう。でも今、彼女は思います。一度、お休みすると伝えてみよう、と。体調が少し優れないので、と。それは嘘ではありません。あの場所に行く前の憂鬱さは、確かに心の不調でした。\n\n一度休むことを、自分に許してみる。\n\nそれが、今夜できるたった一つの、小さな行動です。すべてを決める必要はありません。永久にやめると宣言するのでもない。ただ、次の木曜日だけ、別の過ごし方を選んでみる。窓辺で好きな花を描いてみるとか、久しぶりに美術館に行ってみるとか。そうして、自分にとっての「楽しみ」が、どこにあるのかを、ゆっくり確かめ直す時間にしてもいい。\n\n公民館の和室に、彼女の椅子は空いたままかもしれません。\n\nあるいは、誰かが知らないうちに片付けているかもしれません。そのどちらでも、今はもういいような気がします。あの椅子は、あの場所に縛られるためのものではなかった。どこにいても、自分が安心して座れる場所を、自分で見つけていけばいい。\n\n失ったのは、居場所そのものではなくて。\n\n自分らしくいられる距離を、自分で測るという感覚だったのかもしれません。それを、そっと取り戻す時が来たのだと、彼女は静かに思いました。\n\n暗い夜道を歩いたあの日から、少し時間が経ちました。\n\n彼女はまだ、絵を描くのをやめていません。リビングの椅子に座り、今日は朝顔のスケッチをしています。次の木曜日がどうなるか、それはまだわかりません。でも、少なくとも今日という日は、心がすり減ることを選ばずに済んでいます。\n\nすべてを失ったように感じたあの夜。\n\nあれは終わりではなく、自分らしい距離の測り方を、そっと学び始める契機だったのです。",
+  "sources": [
+    {
+      "path": "inline:CHAPTER_NUMBER",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:CHAPTER_TITLE",
+      "sha1": "35d358dde6a0fa87a23bc4808eab62b4954e5b24"
+    },
+    {
+      "path": "inline:WORD_TARGET",
+      "sha1": "d2df16bee9d37212d9dc0a9709c3a8579fedcfff"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "bce74c39a018d8942ce8b147ae4bc3b0ba4af9f8"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/003/content/outline.md",
+      "sha1": "fbbdfe48ad0e42870cdbe54ded7da0e8cfa86cd5"
+    },
+    {
+      "path": "inline:CHAPTER_JSON",
+      "sha1": "f159f06546017e78b11f38ac394a7fdc3f23c3ec"
+    },
+    {
+      "path": "inline:SCRIPT_PROMPT",
+      "sha1": "11de3eb92ea2c79d46be9d808e6685fd062d4bcb"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "b81088c7a0bbc9a505017d34b8ec9ed278c0111e"
+    },
+    {
+      "path": "inline:CORE_EPISODE_GUIDE",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "inline:A_TEXT_RULES_SUMMARY",
+      "sha1": "1d399a3b955dcfa48908168c0c275a6aa53cd6d1"
+    },
+    {
+      "path": "inline:BRIEF_JSON",
+      "sha1": "7a2d11e74cfb8bbfd54966060321980d78e0d005"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766896761-jqUK5Lk1gjwce2FvGUDA",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 59632,
+    "usage": {
+      "prompt_tokens": 8936,
+      "completion_tokens": 2011,
+      "total_tokens": 10947
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_draft/3a/3a90264b1adb354f1818166c7573e9c9.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/003/logs/script_draft_prompt.txt"
+}

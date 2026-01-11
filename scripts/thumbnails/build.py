@@ -206,6 +206,55 @@ def _detect_engine(channel: str, engine: str) -> str:
     raise ValueError(f"unknown engine: {engine}")
 
 
+def _resolve_thumb_style_preset(
+    channel: str, style: str
+) -> Tuple[Optional[str], Optional[str], Optional[Dict[str, Any]], Optional[Dict[str, Any]], Optional[Dict[str, str]]]:
+    """
+    Return (text_template_id_override, image_prompts_id_override, effects_override_base, overlays_override_base, text_override_base)
+    """
+    ch = _normalize_channel(channel)
+    key = str(style or "").strip().lower()
+    if not key:
+        return (None, None, None, None, None)
+
+    # CH01: recent posts (parchment + black brush band + serif copy)
+    if ch == "CH01" and key in {"ch01_recent_post_v1", "recent_post_v1", "recent_v1"}:
+        overlays = {
+            "left_tsz": {"enabled": False},
+            "bottom_band": {
+                "enabled": True,
+                "mode": "brush",
+                "color": "#000000",
+                "alpha": 0.93,
+                "y0": 0.44,
+                "y1": 1.0,
+                "roughness": 0.10,
+                "feather_px": 28,
+                "hole_count": 22,
+                "blur_px": 2,
+            },
+        }
+        return ("CH01_recent_post_bottom_band_3line_v1", "ch01_image_prompts_recent_post_v1", None, overlays, None)
+
+    # CH01: gold / canva-like (strong right-stack copy + optional author)
+    if ch == "CH01" and key in {"ch01_canva_gold_v1", "canva_gold_v1", "gold_v1", "ch01_gold_v1"}:
+        overlays = {
+            # Reuse the horizontal overlay system to darken the RIGHT text area.
+            "left_tsz": {
+                "enabled": True,
+                "color": "#000000",
+                "x0": 0.38,
+                "x1": 1.0,
+                "alpha_left": 0.10,
+                "alpha_right": 0.65,
+            }
+        }
+        text_override = {"author": "ブッダの教え"}
+        return ("CH01_canva_gold_right_stack_3line_v1", None, None, overlays, text_override)
+
+    raise SystemExit(f"unknown --thumb-style for channel={ch}: {style}")
+
+
 def _default_buddha_base() -> Optional[Path]:
     p = fpaths.assets_root() / "thumbnails" / "CH12" / "ch12_buddha_bg_1536x1024.png"
     return p if p.exists() else None
@@ -372,6 +421,17 @@ def _cmd_build(args: argparse.Namespace) -> int:
         videos = _select_videos_by_status(channel, args.status)
     if engine == "layer_specs_v3":
         targets = iter_targets_from_layer_specs(channel, videos or None)
+        (
+            text_template_id_override,
+            preset_image_prompts_id_override,
+            effects_override_base,
+            overlays_override_base,
+            text_override_base,
+        ) = _resolve_thumb_style_preset(
+            channel, str(getattr(args, "thumb_style", "") or "")
+        )
+        cli_image_prompts_id_override = str(getattr(args, "image_prompts_id", "") or "").strip() or None
+        resolved_image_prompts_id_override = cli_image_prompts_id_override or preset_image_prompts_id_override
         build_channel_thumbnails(
             channel=channel,
             targets=targets,
@@ -403,6 +463,12 @@ def _cmd_build(args: argparse.Namespace) -> int:
             bg_band_x0=float(args.bg_band_x0),
             bg_band_x1=float(args.bg_band_x1),
             bg_band_power=float(args.bg_band_power),
+            text_layout_id_override=str(getattr(args, "text_layout_id", "") or "").strip() or None,
+            image_prompts_id_override=resolved_image_prompts_id_override,
+            text_template_id_override=text_template_id_override,
+            effects_override_base=effects_override_base,
+            overlays_override_base=overlays_override_base,
+            text_override_base=text_override_base,
         )
         built_videos = [t.video for t in targets]
         if args.qc:
@@ -576,6 +642,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     # layer_specs args (ignored by buddha engine)
     b.add_argument("--width", type=int, default=1920)
     b.add_argument("--height", type=int, default=1080)
+    b.add_argument("--text-layout-id", default="", help="Override layer_specs text_layout_id (registry id)")
+    b.add_argument("--image-prompts-id", default="", help="Override layer_specs image_prompts_id (registry id)")
     b.add_argument(
         "--thumb-name",
         default="00_thumb.png",
@@ -585,6 +653,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--variant-label",
         default="",
         help="projects.json label override (default: auto; 00_thumb.png => thumb_00, otherwise stem of --thumb-name)",
+    )
+    b.add_argument(
+        "--thumb-style",
+        default="",
+        help="Optional style preset (e.g. ch01_recent_post_v1). Applies text template + overlays without writing thumb_spec.",
     )
     b.add_argument("--force", action="store_true")
     b.add_argument("--skip-generate", action="store_true")
@@ -645,6 +718,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     r.add_argument("--output-mode", choices=["draft", "final"], default="draft", help="PNG output mode (draft is faster)")
     r.add_argument("--width", type=int, default=1920)
     r.add_argument("--height", type=int, default=1080)
+    r.add_argument("--text-layout-id", default="", help="Override layer_specs text_layout_id (registry id)")
+    r.add_argument("--image-prompts-id", default="", help="Override layer_specs image_prompts_id (registry id)")
     r.add_argument("--skip-generate", action="store_true")
     r.add_argument("--regen-bg", action="store_true", help="Regenerate background even if assets already exist (overwrites 90_bg_ai_raw/10_bg)")
     r.add_argument("--continue-on-error", action="store_true")

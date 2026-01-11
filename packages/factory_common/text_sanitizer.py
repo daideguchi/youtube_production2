@@ -51,6 +51,11 @@ _RE_LENGTH_META = re.compile(r"(?:[-—−]\s*)?約\s*\d{2,5}\s*字\b")
 _RE_LETTERED_LIST_PREFIX = re.compile(r"^\s*[A-Za-z]\s*[.)）:、]\s+")
 _RE_MD_BOLD = re.compile(r"\*\*(.+?)\*\*")
 
+# apply_patch markers that must never appear in spoken scripts.
+_RE_PATCH_FILE_HEADER_LINE = re.compile(r"^\s*\*{3}\s*(?:Add File:|Update File:|Delete File:|Move to:).*$", flags=re.MULTILINE)
+_RE_PATCH_MARKER_LINE = re.compile(r"^\s*\*{3}\s*(?:Begin|End)\s+Patch\s*$", flags=re.MULTILINE)
+_RE_PATCH_MARKER_INLINE = re.compile(r"\s*\*{3}\s*(?:Begin|End)\s+Patch\b")
+
 
 def strip_meta_from_script(text: str) -> MetaSanitizeResult:
     """
@@ -85,6 +90,9 @@ def strip_meta_from_script(text: str) -> MetaSanitizeResult:
     out, _ = _subn(_RE_EMPTY_PARENS, "", out, "empty_parens")
     out, _ = _subn(_RE_META_INSTRUCTION_LINE, "", out, "meta_instruction_line")
     out, _ = _subn(_RE_MD_BOLD, r"\1", out, "md_bold")
+    out, _ = _subn(_RE_PATCH_FILE_HEADER_LINE, "", out, "patch_header")
+    out, _ = _subn(_RE_PATCH_MARKER_LINE, "", out, "patch_marker")
+    out, _ = _subn(_RE_PATCH_MARKER_INLINE, "", out, "patch_marker")
 
     # Line cleanup (keep structure, but avoid messy artifacts)
     lines = []

@@ -1,0 +1,89 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:46:51+00:00",
+  "status": "ready",
+  "stage": "script_draft",
+  "task": "script_chapter_draft",
+  "channel": "CH22",
+  "video": "004",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/chapters/chapter_1.md",
+    "sha1": "46c92159967cf9c8accda0c95d10908cb4cd7cae"
+  },
+  "content": "昔は玄関先や縁側で、顔を合わせてゆっくり話していました。隣の家の方が洗濯物を干していると、自然に声をかけ合う。向かいの奥さんが買い物から帰ってくると、ちょっと立ち止まって天気の話をする。そんな何気ないやりとりが、毎日の暮らしに溶け込んでいたのです。\n\n会話には間がありました。言葉と言葉の間に、相手の表情を見る時間がたっぷりとあった。うなずきや笑み、あるいはちょっと困ったような顔。それらすべてが、今どのくらい話せばよいのか、どのくらいの距離がちょうどよいのかを、そっと教えてくれていたように思います。お互いの都合も、顔を見ればだいたいわかった。忙しそうなら早めに切り上げるし、余裕がありそうならもう一服お茶をすすめる。そんな調整が、無言のうちにできていたのです。\n\nそれが今では、LINEのグループが、かつての井戸端会議の場を肩代わりしています。確かに便利です。遠くに住む友人ともすぐに連絡が取れる。町内会の連絡も、わざわざ回覧板を回さなくて済む。時間や場所を選ばずにやりとりできるのは、本当にありがたいことです。\n\nでも、少しずつ感じる違和感がありました。送ったメッセージに付く「既読」の二文字に、私たちの心は一喜一憂してしまうようになったのです。あの小さな文字が、読まれた証であり、同時に私たちの関係の温度を測るものさしのように感じられてきました。\n\n既読がすぐにつくと、ほっとする。なぜか遅いと、もしかして嫌われたのかな、と不安になる。たった二文字の表示が、一日の気分を左右することさえある。そう気づいたとき、ふと昔を思い出しました。あの頃は、既読も未読もありませんでした。代わりにあったのは、相手の目の動きや、声の調子、そして何よりその場の空気感そのものだったのです。\n\n技術は確かにコミュニケーションの形を変えました。顔を合わせなくても話せるようになった。その便利さは、否定しようのない現実です。しかし同時に、距離感の測り方に新たな「記号」が生まれました。それが既読表示です。読んだか読んでいないか、という事実だけが、まるで関係のすべてであるかのように、時に大きく映し出されてしまう。\n\n私たちはその記号に、どれだけの意味を込めてしまっているのでしょう。あの人は忙しいだけなのに、私のことが嫌いなんだと思い込んでしまう。グループの中で自分だけ既読が遅いと、仲間外れにされているような気がして胸が苦しくなる。かつては、相手の表情や様子から自然に汲み取っていたことが、今ではたった一つの記号に委ねられてしまったかのようです。\n\nもちろん、LINEのグループは悪いものではありません。離れていても繋がっていられる、それは素晴らしいことです。問題は、技術そのものではなく、私たちのその受け止め方にあるのでしょう。便利な道具が、いつの間にか私たちの心の動きまで規定し始めている。その変化に、そっと気づく時が来ているのかもしれません。\n\n昔の井戸端会議には、強制も義務もありませんでした。都合が合えば話し、合わなければまた今度。それが自然な距離感でした。今、私たちは画面上の記号に、あの頃の自然さを無意識に求めているのではないでしょうか。しかし、機械が示す既読と、人間の心の間には、どうしても埋められない隙間がある。その隙間に、不安や寂しさが入り込む余地が生まれてしまったのです。\n\n変化そのものを静かに観察してみましょう。技術が進み、生活が変わる。それは悪いことばかりではありません。ただ、それに合わせて私たちの心のあり方も、少しずつ調節していく必要がある。そう思うのです。かつては顔を見て感じ取っていたものを、今では画面上の記号で推し量ろうとしている。そのギャップに、そっと目を向けてみる。それだけで、少し楽になることがあります。\n\n便利さと引き換えに、何かを見失ってしまったわけではないのです。ただ、新しい形のコミュニケーションに、私たちがまだ慣れていないだけ。かつての井戸端会議と今の既読表示、その両方の良さを、静かに見つめ直す時なのかもしれません。\n\nでは、その「既読」が付かないとき、私たちは何を考えてしまうのでしょうか。",
+  "sources": [
+    {
+      "path": "inline:CHAPTER_NUMBER",
+      "sha1": "356a192b7913b04c54574d18c28d46e6395428ab"
+    },
+    {
+      "path": "inline:CHAPTER_TITLE",
+      "sha1": "c6f174d8e23634337e2fb8c6cf74cf4a75e61d7a"
+    },
+    {
+      "path": "inline:WORD_TARGET",
+      "sha1": "d2df16bee9d37212d9dc0a9709c3a8579fedcfff"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "e4aa0e5723f5426ee1d42f2fd1718eed687ffcab"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/outline.md",
+      "sha1": "30d39d4c18caf8454135665d551440efc87ca3b6"
+    },
+    {
+      "path": "inline:CHAPTER_JSON",
+      "sha1": "e707ad8dec2cb8a42e8389a3dd2ac92a98cc16e2"
+    },
+    {
+      "path": "inline:SCRIPT_PROMPT",
+      "sha1": "11de3eb92ea2c79d46be9d808e6685fd062d4bcb"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "bf6803a07c7f5aef98783055cb7c1f2d46fbcde1"
+    },
+    {
+      "path": "inline:CORE_EPISODE_GUIDE",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "inline:A_TEXT_RULES_SUMMARY",
+      "sha1": "1d399a3b955dcfa48908168c0c275a6aa53cd6d1"
+    },
+    {
+      "path": "inline:BRIEF_JSON",
+      "sha1": "0c56ae395c1fa1547f791c2a0f2c3a7d43f4a6bd"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766897154-mB1P5TRKm7Ag524oGlRy",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 57317,
+    "usage": {
+      "prompt_tokens": 9056,
+      "completion_tokens": 1953,
+      "total_tokens": 11009
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_draft/42/42a795bdcf42709bdb8b7a9654e6608a.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/logs/script_draft_prompt.txt"
+}

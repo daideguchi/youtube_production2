@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH02-025__key_concept_cleanup_20251229
+target:
+  channel: CH02
+  video: '025'
+apply:
+  set:
+    キーコンセプト: 選択の呪い
+notes: planning_lint duplicate_key_concept_with_published を解消（ストア派固定をタイトル主題へ更新）。

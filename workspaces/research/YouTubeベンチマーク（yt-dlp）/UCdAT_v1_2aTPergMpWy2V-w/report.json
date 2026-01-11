@@ -1,0 +1,1206 @@
+{
+  "version": 1,
+  "fetched_at": "2026-01-09T04:41:47.909798+00:00",
+  "playlist_end": 80,
+  "channel": {
+    "playlist_channel_id": "UCdAT_v1_2aTPergMpWy2V-w",
+    "playlist_uploader_id": "@shaka__namu",
+    "playlist_channel": "人生の道標 - 癒される仏教",
+    "source_url": "https://www.youtube.com/@shaka__namu/videos",
+    "avatar_url": "https://yt3.googleusercontent.com/gq1myfNbV9pA6uGJi5wsw1EjaqTxhEb9t4ty6F1GLvlchxj1prNj-Hxl8lt_EY8c9NS7OUerVQ=s0"
+  },
+  "videos": [
+    {
+      "id": "0pi7B8GK8H8",
+      "title": "【99%勘違い】それを喋った瞬間、人生が不利になる話｜ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=0pi7B8GK8H8",
+      "duration_sec": 734.0,
+      "view_count": 1324,
+      "thumbnail_url": "https://i.ytimg.com/vi/0pi7B8GK8H8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCFPC6a9MfYoiazJb9pI2d6Zf8t8w",
+      "playlist_index": 1
+    },
+    {
+      "id": "nlO8ryuVrC8",
+      "title": "【恩を売ると損】「してあげた」と思った瞬間、それは善行ではなく取引になる | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=nlO8ryuVrC8",
+      "duration_sec": 587.0,
+      "view_count": 1074,
+      "thumbnail_url": "https://i.ytimg.com/vi/nlO8ryuVrC8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBrTyBYnQ7GuUn4BQWYptHBkbwrjA",
+      "playlist_index": 2
+    },
+    {
+      "id": "8I6QI1lw7Po",
+      "title": "【荘子×仏教】心が折れない人の「反応しない技術」 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=8I6QI1lw7Po",
+      "duration_sec": 666.0,
+      "view_count": 1259,
+      "thumbnail_url": "https://i.ytimg.com/vi/8I6QI1lw7Po/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDLLwB29A9cqhUbUYrRpzi-rmz22g",
+      "playlist_index": 3
+    },
+    {
+      "id": "zRPR6p0IhW0",
+      "title": "【違和感は体の警報】理由はないけど、なんか嫌だ。その違和感は放置すると超危険です。 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=zRPR6p0IhW0",
+      "duration_sec": 779.0,
+      "view_count": 1371,
+      "thumbnail_url": "https://i.ytimg.com/vi/zRPR6p0IhW0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA9TMmlEBdD0I33tE5adqXdNVkMeA",
+      "playlist_index": 4
+    },
+    {
+      "id": "dqKQXiIznq8",
+      "title": "【運の正体】不運を“運”に変える人の考え方｜ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=dqKQXiIznq8",
+      "duration_sec": 606.0,
+      "view_count": 2934,
+      "thumbnail_url": "https://i.ytimg.com/vi/dqKQXiIznq8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDZiKU1-Q5kdZDHfr0zZT8LPXOTxg",
+      "playlist_index": 5
+    },
+    {
+      "id": "Hatf30pL4hQ",
+      "title": "【「変な人」と思われることの価値】普通でありたいと願うほど、心が窮屈になりがちなあなたへ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=Hatf30pL4hQ",
+      "duration_sec": 594.0,
+      "view_count": 1262,
+      "thumbnail_url": "https://i.ytimg.com/vi/Hatf30pL4hQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAm8TMmYWd_pRfszxhKHBRst-isjw",
+      "playlist_index": 6
+    },
+    {
+      "id": "QQ_M82n69FM",
+      "title": "【無敵になる】江戸時代の有名僧侶が教える無視の極意 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=QQ_M82n69FM",
+      "duration_sec": 774.0,
+      "view_count": 1633,
+      "thumbnail_url": "https://i.ytimg.com/vi/QQ_M82n69FM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBpyxSZx2tZ6JbKGBsfqEvvp_vCrQ",
+      "playlist_index": 7
+    },
+    {
+      "id": "Tg_iXDcuQv4",
+      "title": "【今すぐ縁を切るべき人】あなたの運気を吸い取る「5つのタイプ」 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=Tg_iXDcuQv4",
+      "duration_sec": 606.0,
+      "view_count": 760,
+      "thumbnail_url": "https://i.ytimg.com/vi/Tg_iXDcuQv4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCTUCioUr9VjfHx0C0Fk9iWpjPR1g",
+      "playlist_index": 8
+    },
+    {
+      "id": "AfgkTl6twfw",
+      "title": "【忘却は最高の鎮痛剤】終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=AfgkTl6twfw",
+      "duration_sec": 880.0,
+      "view_count": 15279,
+      "thumbnail_url": "https://i.ytimg.com/vi/AfgkTl6twfw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCReCzAqCKzJT-6gumiHqK0RFEyiQ",
+      "playlist_index": 9
+    },
+    {
+      "id": "7DQlA6dIPiw",
+      "title": "【９割が知らない幸せの正体】何かを得る必要はない。気づくだけで幸せになれる理由 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=7DQlA6dIPiw",
+      "duration_sec": 803.0,
+      "view_count": 16164,
+      "thumbnail_url": "https://i.ytimg.com/vi/7DQlA6dIPiw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBUUkYWdJ8BPkS7o39YHCIXtaT9IA",
+      "playlist_index": 10
+    },
+    {
+      "id": "QXMLsk_BB4A",
+      "title": "恩を仇で返す人の末路｜ブッダが説く「報い」の仕組み",
+      "url": "https://www.youtube.com/watch?v=QXMLsk_BB4A",
+      "duration_sec": 576.0,
+      "view_count": 1633,
+      "thumbnail_url": "https://i.ytimg.com/vi/QXMLsk_BB4A/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCQNQsqOJVZL0xDWdUUSAeB_AOuTQ",
+      "playlist_index": 11
+    },
+    {
+      "id": "K_TpEqdr-Mg",
+      "title": "【不思議な沈黙の力】なぜ、賢い人は「何も言わない」のか？ブッダが教える静かなる勝利 | 仏教の教え",
+      "url": "https://www.youtube.com/watch?v=K_TpEqdr-Mg",
+      "duration_sec": 781.0,
+      "view_count": 1533,
+      "thumbnail_url": "https://i.ytimg.com/vi/K_TpEqdr-Mg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDBB5-Ao-sP8g6mSKrJ49LYXZI6cg",
+      "playlist_index": 12
+    },
+    {
+      "id": "uGUeJNpzDpk",
+      "title": "【99%の悪口を受け流す最強の護身術】悪を返さぬ者だけが、真の勝利者となる、ブッダの心の用心術  | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=uGUeJNpzDpk",
+      "duration_sec": 1130.0,
+      "view_count": 1319,
+      "thumbnail_url": "https://i.ytimg.com/vi/uGUeJNpzDpk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBmEke6Z75CdyN-1ScXC8fhoht9zA",
+      "playlist_index": 13
+    },
+    {
+      "id": "mHUvbS7-KKQ",
+      "title": "【逆転の一言】嫌な人から身を守る最強の方法「慈悲の距離」| ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=mHUvbS7-KKQ",
+      "duration_sec": 1182.0,
+      "view_count": 1009,
+      "thumbnail_url": "https://i.ytimg.com/vi/mHUvbS7-KKQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDUiPorS4-8Pax0YnC5b9fLGXg26Q",
+      "playlist_index": 14
+    },
+    {
+      "id": "Maj2bFj8rbc",
+      "title": "【なぜか運がいい人の口癖】ブッダも実践した、幸運を呼び込む「アファメーション」の力 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=Maj2bFj8rbc",
+      "duration_sec": 917.0,
+      "view_count": 1169,
+      "thumbnail_url": "https://i.ytimg.com/vi/Maj2bFj8rbc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLD37ov1CDoIJaiutk6bjP_Ia9Xcvw",
+      "playlist_index": 15
+    },
+    {
+      "id": "CIerZZosiGY",
+      "title": "【科学的に証明】怒ることは「毒を飲む」のと同じ。自分を破壊するヤバい感情の正体をブッダが全て暴露します。 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=CIerZZosiGY",
+      "duration_sec": 1008.0,
+      "view_count": 1060,
+      "thumbnail_url": "https://i.ytimg.com/vi/CIerZZosiGY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCv_D3luZUw1SyEWK1Ax6JWwc-PYw",
+      "playlist_index": 16
+    },
+    {
+      "id": "c3xEIu3qHFk",
+      "title": "【警告】99%が不幸になってしまう３つの習慣。仏教物語と最新の健康科学が暴く、心と体を蝕む悲惨な末路。 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=c3xEIu3qHFk",
+      "duration_sec": 995.0,
+      "view_count": 1077,
+      "thumbnail_url": "https://i.ytimg.com/vi/c3xEIu3qHFk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLALbB9RhOwx3nH4WXFYj-enDXJZjg",
+      "playlist_index": 17
+    },
+    {
+      "id": "3H3ej2OLsVM",
+      "title": "【最終結論】消えない不安の正体は、ただの“心の癖”です。 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=3H3ej2OLsVM",
+      "duration_sec": 1197.0,
+      "view_count": 1386,
+      "thumbnail_url": "https://i.ytimg.com/vi/3H3ej2OLsVM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBn7ZSpwbSXm0ztAFmjAke_YGeB_g",
+      "playlist_index": 18
+    },
+    {
+      "id": "IwZj_QPlIOg",
+      "title": "【永久保存版】人や社会に揺るがされない強い心の作り方 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=IwZj_QPlIOg",
+      "duration_sec": 1247.0,
+      "view_count": 3902,
+      "thumbnail_url": "https://i.ytimg.com/vi/IwZj_QPlIOg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDkXGyfueUMe1KeGwTIpRW1T6RZNQ",
+      "playlist_index": 19
+    },
+    {
+      "id": "w-2L4lkjZ30",
+      "title": "【人生が変わる最強の和歌】9歳の親鸞聖人が見抜いた後悔しない生き方。「明日やろう」が口癖のあなたへ | 仏教の教え",
+      "url": "https://www.youtube.com/watch?v=w-2L4lkjZ30",
+      "duration_sec": 680.0,
+      "view_count": 1020,
+      "thumbnail_url": "https://i.ytimg.com/vi/w-2L4lkjZ30/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB_hf_EHuzz-gf7uex4v_2E1gDfUQ",
+      "playlist_index": 20
+    },
+    {
+      "id": "xwZD6Z3dH7o",
+      "title": "【なぜか心がザワつく夜に】脳のゴミを掃除して、安らかに眠る仏教の知恵 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=xwZD6Z3dH7o",
+      "duration_sec": 536.0,
+      "view_count": 2056,
+      "thumbnail_url": "https://i.ytimg.com/vi/xwZD6Z3dH7o/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAc_BPXIxx3tkK1F9a_P7JBXhMsjw",
+      "playlist_index": 21
+    },
+    {
+      "id": "os-SJ9NY8EI",
+      "title": "【99%好かれる】あなたの「顔つき」、損をしていませんか？ | ブッダの教え【運気を上げる人相術】",
+      "url": "https://www.youtube.com/watch?v=os-SJ9NY8EI",
+      "duration_sec": 539.0,
+      "view_count": 1383,
+      "thumbnail_url": "https://i.ytimg.com/vi/os-SJ9NY8EI/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBa_q9oVbKp9RdCUQya6m1NexVe0Q",
+      "playlist_index": 22
+    },
+    {
+      "id": "9JW_Es9Vvdc",
+      "title": "【🔮究極の言葉で人生は99%好転】口にするだけで運命が変わる「天国言葉」と、人生を壊す「地獄言葉」｜ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=9JW_Es9Vvdc",
+      "duration_sec": 604.0,
+      "view_count": 1186,
+      "thumbnail_url": "https://i.ytimg.com/vi/9JW_Es9Vvdc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBhz7l9hcDM9sM-3vLMYAFj0TT91g",
+      "playlist_index": 23
+    },
+    {
+      "id": "X714gD0ffyo",
+      "title": "怒りを消す簡単なコツを知ってますか？ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=X714gD0ffyo",
+      "duration_sec": 572.0,
+      "view_count": 1706,
+      "thumbnail_url": "https://i.ytimg.com/vi/X714gD0ffyo/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCHDTwu5NIfD8pfIeWrFronZEm6Hw",
+      "playlist_index": 24
+    },
+    {
+      "id": "WnXF1Js8A1s",
+      "title": "【これで幸運になります！】なぜかいつもご機嫌な人が無意識にやっている習慣 | ブッダの教え【科学的にも証明】",
+      "url": "https://www.youtube.com/watch?v=WnXF1Js8A1s",
+      "duration_sec": 622.0,
+      "view_count": 2141,
+      "thumbnail_url": "https://i.ytimg.com/vi/WnXF1Js8A1s/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA_mc8dpFdG9JafITPuM9V11gdgIg",
+      "playlist_index": 25
+    },
+    {
+      "id": "w62D9sjmS9U",
+      "title": "【寝る前5分】その日の不安をリセットし、ぐっすり眠るブッダの習慣｜仏教の教え【慈悲の瞑想】",
+      "url": "https://www.youtube.com/watch?v=w62D9sjmS9U",
+      "duration_sec": 619.0,
+      "view_count": 2611,
+      "thumbnail_url": "https://i.ytimg.com/vi/w62D9sjmS9U/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBeabIpk-p5vimJnRm05JBKynK65w",
+      "playlist_index": 26
+    },
+    {
+      "id": "i9D7gvjbyew",
+      "title": "【99%好かれる会話術】なぜか人が集まる究極テクニック｜ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=i9D7gvjbyew",
+      "duration_sec": 650.0,
+      "view_count": 8753,
+      "thumbnail_url": "https://i.ytimg.com/vi/i9D7gvjbyew/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDdGExvPLpQt3OSn_lc_xa-sy8bWA",
+      "playlist_index": 27
+    },
+    {
+      "id": "-dGBn_uFOn0",
+      "title": "【９割が知らない鈍感力】心が楽になるブッダの「受け流す」技術。自分の心を守るための優しさと賢さが身につきます。",
+      "url": "https://www.youtube.com/watch?v=-dGBn_uFOn0",
+      "duration_sec": 628.0,
+      "view_count": 268780,
+      "thumbnail_url": "https://i.ytimg.com/vi/-dGBn_uFOn0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAEcd5IhOH-hKPfJT30Y_6MkpsjAw",
+      "playlist_index": 28
+    },
+    {
+      "id": "d8rzNAububE",
+      "title": "【ほぼ知られてない脳科学と心理学】心配性の人が悩むのをやめる最強の教え。ペンシルベニア大学の研究で証明🧠 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=d8rzNAububE",
+      "duration_sec": 654.0,
+      "view_count": 1774,
+      "thumbnail_url": "https://i.ytimg.com/vi/d8rzNAububE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBd6ZpqMteX20ZnUGtCvBExVbxbcQ",
+      "playlist_index": 29
+    },
+    {
+      "id": "pPYsu47yfYs",
+      "title": "たった一言で気持ちが楽になる仏教の言葉！ | 力が湧くブッダの教え【ありがたいお言葉】",
+      "url": "https://www.youtube.com/watch?v=pPYsu47yfYs",
+      "duration_sec": 651.0,
+      "view_count": 1962,
+      "thumbnail_url": "https://i.ytimg.com/vi/pPYsu47yfYs/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDBq3STIUy8So89DexfyHvmk6Cn1A",
+      "playlist_index": 30
+    },
+    {
+      "id": "FCJlRJuM_q0",
+      "title": "【全てうまくいく黄金法則】人生最後も笑顔になれます。「本当に大切にすべきこと」５選｜心温まる話",
+      "url": "https://www.youtube.com/watch?v=FCJlRJuM_q0",
+      "duration_sec": 645.0,
+      "view_count": 1389,
+      "thumbnail_url": "https://i.ytimg.com/vi/FCJlRJuM_q0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBQ7VF1oy9kOiYJL629Rt7aO7jIUA",
+      "playlist_index": 31
+    },
+    {
+      "id": "q_6wYkvXvcc",
+      "title": "【脳が変わる習慣】ブッダの教え「掃けば不運が去り、福が来る」心の掃除で人生が変わる理由",
+      "url": "https://www.youtube.com/watch?v=q_6wYkvXvcc",
+      "duration_sec": 1000.0,
+      "view_count": 1503,
+      "thumbnail_url": "https://i.ytimg.com/vi/q_6wYkvXvcc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAeWTTDJjrAUGz2NFIsO9XeOVNAig",
+      "playlist_index": 32
+    },
+    {
+      "id": "A7bZxRwaYLY",
+      "title": "【絶対やるべき！】無理して付き合う必要はない人の特徴｜ブッダが教え",
+      "url": "https://www.youtube.com/watch?v=A7bZxRwaYLY",
+      "duration_sec": 690.0,
+      "view_count": 961,
+      "thumbnail_url": "https://i.ytimg.com/vi/A7bZxRwaYLY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAATdu9XW-3RbKJtZ5kLfln-XDN2Q",
+      "playlist_index": 33
+    },
+    {
+      "id": "pjQhLE7LByQ",
+      "title": "【無駄な争いを避ける極意🧘】怒りを消し去り、心の平穏を取り戻す方法 | ブッダの教え【頭に来ても絶対に戦うな】",
+      "url": "https://www.youtube.com/watch?v=pjQhLE7LByQ",
+      "duration_sec": 815.0,
+      "view_count": 1506,
+      "thumbnail_url": "https://i.ytimg.com/vi/pjQhLE7LByQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCwtTIHDsL2VRxxSaGUynliQJo89g",
+      "playlist_index": 34
+    },
+    {
+      "id": "CxDlP2vCCbM",
+      "title": "【人間関係で本当に見るべき一点】本当に信じていい人の見抜き方｜もう人間関係で悩まないための4つの視点 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=CxDlP2vCCbM",
+      "duration_sec": 552.0,
+      "view_count": 1659,
+      "thumbnail_url": "https://i.ytimg.com/vi/CxDlP2vCCbM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCg5-r0jaA0vqZT-aZ_IGn3F2vysw",
+      "playlist_index": 35
+    },
+    {
+      "id": "xUNMillK3go",
+      "title": "【心が軽くなるブッダの教え】人間関係と体調の波に疲れたあなたへ。ブッダが教える5つの心の整え方  | 否定性バイアス",
+      "url": "https://www.youtube.com/watch?v=xUNMillK3go",
+      "duration_sec": 654.0,
+      "view_count": 1092,
+      "thumbnail_url": "https://i.ytimg.com/vi/xUNMillK3go/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC0fajOs8RB-ulDX8Pe8P1InuwZVg",
+      "playlist_index": 36
+    },
+    {
+      "id": "cSNFdiL8wAQ",
+      "title": "【⚠️このサインが出たら要注意】人の本性がむき出しになる３つの場面。ブッダが教える人間関係の極意 |  ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=cSNFdiL8wAQ",
+      "duration_sec": 718.0,
+      "view_count": 867,
+      "thumbnail_url": "https://i.ytimg.com/vi/cSNFdiL8wAQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCsIPxnk_bc9WzCadLeoD2iO7MP8Q",
+      "playlist_index": 37
+    },
+    {
+      "id": "AqqdqtbMbU0",
+      "title": "【心が軽くなる】放っておくと好転する法則 | もう悩まない心の整理術 | ブッダの教え | 仏教の知恵に学ぶ",
+      "url": "https://www.youtube.com/watch?v=AqqdqtbMbU0",
+      "duration_sec": 587.0,
+      "view_count": 2553,
+      "thumbnail_url": "https://i.ytimg.com/vi/AqqdqtbMbU0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAPNohIRS-0j4M7hAcN-7Im-LtFHw",
+      "playlist_index": 38
+    },
+    {
+      "id": "h1AfSqf0EI4",
+      "title": "【仏教×脳科学】その悩み、97%は起こりません。この考え方で人生がもっと楽しくなる！心を軽くする方法  | ブッダの教え【なぜか心が晴れない人へ…】",
+      "url": "https://www.youtube.com/watch?v=h1AfSqf0EI4",
+      "duration_sec": 948.0,
+      "view_count": 3238,
+      "thumbnail_url": "https://i.ytimg.com/vi/h1AfSqf0EI4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAjuUGckTkyYDYYxIF5kqrkPFpR6Q",
+      "playlist_index": 39
+    },
+    {
+      "id": "YlK-4Z_ZpOU",
+      "title": "【孤独は幸せ？】老後一人ぼっちでも幸せに生きる3つの秘訣 | 仏教が教える人生の智慧 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=YlK-4Z_ZpOU",
+      "duration_sec": 1007.0,
+      "view_count": 3085,
+      "thumbnail_url": "https://i.ytimg.com/vi/YlK-4Z_ZpOU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCgxAoLIpP1_V_HSij-SwjkBrtlFw",
+      "playlist_index": 40
+    },
+    {
+      "id": "M3G_tEH8scU",
+      "title": "【逆転の一言】見下された時に使えるブッダの知恵『勝ち逃げの極意』｜仏教の教えで心が軽くなる | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=M3G_tEH8scU",
+      "duration_sec": 805.0,
+      "view_count": 9302,
+      "thumbnail_url": "https://i.ytimg.com/vi/M3G_tEH8scU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCRJeSSIXtQsEi6OZb-dEoIqqCipQ",
+      "playlist_index": 41
+    },
+    {
+      "id": "jkErbvLE-cA",
+      "title": "脳が変わる感謝の力を知ってる？「本当の感謝」をした時に起こること。【感謝に秘められた力】 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=jkErbvLE-cA",
+      "duration_sec": 988.0,
+      "view_count": 120367,
+      "thumbnail_url": "https://i.ytimg.com/vi/jkErbvLE-cA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCJHurTIehCrf4-vGjZMpvsIZuhiQ",
+      "playlist_index": 42
+    },
+    {
+      "id": "Os1vFaeHPYM",
+      "title": "【持ち物が増えると幸福度が下がるワケ】この矛盾をブッダはどう解いたか | ブッダの教え【聞き流し】",
+      "url": "https://www.youtube.com/watch?v=Os1vFaeHPYM",
+      "duration_sec": 716.0,
+      "view_count": 1218,
+      "thumbnail_url": "https://i.ytimg.com/vi/Os1vFaeHPYM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLADwPZ6zUxx-AghC4geQxwLIb4YJw",
+      "playlist_index": 43
+    },
+    {
+      "id": "xD-UOFXWhbc",
+      "title": "【衝撃の事実】心の汚い人が絶対に言えない「たった一言」｜99%が気づかない人間関係の法則 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=xD-UOFXWhbc",
+      "duration_sec": 724.0,
+      "view_count": 1504,
+      "thumbnail_url": "https://i.ytimg.com/vi/xD-UOFXWhbc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLD56TYZpuipSjH8_6AvBwvbpcZ4bA",
+      "playlist_index": 44
+    },
+    {
+      "id": "rRqVxrbmtHA",
+      "title": "【正論よりよっぽど大切なこと！】その\"常識\"があなたを孤立させる | ブッダの教え | 仏教の教え",
+      "url": "https://www.youtube.com/watch?v=rRqVxrbmtHA",
+      "duration_sec": 1158.0,
+      "view_count": 4418,
+      "thumbnail_url": "https://i.ytimg.com/vi/rRqVxrbmtHA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBmcQxHZPjvBtzvTf70Xv_mF1JsOg",
+      "playlist_index": 45
+    },
+    {
+      "id": "UXPnjT8bdU4",
+      "title": "【最強メンタルへ激変！】心配ばかりしてしまうあなたへ | ブッダの教えで心が軽くなる話",
+      "url": "https://www.youtube.com/watch?v=UXPnjT8bdU4",
+      "duration_sec": 1118.0,
+      "view_count": 7030,
+      "thumbnail_url": "https://i.ytimg.com/vi/UXPnjT8bdU4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLADkitnn5-m1b2-dUMcmeKKyRq1Ww",
+      "playlist_index": 46
+    },
+    {
+      "id": "DkbqcEMI1x8",
+      "title": "【禁断の人間関係術】バカのふりが最強の生き方だった！\"心の余白\"の秘密｜知らないと損する最強の謙虚パワー【脳科学で証明】| ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=DkbqcEMI1x8",
+      "duration_sec": 989.0,
+      "view_count": 3527,
+      "thumbnail_url": "https://i.ytimg.com/vi/DkbqcEMI1x8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDXqBdctzC_Asj3vA5ihHMjlLKzJw",
+      "playlist_index": 47
+    },
+    {
+      "id": "IU63A7coHuE",
+      "title": "【人に合わせすぎて疲れたあなたへ】冷たい人ほど幸せになる驚きの理由 | その優しさが身を滅ぼします | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=IU63A7coHuE",
+      "duration_sec": 740.0,
+      "view_count": 1763,
+      "thumbnail_url": "https://i.ytimg.com/vi/IU63A7coHuE/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCw0gnONO3HMzhonErqiBNV2eI4LA",
+      "playlist_index": 48
+    },
+    {
+      "id": "7BhLgnRRkUk",
+      "title": "【人生が好転する！】\"怠ける\"って本当に悪いこと？怠ける人は最強！という仏教の教え | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=7BhLgnRRkUk",
+      "duration_sec": 882.0,
+      "view_count": 2090,
+      "thumbnail_url": "https://i.ytimg.com/vi/7BhLgnRRkUk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBOP_jRMi-b5ENfR6PGGRAhGcZ9QQ",
+      "playlist_index": 49
+    },
+    {
+      "id": "zaqxoGt5O1o",
+      "title": "【9割が知らない】優しい人の口癖とその深い意味！ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=zaqxoGt5O1o",
+      "duration_sec": 945.0,
+      "view_count": 2543,
+      "thumbnail_url": "https://i.ytimg.com/vi/zaqxoGt5O1o/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC3G_5_yOOxBllBl1Dt6e9sxeCOGQ",
+      "playlist_index": 50
+    },
+    {
+      "id": "Xh99txFMaS0",
+      "title": "【あなたは本当に大丈夫？】老後に絶対に子供に渡してはいけない5つのもの | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=Xh99txFMaS0",
+      "duration_sec": 1203.0,
+      "view_count": 2841,
+      "thumbnail_url": "https://i.ytimg.com/vi/Xh99txFMaS0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCYU67aJN1eWsTHFS3_FJUnEoby5Q",
+      "playlist_index": 51
+    },
+    {
+      "id": "dWEDLDetQzw",
+      "title": "【なぜ？】人生が激変する！「どうでもいい」と思うだけで全てがうまくいく理由",
+      "url": "https://www.youtube.com/watch?v=dWEDLDetQzw",
+      "duration_sec": 900.0,
+      "view_count": 52200,
+      "thumbnail_url": "https://i.ytimg.com/vi/dWEDLDetQzw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDT89MdjtDipir2Rt1c1FpJQKLj_g",
+      "playlist_index": 52
+    },
+    {
+      "id": "WIoPhexfsf8",
+      "title": "【知っていますか？】誠実な人が無意識に使う「魔法の言葉」〜言われるだけで心が開く秘密の技術〜 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=WIoPhexfsf8",
+      "duration_sec": 1068.0,
+      "view_count": 2636,
+      "thumbnail_url": "https://i.ytimg.com/vi/WIoPhexfsf8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLABfKtbgZhsU_oHW9wpWqFuAskGOg",
+      "playlist_index": 53
+    },
+    {
+      "id": "OTBs9zj2ebM",
+      "title": "【サヨナラ確定】この言葉を聞いたら超危険 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=OTBs9zj2ebM",
+      "duration_sec": 1334.0,
+      "view_count": 5528,
+      "thumbnail_url": "https://i.ytimg.com/vi/OTBs9zj2ebM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAr5l87whaVXOrpoLu5NCCGo_rt5A",
+      "playlist_index": 54
+    },
+    {
+      "id": "MFgfrXEnPOM",
+      "title": "【⚠️注意】仏陀が教える\"本当の成功\"とは？ 称賛される人生と幸せな人生は違う！ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=MFgfrXEnPOM",
+      "duration_sec": 1313.0,
+      "view_count": 1604,
+      "thumbnail_url": "https://i.ytimg.com/vi/MFgfrXEnPOM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLByFFdh1FzYnDxasUjCYSxn5Nja_g",
+      "playlist_index": 55
+    },
+    {
+      "id": "KQjrHTntFVY",
+      "title": "【人生が変わる】悪口・否定・批判…何を言われても気にしない方法とは？人の評価は変わるものでも、あなたの価値は変わりません。 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=KQjrHTntFVY",
+      "duration_sec": 1332.0,
+      "view_count": 105596,
+      "thumbnail_url": "https://i.ytimg.com/vi/KQjrHTntFVY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAiiSaMfvlw3rR9U0HaPiispBzoDQ",
+      "playlist_index": 56
+    },
+    {
+      "id": "AHXI3qann50",
+      "title": "【縁切り確定】毒のような人間関係から自分を守る | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=AHXI3qann50",
+      "duration_sec": 1034.0,
+      "view_count": 4164,
+      "thumbnail_url": "https://i.ytimg.com/vi/AHXI3qann50/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCTqOmhM0XDTvrP8L7q3O0KDN_nDw",
+      "playlist_index": 57
+    },
+    {
+      "id": "4D9iU86_VDA",
+      "title": "嫌いな人を心から消す方法 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=4D9iU86_VDA",
+      "duration_sec": 1425.0,
+      "view_count": 15226,
+      "thumbnail_url": "https://i.ytimg.com/vi/4D9iU86_VDA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA2Qw0lGLZ6NgIR-qFxwU55XTbiYA",
+      "playlist_index": 58
+    },
+    {
+      "id": "bx1wDhcSuoc",
+      "title": "【危険人物】卑怯者は話すとき必ず〇〇という - 言葉で見抜く不誠実な人 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=bx1wDhcSuoc",
+      "duration_sec": 836.0,
+      "view_count": 3183,
+      "thumbnail_url": "https://i.ytimg.com/vi/bx1wDhcSuoc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCDkgwss7tchPpoDlBbEZHFFGS91A",
+      "playlist_index": 59
+    },
+    {
+      "id": "BRaCOFh1gLQ",
+      "title": "【人の目を気にしなくなる5つの方法】これで人生が驚くほど楽になる | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=BRaCOFh1gLQ",
+      "duration_sec": 1102.0,
+      "view_count": 5161,
+      "thumbnail_url": "https://i.ytimg.com/vi/BRaCOFh1gLQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDjghssNswm_anUFF7iqkIYT30SwQ",
+      "playlist_index": 60
+    },
+    {
+      "id": "HkoZEzAwx-U",
+      "title": "【警告】50歳から人生を豊かにするブッダの5つの教え | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=HkoZEzAwx-U",
+      "duration_sec": 687.0,
+      "view_count": 1471,
+      "thumbnail_url": "https://i.ytimg.com/vi/HkoZEzAwx-U/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDDhGl50-FadX2oQTAlS0o4At1mQw",
+      "playlist_index": 61
+    },
+    {
+      "id": "Q8gK0sJeSFo",
+      "title": "【その優しさ、危険です】ブッダから学ぶ「目からうろこ」の本当の優しさとは!? | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=Q8gK0sJeSFo",
+      "duration_sec": 673.0,
+      "view_count": 1409,
+      "thumbnail_url": "https://i.ytimg.com/vi/Q8gK0sJeSFo/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAenP5YIjaYO9rFKwhxPxEmnQvKxg",
+      "playlist_index": 62
+    },
+    {
+      "id": "rZEwnlyu-0o",
+      "title": "【危険】この言葉を使う人とは縁を切れ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=rZEwnlyu-0o",
+      "duration_sec": 678.0,
+      "view_count": 1450,
+      "thumbnail_url": "https://i.ytimg.com/vi/rZEwnlyu-0o/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBe9kCvIE6KPfy-nm-100MLhXbL-Q",
+      "playlist_index": 63
+    },
+    {
+      "id": "i9c0_dctyE0",
+      "title": "亡くなった人が夢に出てくる本当の理由 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=i9c0_dctyE0",
+      "duration_sec": 982.0,
+      "view_count": 2386,
+      "thumbnail_url": "https://i.ytimg.com/vi/i9c0_dctyE0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBXdI5MQLTeAla7ef4EcJBFAwryPw",
+      "playlist_index": 64
+    },
+    {
+      "id": "dgkJvEsS_iQ",
+      "title": "【この3つ当てはまったらヤバい...！】老後の人生で大失敗する人の生き方 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=dgkJvEsS_iQ",
+      "duration_sec": 660.0,
+      "view_count": 2034,
+      "thumbnail_url": "https://i.ytimg.com/vi/dgkJvEsS_iQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBN_j9AGR8VcQzSySwDY1Tt84wnBw",
+      "playlist_index": 65
+    },
+    {
+      "id": "T3e8xQ31x8Y",
+      "title": "【これだけ！】ストレスを消し去る３つの習慣！最も過酷な修行で悟ったこと | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=T3e8xQ31x8Y",
+      "duration_sec": 882.0,
+      "view_count": 2574,
+      "thumbnail_url": "https://i.ytimg.com/vi/T3e8xQ31x8Y/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLB1MNYYnArHHdhYcb_8QomhIj9LXg",
+      "playlist_index": 66
+    },
+    {
+      "id": "m7h4zjfH6uw",
+      "title": "【これさえ実践すれば全てうまくいく！】心身の不調が続く人必見！全ての改善は言霊にあった | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=m7h4zjfH6uw",
+      "duration_sec": 781.0,
+      "view_count": 6095,
+      "thumbnail_url": "https://i.ytimg.com/vi/m7h4zjfH6uw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC9waEnvR2TvRu2Eo4hMyR1kDCF-Q",
+      "playlist_index": 67
+    },
+    {
+      "id": "_WFJP-rf_JQ",
+      "title": "【絶対ダメ！】他人に話すと後悔する7つの言葉！自分を守るために「口にすべきではない」こと |  ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=_WFJP-rf_JQ",
+      "duration_sec": 729.0,
+      "view_count": 1834,
+      "thumbnail_url": "https://i.ytimg.com/vi/_WFJP-rf_JQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLByYXxAt-kKpjcEe2OWfzjdw64QnA",
+      "playlist_index": 68
+    },
+    {
+      "id": "oPSfoAMHHUI",
+      "title": "【気をつけて！】嘘をつく人が使う5つの言葉とは？ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=oPSfoAMHHUI",
+      "duration_sec": 761.0,
+      "view_count": 2172,
+      "thumbnail_url": "https://i.ytimg.com/vi/oPSfoAMHHUI/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDx5P7Vq04tABzpO8xxGpCVamZQuA",
+      "playlist_index": 69
+    },
+    {
+      "id": "bvJmLhSTeXM",
+      "title": "心のモヤモヤを消す３つの教え | ブッダの教え【人間関係のわだかまりを消す】",
+      "url": "https://www.youtube.com/watch?v=bvJmLhSTeXM",
+      "duration_sec": 713.0,
+      "view_count": 1705,
+      "thumbnail_url": "https://i.ytimg.com/vi/bvJmLhSTeXM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLALIcYcpznSDWMs_rqbyzulJJLWhQ",
+      "playlist_index": 70
+    },
+    {
+      "id": "eT8hNH-9RSk",
+      "title": "【危険】親子の絆に悩む全ての方へ、知っておくべき危険な言葉 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=eT8hNH-9RSk",
+      "duration_sec": 783.0,
+      "view_count": 2662,
+      "thumbnail_url": "https://i.ytimg.com/vi/eT8hNH-9RSk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBf-cGeScaE8HsUBiXOQB5THSakfA",
+      "playlist_index": 71
+    },
+    {
+      "id": "phXj83lUzec",
+      "title": "寂しくて仕方ないのはなぜか。どうしたら解決できるのか | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=phXj83lUzec",
+      "duration_sec": 805.0,
+      "view_count": 2220,
+      "thumbnail_url": "https://i.ytimg.com/vi/phXj83lUzec/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCfpHrlAUHdH83VupIF9xedHy3mSw",
+      "playlist_index": 72
+    },
+    {
+      "id": "IkMMLZdDNu4",
+      "title": "これを諦めるとあなたの人生は輝く｜ブッダの教え【仏教物語】",
+      "url": "https://www.youtube.com/watch?v=IkMMLZdDNu4",
+      "duration_sec": 622.0,
+      "view_count": 3022,
+      "thumbnail_url": "https://i.ytimg.com/vi/IkMMLZdDNu4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBka4C0g8l9AfVeV_x6XQ2Hl3A0lg",
+      "playlist_index": 73
+    },
+    {
+      "id": "yQI_3e7uQ6s",
+      "title": "【危険人物！】このセリフを言う人を信用してはいけません | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=yQI_3e7uQ6s",
+      "duration_sec": 779.0,
+      "view_count": 2756,
+      "thumbnail_url": "https://i.ytimg.com/vi/yQI_3e7uQ6s/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDpD24OK-mCsR0IJ5H61srWdIadiw",
+      "playlist_index": 74
+    },
+    {
+      "id": "jdZXTZrB-rw",
+      "title": "【要注意！】優しく見えて、実は冷たい人を見抜くポイント | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=jdZXTZrB-rw",
+      "duration_sec": 802.0,
+      "view_count": 4651,
+      "thumbnail_url": "https://i.ytimg.com/vi/jdZXTZrB-rw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBf5geVbyvnGa9jbso3te-bfaIscw",
+      "playlist_index": 75
+    },
+    {
+      "id": "uqIKj8biFYk",
+      "title": "嫌いな人との上手な接し方、苦手な人へのストレスが軽くなる | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=uqIKj8biFYk",
+      "duration_sec": 861.0,
+      "view_count": 2497,
+      "thumbnail_url": "https://i.ytimg.com/vi/uqIKj8biFYk/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLD9Yu1UUJk027QnDj7c7UrDPWSUWQ",
+      "playlist_index": 76
+    },
+    {
+      "id": "xtibT-OFXx4",
+      "title": "【怒りジワはヤバい！】怒りを抑えるために最初に知らねばならないこと | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=xtibT-OFXx4",
+      "duration_sec": 857.0,
+      "view_count": 2836,
+      "thumbnail_url": "https://i.ytimg.com/vi/xtibT-OFXx4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDczccUGbwjDx0ECdeE2FU3bvlMRQ",
+      "playlist_index": 77
+    },
+    {
+      "id": "eoCrCUFg8qM",
+      "title": "【絶対NG】周りからの信頼を失う、やりがちな言動3選 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=eoCrCUFg8qM",
+      "duration_sec": 920.0,
+      "view_count": 2325,
+      "thumbnail_url": "https://i.ytimg.com/vi/eoCrCUFg8qM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDsEJw84Pfp611QmiUdN7xhX2GhtA",
+      "playlist_index": 78
+    },
+    {
+      "id": "brcKX0BQ2-I",
+      "title": "【親切なつもりなのに、なぜか距離を置かれる...】悪気はないのに嫌われてしまう残念な人の特徴 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=brcKX0BQ2-I",
+      "duration_sec": 836.0,
+      "view_count": 2947,
+      "thumbnail_url": "https://i.ytimg.com/vi/brcKX0BQ2-I/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBlFrxmHBub9K_Cb4dUms-vm84Erg",
+      "playlist_index": 79
+    },
+    {
+      "id": "hfXKTCI7xhQ",
+      "title": "【あなたの周りにいませんか？】裏切り者の決定的な特徴７つ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=hfXKTCI7xhQ",
+      "duration_sec": 886.0,
+      "view_count": 3424,
+      "thumbnail_url": "https://i.ytimg.com/vi/hfXKTCI7xhQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDGaRl0hIwNAIh3SnqMUd9wo3sweg",
+      "playlist_index": 80
+    }
+  ],
+  "stats": {
+    "n": 80,
+    "views": {
+      "min": 760.0,
+      "p25": 1404.0,
+      "median": 2115.5,
+      "p75": 3196.75,
+      "max": 268780.0,
+      "mean": 9659.3
+    },
+    "durations_sec": {
+      "min": 536.0,
+      "p25": 658.5,
+      "median": 782.0,
+      "p75": 983.5,
+      "max": 1425.0,
+      "mean": 834.275
+    },
+    "title_len": {
+      "min": 21.0,
+      "p25": 35.75,
+      "median": 45.0,
+      "p75": 54.0,
+      "max": 74.0,
+      "mean": 45.1875
+    },
+    "title_patterns": {
+      "starts_with_bracket_ratio": 0.875,
+      "has_bar_ratio": 0.9625,
+      "has_quotes_ratio": 0.275,
+      "has_question_ratio": 0.175,
+      "has_exclamation_ratio": 0.25,
+      "has_digits_ratio": 0.3625,
+      "has_age_ratio": 0.0,
+      "top_bracket_prefixes": [
+        {
+          "prefix": "危険",
+          "count": 2
+        },
+        {
+          "prefix": "警告",
+          "count": 2
+        },
+        {
+          "prefix": "逆転の一言",
+          "count": 2
+        },
+        {
+          "prefix": "99%の悪口を受け流す最強の護身術",
+          "count": 1
+        },
+        {
+          "prefix": "99%勘違い",
+          "count": 1
+        },
+        {
+          "prefix": "99%好かれる",
+          "count": 1
+        },
+        {
+          "prefix": "99%好かれる会話術",
+          "count": 1
+        },
+        {
+          "prefix": "9割が知らない",
+          "count": 1
+        },
+        {
+          "prefix": "⚠️このサインが出たら要注意",
+          "count": 1
+        },
+        {
+          "prefix": "⚠️注意",
+          "count": 1
+        },
+        {
+          "prefix": "「変な人」と思われることの価値",
+          "count": 1
+        },
+        {
+          "prefix": "あなたの周りにいませんか？",
+          "count": 1
+        },
+        {
+          "prefix": "あなたは本当に大丈夫？",
+          "count": 1
+        },
+        {
+          "prefix": "この3つ当てはまったらヤバい...！",
+          "count": 1
+        },
+        {
+          "prefix": "これさえ実践すれば全てうまくいく！",
+          "count": 1
+        },
+        {
+          "prefix": "これだけ！",
+          "count": 1
+        },
+        {
+          "prefix": "これで幸運になります！",
+          "count": 1
+        },
+        {
+          "prefix": "その優しさ、危険です",
+          "count": 1
+        },
+        {
+          "prefix": "なぜか心がザワつく夜に",
+          "count": 1
+        },
+        {
+          "prefix": "なぜか運がいい人の口癖",
+          "count": 1
+        }
+      ],
+      "top_tokens": [
+        {
+          "token": "ブッダの教え",
+          "count": 69
+        },
+        {
+          "token": "仏教の教え",
+          "count": 4
+        },
+        {
+          "token": "なぜ",
+          "count": 2
+        },
+        {
+          "token": "危険",
+          "count": 2
+        },
+        {
+          "token": "危険人物",
+          "count": 2
+        },
+        {
+          "token": "忘れる力",
+          "count": 2
+        },
+        {
+          "token": "警告",
+          "count": 2
+        },
+        {
+          "token": "逆転の一言",
+          "count": 2
+        },
+        {
+          "token": "50歳から人生を豊かにするブッダの5つの教え",
+          "count": 1
+        },
+        {
+          "token": "5つのタイプ",
+          "count": 1
+        },
+        {
+          "token": "97%は起こりません",
+          "count": 1
+        },
+        {
+          "token": "99%が不幸になってしまう３つの習慣",
+          "count": 1
+        },
+        {
+          "token": "99%が気づかない人間関係の法則",
+          "count": 1
+        },
+        {
+          "token": "99%の悪口を受け流す最強の護身術",
+          "count": 1
+        },
+        {
+          "token": "99%勘違い",
+          "count": 1
+        },
+        {
+          "token": "99%好かれる",
+          "count": 1
+        },
+        {
+          "token": "99%好かれる会話術",
+          "count": 1
+        },
+        {
+          "token": "9割が知らない",
+          "count": 1
+        },
+        {
+          "token": "9歳の親鸞聖人が見抜いた後悔しない生き方",
+          "count": 1
+        },
+        {
+          "token": "⚠️このサインが出たら要注意",
+          "count": 1
+        },
+        {
+          "token": "⚠️注意",
+          "count": 1
+        },
+        {
+          "token": "あなたの",
+          "count": 1
+        },
+        {
+          "token": "あなたの価値は変わりません",
+          "count": 1
+        },
+        {
+          "token": "あなたの周りにいませんか",
+          "count": 1
+        },
+        {
+          "token": "あなたの運気を吸い取る",
+          "count": 1
+        },
+        {
+          "token": "あなたは本当に大丈夫",
+          "count": 1
+        },
+        {
+          "token": "ありがたいお言葉",
+          "count": 1
+        },
+        {
+          "token": "があなたを孤立させる",
+          "count": 1
+        },
+        {
+          "token": "が口癖のあなたへ",
+          "count": 1
+        },
+        {
+          "token": "ぐっすり眠るブッダの習慣",
+          "count": 1
+        },
+        {
+          "token": "こと",
+          "count": 1
+        },
+        {
+          "token": "この3つ当てはまったらヤバい...",
+          "count": 1
+        },
+        {
+          "token": "このセリフを言う人を信用してはいけません",
+          "count": 1
+        },
+        {
+          "token": "この矛盾をブッダはどう解いたか",
+          "count": 1
+        },
+        {
+          "token": "この考え方で人生がもっと楽しくなる",
+          "count": 1
+        },
+        {
+          "token": "この言葉を使う人とは縁を切れ",
+          "count": 1
+        },
+        {
+          "token": "この言葉を聞いたら超危険",
+          "count": 1
+        },
+        {
+          "token": "これさえ実践すれば全てうまくいく",
+          "count": 1
+        },
+        {
+          "token": "これだけ",
+          "count": 1
+        },
+        {
+          "token": "これで人生が驚くほど楽になる",
+          "count": 1
+        }
+      ]
+    },
+    "corr_duration_vs_views": 0.05460423013592745
+  },
+  "duration_buckets": {
+    "<8m": 0,
+    "8-15m": 54,
+    "15-25m": 26,
+    "25-45m": 0,
+    "45m+": 0
+  },
+  "top_by_views": [
+    {
+      "id": "-dGBn_uFOn0",
+      "title": "【９割が知らない鈍感力】心が楽になるブッダの「受け流す」技術。自分の心を守るための優しさと賢さが身につきます。",
+      "url": "https://www.youtube.com/watch?v=-dGBn_uFOn0",
+      "duration_sec": 628.0,
+      "view_count": 268780,
+      "thumbnail_url": "https://i.ytimg.com/vi/-dGBn_uFOn0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAEcd5IhOH-hKPfJT30Y_6MkpsjAw",
+      "playlist_index": 28
+    },
+    {
+      "id": "jkErbvLE-cA",
+      "title": "脳が変わる感謝の力を知ってる？「本当の感謝」をした時に起こること。【感謝に秘められた力】 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=jkErbvLE-cA",
+      "duration_sec": 988.0,
+      "view_count": 120367,
+      "thumbnail_url": "https://i.ytimg.com/vi/jkErbvLE-cA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCJHurTIehCrf4-vGjZMpvsIZuhiQ",
+      "playlist_index": 42
+    },
+    {
+      "id": "KQjrHTntFVY",
+      "title": "【人生が変わる】悪口・否定・批判…何を言われても気にしない方法とは？人の評価は変わるものでも、あなたの価値は変わりません。 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=KQjrHTntFVY",
+      "duration_sec": 1332.0,
+      "view_count": 105596,
+      "thumbnail_url": "https://i.ytimg.com/vi/KQjrHTntFVY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAiiSaMfvlw3rR9U0HaPiispBzoDQ",
+      "playlist_index": 56
+    },
+    {
+      "id": "dWEDLDetQzw",
+      "title": "【なぜ？】人生が激変する！「どうでもいい」と思うだけで全てがうまくいく理由",
+      "url": "https://www.youtube.com/watch?v=dWEDLDetQzw",
+      "duration_sec": 900.0,
+      "view_count": 52200,
+      "thumbnail_url": "https://i.ytimg.com/vi/dWEDLDetQzw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDT89MdjtDipir2Rt1c1FpJQKLj_g",
+      "playlist_index": 52
+    },
+    {
+      "id": "7DQlA6dIPiw",
+      "title": "【９割が知らない幸せの正体】何かを得る必要はない。気づくだけで幸せになれる理由 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=7DQlA6dIPiw",
+      "duration_sec": 803.0,
+      "view_count": 16164,
+      "thumbnail_url": "https://i.ytimg.com/vi/7DQlA6dIPiw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBUUkYWdJ8BPkS7o39YHCIXtaT9IA",
+      "playlist_index": 10
+    },
+    {
+      "id": "AfgkTl6twfw",
+      "title": "【忘却は最高の鎮痛剤】終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=AfgkTl6twfw",
+      "duration_sec": 880.0,
+      "view_count": 15279,
+      "thumbnail_url": "https://i.ytimg.com/vi/AfgkTl6twfw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCReCzAqCKzJT-6gumiHqK0RFEyiQ",
+      "playlist_index": 9
+    },
+    {
+      "id": "4D9iU86_VDA",
+      "title": "嫌いな人を心から消す方法 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=4D9iU86_VDA",
+      "duration_sec": 1425.0,
+      "view_count": 15226,
+      "thumbnail_url": "https://i.ytimg.com/vi/4D9iU86_VDA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA2Qw0lGLZ6NgIR-qFxwU55XTbiYA",
+      "playlist_index": 58
+    },
+    {
+      "id": "M3G_tEH8scU",
+      "title": "【逆転の一言】見下された時に使えるブッダの知恵『勝ち逃げの極意』｜仏教の教えで心が軽くなる | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=M3G_tEH8scU",
+      "duration_sec": 805.0,
+      "view_count": 9302,
+      "thumbnail_url": "https://i.ytimg.com/vi/M3G_tEH8scU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCRJeSSIXtQsEi6OZb-dEoIqqCipQ",
+      "playlist_index": 41
+    },
+    {
+      "id": "i9D7gvjbyew",
+      "title": "【99%好かれる会話術】なぜか人が集まる究極テクニック｜ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=i9D7gvjbyew",
+      "duration_sec": 650.0,
+      "view_count": 8753,
+      "thumbnail_url": "https://i.ytimg.com/vi/i9D7gvjbyew/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDdGExvPLpQt3OSn_lc_xa-sy8bWA",
+      "playlist_index": 27
+    },
+    {
+      "id": "UXPnjT8bdU4",
+      "title": "【最強メンタルへ激変！】心配ばかりしてしまうあなたへ | ブッダの教えで心が軽くなる話",
+      "url": "https://www.youtube.com/watch?v=UXPnjT8bdU4",
+      "duration_sec": 1118.0,
+      "view_count": 7030,
+      "thumbnail_url": "https://i.ytimg.com/vi/UXPnjT8bdU4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLADkitnn5-m1b2-dUMcmeKKyRq1Ww",
+      "playlist_index": 46
+    }
+  ],
+  "recent": [
+    {
+      "id": "0pi7B8GK8H8",
+      "title": "【99%勘違い】それを喋った瞬間、人生が不利になる話｜ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=0pi7B8GK8H8",
+      "duration_sec": 734.0,
+      "view_count": 1324,
+      "thumbnail_url": "https://i.ytimg.com/vi/0pi7B8GK8H8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCFPC6a9MfYoiazJb9pI2d6Zf8t8w",
+      "playlist_index": 1
+    },
+    {
+      "id": "nlO8ryuVrC8",
+      "title": "【恩を売ると損】「してあげた」と思った瞬間、それは善行ではなく取引になる | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=nlO8ryuVrC8",
+      "duration_sec": 587.0,
+      "view_count": 1074,
+      "thumbnail_url": "https://i.ytimg.com/vi/nlO8ryuVrC8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBrTyBYnQ7GuUn4BQWYptHBkbwrjA",
+      "playlist_index": 2
+    },
+    {
+      "id": "8I6QI1lw7Po",
+      "title": "【荘子×仏教】心が折れない人の「反応しない技術」 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=8I6QI1lw7Po",
+      "duration_sec": 666.0,
+      "view_count": 1259,
+      "thumbnail_url": "https://i.ytimg.com/vi/8I6QI1lw7Po/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDLLwB29A9cqhUbUYrRpzi-rmz22g",
+      "playlist_index": 3
+    },
+    {
+      "id": "zRPR6p0IhW0",
+      "title": "【違和感は体の警報】理由はないけど、なんか嫌だ。その違和感は放置すると超危険です。 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=zRPR6p0IhW0",
+      "duration_sec": 779.0,
+      "view_count": 1371,
+      "thumbnail_url": "https://i.ytimg.com/vi/zRPR6p0IhW0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA9TMmlEBdD0I33tE5adqXdNVkMeA",
+      "playlist_index": 4
+    },
+    {
+      "id": "dqKQXiIznq8",
+      "title": "【運の正体】不運を“運”に変える人の考え方｜ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=dqKQXiIznq8",
+      "duration_sec": 606.0,
+      "view_count": 2934,
+      "thumbnail_url": "https://i.ytimg.com/vi/dqKQXiIznq8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDZiKU1-Q5kdZDHfr0zZT8LPXOTxg",
+      "playlist_index": 5
+    },
+    {
+      "id": "Hatf30pL4hQ",
+      "title": "【「変な人」と思われることの価値】普通でありたいと願うほど、心が窮屈になりがちなあなたへ | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=Hatf30pL4hQ",
+      "duration_sec": 594.0,
+      "view_count": 1262,
+      "thumbnail_url": "https://i.ytimg.com/vi/Hatf30pL4hQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAm8TMmYWd_pRfszxhKHBRst-isjw",
+      "playlist_index": 6
+    },
+    {
+      "id": "QQ_M82n69FM",
+      "title": "【無敵になる】江戸時代の有名僧侶が教える無視の極意 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=QQ_M82n69FM",
+      "duration_sec": 774.0,
+      "view_count": 1633,
+      "thumbnail_url": "https://i.ytimg.com/vi/QQ_M82n69FM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBpyxSZx2tZ6JbKGBsfqEvvp_vCrQ",
+      "playlist_index": 7
+    },
+    {
+      "id": "Tg_iXDcuQv4",
+      "title": "【今すぐ縁を切るべき人】あなたの運気を吸い取る「5つのタイプ」 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=Tg_iXDcuQv4",
+      "duration_sec": 606.0,
+      "view_count": 760,
+      "thumbnail_url": "https://i.ytimg.com/vi/Tg_iXDcuQv4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCTUCioUr9VjfHx0C0Fk9iWpjPR1g",
+      "playlist_index": 8
+    },
+    {
+      "id": "AfgkTl6twfw",
+      "title": "【忘却は最高の鎮痛剤】終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=AfgkTl6twfw",
+      "duration_sec": 880.0,
+      "view_count": 15279,
+      "thumbnail_url": "https://i.ytimg.com/vi/AfgkTl6twfw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCReCzAqCKzJT-6gumiHqK0RFEyiQ",
+      "playlist_index": 9
+    },
+    {
+      "id": "7DQlA6dIPiw",
+      "title": "【９割が知らない幸せの正体】何かを得る必要はない。気づくだけで幸せになれる理由 | ブッダの教え",
+      "url": "https://www.youtube.com/watch?v=7DQlA6dIPiw",
+      "duration_sec": 803.0,
+      "view_count": 16164,
+      "thumbnail_url": "https://i.ytimg.com/vi/7DQlA6dIPiw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBUUkYWdJ8BPkS7o39YHCIXtaT9IA",
+      "playlist_index": 10
+    }
+  ]
+}

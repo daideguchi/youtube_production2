@@ -1,0 +1,244 @@
+version: 3
+name: CH01_image_prompts_recent_post_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+policy:
+  bottom_band_safe:
+    y0: 0.44
+    y1: 1.0
+    rule: '下56%は黒い筆帯を合成する前提：背景はシンプルに（読める文字は絶対に入れない）'
+  forbid_text: true
+  style: recent_post_parchment_inkwash
+items:
+  - video_id: CH01-251
+    title: '【言葉は刃】人間関係が壊れる「禁句」7つ。言った瞬間に信用が死にます｜ブッダの教え'
+    person_key: buddha
+    anchors: {prop: 'subtle ink-blade motif', light: 'warm golden halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Japanese ink wash + watercolor illustration on warm parchment paper.
+      Sepia / ochre paper texture, subtle grain, soft vignette, calm and minimal (NOT photoreal, NOT anime).
+
+      COMPOSITION:
+      Place the Buddha figure on the RIGHT side (right 35–45%).
+      Left side can be open negative space; keep the bottom 55–60% visually simple (no high-detail objects).
+
+      SUBJECT:
+      Serene Buddha statue/illustration, calm expression, closed mouth, eyes gently down, ushnisha bump, urna dot, elongated earlobes.
+      Orange/saffron robe, soft rim light, thin halo ring behind the head.
+
+      MOTIF (SUBTLE):
+      A faint ink-brush stroke shaped like a short blade (metaphor: words as a blade), very subtle and NOT near the bottom band area.
+
+      ABSOLUTE RESTRICTIONS:
+      NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.
+
+  - video_id: CH01-252
+    title: '【ブッダの警鐘】関わると寿命が縮みます。あなたの「精気」を吸い取る人の正体（5タイプ）'
+    person_key: buddha
+    anchors: {stage: 'dark mist reaches but stops', light: 'warm halo barrier'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Parchment paper texture, Japanese ink wash + watercolor illustration, minimal, warm sepia tone.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Keep the bottom 55–60% simple and low-detail.
+
+      SUBJECT:
+      Serene Buddha (ushnisha, urna, elongated earlobes), saffron robe, thin halo ring, calm and dignified.
+
+      MOTIF (SUBTLE, NOT HORROR):
+      Dark misty hands/tentacles try to reach toward the Buddha but are stopped by a faint circular barrier glow around the halo.
+      Keep it cinematic, soft, non-scary; do NOT place details in the bottom band area.
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-253
+    title: '友達がいなくても幸せな人の特徴。まともな人ほど「孤独」が強くなる理由'
+    person_key: buddha
+    anchors: {stage: 'quiet path', prop: 'distant lantern', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Warm parchment paper + ink wash watercolor illustration, minimal, calm atmosphere.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Bottom 55–60% stays clean/simple.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring, gentle expression.
+
+      MOTIF (SUBTLE):
+      A very faint mountain path leading to a small distant temple light/lantern in the far background (upper-left area only).
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-254
+    title: '【心を守る】陰口を叩かれても平気になる方法。ブッダが教える「受け流し3呼吸」'
+    person_key: buddha
+    anchors: {stage: 'rainy calm', prop: 'umbrella', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Ink wash + watercolor illustration on warm parchment paper, minimal and calm.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Keep the bottom 55–60% simple and low-detail.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring.
+
+      MOTIF (SUBTLE):
+      Gentle rain lines and a simple umbrella silhouette (very soft, not busy), suggesting calm breathing.
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-255
+    title: '正直者がバカを見ない生き方。尽くすほど雑に扱われる「優しすぎる人」への最終通告'
+    person_key: buddha
+    anchors: {prop: 'lotus', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Warm parchment paper texture, ink wash watercolor illustration, minimal.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Bottom 55–60% stays clean/simple.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring.
+
+      MOTIF (SUBTLE):
+      A small lotus flower in the lower-right foreground (but keep the bottom band area uncluttered).
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-256
+    title: '【ブッダの教え】老後は友達を減らしなさい。それが最強の選択です'
+    person_key: buddha
+    anchors: {prop: 'falling leaves', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Ink wash + watercolor on warm parchment paper, minimal, calm.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Keep the bottom 55–60% visually simple.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring, gentle expression.
+
+      MOTIF (SUBTLE):
+      A few falling maple leaves drifting in the air (upper-right to mid-right), sparse and not busy.
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-257
+    title: '【ブッダの警鐘】親の期待で人生が壊れます。「いい子」をやめられない人の苦しみ'
+    person_key: buddha
+    anchors: {stage: 'pressure shadow', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Warm parchment paper + ink wash watercolor illustration, minimal.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Bottom 55–60% stays clean/simple.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring.
+
+      MOTIF (SUBTLE):
+      A faint looming shadow silhouette behind the Buddha (left side), suggesting pressure/expectation; keep it soft and non-scary.
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-258
+    title: '【完全論破】マウントを取る人が一番嫌がること。自慢する人は最後に孤独になります'
+    person_key: buddha
+    anchors: {prop: 'fallen crown', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Ink wash + watercolor on warm parchment paper, minimal.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Keep the bottom 55–60% simple and low-detail.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring.
+
+      MOTIF (SUBTLE):
+      A small fallen crown drifting in smoke (upper-right), symbolizing pride; minimal details.
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-259
+    title: '【静かに勝つ一言】見下された瞬間に心が折れない返し方。使える「言葉」3選'
+    person_key: buddha
+    anchors: {prop: 'shield gesture', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Warm parchment paper + ink wash watercolor illustration, minimal.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Bottom 55–60% stays clean/simple.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring.
+
+      MOTIF (SUBTLE):
+      A faint translucent shield-like brush stroke near the Buddha's raised hand (minimal, not neon).
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+
+  - video_id: CH01-260
+    title: '【警告】完璧主義は心を壊します。自信がない人ほど自分を追い詰める理由'
+    person_key: buddha
+    anchors: {prop: 'cracked glass', light: 'warm halo'}
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+
+      STYLE (RECENT POSTS):
+      Ink wash + watercolor on warm parchment paper, minimal, slightly dramatic.
+
+      COMPOSITION:
+      Buddha on the RIGHT side (right 35–45%), facing LEFT.
+      Keep the bottom 55–60% simple and low-detail.
+
+      SUBJECT:
+      Serene Buddha, saffron robe, thin halo ring, calm expression.
+
+      MOTIF (SUBTLE):
+      Fine crack lines like shattered glass in the upper-left background (very faint, not scary).
+
+      ABSOLUTE RESTRICTIONS:
+      NO text/letters/numbers/watermark/logo/signature.
+

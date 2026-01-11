@@ -213,10 +213,10 @@ def strict_synthesis(
                     # Update duration in segment object for SRT
                     seg.duration_sec = w.getnframes() / w.getframerate()
             except Exception as e:
-                 print(f"[ERROR] Failed to load chunk {chunk_path}: {e}")
-                 # Fallback to regen if load fails?
-            skip_regen = False
-        
+                print(f"[ERROR] Failed to load chunk {chunk_path}: {e}")
+                # Fallback to regen if load fails.
+                skip_regen = False
+         
         if not skip_regen:
             text_to_speak = normalize_text_for_tts(seg.reading or seg.text or "")
 
@@ -234,7 +234,9 @@ def strict_synthesis(
                     seg_patches = patches[i]
                     if seg_patches:
                         print(f"  [PATCH] Applying {len(seg_patches)} kana patches to seg {i}")
-                        apply_kana_patches(query.get("accent_phrases", []), seg_patches)
+                        patched_phrases = apply_kana_patches(query.get("accent_phrases"), seg_patches)
+                        if patched_phrases is not None:
+                            query["accent_phrases"] = patched_phrases
 
                 wav_data = client.synthesis(query, speaker_id)
                 

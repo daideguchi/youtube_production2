@@ -1,0 +1,1069 @@
+{
+  "schema": "ytm.pages.snapshot.channel.v1",
+  "generated_at": "2025-12-28T10:35:19.594465Z",
+  "channel": "CH05",
+  "planning_csv": "workspaces/planning/channels/CH05.csv",
+  "planning_count": 30,
+  "scripts_count": 30,
+  "episodes": [
+    {
+      "channel": "CH05",
+      "video": "001",
+      "video_id": "CH05-001",
+      "title": "【67歳の挑戦】亡き夫の「遺言」で始めたマッチングアプリ。「いいね」を押してくれたのは、40年前に別れた初恋の人でした。",
+      "planning": {
+        "動画番号": "1",
+        "タイトル": "【67歳の挑戦】亡き夫の「遺言」で始めたマッチングアプリ。「いいね」を押してくれたのは、40年前に別れた初恋の人でした。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/001/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "002",
+      "video_id": "CH05-002",
+      "title": "【シニアの青春】70歳で入った市民大学。「隣の席の元教頭先生、私のこと、生徒みたいに叱るんです」それが恋の始まりだった。",
+      "planning": {
+        "動画番号": "2",
+        "タイトル": "【シニアの青春】70歳で入った市民大学。「隣の席の元教頭先生、私のこと、生徒みたいに叱るんです」それが恋の始まりだった。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/002/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "003",
+      "video_id": "CH05-003",
+      "title": "【隣人トラブル】「毎晩うるさい！」隣室のバイオリンの音に怒鳴り込んだら、出てきたのは元オーケストラの指揮者だった。「君のために弾こう」と言われ…。",
+      "planning": {
+        "動画番号": "3",
+        "タイトル": "【隣人トラブル】「毎晩うるさい！」隣室のバイオリンの音に怒鳴り込んだら、出てきたのは元オーケストラの指揮者だった。「君のために弾こう」と言われ…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/003/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "004",
+      "video_id": "CH05-004",
+      "title": "【体験談】シルバー人材センターでペアを組んだのは、ライバル会社の元部長。「君のところのやり方は気に食わん！」と喧嘩ばかりだったのに…。",
+      "planning": {
+        "動画番号": "4",
+        "タイトル": "【体験談】シルバー人材センターでペアを組んだのは、ライバル会社の元部長。「君のところのやり方は気に食わん！」と喧嘩ばかりだったのに…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/004/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "005",
+      "video_id": "CH05-005",
+      "title": "【感動】孫の運動会、一人で応援に来ていた私。隣で同じく一人だった彼が「お孫さん、うちの孫と仲良しなんですよ」と声をかけてきた。",
+      "planning": {
+        "動画番号": "5",
+        "タイトル": "【感動】孫の運動会、一人で応援に来ていた私。隣で同じく一人だった彼が「お孫さん、うちの孫と仲良しなんですよ」と声をかけてきた。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/005/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "006",
+      "video_id": "CH05-006",
+      "title": "【朗読】深夜ラジオのDJに「40年前に別れた恋人へ」と手紙を送った。数日後、番組で私の手紙が読まれ、彼からのアンサーソングが流れた時、涙が止まらなかった。",
+      "planning": {
+        "動画番号": "6",
+        "タイトル": "【朗読】深夜ラジオのDJに「40年前に別れた恋人へ」と手紙を送った。数日後、番組で私の手紙が読まれ、彼からのアンサーソングが流れた時、涙が止まらなかった。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "007",
+      "video_id": "CH05-007",
+      "title": "【ミステリー】夫の遺品から出てきた、見知らぬ女性へのラブレター。「嫉妬」の二文字を胸に会いに行ったら、その女性は夫がずっと支援していた孤児だった。",
+      "planning": {
+        "動画番号": "7",
+        "タイトル": "【ミステリー】夫の遺品から出てきた、見知らぬ女性へのラブレター。「嫉妬」の二文字を胸に会いに行ったら、その女性は夫がずっと支援していた孤児だった。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/007/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "008",
+      "video_id": "CH05-008",
+      "title": "【豪華客船の恋】72歳、人生初クルーズ。ダンスパーティーで誘われず壁の花だった私に「一曲、いかがです？」と手を差し伸べてくれたのは、船の機関士だった。",
+      "planning": {
+        "動画番号": "8",
+        "タイトル": "【豪華客船の恋】72歳、人生初クルーズ。ダンスパーティーで誘われず壁の花だった私に「一曲、いかがです？」と手を差し伸べてくれたのは、船の機関士だった。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/008/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "009",
+      "video_id": "CH05-009",
+      "title": "【禁断の恋？】息子の嫁の父親と、孫の誕生会で意気投合。「子供たちが結婚したんだ、我々も親戚だな」なんて笑っていたら、いつの間にか二人で会う仲に…。",
+      "planning": {
+        "動画番号": "9",
+        "タイトル": "【禁断の恋？】息子の嫁の父親と、孫の誕生会で意気投合。「子供たちが結婚したんだ、我々も親戚だな」なんて笑っていたら、いつの間にか二人で会う仲に…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/009/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "010",
+      "video_id": "CH05-010",
+      "title": "【危険な香り】エレベーターで出会った初老男性に、理性ごと奪われた日",
+      "planning": {
+        "動画番号": "10",
+        "タイトル": "【危険な香り】エレベーターで出会った初老男性に、理性ごと奪われた日",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/010/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "011",
+      "video_id": "CH05-011",
+      "title": "【シニアの健康】毎年受ける人間ドック。「来年もここで会いましょう」が合言葉だったのに、その日、彼が現れることはなかった…。",
+      "planning": {
+        "動画番号": "11",
+        "タイトル": "【シニアの健康】毎年受ける人間ドック。「来年もここで会いましょう」が合言葉だったのに、その日、彼が現れることはなかった…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/011/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "012",
+      "video_id": "CH05-012",
+      "title": "【家庭菜園】きゅうりの育て方で大喧嘩した、隣の畑の頑固おやじ。「俺のやり方が絶対だ！」と言い張る彼が、こっそり私の畑に肥料をやるのを見てしまった。",
+      "planning": {
+        "動画番号": "12",
+        "タイトル": "【家庭菜園】きゅうりの育て方で大喧嘩した、隣の畑の頑固おやじ。「俺のやり方が絶対だ！」と言い張る彼が、こっそり私の畑に肥料をやるのを見てしまった。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/012/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "013",
+      "video_id": "CH05-013",
+      "title": "【俳句の会】「老いらくの恋、恥ずかしき、蟬しぐれ」と詠んだ私。選者の先生が「素晴らしい句だ。…私のことですかな？」と、静かに微笑んだ。",
+      "planning": {
+        "動画番号": "13",
+        "タイトル": "【俳句の会】「老いらくの恋、恥ずかしき、蟬しぐれ」と詠んだ私。選者の先生が「素晴らしい句だ。…私のことですかな？」と、静かに微笑んだ。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/013/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "014",
+      "video_id": "CH05-014",
+      "title": "【カラオケ】スナックでいつもデュエットする相手。「銀座の恋の物語」を歌う時だけ、彼は役者になる。でも、その夜「これは本気だよ」と手を握ってきた。",
+      "planning": {
+        "動画番号": "14",
+        "タイトル": "【カラオケ】スナックでいつもデュエットする相手。「銀座の恋の物語」を歌う時だけ、彼は役者になる。でも、その夜「これは本気だよ」と手を握ってきた。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "015",
+      "video_id": "CH05-015",
+      "title": "【ペットロス】愛犬を亡くし、悲しみに暮れる私。動物霊園でいつも会う彼も、愛猫を亡くしたばかりだった。「あの子たち、今頃虹の橋で友達になってるかな」",
+      "planning": {
+        "動画番号": "15",
+        "タイトル": "【ペットロス】愛犬を亡くし、悲しみに暮れる私。動物霊園でいつも会う彼も、愛猫を亡くしたばかりだった。「あの子たち、今頃虹の橋で友達になってるかな」",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "016",
+      "video_id": "CH05-016",
+      "title": "【バスツアー】一人で参加した日帰りバスツアー。隣の席になった無口な彼が、サービスエリアで私のために「みたらし団子」を買ってきてくれた。",
+      "planning": {
+        "動画番号": "16",
+        "タイトル": "【バスツアー】一人で参加した日帰りバスツアー。隣の席になった無口な彼が、サービスエリアで私のために「みたらし団子」を買ってきてくれた。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "017",
+      "video_id": "CH05-017",
+      "title": "【秘密の共有】「この店、潰れちゃうんだって」行きつけの喫茶店のマスターにそう告げられた夜。同じく常連だった彼と「二人だけの秘密にしよう」と約束した。",
+      "planning": {
+        "動画番号": "17",
+        "タイトル": "【秘密の共有】「この店、潰れちゃうんだって」行きつけの喫茶店のマスターにそう告げられた夜。同じく常連だった彼と「二人だけの秘密にしよう」と約束した。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/017/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "018",
+      "video_id": "CH05-018",
+      "title": "【再就職】66歳、清掃のパートで再就職。指導係は、私より年下の62歳。「あなた、手際が悪いわね」と厳しい彼女に、なぜか惹かれてしまった。",
+      "planning": {
+        "動画番号": "18",
+        "タイトル": "【再就職】66歳、清掃のパートで再就職。指導係は、私より年下の62歳。「あなた、手際が悪いわね」と厳しい彼女に、なぜか惹かれてしまった。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "019",
+      "video_id": "CH05-019",
+      "title": "【ボランティア】地域のゴミ拾いボランティア。「こんなことしても、街は綺麗にならんよ」と皮肉ばかり言う彼が、誰よりも熱心にゴミを拾っていた。",
+      "planning": {
+        "動画番号": "19",
+        "タイトル": "【ボランティア】地域のゴミ拾いボランティア。「こんなことしても、街は綺麗にならんよ」と皮肉ばかり言う彼が、誰よりも熱心にゴミを拾っていた。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/019/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "020",
+      "video_id": "CH05-020",
+      "title": "【図書館の奇跡】いつも同じ席で歴史小説を読んでいる彼。ある日、私が返却した本を、彼が借りていった。本の最終ページに、感想を書いたメモを挟んでみたら…。",
+      "planning": {
+        "動画番号": "20",
+        "タイトル": "【図書館の奇跡】いつも同じ席で歴史小説を読んでいる彼。ある日、私が返却した本を、彼が借りていった。本の最終ページに、感想を書いたメモを挟んでみたら…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/020/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "021",
+      "video_id": "CH05-021",
+      "title": "【料理教室】「味が濃すぎる！」と私の料理を酷評した料理研究家の先生。でも、教室の後「君の作る肉じゃが、オフクロの味に似てる」と照れながら言った。",
+      "planning": {
+        "動画番号": "21",
+        "タイトル": "【料理教室】「味が濃すぎる！」と私の料理を酷評した料理研究家の先生。でも、教室の後「君の作る肉じゃが、オフクロの味に似てる」と照れながら言った。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/021/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "022",
+      "video_id": "CH05-022",
+      "title": "【思い出の場所】閉園する遊園地。40年前に妻と来たメリーゴーランドの前で、一人涙ぐんでいると「あなたも、お別れを言いに？」と、同じく一人の女性に声をかけられた。",
+      "planning": {
+        "動画番号": "22",
+        "タイトル": "【思い出の場所】閉園する遊園地。40年前に妻と来たメリーゴーランドの前で、一人涙ぐんでいると「あなたも、お別れを言いに？」と、同じく一人の女性に声をかけられた。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/022/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "023",
+      "video_id": "CH05-023",
+      "title": "【カメラ】野鳥の撮影が趣味の私。最高のシャッターチャンスを狙っていたら、ファインダーの先に、いつも見かける彼が、鳥に餌をやっている姿が…。",
+      "planning": {
+        "動画番号": "23",
+        "タイトル": "【カメラ】野鳥の撮影が趣味の私。最高のシャッターチャンスを狙っていたら、ファインダーの先に、いつも見かける彼が、鳥に餌をやっている姿が…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/023/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "024",
+      "video_id": "CH05-024",
+      "title": "【朗読】69歳、詐欺に遭って全財産を失った。「もう死のう」と海に来たら、同じく、事業に失敗したという彼と出会った。「死ぬ前に、ラーメンでも食うか」",
+      "planning": {
+        "動画番号": "24",
+        "タイトル": "【朗読】69歳、詐欺に遭って全財産を失った。「もう死のう」と海に来たら、同じく、事業に失敗したという彼と出会った。「死ぬ前に、ラーメンでも食うか」",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/024/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "025",
+      "video_id": "CH05-025",
+      "title": "【年の差】娘が再婚した相手は、私より2歳年下だった。「お義母さん、なんて呼ばないで。…由美子さん」と彼に呼ばれるたび、いけないと分かっているのに…。",
+      "planning": {
+        "動画番号": "25",
+        "タイトル": "【年の差】娘が再婚した相手は、私より2歳年下だった。「お義母さん、なんて呼ばないで。…由美子さん」と彼に呼ばれるたび、いけないと分かっているのに…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/025/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "026",
+      "video_id": "CH05-026",
+      "title": "【お遍路】亡き夫の供養のため、一人で始めたお遍路の旅。雨宿りしたお堂で出会ったのは、同じく妻を亡くしたという彼だった。「あと八十七箇所、一緒に歩きませんか」",
+      "planning": {
+        "動画番号": "26",
+        "タイトル": "【お遍路】亡き夫の供養のため、一人で始めたお遍路の旅。雨宿りしたお堂で出会ったのは、同じく妻を亡くしたという彼だった。「あと八十七箇所、一緒に歩きませんか」",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/026/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "027",
+      "video_id": "CH05-027",
+      "title": "【ドローン】孫へのプレゼントで買ったドローンに、私がハマってしまった。空撮仲間と集まる公園で、いつも的確なアドバイスをくれる師匠（74歳）を、いつしか目で追っていた。",
+      "planning": {
+        "動画番号": "27",
+        "タイトル": "【ドローン】孫へのプレゼントで買ったドローンに、私がハマってしまった。空撮仲間と集まる公園で、いつも的確なアドバイスをくれる師匠（74歳）を、いつしか目で追っていた。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/027/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "028",
+      "video_id": "CH05-028",
+      "title": "【歴史】城跡巡りが趣味の私。石垣の前で熱く語り合えるのは、いつも会う彼だけだった。「この城で、落ち合いませんか」まるで戦国時代の密会のようで…。",
+      "planning": {
+        "動画番号": "28",
+        "タイトル": "【歴史】城跡巡りが趣味の私。石垣の前で熱く語り合えるのは、いつも会う彼だけだった。「この城で、落ち合いませんか」まるで戦国時代の密会のようで…。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/028/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "029",
+      "video_id": "CH05-029",
+      "title": "【シェアハウス】子供も独立し、広い家を持て余した私が始めたシニア向けシェアハウス。最後の入居者は、20年前に離婚した元夫だった。",
+      "planning": {
+        "動画番号": "29",
+        "タイトル": "【シェアハウス】子供も独立し、広い家を持て余した私が始めたシニア向けシェアハウス。最後の入居者は、20年前に離婚した元夫だった。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/029/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "030",
+      "video_id": "CH05-030",
+      "title": "【夫婦の秘密】結婚45年目、夫の書斎で見つけた交換日記。そこには、私に言えなかった「愛してる」の言葉が、毎日綴られていた。",
+      "planning": {
+        "動画番号": "30",
+        "タイトル": "【夫婦の秘密】結婚45年目、夫の書斎で見つけた交換日記。そこには、私に言えなかった「愛してる」の言葉が、毎日綴られていた。",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:52",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "再婚",
+        "悩みタグ_サブ": "家族の距離",
+        "ライフシーン": "市民大学",
+        "キーコンセプト": "アタッチメント",
+        "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
+        "内容（企画要約）": "",
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+      },
+      "assembled_path": "workspaces/scripts/CH05/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH05/030/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH05",
+      "video": "999",
+      "video_id": "CH05-999",
+      "title": null,
+      "planning": null,
+      "assembled_path": null,
+      "script": null
+    }
+  ]
+}

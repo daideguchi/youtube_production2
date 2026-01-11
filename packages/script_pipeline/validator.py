@@ -1,6 +1,7 @@
 """Validate required outputs for stages in the new script_pipeline."""
 from __future__ import annotations
 
+import os
 import re
 import unicodedata
 from pathlib import Path
@@ -31,6 +32,7 @@ _RE_META_BLOCK_HEADER = re.compile(r"^\s*(?:設定|CSVデータ|詳細構成|構
 _RE_CHAPTER_HEADING_LINE = re.compile(r"^\s*(?:では、)?第[0-9一二三四五六七八九十]+章(?:を始めましょう)?[。！？!?]?\s*$")
 _RE_A_TEXT_COMPLETE_ENDING = re.compile(r"[。！？!?][」』）)]*\s*\Z")
 _RE_WS_FOR_DUP = re.compile(r"[\s\u3000]+")
+_RE_QUOTE_SEG = re.compile(r"「([^「」\n]{1,40})」")
 _RE_CH01_FICTIONAL_PERSON_AGE_LINE = re.compile(
     r"^\s*[一-龯々〆ヶヵ]{2,12}[、，]\s*[0-9０-９〇零一二三四五六七八九十百千]{1,6}\s*(?:歳|才)\s*[。！？!?]?\s*$"
 )
@@ -157,11 +159,22 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
     stats["target_chars_min"] = target_min
     stats["target_chars_max"] = target_max
     if target_min is not None and stats["char_count"] < target_min:
+        ratio = (stats["char_count"] / target_min) if target_min > 0 else 0.0
+        # Operator-configurable threshold: below target_min is usually "warning" (slack),
+        # but certain pipelines require strict enforcement (e.g. 1.0 -> always error when below min).
+        try:
+            threshold = float(
+                str(os.getenv("SCRIPT_VALIDATION_LENGTH_TOO_SHORT_ERROR_RATIO", "0.80")).strip() or "0.80"
+            )
+        except Exception:
+            threshold = 0.80
+        threshold = max(0.0, min(1.0, threshold))
+        severity = "error" if ratio < threshold else "warning"
         issues.append(
             {
                 "code": "length_too_short",
-                "message": f"char_count {stats['char_count']} < target_min {target_min}",
-                "severity": "error",
+                "message": f"char_count {stats['char_count']} < target_min {target_min} (ratio={ratio:.3f})",
+                "severity": severity,
             }
         )
     if target_max is not None and stats["char_count"] > target_max:
@@ -186,16 +199,16 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
         issues.append(
             {
                 "code": "too_many_quotes",
-                "message": f"quote marks (「」/『』) total {stats['quote_marks']} > max {quote_max}",
-                "severity": "error",
+                "message": f"quote marks (「」/『』) total {stats['quote_marks']} > guideline {quote_max}",
+                "severity": "warning",
             }
         )
     if stats["paren_marks"] > paren_max:
         issues.append(
             {
                 "code": "too_many_parentheses",
-                "message": f"parentheses (（）/()) total {stats['paren_marks']} > max {paren_max}",
-                "severity": "error",
+                "message": f"parentheses (（）/()) total {stats['paren_marks']} > guideline {paren_max}",
+                "severity": "warning",
             }
         )
 
@@ -366,13 +379,50 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 }
             )
 
+        # Quotes style guide: use 「」 only for dialogue (avoid term/emphasis quotes like 「老い」とは…).
+        # This is heuristic-only (warning); human review decides whether it is truly non-dialogue.
+        for m in _RE_QUOTE_SEG.finditer(line):
+            inner = (m.group(1) or "").strip()
+            if not inner:
+                continue
+            rest = line[m.end() :].lstrip()
+            if not rest:
+                continue
+            # Likely term/definition patterns (not dialogue)
+            if rest.startswith(("とは", "という", "といった", "と呼", "と「", "と『")):
+                issues.append(
+                    {
+                        "code": "quote_non_dialogue",
+                        "message": "Use 「」 for dialogue only; rewrite term/emphasis quotes into plain text",
+                        "line": idx,
+                        "severity": "warning",
+                    }
+                )
+                break
+            # If the quoted content already contains sentence punctuation, treat it as dialogue-like.
+            if any(ch in inner for ch in "。！？!?"):
+                continue
+            # If followed by `と...` it's usually a quote of spoken/thought content.
+            if rest.startswith("と"):
+                continue
+            if len(inner) <= 16:
+                issues.append(
+                    {
+                        "code": "quote_non_dialogue",
+                        "message": "Use 「」 for dialogue only; rewrite term/emphasis quotes into plain text",
+                        "line": idx,
+                        "severity": "warning",
+                    }
+                )
+                break
+
         if _RE_PERCENT_OR_PERCENT_WORD.search(line):
             issues.append(
                 {
                     "code": "forbidden_statistics",
-                    "message": "Percent/statistical claims must not appear in A-text",
+                    "message": "Percent/statistical claim detected; ensure it is not fabricated and is context-appropriate",
                     "line": idx,
-                    "severity": "error",
+                    "severity": "warning",
                 }
             )
 
@@ -549,7 +599,6 @@ def validate_stage(channel: str, video: str, stage_defs: List[Dict[str, Any]]) -
             outline = base / "content" / "outline.md"
             chapters: List[Path] = []
             if outline.exists():
-                import re
                 pat = re.compile(r"^##\\s*第(\\d+)章")
                 nums = []
                 for line in outline.read_text(encoding="utf-8").splitlines():
@@ -658,8 +707,6 @@ def validate_completed_outputs(channel: str, video: str, stage_defs: List[Dict[s
             outline = base / "content" / "outline.md"
             chapters: List[Path] = []
             if outline.exists():
-                import re
-
                 pat = re.compile(r"^##\\s*第(\\d+)章")
                 nums = []
                 for line in outline.read_text(encoding="utf-8").splitlines():

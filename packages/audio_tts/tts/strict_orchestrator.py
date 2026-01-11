@@ -12,6 +12,7 @@ from .mecab_tokenizer import tokenize_with_mecab
 from .reading_structs import RubyToken, align_moras_with_tokens
 from .routing import load_default_voice_config, load_routing_config, resolve_voicevox_speaker_id
 
+from .risk_utils import is_trivial_diff
 from factory_common.paths import audio_pkg_root, script_pkg_root, video_root
 from factory_common.text_sanitizer import strip_meta_from_script
 
@@ -106,33 +107,215 @@ def run_strict_pipeline(
             print(f"[WARN] Failed to load learning_dict.json: {e}")
 
     # Partial Update Logic
-    active_segments = []
-    if target_indices:
-        print(f"[PARTIAL] Targeting indices: {target_indices}")
-        # Load previous log to restore existing verdicts/readings
-        if output_log.exists():
+    active_segments: List[AudioSegment] = []
+    active_indices: Optional[List[int]] = None
+    if target_indices is not None:
+        # SSOT: partial regeneration is not part of the standard manual audit flow.
+        # If used, keep it strictly safe and deterministic.
+        if engine == "voicevox" and not skip_tts_reading:
+            raise RuntimeError(
+                "[PARTIAL] --indices is only supported with SKIP_TTS_READING=1 for VOICEVOX strict mode. "
+                "Run a full regeneration instead (SSOT: OPS_TTS_MANUAL_READING_AUDIT)."
+            )
+
+        # Sanitize indices (preserve order, drop out-of-range/duplicates)
+        seen: set[int] = set()
+        sanitized_indices: List[int] = []
+        for raw in target_indices:
             try:
-                prev_data = json.loads(output_log.read_text(encoding="utf-8"))
-                prev_segs = prev_data.get("segments", [])
-                
-                # Restore previous state
-                for i, seg in enumerate(segments):
-                    if i < len(prev_segs):
-                        p = prev_segs[i]
-                        # Only restore if text matches (safety check)
-                        if p.get("text") == seg.text:
-                            seg.reading = p.get("reading")
-                            seg.arbiter_verdict = p.get("verdict")
-                            seg.mecab_reading = p.get("mecab")
-                            seg.voicevox_reading = p.get("voicevox")
-                            seg.duration_sec = p.get("duration", 0.0)
-            except Exception as e:
-                print(f"[WARN] Failed to load previous log for partial update: {e}")
-        
-        # Filter segments to process
-        for i in target_indices:
-            if 0 <= i < len(segments):
-                active_segments.append(segments[i])
+                idx = int(raw)
+            except Exception:
+                continue
+            if idx < 0 or idx >= len(segments):
+                continue
+            if idx in seen:
+                continue
+            seen.add(idx)
+            sanitized_indices.append(idx)
+        if not sanitized_indices:
+            raise RuntimeError("[PARTIAL] --indices provided but no valid indices remain after sanitization.")
+
+        active_indices = sanitized_indices
+        print(f"[PARTIAL] Targeting indices: {active_indices}")
+
+        if not output_log.exists():
+            raise RuntimeError(
+                f"[PARTIAL] Previous log not found: {output_log}. "
+                "Partial regeneration requires an existing log.json from a successful full run."
+            )
+
+        def _write_report(name: str, payload: Dict[str, object]) -> Path:
+            out_dir = output_log.parent
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out_path = out_dir / name
+            out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            return out_path
+
+        # Load previous log to restore existing verdicts/readings (and validate)
+        try:
+            prev_data = json.loads(output_log.read_text(encoding="utf-8"))
+        except Exception as e:
+            raise RuntimeError(f"[PARTIAL] Failed to load previous log for partial update: {e}") from e
+
+        prev_engine = str(prev_data.get("engine") or "").strip()
+        if prev_engine and prev_engine != engine:
+            report = _write_report(
+                "partial_update_blocked__engine_mismatch.json",
+                {
+                    "channel": channel,
+                    "video": video_no,
+                    "engine_prev": prev_engine,
+                    "engine_now": engine,
+                    "generated_at": time.time(),
+                },
+            )
+            raise RuntimeError(f"[PARTIAL] Previous log engine mismatch; refusing partial update. Report: {report}")
+
+        prev_segs = prev_data.get("segments", [])
+        if not isinstance(prev_segs, list):
+            raise RuntimeError("[PARTIAL] Invalid previous log format: segments is not a list.")
+        if len(prev_segs) != len(segments):
+            report = _write_report(
+                "partial_update_blocked__segment_count_mismatch.json",
+                {
+                    "channel": channel,
+                    "video": video_no,
+                    "generated_at": time.time(),
+                    "prev_count": len(prev_segs),
+                    "current_count": len(segments),
+                },
+            )
+            raise RuntimeError(f"[PARTIAL] Segment count mismatch; run full regeneration. Report: {report}")
+
+        # Enforce exact text match for ALL segments (chunk index safety).
+        text_mismatches: List[Dict[str, object]] = []
+        for i, seg in enumerate(segments):
+            p = prev_segs[i] if i < len(prev_segs) else {}
+            prev_text = p.get("text")
+            if prev_text != seg.text:
+                text_mismatches.append({"index": i, "prev_text": prev_text, "current_text": seg.text})
+        if text_mismatches:
+            report = _write_report(
+                "partial_update_blocked__text_mismatch.json",
+                {
+                    "channel": channel,
+                    "video": video_no,
+                    "generated_at": time.time(),
+                    "count": len(text_mismatches),
+                    "mismatches": text_mismatches,
+                },
+            )
+            raise RuntimeError(f"[PARTIAL] Text mismatch detected; refusing partial update. Report: {report}")
+
+        # Require that the previous run was a safe manual path (VOICEVOX: dict_only_skip_llm).
+        if engine == "voicevox":
+            bad_verdicts: List[Dict[str, object]] = []
+            for i, p in enumerate(prev_segs):
+                verdict = p.get("verdict")
+                if verdict != "dict_only_skip_llm":
+                    bad_verdicts.append({"index": i, "verdict": verdict})
+            if bad_verdicts:
+                report = _write_report(
+                    "partial_update_blocked__verdict_not_manual.json",
+                    {
+                        "channel": channel,
+                        "video": video_no,
+                        "generated_at": time.time(),
+                        "count": len(bad_verdicts),
+                        "bad_verdicts": bad_verdicts[:50],
+                        "note": "VOICEVOX partial update requires a prior SKIP_TTS_READING=1 successful run.",
+                    },
+                )
+                raise RuntimeError(f"[PARTIAL] Previous run is not manual skip_llm; refusing partial update. Report: {report}")
+
+        # Ensure all non-target chunks exist so we never regenerate un-audited segments.
+        chunks_dir = output_wav.parent / "chunks"
+        base_stem = output_wav.stem
+        missing_chunks: List[Dict[str, object]] = []
+        for i in range(len(segments)):
+            if i in seen:
+                continue
+            chunk_path = chunks_dir / f"{base_stem}_part_{i:03d}.wav"
+            if not chunk_path.exists():
+                missing_chunks.append({"index": i, "path": str(chunk_path)})
+        if missing_chunks:
+            report = _write_report(
+                "partial_update_blocked__missing_chunks.json",
+                {
+                    "channel": channel,
+                    "video": video_no,
+                    "generated_at": time.time(),
+                    "count": len(missing_chunks),
+                    "missing": missing_chunks,
+                },
+            )
+            raise RuntimeError(
+                f"[PARTIAL] Missing non-target chunks; refusing partial update to avoid unintended regen. Report: {report}"
+            )
+
+        # Global safety: non-target segments must already be mismatch-free (guards against legacy logs).
+        if engine == "voicevox":
+            mismatches: List[Dict[str, object]] = []
+            for i in range(len(segments)):
+                if i in seen:
+                    continue
+                p = prev_segs[i] if i < len(prev_segs) else {}
+                mecab_kana = str(p.get("mecab") or "")
+                vv_kana = str(p.get("voicevox") or "")
+                if not mecab_kana or not vv_kana:
+                    mismatches.append(
+                        {
+                            "index": i,
+                            "text": p.get("text") or segments[i].text,
+                            "reading": p.get("reading"),
+                            "mecab_kana": mecab_kana,
+                            "voicevox_kana": vv_kana,
+                            "reason": "missing_mecab_or_voicevox",
+                        }
+                    )
+                    continue
+                if not is_trivial_diff(mecab_kana, vv_kana):
+                    mismatches.append(
+                        {
+                            "index": i,
+                            "text": p.get("text") or segments[i].text,
+                            "reading": p.get("reading"),
+                            "mecab_kana": mecab_kana,
+                            "voicevox_kana": vv_kana,
+                        }
+                    )
+            if mismatches:
+                report = _write_report(
+                    "reading_mismatches__resume.json",
+                    {
+                        "channel": channel,
+                        "video": video_no,
+                        "tag": "resume",
+                        "generated_at": time.time(),
+                        "count": len(mismatches),
+                        "mismatches": mismatches,
+                    },
+                )
+                raise RuntimeError(
+                    "[PARTIAL] Existing reading mismatches detected in non-target segments (fail-fast). "
+                    f"Run a full regeneration. Report: {report}"
+                )
+
+        # Restore previous state (safe: texts already matched).
+        for i, seg in enumerate(segments):
+            p = prev_segs[i]
+            seg.reading = p.get("reading")
+            seg.arbiter_verdict = p.get("verdict")
+            seg.mecab_reading = p.get("mecab")
+            seg.voicevox_reading = p.get("voicevox")
+            try:
+                seg.duration_sec = float(p.get("duration") or 0.0)
+            except Exception:
+                seg.duration_sec = 0.0
+
+        # Filter segments to process (reading resolution only for targets).
+        for i in active_indices:
+            active_segments.append(segments[i])
     else:
         active_segments = segments
 
@@ -146,6 +329,7 @@ def run_strict_pipeline(
         channel=channel,
         video=video_no,
         skip_tts_reading=skip_tts_reading,
+        segment_indices=active_indices,
     )
     
     if not prepass:

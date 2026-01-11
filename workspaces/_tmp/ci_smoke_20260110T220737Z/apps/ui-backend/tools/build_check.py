@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""UI build & smoke test helper."""
+
+from __future__ import annotations
+
+import argparse
+import os
+import subprocess
+from pathlib import Path
+from typing import Iterable, Optional
+
+
+def _find_repo_root(start: Path) -> Path:
+    override = os.getenv("YTM_REPO_ROOT") or os.getenv("YTM_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+    cur = start if start.is_dir() else start.parent
+    for candidate in (cur, *cur.parents):
+        if (candidate / "pyproject.toml").exists():
+            return candidate.resolve()
+    return cur.resolve()
+
+
+YTM_ROOT = _find_repo_root(Path(__file__).resolve())
+
+
+def run(cmd, cwd: Path) -> None:
+    print(f"\033[32m[INFO]\033[0m ({cwd}) {' '.join(cmd)}")
+    subprocess.run(cmd, cwd=str(cwd), check=True)
+
+
+def main(argv: Optional[Iterable[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description="UI build checker")
+    parser.add_argument(
+        "--backend",
+        action="store_true",
+        help="Run FastAPI backend checks (pip install -r requirements.txt, python -m compileall).",
+    )
+    parser.add_argument(
+        "--frontend",
+        action="store_true",
+        help="Run React frontend build (npm install, npm run build).",
+    )
+    parser.add_argument(
+        "--all", action="store_true", help="Run both backend and frontend checks."
+    )
+    args = parser.parse_args(list(argv) if argv is not None else None)
+    do_backend = args.backend or args.all or (not args.frontend and not args.backend)
+    do_frontend = args.frontend or args.all or (not args.frontend and not args.backend)
+
+    if do_backend:
+        backend_dir = YTM_ROOT / "apps" / "ui-backend" / "backend"
+        run(["pip3", "install", "-r", "requirements.txt"], backend_dir)
+        run(["python3", "-m", "compileall", "main.py"], backend_dir)
+
+    if do_frontend:
+        frontend_dir = YTM_ROOT / "apps" / "ui-frontend"
+        run(["npm", "install"], frontend_dir)
+        run(["npm", "run", "build"], frontend_dir)
+
+    print("\033[32m[INFO]\033[0m Build check completed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

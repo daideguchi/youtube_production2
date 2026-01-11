@@ -41,27 +41,47 @@ def _normalize_reading(features: list[str], surface: str) -> str:
     """
     MeCabのfeatureから読みを取得。
     IPADIC(index 7,8) と UniDic(index 6,9等) の両方に対応するため、
-    index 6以降をスキャンし、最初の「カタカナのみ」のフィールドを採用する。
+    index 6以降をスキャンし、最後の「カタカナのみ」のフィールドを優先する。
+
+    NOTE:
+    - UniDic では index 6 付近に「語彙素（lemma）読み」が入ることがあり、
+      これを採用すると活用形が辞書形になってしまう（例: 疲れ -> ツカレル）。
+    - 後ろ側のフィールドには「表層（surface）読み/発音」が入るケースが多いため、
+      最後のカタカナ候補を採用する。
     """
     # 検索範囲: 6〜14 (十分な深さ)
     # IPADIC: [6]=Base(Kanji), [7]=Reading(Kana), [8]=Pronunciation(Kana)
-    # UniDic: [6]=Lemma(Kana?), [9]=Pronunciation(Kana?) etc.
+    # UniDic: [6]=Lemma(Kana), [9]=SurfaceReading(Kana) (common)
     limit = min(len(features), 15)
-    
-    for i in range(6, limit):
-        cand = features[i]
-        if not cand or cand == "*":
-            continue
-            
-        # 1. カタカナのみで構成されているかチェック
-        if _KATAKANA_RE.match(cand):
-            return cand
-            
-        # 2. ひらがなを含む場合、カタカナに変換してチェック
-        if _HIRAGANA_RE.search(cand):
-            converted = cand.translate(_HIRAGANA_TO_KATAKANA)
+
+    def _coerce_katakana(raw: str) -> str | None:
+        if not raw or raw == "*":
+            return None
+        if _KATAKANA_RE.match(raw):
+            return raw
+        if _HIRAGANA_RE.search(raw):
+            converted = raw.translate(_HIRAGANA_TO_KATAKANA)
             if _KATAKANA_RE.match(converted):
                 return converted
+        return None
+
+    # UniDic: prefer surface reading when present (index 9).
+    if len(features) > 9:
+        cand = _coerce_katakana(features[9])
+        if cand:
+            return cand
+
+    # Common: scan reading/pron fields (skip index 6 lemma by default).
+    for i in range(7, limit):
+        cand = _coerce_katakana(features[i])
+        if cand:
+            return cand
+
+    # Last resort: accept index 6 if it's the only kana-like candidate.
+    if len(features) > 6:
+        cand = _coerce_katakana(features[6])
+        if cand:
+            return cand
 
     # 見つからない場合はsurfaceを返す (漢字のままなど)
     return surface

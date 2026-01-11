@@ -1,0 +1,394 @@
+version: 3
+name: CH02_text_layout_sample_v3
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+coordinate_system: 'normalized_0_to_1'
+global:
+  overlays:
+    top_band:
+      enabled: true
+      color: '#000000'
+      y0: 0.00
+      y1: 0.30
+      alpha_top: 0.92
+      alpha_bottom: 0.92
+  fonts:
+    headline_sans: ['Noto Sans JP Black','Source Han Sans JP Heavy','Hiragino Sans W8','Yu Gothic UI Bold']
+  effects_defaults:
+    stroke: {color: '#000000', width_px: 18, join: 'round'}
+    shadow: {color: '#000000', alpha: 0.75, offset_px: [10,10], blur_px: 14}
+    glow: {color: '#ffffff', alpha: 0.10, blur_px: 20}
+    gold_fill: {mode: 'linear_gradient', stops: [['#FFF3B0',0.0],['#F2C14E',0.55],['#D99A2B',1.0]]}
+    white_fill: {mode: 'solid', color: '#FFFFFF'}
+    red_fill: {mode: 'solid', color: '#D61A1A'}
+    yellow_fill: {mode: 'solid', color: '#FFD84A'}
+  fit_rules:
+    - '溢れたら自動縮小（fit=contain）。'
+templates:
+  CH02_top_band_center_v1:
+    description: 'CH02: 上帯 黒帯フル幅＋センター1行（横幅いっぱい/帯ギリギリ） / benchmark: 曖昧な思考'
+    slots:
+      main:
+        box: [0.0100, 0.0150, 0.9800, 0.2700]
+        font: headline_sans
+        fill: white_fill
+        base_size_px: 260
+        align: center
+        tracking: 0
+        max_lines: 1
+        stroke: false
+        shadow: true
+        glow: false
+items:
+  - video_id: CH02-043
+    title: '【視線の逃避】スマホから目を上げられない理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: 'スマホがやめられない'
+
+  - video_id: CH02-044
+    title: '【夜の反芻】同じ考えが止まらない脳'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '考えが止まらない'
+
+  - video_id: CH02-045
+    title: '【無意識の摂取】情報を食べ続ける理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '情報を食べ続ける'
+
+  - video_id: CH02-046
+    title: '【作り笑いの疲労】顔がこわばる心理'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '作り笑いがつらい'
+
+  - video_id: CH02-050
+    title: '【他人基準の牢】期待に生きると枯れる理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '期待に縛られる'
+
+  - video_id: CH02-051
+    title: '【微細な不安】雑音のような心配が消えない仕組み'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '消えない心配'
+
+  - video_id: CH02-052
+    title: '【沈黙の防衛】意見を言えないとき脳で何が起きているか'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '沈黙は防衛'
+
+  - video_id: CH02-053
+    title: '【選択疲れ】多すぎる選択肢が意志を溶かす'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '選べない脳'
+
+  - video_id: CH02-055
+    title: '【無音の恐怖】静けさに耐えられない心'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '静けさが怖い'
+
+  - video_id: CH02-056
+    title: '【完璧待ち】動けない完璧主義の心理'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '完璧待ちで動けない'
+
+  - video_id: CH02-057
+    title: '【三日目の壁】習慣が続かない脳の癖'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '三日目で折れる'
+
+  - video_id: CH02-058
+    title: '【記憶の棘】過去の失敗が夜に疼く理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '失敗が疼く'
+
+  - video_id: CH02-060
+    title: '【偽りの同意】断れない人の心理'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '断れない'
+
+  - video_id: CH02-061
+    title: '【微怒り】小さな苛立ちが積もるメカニズム'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '苛立ちが積もる'
+
+  - video_id: CH02-062
+    title: '【承認の飢え】反応がないと不安になる理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '反応がないと不安'
+
+  - video_id: CH02-064
+    title: '【過剰シミュレーション】考えすぎが行動を止める'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '考えすぎで止まる'
+
+  - video_id: CH02-065
+    title: '【挑戦回避】向いてないと思い込む脳'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '向いてないと思い込む'
+
+  - video_id: CH02-067
+    title: '【初対面凍結】言葉が出なくなる防衛'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '初対面で凍る'
+
+  - video_id: CH02-068
+    title: '【失敗予期】挑戦前に心が萎む瞬間'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '挑戦前に萎む'
+
+  - video_id: CH02-069
+    title: '【他人の視線牢】評価に合わせる生き方'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '評価の檻'
+
+  - video_id: CH02-070
+    title: '【夜行列車の不安】寝る前に心配が列を作る理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '心配が列を作る'
+
+  - video_id: CH02-071
+    title: '【過積載の頭】やることが多すぎると止まる脳'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: 'やること多すぎ'
+
+  - video_id: CH02-072
+    title: '【機嫌の奴隷】他人の感情に振り回される心理'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '機嫌に振り回される'
+
+  - video_id: CH02-073
+    title: '【成果の空白】努力が見えないときの心'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '成果が見えない'
+
+  - video_id: CH02-074
+    title: '【小さな棘】些細な失敗を手放せない理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '些細な失敗が刺さる'
+
+  - video_id: CH02-075
+    title: '【情報過食】見れば見るほど不安になる仕組み'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '見るほど不安'
+
+  - video_id: CH02-076
+    title: '【先延ばしの快楽】締切直前にしか動けない脳'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '締切直前だけ動ける'
+
+  - video_id: CH02-077
+    title: '【断れない束縛】頼られる快感の代償'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '頼られるほど苦しい'
+
+  - video_id: CH02-078
+    title: '【空転する毎日】動いても満たされない理由'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: '空転する毎日'
+
+  - video_id: CH02-083
+    title: '【怒りの余熱】言い返せない夜を鎮めるストア派'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-084
+    title: '【自己否定】褒め言葉が刺さる心とアドラー'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-085
+    title: '【不安の予告】最悪を想像する癖と認知行動'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-086
+    title: '【後悔】過去の自分を裁く癖とフランクル'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-087
+    title: '【嫉妬】羨ましさが消えない夜とスピノザ'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-088
+    title: '【承認中毒】既読が来ない不安とラカン'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-089
+    title: '【完璧主義】正しさがあなたを壊すカント'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-090
+    title: '【比較地獄】SNSの勝敗が苦しいニーチェ'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-091
+    title: '【自意識】人の目が怖い夜とサルトル'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-092
+    title: '【孤独の痛み】ひとりが怖い心とショーペンハウアー'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-093
+    title: '【境界線】優しさが搾取に変わるロジャーズ'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-094
+    title: '【言葉の迷子】説明しすぎて伝わらないウィトゲンシュタイン'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-095
+    title: '【決断疲れ】選べない日を救う行動経済学'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-096
+    title: '【焦り】何者かになりたい夜とキルケゴール'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-097
+    title: '【虚しさ】頑張っても満たされないハイデガー'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-098
+    title: '【罪悪感】休むのが怖い人と仏教の無常'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-099
+    title: '【不眠】考えが止まらない夜に禅の呼吸'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-100
+    title: '【反芻】頭の中の独り言をほどくマインドフルネス'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-101
+    title: '【自己嫌悪】ミスを許せない心とセルフ・コンパッション'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-102
+    title: '【過剰共感】他人に飲まれる心と愛着理論'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-103
+    title: '【先延ばし】動けない理由をほどくアリストテレス'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-104
+    title: '【怒られ恐怖】叱責が怖い心とパヴロフ'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-105
+    title: '【空回り】頑張りすぎる人を救うストア派の休息'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-106
+    title: '【緊張】会話が怖い夜にアドラーの共同体感覚'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-107
+    title: '【不安】最悪を決めつける癖とエリス'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-108
+    title: '【恥】失言が消えない夜とブレネー・ブラウン'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-109
+    title: '【微怒り】小さな苛立ちを鎮めるエピクテトス'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-110
+    title: '【モチベ低下】やる気が枯れる理由とドゥエック'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-111
+    title: '【人生の意味】頑張るほど苦しい夜とカミュ'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''
+
+  - video_id: CH02-112
+    title: '【心配癖】頭の中の裁判を終わらせる認知療法'
+    template_id: CH02_top_band_center_v1
+    text:
+      main: ''

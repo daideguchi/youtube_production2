@@ -153,6 +153,10 @@ def run_pipeline(args):
         use_cues_plan = True
         # NOTE: cues_plan is always driven by `visual_image_cues_plan` (API or THINK/AGENT pending).
 
+    # cue-mode=single is a deterministic 1-cue flow (no planning/LLM needed).
+    if args.cue_mode == "single":
+        use_cues_plan = False
+
     # 1.5) Generate Visual Bible (Before cues)
     persona_text = ""
     visual_bible_data = None
@@ -164,7 +168,7 @@ def run_pipeline(args):
         except Exception:
             pass
 
-    if args.cue_mode != "per_segment" and not use_cues_plan and channel_upper != "CH02":
+    if args.cue_mode not in {"per_segment", "single"} and not use_cues_plan and channel_upper != "CH02":
         if disable_text_llm:
             logging.info("Skipping Visual Bible (SRT2IMAGES_DISABLE_TEXT_LLM=1)")
         else:
@@ -226,6 +230,26 @@ def run_pipeline(args):
                 "duration_frames": max(1, end_frame - start_frame),
                 "use_persona": False,  # per-segmentモードはデフォルトで人物一貫性オフ
             })
+    elif args.cue_mode == "single":
+        logging.info("Building a single image cue for entire video (fps=%d)", args.fps)
+        last_end_sec = float(segments[-1]["end"]) if segments else 0.0
+        last_end_sec = max(0.001, round(last_end_sec, 3))
+        start_sec = 0.0
+        end_sec = last_end_sec
+        cues = [
+            {
+                "index": 1,
+                "start_sec": round(start_sec, 3),
+                "end_sec": round(end_sec, 3),
+                "duration_sec": max(0.001, round(end_sec - start_sec, 3)),
+                "text": "",
+                "summary": "Static portrait layout (right portrait, left black). No in-image text.",
+                "start_frame": 0,
+                "end_frame": int(round(end_sec * args.fps)),
+                "duration_frames": max(1, int(round(end_sec * args.fps))),
+                "use_persona": False,
+            }
+        ]
     else:
         if use_cues_plan:
             # Single-task cue planning (THINK MODE friendly): segments -> planned sections -> cues.
@@ -720,6 +744,7 @@ def run_pipeline(args):
         "schema": "ytm.image_cues.v1",
         "generated_at": utc_now_iso(),
         "source_srt": {"path": str(srt_path), "sha1": sha1_file(srt_path)},
+        "cue_mode": args.cue_mode,
         "fps": args.fps,
         "size": size,
         "crossfade": args.crossfade,

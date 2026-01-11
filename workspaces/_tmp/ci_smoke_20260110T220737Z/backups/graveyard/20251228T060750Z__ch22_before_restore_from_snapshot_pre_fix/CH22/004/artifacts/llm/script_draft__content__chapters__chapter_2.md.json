@@ -1,0 +1,89 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:47:34+00:00",
+  "status": "ready",
+  "stage": "script_draft",
+  "task": "script_chapter_draft",
+  "channel": "CH22",
+  "video": "004",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/chapters/chapter_2.md",
+    "sha1": "61526a29bcdabfb7c025eea9006d6b5c33628ece"
+  },
+  "content": "スマホの画面に、送ったメッセージがただ一つ、既読になっていない。他の方たちへの連絡には、さっさと既読マークが並んでいる。この違いだけが、静かな部屋の中ではっきりと浮かび上がる。胸のあたりに、ちくりとした違和感が広がります。もしかして、私だけが避けられているのか。何か気に障ることを言ってしまったのだろうか。そんな思いが、頭の中をぐるぐると回り始めます。\n\n---\n\nしかし、少しだけ手を止めてみましょう。その既読が付かないという現象は、本当に人間関係の悪化だけを示しているのでしょうか。実は、もっと別の理由が隠れていることが少なくありません。スマホという機械を通したコミュニケーションには、私たちが思う以上に、単純な技術的な落とし穴がいくつもあるのです。\n\n例えば、通知の設定が変わってしまった場合。自分では気づかないうちに、特定のトークルームの通知がオフになっているかもしれません。あるいは、アプリ自体に一時的な不具合が起きている可能性もあります。最近では、スマホの機種変更やOSのアップデートがきっかけで、こうした小さな齟齬が生じることも珍しくありません。それに、トークルームを誤って退出してしまい、気づかずに一人だけ外れている状態というケースも、実際に耳にします。\n\nでは、どうすればいいのか。まずは落ち着いて、一つだけ確認できることがあります。それは、他の方々へのメッセージでも、同じように既読が付かない状態なのかどうか、ということです。グループ内で別の方に個別にメッセージを送ってみる。あるいは、ごく簡単なやりとりを試してみる。それだけで、状況が見えてくることがあります。\n\nもし、他の方へのメッセージにはすぐに既読が付くのであれば、それはあなただけに向けた変化かもしれません。でも、どのメッセージにも反応が遅い、あるいは全体的に既読が付きにくいのであれば、それはアプリや設定、あるいは通信環境といった技術的な側面に原因がある可能性が高まります。この一手は、決して大げさな行動ではありません。ほんの少しの確認で、必要以上に自分を責めたり、不安に駆られたりする気持ちに、静かなブレーキをかけることができます。\n\n私たちはつい、自分の送ったメッセージにだけ既読が付かないと、自分の人間関係に問題があると決めつけてしまいがちです。でも、画面の向こうには、機械の仕組みや設定の複雑さが横たわっています。それを一度、冷静に見つめ直してみる。それが、感情の渦に巻き込まれる前に、自分自身を守る最初の一歩になるのです。\n\n---\n\n技術的な確認を経て、もしそれが単なる不具合だったと分かれば、胸のつかえは少し軽くなるでしょう。でも、やはり気になるのは、その先にある関係性の小さなサインかもしれません。既読という記号の向こう側には、もっと微かなコミュニケーションの跡が残されているからです。",
+  "sources": [
+    {
+      "path": "inline:CHAPTER_NUMBER",
+      "sha1": "da4b9237bacccdf19c0760cab7aec4a8359010b0"
+    },
+    {
+      "path": "inline:CHAPTER_TITLE",
+      "sha1": "28927dc9f537ef7f9f49c4e1cd03b4155b667038"
+    },
+    {
+      "path": "inline:WORD_TARGET",
+      "sha1": "d2df16bee9d37212d9dc0a9709c3a8579fedcfff"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "e4aa0e5723f5426ee1d42f2fd1718eed687ffcab"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/outline.md",
+      "sha1": "30d39d4c18caf8454135665d551440efc87ca3b6"
+    },
+    {
+      "path": "inline:CHAPTER_JSON",
+      "sha1": "b512262d9810273c018d1c8bd8cb5129f157a393"
+    },
+    {
+      "path": "inline:SCRIPT_PROMPT",
+      "sha1": "11de3eb92ea2c79d46be9d808e6685fd062d4bcb"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "bf6803a07c7f5aef98783055cb7c1f2d46fbcde1"
+    },
+    {
+      "path": "inline:CORE_EPISODE_GUIDE",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "inline:A_TEXT_RULES_SUMMARY",
+      "sha1": "1d399a3b955dcfa48908168c0c275a6aa53cd6d1"
+    },
+    {
+      "path": "inline:BRIEF_JSON",
+      "sha1": "24d5c24dc481cf395dd0851d481d0f8c292f4c56"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766897211-Ly54u8MSfplld5sZxzuh",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 42855,
+    "usage": {
+      "prompt_tokens": 9041,
+      "completion_tokens": 2303,
+      "total_tokens": 11344
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_draft/34/34e74ed92d1f7bf46c0888de32e68a5a.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/logs/script_draft_prompt.txt"
+}

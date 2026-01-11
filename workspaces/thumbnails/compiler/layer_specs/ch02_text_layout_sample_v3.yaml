@@ -8,7 +8,7 @@ global:
       enabled: true
       color: '#000000'
       y0: 0.00
-      y1: 0.30
+      y1: 0.264
       alpha_top: 0.92
       alpha_bottom: 0.92
   fonts:
@@ -28,7 +28,7 @@ templates:
     description: 'CH02: 上帯 黒帯フル幅＋センター1行（横幅いっぱい/帯ギリギリ） / benchmark: 曖昧な思考'
     slots:
       main:
-        box: [0.0100, 0.0150, 0.9800, 0.2700]
+        box: [0.0100, 0.0150, 0.9800, 0.2450]
         font: headline_sans
         fill: white_fill
         base_size_px: 260

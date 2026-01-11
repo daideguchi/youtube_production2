@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html class="dark" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>企画一覧ダッシュボード（モック）</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622"
+            },
+            fontFamily: {
+              display: ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }
+          }
+        }
+      }
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+      }
+    </style>
+  </head>
+  <body class="bg-background-light dark:bg-background-dark font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col">
+      <div class="flex h-full min-h-screen w-full">
+        <aside class="flex w-64 flex-col border-r border-slate-200/10 bg-[#111318] p-4">
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="青と紫のグラデーションアイコン" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQ1QS0vX0PVnsUXBo9KTgZv773-dEyMdHO_0ILVMLVwFFRo7LL3GfD7sPdjXPw3VF_s-iXXQrVvuH9PuUBuBfWk9B7PISEDse19FHNpi9ubJ1UjaK8xPBAK9ZMyxZKl2QhPDl1JDGMWyjQPKVfDZdmPXS3EEqi-FFDUXRq4UaLOejArZ-4vNtVQQfsK-TAt9igBLqsdv1JQEWe11H5nRf_ciALoIqTRT-x8w7OqMM7XR0QBHUMzpMQOBiI0HInKmZpYZevr5wriEw");'></div>
+              <div class="flex flex-col">
+                <h1 class="text-white text-base font-medium leading-normal">AI 品質管理</h1>
+                <p class="text-[#9da6b9] text-sm font-normal leading-normal">統合管理コンソール</p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 pt-4">
+              <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#282e39] transition-colors hover:bg-primary/30" href="#">
+                <span class="material-symbols-outlined text-white text-2xl">grid_view</span>
+                <p class="text-white text-sm font-medium leading-normal">チャンネル一覧</p>
+              </a>
+              <a class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-primary/30" href="#">
+                <span class="material-symbols-outlined text-white text-2xl">video_library</span>
+                <p class="text-white text-sm font-medium leading-normal">動画一覧</p>
+              </a>
+              <a class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-primary/30" href="#">
+                <span class="material-symbols-outlined text-white text-2xl">lock_clock</span>
+                <p class="text-white text-sm font-medium leading-normal">ロック履歴</p>
+              </a>
+            </div>
+          </div>
+        </aside>
+        <main class="flex-1 p-8">
+          <div class="flex flex-col gap-6">
+            <div>
+              <p class="text-white text-4xl font-black leading-tight tracking-[-0.033em]">チャンネル別進捗ダッシュボード</p>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="flex-grow">
+                <label class="flex flex-col min-w-40 h-12 w-full">
+                  <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                    <div class="text-[#9da6b9] flex border-none bg-[#282e39] items-center justify-center pl-4 rounded-l-lg">
+                      <span class="material-symbols-outlined text-2xl">search</span>
+                    </div>
+                    <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#282e39] focus:border-none h-full placeholder:text-[#9da6b9] px-4 text-base font-normal leading-normal" placeholder="タイトルまたはIDで検索" value="" />
+                  </div>
+                </label>
+              </div>
+              <div class="flex gap-3">
+                <details class="flex flex-col rounded-lg bg-[#282e39] px-4 py-2 group w-60">
+                  <summary class="flex cursor-pointer items-center justify-between gap-6 py-1">
+                    <p class="text-white text-sm font-medium leading-normal">状態で絞り込み</p>
+                    <div class="text-white group-open:rotate-180 transition-transform">
+                      <span class="material-symbols-outlined text-xl">expand_more</span>
+                    </div>
+                  </summary>
+                  <div class="flex flex-col gap-2 pb-2 pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input class="form-checkbox rounded bg-[#111318] border-slate-200/20 text-primary focus:ring-primary/50" type="checkbox" />
+                      <span class="text-[#9da6b9] text-sm">進行中</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input class="form-checkbox rounded bg-[#111318] border-slate-200/20 text-primary focus:ring-primary/50" type="checkbox" />
+                      <span class="text-[#9da6b9] text-sm">レビュー待ち</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input class="form-checkbox rounded bg-[#111318] border-slate-200/20 text-primary focus:ring-primary/50" type="checkbox" />
+                      <span class="text-[#9da6b9] text-sm">完了</span>
+                    </label>
+                  </div>
+                </details>
+              </div>
+            </div>
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
+              <div class="flex flex-col gap-3 pb-3 rounded-xl bg-[#1a1f29] p-4 border border-transparent hover:border-primary transition-all cursor-pointer">
+                <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="青緑のグラデーション背景画像" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDwGa92oHv0LB09oV1uXX6sq_wsuQB2YcuctLRRuQ_-MQFO0TrILzAiKWvdkzfR03ejefkZWuFF036J0g386l0sjaS9ae4OINjpIc5EK03xCX4LhgXVVOMU2VVS2tRnNHfXJW5p_R3OexjOQI6XpEsrDus8ZMpsVu5-esSCBSXBygMLutmwMlTxciXdFs_MxRRAU82tYy02TRKhuSYaBxtPekc_Xhw5F1vSb4oCREWNxRBRAoYvGDrWUjzqqf8KstkOd5QCdRVVbGI");'></div>
+                <div>
+                  <p class="text-white text-lg font-medium leading-normal">チャンネル アルファ</p>
+                  <p class="text-[#9da6b9] text-sm font-normal leading-normal">完了: 50 / 100</p>
+                  <div class="flex gap-2 mt-2">
+                    <div class="flex items-center gap-1.5 rounded-full bg-[#135bec]/20 px-3 py-1 text-xs font-medium text-[#8ab4f8] cursor-pointer hover:bg-primary/40">
+                      <span class="material-symbols-outlined text-base">progress_activity</span>
+                      進行中: 30
+                    </div>
+                    <div class="flex items-center gap-1.5 rounded-full bg-[#FF9F0A]/20 px-3 py-1 text-xs font-medium text-[#FFC70A] cursor-pointer hover:bg-[#FF9F0A]/40">
+                      <span class="material-symbols-outlined text-base">flag</span>
+                      レビュー待ち: 20
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 pb-3 rounded-xl bg-[#1a1f29] p-4 border border-primary transition-all cursor-pointer ring-2 ring-primary/50">
+                <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="ピンクと紫のグラデーション背景画像" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCf6LRxzxHN81q5HyS82PnKTnP18bTS9zGZLwXF5z8c4HfgLifSg8imnDG50HtJ5UUti9gZoK07TbeCkR3O8ohnJzG281FFgaGpzjV4MwU9F4OIwIBhKdwSSmHo8fLnjFsrPmkhq8ZNjo2Qxaqz6Ln1pSc7T5ZXD3G9iw2YGK92pFk0D8JjLqUpu6gXbOEWflnGblj9aE_Nmwmof0EFaturjLuZCxnGhZq3Xio_e0RDo16Kq1HQ_y2r_nlkMifi7cDI28iizUl8FWY");'></div>
+                <div>
+                  <p class="text-white text-lg font-medium leading-normal">チャンネル ベータ</p>
+                  <p class="text-[#9da6b9] text-sm font-normal leading-normal">完了: 80 / 100</p>
+                  <div class="flex gap-2 mt-2">
+                    <div class="flex items-center gap-1.5 rounded-full bg-[#135bec]/20 px-3 py-1 text-xs font-medium text-[#8ab4f8] cursor-pointer hover:bg-primary/40">
+                      <span class="material-symbols-outlined text-base">progress_activity</span>
+                      進行中: 10
+                    </div>
+                    <div class="flex items-center gap-1.5 rounded-full bg-[#FF9F0A]/20 px-3 py-1 text-xs font-medium text-[#FFC70A] cursor-pointer hover:bg-[#FF9F0A]/40">
+                      <span class="material-symbols-outlined text-base">flag</span>
+                      レビュー待ち: 10
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 pb-3 rounded-xl bg-[#1a1f29] p-4 border border-transparent hover:border-primary transition-all cursor-pointer">
+                <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="オレンジと黄色のグラデーション背景画像" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuATdM9adI0GEmxdj9y5P8C5lSkhGmOUx16gIcvOU2oEi4zpRCIM3WLXzCJAI_DMvxyrwj4Sad38lSHYPWZYTilyCse8m-z-OckBm7Hj8mkPRX_604j-SseihqLT-JTvz5CzAU7k3UtX4SexHT4ABC24v2it4F_EOucCbX5rT9Soxr292JOuQGjIb8wMmkqaI1Q03BjHZJH8ykXy_3NXzpSCStkzj5jhwHm4QTS6Bybi5dCjeFUFKrg9g58De_VCbXGHjU5i90K4qFM");'></div>
+                <div>
+                  <p class="text-white text-lg font-medium leading-normal">企画 ガンマ</p>
+                  <p class="text-[#9da6b9] text-sm font-normal leading-normal">完了: 25 / 50</p>
+                  <div class="flex gap-2 mt-2">
+                    <div class="flex items-center gap-1.5 rounded-full bg-[#135bec]/20 px-3 py-1 text-xs font-medium text-[#8ab4f8] cursor-pointer hover:bg-primary/40">
+                      <span class="material-symbols-outlined text-base">progress_activity</span>
+                      進行中: 20
+                    </div>
+                    <div class="flex items-center gap-1.5 rounded-full bg-[#FF9F0A]/20 px-3 py-1 text-xs font-medium text-[#FFC70A] cursor-pointer hover:bg-[#FF9F0A]/40">
+                      <span class="material-symbols-outlined text-base">flag</span>
+                      レビュー待ち: 5
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 pb-3 rounded-xl bg-[#1a1f29] p-4 border border-transparent hover:border-primary transition-all cursor-pointer">
+                <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="紫と青のグラデーション背景画像" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDsDpejo9dB7zmsl3IwmauycdHg0rxpveHpwjB9XxYVWoZDe4HMgWicggNST9EYzKdL8B5dYKvVyXr8-fu8a0D2ImE_rYkQ280R9llNwgMZQskrRgUIcVtRgke4jaH4novGthymek92u0UcBZdZhy_ApopaGZab53qGLBH4xLGPG4pQ8emhIOLasb1UEVgwwvrJlb0DkGYpuHmdSs3j0qkZ1-VMnQCud26z__g_GCzu4oU38B1TR7ta6l0u0lmnSLLE6Rbn49CH4KQ");'></div>
+                <div>
+                  <p class="text-white text-lg font-medium leading-normal">チャンネル デルタ</p>
+                  <p class="text-[#9da6b9] text-sm font-normal leading-normal">完了: 95 / 100</p>
+                  <div class="flex gap-2 mt-2">
+                    <div class="flex items-center gap-1.5 rounded-full bg-[#135bec]/20 px-3 py-1 text-xs font-medium text-[#8ab4f8] cursor-pointer hover:bg-primary/40">
+                      <span class="material-symbols-outlined text-base">progress_activity</span>
+                      進行中: 5
+                    </div>
+                    <div class="flex items-center gap-1.5 rounded-full bg-gray-500/20 px-3 py-1 text-xs font-medium text-gray-400">
+                      <span class="material-symbols-outlined text-base">flag</span>
+                      レビュー待ち: 0
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+        <aside class="flex w-96 flex-col border-l border-slate-200/10 bg-[#111318] p-6">
+          <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200/10">
+              <h2 class="text-white text-xl font-bold">チャンネル Beta のタスク一覧</h2>
+              <button class="text-[#9da6b9] hover:text-white transition-colors" aria-label="サイドパネルを閉じる">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="py-4">
+              <p class="text-sm text-[#9da6b9]">絞り込み条件: <span class="font-medium text-white">レビュー待ち</span></p>
+            </div>
+            <div class="flex flex-col gap-3 overflow-y-auto flex-1">
+              <div class="flex flex-col gap-3 rounded-lg bg-[#282e39] p-4">
+                <p class="text-white font-medium">動画101：先端AI概論</p>
+                <div class="flex items-center justify-between text-sm">
+                  <p class="text-[#9da6b9]">担当: <span class="text-white">佐藤 亮</span></p>
+                  <p class="text-white bg-[#FF9F0A]/20 text-[#FFC70A] rounded-full px-2 py-0.5 text-xs">レビュー待ち</p>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="flex gap-2 items-center text-xs text-[#9da6b9]">
+                    <div class="flex items-center gap-1 text-[#28A745]/80"><span class="material-symbols-outlined text-base">check_circle</span> 台本</div>
+                    <div class="flex items-center gap-1 text-[#28A745]/80"><span class="material-symbols-outlined text-base">check_circle</span> 音声</div>
+                    <div class="flex items-center gap-1 text-[#FFC70A]"><span class="material-symbols-outlined text-base">pending</span> 字幕</div>
+                  </div>
+                  <button class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary/80">レビュー</button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 rounded-lg bg-[#282e39] p-4">
+                <p class="text-white font-medium">動画102：量子コンピューティングの未来</p>
+                <div class="flex items-center justify-between text-sm">
+                  <p class="text-[#9da6b9]">担当: <span class="text-white">鈴木 花</span></p>
+                  <p class="text-white bg-[#FF9F0A]/20 text-[#FFC70A] rounded-full px-2 py-0.5 text-xs">レビュー待ち</p>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="flex gap-2 items-center text-xs text-[#9da6b9]">
+                    <div class="flex items-center gap-1 text-[#28A745]/80"><span class="material-symbols-outlined text-base">check_circle</span> 台本</div>
+                    <div class="flex items-center gap-1 text-[#FFC70A]"><span class="material-symbols-outlined text-base">pending</span> 音声</div>
+                    <div class="flex items-center gap-1 text-[#9da6b9]"><span class="material-symbols-outlined text-base">radio_button_unchecked</span> 字幕</div>
+                  </div>
+                  <button class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary/80">レビュー</button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 rounded-lg bg-[#282e39] p-4">
+                <p class="text-white font-medium">動画103：ニューラルネット基礎</p>
+                <div class="flex items-center justify-between text-sm">
+                  <p class="text-[#9da6b9]">担当: <span class="text-white">田中 真</span></p>
+                  <p class="text-white bg-[#FF9F0A]/20 text-[#FFC70A] rounded-full px-2 py-0.5 text-xs">レビュー待ち</p>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="flex gap-2 items-center text-xs text-[#9da6b9]">
+                    <div class="flex items-center gap-1 text-[#FFC70A]"><span class="material-symbols-outlined text-base">pending</span> 台本</div>
+                    <div class="flex items-center gap-1 text-[#9da6b9]"><span class="material-symbols-outlined text-base">radio_button_unchecked</span> 音声</div>
+                    <div class="flex items-center gap-1 text-[#9da6b9]"><span class="material-symbols-outlined text-base">radio_button_unchecked</span> 字幕</div>
+                  </div>
+                  <button class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary/80">編集</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

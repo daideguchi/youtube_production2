@@ -1,0 +1,89 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:10:21+00:00",
+  "status": "ready",
+  "stage": "script_draft",
+  "task": "script_chapter_draft",
+  "channel": "CH22",
+  "video": "001",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/001/content/chapters/chapter_1.md",
+    "sha1": "22b272da1b3d6f3d49aeb1011495caa6ac592941"
+  },
+  "content": "かつては何でも話し合い、支え合ってきたあの友人関係が、いつの間にかゆっくりと変化していったのはなぜだろう。長い年月を共に過ごしたからこそ、そのすれ違いは静かで、気づいた時には少し距離ができていた。\n\n私たちは同じ町内で子育てをしながら、三十年近くの付き合いになっていた。子どもたちがまだ小さかった頃から、公園で一緒に時間を過ごし、学校の送迎を代わり合い、悩み事があれば夜遅くまで電話で話し込んだものだ。誰かが困っていれば、すぐに手を差し伸べ合える関係。お互いの家庭の事情もよく知っている。誰かの夫が転勤で単身赴任になった時は、残された家族のサポートを自然と輪になってしたし、誰かが病気になれば、順番に見舞いに行った。\n\n子どもが独立し、家が急に静かになった時も、私たちはよく集まった。子育てから解放された喜びと、同時に訪れた虚しさを分かち合うように。そして、誰かの夫に先立たれた時。それは私たちのグループにとって初めての身近な死だった。残された友人は、突然の寂しさに押し潰されそうになっていた。私たちは代わる代わる家を訪ね、話し相手になり、ただ傍にいた。あの時は、同じ世代として、同じ女性として、言葉にならない支え合いがあった。\n\n年月が経つにつれ、生活のリズムは少しずつ変わっていった。かつては毎週のようにかかっていた電話も、月に一度、それも短いやり取りになっていく。会う約束も、かつては気軽に明日にでも、という感じだったが、次第に数週間先の予定を調整するようになった。それでも、年に数回のランチ会や、季節のイベントには顔を合わせていた。変わらないね、と笑い合える瞬間は、まだ確かにあった。\n\nしかし、ここ数年、何となく空気が変わっていたのかもしれない。集まった時の話題が、どうしても過去の思い出話に偏りがちになる。現在進行形の悩みや、これからの計画について深く話し合うことが、以前より減ったように感じる。それはお互いの生活が落ち着いたからだろうか。それとも、それぞれが自分の世界に少しずつ引きこもり始めていたからか。\n\n連絡を取る頻度が減っていることには、自分でも気づいていた。メールやメッセージのやり取りが、用件だけの簡素なものになっていく。誕生日の祝いも、かつては手作りの品を贈り合ったが、今は定型文のメッセージを送るだけ。小さな変化は、一つひとつは大したことではない。むしろ、年を重ねたからこその、お互いを尊重する距離なのだと、自分に言い聞かせてもいた。\n\nだが、ふと気づくことがあった。最近のランチ会の話を、なぜか直接聞いていない。他の誰かから、そういえば先日集まったよ、と聞くことがちらほらと。最初は、たまたま連絡が漏れただけだと思った。でも、それが二度、三度と続くと、もしかして、と頭をよぎる。それでも、あの長い付き合いなのだから、わざわざ外す理由などない、とすぐに打ち消した。気のせいだ、きっと偶然だ。そう思いたかった。\n\nこの静かな変化は、ある日突然に起きたわけではない。十年、二十年という長い時間をかけて、ゆっくりと、ほとんど目に見えない速度で進行していた。同じ町内に住みながら、子どもの進学や就職、親の介護や自分の健康問題など、それぞれが別々の人生の波を乗り越えていくうちに、歩調が少しずつずれていったのかもしれない。悪意や確執があったわけではなく、ただ時間が流れた結果なのだろう。\n\nかつてはあんなに近かった距離感が、知らぬ間にほんの数センチ、また数センチと広がっていく。それは、関係が悪化したというより、むしろ自然な成熟のようなものだ。お互いが無理をしなくてもいい楽な間柄になった、と前向きに解釈することもできた。でも、時折、昔のように何でも話せたあの頃が懐かしくて、ふと寂しさがこみ上げてくることもあった。\n\nこの静かな変化は、やがて小さなすれ違いとして積もっていきます。",
+  "sources": [
+    {
+      "path": "inline:CHAPTER_NUMBER",
+      "sha1": "356a192b7913b04c54574d18c28d46e6395428ab"
+    },
+    {
+      "path": "inline:CHAPTER_TITLE",
+      "sha1": "e0d7985c4d6605b2930cd93f21f897e7664f58db"
+    },
+    {
+      "path": "inline:WORD_TARGET",
+      "sha1": "d2df16bee9d37212d9dc0a9709c3a8579fedcfff"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "d73bc38469c5534916205ad5b1aafc94ffee1063"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/001/content/outline.md",
+      "sha1": "a6c985d05f275d310cc6e0fe504cc54dcd6ec5b8"
+    },
+    {
+      "path": "inline:CHAPTER_JSON",
+      "sha1": "c37da7a951e997dc3a0bad20758d41825fca5e50"
+    },
+    {
+      "path": "inline:SCRIPT_PROMPT",
+      "sha1": "11de3eb92ea2c79d46be9d808e6685fd062d4bcb"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "4e2961fe00ddc1e59fee976325cacb542888ef1d"
+    },
+    {
+      "path": "inline:CORE_EPISODE_GUIDE",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "inline:A_TEXT_RULES_SUMMARY",
+      "sha1": "1d399a3b955dcfa48908168c0c275a6aa53cd6d1"
+    },
+    {
+      "path": "inline:BRIEF_JSON",
+      "sha1": "f6e96e7e1284ba68a1ab471559b68a8947d38b8b"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766894947-iHAlVzhlL673pvqimUvv",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 73776,
+    "usage": {
+      "prompt_tokens": 9140,
+      "completion_tokens": 2494,
+      "total_tokens": 11634
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_draft/e4/e4569f13e01a2beb96b340ee31754587.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/001/logs/script_draft_prompt.txt"
+}

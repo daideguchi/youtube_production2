@@ -1,0 +1,312 @@
+.publishing-progress-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.publishing-progress-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.publishing-progress-page__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-strong);
+}
+
+.publishing-progress-page__subtitle {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.publishing-progress-page__headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.publishing-progress-page__summary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.publishing-progress-page__import {
+  padding: 14px 16px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.publishing-progress-page__import summary {
+  cursor: pointer;
+  color: var(--color-text-strong);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.publishing-progress-page__importHelp {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.publishing-progress-page__importTextarea {
+  width: 100%;
+  min-height: 140px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.publishing-progress-page__importActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.publishing-progress-page__fileButton {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.publishing-progress-page__fileButton input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.publishing-progress-page__controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.publishing-progress-page__search {
+  width: min(520px, 95vw);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  outline: none;
+  font-size: 13px;
+}
+
+.publishing-progress-page__search::placeholder {
+  color: rgba(71, 85, 105, 0.8);
+}
+
+.publishing-progress-page__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-strong);
+}
+
+.publishing-progress-page__selectLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-strong);
+}
+
+.publishing-progress-page__selectLabel span {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.publishing-progress-page__selectLabel select {
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  font-size: 13px;
+}
+
+.publishing-progress-page__table {
+  padding: 18px 20px;
+}
+
+.publishing-progress-page__row--pending th {
+  box-shadow: inset 3px 0 0 rgba(250, 204, 21, 0.55);
+}
+
+.publishing-progress-page__row--runwayCritical th {
+  box-shadow: inset 3px 0 0 rgba(239, 68, 68, 0.55);
+}
+
+.publishing-progress-page__channel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.publishing-progress-page__channelName {
+  font-weight: 700;
+  color: var(--color-text-strong);
+}
+
+.publishing-progress-page__channelCode {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.publishing-progress-page__publishCell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 240px;
+}
+
+.publishing-progress-page__publishLine {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.publishing-progress-page__publishLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.publishing-progress-page__publishValue {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.publishing-progress-page__publishMeta {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.publishing-progress-page__upcomingDetails summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.publishing-progress-page__upcomingList {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.publishing-progress-page__upcomingList li {
+  list-style: disc;
+}
+
+.publishing-progress-page__upcomingAt {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  margin-right: 8px;
+  font-size: 11px;
+}
+
+.publishing-progress-page__upcomingTitle {
+  color: var(--color-text-strong);
+  font-size: 12px;
+}
+
+.publishing-progress-page__ratioCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.publishing-progress-page__bar {
+  width: 120px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  overflow: hidden;
+}
+
+.publishing-progress-page__barFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.publishing-progress-page__ratioText {
+  min-width: 46px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.publishing-progress-page__ratioSub {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.publishing-progress-page__note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.publishing-progress-page__warnings {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.publishing-progress-page__warnings summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.publishing-progress-page__warnings ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--color-text-strong);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .publishing-progress-page__ratioCell {
+    justify-content: flex-start;
+  }
+}

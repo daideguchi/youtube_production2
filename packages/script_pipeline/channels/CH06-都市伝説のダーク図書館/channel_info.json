@@ -1,6 +1,6 @@
 {
   "channel_id": "CH06",
-  "name": "都市伝説・闇 都市伝説のダーク図書館",
+  "name": "都市伝説のダーク図書館",
   "persona_path": "workspaces/planning/personas/CH06_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH06-都市伝説のダーク図書館/script_prompt.txt",
   "branding": {
@@ -86,7 +86,7 @@
     "VOICEVOX",
     "青山流星"
   ],
-  "youtube_description": "この動画は、「都市伝説・闇 都市伝説のダーク図書館」の長時間コンテンツです。\n都市伝説と闇の世界を探る\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
+  "youtube_description": "この動画は、「都市伝説のダーク図書館」の長時間コンテンツです。\n都市伝説と闇の世界を探る\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
   "benchmarks": {
     "version": 1,
     "updated_at": "2025-12-27",

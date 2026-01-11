@@ -1,0 +1,57 @@
+{
+  "schema": "ytm.web_search_results.v1",
+  "provider": "openrouter:perplexity/sonar",
+  "query": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
+  "retrieved_at": "2025-12-28T04:30:36Z",
+  "hits": [
+    {
+      "title": "趣味サークルのボスに逆らった末路（小説） - pixivノベル",
+      "url": "https://www.pixiv.net/novel/show.php?id=17721135",
+      "snippet": "pixivに掲載された小説のページ（作品ID:17721135）。本文中に「ボスと対面する」「黒革の後部座席」などの描写あり。",
+      "source": "pixiv.net",
+      "age": null
+    },
+    {
+      "title": "『女子ボス』という概念と逆らった際の排除傾向（記事） - President Online",
+      "url": "https://president.jp/articles/-/59727?page=1",
+      "snippet": "職場やママ友にいる『女子ボス』が最初は優しく振る舞うが、集団内で自分に逆らう者を排除する傾向があると解説する記事。",
+      "source": "president.jp",
+      "age": null
+    },
+    {
+      "title": "趣味や人間関係での“逆らったら居場所を失う”経験に関する精神保健資料（READ） - 山梨県立北病院",
+      "url": "https://www.ych.pref.yamanashi.jp/kitabyo/wp-content/uploads/sites/2/2022/07/READ.pdf",
+      "snippet": "生活リズムの乱れや周囲に合わせることで『逆らったらいいことが起こらなかった』という記憶に縛られるといった記述を含む回復支援の資料。",
+      "source": "ych.pref.yamanashi.jp",
+      "age": "2022"
+    },
+    {
+      "title": "近代大学 建築学部 電子書籍（まえがき） - 近畿大学",
+      "url": "https://archi.hiro.kindai.ac.jp/ebookfree/ebook/ebook_DF_YO_A5.pdf",
+      "snippet": "電子書籍のまえがき部分。引用箇所に『居場所を失う』『起きられない』など心理的な記述が含まれるが、趣味サークル固有の事例ではない。",
+      "source": "archi.hiro.kindai.ac.jp",
+      "age": null
+    },
+    {
+      "title": "Kakuyomu ユーザー作品一覧（フォロー作品） - Kakuyomu",
+      "url": "https://kakuyomu.jp/users/htdiugjf/following_works?page=3",
+      "snippet": "小説投稿サイトKakuyomuのユーザーフォロー作品一覧ページ。複数の創作作品の説明文が並んでおり、居場所を失うテーマの作品が含まれる可能性がある。",
+      "source": "kakuyomu.jp",
+      "age": null
+    },
+    {
+      "title": "連句協会 年刊資料（PDF） - 連句協会",
+      "url": "http://renku-kyokai.net/download/shiryoushitu/renkunenkan-h4.pdf",
+      "snippet": "連句協会の年刊資料。会合や参加者の記録が中心で、『居場所を失う』といった一般的表現が文脈上に散見されるが、問いのタイトルの直接の該当はない。",
+      "source": "renku-kyokai.net",
+      "age": null
+    },
+    {
+      "title": "Steam コミュニティ：Last Epochの基礎知識（ボス前の準備説明） - Steam Community",
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?l=brazilian&id=2073557627",
+      "snippet": "ゲーム『Last Epoch』のボス戦に関するガイド。『ボスに逆らう』という比喩的表現とは無関係のゲーム説明ページ。",
+      "source": "steamcommunity.com",
+      "age": null
+    }
+  ]
+}

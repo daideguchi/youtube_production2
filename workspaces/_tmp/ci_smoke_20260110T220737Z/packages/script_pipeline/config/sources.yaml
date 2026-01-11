@@ -1,0 +1,27 @@
+channels:
+  # NOTE:
+  # - 正本は repo 直下 `configs/sources.yaml`（全チャンネルの planning/persona/prompt/章数/文字数など）。
+  # - このファイルは互換/局所上書き用（runner は configs → ここ の順でマージする）。
+  CH06:
+    planning_csv: workspaces/planning/channels/CH06.csv
+    persona: workspaces/planning/personas/CH06_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH06-都市伝説のダーク図書館/script_prompt.txt
+    chapter_count: 7
+    target_chars_min: 20000
+    target_chars_max: 26000
+  CH05:
+    planning_csv: workspaces/planning/channels/CH05.csv
+    persona: workspaces/planning/personas/CH05_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH05-シニア恋愛/script_prompt.txt
+  CH04:
+    planning_csv: workspaces/planning/channels/CH04.csv
+    persona: workspaces/planning/personas/CH04_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH04-隠れ書庫アカシック/script_prompt.txt
+  CH03:
+    planning_csv: workspaces/planning/channels/CH03.csv
+    persona: workspaces/planning/personas/CH03_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH03-【シニアの健康】朗読図書館/script_prompt.txt
+  CH02:
+    planning_csv: workspaces/planning/channels/CH02.csv
+    persona: workspaces/planning/personas/CH02_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH02-静寂の哲学/script_prompt.txt

@@ -13264,7 +13264,7 @@ button:hover:not(:disabled) {
 }
 
 .channel-settings-page__col-thumb {
-  width: 130px;
+  width: 260px;
   text-align: center;
 }
 
@@ -13310,8 +13310,9 @@ button:hover:not(:disabled) {
 
 .channel-settings-page__thumb {
   width: 100%;
-  max-width: 120px;
-  height: 68px;
+  max-width: 240px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
@@ -13321,10 +13322,15 @@ button:hover:not(:disabled) {
 .channel-settings-page__thumb-placeholder {
   display: inline-flex;
   width: 100%;
+  max-width: 240px;
+  aspect-ratio: 16 / 9;
   justify-content: center;
   align-items: center;
   font-size: 12px;
   color: #94a3b8;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
 }
 
 .channel-settings-editor {

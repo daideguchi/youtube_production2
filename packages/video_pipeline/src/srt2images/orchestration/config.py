@@ -23,8 +23,8 @@ def get_args():
     parser.add_argument("--imgdur", type=float, help="Duration per image in seconds")
     parser.add_argument(
         "--cue-mode",
-        choices=["grouped", "per_segment"],
-        help="Cue building mode: grouped (~imgdur buckets) or per_segment (one image per SRT segment)",
+        choices=["grouped", "per_segment", "single"],
+        help="Cue building mode: grouped (~imgdur buckets; may use LLM planner) or per_segment (one image per SRT segment) or single (one image for entire video)",
     )
     parser.add_argument("--crossfade", type=float, help="Crossfade seconds between images (0 allowed)")
     parser.add_argument("--fps", type=int, help="Timeline FPS")

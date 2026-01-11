@@ -9,3 +9,7 @@
 - `ssot/ops/OPS_REPO_DIRECTORY_SSOT.md`
 - `packages/factory_common/paths.py`（パスSSOT）
 
+## Incidents（参照）
+
+- `HISTORY_incident_20251229_codex_git_rollback.md`: Codex Gitロールバック事故
+- `HISTORY_incident_20260111_codex_unapproved_llm_task_overrides_edit.md`: Codex 無許可のLLMルーティング設定変更

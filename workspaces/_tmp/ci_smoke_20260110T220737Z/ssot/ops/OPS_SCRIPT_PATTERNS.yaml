@@ -1,0 +1,1136 @@
+schema: ytm.ops_script_patterns.v1
+version: 1
+
+# 目的:
+# - 大量生成でも「狙いどおり・一貫・水増しなし」を安定させるための構成パターン集（SSOT）。
+# - LLMに“自由に書かせない”。まずパターンで骨格と分量を固定し、LLMは中身の質に集中させる。
+#
+# 使い方（概略）:
+# - channel + planning_title を入力にパターンを選ぶ（triggers）。
+# - sections の char_budget を台本の骨格として使う（合計は target_chars_min〜max に収める）。
+# - 出力台本は sections 境目に `---` を1行単独で入れる（唯一のポーズ）。
+
+defaults:
+  pause_marker: "---"
+  sections_min: 5
+  sections_max: 7
+  modern_examples_max: 1
+  # workspaces/research/benchmarks_ch07_ch08.md で観測される「強フック→核心の視点→具体対処→締め」の型を基礎にする。
+
+patterns:
+  # -------------------------
+  # Generic (all channels fallback)
+  # -------------------------
+  - id: default_core_teaching_v1
+    channels: ["*"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "今の苦しみを増やしているのは出来事そのものより、反射と執着である。ここで一度、手を緩める。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 視聴者の今の痛みを具体に掴み、聴く理由を作る
+          content_notes: "生活導線（朝/夜/帰宅後）で1シーン。結論の方向性を一文で先に出す。"
+        - name: 悩みの正体
+          char_budget: 950
+          goal: 何が苦しみを増やしているかを一つに絞って言語化する
+          content_notes: "言い換え水増し禁止。視聴者が『これだ』と思える説明。"
+        - name: 核心の見立て
+          char_budget: 1250
+          goal: 教えを日常語に翻訳し、理解が深まる順に進める
+          content_notes: "専門語は短く。断定の説教はしない。"
+        - name: 具体の落とし込み
+          char_budget: 1150
+          goal: 今日の場面でどう振る舞うかを具体で示す
+          content_notes: "現代の例は最大1つ。年齢/職業/台詞の作り込み連打は禁止。"
+        - name: 朝と夜の実践
+          char_budget: 1450
+          goal: 習慣として再現できる形にする
+          content_notes: "朝3〜4、夜3〜4。箇条書き禁止なので文章で自然に。場所と所要時間を入れる。"
+        - name: 結び
+          char_budget: 750
+          goal: 今日の一歩を一つに絞り、静かな希望で締める
+          content_notes: "過剰な比喩で伸ばさない。短く。"
+
+  # NOTE (2026-01-09): Planning CSV の `台本型`（kata1/kata2/kata3）運用は廃止。
+  # パターン選択は channel + triggers（タイトル）だけで決める（= runner 側で `台本型` は参照しない）。
+
+  # -------------------------
+  # CH22/CH23（シニア体験談・ストーリー）
+  # -------------------------
+  - id: ch22_senior_friendship_drama_v1
+    channels: ["CH22"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "関係を壊さずに心を守る距離を作る。"
+      modern_example_policy:
+        # 物語チャンネルの「登場人物」は必須なので、人物例の上限は緩めにして誤検知で落ちないようにする。
+        max_examples: 2
+        example_1_hint: "主人公（私）＋相手1名。モブは背景化して増やさない。"
+      sections:
+        - name: 導入（結末の一場面）
+          char_budget: 900
+          goal: 結末ワンカットを先に見せ、理由回収へ引き込む
+          content_notes: "挨拶/自己紹介（こんばんは、〇〇です等）は入れない。結末は言い切らず違和感で掴む。"
+        - name: 背景（長期×一瞬）
+          char_budget: 1200
+          goal: 昔は良かった記憶＋今の差で落差を作る
+          content_notes: "年数/年齢/季節/距離感を早めに入れる。背景説明を増やしすぎない。"
+        - name: 棘の積み上げ①
+          char_budget: 1600
+          goal: 大事件ではなく小さな棘を複数回で共感を積む
+          content_notes: "礼節/比較/空気支配/SNS/老い・体力など。具体描写（音/匂い/手元/距離）で厚み。"
+        - name: 棘の積み上げ②
+          char_budget: 1600
+          goal: 主人公の内面と外界の往復で摩耗を現実として見せる
+          content_notes: "セリフで水増ししない。反撃は長くせず、静かに線を引く方向で。"
+        - name: 決定打
+          char_budget: 1400
+          goal: 戻れない一言/場面で破局を必然にする
+          content_notes: "論破/スカッとではなく、現実の“静かな終わり”に寄せる。"
+        - name: 再定義と余韻
+          char_budget: 1700
+          goal: 見方を1つだけ言語化し、行動1つ＋象徴アイテムで静かに着地
+          content_notes: "励ましの言い換え連打は禁止。持ち帰り行動は1つだけ。最後は完結させる。"
+
+  - id: ch23_senior_marriage_reality_drama_v1
+    channels: ["CH23"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "正しさで裁かず、心と生活を守る選択肢を増やす。"
+      modern_example_policy:
+        max_examples: 2
+        example_1_hint: "主人公（妻側視点）＋夫。家族/義実家/介護者は必要最小限で背景化。"
+      sections:
+        - name: 導入（結末の一場面）
+          char_budget: 900
+          goal: 結末ワンカットを先に見せ、理由回収へ引き込む
+          content_notes: "挨拶/自己紹介（こんばんは、〇〇です等）は入れない。結末は言い切らず違和感で掴む。"
+        - name: 背景（長期×一瞬）
+          char_budget: 1200
+          goal: 夫婦の積み重ねと今の差（役割/会話/疲労/お金）を短く置く
+          content_notes: "年数/退職/生活リズムの変化を早めに。説明過多にしない。"
+        - name: 棘の積み上げ①
+          char_budget: 1600
+          goal: 小さな棘を複数回で“限界の理由”を積み上げる
+          content_notes: "家事/介護の偏り、会話の不成立、ため息、生活リズム衝突、お金の扱い。"
+        - name: 棘の積み上げ②
+          char_budget: 1600
+          goal: 内面→外界→内面の往復で摩耗を現実として見せる
+          content_notes: "セリフで水増ししない。主人公の反撃は短く、境界線の引き方へ。"
+        - name: 決定打
+          char_budget: 1400
+          goal: 戻れない一言/場面で破局を必然にする
+          content_notes: "離婚/別居の断定推奨ではなく、戻れなさを“事実”として描く。"
+        - name: 再定義と余韻
+          char_budget: 1700
+          goal: 見方を1つだけ言語化し、生活を壊さない行動1つで静かに着地
+          content_notes: "励ましの言い換え連打は禁止。持ち帰り行動は1つだけ。最後は完結させる。"
+
+  # -------------------------
+  # CH01（人生の道標）
+  # -------------------------
+  - id: ch01_historical_proof_bridge_v1
+    channels: ["CH01"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "史実が証明してきた仏教の教えを、視聴者の今の痛みに結び、今夜からの一歩にする。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "視聴者の生活導線（職場/家族/近所/老後不安）から1場面だけに絞る。"
+      sections:
+        - name: 導入（共感フック）
+          char_budget: 950
+          goal: 視聴者の痛みに寄り添い、見終わった後の変化を約束する
+          content_notes: "問い→共感→安全基地→変容の約束。煽りすぎず、具体の一場面で掴む。"
+        - name: 仏教の教え（土台）
+          char_budget: 1100
+          goal: テーマに効く教えを一つに絞り、なぜ重要かを日常語で伝える
+          content_notes: "抽象で終わらせない。後段の史実で『教えが効く』ことを検証する導線を作る。"
+        - name: 史実エピソード（証明）
+          char_budget: 2500
+          goal: 史実・逸話を1〜2つに絞り、葛藤→選択→結果→教えとの接点まで深掘りする
+          content_notes: "日本の視聴者が不快になる題材は避ける。年号/出典/経典番号の断定で権威づけしない。"
+        - name: 視聴者への橋渡し
+          char_budget: 850
+          goal: 「さて、私たちの日常に戻りましょう」で史実の学びを現代の悩みに接続する
+          content_notes: "仏教用語（執着/渇愛/忍辱など）は短く言い換え、耳で理解できる形にする。"
+        - name: 実践（今夜の一歩）
+          char_budget: 1000
+          goal: 視聴者が今夜からできる行動を2〜3個に絞り、再現できる形にする
+          content_notes: "言い換え水増し禁止。時間/場所/言葉（短い一言）まで具体に。"
+        - name: 締め
+          char_budget: 750
+          goal: 学びを一文で束ね、視聴者への祝福と感謝で静かに終える
+          content_notes: "過剰な比喩で伸ばさない。煽りや制作メタは避ける。"
+
+  # -------------------------
+  # CH09（不動の指針）
+  # -------------------------
+  - id: ch09_ijin_speaks_compass_v1
+    channels: ["CH09"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "焦るな。腐るな。まだ雪の下で根を伸ばしている。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "夜の取り残され感/決断疲れの1場面だけ。人物を作り込まず、身体感覚で掴む。"
+      sections:
+        - name: 導入（偉人の声）
+          char_budget: 900
+          goal: 夜の焦りを掴み、偉人本人の一人称で寄り添い、比喩を置く
+          content_notes: "冒頭1000字以内に偉人名を出す。一人称の口調で語り、二人称は『君たち』寄り。比喩は1つに絞る。"
+        - name: 物語の芯（苦労と転機）
+          char_budget: 1600
+          goal: 失敗/屈辱/転機を短い連続で描き、教えが生まれた必然性を作る
+          content_notes: "会話文の捏造は禁止。年号/数字/出典の断定で権威づけしない。曖昧なら『諸説』で安全化する。"
+        - name: 指針1（命題→情景→現代）
+          char_budget: 1500
+          goal: 命題を一つに絞り、情景で映像化し、現代の痛みに接続する
+          content_notes: "章テンプレは〔命題→情景→現代の置き換え→物語→原理→短い宣言〕。水増し禁止。"
+        - name: 指針2（物語→原理）
+          char_budget: 1500
+          goal: 物語の一場面から原理を抽出し、視聴者が自分の場面に当てられる形にする
+          content_notes: "比喩は増やさず、導入で置いた比喩を回収して記憶に残す。"
+        - name: 指針3（落とし穴→戻り方）
+          char_budget: 1400
+          goal: よくある誤解/短絡を1つだけ潰し、戻り方を具体で渡す
+          content_notes: "説教/断罪にしない。『戻れる』道筋を短い手順として示す（箇条書き禁止）。"
+        - name: 明日への橋渡し（今日の一歩）
+          char_budget: 1200
+          goal: 今日からできる行動を1つに絞って、再現できる形で渡す
+          content_notes: "行動は最大3つまでだが、箇条書きにせず文章で自然に手順化。時間/場所/一言を入れる。"
+        - name: 結び（余韻）
+          char_budget: 800
+          goal: 余韻を残しつつ、焦りを鎮める短い宣言で静かに閉じる
+          content_notes: "締めは短く。過剰な煽り/制作メタ/CTAは禁止。"
+
+  # -------------------------
+  # CH10（人生を変える偉人思考【今日から実装】）
+  # -------------------------
+  - id: ch10_great_thinking_implementation_v2
+    channels: ["CH10"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "偉人の思考を借りて、今日から実装できる形に落とし込み、人生の手触りを少し変える。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "現代の1場面（判断に迷う/考えすぎ/人間関係/孤独）にだけ当て、会議術/組織論に寄り道せず具体の手順で回収する。"
+      sections:
+        - name: 導入
+          char_budget: 1500
+          goal: タイトルの痛みを掴み、聴く意味を約束する
+          content_notes: "強すぎないフック→今夜のテーマ→最後に『明日ひとつだけ実装する一歩』を約束。"
+        - name: 悩みの正体
+          char_budget: 2000
+          goal: 問題の構造を一つに絞って言語化する
+          content_notes: "原因を増やさない。視聴者の生活の具体描写で『これだ』にする。"
+        - name: 偉人の背景
+          char_budget: 2600
+          goal: 偉人の状況/葛藤から思考の必然性を描く
+          content_notes: "固有名詞/年代/数字の断定で権威づけしない。逸話は安全に一般化。"
+        - name: 核心の思考
+          char_budget: 2800
+          goal: 偉人の思考を現代語のモデルに翻訳する
+          content_notes: "抽象で終わらせず、判断の基準・見方の切替を言葉にする。"
+        - name: 今日から実装
+          char_budget: 3200
+          goal: 今日の夜からできる手順に落とす
+          content_notes: "文章で手順化。時間/場所/注意点を具体に。危険誘導や断定は禁止。"
+        - name: つまずき対策
+          char_budget: 2400
+          goal: よくある誤解/落とし穴を潰し、継続できる形に整える
+          content_notes: "『やりがちな失敗→どう戻すか』を1〜2往復。反復で水増ししない。"
+        - name: 結び
+          char_budget: 1600
+          goal: 明日ひとつだけの行動に絞り、静かに終える
+          content_notes: "締めは短く。CTA/制作メタ禁止。未完で終わらない。"
+
+  # -------------------------
+  # CH07 (Buddhist) patterns
+  # -------------------------
+  - id: ch07_one_liner_defense_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["最強の一言", "逆転の一言", "見下", "舐め", "バカに"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "相手を言い負かす言葉ではなく、反射を止めて尊厳を守る合図の一言を持つ。"
+      core_episode_candidates:
+        - id: insult_gift
+          topic: 侮辱を贈り物にしない話
+          keywords: ["見下", "侮辱", "悪口", "舐め"]
+          must_include:
+            - "相手の言葉を受け取らなければ、自分の中で増幅しないという筋"
+            - "受け取らない＝黙殺ではなく、反射を止めて距離を取ること"
+          avoid_claims:
+            - "出典や経典番号の断定"
+          safe_retelling: |
+            ブッダは侮辱を受けたとき、贈り物は受け取らなければ贈り主に戻る、とたとえたと伝えられます。
+            侮辱の言葉も同じで、受け取って増幅させなければ、自分の中で大きくなりません。
+            受け取らないとは黙殺ではなく、反射を止めて距離を取ることです。
+        - id: two_arrows
+          topic: 二本の矢のたとえ
+          keywords: ["傷つく", "反応", "気にしない"]
+          must_include:
+            - "出来事が第一の矢、反芻が第二の矢という筋"
+            - "第二の矢を止めるのが練習だという筋"
+          avoid_claims:
+            - "学術/統計の断定"
+          safe_retelling: |
+            ブッダは苦しみを二本の矢にたとえました。
+            一本目は避けにくい痛みや出来事の衝撃で、二本目は心の反芻や自責が撃つ追加の矢です。
+            練習は一本目を消すことではなく、二本目を増やさないことです。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "職場/家族の『見下し』の瞬間。10秒の間を作る。"
+      sections:
+        - name: 導入
+          char_budget: 800
+          goal: 見下された瞬間の身体反応を掴み、結論方向を提示
+          content_notes: "舌が乾く、胸が熱い、言い返したい/飲み込みたいの二択が苦しい。"
+        - name: 反射の罠
+          char_budget: 900
+          goal: 反射で反撃/沈黙どちらも消耗する理由を一つに絞る
+          content_notes: "『評価に縛られる』を軸に。"
+        - name: 仏教の逸話
+          char_budget: 1350
+          goal: 逸話→教え→日常語の順で腹落ちさせる
+          content_notes: "候補から1つだけ選ぶ。引用は地の文で。"
+        - name: 最強の一言の正体
+          char_budget: 1100
+          goal: 一言の役割を誤解なく定義し、使う場面を具体化
+          content_notes: "相手に返す言葉ではなく、自分の中の合図として扱う。"
+        - name: 実践
+          char_budget: 1450
+          goal: 朝/昼/夜の使い方を習慣として設計する
+          content_notes: "朝: 玄関/洗面所。夜: 枕元。『---』は意味の切れ目だけ。"
+        - name: 結び
+          char_budget: 750
+          goal: 尊厳を守る一歩に収束させる
+          content_notes: "説教にしない。短く。"
+
+  - id: ch07_warning_cut_ties_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["警告", "危険", "縁を切", "恩知ら", "親を不幸", "子供", "許すと不幸", "許してはいけない", "絶対に許", "許すな"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "慈悲と境界は両立する。壊され続ける縁は、切る勇気で守る。"
+      core_episode_candidates:
+        - id: sigalovada
+          topic: 家族の務めを説く教え
+          keywords: ["親", "子", "家族"]
+          must_include:
+            - "親子でも互いの尊厳が前提であるという筋"
+            - "境界がなければ慈悲が搾取に変わるという筋"
+          avoid_claims:
+            - "経典名/出典の断定（迷うなら一般化）"
+          safe_retelling: |
+            ブッダは家族の関係を、互いの務めと敬意で支え合うものとして説いたと伝えられます。
+            親子であっても尊厳を損なう扱いが続けば、関係は壊れ、慈悲は搾取に変わり得ます。
+            だからこそ、優しさと境界は両立させる必要があります。
+        - id: devadatta
+          topic: 近しい者の裏切りと距離
+          keywords: ["裏切", "危険", "縁を切"]
+          must_include:
+            - "近しい関係ほど境界が必要という筋"
+            - "怒りではなく安全のための距離という筋"
+          avoid_claims:
+            - "センセーショナルな断定"
+          safe_retelling: |
+            ブッダの身近な人間関係にも、欲や嫉妬で道を外れ、害が生まれた例があったと語られます。
+            近しい相手だからといって無条件に受け入れるのではなく、害が増えるなら距離を置く。
+            それは怒りで罰するためではなく、安全と心の清らかさを守るための距離です。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "家族の要求がエスカレートする場面。線を引く言い方と距離の取り方。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 警告系タイトルに見合う危機感を作りつつ煽りすぎない
+          content_notes: "心身が削られる徴候を具体に。"
+        - name: 境界が崩れる瞬間
+          char_budget: 1000
+          goal: 何が起きると破壊的になるかを具体で示す
+          content_notes: "『要求が当然になる』『罪悪感で動く』を軸に。"
+        - name: 仏教の見立て
+          char_budget: 1400
+          goal: 慈悲と境界を同時に説明する
+          content_notes: "逸話は1つ。相手を罰する話にしない。"
+        - name: 縁を切る判断
+          char_budget: 1100
+          goal: 切る/距離を取る/条件を付けるの整理を地の文でやる
+          content_notes: "機械的リスト禁止。"
+        - name: 実践
+          char_budget: 1450
+          goal: 今日からの具体行動に落とす
+          content_notes: "言い方、連絡頻度、相談先、朝夜の整え方。"
+        - name: 結び
+          char_budget: 750
+          goal: 罪悪感を煽らず、決意を支える
+          content_notes: "短く。"
+
+  - id: ch07_reverse_relief_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["どうでもいい", "気にしない", "許さなくていい", "手放しな", "手放せ"]
+      all: []
+      # Guard: prevent misfire on titles like "【手放すな】..."
+      none: ["手放すな"]
+    plan:
+      core_message_template: "どうでもいいは投げやりではない。執着を緩め、第二の苦しみを止める合図である。"
+      core_episode_candidates:
+        - id: two_arrows
+          topic: 二本の矢のたとえ
+          keywords: ["どうでもいい", "気にしない", "反応"]
+          must_include:
+            - "第二の矢を止めるという筋"
+            - "感情を消すのではなく、増やさないという筋"
+          avoid_claims:
+            - "心理学の数字"
+          safe_retelling: |
+            ブッダは苦しみを二本の矢にたとえました。
+            一本目は避けにくい出来事の痛みで、二本目は心の反芻や自責が撃つ追加の痛みです。
+            感情を消すのではなく、増やさない。ここに焦点を当てます。
+        - id: poisoned_arrow
+          topic: 毒矢のたとえ
+          keywords: ["後悔", "答え", "不安"]
+          must_include:
+            - "今やるべきことを先にするという筋"
+          avoid_claims:
+            - "逸話の細部を断定"
+          safe_retelling: |
+            毒矢が刺さった人が、矢を抜く前に、誰が撃ったのかなどの答え探しを始めた、というたとえがあります。
+            答えを揃えるより先に、今の痛みを減らす手当てをする。ブッダはその順番を大切にしました。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "夜の反芻を止める。紙に一行書いて棚に置く。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: どうでもいいの誤解を先にほどく
+          content_notes: "投げやり/無責任ではない、の前置きは短く。"
+        - name: 苦しみが増える仕組み
+          char_budget: 950
+          goal: 反芻/想像で増える苦しみを一つに絞って説明
+          content_notes: "『第二の苦しみ』を軸に。"
+        - name: 仏教の逸話
+          char_budget: 1400
+          goal: 逸話→教え→使い方の順
+          content_notes: "引用は地の文で。"
+        - name: 使うタイミング
+          char_budget: 1050
+          goal: どこで言うと効くか、効かないかを具体で示す
+          content_notes: "責任から逃げる用法は否定する。"
+        - name: 実践
+          char_budget: 1400
+          goal: 朝夜の所作で習慣化
+          content_notes: "朝: 玄関/洗面所。夜: 枕元。"
+        - name: 結び
+          char_budget: 750
+          goal: 一つの行動に収束
+          content_notes: "短く。"
+
+  - id: ch07_keep_fated_ties_v1
+    channels: ["CH07"]
+    triggers:
+      # "手放すな" を強く掲げる回は、執着を手放す方向へ倒れると逆方向の事故になる。
+      # 先に「守る縁」と「手放す執着」を区別し、企画訴求（手放すな）を回収する。
+      any: []
+      all: ["手放すな"]
+      none: []
+    plan:
+      core_message_template: "手放すなとは、しがみつけではない。守るべき縁を見極め、壊さない言葉で育てるという決意である。"
+      core_episode_candidates:
+        - id: right_speech
+          topic: 正語（相手も自分も傷つけない言葉）
+          keywords: ["言葉", "縁", "守る"]
+          must_include:
+            - "正しさより、役に立つ言葉を選ぶという筋"
+            - "守る縁ほど、言葉で壊さない配慮が要るという筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+          safe_retelling: |
+            ブッダは、真実でも相手を傷つけるなら言わない、役に立つなら時を選び慈悲の温度で言う、という教えを説いたと伝えられます。
+            縁は言葉で育ち、言葉で壊れます。守る縁ほど、勝ち負けよりも、役に立つ言葉を選ぶ必要があります。
+        - id: friendship_conditions
+          topic: 良縁を見極める観点（一般化）
+          keywords: ["縁", "見極め", "相性"]
+          must_include:
+            - "縁は感情だけでなく、日々の扱い（言葉・約束・態度）で見えるという筋"
+            - "守る縁は『安心が増える』方向に働くという筋"
+          avoid_claims:
+            - "出典の断定"
+          safe_retelling: |
+            良縁は、劇的な運命というより、日々の扱いの積み重ねで見えてきます。
+            言葉が荒れたままでも修復しようとする姿勢があるか、約束が守られるか、安心が増えるか。
+            そうした小さな確かさが、守るべき縁の輪郭になります。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "夜寝る前に、守りたい縁が一つ浮かぶ場面。言葉の選び直しをする。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 「手放すな」の意味を先に定義し、逆方向の誤解を防ぐ
+          content_notes: "執着の話に滑らせない。守る縁の話に固定する。"
+        - name: 運命の縁のサイン
+          char_budget: 1100
+          goal: 守るべき縁が「言葉」で分かる観点を具体にする
+          content_notes: "安心が増える/尊厳が守られる/約束が守られる。機械的リスト禁止。"
+        - name: 壊す言葉と、育てる言葉
+          char_budget: 1350
+          goal: 逸話→教え→日常語の順で、言葉の扱いを腹落ちさせる
+          content_notes: "候補から1つ。引用は地の文で。"
+        - name: 手放すべきは執着
+          char_budget: 1050
+          goal: 「手放すな」と両立する形で、執着だけを手放す説明にする
+          content_notes: "縁を切れ/全部どうでもいいに倒れない。"
+        - name: 実践
+          char_budget: 1400
+          goal: 今夜からできる一歩に落とす（守る縁に向けた言葉の一手）
+          content_notes: "一つだけ。夜の所作に繋げる。"
+        - name: 結び
+          char_budget: 750
+          goal: 守る縁に気づけた人が、静かに前へ進める締め
+          content_notes: "煽らず、余韻。"
+
+  - id: ch07_right_speech_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["正論", "常識", "正語", "言葉", "口癖"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "正しさは武器にしない。誠実な人は、言う前に今それは役に立つかを確かめる。"
+      core_episode_candidates:
+        - id: abhaya_prince
+          topic: 王子アバヤに説かれた正語
+          keywords: ["正論", "正語", "言葉", "常識"]
+          must_include:
+            - "真実でも相手を傷つけるなら沈黙する、という筋"
+            - "役に立つなら時を選び、慈悲の温度で言う、という筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+          safe_retelling: |
+            ある王子が、言うべきか黙るべきかをブッダに尋ねた話が伝わります。
+            ブッダは、真実でも相手を傷つけるなら言わない、役に立つなら時を選んで慈悲の温度で言う、と説いたとされます。
+            正しさを武器にせず、役に立つ言葉を選ぶという教えです。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "家庭/職場で正論が刺さる瞬間。言う前に一呼吸おく。"
+      sections:
+        - name: 導入
+          char_budget: 820
+          goal: 正論が刺さった経験を具体に掴む
+          content_notes: "相手は正しいのに苦しい、という矛盾を出し、最初に『合図の問い』を一つだけ置く（今それは役に立つか）。"
+        - name: 正しさの落とし穴
+          char_budget: 980
+          goal: なぜ正論が刃になるかを一つに絞る
+          content_notes: "相手の状態とタイミングを見ていない、を軸に。"
+        - name: 仏教の逸話
+          char_budget: 1450
+          goal: 逸話→教え→日常語の順で腹落ち
+          content_notes: "候補から1つだけ。"
+        - name: 使い方の転換
+          char_budget: 1050
+          goal: 言う/言わない/後で言うの判断を文章で示す
+          content_notes: "箇条書き禁止。"
+        - name: 実践
+          char_budget: 1400
+          goal: 朝と夜の所作で、正語を習慣にする
+          content_notes: "朝: 玄関/洗面所。夜: 枕元。短い一文で振り返る。"
+        - name: 結び
+          char_budget: 750
+          goal: 相手も自分も傷つけない一歩に収束
+          content_notes: "短く。"
+
+  - id: ch07_karmic_consequence_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["因果応報", "業", "迎える結末", "末路", "天罰"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "因果は復讐の物語ではない。相手の末路を追う執着を手放し、自分の心を取り戻す。"
+      core_episode_candidates:
+        - id: lump_of_salt
+          topic: 塩のかたまりのたとえ
+          keywords: ["因果応報", "業", "末路", "結末"]
+          must_include:
+            - "同じ出来事でも、心の器の大きさで苦しみの濃さが変わるという筋"
+            - "だからこそ、今の行いで心の器を育てるという筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+            - "誰かの末路を断言する"
+          safe_retelling: |
+            ブッダは同じ塩でも、水が少ない器では耐えがたい味になる一方、大きな水なら溶けてしまう、とたとえたと伝えられます。
+            出来事の苦しみは固定ではなく、心の器の大きさで濃さが変わる。
+            器を育てるのは、今日の行いと選び方です。
+            このたとえを、弟子の任務などの「出典が曖昧な物語」に作り替えない。要点だけで語る。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "相手の末路を想像して眠れない夜。想像のループを断つ所作。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 因果応報の誤解をほどき、聴く理由を作る
+          content_notes: "怖がらせない。『相手の末路』ではなく『自分の自由』が目的だと先に示す。"
+        - name: 誤解の正体
+          char_budget: 950
+          goal: 罰の物語にすると苦しみが増える理由を一つに絞る
+          content_notes: "相手への執着が自分の回復を遅らせる、を軸に。"
+        - name: 仏教の逸話
+          char_budget: 1400
+          goal: 逸話→教え→日常語の順で腹落ちさせる
+          content_notes: "塩のたとえを中心に。引用は地の文で。"
+        - name: 手放し方
+          char_budget: 1050
+          goal: 相手の結末を追う心をほどく具体の見立てを示す
+          content_notes: "『正義感』を否定せず、執着に変わる境目を説明する。"
+        - name: 実践
+          char_budget: 1550
+          goal: 朝夜の所作で、執着の回転を止める
+          content_notes: "朝: 玄関/洗面所。夜: 枕元。例は最大1つ。"
+        - name: 結び
+          char_budget: 750
+          goal: 今日の一歩を一つに絞り、静かな希望で締める
+          content_notes: "短く。"
+
+  - id: ch07_do_not_help_v1
+    channels: ["CH07"]
+    triggers:
+      # NOTE: Avoid over-broad tokens (e.g. "不幸になる") that can hijack unrelated titles like
+      # "許すと不幸になる". Keep this pattern tightly scoped to "助け" topics.
+      any: ["助けてはいけない", "絶対に助け", "助けるな"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "慈悲は何でも引き受けることではない。相手の依存を増やさない境界が、両方を守る。"
+      core_episode_candidates:
+        - id: raft_simile
+          topic: 筏のたとえ
+          keywords: ["助け", "助ける", "執着", "手放す"]
+          must_include:
+            - "道具は目的を果たしたら手放すという筋"
+            - "助けも依存になると重荷になるという筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+          safe_retelling: |
+            川を渡るために筏を使い、渡り終えたら背負い続けずに岸に置いていく、というたとえがあります。
+            旅人にとって筏は命綱ですが、渡り終えた後まで抱え続ければ、今度は重荷になります。
+            手段は役に立ったら手放す。助けも同じで、目的は相手が自分の足で立てることです。
+        - id: self_reliance
+          topic: 自分の灯を立てる教え
+          keywords: ["頼る", "自立", "助け"]
+          must_include:
+            - "他人に頼り切るほど苦しみが増えるという筋"
+            - "助けは自立へ向かう形で渡すという筋"
+          avoid_claims:
+            - "逐語引用の断定"
+          safe_retelling: |
+            ブッダは、自分を拠り所にし、教えを拠り所にしなさい、と説いたと伝えられます。
+            他人任せにすると苦しみが増えやすい。助けるなら、相手の自立へ向かう形で渡す。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "頼まれるたびに引き受けて疲弊する場面。断り方と距離。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 助けたのに消耗する痛みを具体に掴む
+          content_notes: "善意が裏目に出た感覚を丁寧に。煽らない。"
+        - name: 助けが不幸に変わる瞬間
+          char_budget: 1050
+          goal: 何が起きると依存になるかを一つに絞って説明
+          content_notes: "『助けが相手の責任を奪う』を軸に。"
+        - name: 仏教の見立て
+          char_budget: 1400
+          goal: 慈悲と智慧、境界を同時に説明する
+          content_notes: "逸話は1つ。相手を罰する話にしない。"
+        - name: 見分けと判断
+          char_budget: 1100
+          goal: 助ける/助けない/条件を付けるの整理を文章で示す
+          content_notes: "機械的リスト禁止。相手の変化が生まれるかで判断する。"
+        - name: 実践
+          char_budget: 1350
+          goal: 断り方と、自分を守る所作に落とす
+          content_notes: "言い方、時間を区切る、相談先。朝夜の整え方。"
+        - name: 結び
+          char_budget: 750
+          goal: 罪悪感を煽らず、決意を支える
+          content_notes: "短く。"
+
+  - id: ch07_gratitude_enemy_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["感謝すべき敵", "腹が立つ人", "敵", "ムカつく", "イライラ"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "感謝とは相手を肯定することではない。怒りの燃料を断ち、学びとして回収して自由になること。"
+      core_episode_candidates:
+        - id: hatred_ends_nonhatred
+          topic: 怨みは怨みで止まらない教え
+          keywords: ["敵", "怒り", "感謝"]
+          must_include:
+            - "やり返しても心は静まらないという筋"
+            - "怨みを終わらせるのは自分の側の選び直しだという筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+          safe_retelling: |
+            ブッダは、怨みは怨みでは止まらない、と説いたと伝えられます。
+            やり返しても心の火は消えにくい。終わらせるのは相手を肯定することではなく、自分の燃料を断つ選び直しです。
+        - id: insult_gift
+          topic: 侮辱を贈り物にしない話
+          keywords: ["怒り", "腹が立つ", "敵"]
+          must_include:
+            - "受け取らなければ増幅しないという筋"
+          avoid_claims:
+            - "出典の断定"
+          safe_retelling: |
+            ブッダは侮辱を受けたとき、贈り物は受け取らなければ贈り主に戻る、とたとえたと伝えられます。
+            怒りの燃料は、相手の言葉を心の中で反芻して受け取り続けることです。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "会うたびに腹が立つ相手。反射を止める短い所作。"
+      sections:
+        - name: 導入
+          char_budget: 820
+          goal: 腹が立つ人が頭から離れない痛みを掴む
+          content_notes: "相手の顔が浮かぶ、言い返しの台本が頭で回る、を具体に。"
+        - name: 怒りが増える仕組み
+          char_budget: 980
+          goal: 怒りが長引く理由を一つに絞る
+          content_notes: "『自分を守るための反射が、後で自分を傷つける』を軸に。"
+        - name: 仏教の逸話
+          char_budget: 1450
+          goal: 逸話→教え→日常語の順で腹落ち
+          content_notes: "候補から1つだけ。引用は地の文で。"
+        - name: 感謝の意味
+          char_budget: 1050
+          goal: 感謝を誤解なく定義し直す
+          content_notes: "相手に感謝しろ、ではなく『自分の反射に気づけたこと』を回収する。"
+        - name: 実践
+          char_budget: 1400
+          goal: 朝夜の所作で、怒りの回転を止める
+          content_notes: "朝: 玄関/洗面所。夜: 枕元。例は最大1つ。"
+        - name: 結び
+          char_budget: 750
+          goal: 今日の一歩に収束
+          content_notes: "短く。"
+
+  - id: ch07_fallback_core_episode_v1
+    channels: ["CH07"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "出来事そのものより、反射と反芻が苦しみを増やす。受け取らない選択を持てば、心の主導権が戻る。"
+      core_episode_candidates:
+        - id: two_arrows
+          topic: 二本の矢のたとえ
+          keywords: ["反芻", "考えすぎ", "夜", "眠れ", "気にし", "聞き流", "誤解", "分かってもらえ", "傷つ"]
+          must_include:
+            - "一本目は避けにくい痛み、二本目は反芻や自責が撃つ追加の痛みという筋"
+            - "練習は一本目を消すことではなく、二本目を増やさないことだという筋"
+          avoid_claims:
+            - "経典番号や逐語引用の断定"
+          safe_retelling: |
+            ブッダは苦しみを二本の矢にたとえたと伝えられます。
+            一本目は避けにくい出来事の痛みで、二本目は心の反芻や自責が撃つ追加の痛みです。
+            練習は一本目を消すことではなく、二本目を増やさないことです。
+        - id: poisoned_arrow
+          topic: 毒矢のたとえ
+          keywords: ["なぜ", "理由", "答え", "確認", "後悔", "不安", "論破", "正論"]
+          must_include:
+            - "答え探しより先に、いまの痛みを減らす手当てを優先するという筋"
+          avoid_claims:
+            - "逸話の細部の断定"
+          safe_retelling: |
+            毒矢が刺さった人が、矢を抜く前に理由探しを始めた、というたとえがあります。
+            答えを揃えるより先に、いまの痛みを減らす手当てをする。ブッダはその順番を大切にしました。
+        - id: insult_gift
+          topic: 侮辱を贈り物にしない話
+          keywords: ["見下", "侮辱", "悪口", "バカ", "舐め", "言い返", "ムカ", "腹が立"]
+          must_include:
+            - "受け取らなければ増幅しないという筋"
+            - "受け取らない＝黙殺ではなく、反射を止めて距離を取るという筋"
+          avoid_claims:
+            - "出典や経典番号の断定"
+          safe_retelling: |
+            ブッダは侮辱を受けたとき、贈り物は受け取らなければ贈り主に戻る、とたとえたと伝えられます。
+            侮辱の言葉も同じで、受け取って増幅させなければ自分の中で大きくなりません。
+            受け取らないとは黙殺ではなく、反射を止めて距離を取ることです。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "生活の一場面（家族/職場/夜の反芻）で、反射を止める。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: タイトルの痛みを具体に掴み、聴く理由を作る
+          content_notes: "結論の方向を一文で先に出す。"
+        - name: 苦しみが増える仕組み
+          char_budget: 950
+          goal: 何が苦しみを増やしているかを一つに絞って説明する
+          content_notes: "言い換え水増し禁止。"
+        - name: 仏教の逸話
+          char_budget: 1450
+          goal: 逸話→教え→日常語の順で腹落ちさせる
+          content_notes: "候補から1つだけ。引用は地の文で。"
+        - name: 現実への写し方
+          char_budget: 1050
+          goal: 教えを今日の場面に写し、迷う点を一つだけ解く
+          content_notes: "話題を増やさず主題に集中。"
+        - name: 実践
+          char_budget: 1450
+          goal: 行動と言葉（2〜3個）を、場面が想像できるように説明する
+          content_notes: "現代の人物例は最大1つ。作り込み人物例の連打は禁止。"
+        - name: 結び
+          char_budget: 750
+          goal: 今日の一歩を一つに絞って締める
+          content_notes: "短く。"
+
+  # -------------------------
+  # CH05 (short script) patterns
+  # -------------------------
+  - id: ch05_short_actionable_v1
+    channels: ["CH05"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "考えすぎを止めるのは才能ではない。小さな手順で、反射を落ち着かせられる。"
+      modern_example_policy:
+        max_examples: 0
+      sections:
+        - name: 導入
+          char_budget: 280
+          goal: いまの視聴者の状態に触れ、聴く理由を作る
+          content_notes: "前置きで伸ばさない。結論の方向を一文で。"
+        - name: 核心の見立て
+          char_budget: 720
+          goal: 苦しみの正体を一つに絞って言語化する
+          content_notes: "言い換え水増し禁止。抽象語の連打禁止。"
+        - name: 実践
+          char_budget: 700
+          goal: 今日すぐできる行動を一つに絞って説明する
+          content_notes: "箇条書き禁止。場所/所要時間/やり方を入れる。"
+        - name: 結び
+          char_budget: 300
+          goal: 一歩に収束し、短く終える
+          content_notes: "静かに締める。"
+
+  # -------------------------
+  # CH06（都市伝説のダーク図書館）
+  # -------------------------
+  - id: ch06_urban_legend_lab_v1
+    channels: ["CH06"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "真偽の断定ではなく、断片がつながっていく快感で世界観を完成させ、最後に自分ごととして残す。"
+      modern_example_policy:
+        max_examples: 0
+      sections:
+        - name: 導入（禁忌フック）
+          char_budget: 1800
+          goal: 違和感で掴み、疑いを立てる
+          content_notes: "冒頭から1つの断片（場所/年代/写真/座標など）を提示。安っぽい同意要求は禁止。"
+        - name: 視覚の手掛かり
+          char_budget: 3000
+          goal: 見える証拠で違和感を残す
+          content_notes: "画像/映像/地図/座標。反証も一つ入れ、決めつけない。"
+        - name: 歴史伏線（古地図・古文書）
+          char_budget: 3400
+          goal: 発見前の資料で矛盾を作る
+          content_notes: "年号と固有名詞。『発見より前に描かれている』系の逆転。矛盾は1つだけ置く。"
+        - name: 権威と機密
+          char_budget: 3400
+          goal: 隠す理由を匂わせる
+          content_notes: "軍/条約/研究/情報公開。黒塗り/封印/非公開。固有名詞と数字で信憑性を作る。"
+        - name: 規則性と一致
+          char_budget: 3400
+          goal: 一致で偶然ではない感を作る
+          content_notes: "数/幾何/周期/一致。説明はわかりやすく、断定しすぎない。"
+        - name: 現在の異常
+          char_budget: 3000
+          goal: 近年の異常で現代に接続する
+          content_notes: "局所的/規則的/原因不明のうち2つ。観測/リーク/記録を混ぜる。"
+        - name: 証言と統合仮説（A/B）＋余韻
+          char_budget: 5000
+          goal: 二案で筋にまとめ、問いで閉じる
+          content_notes: "匿名条件→投稿削除/沈黙/中止の余韻。統合はA案=装置、B案=封印。結論確定は避け、最後は視聴者の解釈に委ねる問いで終える。"
+
+  # -------------------------
+  # CH12-CH16 (8-part longform) patterns
+  # -------------------------
+  - id: ch12_16_buddha_8_sections_v1
+    channels: ["CH12", "CH13", "CH14", "CH15", "CH16"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "出来事よりも、反射と執着が苦しみを増やす。手を緩める練習は、今日からできる。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "生活の一場面（家族/職場/夜の反芻）で、反射を止める。"
+      sections:
+        - name: 導入
+          char_budget: 800
+          goal: タイトルの痛みを具体に掴み、聴く理由を作る
+          content_notes: "煽りすぎず、曖昧に濁さない。"
+        - name: 悩みの正体
+          char_budget: 900
+          goal: 何が苦しみを増やしているかを一つに絞る
+          content_notes: "同趣旨の言い換え連打禁止。"
+        - name: 核心の見立て
+          char_budget: 1150
+          goal: 教えを日常語に翻訳し、誤解が起きない順で進める
+          content_notes: "断定の説教をしない。"
+        - name: 中心の教え
+          char_budget: 1300
+          goal: 中心となる教え/逸話を軸に、理解を深める
+          content_notes: "話題を増やさず一つに集中。出典番号の断定は禁止。"
+        - name: つまずきポイント
+          char_budget: 950
+          goal: 視聴者が誤解しがちな点を一つだけ解く
+          content_notes: "優しさ=我慢、気にしない=麻痺、などの誤解を短く修正。"
+        - name: 実践（昼）
+          char_budget: 1000
+          goal: 今日の場面でどう振る舞うかを具体に示す
+          content_notes: "現代の例は最大1つ。作り込み人物例の連打は禁止。"
+        - name: 実践（朝と夜）
+          char_budget: 1000
+          goal: 習慣として再現できる形にする
+          content_notes: "朝3〜4、夜3〜4を文章で自然に。"
+        - name: 結び
+          char_budget: 700
+          goal: 今日の一歩を一つに絞って締める
+          content_notes: "短く。"
+
+  - id: ch07_comforting_phrase_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["辛いとき", "心が軽く", "仏の言葉", "口にすると", "救われる"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "辛さを消す言葉ではなく、耐えられる形に整える短い言葉を持つ。無常は希望として使える。"
+      core_episode_candidates:
+        - id: kisagotami
+          topic: からし種を求めた母の話
+          keywords: ["辛い", "言葉", "無常"]
+          must_include:
+            - "悲しみを軽く見ないこと"
+            - "孤立がほどけると呼吸が戻るという筋"
+          avoid_claims:
+            - "逐語引用の断定"
+          safe_retelling: |
+            子を失った母が答えを求め、ブッダは、まだ死別のない家からからし種をもらってきなさい、と頼んだ話が伝わります。
+            探しても見つからず、悲しみは自分だけのものではないと気づいたとき、孤立がほどけて呼吸が戻ります。
+            悲しみを軽く見ず、無常を理解することで耐えられる形に整える教えです。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "眠れない夜に言葉を探す場面。短い言葉と一つの所作。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 辛い夜の感覚を掴み、短い言葉の価値を提示
+          content_notes: "丁寧な言葉が遠い夜、を短く具体に。"
+        - name: 言葉が効く仕組み
+          char_budget: 900
+          goal: 言葉が注意を戻すという理解に落とす
+          content_notes: "一般論で短く。統計/機関名は禁止。"
+        - name: 仏教の逸話
+          char_budget: 1450
+          goal: 逸話→教え→日常語
+          content_notes: "からし種の話を中心に。"
+        - name: 仏の言葉の形
+          char_budget: 1050
+          goal: 口にする短い言葉を具体化し、誤用を防ぐ
+          content_notes: "直接引用は地の文で言い換える。"
+        - name: 実践
+          char_budget: 1450
+          goal: 朝夜の所作で、言葉を習慣化
+          content_notes: "朝: 洗面所。夜: 枕元。例は最大1つ。"
+        - name: 結び
+          char_budget: 750
+          goal: 今日の一歩に収束
+          content_notes: "短く。"
+
+  - id: ch07_meeting_disliked_people_v1
+    channels: ["CH07"]
+    triggers:
+      any: ["偶然じゃない", "嫌いな人", "出会いに意味", "縁起"]
+      all: []
+      none: []
+    plan:
+      core_message_template: "意味づけで縛られない。縁起の視点で条件を変えれば、苦しみは薄くできる。"
+      core_episode_candidates:
+        - id: poisoned_arrow
+          topic: 毒矢のたとえ
+          keywords: ["偶然", "意味", "嫌いな人", "縁起"]
+          must_include:
+            - "理由探しより、今の苦しみを減らす手当てを先にするという筋"
+          avoid_claims:
+            - "逸話の細部や経典番号の断定"
+          safe_retelling: |
+            毒矢が刺さった人が、矢を抜く前に理由探しを始めた、というたとえがあります。
+            偶然の意味を追い続けるより、今の苦しみを減らす手当てを先にする。順番を入れ替える教えです。
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "避けられない相手がいる場面。条件を一つ変える（時間/距離/言葉）。"
+      sections:
+        - name: 導入
+          char_budget: 850
+          goal: 嫌いな人が頭から離れない苦しさを掴む
+          content_notes: "作り込み人物例の連打は禁止。一般化で十分。"
+        - name: 意味づけの罠
+          char_budget: 950
+          goal: 偶然に意味を求めすぎて苦しくなる仕組みを一つに絞る
+          content_notes: "『理由探しが反芻になる』を軸に。"
+        - name: 仏教の逸話
+          char_budget: 1450
+          goal: 逸話→教え→日常語の順
+          content_notes: "毒矢のたとえを中心に。"
+        - name: 縁起の見方
+          char_budget: 1050
+          goal: 縁起を運命論にしない説明
+          content_notes: "条件を変えれば結果も変わる、に落とす。"
+        - name: 実践
+          char_budget: 1450
+          goal: 条件を一つ変える具体行動と、朝夜の整え
+          content_notes: "距離/時間/言葉のどれか一つ。例は最大1つ。"
+        - name: 結び
+          char_budget: 750
+          goal: 今日の一歩に収束
+          content_notes: "短く。"
+
+  # -------------------------
+  # CH25（寝落ち偉人講話【眠りながら学ぶ】）
+  # -------------------------
+  - id: ch25_neochi_ijin_7teachings_v1
+    channels: ["CH25"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "導入で安心を作り、7つの教えで『判断の順序』を静かに整える。各教えは同じ流れ（命題→誤解否定→用語化→道具比喩→原理→日常例→1分の手順→回収）で反復し、終盤は朝・昼・夜の小さな一手で閉じる。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "仕事/学び/生活の一般例（人物を立てない）"
+      sections:
+        - name: 導入
+          char_budget: 1400
+          goal: 夜の痛みを掴み、原因を再定義し、7つの教えを予告して安心を作る
+          content_notes: "問題→原因再定義→約束→予告。眠ってしまってもOKを入れる。"
+        - name: 第1章、基準を定める
+          char_budget: 2600
+          goal: 迷いの軸を一つに絞り、心が静まる基準を置く
+          content_notes: "比喩: レンズ。『何を成果と呼ぶか/何を大事にするか』を日常語で。"
+        - name: 第2章、重要な変数だけ残す
+          char_budget: 2500
+          goal: 情報と選択肢を減らし、決める前に疲れない状態を作る
+          content_notes: "比喩: ふるい。『全部大事』をやめ、2つだけ残す。"
+        - name: 第3章、最悪を先に固定する
+          char_budget: 2500
+          goal: 失敗への恐怖で止まらないよう、下限を先に整える
+          content_notes: "比喩: 盾。『最悪でもこれなら大丈夫』を短く定義する。"
+        - name: 第4章、期待値で選び続ける
+          char_budget: 2500
+          goal: 一度の結果でブレない見方を持ち、静かに続けられる判断に落とす
+          content_notes: "比喩: 天秤。3回平均の発想で揺れを減らす。"
+        - name: 第5章、手順を外に出す
+          char_budget: 2600
+          goal: 頭の中の判断を外部化し、再現できる形に整える
+          content_notes: "比喩: 設計図。『毎回ゼロから』を止める。"
+        - name: 第6章、冗長性で崩れない
+          char_budget: 2600
+          goal: 余白と逃げ道を作り、崩れても戻れる仕組みにする
+          content_notes: "比喩: 橋。予定が崩れても渡り直せる形にする。"
+        - name: 第7章、更新は小さく速く
+          char_budget: 2500
+          goal: 完璧主義で止めず、小さな更新で平均を上げる
+          content_notes: "比喩: 温度計。改善は1つだけ。"
+        - name: まとめ
+          char_budget: 1500
+          goal: 7つの教えを短く回収し、朝・昼・夜の小さな一手で静かに閉じる
+          content_notes: "朝/昼/夜の行動3つを必ず入れる。"
+
+  # -------------------------
+  # CH26（拝啓、偉人より）
+  # -------------------------
+  - id: ch26_haikei_ijin_7teachings_v1
+    channels: ["CH26"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "迷いは能力の問題ではなく、判断の順序の問題だ。順序が整うと、静かに進める。"
+      modern_example_policy:
+        max_examples: 1
+        example_1_hint: "仕事/学びで『成果を出したいのに迷って止まる』一般例を1つだけ。人物を作り込まない。"
+      sections:
+        - name: 序章（手紙の導入）
+          char_budget: 1100
+          goal: 迷いで止まる痛みを掴み、原因を判断の順序に置き換え、7つの教えを予告する
+          content_notes: "二人称は『君』。『眠ってしまっても大丈夫』を明言。煽りや罪悪感ではなく手順の話へ。"
+        - name: 第1の教え（目的関数）
+          char_budget: 1350
+          goal: 何を成果と呼ぶかを先に決め、迷いを減らす
+          content_notes: "教えの冒頭で短い『言葉（名言）』を置き、意味を解きほぐす。〔命題→誤解否定→用語化→比喩→原理→日常例→手順→回収〕。最後は1行で『迷いが減る。だから静かに進む。』"
+        - name: 第2の教え（重要な変数）
+          char_budget: 1250
+          goal: 重要な点だけを残し、選ぶ前に疲れない状態を作る
+          content_notes: "『全部大事』をやめ、2つだけ残す/外すの数制限で手順化する。最後は1行で『迷いが減る。だから静かに進む。』"
+        - name: 第3の教え（最悪の固定）
+          char_budget: 1250
+          goal: 最悪を先に固定し、恐怖で止まらない下限を作る
+          content_notes: "過度な恐怖演出は禁止。『最悪でもここまで』を短く定義し、戻れる形にする。最後は1行で『迷いが減る。だから静かに進む。』"
+        - name: 第4の教え（期待値）
+          char_budget: 1250
+          goal: 一回の結果で揺れず、平均で判断し続ける見方を持つ
+          content_notes: "同じ判断を3回続けて平均で見直す。勝ち負けの断罪にしない。最後は1行で『迷いが減る。だから静かに進む。』"
+        - name: 第5の教え（手順の外部化）
+          char_budget: 1250
+          goal: 判断を外に出して再現性を作り、迷いを減らす
+          content_notes: "1分で書く/一つだけ改善など、数制限つきで手順化する。最後は1行で『迷いが減る。だから静かに進む。』"
+        - name: 第6の教え（冗長性）
+          char_budget: 1250
+          goal: 余白と逃げ道を作り、崩れても戻れる仕組みにする
+          content_notes: "頑張りで押し切らず、崩れない余地として語る。最後は1行で『迷いが減る。だから静かに進む。』"
+        - name: 第7の教え（小さな更新）
+          char_budget: 1250
+          goal: 完璧主義で止めず、小さな更新で平均を上げる
+          content_notes: "更新は小さく速く。改善は1つだけ。最後は1行で『迷いが減る。だから静かに進む。』"
+        - name: 終章（翌日の行動）
+          char_budget: 1100
+          goal: 7つを短く回収し、翌日からの行動（朝・昼・夜）で静かに閉じる
+          content_notes: "朝・昼・夜の行動3つを必ず入れる（箇条書き禁止）。最後は安心で終える。"

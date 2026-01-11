@@ -562,7 +562,7 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
     _OPEN_BRACKETS = set("（(「『【〈《[")
     _CLOSE_BRACKETS = set("）)」』】〉》]")
     # Avoid starting a new line with punctuation/small separators (視認性が悪い).
-    _BAD_LINE_START = set("、。，．。！？!?・」』】）)〉》]")
+    _BAD_LINE_START = set("、。，．。.!！？!?・」』】）)〉》]")
     _SMALL_KANA = set("ぁぃぅぇぉゃゅょっァィゥェォャュョッー")
     _PARTICLES = set("はがをにでともへやの")
     _HONORIFIC_PREFIX = set("おご")
@@ -623,7 +623,10 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
             return text
 
         center = n / 2.0
-        hard_possible = n <= (hard_max * max_lines)
+        # Allow a small overflow budget (SRT_LINEBREAK_OVERFLOW_CHARS) while still enforcing the
+        # max line count constraint.
+        hard_limit = hard_max + overflow_chars
+        hard_possible = n <= (hard_limit * max_lines)
 
         def _candidate_break_positions() -> list[int]:
             """
@@ -669,7 +672,6 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
             # Avoid splitting Kanji compounds (e.g., 理想像 → 理想|像).
             if _is_kanji(prev) and _is_kanji(nxt):
                 return False
-            hard_limit = hard_max + overflow_chars
             if hard_possible and (left_len > hard_limit or right_len > hard_limit):
                 return False
             return True
@@ -747,7 +749,55 @@ def format_srt_lines(entries: list[dict], model: str, api_key: str, target_len: 
         if _score(best_i) >= 1e8:
             # Fallback: full scan (still deterministic).
             best_i = min(range(1, n), key=_score)
-            if _score(best_i) >= 1e8:
+            if _score(best_i) >= 1e8 and hard_possible:
+                # Last-resort: keep the 2-line constraint, but relax Japanese word-boundary
+                # heuristics so we can still prevent 3+ line overflow in the editor.
+                def _valid_relaxed(i: int) -> bool:
+                    if i <= 0 or i >= n:
+                        return False
+                    left_len = i
+                    right_len = n - i
+                    if left_len < 6 or right_len < 6:
+                        return False
+                    prev = text[i - 1]
+                    nxt = text[i]
+                    if nxt in _BAD_LINE_START or nxt in _SMALL_KANA:
+                        return False
+                    if prev in _OPEN_BRACKETS or prev in _SMALL_KANA:
+                        return False
+                    if hard_possible and (left_len > hard_limit or right_len > hard_limit):
+                        return False
+                    return True
+
+                def _score_relaxed(i: int) -> float:
+                    if not _valid_relaxed(i):
+                        return 1e9
+                    left_len = i
+                    right_len = n - i
+                    prev = text[i - 1]
+                    max_len = max(left_len, right_len)
+
+                    s = 0.0
+                    s += abs(left_len - right_len) * 0.55
+                    s += abs(i - center) * 0.05
+                    # Even when we allow a small overflow, keep it expensive.
+                    if hard_possible and max_len > hard_max:
+                        s += (max_len - hard_max) * 6.0
+
+                    if prev in _PUNCT_STRONG:
+                        s -= 10.0
+                    elif prev in _PUNCT_WEAK:
+                        s -= 6.0
+                    elif prev in _CLOSE_BRACKETS:
+                        s -= 2.0
+                    if prev in _PARTICLES:
+                        s -= 2.0
+                    return s
+
+                best_i = min(range(1, n), key=_score_relaxed)
+                if _score_relaxed(best_i) >= 1e8:
+                    return text
+            elif _score(best_i) >= 1e8:
                 return text
         return text[:best_i] + "\n" + text[best_i:]
 

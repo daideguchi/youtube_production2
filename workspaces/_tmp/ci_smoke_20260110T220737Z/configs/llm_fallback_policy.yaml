@@ -1,0 +1,23 @@
+# Fallback policy for LLMRouter
+# - transient_statuses: HTTP status codes that trigger trying the next candidate
+# - retry_limit: how many candidates to try (0 means try all in tier list)
+# - backoff_sec: sleep seconds before trying the next candidate
+transient_statuses: [429, 500, 502, 503, 504, 408]
+# 0 = try all candidates
+retry_limit: 0
+# Base backoff seconds for transient errors
+backoff_sec: 1.0
+# Optional per-status override (seconds). If absent, uses backoff_sec.
+per_status_backoff:
+  "429": 2.0
+  "503": 1.5
+  "504": 1.5
+# Optional per-status retry cap (0 = no cap)
+per_status_retry:
+  "429": 3
+  "503": 3
+  "504": 3
+# Max total attempts (0 = no cap; relies on retry_limit/all candidates)
+max_total_attempts: 0
+# Max total wait time across retries (0 = unlimited)
+max_total_wait_sec: 30

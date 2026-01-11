@@ -628,8 +628,19 @@ def main():
     ap.add_argument("--labels", help="Comma-separated 4 labels for belts (equal split)")
     ap.add_argument("--size", default="1920x1080", help="Output size, default 1920x1080")
     ap.add_argument("--imgdur", default="20", help="Target img duration (seconds)")
+    ap.add_argument(
+        "--cue-mode",
+        choices=["grouped", "per_segment", "single"],
+        default="grouped",
+        help="Cue building mode: grouped (~imgdur buckets; may use LLM section planner) or per_segment (1 cue per SRT segment; deterministic) or single (1 cue for whole video)",
+    )
     ap.add_argument("--fps", default="30", help="FPS")
     ap.add_argument("--crossfade", default="0.5", help="Crossfade seconds")
+    ap.add_argument(
+        "--disable-auto-fade",
+        action="store_true",
+        help="Skip automatic fade injection in CapCut draft (useful for per_segment cues or static images).",
+    )
     ap.add_argument("--scale", type=float, default=1.03, help="Global image scale (default: 1.03)")
     ap.add_argument("--draft-root", default=str(DEFAULT_DRAFT_ROOT), help="CapCut draft root")
     ap.add_argument("--template", help="Explicit CapCut template name (optional, otherwise preset capcut_template)")
@@ -916,7 +927,7 @@ def main():
             "--imgdur",
             args.imgdur,
             "--cue-mode",
-            "grouped",
+            args.cue_mode,
             "--crossfade",
             args.crossfade,
             "--fps",
@@ -1065,7 +1076,42 @@ def main():
 
     if resolved_belt_mode == "existing":
         if not (run_dir / "belt_config.json").exists():
-            print("ℹ️ belt_mode=existing: belt_config.json not found, skipping belt generation.")
+            # Deterministic fallback: if the user provided --title, generate a simple
+            # one-shot lower belt that spans the whole video (no LLM, no labels).
+            #
+            # This also enables CapCut post-processing (e.g., opening_offset track shifts)
+            # without requiring a manually created belt_config.json.
+            if args.title:
+                try:
+                    cues_data = json.loads((run_dir / "image_cues.json").read_text(encoding="utf-8"))
+                    total_duration = max(
+                        (float(c.get("end_sec", 0.0)) for c in (cues_data.get("cues", []) or []) if isinstance(c, dict)),
+                        default=0.0,
+                    )
+                except Exception:
+                    total_duration = 0.0
+
+                total_duration = round(max(0.0, float(total_duration)), 3)
+                belt_out = {
+                    "episode": episode.episode if episode else "",
+                    "main_title": str(args.title),
+                    "total_duration": total_duration,
+                    "belt_lower": {
+                        "text": str(args.title),
+                        "start_sec": 0.0,
+                        "duration_sec": total_duration,
+                        "font_size": 5.0,
+                        "position": "upper",
+                    },
+                    "belt_upper": [],
+                }
+                (run_dir / "belt_config.json").write_text(
+                    json.dumps(belt_out, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                print(f"✅ belt_mode=existing: wrote belt_config.json (static title) -> {run_dir / 'belt_config.json'}")
+            else:
+                print("ℹ️ belt_mode=existing: belt_config.json not found, skipping belt generation.")
     elif resolved_belt_mode == "equal":
         build_equal()
     elif resolved_belt_mode == "grouped":
@@ -1270,6 +1316,7 @@ def main():
         str(opening_offset),
         "--rank-from-top",
         "4",
+        *(["--disable-auto-fade"] if args.disable_auto_fade else []),
     ]
     # Progress: draft build start
     try:

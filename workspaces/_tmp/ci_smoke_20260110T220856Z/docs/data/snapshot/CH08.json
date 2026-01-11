@@ -1,0 +1,1060 @@
+{
+  "schema": "ytm.pages.snapshot.channel.v1",
+  "generated_at": "2025-12-28T10:35:20.325363Z",
+  "channel": "CH08",
+  "planning_csv": "workspaces/planning/channels/CH08.csv",
+  "planning_count": 30,
+  "scripts_count": 30,
+  "episodes": [
+    {
+      "channel": "CH08",
+      "video": "001",
+      "video_id": "CH08-001",
+      "title": "【悪用厳禁】反応しない最強の力",
+      "planning": {
+        "動画番号": "1",
+        "タイトル": "【悪用厳禁】反応しない最強の力",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "悪用厳禁",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "悪用厳禁",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "【悪用厳禁】反応しない最強の力 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "反応しない最強の力で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/001/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "002",
+      "video_id": "CH08-002",
+      "title": "「あなたの子供はカルマ」この言葉の真の意味",
+      "planning": {
+        "動画番号": "2",
+        "タイトル": "「あなたの子供はカルマ」この言葉の真の意味",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "「あなたの子供はカルマ」この言葉の真の意味",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "「あなたの子供はカルマ」この言葉の真の意味 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "「あなたの子供はカルマ」この言葉の真の意味で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/002/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "003",
+      "video_id": "CH08-003",
+      "title": "子供の誕生日は偶然じゃない 衝撃のメッセージ",
+      "planning": {
+        "動画番号": "3",
+        "タイトル": "子供の誕生日は偶然じゃない 衝撃のメッセージ",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "子供の誕生日は偶然じゃない 衝撃のメッセージ",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "子供の誕生日は偶然じゃない 衝撃のメッセージ をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "子供の誕生日は偶然じゃない 衝撃のメッセージで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/003/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "004",
+      "video_id": "CH08-004",
+      "title": "霊的に目覚めた人が静かに社会から消える理由",
+      "planning": {
+        "動画番号": "4",
+        "タイトル": "霊的に目覚めた人が静かに社会から消える理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "霊的に目覚めた人が静かに社会から消える理由",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "霊的に目覚めた人が静かに社会から消える理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "霊的に目覚めた人が静かに社会から消える理由で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/004/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "005",
+      "video_id": "CH08-005",
+      "title": "再生した瞬間人生が全自動で整う波動固定術",
+      "planning": {
+        "動画番号": "5",
+        "タイトル": "再生した瞬間人生が全自動で整う波動固定術",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "再生した瞬間人生が全自動で整う波動固定術",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "再生した瞬間人生が全自動で整う波動固定術 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "再生した瞬間人生が全自動で整う波動固定術で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/005/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "006",
+      "video_id": "CH08-006",
+      "title": "宇宙と会話し実際に答えを受け取る5つの方法",
+      "planning": {
+        "動画番号": "6",
+        "タイトル": "宇宙と会話し実際に答えを受け取る5つの方法",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "宇宙と会話し実際に答えを受け取る5つの方法",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "宇宙と会話し実際に答えを受け取る5つの方法 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "宇宙と会話し実際に答えを受け取る5つの方法で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/006/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "007",
+      "video_id": "CH08-007",
+      "title": "世界のエリートが使うエネルギー操作マニュアル",
+      "planning": {
+        "動画番号": "7",
+        "タイトル": "世界のエリートが使うエネルギー操作マニュアル",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "世界のエリートが使うエネルギー操作マニュアル",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "世界のエリートが使うエネルギー操作マニュアル をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "世界のエリートが使うエネルギー操作マニュアルで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/007/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "008",
+      "video_id": "CH08-008",
+      "title": "【嘘だろ？】呼吸一つで現実が激変する秘密",
+      "planning": {
+        "動画番号": "8",
+        "タイトル": "【嘘だろ？】呼吸一つで現実が激変する秘密",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "嘘だろ？",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "嘘だろ？",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "【嘘だろ？】呼吸一つで現実が激変する秘密 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "呼吸一つで現実が激変する秘密で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/008/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "009",
+      "video_id": "CH08-009",
+      "title": "頭の中の独り言をやめたら人生が根こそぎ変わった",
+      "planning": {
+        "動画番号": "9",
+        "タイトル": "頭の中の独り言をやめたら人生が根こそぎ変わった",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "頭の中の独り言をやめたら人生が根こそぎ変わった",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "頭の中の独り言をやめたら人生が根こそぎ変わった をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "頭の中の独り言をやめたら人生が根こそぎ変わったで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/009/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "010",
+      "video_id": "CH08-010",
+      "title": "撤退の驚くべき力 あなたを消耗させる人間関係の罠",
+      "planning": {
+        "動画番号": "10",
+        "タイトル": "撤退の驚くべき力 あなたを消耗させる人間関係の罠",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "撤退の驚くべき力 あなたを消耗させる人間関係の罠",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "撤退の驚くべき力 あなたを消耗させる人間関係の罠 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "撤退の驚くべき力 あなたを消耗させる人間関係の罠で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/010/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "011",
+      "video_id": "CH08-011",
+      "title": "心は誰に話しかけているのか？",
+      "planning": {
+        "動画番号": "11",
+        "タイトル": "心は誰に話しかけているのか？",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "心は誰に話しかけているのか？",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "心は誰に話しかけているのか？ をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "心は誰に話しかけているのか？で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/011/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "012",
+      "video_id": "CH08-012",
+      "title": "現実を無視するだけで金持ちに？ネヴィル・ゴダードの秘密",
+      "planning": {
+        "動画番号": "12",
+        "タイトル": "現実を無視するだけで金持ちに？ネヴィル・ゴダードの秘密",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "現実を無視するだけで金持ちに？ネヴィル・ゴダードの秘密",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "現実を無視するだけで金持ちに？ネヴィル・ゴダードの秘密 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "現実を無視するだけで金持ちに？ネヴィル・ゴダードの秘密で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/012/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "013",
+      "video_id": "CH08-013",
+      "title": "最終テストに合格した人にだけ見えている景色",
+      "planning": {
+        "動画番号": "13",
+        "タイトル": "最終テストに合格した人にだけ見えている景色",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "最終テストに合格した人にだけ見えている景色",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "最終テストに合格した人にだけ見えている景色 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "最終テストに合格した人にだけ見えている景色で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/013/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "014",
+      "video_id": "CH08-014",
+      "title": "誰も知らないエネルギーコントロールの裏技",
+      "planning": {
+        "動画番号": "14",
+        "タイトル": "誰も知らないエネルギーコントロールの裏技",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "誰も知らないエネルギーコントロールの裏技",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "誰も知らないエネルギーコントロールの裏技 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "誰も知らないエネルギーコントロールの裏技で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/014/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "015",
+      "video_id": "CH08-015",
+      "title": "考えている時、あなたは実は聴いている",
+      "planning": {
+        "動画番号": "15",
+        "タイトル": "考えている時、あなたは実は聴いている",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "考えている時、あなたは実は聴いている",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "考えている時、あなたは実は聴いている をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "考えている時、あなたは実は聴いているで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/015/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "016",
+      "video_id": "CH08-016",
+      "title": "1200年間隠された真実 人生はすべて自分で選んでいた",
+      "planning": {
+        "動画番号": "16",
+        "タイトル": "1200年間隠された真実 人生はすべて自分で選んでいた",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "1200年間隠された真実 人生はすべて自分で選んでいた",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "1200年間隠された真実 人生はすべて自分で選んでいた をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "1200年間隠された真実 人生はすべて自分で選んでいたで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/016/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "017",
+      "video_id": "CH08-017",
+      "title": "もう二度と人間に生まれてこない魂の特徴",
+      "planning": {
+        "動画番号": "17",
+        "タイトル": "もう二度と人間に生まれてこない魂の特徴",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "もう二度と人間に生まれてこない魂の特徴",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "もう二度と人間に生まれてこない魂の特徴 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "もう二度と人間に生まれてこない魂の特徴で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/017/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "018",
+      "video_id": "CH08-018",
+      "title": "人が恋に落ちる理由は外見でも性格でもない",
+      "planning": {
+        "動画番号": "18",
+        "タイトル": "人が恋に落ちる理由は外見でも性格でもない",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "人が恋に落ちる理由は外見でも性格でもない",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "人が恋に落ちる理由は外見でも性格でもない をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "人が恋に落ちる理由は外見でも性格でもないで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/018/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "019",
+      "video_id": "CH08-019",
+      "title": "聴くだけで魂が目覚める誘導瞑想 超意識へのゲート",
+      "planning": {
+        "動画番号": "19",
+        "タイトル": "聴くだけで魂が目覚める誘導瞑想 超意識へのゲート",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "聴くだけで魂が目覚める誘導瞑想 超意識へのゲート",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "聴くだけで魂が目覚める誘導瞑想 超意識へのゲート をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "聴くだけで魂が目覚める誘導瞑想 超意識へのゲートで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/019/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "020",
+      "video_id": "CH08-020",
+      "title": "人生は壮大な魂のドラマだった 生まれる前に決めた真実",
+      "planning": {
+        "動画番号": "20",
+        "タイトル": "人生は壮大な魂のドラマだった 生まれる前に決めた真実",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "人生は壮大な魂のドラマだった 生まれる前に決めた真実",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "人生は壮大な魂のドラマだった 生まれる前に決めた真実 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "人生は壮大な魂のドラマだった 生まれる前に決めた真実で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/020/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "021",
+      "video_id": "CH08-021",
+      "title": "ブッダが語った「どうでもいい」という最強の真理",
+      "planning": {
+        "動画番号": "21",
+        "タイトル": "ブッダが語った「どうでもいい」という最強の真理",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "ブッダが語った「どうでもいい」という最強の真理",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "ブッダが語った「どうでもいい」という最強の真理 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "ブッダが語った「どうでもいい」という最強の真理で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/021/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "022",
+      "video_id": "CH08-022",
+      "title": "この才能を持つ人は普通に生きられない 危険な知覚",
+      "planning": {
+        "動画番号": "22",
+        "タイトル": "この才能を持つ人は普通に生きられない 危険な知覚",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "この才能を持つ人は普通に生きられない 危険な知覚",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "この才能を持つ人は普通に生きられない 危険な知覚 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "この才能を持つ人は普通に生きられない 危険な知覚で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/022/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "023",
+      "video_id": "CH08-023",
+      "title": "あなたがお母さんを選んだ本当の理由",
+      "planning": {
+        "動画番号": "23",
+        "タイトル": "あなたがお母さんを選んだ本当の理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "あなたがお母さんを選んだ本当の理由",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "あなたがお母さんを選んだ本当の理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "あなたがお母さんを選んだ本当の理由で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/023/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "024",
+      "video_id": "CH08-024",
+      "title": "もしこれを経験したなら第5次元に入っている",
+      "planning": {
+        "動画番号": "24",
+        "タイトル": "もしこれを経験したなら第5次元に入っている",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "もしこれを経験したなら第5次元に入っている",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "もしこれを経験したなら第5次元に入っている をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "もしこれを経験したなら第5次元に入っているで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/024/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "025",
+      "video_id": "CH08-025",
+      "title": "老化は作られた幻想 時間を巻き戻す意識の書き換え",
+      "planning": {
+        "動画番号": "25",
+        "タイトル": "老化は作られた幻想 時間を巻き戻す意識の書き換え",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "老化は作られた幻想 時間を巻き戻す意識の書き換え",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "老化は作られた幻想 時間を巻き戻す意識の書き換え をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "老化は作られた幻想 時間を巻き戻す意識の書き換えで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/025/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "026",
+      "video_id": "CH08-026",
+      "title": "左手につけた瞬間運気が吸い取られる罠",
+      "planning": {
+        "動画番号": "26",
+        "タイトル": "左手につけた瞬間運気が吸い取られる罠",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "左手につけた瞬間運気が吸い取られる罠",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "左手につけた瞬間運気が吸い取られる罠 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "左手につけた瞬間運気が吸い取られる罠で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/026/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "027",
+      "video_id": "CH08-027",
+      "title": "どんな嫌な人からも攻撃されなくなる最強の心理術",
+      "planning": {
+        "動画番号": "27",
+        "タイトル": "どんな嫌な人からも攻撃されなくなる最強の心理術",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "どんな嫌な人からも攻撃されなくなる最強の心理術",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "どんな嫌な人からも攻撃されなくなる最強の心理術 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "どんな嫌な人からも攻撃されなくなる最強の心理術で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/027/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "028",
+      "video_id": "CH08-028",
+      "title": "選ばれし者が大勢の人と関われない理由",
+      "planning": {
+        "動画番号": "28",
+        "タイトル": "選ばれし者が大勢の人と関われない理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "選ばれし者が大勢の人と関われない理由",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "選ばれし者が大勢の人と関われない理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "選ばれし者が大勢の人と関われない理由で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/028/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "029",
+      "video_id": "CH08-029",
+      "title": "寝る前に名前を逆さに21回唱える人生好転の秘術",
+      "planning": {
+        "動画番号": "29",
+        "タイトル": "寝る前に名前を逆さに21回唱える人生好転の秘術",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "寝る前に名前を逆さに21回唱える人生好転の秘術",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "寝る前に名前を逆さに21回唱える人生好転の秘術 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "寝る前に名前を逆さに21回唱える人生好転の秘術で迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/029/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH08",
+      "video": "030",
+      "video_id": "CH08-030",
+      "title": "もう一人のあなたから届く人生好転サイン",
+      "planning": {
+        "動画番号": "30",
+        "タイトル": "もう一人のあなたから届く人生好転サイン",
+        "進捗": "topic_research: pending",
+        "更新日時": "2025-12-04 12:00:00",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "もう一人のあなたから届く人生好転サイン",
+        "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
+        "内容（企画要約）": "もう一人のあなたから届く人生好転サイン をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
+        "説明文_リード": "もう一人のあなたから届く人生好転サインで迷うときに。考え方と、今日からできる一歩を整理します。"
+      },
+      "assembled_path": "workspaces/scripts/CH08/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH08/030/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "quality_check": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    }
+  ]
+}

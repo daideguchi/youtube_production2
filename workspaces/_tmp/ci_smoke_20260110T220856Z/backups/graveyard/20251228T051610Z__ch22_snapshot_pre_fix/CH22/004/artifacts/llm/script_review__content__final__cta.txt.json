@@ -1,0 +1,61 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:51:19+00:00",
+  "status": "ready",
+  "stage": "script_review",
+  "task": "script_cta",
+  "channel": "CH22",
+  "video": "004",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/content/final/cta.txt",
+    "sha1": "8acc6b71105ee774bc662332d970e0d2b0f25009"
+  },
+  "content": "既読という小さな灯りが、時に人の心を深く照らし出すことがあります。\n\nその光が届かない場所に立った時、初めて気づくこともあるでしょう。\n本当に必要なのは、無理に灯りの中に戻ることではなく、自分自身の静かな闇の豊かさを認めることかもしれません。\n\n見えない境界線は、傷つけるためではなく、お互いを守るために引かれる。\nあなたがそっと一歩引いたその距離は、決して孤独ではなく、新たな繋がり方の始まりなのです。\n\n[[END]]",
+  "sources": [
+    {
+      "path": "inline:TOPIC",
+      "sha1": "e6498c73155d6ff2963a3cfff4dc2e8a95893022"
+    },
+    {
+      "path": "inline:CHANNEL_CONTEXT",
+      "sha1": "4aab052639b8a8d821665bc5ad96bab640fb2ec0"
+    },
+    {
+      "path": "inline:AUDIENCE_PROFILE",
+      "sha1": "468bbd729a740ec3d109a761c5a263f304860453"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    },
+    {
+      "path": "inline:CTA_PURPOSE",
+      "sha1": "01666fe2e14ae4aecb6b95c6e0da7f335aa03b11"
+    },
+    {
+      "path": "inline:TARGET_LENGTH",
+      "sha1": "be057d4ca44c10a0fc1dfcffd99cce1490291dc7"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766897451-mCaMe9wHopOw6JiqP9vd",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 28073,
+    "usage": {
+      "prompt_tokens": 3178,
+      "completion_tokens": 888,
+      "total_tokens": 4066
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_cta/49/498e8a51f5714f5a157762523d75cd1a.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/004/logs/script_review_prompt.txt"
+}

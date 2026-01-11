@@ -18,7 +18,7 @@ from factory_common.paths import repo_root
 
 FACT_CHECK_REPORT_SCHEMA = "ytm.fact_check_report.v1"
 # Bump this when extraction / verdict logic changes, so cached reports are recomputed.
-FACT_CHECK_LOGIC_VERSION = "v2"
+FACT_CHECK_LOGIC_VERSION = "v4"
 
 
 def _utc_now_iso() -> str:
@@ -264,16 +264,11 @@ def _claim_score(sentence: str) -> int:
     if re.search(r"[%％]|パーセント", s):
         score += 6
     if re.search(r"[0-9０-９]", s):
-        score += 4
+        # Numbers alone are often non-factual in our scripts (e.g., "60代", "3つのコツ").
+        # Keep them as a weak signal and require other evidence-linked cues.
+        score += 2
     if re.search(r"(統計|研究|論文|調査|報告|データ|出典|引用|ソース|根拠)", s):
         score += 3
-    if re.search(
-        r"(ブッダ|仏陀|釈迦|如来|経典|スッタ|ダンマパダ|阿含|般若心経|法華経|浄土|涅槃|八正道|四諦|縁起)",
-        s,
-    ):
-        score += 3
-    if "「" in s or "『" in s:
-        score += 1
     if re.search(r"(とされる|といわれる|と言われる|によると|に基づく)", s):
         score += 2
     return score

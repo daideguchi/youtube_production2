@@ -79,8 +79,9 @@
   - 例: `length_too_short` / `too_many_quotes` / `too_many_parentheses` などが残る場合は停止。
 - ただし例外（自動で収束させる）:
   - 置換後に「長すぎ/短すぎ」だけが残る場合は、**最大1回**だけ LLM Shrink / Extend を挟んでレンジに戻す（コスト暴走を防ぐため無限ループ禁止）。
+- `semantic-align --apply` は、`SCRIPT_VALIDATION_AUTO_LENGTH_FIX=1` が有効で、違反が `length_too_long` のみのときに限り、いったん書き込み→直後の `script_validation` で自動 shrink してレンジに戻す（他の違反が残る草稿は書き込まない）。
 - `minor` と `major` で **別プロンプト**を使い分けます（minor は “局所修正・短くしない” を強制）。
-- 文字数の下限（`<<CHAR_MIN>>`）は「`target_chars_min` と現状本文の長さの大きい方」を採用し、**auto-fix が本文を短縮して事故る**のを防ぎます。
+- 文字数の下限（`<<CHAR_MIN>>`）は原則 `target_chars_min` を採用する（現状本文の長さを下限にしない）。狙い: タイトル/サムネ回収のための差し替え・追記を許容しつつ、`max` 超過は shrink で収束させるため。
 - 生成草稿が機械ルール（LLMなし）に不合格だった場合、`status.json` の `script_validation.details.error` は `semantic_alignment_auto_fix_invalid_a_text` になり、`error_codes` に詳細が残ります。
 - タイトル/サムネに「Nつ」等の数が含まれる場合は、判定の取りこぼしを防ぐために **数の回収（例: `一つ目〜七つ目`）を機械的にサニティチェック（LLMなし）**します。
   - 台本側で `Nつ目` が揃っているのに、LLM 判定が「数が回収されていない」と言っているケースを自動で補正します（誤検知で止まる事故を防ぐ）。

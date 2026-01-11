@@ -37,3 +37,13 @@ def test_strip_meta_removes_markdown_ref_def_lines() -> None:
     assert "[foo]:" not in res.text
     assert res.removed_counts.get("md_ref_def", 0) == 2
 
+
+def test_strip_meta_removes_apply_patch_markers() -> None:
+    src = "本文です。*** End Patch\n*** Begin Patch\n*** Update File: foo.py\n"
+    res = strip_meta_from_script(src)
+    assert "Begin Patch" not in res.text
+    assert "End Patch" not in res.text
+    assert "Update File" not in res.text
+    assert res.text == "本文です。\n"
+    assert res.removed_counts.get("patch_marker", 0) == 2
+    assert res.removed_counts.get("patch_header", 0) == 1

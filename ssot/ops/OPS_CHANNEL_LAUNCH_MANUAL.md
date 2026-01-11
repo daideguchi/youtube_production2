@@ -67,7 +67,9 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
      - `channel_prompt.channel_id` に CHxx を設定し、`persona_path` は `workspaces/planning/personas/CHxx_PERSONA.md` を指定。
      - `prompt_body` に「ゴール」「トーン&スタイル」「運用ルール」を明記。`CH03.yaml` をひな形に、禁止事項・口調・長さ目安をペルソナと整合させる。
   2. プロンプトをチャンネルディレクトリへ反映
-     - コマンド例: `python -m script_pipeline.tools.channel_prompt_sync --yaml packages/script_pipeline/prompts/channels/CHxx.yaml --channel-dir "packages/script_pipeline/channels/CHxx-<チャンネル名>"`
+     - コマンド例: `python3 -m script_pipeline.tools.channel_prompt_sync --yaml packages/script_pipeline/prompts/channels/CHxx.yaml --channel-dir "packages/script_pipeline/channels/CHxx-<チャンネル名>"`
+     - 注意: 既存の `script_prompt.txt` と YAML `prompt_body` が不一致の場合、デフォルトでは **上書きを拒否**する（事故防止）。意図して上書きする場合のみ `--force` を付ける。
+     - 事前監査（推奨）: `python3 scripts/ops/script_prompt_integrity_audit.py --channel CHxx --write-latest`
      - 成功すると `packages/script_pipeline/channels/CHxx-<チャンネル名>/script_prompt.txt` と `channel_info.json` が更新され、台本 CLI が参照できる状態になる。
   3. 最終チェック
      - `script_prompt.txt` に不要な空行や未置換のプレースホルダがないかを確認。

@@ -1,0 +1,103 @@
+schema_version: 1
+
+# Image model selection by short slot codes (operator-friendly).
+#
+# Goal:
+# - Stop editing `configs/image_models.yaml` to switch providers/models.
+# - Allow stable per-channel selection via small codes like `g-1`, `f-4`.
+#
+# Where these codes can be used:
+# - Video images (SRT→images): `packages/video_pipeline/config/channel_presets.json`
+#   - `channels.<CH>.image_generation.model_key`
+# - Thumbnails: `workspaces/thumbnails/templates.json`
+#   - `templates[].image_model_key`
+# - Runtime env override:
+#   - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=g-1`
+#   - `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4`
+#
+# Notes:
+# - No secrets here. Per-machine overrides belong in:
+#   - `configs/image_model_slots.local.yaml` (not tracked)
+# - Slot codes resolve to a real `model_key` in `configs/image_models.yaml`.
+
+slots:
+  g-1:
+    label: gemini_flash_image
+    description: Gemini 2.5 Flash Image (direct Gemini API).
+    tasks:
+      image_generation: gemini_2_5_flash_image
+      visual_image_gen: gemini_2_5_flash_image
+      thumbnail_image_gen: gemini_2_5_flash_image
+
+  g-3:
+    label: gemini_3_pro_image_preview
+    description: Gemini 3 Pro Image Preview (thumbnails allowed; video images blocked under lockdown).
+    tasks:
+      image_generation: gemini_3_pro_image_preview
+      visual_image_gen: gemini_3_pro_image_preview
+      thumbnail_image_gen: gemini_3_pro_image_preview
+
+  f-1:
+    label: flux_schnell
+    description: Fireworks FLUX.1 schnell (fast).
+    tasks:
+      image_generation: fireworks_flux_1_schnell_fp8
+      visual_image_gen: fireworks_flux_1_schnell_fp8
+      thumbnail_image_gen: fireworks_flux_1_schnell_fp8
+
+  f-3:
+    label: flux_kontext_pro
+    description: Fireworks FLUX Kontext Pro (quality).
+    tasks:
+      image_generation: fireworks_flux_kontext_pro
+      visual_image_gen: fireworks_flux_kontext_pro
+      thumbnail_image_gen: fireworks_flux_kontext_pro
+
+  f-4:
+    label: flux_kontext_max
+    description: Fireworks FLUX Kontext Max (highest).
+    tasks:
+      image_generation: fireworks_flux_kontext_max
+      visual_image_gen: fireworks_flux_kontext_max
+      thumbnail_image_gen: fireworks_flux_kontext_max
+
+  # Descriptive aliases (recommended for ops; keep g-1 / f-1 / f-3 / f-4 for backward-compat)
+  img-gemini-flash-1:
+    label: gemini_flash_image
+    description: Alias of g-1 (Gemini 2.5 Flash Image).
+    tasks:
+      image_generation: gemini_2_5_flash_image
+      visual_image_gen: gemini_2_5_flash_image
+      thumbnail_image_gen: gemini_2_5_flash_image
+
+  img-gemini-3-pro-preview-1:
+    label: gemini_3_pro_image_preview
+    description: Alias of g-3 (Gemini 3 Pro Image Preview; thumbnails only in normal ops).
+    tasks:
+      image_generation: gemini_3_pro_image_preview
+      visual_image_gen: gemini_3_pro_image_preview
+      thumbnail_image_gen: gemini_3_pro_image_preview
+
+  img-flux-schnell-1:
+    label: flux_schnell
+    description: Alias of f-1 (Fireworks FLUX.1 schnell).
+    tasks:
+      image_generation: fireworks_flux_1_schnell_fp8
+      visual_image_gen: fireworks_flux_1_schnell_fp8
+      thumbnail_image_gen: fireworks_flux_1_schnell_fp8
+
+  img-flux-pro-1:
+    label: flux_kontext_pro
+    description: Alias of f-3 (Fireworks FLUX Kontext Pro).
+    tasks:
+      image_generation: fireworks_flux_kontext_pro
+      visual_image_gen: fireworks_flux_kontext_pro
+      thumbnail_image_gen: fireworks_flux_kontext_pro
+
+  img-flux-max-1:
+    label: flux_kontext_max
+    description: Alias of f-4 (Fireworks FLUX Kontext Max).
+    tasks:
+      image_generation: fireworks_flux_kontext_max
+      visual_image_gen: fireworks_flux_kontext_max
+      thumbnail_image_gen: fireworks_flux_kontext_max

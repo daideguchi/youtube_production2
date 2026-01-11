@@ -1,0 +1,11 @@
+schema: ytm.planning_patch.v1
+patch_id: CH01-272__retitle_benchmark_style_20251228
+target:
+  channel: CH01
+  video: '272'
+apply:
+  set:
+    タイトル: 【無心こそ最強】SNSの比較地獄から抜け出す方法。心が静かになる「無関心」の技術
+    更新日時: '2025-12-29 07:54:19'
+notes: Retitle to match benchmark (@buddha-no09) title style (2-sentence + strong
+  bracket tags).

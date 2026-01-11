@@ -1,0 +1,89 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:25:14+00:00",
+  "status": "ready",
+  "stage": "script_draft",
+  "task": "script_chapter_draft",
+  "channel": "CH22",
+  "video": "002",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/content/chapters/chapter_5.md",
+    "sha1": "6fd86fb80bba821276672e9f62dc7f3c667d2441"
+  },
+  "content": "距離を置こうと決めた後、ふと自分を冷たい人間だと思ってしまうことはありませんか。\n\n隣人とのあの気まずさから、そっと身を引く選択をしたとき、胸にざらりと残るものがあります。それは、かつてあいさつを交わし、何気ない会話をしていた日々への未練かもしれません。あるいは、こんなことで心を閉ざす自分への失望かもしれません。でも、その罪悪感こそが、あなたがこの関係を、この場所を、大切に思っていた証なのです。\n\n無理にポジティブになろうとする必要はありません。ただ、その感情を、そっと横に置いてみましょう。あなたが感じているのは、関係を壊してしまったという後悔ではなく、壊さずに済ませたかったという願いの名残です。それは悪い感情ではありません。人を思いやる心が、まだそこにあるということです。\n\n問題は、その罪悪感を必要以上に背負い込み、自分を責め続けてしまうことです。まるで、すべての責任が自分にあるかのように。でも、関係というのはいつも両側から成り立っています。挨拶が一方通行になってしまった今、あなたが一人で背負える重さではないのです。\n\nある朝、あなたは決めます。今日からは、挨拶は一度だけ、丁寧にしよう、と。それ以上は、相手の反応を待たない。返事があってもなくても、それで終わりにしよう、と。\n\nこれは、無関心になることとは違います。むしろ、丁寧な形で線を引くことです。相手を無視するのでも、わざわざ避けるのでもない。ただ、自分から発する礼節はきちんと守りつつ、その先の反応には責任を持たない、という静かな境界線です。\n\nエレベーターで二人きりになったとき、あなたはためらわず、いつも通りの声の高さで「おはようございます」と言います。そして、相手が顔を上げるか、無言でうつむくか、それを見届けようとはしません。自然に目を伏せ、ドアの開く階数をぼんやりと見つめます。心の中で、さっきの自分の声を反芻することもやめます。あれで良かったのか、もっと小さな声の方が…そんなことは考えません。\n\n返事がなくても、それはもうあなたの課題ではありません。あなたの役目は、社会の一員としての最低限の礼儀を尽くすことまでです。その先は、相手の領域です。その境界を、心の中でそっと引いてみる。\n\nすると、少しずつ変わってきます。ゴミ捨て場ですれ違うたびに感じていた張りつめた空気が、ただの空間に戻っていくのを感じます。あの「どうしよう」という一瞬の逡巡が、薄れていきます。心のエネルギーが、相手の反応を予測し、傷つくことを恐れることへと、無尽蔵に流れ出していくのを止められるのです。\n\nもちろん、完全に気にならなくなるわけではありません。時折、昔のように笑顔で話せていた頃が思い出されることもあるでしょう。それでもいいのです。その寂しさも、またあなたが人を思う心の一部ですから。ただ、それを現在の関係を無理に修復するための燃料にしなければいいのです。\n\n静かな境界線を引くというのは、関係をゼロにすることではありません。むしろ、適度な距離を保つことで、お互いが潰れずに済む形を見つけることです。それは、冷たさではなく、持続可能性なのです。\n\n最終章の今日、持ち帰っていただく一手は、ただ一つです。挨拶は一度だけ、丁寧にする。そして、その反応は追わない。\n\nこれだけで、世界が変わるわけではありません。でも、あなたの心の内側で、ほんの少し、風通しが良くなる瞬間が訪れます。それは、誰とも争わず、自分を見失わずに、静かに立っている場所です。\n\nこれからも、その隣人と顔を合わせる日は続くでしょう。でも、もうあの板挟みの中に、長時間とどまることはありません。一度きりの丁寧な挨拶を済ませたら、あなたはもう、その場を自由になれます。それは、とても小さな、しかし確かな解放です。",
+  "sources": [
+    {
+      "path": "inline:CHAPTER_NUMBER",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:CHAPTER_TITLE",
+      "sha1": "b676f153b7e1d3ba622bcc01ccdb51cd8a5bc95e"
+    },
+    {
+      "path": "inline:WORD_TARGET",
+      "sha1": "d2df16bee9d37212d9dc0a9709c3a8579fedcfff"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "d5d51ca6c2d1931c8daffdb459ba93f4a28a2a19"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/content/outline.md",
+      "sha1": "995a1bb51e4b1bac88c83b28928f087dff6ac398"
+    },
+    {
+      "path": "inline:CHAPTER_JSON",
+      "sha1": "0318b845726a12e51c6befda4566576b9e05a44a"
+    },
+    {
+      "path": "inline:SCRIPT_PROMPT",
+      "sha1": "11de3eb92ea2c79d46be9d808e6685fd062d4bcb"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "a9c0ac44a802f1296bf27024102059b277ddbd36"
+    },
+    {
+      "path": "inline:CORE_EPISODE_GUIDE",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "inline:A_TEXT_RULES_SUMMARY",
+      "sha1": "1d399a3b955dcfa48908168c0c275a6aa53cd6d1"
+    },
+    {
+      "path": "inline:BRIEF_JSON",
+      "sha1": "a04be5c9541cde90b9aae5a6a8275cee70da7521"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766895857-IiHtZqm7kQFC9hY5UIfH",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 57277,
+    "usage": {
+      "prompt_tokens": 8945,
+      "completion_tokens": 1876,
+      "total_tokens": 10821
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_draft/f9/f92a42b1f6bf50a8307107ed6219a7a6.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/logs/script_draft_prompt.txt"
+}

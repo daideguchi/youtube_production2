@@ -1,0 +1,48 @@
+{
+  "channel_code": "CH04",
+  "channel_name": "心理・好奇心 隠れ書庫アカシック",
+  "default_voice_key": "voicevox_aoyama",
+  "output": {
+    "final_root": "data/CH04/_audio_workspace/final",
+    "temp_root": "data/CH04/_audio_workspace/temp"
+  },
+  "voices": {
+    "voicevox_aoyama": {
+      "engine": "voicevox",
+      "character": "青山龍星",
+      "style": "ノーマル",
+      "speed_scale": 1.0,
+      "pitch_scale": 0.0,
+      "intonation_scale": 1.08,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.1,
+      "post_phoneme_length": 0.12
+    },
+    "voicevox_namioto": {
+      "engine": "voicevox",
+      "character": "波音リツ",
+      "style": "ノーマル",
+      "speed_scale": 1.08,
+      "pitch_scale": 0.05,
+      "intonation_scale": 1.2,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.1,
+      "post_phoneme_length": 0.1
+    },
+    "pyopenjtalk_basic": {
+      "engine": "pyopenjtalk",
+      "character": "default",
+      "style": "standard",
+      "speed_scale": 1.0,
+      "pitch_scale": 0.0,
+      "intonation_scale": 1.0,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.0,
+      "post_phoneme_length": 0.0,
+      "engine_options": {
+        "speed": 1.0
+      }
+    }
+  },
+  "section_voice_rules": {}
+}

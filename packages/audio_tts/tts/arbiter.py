@@ -189,8 +189,29 @@ def get_mecab_reading(text: str) -> str:
     tokens = tokenize_with_mecab(text)
     readings = []
     for t in tokens:
-        r = t.get("reading_mecab") or t.get("surface") or ""
-        readings.append(r)
+        surface = t.get("surface") or ""
+        pos = str(t.get("pos") or "")
+        reading_mecab = t.get("reading_mecab") or ""
+        # MeCab readings for kana-only tokens can be dictionary-form (e.g., 「い」->「イル」),
+        # which is NOT what we want for spoken TTS baselines. Prefer the surface when it is
+        # already kana-only; otherwise use MeCab's reading when available.
+        if isinstance(surface, str) and re.fullmatch(r"[\u3040-\u309f\u30a0-\u30ffー]+", surface):
+            reading = surface
+        else:
+            reading = reading_mecab or surface or ""
+
+        # Normalize particle orthography to spoken kana for comparison baselines.
+        # - は/へ/を are written as-is but pronounced わ/え/お when used as function words.
+        # - MeCab may also keep them inside combined tokens (e.g., 「では」 as 接続詞 -> 「デハ」).
+        if pos in {"助詞", "助動詞", "接続詞"} and isinstance(surface, str) and surface:
+            if surface.endswith(("は", "ハ")) and reading.endswith(("は", "ハ")):
+                reading = reading[:-1] + ("わ" if reading.endswith("は") else "ワ")
+            elif surface.endswith(("へ", "ヘ")) and reading.endswith(("へ", "ヘ")):
+                reading = reading[:-1] + ("え" if reading.endswith("へ") else "エ")
+            elif surface.endswith(("を", "ヲ")) and reading.endswith(("を", "ヲ")):
+                reading = reading[:-1] + ("お" if reading.endswith("を") else "オ")
+
+        readings.append(reading)
     return "".join(readings)
 
 def apply_patches(original_text: str, corrections: List[Dict[str, str]]) -> str:
@@ -483,11 +504,24 @@ def resolve_readings_strict(
     channel: Optional[str] = None,
     video: Optional[str] = None,
     skip_tts_reading: bool = False,
+    segment_indices: Optional[List[int]] = None,
 ) -> Dict[int, List[KanaPatch]]:
     """Strict reading resolver that delegates to auditor (surface-aggregated, max 2 LLM calls).
 
     Returns patches_by_block for use in synthesis.
     """
+    # Map `segments` (possibly a subset) back to global segment indices.
+    # This keeps local_token_overrides / report indices / patch keys consistent
+    # when callers pass only a subset of segments (e.g., partial regeneration).
+    if segment_indices is not None:
+        if len(segment_indices) != len(segments):
+            raise ValueError(
+                f"segment_indices length must match segments (got {len(segment_indices)} != {len(segments)})"
+            )
+        global_indices = [int(i) for i in segment_indices]
+    else:
+        global_indices = list(range(len(segments)))
+
     # 1. 辞書ロード（グローバル + チャンネル固有 + ローカル + Voicepeak SoT）
     kb = WordDictionary(KB_PATH)
     try:
@@ -569,11 +603,12 @@ def resolve_readings_strict(
         print(f"[ARBITER] auditing {len(segments)} segments (auditor path)...")
 
     # 3. `seg.reading` を辞書/overrideで確定（voicevoxの場合は blocks も構築）
-    for i, seg in enumerate(segments):
+    for local_i, seg in enumerate(segments):
+        block_id = global_indices[local_i]
         target_text = seg.text  # オリジナルのテキスト
 
         tokens = tokenize_with_mecab(target_text)
-        override_map = local_overrides.get(i) or {}
+        override_map = local_overrides.get(block_id) or {}
         patched_text = _patch_tokens_with_words(tokens, kb.words, override_map)
         patched_text = normalize_text_for_tts(patched_text)
         if engine == "voicepeak":
@@ -597,11 +632,11 @@ def resolve_readings_strict(
             seg.voicevox_reading = vv_kana
         except Exception as e:
             print(f"[ERROR] Voicevox query failed: {e}")
-            raise RuntimeError(f"Voicevox query failed for segment {i}") from e
+            raise RuntimeError(f"Voicevox query failed for segment {block_id}") from e
 
         blocks.append(
             {
-                "index": i,
+                "index": block_id,
                 "text": target_text,
                 "b_text": patched_text,
                 "mecab_kana": expected_reading,
@@ -618,10 +653,59 @@ def resolve_readings_strict(
             seg.arbiter_verdict = verdict
         return {}
 
+    # Global safety: always fail-fast on mismatches so we never silently ship misreads.
+
+    def _collect_mismatches() -> List[Dict[str, object]]:
+        out: List[Dict[str, object]] = []
+        for b in blocks:
+            mecab_kana = str(b.get("mecab_kana") or "")
+            vv_kana = str(b.get("voicevox_kana") or "")
+            if is_trivial_diff(mecab_kana, vv_kana):
+                continue
+            out.append(
+                {
+                    "index": b.get("index"),
+                    "text": b.get("text"),
+                    "b_text": b.get("b_text"),
+                    "mecab_kana": mecab_kana,
+                    "voicevox_kana": vv_kana,
+                }
+            )
+        return out
+
+    def _write_mismatch_report(tag: str, mismatches: List[Dict[str, object]]) -> Optional[Path]:
+        if not channel or not video or not mismatches:
+            return None
+        try:
+            out_dir = video_root(channel, video) / "audio_prep"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out_path = out_dir / f"reading_mismatches__{tag}.json"
+            payload: Dict[str, object] = {
+                "channel": channel,
+                "video": video,
+                "tag": tag,
+                "generated_at": time.time(),
+                "count": len(mismatches),
+                "mismatches": mismatches,
+            }
+            out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            return out_path
+        except Exception:
+            return None
+
+    mismatches = _collect_mismatches()
+
     if skip_tts_reading:
-        print("[ARBITER] skip_tts_reading=True -> dictionaries/overrides applied; auditor/LLM skipped.")
+        if mismatches:
+            print(f"[ARBITER] mismatches detected (skip_tts_reading=True): {len(mismatches)}")
+            report_path = _write_mismatch_report("skip_llm", mismatches)
+            raise RuntimeError(
+                "[ARBITER] reading mismatches detected (fail-fast). "
+                f"Add dict/position patches and retry. Report: {report_path}"
+            )
+        verdict = "dict_only_skip_llm"
         for seg in segments:
-            seg.arbiter_verdict = "dict_only_skip_llm"
+            seg.arbiter_verdict = verdict
         return {}
 
     # 4. auditor に委譲（surface集約＋最大2コール/40件）
@@ -637,8 +721,17 @@ def resolve_readings_strict(
             enable_vocab=False,
         )
     except Exception as e:
-        print(f"[ERROR] auditor failed: {e}")
-        raise RuntimeError("auditor failed") from e
+        print(f"[WARN] auditor failed ({e}); continuing without auditor patches.")
+        if mismatches:
+            report_path = _write_mismatch_report("auditor_failed", mismatches)
+            raise RuntimeError(
+                "[ARBITER] auditor failed and reading mismatches exist (fail-fast). "
+                f"Resolve via dict/position patches and retry. Report: {report_path}"
+            ) from e
+        verdict = "dict_only_auditor_failed"
+        for seg in segments:
+            seg.arbiter_verdict = verdict
+        return {}
 
     print("[ARBITER] auditor finished (surface aggregation path).")
     return patches_by_block

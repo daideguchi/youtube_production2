@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH04-017__key_concept_fill_20251229
+target:
+  channel: CH04
+  video: '017'
+apply:
+  set:
+    キーコンセプト: アクティブ・イマジネーション
+notes: 未採用行のキーコンセプト空欄を補完（クリック系【...】ではなく内容語で固定）。

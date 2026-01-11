@@ -1,0 +1,1060 @@
+{
+  "schema": "ytm.pages.snapshot.channel.v1",
+  "generated_at": "2025-12-28T10:35:19.465485Z",
+  "channel": "CH04",
+  "planning_csv": "workspaces/planning/channels/CH04.csv",
+  "planning_count": 30,
+  "scripts_count": 30,
+  "episodes": [
+    {
+      "channel": "CH04",
+      "video": "001",
+      "video_id": "CH04-001",
+      "title": "【警告】その“生きづらさ”は天才の証。99%が知らない「繊細な人」が持つ、生まれながらの特殊能力",
+      "planning": {
+        "動画番号": "001",
+        "タイトル": "【警告】その“生きづらさ”は天才の証。99%が知らない「繊細な人」が持つ、生まれながらの特殊能力",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:00:56.350189Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/001/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "002",
+      "video_id": "CH04-002",
+      "title": "【悪用厳禁】言葉を使わずに人を動かす、古代ローマの賢者が実践した「5つの沈黙術」",
+      "planning": {
+        "動画番号": "002",
+        "タイトル": "【悪用厳禁】言葉を使わずに人を動かす、古代ローマの賢者が実践した「5つの沈黙術」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:26:56.748026Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/002/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "003",
+      "video_id": "CH04-003",
+      "title": "【衝撃の真実】あなたは、今の親を選んで生まれてきた。魂が計画した“人生の宿題”の本当の意味",
+      "planning": {
+        "動画番号": "003",
+        "タイトル": "【衝撃の真実】あなたは、今の親を選んで生まれてきた。魂が計画した“人生の宿題”の本当の意味",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:26:57.720014Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/003/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "004",
+      "video_id": "CH04-004",
+      "title": "【99%が誤解】“引き寄せの法則”は、願うのをやめた時に発動する。望む未来を確定させる「意図」の黄金律",
+      "planning": {
+        "動画番号": "004",
+        "タイトル": "【99%が誤解】“引き寄せの法則”は、願うのをやめた時に発動する。望む未来を確定させる「意図」の黄金律",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:26:53.154928Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/004/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "005",
+      "video_id": "CH04-005",
+      "title": "【もう頑張らない】人生は“戦い”ではない。無駄な努力を手放し、宇宙の流れに乗る禅の教え",
+      "planning": {
+        "動画番号": "005",
+        "タイトル": "【もう頑張らない】人生は“戦い”ではない。無駄な努力を手放し、宇宙の流れに乗る禅の教え",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:29:13.482790Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/005/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "006",
+      "video_id": "CH04-006",
+      "title": "【閲覧注意】なぜか“お金に嫌われる人”の共通点。あなたの無意識に潜む「貧乏マインド」を根こそぎ浄化する方法",
+      "planning": {
+        "動画番号": "006",
+        "タイトル": "【閲覧注意】なぜか“お金に嫌われる人”の共通点。あなたの無意識に潜む「貧乏マインド」を根こそぎ浄化する方法",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:37:18.147702Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "007",
+      "video_id": "CH04-007",
+      "title": "【※一度しか言いません】人生の9割は“人間関係”で決まる。空海が実践した、良いご縁だけを引き寄せる「身口意」の整え方",
+      "planning": {
+        "動画番号": "007",
+        "タイトル": "【※一度しか言いません】人生の9割は“人間関係”で決まる。空海が実践した、良いご縁だけを引き寄せる「身口意」の整え方",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:41:33.906847Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/007/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "008",
+      "video_id": "CH04-008",
+      "title": "【衝撃】“努力が報われない”本当の理由。あなたの才能を100%解放する「フロー状態」の作り方",
+      "planning": {
+        "動画番号": "008",
+        "タイトル": "【衝撃】“努力が報われない”本当の理由。あなたの才能を100%解放する「フロー状態」の作り方",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:42:34.118258Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/008/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "009",
+      "video_id": "CH04-009",
+      "title": "【閲覧注意】なぜ、あの人から離れられないのか？ユング心理学が暴く「共依存」の恐ろしい罠と、魂を解放する唯一の方法",
+      "planning": {
+        "動画番号": "009",
+        "タイトル": "【閲覧注意】なぜ、あの人から離れられないのか？ユング心理学が暴く「共依存」の恐ろしい罠と、魂を解放する唯一の方法",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:48:01.361153Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/009/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "010",
+      "video_id": "CH04-010",
+      "title": "【※見つけたら、人生が変わります】もう一人のあなた“ドッペルゲンガー”から届く、運命の転機を知らせるサイン",
+      "planning": {
+        "動画番号": "010",
+        "タイトル": "【※見つけたら、人生が変わります】もう一人のあなた“ドッペルゲンガー”から届く、運命の転機を知らせるサイン",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:49:00.477949Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/010/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "011",
+      "video_id": "CH04-011",
+      "title": "【実話】なぜか“運がいい人”が、寝る前に必ずやっている「感謝」の儀式。富と幸運を自動で引き寄せる脳の作り方",
+      "planning": {
+        "動画番号": "011",
+        "タイトル": "【実話】なぜか“運がいい人”が、寝る前に必ずやっている「感謝」の儀式。富と幸運を自動で引き寄せる脳の作り方",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:50:09.241242Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/011/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "012",
+      "video_id": "CH04-012",
+      "title": "【鳥肌注意】この世は“仮想現実”だった。人生のシナリオを自在に書き換える、プラトンの「イデア論」",
+      "planning": {
+        "動画番号": "012",
+        "タイトル": "【鳥肌注意】この世は“仮想現実”だった。人生のシナリオを自在に書き換える、プラトンの「イデア論」",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:51:09.622757Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/012/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "013",
+      "video_id": "CH04-013",
+      "title": "【9割が知らない】なぜか“大切にされる人”の共通点。「自己肯定感」を無理に上げず、自分の価値を最大化する禁断の心理術",
+      "planning": {
+        "動画番号": "013",
+        "タイトル": "【9割が知らない】なぜか“大切にされる人”の共通点。「自己肯定感」を無理に上げず、自分の価値を最大化する禁断の心理術",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:52:17.335988Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/013/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "014",
+      "video_id": "CH04-014",
+      "title": "【もう二度と騙されない】“いい人”の仮面を被った、邪悪なナルシストを見抜く方法。あなたの魂を守る最後の警告",
+      "planning": {
+        "動画番号": "014",
+        "タイトル": "【もう二度と騙されない】“いい人”の仮面を被った、邪悪なナルシストを見抜く方法。あなたの魂を守る最後の警告",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T01:58:40.372805Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "015",
+      "video_id": "CH04-015",
+      "title": "【聴くだけで覚醒】人生の“OS”を書き換える、古代グノーシスの禁断福音書。偽りの神から、本当の自分を取り戻せ",
+      "planning": {
+        "動画番号": "015",
+        "タイトル": "【聴くだけで覚醒】人生の“OS”を書き換える、古代グノーシスの禁断福音書。偽りの神から、本当の自分を取り戻せ",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-17T02:04:40.796966Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "016",
+      "video_id": "CH04-016",
+      "title": "【※効果が強すぎます】なぜ、あの人の前では“素直”になってしまうのか？ラポールとミラーリングの魔術的効果",
+      "planning": {
+        "動画番号": "016",
+        "タイトル": "【※効果が強すぎます】なぜ、あの人の前では“素直”になってしまうのか？ラポールとミラーリングの魔術的効果",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:07:12.571260Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "017",
+      "video_id": "CH04-017",
+      "title": "【もう迷わない】人生の“答え”は外にはない。あなたの中に眠る“賢者”と繋がる、アクティブ・イマジネーション入門",
+      "planning": {
+        "動画番号": "017",
+        "タイトル": "【もう迷わない】人生の“答え”は外にはない。あなたの中に眠る“賢者”と繋がる、アクティブ・イマジネーション入門",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:09:38.674905Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/017/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "018",
+      "video_id": "CH04-018",
+      "title": "【今すぐ捨てなさい】あなたから“運”を奪う、家に溜まった邪気（エントロピー）を浄化する、風水と物理学の禁断の法則",
+      "planning": {
+        "動画番号": "018",
+        "タイトル": "【今すぐ捨てなさい】あなたから“運”を奪う、家に溜まった邪気（エントロピー）を浄化する、風水と物理学の禁断の法則",
+        "進捗": "",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "019",
+      "video_id": "CH04-019",
+      "title": "【聴き流すだけ】再生した瞬間、脳の不要な“思い込み”が消えていく。潜在意識を書き換える「アファメーション睡眠導入」",
+      "planning": {
+        "動画番号": "019",
+        "タイトル": "【聴き流すだけ】再生した瞬間、脳の不要な“思い込み”が消えていく。潜在意識を書き換える「アファメーション睡眠導入」",
+        "進捗": "",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/019/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "020",
+      "video_id": "CH04-020",
+      "title": "【衝撃】「考えている」時、あなたは“聴いている”。頭の中のおしゃべりを止め、本当の“自分”を取り戻す方法",
+      "planning": {
+        "動画番号": "020",
+        "タイトル": "【衝撃】「考えている」時、あなたは“聴いている”。頭の中のおしゃべりを止め、本当の“自分”を取り戻す方法",
+        "進捗": "",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/020/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "021",
+      "video_id": "CH04-021",
+      "title": "【9割が知らない】なぜ、あの人は“オーラ”があるのか？ 内側から輝きが溢れ出す「7つのチャクラ」覚醒法",
+      "planning": {
+        "動画番号": "021",
+        "タイトル": "【9割が知らない】なぜ、あの人は“オーラ”があるのか？ 内側から輝きが溢れ出す「7つのチャクラ」覚醒法",
+        "進捗": "",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/021/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "022",
+      "video_id": "CH04-022",
+      "title": "【閲覧注意】あなたの“口癖”が、あなたの“現実”を作っている。「言霊」の力を解放し、人生を好転させる禁断の呪文",
+      "planning": {
+        "動画番号": "022",
+        "タイトル": "【閲覧注意】あなたの“口癖”が、あなたの“現実”を作っている。「言霊」の力を解放し、人生を好転させる禁断の呪文",
+        "進捗": "",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/022/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "023",
+      "video_id": "CH04-023",
+      "title": "【もう我慢しない】“いい人”の仮面を脱ぎ捨て、その他大勢から抜け出す、ニーチェの「超人」の思考法",
+      "planning": {
+        "動画番号": "023",
+        "タイトル": "【もう我慢しない】“いい人”の仮面を脱ぎ捨て、その他大勢から抜け出す、ニーチェの「超人」の思考法",
+        "進捗": "",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/023/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "024",
+      "video_id": "CH04-024",
+      "title": "【運命の人の正体】ツインフレームとソウルメイトの違い。惹かれる理由と、引き寄せる本当の条件",
+      "planning": {
+        "動画番号": "024",
+        "タイトル": "【運命の人の正体】ツインフレームとソウルメイトの違い。惹かれる理由と、引き寄せる本当の条件",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/024/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "025",
+      "video_id": "CH04-025",
+      "title": "【脳の門番】RASが現実を選別する。願いが叶う人の“フィルター設定”",
+      "planning": {
+        "動画番号": "025",
+        "タイトル": "【脳の門番】RASが現実を選別する。願いが叶う人の“フィルター設定”",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/025/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "026",
+      "video_id": "CH04-026",
+      "title": "【抜け出せない原因】同じ苦しみを繰り返す「トラウマの再演」を終わらせる方法",
+      "planning": {
+        "動画番号": "026",
+        "タイトル": "【抜け出せない原因】同じ苦しみを繰り返す「トラウマの再演」を終わらせる方法",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/026/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "027",
+      "video_id": "CH04-027",
+      "title": "【危険】感情を抑えるほど苦しくなる。抑圧が心と体を壊すメカニズムと解放法",
+      "planning": {
+        "動画番号": "027",
+        "タイトル": "【危険】感情を抑えるほど苦しくなる。抑圧が心と体を壊すメカニズムと解放法",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/027/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "028",
+      "video_id": "CH04-028",
+      "title": "【意識レベル】ホーキンズの「200」を越えると人生が動く。意識を高める方法",
+      "planning": {
+        "動画番号": "028",
+        "タイトル": "【意識レベル】ホーキンズの「200」を越えると人生が動く。意識を高める方法",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/028/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "029",
+      "video_id": "CH04-029",
+      "title": "【自己催眠】トランス状態で潜在意識を書き換える。無意識を味方につける技法",
+      "planning": {
+        "動画番号": "029",
+        "タイトル": "【自己催眠】トランス状態で潜在意識を書き換える。無意識を味方につける技法",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/029/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH04",
+      "video": "030",
+      "video_id": "CH04-030",
+      "title": "【人生が変わる5つの秘密】意識・つながり・循環・今・完全性。今日からできる実践",
+      "planning": {
+        "動画番号": "030",
+        "タイトル": "【人生が変わる5つの秘密】意識・つながり・循環・今・完全性。今日からできる実践",
+        "進捗": "",
+        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": "workspaces/scripts/CH04/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH04/030/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    }
+  ]
+}

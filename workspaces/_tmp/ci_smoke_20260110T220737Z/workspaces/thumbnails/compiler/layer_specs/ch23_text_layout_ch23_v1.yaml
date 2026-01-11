@@ -1,0 +1,374 @@
+version: 3
+name: CH23_text_layout_ch23_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+coordinate_system: 'normalized_0_to_1'
+global:
+  fonts:
+    headline_sans_priority: ['Noto Sans JP Black','Source Han Sans JP Heavy','BIZ UDPGothic Bold','Hiragino Sans W8','Yu Gothic UI Bold']
+  effects_defaults:
+    stroke: {color: '#000000', width_px: 22, join: 'round'}
+    shadow: {color: '#000000', alpha: 0.80, offset_px: [0,8], blur_px: 12}
+    glow: {color: '#ffffff', alpha: 0.00, blur_px: 0}
+    white_fill: {mode: 'solid', color: '#FFFFFF'}
+    red_fill: {mode: 'solid', color: '#D61A1A'}
+    yellow_fill: {mode: 'solid', color: '#FFD400'}
+  fit_rules:
+    - 'CH23: 上=白×黒太フチ（状況）/ 下=赤×黒太フチ（核心）で固定。'
+    - '上段は基本1行、下段は超大きく（中〜下段に重ねてOK）。'
+    - '背景はAI生成(10_bg.*)＋文字合成（ローカル）。可読性は黒太フチで担保。'
+
+templates:
+  CH23_left_two_lines_v1:
+    description: 'CH23: 左2行（上白/下赤）'
+    slots:
+      top:
+        box: [0.0400, 0.0150, 0.9200, 0.2800]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 280
+        align: center
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      tag:
+        box: [0.3300, 0.3600, 0.3400, 0.1400]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 100
+        align: center
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      accent:
+        box: [0.0400, 0.6600, 0.9200, 0.3400]
+        font: headline_sans_priority
+        fill: red_fill
+        base_size_px: 240
+        align: center
+        valign: bottom
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+
+  CH23_left_two_lines_v1_smalltop:
+    description: 'CH23: 左2行（上白を少し小さく/下赤は維持）'
+    slots:
+      top:
+        box: [0.0400, 0.0150, 0.9200, 0.2600]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 240
+        align: center
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      tag:
+        box: [0.3300, 0.3600, 0.3400, 0.1400]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 100
+        align: center
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      accent:
+        box: [0.0400, 0.6600, 0.9200, 0.3400]
+        font: headline_sans_priority
+        fill: red_fill
+        base_size_px: 240
+        align: center
+        valign: bottom
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+
+  CH23_left_two_lines_v2_center:
+    description: 'CH23: 2行（中央寄せ/余白多め）'
+    slots:
+      top:
+        box: [0.0400, 0.0500, 0.9200, 0.2100]
+        font: headline_sans_priority
+        fill: white_fill
+        base_size_px: 220
+        align: center
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      tag:
+        box: [0.3300, 0.2950, 0.3400, 0.1200]
+        font: headline_sans_priority
+        fill: yellow_fill
+        base_size_px: 92
+        align: center
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+      accent:
+        box: [0.0400, 0.6900, 0.9200, 0.2900]
+        font: headline_sans_priority
+        fill: red_fill
+        base_size_px: 250
+        align: center
+        valign: bottom
+        tracking: 0
+        max_lines: 1
+        stroke: true
+        shadow: true
+        glow: false
+
+items:
+  - video_id: CH23-001
+    title: '退職した夫が家を占領｜家庭内別居の現実が始まった日'
+    template_id: CH23_left_two_lines_v1
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-002
+    title: 'たった一言で夫婦が冷えた｜家庭内別居の末路'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-003
+    title: '年金を握られた63歳｜私の老後が消える夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-004
+    title: '義実家同居を迫られた｜逃げ場が消える現実'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-005
+    title: '介護の負担が私だけに｜優しさが枯れた夫婦'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-006
+    title: '相続の話をした瞬間、家族が割れた｜お金で崩壊する夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-007
+    title: '夫の隠し借金が見つかった｜封筒の中が地獄だった'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-008
+    title: '夫のスマホを見てしまった｜その名前、誰'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-009
+    title: '熟年離婚を口にしたら脅された｜出ていけと言われた夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-010
+    title: '私の病院代を渋る夫｜心が折れる現実'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-011
+    title: '息子夫婦との同居が限界｜嫁の一言で崩壊'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-012
+    title: '退職後、夫の趣味に老後資金が吸われる｜止まらない現実'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-013
+    title: '介護認定の日、夫婦の本性が出た｜書類が現実を割る'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-014
+    title: '墓の話で初めて口をきかなかった｜死後の話が一番怖い'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-015
+    title: '義実家の集まりで私だけ働く｜いつまで『嫁』なの'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-016
+    title: '夫が家事をしない理由が最低｜言い訳が刺さる夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-017
+    title: '親の介護で夫の兄弟が豹変｜家族の顔が変わる'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-018
+    title: '退職後の夫の怒りが止まらない｜家が息苦しい夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-019
+    title: '救急の夜、夫の優しさが枯れていた｜残ったのは虚しさ'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-020
+    title: '介護施設を提案したら責められた｜私が悪いの？'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-021
+    title: '年金分割を調べた夜｜離婚は準備で決まる'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-022
+    title: '法事の席で孤立した妻｜親戚付き合いの地獄'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-023
+    title: '夫が『俺は悪くない』を繰り返す｜話が通じない現実'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-024
+    title: '夫の投資失敗で老後が消えた｜取り返せない夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-025
+    title: '介護離職を迫られた私｜私の人生は誰のもの'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-026
+    title: '離婚届を机に置いた朝｜もう戻れない現実'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-027
+    title: '子ども世代に頼れない｜老後の孤独が増える夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-028
+    title: '孤独死が怖い夫婦｜恐れが攻撃になる'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-029
+    title: '要介護の夫が放った最悪の一言｜心が冷える夜'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''
+
+  - video_id: CH23-030
+    title: '最後に残ったのは自由｜静かに始まる第二の人生'
+    template_id: CH23_left_two_lines_v1_smalltop
+    text:
+      top: ''
+      tag: ''
+      accent: ''

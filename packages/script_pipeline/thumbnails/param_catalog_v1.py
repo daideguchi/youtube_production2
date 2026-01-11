@@ -79,6 +79,14 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
     "overrides.overlays.top_band.alpha_bottom": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
     "overrides.overlays.top_band.y0": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
     "overrides.overlays.top_band.y1": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
+    # brush/ink mode extras (optional)
+    "overrides.overlays.top_band.mode": ParamSpec(kind="string", engine="layer_specs_v3"),
+    "overrides.overlays.top_band.alpha": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
+    "overrides.overlays.top_band.roughness": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
+    "overrides.overlays.top_band.feather_px": ParamSpec(kind="int", engine="layer_specs_v3", min_value=0, max_value=512),
+    "overrides.overlays.top_band.hole_count": ParamSpec(kind="int", engine="layer_specs_v3", min_value=0, max_value=512),
+    "overrides.overlays.top_band.blur_px": ParamSpec(kind="int", engine="layer_specs_v3", min_value=0, max_value=256),
+    "overrides.overlays.top_band.seed": ParamSpec(kind="int", engine="layer_specs_v3"),
 
     "overrides.overlays.bottom_band.enabled": ParamSpec(kind="bool", engine="layer_specs_v3"),
     "overrides.overlays.bottom_band.color": ParamSpec(kind="color", engine="layer_specs_v3"),
@@ -86,6 +94,14 @@ PARAM_CATALOG_V1: Dict[str, ParamSpec] = {
     "overrides.overlays.bottom_band.alpha_bottom": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
     "overrides.overlays.bottom_band.y0": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
     "overrides.overlays.bottom_band.y1": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
+    # brush/ink mode extras (optional)
+    "overrides.overlays.bottom_band.mode": ParamSpec(kind="string", engine="layer_specs_v3"),
+    "overrides.overlays.bottom_band.alpha": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
+    "overrides.overlays.bottom_band.roughness": ParamSpec(kind="float", engine="layer_specs_v3", min_value=0.0, max_value=1.0),
+    "overrides.overlays.bottom_band.feather_px": ParamSpec(kind="int", engine="layer_specs_v3", min_value=0, max_value=512),
+    "overrides.overlays.bottom_band.hole_count": ParamSpec(kind="int", engine="layer_specs_v3", min_value=0, max_value=512),
+    "overrides.overlays.bottom_band.blur_px": ParamSpec(kind="int", engine="layer_specs_v3", min_value=0, max_value=256),
+    "overrides.overlays.bottom_band.seed": ParamSpec(kind="int", engine="layer_specs_v3"),
 
     "overrides.text_template_id": ParamSpec(kind="string", engine="layer_specs_v3"),
 

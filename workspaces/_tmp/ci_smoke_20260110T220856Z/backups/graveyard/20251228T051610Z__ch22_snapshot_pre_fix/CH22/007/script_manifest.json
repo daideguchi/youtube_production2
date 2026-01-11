@@ -1,0 +1,315 @@
+{
+  "schema": "ytm.script_manifest.v1",
+  "generated_at": "2025-12-27T12:30:32+00:00",
+  "repo_root": "/Users/dd/10_YouTube_Automation/factory_commentary",
+  "episode": {
+    "id": "CH22-007",
+    "channel": "CH22",
+    "video": "007"
+  },
+  "contract": {
+    "stages_yaml": {
+      "path": "packages/script_pipeline/stages.yaml",
+      "type": "file",
+      "bytes": 4832,
+      "sha1": "46a0569ec505d98e9f12c54e12f89486c5e69aff"
+    },
+    "templates_yaml": {
+      "path": "packages/script_pipeline/templates.yaml",
+      "type": "file",
+      "bytes": 1229,
+      "sha1": "0537d95b3a7974200b5287181bbddc5ee8e1dcd8"
+    }
+  },
+  "sot": {
+    "status_json": {
+      "path": "workspaces/scripts/CH22/007/status.json",
+      "type": "file",
+      "bytes": 20084,
+      "sha1": "c1c41bc300722b9b5013c24652fcf617f3246b9c"
+    },
+    "status": "script_in_progress",
+    "stages": {
+      "topic_research": {
+        "status": "pending",
+        "details": {}
+      },
+      "script_outline": {
+        "status": "pending",
+        "details": {}
+      },
+      "script_master_plan": {
+        "status": "pending",
+        "details": {}
+      },
+      "chapter_brief": {
+        "status": "pending",
+        "details": {}
+      },
+      "script_draft": {
+        "status": "pending",
+        "details": {}
+      },
+      "script_enhancement": {
+        "status": "pending",
+        "details": {}
+      },
+      "script_review": {
+        "status": "completed",
+        "details": {
+          "reconciled": true
+        }
+      },
+      "quality_check": {
+        "status": "pending",
+        "details": {}
+      },
+      "script_validation": {
+        "status": "pending",
+        "details": {
+          "auto_length_fix_attempts": 1,
+          "auto_length_fix": {
+            "passes": [
+              {
+                "pass": 1,
+                "mode": "expand",
+                "task": "script_a_text_quality_expand",
+                "shortage_chars": 5694,
+                "insertions": 4
+              },
+              {
+                "pass": 2,
+                "mode": "expand",
+                "task": "script_a_text_quality_expand",
+                "shortage_chars": 3708,
+                "insertions": 4
+              },
+              {
+                "pass": 3,
+                "mode": "expand",
+                "task": "script_a_text_quality_expand",
+                "shortage_chars": 1742,
+                "insertions": 3
+              }
+            ]
+          },
+          "checked_path": "content/assembled.md",
+          "stats": {
+            "char_count": 7712,
+            "pause_lines": 0,
+            "quote_marks": 12,
+            "paren_marks": 0,
+            "target_chars_min": 8000,
+            "target_chars_max": 9000,
+            "quote_marks_max": 20,
+            "paren_marks_max": 10
+          },
+          "error": "validation_failed",
+          "error_codes": [
+            "length_too_short"
+          ],
+          "issues": [
+            {
+              "code": "length_too_short",
+              "message": "char_count 7712 < target_min 8000",
+              "severity": "error"
+            }
+          ],
+          "fix_hints": [
+            "Aテキスト（assembled_human/assembled）からURL/脚注/箇条書き/番号リスト/見出しを除去する",
+            "ポーズは `---` を1行単独で置く（他の区切り記号は禁止）",
+            "メタ除去が必要なら: python scripts/sanitize_a_text.py --channel CH22 --videos 007 --mode run"
+          ]
+        }
+      },
+      "audio_synthesis": {
+        "status": "pending",
+        "details": {}
+      }
+    },
+    "metadata": {
+      "assembled_path": "workspaces/scripts/CH22/007/content/assembled.md",
+      "assembled_characters": 1483,
+      "sheet_title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+      "expected_title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+      "title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+      "title_sanitized": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+      "alignment": {
+        "schema": "ytm.alignment.v1",
+        "computed_at": "2025-12-27T12:30:31Z",
+        "planning_hash": "3eaa3364d38e3c532f7632582747faebc0d025ab",
+        "script_hash": "dae215b75de032eabc0708b13c6f75b4f05a18ef",
+        "planning": {
+          "title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+          "thumbnail_catch": ""
+        }
+      },
+      "planning": {
+        "thumbnail_upper": "健康自慢の一言",
+        "thumbnail_lower": "心が折れた日",
+        "concept_intent": "友人・近所のすれ違いを物語で見せて、心がすり減らない距離感へ。 「健康自慢の一言」から始まる物語で、ほどけるための見方を静かに渡します。最後は その場は笑って、帰ってから『自分のペース』を確認する を一手だけ残して、安心で終えます。",
+        "content_notes": "導入: 健康教室の場面で違和感→今夜の物語を予告。\n物語: 出来事→転換→結末（煽らず、静かに）。\nほどき: 比べないの視点で『なぜ心がすり減るのか』を1つに絞って説明。\n今夜の一手: その場は笑って、帰ってから『自分のペース』を確認する\n締め: 余韻を残して、安心で終える。",
+        "content_summary": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
+        "target_audience": "60代以上中心（女性多め）。友人関係・近所付き合いで心がすり減り、孤独を増やさずに距離を整えたい人。",
+        "outline_notes": "導入: 健康教室の場面で違和感→今夜の物語を予告。\n物語: 出来事→転換→結末（煽らず、静かに）。\nほどき: 比べないの視点で『なぜ心がすり減るのか』を1つに絞って説明。\n今夜の一手: その場は笑って、帰ってから『自分のペース』を確認する\n締め: 余韻を残して、安心で終える。",
+        "thumbnail_title": "健康自慢の一言 心が折れた日",
+        "primary_pain_tag": "虚しさ",
+        "secondary_pain_tag": "比較",
+        "life_scene": "健康教室",
+        "key_concept": "比べない",
+        "benefit_blurb": "ほどける",
+        "analogy_image": "小さな針",
+        "description_lead": "※本チャンネルの物語はフィクションです。",
+        "description_takeaways": "・関係を壊さない距離の置き方<br>・今夜できる一手"
+      },
+      "target_chars_min": 8000,
+      "target_chars_max": 9000,
+      "target_word_count": 8600,
+      "targets_synced_at": "20251227T121338Z",
+      "targets_synced_from": "configs/sources.yaml",
+      "planning_integrity": {
+        "schema": "ytm.planning_integrity.v1",
+        "coherence": "no_tags",
+        "title_tag": "",
+        "content_summary_tag": "",
+        "title_tag_normalized": "",
+        "content_summary_tag_normalized": "",
+        "drop_theme_hints": false
+      },
+      "style": "# OPS_A_TEXT_GLOBAL_RULES — 全チャンネル共通の「読み台本（Aテキスト）」執筆ルール（SSOT）\n\n目的:\n- このリポジトリの台本は **AIナレーション用の読み台本（Aテキスト）** として使われる。\n- 視聴者が **ストレスなく聴き続けられる** ことを最優先に、全チャンネル共通の “書き方の下限品質” を固定する。\n\n適用範囲（強制）:\n- `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（正本）および `assembled.md`（ミラー）\n- 新規生成・リライト・拡張・修正のすべて（CH別プロンプトより優先）\n\n関連:\n- SoT/入力: `ssot/ops/OPS_SCRIPT_SOURCE_MAP.md`\n- 台本運用: `ssot/ops/OPS_SCRIPT_GUIDE.md`\n- 音声/TTS: `ssot/reference/【消さないで！人間用】確定ロジック.md`\n\n---\n\n## 1) 最重要ルール（音声品質の下限）\n\n### 1.1 ポーズ挿入の唯一の記号\n- **ポーズ挿入として許可される記号は `---` のみ**。\n- `---` は **1行単独**で置く（前後は改行）。意味の切れ目（話題転換/場面転換/呼吸の区切り）にだけ使う。\n- 原則: **セクションが切り替わる境界**（設計図/構成上の区切り）で `---` を置く（TTS側の0.5秒ポーズに対応）。\n- 音声側の解釈（strict）:\n  - 通常のつなぎは **0.1秒**（デフォルト）\n  - `---` は **0.5秒**の無音ポーズ\n  - 空行/改行はポーズ指示として扱わない（整形のために入れてもよい）\n- `***` や `___`、`///`、`===` 等の区切り記号は使用しない（音声の不自然な途切れや事故の原因）。\n\n### 1.2 記号・括弧の過剰使用を禁止（TTSが不自然に切れやすい）\n- `「」` / `『』` と `（）` は **多用しない**（必要な場面だけ）。原則として **直接話法より間接話法** を優先する。\n- 引用はできるだけ `「」` / `『』` を使わず、地の文で言い換える（例: “ある人はこう言いました” の形）。\n- 目安（TTS事故防止）: 1本あたり `「」` / `『』` は **合計20個（10組）以内**、`（）` は **合計10個（5組）以内**。超える場合は意味を保ったまま言い換える。\n- 運用上の扱い: この「目安」は **script_validation のハード上限**として扱う（超過は不合格）。\n  - 上限は `configs/sources.yaml` の `script_globals.a_text_quote_marks_max` / `script_globals.a_text_paren_marks_max` が正本（必要ならチャンネル別override可）。\n  - 超過した場合は **自動クリーナ（非LLM）で括弧だけ外して基準内に落とす**（意味は維持・全文リライト禁止）。\n  - その結果、字数が下限を割った場合は **Extend/Expand（追記のみ）で回復**する（リトライ回数で押し切らない）。\n- 会話の連打でテンポを作らない。台詞が必要なら **短く**、地の文に溶かし込む。\n- ルビ/読み仮名/注釈目的の括弧は原則禁止（読み上げが破綻しやすい）。\n\n### 1.3 視聴者ストレスを生む文章を禁止\n- 淡々とした繰り返し構文、同じ言い回しの連発、蛇足の比喩、回りくどい前置き、過剰な煽りを避ける。\n- 断定・説教・脅し・人格否定はしない。必要なら事実と提案に落とす。\n- “言い換えで水増し” をしない。厚みは **具体の追加**で作る（状況・行動・心の動き・結果）。\n- **同一段落の丸ごと重複は禁止**（コピー/生成ループ由来の反復）。  \n  目安（機械チェック）: 120文字以上の段落が同一（空白差を無視して一致）なら不合格。\n\n### 1.4 捏造・虚構の禁止（信頼を壊さない）\n- 根拠のない統計・割合（`％` / `パーセント`）・研究結果・大学名/研究所名・論文/実験の作り話を本文に書かない。\n- 事実確認ができない固有名詞や数値は使わず、必要なら一般化して述べる（例: “研究では〜” の断定や数字は避ける）。\n- 科学/医学の橋渡しは、**安全な一般論を短く1段落**に留める（呼吸と緊張、書くことと客観視など）。数字・機関名・論文名は出さない。\n\n### 1.5 「字数合格だけ」を禁止（LLM品質ゲート必須）\n- 文字数や禁則がOKでも、内容が薄い/冗長/流れが不自然なら **不合格**とする。\n- フロー/自然さの合否は **機械的ルールではなく推論モデルの判定（LLM Judge）**で担保する。\n- 運用の正本: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`（Judge→Fixer の2段階で最終品質を固定）。\n\n### 1.6 終わり方（未完を禁止）\n- Aテキストは **最後まで完結**していること（途中で切れて終わるのは不合格）。\n- 目安（機械チェック）:\n  - 最後の有効文字が `。` / `！` / `？` / `!` / `?` / `」` / `』` などで閉じている。\n  - 助詞や語尾の途中（例: `〜になり` / `〜で` / `〜が`）で止まらない。\n- これは「決まり文句を入れろ」ではなく、**ぶつ切り事故（生成途中で止まる）を確実に検知して止める**ためのルール。\n\n### 1.7 文字の健全性（外字/制御文字を禁止）\n- `�`（U+FFFD, Unicode replacement character）が混入している場合は不合格（コピー事故/文字化けの典型）。\n- 目に見えない制御/整形文字（例: ゼロ幅スペース等）や、私用領域（PUA）等の特殊文字が混入している場合は不合格。\n- 明らかな誤字・外字が検出された場合は不合格（TTSの読み崩れ/視聴者ストレスの原因）。  \n  既知の混入パターンは `script_validation` の決定論クリーナで **置換修復**する（全文リライトは禁止）。\n\n---\n\n## 2) Aテキストの禁止事項（混入事故を根絶）\n\n台本本文（Aテキスト）に入れない:\n- URL（`http(s)://` / `www.`）\n- 出典メタ、脚注、参照リンク、引用番号（例: `[13]` / `([xxx][13])`）\n- 箇条書き/番号/記号リスト（`-` / `・` / `1.` / `A.` 等）\n- アウトライン由来のメタ（例: `約600字`、`A. 見出し - 約600字` などの「字数メモ」）\n- Markdown装飾（例: `**太字**`）\n- 設定/CSVデータ/構成案/プロット等の **制作メモの貼り付け**（例: `設定` 見出し＋ `主人公: ...` の羅列）\n- エピソード見出し行（例: `CH23-001: ...`）\n- タイムスタンプ、チャプター表、制作裏（AI/収録/台本などのメタ言及）\n\n※出典は本文ではなく `content/analysis/research/references.json` 等の research 側へ集約する。\n\n---\n\n## 3) 読みやすさ（耳で理解できる最小設計）\n\n- 1段落は1話題。2〜4文を目安に詰め込みすぎない。\n- 1文は長くしすぎない（息継ぎできる長さ）。主語が迷子にならないように整える。\n- 専門語は最小限。出すなら直後にやさしい言い換えを添える（定義の長話はしない）。\n- 比喩は “一度で伝わる短さ” に限定し、連打しない。\n\n---\n\n## 4) チャンネル別ルールとの優先順位（衝突時の扱い）\n\n1. 本書（全チャンネル共通のAテキスト品質）  \n2. チャンネル固有の `script_prompt.txt` / Persona / 企画CSV  \n3. 作業メモ・一時指示\n\n補足:\n- チャンネル `script_prompt.txt` に構成/形式/記号の指示が混ざっていても、Aテキスト向けLLM呼び出しでは衝突しやすい要素を落とした `a_text_channel_prompt`（派生）を用いる。骨格は `ssot/ops/OPS_SCRIPT_PATTERNS.yaml` が正本。\n\n例外が必要な場合:\n- チャンネル固有の理由と例外条件を **SSOTに明記**してから適用する（無断で例外を増やさない）。\n",
+      "a_text_rules_path": "/Users/dd/10_YouTube_Automation/factory_commentary/ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md",
+      "persona": "60代以上中心女性多め。友人関係・近所付き合いで心がすり減り、孤独を増やさずに距離を整えたい人。\n視聴動機: 悪者探しではなく、後味の悪い関係を静かに整理したい。\n好むトーン: 共感的で落ち着いた語り。煽り・説教・論破はしない。\n欲しい持ち帰り: 罪悪感を増やさず、関係を壊さない距離の置き方が1つわかる。\n境界: 夫婦/介護/同居は原則扱わないCH23へ寄せる。",
+      "persona_path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/planning/personas/CH22_PERSONA.md",
+      "script_prompt": "# CH22 台本プロンプト（老後の友人関係ラボ）\n\n役割: あなたは「老後の友人関係ラボ」の語り手。60代以上の視聴者に向けて、友人・近所・コミュニティで起きる摩耗を、静かな一人語りの物語として描く。\n\n狙い: 切り捨てでも論破でもなく、「関係を壊さずに心を守る距離」を視聴者が持ち帰れる内容にする。\n\n題材の境界（厳守）:\n- 主題は 友人／近所／同窓会／サークル／町内会／ランチ会／旅行 などのコミュニティ摩耗に限定。\n- 夫婦・介護・同居は CH23 の領域。触れる場合でも背景の1行に留め、主題化しない。\n\n構造（必須の型）:\n1) 導入: 結末の一場面を最初に提示し、すぐに「なぜそうなったか」を追わせる（理由回収）。\n2) 背景: 昔は良かった記憶＋今の差（生活/立場/距離感）を短く置く。\n3) 棘の積み上げ: 大事件より「小さな棘」を複数回。例: 礼節、比較、上から助言、空気支配、SNS/既読/グループ連絡、老い/体力。\n4) 決定打: 戻れない一言/場面で破局が必然になる。\n5) 再定義: 終盤まで一般論は遅らせ、出来事で納得させてから“見方”を1つだけ言語化。\n6) 余韻: 象徴アイテムで静かに着地し、視聴者に短い問いかけを1つだけ。\n\n時間の圧縮（必須）:\n- 年数/年齢などの時間情報を早めに入れ、「長い関係×一瞬」の落差で重さを作る。\n\n登場人物（画像一貫性のため最重要）:\n- 登場人物は少数（基本: 主人公＋相手1名＋必要最小限の周辺）。\n- 主人公と相手は、冒頭〜序盤で年齢感/関係性/雰囲気が自然に分かるように描写し、その後は呼称・口調・性格・立場をぶらさない。\n- “やたらと新キャラを増やす”のは禁止。モブは原則出さない（出すなら背景化）。\n\n描写ルール:\n- 進行は「内面→外界→内面」の往復。耳だけでも情景が立つ温度/生活音/匂い/小道具を置く。\n- 冒頭に挨拶/自己紹介（例: 「こんばんは。〇〇です。」）は入れない。いきなり物語に入る。\n- 心理描写は大げさにしない。視線、口元、沈黙、手元、距離感で“現実の摩耗”を見せる。\n- セリフは短く。引用符は多用せず、できるだけ地の文で言い換える。主人公の反撃は長くしない（静かに線を引く）。\n- 終盤の持ち帰りは「今夜できる一手」を1つだけ。短く、小さく、関係を壊さない行動に落とす（励ましの言い換え連打で水増ししない）。\n\n禁止:\n- 実在の個人・団体・地域・店名・学校名など、特定につながる固有名詞/描写。誹謗中傷。\n- 暴力/復讐の推奨、医療/法律/投資の断定的助言、根拠のない統計や割合の断定。\n- “スカッと勝利”や相手を笑い者にする結末。\n\n出力仕様（Aテキスト厳守）:\n- 8,000〜9,000字の一人語り台本（8〜15分目安）。\n- 見出し/章タイトル/箇条書き/番号リスト/タイムスタンプ/URL/脚注/制作メタは入れない。\n- ポーズ記号は `---` のみ可（使うなら1行単独）。それ以外の区切り記号は禁止。\n- 出力は台本本文のみ。\n",
+      "script_prompt_path": "/Users/dd/10_YouTube_Automation/factory_commentary/packages/script_pipeline/channels/CH22-老後の友人関係ラボ/script_prompt.txt",
+      "a_text_channel_prompt": "役割: あなたは老後の友人関係ラボの語り手。60代以上の視聴者に向けて、友人・近所・コミュニティで起きる摩耗を、静かな一人語りの物語として描く。\n狙い: 切り捨てでも論破でもなく、関係を壊さずに心を守る距離を視聴者が持ち帰れる内容にする。\n夫婦・介護・同居は CH23 の領域。触れる場合でも背景の1行に留め、主題化しない。\n構造必須の型:\n時間の圧縮必須:\n主人公と相手は、冒頭〜序盤で年齢感/関係性/雰囲気が自然に分かるように描写し、その後は呼称・口調・性格・立場をぶらさない。\n“やたらと新キャラを増やす”のは禁止。モブは原則出さない出すなら背景化。\n心理描写は大げさにしない。視線、口元、沈黙、手元、距離感で“現実の摩耗”を見せる。\nセリフは短く。引用符は多用せず、できるだけ地の文で言い換える。主人公の反撃は長くしない静かに線を引く。\n終盤の持ち帰りは今夜できる一手を1つだけ。短く、小さく、関係を壊さない行動に落とす励ましの言い換え連打で水増ししない。\n禁止:\n8,000〜9,000字の一人語り台本8〜15分目安。",
+      "chapter_count": 5,
+      "a_text_quote_marks_max": 20,
+      "a_text_paren_marks_max": 10
+    }
+  },
+  "outputs": {
+    "assembled_md": {
+      "path": "workspaces/scripts/CH22/007/content/assembled.md",
+      "type": "file",
+      "bytes": 23267,
+      "sha1": "dae215b75de032eabc0708b13c6f75b4f05a18ef"
+    },
+    "legacy_final_assembled_md": {
+      "path": "workspaces/scripts/CH22/007/content/final/assembled.md",
+      "type": "missing"
+    }
+  },
+  "expected_outputs": [
+    {
+      "stage": "topic_research",
+      "outputs": [
+        {
+          "path": "content/analysis/research/research_brief.md",
+          "required": true
+        },
+        {
+          "path": "content/analysis/research/references.json",
+          "required": true
+        },
+        {
+          "path": "content/analysis/research/search_results.json",
+          "required": true
+        }
+      ]
+    },
+    {
+      "stage": "script_outline",
+      "outputs": [
+        {
+          "path": "content/outline.md",
+          "required": true
+        }
+      ]
+    },
+    {
+      "stage": "script_master_plan",
+      "outputs": [
+        {
+          "path": "content/analysis/master_plan.json",
+          "required": true
+        }
+      ]
+    },
+    {
+      "stage": "chapter_brief",
+      "outputs": [
+        {
+          "path": "content/chapters/chapter_briefs.json",
+          "required": true
+        }
+      ]
+    },
+    {
+      "stage": "script_draft",
+      "outputs": [
+        {
+          "path": "content/chapters/chapter_1.md",
+          "required": true
+        }
+      ]
+    },
+    {
+      "stage": "script_enhancement",
+      "outputs": []
+    },
+    {
+      "stage": "script_review",
+      "outputs": [
+        {
+          "path": "content/assembled.md",
+          "required": true
+        },
+        {
+          "path": "content/final/cta.txt",
+          "required": false
+        },
+        {
+          "path": "content/final/scenes.json",
+          "required": false
+        }
+      ]
+    },
+    {
+      "stage": "quality_check",
+      "outputs": [
+        {
+          "path": "content/analysis/research/quality_review.md",
+          "required": true
+        }
+      ]
+    },
+    {
+      "stage": "script_validation",
+      "outputs": []
+    },
+    {
+      "stage": "audio_synthesis",
+      "outputs": [
+        {
+          "path": "audio_prep/script_sanitized.txt",
+          "required": true
+        },
+        {
+          "path": "audio_prep/chunks",
+          "required": false
+        },
+        {
+          "path": "../../../audio/final/CH22/007/CH22-007.wav",
+          "required": true
+        },
+        {
+          "path": "../../../audio/final/CH22/007/CH22-007.srt",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "llm_artifacts": [],
+  "notes": ""
+}

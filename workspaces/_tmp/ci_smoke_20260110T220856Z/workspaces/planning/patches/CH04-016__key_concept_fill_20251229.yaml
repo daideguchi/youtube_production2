@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH04-016__key_concept_fill_20251229
+target:
+  channel: CH04
+  video: '016'
+apply:
+  set:
+    キーコンセプト: ラポール
+notes: 未採用行のキーコンセプト空欄を補完（クリック系【...】ではなく内容語で固定）。

@@ -124,13 +124,27 @@ Script SoT = `workspaces/scripts/{CH}/{NNN}/status.json`
 - Planning CSV の `進捗=投稿済み/公開済み` は除外（`ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`）
 - 便利コマンド（LLMなし）: `python3 scripts/ops/dialog_ai_script_audit.py scan`
 
-3) 監査（対話AIの目視）
+3) 機械チェック（必須 / LLMなし）
+- Aテキスト共通禁則（`validate_a_text`）で “形式破綻” を先に止める（対話AIが本文を読む前の前提チェック）。
+  - 単体: `python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN`
+  - バッチ（ログ1つ・ランキング付き）: `python3 scripts/ops/a_text_quality_scan.py --all --write-latest`
+  - 運用: `validate_a_text` の **severity=error** が 1 つでも出たら **監査は fail**（reason=`a_text_rule_violation`）として `redo_script=true` にする（本文は触らない）。
+    - ※ warning（例: `forbidden_statistics` / `too_many_quotes` / `too_many_parentheses` / 軽微な `length_too_short`）は自動failにしない。内容とバランスを人間が判断する。
+  - 補足: 定型締め（例: `皆様の心が穏やかでありますように`）を **手動で追加して直す**場合は、末尾を `。` で終える（`incomplete_ending` を回避）。
+- バッチ（redo付与だけ先にやる）:
+  - scan: `python3 scripts/ops/dialog_ai_script_audit.py scan --include-locked`
+  - apply: `python3 scripts/ops/dialog_ai_script_audit.py mark-batch --decisions <DECISIONS>.jsonl`
+  - 例（hard-fail抽出→redo付与）:
+    - `python3 scripts/ops/a_text_quality_scan.py --all --write-decisions`
+    - `python3 scripts/ops/dialog_ai_script_audit.py mark-batch --decisions workspaces/logs/regression/a_text_quality_scan/<...>.decisions.jsonl`
+
+4) 監査（対話AIの目視）
 - Planning（タイトル/企画意図/構成案）と台本本文をセットで確認し、`pass/fail/grey` を決める。
 
-4) Script SoT を更新
+5) Script SoT を更新
 - `redo_script` と `redo_note`、`dialog_ai_audit` を更新する（本文は触らない）。
 
-5) レポートを残す（推奨）
+6) レポートを残す（推奨）
 - `workspaces/scripts/_reports/dialog_ai_script_audit/<timestamp>/` に監査結果を保存する。
 
 ---

@@ -1,0 +1,2 @@
+"""CapCut adapter layer."""
+

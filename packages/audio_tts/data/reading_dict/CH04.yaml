@@ -1,3 +1,168 @@
+いい人:
+  accent_moras: null
+  reading_hira: イイヒト
+  reading_kana: イイヒト
+  source: manual
+何が:
+  accent_moras: null
+  reading_hira: ナニガ
+  reading_kana: ナニガ
+  source: manual
+何を:
+  accent_moras: null
+  reading_hira: ナニオ
+  reading_kana: ナニオ
+  source: manual
+Aが:
+  accent_moras: null
+  reading_hira: エイガ
+  reading_kana: エイガ
+  source: manual
+OK:
+  accent_moras: null
+  reading_hira: オウケイ
+  reading_kana: オウケイ
+  source: manual
+NG:
+  accent_moras: null
+  reading_hira: エヌジイ
+  reading_kana: エヌジイ
+  source: manual
+仮面:
+  accent_moras: null
+  reading_hira: カメン
+  reading_kana: カメン
+  source: manual
+私たち:
+  accent_moras: null
+  reading_hira: ワタシタチ
+  reading_kana: ワタシタチ
+  source: manual
+私は:
+  accent_moras: null
+  reading_hira: ワタシワ
+  reading_kana: ワタシワ
+  source: manual
+私の:
+  accent_moras: null
+  reading_hira: ワタシノ
+  reading_kana: ワタシノ
+  source: manual
+方が:
+  accent_moras: null
+  reading_hira: ホウガ
+  reading_kana: ホウガ
+  source: manual
+中に:
+  accent_moras: null
+  reading_hira: ナカニ
+  reading_kana: ナカニ
+  source: manual
+怒り:
+  accent_moras: null
+  reading_hira: イカリ
+  reading_kana: イカリ
+  source: manual
+爽快感:
+  accent_moras: null
+  reading_hira: ソウカイカン
+  reading_kana: ソウカイカン
+  source: manual
+嫉妬:
+  accent_moras: null
+  reading_hira: シット
+  reading_kana: シット
+  source: manual
+脱ぎ捨て:
+  accent_moras: null
+  reading_hira: ヌギステ
+  reading_kana: ヌギステ
+  source: manual
+デヴィッド:
+  accent_moras: null
+  reading_hira: デビッド
+  reading_kana: デビッド
+  source: manual
+一・五倍:
+  accent_moras: null
+  reading_hira: イッテンゴバイ
+  reading_kana: イッテンゴバイ
+  source: manual
+一分:
+  accent_moras: null
+  reading_hira: イップン
+  reading_kana: イップン
+  source: manual
+悪影響:
+  accent_moras: null
+  reading_hira: アクエイキョウ
+  reading_kana: アクエイキョウ
+  source: manual
+来るべき:
+  accent_moras: null
+  reading_hira: クルベキ
+  reading_kana: クルベキ
+  source: manual
+留まらない:
+  accent_moras: null
+  reading_hira: トドマラナイ
+  reading_kana: トドマラナイ
+  source: manual
+留まらず:
+  accent_moras: null
+  reading_hira: トドマラズ
+  reading_kana: トドマラズ
+  source: manual
+長時間:
+  accent_moras: null
+  reading_hira: チョウジカン
+  reading_kana: チョウジカン
+  source: manual
+行っている:
+  accent_moras: null
+  reading_hira: オコナッテイル
+  reading_kana: オコナッテイル
+  source: manual
+行ってください:
+  accent_moras: null
+  reading_hira: オコナッテクダサイ
+  reading_kana: オコナッテクダサイ
+  source: manual
+光に:
+  accent_moras: null
+  reading_hira: ヒカリニ
+  reading_kana: ヒカリニ
+  source: manual
+十分間:
+  accent_moras: null
+  reading_hira: ジュップンカン
+  reading_kana: ジュップンカン
+  source: manual
+過去世:
+  accent_moras: null
+  reading_hira: カコセ
+  reading_kana: カコセ
+  source: manual
+抱いた:
+  accent_moras: null
+  reading_hira: イダイタ
+  reading_kana: イダイタ
+  source: manual
+被った:
+  accent_moras: null
+  reading_hira: カブッタ
+  reading_kana: カブッタ
+  source: manual
+着たい:
+  accent_moras: null
+  reading_hira: キタイ
+  reading_kana: キタイ
+  source: manual
+言う:
+  accent_moras: null
+  reading_hira: イウ
+  reading_kana: イウ
+  source: manual
 前頭:
   accent_moras: null
   reading_hira: ゼントウ

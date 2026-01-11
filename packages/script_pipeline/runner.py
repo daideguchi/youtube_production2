@@ -526,6 +526,45 @@ def _extract_llm_text_content(result: Dict[str, Any]) -> str:
     return str(content or "").strip()
 
 
+def _extract_first_balanced_json_envelope(raw: str, *, open_ch: str, close_ch: str) -> str | None:
+    """
+    Extract the first balanced JSON envelope (object/array) from a possibly noisy string.
+    This is more robust than raw.find + raw.rfind when the model appends extra text.
+    """
+    s = (raw or "").strip()
+    if not s:
+        return None
+    start = s.find(open_ch)
+    if start < 0:
+        return None
+    depth = 0
+    in_str = False
+    esc = False
+    for i in range(start, len(s)):
+        ch = s[i]
+        if in_str:
+            if esc:
+                esc = False
+                continue
+            if ch == "\\":
+                esc = True
+                continue
+            if ch == "\"":
+                in_str = False
+            continue
+        if ch == "\"":
+            in_str = True
+            continue
+        if ch == open_ch:
+            depth += 1
+            continue
+        if ch == close_ch:
+            depth -= 1
+            if depth == 0:
+                return s[start : i + 1]
+    return None
+
+
 def _parse_json_lenient(text: str) -> Dict[str, Any]:
     raw = (text or "").strip()
     if not raw:
@@ -536,10 +575,9 @@ def _parse_json_lenient(text: str) -> Dict[str, Any]:
             return obj
     except Exception:
         pass
-    start = raw.find("{")
-    end = raw.rfind("}")
-    if start >= 0 and end > start:
-        obj = json.loads(raw[start : end + 1])
+    snippet = _extract_first_balanced_json_envelope(raw, open_ch="{", close_ch="}")
+    if snippet:
+        obj = json.loads(snippet)
         if isinstance(obj, dict):
             return obj
     raise ValueError("invalid json")
@@ -561,12 +599,23 @@ def _parse_json_list_lenient(text: str) -> List[Any]:
                     return val
     except Exception:
         pass
-    start = raw.find("[")
-    end = raw.rfind("]")
-    if start >= 0 and end > start:
-        obj = json.loads(raw[start : end + 1])
-        if isinstance(obj, list):
-            return obj
+    # Try extracting a wrapped object first (common when models add leading text).
+    obj_snip = _extract_first_balanced_json_envelope(raw, open_ch="{", close_ch="}")
+    if obj_snip:
+        try:
+            obj2 = json.loads(obj_snip)
+            if isinstance(obj2, dict):
+                for key in ("chapter_briefs", "briefs", "items", "data", "chapters"):
+                    val = obj2.get(key)
+                    if isinstance(val, list):
+                        return val
+        except Exception:
+            pass
+    arr_snip = _extract_first_balanced_json_envelope(raw, open_ch="[", close_ch="]")
+    if arr_snip:
+        obj3 = json.loads(arr_snip)
+        if isinstance(obj3, list):
+            return obj3
     raise ValueError("invalid json list")
 
 
@@ -4588,14 +4637,31 @@ def _build_wikipedia_query_candidates(topic: str | None) -> List[str]:
         return []
     tag = _extract_bracket_tag(raw)
     candidates: List[str] = []
-    if tag:
-        cand = _wikipedia_candidate_from_bracket(tag)
-        candidates.append(cand or tag.strip())
+    # Prefer the cleaned (non-bracket) title first: bracket tags are often thematic and can
+    # drift to irrelevant pages (e.g. "禁忌の周波数" -> MRI). The main entity is usually in the
+    # cleaned portion (e.g. "タオス・ハム").
     cleaned = re.sub(r"【[^】]+】", "", raw).strip()
     cleaned = cleaned.replace("「", "").replace("」", "")
     cleaned = re.sub(r"[\s\u3000]+", " ", cleaned).strip()
+    # If the cleaned title is a question, use the head phrase as a higher-priority Wikipedia query.
+    # Example: "タオス・ハムは誰が鳴らすのか" -> "タオス・ハム"
+    try:
+        cleaned_q = re.sub(r"[?？]+$", "", cleaned).strip()
+        if cleaned_q and ("は" in cleaned_q) and cleaned_q.endswith(("か", "のか")):
+            head = cleaned_q.split("は", 1)[0].strip()
+            if head:
+                candidates.append(head)
+        if cleaned_q and ("とは" in cleaned_q):
+            head2 = cleaned_q.split("とは", 1)[0].strip()
+            if head2:
+                candidates.append(head2)
+    except Exception:
+        pass
     if cleaned:
         candidates.append(cleaned)
+    if tag:
+        cand = _wikipedia_candidate_from_bracket(tag)
+        candidates.append(cand or tag.strip())
     candidates.append(raw)
     seen: set[str] = set()
     out: List[str] = []
@@ -5386,7 +5452,17 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
 
     prompt_text = _render_template(candidate, ph_values)
     # Safety: never send prompts with unresolved placeholders to LLMs.
-    unresolved = sorted(set(re.findall(r"<<[A-Z0-9_]+>>", prompt_text)))
+    #
+    # NOTE:
+    # - Many SSOT/style-guide strings contain example markers like `<<<YTM_FINAL>>>` or `<<SOME_TOKEN>>`
+    #   inside backticks; these must NOT be treated as unresolved template placeholders.
+    # - We only want to detect *actual* unresolved placeholders that survived rendering.
+    scan_text = prompt_text
+    # Strip code fences and inline code spans before scanning.
+    scan_text = re.sub(r"```.*?```", "", scan_text, flags=re.DOTALL)
+    scan_text = re.sub(r"`[^`]*`", "", scan_text)
+    # Match standalone `<<TOKEN>>` placeholders (avoid matching `<<<TOKEN>>>` substrings).
+    unresolved = sorted(set(re.findall(r"(?<!<)<<[A-Z0-9_]+>>(?!>)", scan_text)))
     if unresolved:
         raise SystemExit(f"[{stage}] unresolved placeholders in prompt: {', '.join(unresolved)}")
     as_messages_flag = llm_cfg.get("as_messages", False)
@@ -9413,6 +9489,25 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 out = _sanitize_a_text_bullet_prefixes(out)
                 out = _sanitize_a_text_forbidden_statistics(out)
                 out = _sanitize_inline_pause_markers(out)
+                # Some models leak internal markers like `<<<YTM_FINAL>>>` into the output.
+                # These must never reach the final A-text (validator treats them as template tokens).
+                # - Preserve pause tokens if they appear (convert to `---`)
+                # - Drop any other standalone `<<<TOKEN>>>` marker lines
+                try:
+                    token_line_re = re.compile(r"^<<<[A-Z0-9_]{2,}>>>$")
+                    pause_line_re = re.compile(r"^<<<PAUSE_(\d+)>>>$")
+                    cleaned_lines: List[str] = []
+                    for ln in out.splitlines():
+                        s = (ln or "").strip()
+                        if pause_line_re.fullmatch(s):
+                            cleaned_lines.append("---")
+                            continue
+                        if token_line_re.fullmatch(s):
+                            continue
+                        cleaned_lines.append(ln)
+                    out = "\n".join(cleaned_lines)
+                except Exception:
+                    pass
                 # Remove meta/URL/citation leakage that must never reach spoken scripts.
                 try:
                     from factory_common.text_sanitizer import strip_meta_from_script
@@ -9460,6 +9555,43 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     for it in errors_list
                     if isinstance(it, dict) and it.get("code")
                 }
+
+            def _force_length_short_error(
+                errors_list: List[Dict[str, Any]], stats2: Dict[str, Any]
+            ) -> List[Dict[str, Any]]:
+                """
+                Inside the LLM quality-gate loop we must treat any `char_count < target_min`
+                as a hard error, even when validate_a_text() labels it as a warning
+                (ratio-based threshold) to avoid Judge failing scripts on "1 char short" cases.
+                """
+                if errors_list:
+                    return errors_list
+                try:
+                    char_count = int(stats2.get("char_count")) if stats2.get("char_count") is not None else None
+                except Exception:
+                    char_count = None
+                try:
+                    target_min = (
+                        int(stats2.get("target_chars_min"))
+                        if stats2.get("target_chars_min") is not None
+                        else None
+                    )
+                except Exception:
+                    target_min = None
+                if (
+                    isinstance(char_count, int)
+                    and isinstance(target_min, int)
+                    and target_min > 0
+                    and char_count < target_min
+                ):
+                    return [
+                        {
+                            "code": "length_too_short",
+                            "message": f"char_count {char_count} < target_min {target_min} (strict gate)",
+                            "severity": "error",
+                        }
+                    ]
+                return errors_list
 
             def _rescue_length(
                 text: str, *, errors_list: List[Dict[str, Any]], stats2: Dict[str, Any], depth: int = 0
@@ -9587,8 +9719,13 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                     return topup
                         return rescued
 
-                    total_min = shortage + 300
-                    total_max = shortage + 520
+                    # For large shortages, requesting the full deficit in a single JSON response tends to
+                    # under-deliver (model output limits). Cap per-pass targets and converge in a bounded
+                    # number of recursive passes (SSOT: max 3 passes total).
+                    per_pass_cap = 5200 if depth <= 0 else 4200
+                    pass_shortage = min(shortage, per_pass_cap) if shortage > 0 else 0
+                    total_min = pass_shortage + 300
+                    total_max = pass_shortage + 520
                     if isinstance(room, int) and room > 0:
                         total_max = min(total_max, room)
                         total_min = min(total_min, total_max)
@@ -9625,10 +9762,88 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         else:
                             os.environ["LLM_ROUTING_KEY"] = prev_routing_key
 
-                    expand_raw = _extract_llm_text_content(expand_result)
-                    expand_obj = _parse_json_lenient(expand_raw)
-                    insertions = (expand_obj or {}).get("insertions")
+                    insertions: Any = None
+                    expand_raw = ""
+                    expand_obj: Any = {}
+                    for attempt in range(2):
+                        expand_raw = _extract_llm_text_content(expand_result)
+                        try:
+                            expand_obj = _parse_json_lenient(expand_raw)
+                        except Exception:
+                            expand_obj = {}
+
+                        insertions = (expand_obj or {}).get("insertions") if isinstance(expand_obj, dict) else None
+                        # Be tolerant to common "almost-correct" shapes:
+                        # - {"insertions": {...}} (dict instead of list)
+                        # - {"after_pause_index": 0, "addition": "..."} (extend-style single insertion)
+                        # - [...] (bare list; forward-compat / model drift)
+                        if isinstance(insertions, dict):
+                            insertions = [insertions]
+                        if insertions is None and isinstance(expand_obj, dict):
+                            if "after_pause_index" in expand_obj and "addition" in expand_obj:
+                                insertions = [
+                                    {
+                                        "after_pause_index": expand_obj.get("after_pause_index", 0),
+                                        "addition": expand_obj.get("addition", ""),
+                                    }
+                                ]
+                        if not isinstance(insertions, list) or not insertions:
+                            try:
+                                insertions_list = _parse_json_list_lenient(expand_raw)
+                            except Exception:
+                                insertions_list = None
+                            if isinstance(insertions_list, list) and insertions_list:
+                                insertions = insertions_list
+
+                        if isinstance(insertions, list) and insertions:
+                            break
+
+                        if attempt == 0:
+                            # Retry once with stricter schema instruction. Some models drift into "thinking JSON"
+                            # (e.g., keys like 思考プロセス) even with response_format=json_object.
+                            retry_prompt = (
+                                expand_prompt
+                                + "\n\n【重要】出力JSONは次の形式のみ。\n"
+                                + "{\n"
+                                + "  \"insertions\": [\n"
+                                + "    { \"after_pause_index\": 0, \"addition\": \"追記する1段落（空行なし）\" }\n"
+                                + "  ]\n"
+                                + "}\n"
+                                + "insertions 以外のキーは禁止（思考プロセス/分析/タスク理解など）。説明文も禁止。\n"
+                            )
+                            prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                            os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                            try:
+                                expand_result = router_client.call_with_raw(
+                                    task=expand_task,
+                                    messages=[{"role": "user", "content": retry_prompt}],
+                                    response_format="json_object",
+                                    temperature=0.0,
+                                )
+                            finally:
+                                if prev_routing_key is None:
+                                    os.environ.pop("LLM_ROUTING_KEY", None)
+                                else:
+                                    os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
                     if not isinstance(insertions, list) or not insertions:
+                        try:
+                            atomic_write_json(
+                                length_rescue_latest_path,
+                                {
+                                    "schema": "ytm.a_text_length_rescue.v1",
+                                    "generated_at": utc_now_iso(),
+                                    "mode": "expand_failed",
+                                    "shortage_chars": shortage,
+                                    "llm_meta": _llm_meta(expand_result),
+                                    "raw": expand_raw,
+                                },
+                            )
+                            llm_gate_details["length_rescue_report"] = str(
+                                length_rescue_latest_path.relative_to(base)
+                            )
+                        except Exception:
+                            pass
                         return None
                     rescued = text or ""
                     for ins in insertions[:6]:
@@ -9645,11 +9860,16 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         if not trial:
                             continue
                         trial_errors, trial_stats = _non_warning_errors(trial)
+                        trial_codes = _codes(trial_errors)
+                        # Never accept duplicate-paragraph hard errors; they are strictly forbidden and
+                        # usually indicate the model repeated the same insertion text.
+                        if "duplicate_paragraph" in trial_codes:
+                            continue
                         rescued = trial
                         if not trial_errors:
                             break
                         # Stop early if we overshoot.
-                        if _codes(trial_errors) == {"length_too_long"}:
+                        if trial_codes == {"length_too_long"}:
                             break
                     try:
                         atomic_write_json(
@@ -9666,8 +9886,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         llm_gate_details["length_rescue_report"] = str(length_rescue_latest_path.relative_to(base))
                     except Exception:
                         pass
-                    # Top-up: if the model under-delivered, run at most one additional
-                    # bounded rescue pass (to avoid meta-loop/cost blow-up).
+                    # Top-up: if still too short, run additional bounded rescue passes (depth-limited).
                     final_errors, final_stats = _non_warning_errors(rescued)
                     if _codes(final_errors) == {"length_too_short"}:
                         try:
@@ -9682,16 +9901,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                             remain = final_min - final_cc
                         else:
                             remain = None
-                        # Top-up is bounded: at most 3 passes total, with tighter limits as depth grows.
-                        topup_limit = 2200
-                        if depth == 0:
-                            # First expand sometimes under-delivers badly; allow one more pass even if
-                            # the remaining shortage is still large, but keep it bounded.
-                            topup_limit = 5500
-                        elif depth >= 2:
-                            topup_limit = 260
                         allow_topup = depth <= 2
-                        if allow_topup and isinstance(remain, int) and 0 < remain <= topup_limit:
+                        if allow_topup and isinstance(remain, int) and remain > 0:
                             topup = _rescue_length(
                                 rescued, errors_list=final_errors, stats2=final_stats, depth=depth + 1
                             )
@@ -9908,10 +10119,54 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     resume_path = base / resume_from_fix_output
                     if resume_path.exists():
                         resumed = _sanitize_candidate(resume_path.read_text(encoding="utf-8"))
-                        hard_errors, _hard_stats = _non_warning_errors(resumed)
+                        hard_errors, resume_stats = _non_warning_errors(resumed)
                         if not hard_errors:
-                            current_text = resumed
-                            llm_gate_details.setdefault("resume", {})["from_fix_output"] = resume_from_fix_output
+                            # Guard against pathological Fix outputs:
+                            # sometimes a previous Fix can regress (much shorter / fewer `---`), which then
+                            # makes it harder to converge and can violate channel constraints.
+                            cur_errors, cur_stats = _non_warning_errors(a_text or "")
+                            # Only resume if it does not meaningfully shrink or remove too many pause lines.
+                            try:
+                                resume_cc = int(resume_stats.get("char_count")) if resume_stats.get("char_count") is not None else None
+                            except Exception:
+                                resume_cc = None
+                            try:
+                                cur_cc = int(cur_stats.get("char_count")) if cur_stats.get("char_count") is not None else None
+                            except Exception:
+                                cur_cc = None
+                            try:
+                                resume_pause = int(resume_stats.get("pause_lines")) if resume_stats.get("pause_lines") is not None else None
+                            except Exception:
+                                resume_pause = None
+                            try:
+                                cur_pause = int(cur_stats.get("pause_lines")) if cur_stats.get("pause_lines") is not None else None
+                            except Exception:
+                                cur_pause = None
+
+                            shrink_too_much = False
+                            if isinstance(resume_cc, int) and isinstance(cur_cc, int):
+                                # Avoid taking a resume candidate that is >800 chars shorter than current.
+                                if resume_cc < max(0, cur_cc - 800):
+                                    shrink_too_much = True
+                            pause_lost_too_much = False
+                            if isinstance(resume_pause, int) and isinstance(cur_pause, int):
+                                # Avoid taking a resume candidate that removes multiple pause boundaries.
+                                if resume_pause < max(0, cur_pause - 2):
+                                    pause_lost_too_much = True
+
+                            if not shrink_too_much and not pause_lost_too_much:
+                                current_text = resumed
+                                llm_gate_details.setdefault("resume", {})["from_fix_output"] = resume_from_fix_output
+                            else:
+                                llm_gate_details.setdefault("resume", {})["skipped_from_fix_output"] = resume_from_fix_output
+                                llm_gate_details["resume"]["skipped_reason"] = {
+                                    "shrink_too_much": shrink_too_much,
+                                    "pause_lost_too_much": pause_lost_too_much,
+                                    "cur_char_count": cur_cc,
+                                    "resume_char_count": resume_cc,
+                                    "cur_pause_lines": cur_pause,
+                                    "resume_pause_lines": resume_pause,
+                                }
                 except Exception:
                     pass
             judge_obj: Dict[str, Any] = {}
@@ -10027,6 +10282,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     pass
 
                 hard_errors, hard_stats = _non_warning_errors(candidate)
+                hard_errors = _force_length_short_error(hard_errors, hard_stats)
 
                 if hard_errors:
                     candidate2 = candidate
@@ -10062,6 +10318,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         except Exception:
                             pass
                         hard_errors, hard_stats = _non_warning_errors(candidate)
+                        hard_errors = _force_length_short_error(hard_errors, hard_stats)
 
                 if hard_errors:
                     # Length-only rescue (bounded) when possible; otherwise stop.
@@ -10073,8 +10330,35 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         except Exception:
                             pass
                         hard_errors, hard_stats = _non_warning_errors(candidate)
+                        hard_errors = _force_length_short_error(hard_errors, hard_stats)
 
                 if hard_errors:
+                    # Fix output is invalid (hard validator). When enabled, attempt a bounded rebuild once
+                    # instead of dead-ending on an invalid fix output.
+                    if rebuild_on_fail and not llm_gate_details.get("rebuild_attempted"):
+                        llm_gate_details["rebuild_attempted"] = True
+                        llm_gate_details["rebuild_reason"] = "invalid_fix"
+                        rebuilt = _try_rebuild_draft(judge_obj or {})
+                        if rebuilt:
+                            rebuilt_candidate = rebuilt
+                            rb_errors, rb_stats = _non_warning_errors(rebuilt_candidate)
+                            if rb_errors:
+                                rb_rescued = _rescue_length(
+                                    rebuilt_candidate, errors_list=rb_errors, stats2=rb_stats
+                                )
+                                if rb_rescued:
+                                    rebuilt_candidate = rb_rescued
+                                    rb_errors, rb_stats = _non_warning_errors(rebuilt_candidate)
+
+                            if not rb_errors:
+                                llm_gate_details["rebuild_verdict"] = "candidate_valid"
+                                current_text = rebuilt_candidate
+                                continue
+                            llm_gate_details["rebuild_verdict"] = "invalid"
+                            llm_gate_details["rebuild_invalid_errors"] = sorted(_codes(rb_errors))
+                        else:
+                            llm_gate_details["rebuild_verdict"] = "no_draft"
+
                     stage_details["error"] = "llm_quality_gate_invalid_fix"
                     stage_details["error_codes"] = sorted(
                         set(stage_details.get("error_codes") or [])

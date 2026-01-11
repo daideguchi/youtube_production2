@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH01-264__key_concept_cleanup_20251229
+target:
+  channel: CH01
+  video: '264'
+apply:
+  set:
+    キーコンセプト: 老後のお金不安
+notes: planning_lint duplicate_key_concept_with_published を解消（未採用行のキーコンセプトを内容語へ更新）。

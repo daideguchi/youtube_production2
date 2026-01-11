@@ -1,0 +1,670 @@
+ArtificialLife:
+  accent_moras: null
+  reading_hira: アーティフィシャルライフ
+  reading_kana: アーティフィシャルライフ
+  source: manual
+ATTACK:
+  accent_moras: null
+  reading_hira: アタック
+  reading_kana: アタック
+  source: manual
+Apple:
+  accent_moras: null
+  reading_hira: アップル
+  reading_kana: アップル
+  source: manual
+Complexity:
+  accent_moras: null
+  reading_hira: コンプレキシティ
+  reading_kana: コンプレキシティ
+  source: manual
+CPU:
+  accent_moras: null
+  reading_hira: シーピーユー
+  reading_kana: シーピーユー
+  source: manual
+DNA:
+  accent_moras: null
+  reading_hira: ディーエヌエー
+  reading_kana: ディーエヌエー
+  source: manual
+ECC:
+  accent_moras: null
+  reading_hira: イーシーシー
+  reading_kana: イーシーシー
+  source: manual
+"E=mc2":
+  accent_moras: null
+  reading_hira: イーイコールエムシーツー
+  reading_kana: イーイコールエムシーツー
+  source: manual
+Feature:
+  accent_moras: null
+  reading_hira: フィーチャー
+  reading_kana: フィーチャー
+  source: manual
+FOMO:
+  accent_moras: null
+  reading_hira: エフオーエムオー
+  reading_kana: エフオーエムオー
+  source: manual
+GO:
+  accent_moras: null
+  reading_hira: ゴー
+  reading_kana: ゴー
+  source: manual
+ID:
+  accent_moras: null
+  reading_hira: アイディー
+  reading_kana: アイディー
+  source: manual
+行ったり来たり:
+  accent_moras: null
+  reading_hira: イッタリキタリ
+  reading_kana: イッタリキタリ
+  source: manual
+Loss:
+  accent_moras: null
+  reading_hira: ロス
+  reading_kana: ロス
+  source: manual
+Machine:
+  accent_moras: null
+  reading_hira: マシン
+  reading_kana: マシン
+  source: manual
+Max:
+  accent_moras: null
+  reading_hira: マックス
+  reading_kana: マックス
+  source: manual
+Min:
+  accent_moras: null
+  reading_hira: ミン
+  reading_kana: ミン
+  source: manual
+Morphogenesis:
+  accent_moras: null
+  reading_hira: モルフォジェネシス
+  reading_kana: モルフォジェネシス
+  source: manual
+NOW:
+  accent_moras: null
+  reading_hira: ナウ
+  reading_kana: ナウ
+  source: manual
+OS:
+  accent_moras: null
+  reading_hira: オーエス
+  reading_kana: オーエス
+  source: manual
+Output:
+  accent_moras: null
+  reading_hira: アウトプット
+  reading_kana: アウトプット
+  source: manual
+PC:
+  accent_moras: null
+  reading_hira: ピーシー
+  reading_kana: ピーシー
+  source: manual
+RAM:
+  accent_moras: null
+  reading_hira: アールエーエム
+  reading_kana: アールエーエム
+  source: manual
+SPOF:
+  accent_moras: null
+  reading_hira: エスピーオーエフ
+  reading_kana: エスピーオーエフ
+  source: manual
+Standard:
+  accent_moras: null
+  reading_hira: スタンダード
+  reading_kana: スタンダード
+  source: manual
+Turing:
+  accent_moras: null
+  reading_hira: チューリング
+  reading_kana: チューリング
+  source: manual
+Undecidable:
+  accent_moras: null
+  reading_hira: アンディサイダブル
+  reading_kana: アンディサイダブル
+  source: manual
+Universal:
+  accent_moras: null
+  reading_hira: ユニバーサル
+  reading_kana: ユニバーサル
+  source: manual
+UIPO:
+  accent_moras: null
+  reading_hira: ユーアイピーオー
+  reading_kana: ユーアイピーオー
+  source: manual
+XGRT:
+  accent_moras: null
+  reading_hira: エックスジーアールティー
+  reading_kana: エックスジーアールティー
+  source: manual
+"0.5":
+  accent_moras: null
+  reading_hira: レイテンゴ
+  reading_kana: レイテンゴ
+  source: manual
+"0.8":
+  accent_moras: null
+  reading_hira: レイテンハチ
+  reading_kana: レイテンハチ
+  source: manual
+"0か1か":
+  accent_moras: null
+  reading_hira: ゼロカイチカ
+  reading_kana: ゼロカイチカ
+  source: manual
+0でも1でもない:
+  accent_moras: null
+  reading_hira: ゼロデモイチデモナイ
+  reading_kana: ゼロデモイチデモナイ
+  source: manual
+0と1:
+  accent_moras: null
+  reading_hira: ゼロトイチ
+  reading_kana: ゼロトイチ
+  source: manual
+"17音":
+  accent_moras: null
+  reading_hira: ジュウナナオン
+  reading_kana: ジュウナナオン
+  source: manual
+"1時間":
+  accent_moras: null
+  reading_hira: イチジカン
+  reading_kana: イチジカン
+  source: manual
+"1行":
+  accent_moras: null
+  reading_hira: イチギョウ
+  reading_kana: イチギョウ
+  source: manual
+"1分":
+  accent_moras: null
+  reading_hira: イップン
+  reading_kana: イップン
+  source: manual
+"1分間":
+  accent_moras: null
+  reading_hira: イップンカン
+  reading_kana: イップンカン
+  source: manual
+"1本":
+  accent_moras: null
+  reading_hira: イッポン
+  reading_kana: イッポン
+  source: manual
+"1発":
+  accent_moras: null
+  reading_hira: イッパツ
+  reading_kana: イッパツ
+  source: manual
+"2分":
+  accent_moras: null
+  reading_hira: ニフン
+  reading_kana: ニフン
+  source: manual
+"2つ":
+  accent_moras: null
+  reading_hira: フタツ
+  reading_kana: フタツ
+  source: manual
+"3つ":
+  accent_moras: null
+  reading_hira: ミッツ
+  reading_kana: ミッツ
+  source: manual
+"8つ":
+  accent_moras: null
+  reading_hira: ヤッツ
+  reading_kana: ヤッツ
+  source: manual
+"10個":
+  accent_moras: null
+  reading_hira: ジュッコ
+  reading_kana: ジュッコ
+  source: manual
+"30分":
+  accent_moras: null
+  reading_hira: サンジュップン
+  reading_kana: サンジュップン
+  source: manual
+"5分":
+  accent_moras: null
+  reading_hira: ゴフン
+  reading_kana: ゴフン
+  source: manual
+"8割":
+  accent_moras: null
+  reading_hira: ハチワリ
+  reading_kana: ハチワリ
+  source: manual
+"99.9":
+  accent_moras: null
+  reading_hira: キュウジュウキュウテンキュウ
+  reading_kana: キュウジュウキュウテンキュウ
+  source: manual
+A4:
+  accent_moras: null
+  reading_hira: エーフォー
+  reading_kana: エーフォー
+  source: manual
+AかBか:
+  accent_moras: null
+  reading_hira: エーカビーカ
+  reading_kana: エーカビーカ
+  source: manual
+AとB:
+  accent_moras: null
+  reading_hira: エートビー
+  reading_kana: エートビー
+  source: manual
+BinaryDigit:
+  accent_moras: null
+  reading_hira: バイナリーディジット
+  reading_kana: バイナリーディジット
+  source: manual
+LessisMore:
+  accent_moras: null
+  reading_hira: レスイズモア
+  reading_kana: レスイズモア
+  source: manual
+Redundancy:
+  accent_moras: null
+  reading_hira: リダンダンシー
+  reading_kana: リダンダンシー
+  source: manual
+"S/N比":
+  accent_moras: null
+  reading_hira: エスエヌヒ
+  reading_kana: エスエヌヒ
+  source: manual
+"TheUltimateMachine":
+  accent_moras: null
+  reading_hira: アルティメットマシン
+  reading_kana: アルティメットマシン
+  source: manual
+"To-Do":
+  accent_moras: null
+  reading_hira: トゥードゥー
+  reading_kana: トゥードゥー
+  source: manual
+UltimateMachine:
+  accent_moras: null
+  reading_hira: アルティメットマシン
+  reading_kana: アルティメットマシン
+  source: manual
+"YES,BUT":
+  accent_moras: null
+  reading_hira: イエスバット
+  reading_kana: イエスバット
+  source: manual
+二択:
+  accent_moras: null
+  reading_hira: ニタク
+  reading_kana: ニタク
+  source: manual
+"「0」":
+  accent_moras: null
+  reading_hira: ゼロ
+  reading_kana: ゼロ
+  source: manual
+"「1」":
+  accent_moras: null
+  reading_hira: イチ
+  reading_kana: イチ
+  source: manual
+"「e」":
+  accent_moras: null
+  reading_hira: イー
+  reading_kana: イー
+  source: manual
+"「q」":
+  accent_moras: null
+  reading_hira: キュー
+  reading_kana: キュー
+  source: manual
+"「z」":
+  accent_moras: null
+  reading_hira: ゼット
+  reading_kana: ゼット
+  source: manual
+ビットbit:
+  accent_moras: null
+  reading_hira: ビット
+  reading_kana: ビット
+  source: manual
+守り人:
+  accent_moras: null
+  reading_hira: マモリビト
+  reading_kana: マモリビト
+  source: manual
+籠もって:
+  accent_moras: null
+  reading_hira: コモッテ
+  reading_kana: コモッテ
+  source: manual
+認めろ:
+  accent_moras: null
+  reading_hira: ミトメロ
+  reading_kana: ミトメロ
+  source: manual
+高い1か低い0か:
+  accent_moras: null
+  reading_hira: タカイイチカヒクイゼロカ
+  reading_kana: タカイイチカヒクイゼロカ
+  source: manual
+ベートーヴェン:
+  accent_moras: null
+  reading_hira: ベートーベン
+  reading_kana: ベートーベン
+  source: manual
+"50パーセント":
+  accent_moras: null
+  reading_hira: ゴジュッパーセント
+  reading_kana: ゴジュッパーセント
+  source: manual
+"30分の":
+  accent_moras: null
+  reading_hira: サンジュップンノ
+  reading_kana: サンジュップンノ
+  source: manual
+"45分":
+  accent_moras: null
+  reading_hira: ヨンジュウゴフン
+  reading_kana: ヨンジュウゴフン
+  source: manual
+"4行目":
+  accent_moras: null
+  reading_hira: ヨンギョウメ
+  reading_kana: ヨンギョウメ
+  source: manual
+"6分間":
+  accent_moras: null
+  reading_hira: ロップンカン
+  reading_kana: ロップンカン
+  source: manual
+Aルート:
+  accent_moras: null
+  reading_hira: エールート
+  reading_kana: エールート
+  source: manual
+一握り:
+  accent_moras: null
+  reading_hira: ヒトニギリ
+  reading_kana: ヒトニギリ
+  source: manual
+一発勝負:
+  accent_moras: null
+  reading_hira: イッパツショウブ
+  reading_kana: イッパツショウブ
+  source: manual
+一本:
+  accent_moras: null
+  reading_hira: イッポン
+  reading_kana: イッポン
+  source: manual
+十通:
+  accent_moras: null
+  reading_hira: ジュッツウ
+  reading_kana: ジュッツウ
+  source: manual
+十分後:
+  accent_moras: null
+  reading_hira: ジュップンゴ
+  reading_kana: ジュップンゴ
+  source: manual
+十分前:
+  accent_moras: null
+  reading_hira: ジュップンマエ
+  reading_kana: ジュップンマエ
+  source: manual
+君に:
+  accent_moras: null
+  reading_hira: キミニ
+  reading_kana: キミニ
+  source: manual
+四日目:
+  accent_moras: null
+  reading_hira: ヨッカメ
+  reading_kana: ヨッカメ
+  source: manual
+三十分:
+  accent_moras: null
+  reading_hira: サンジュップン
+  reading_kana: サンジュップン
+  source: manual
+三日:
+  accent_moras: null
+  reading_hira: ミッカ
+  reading_kana: ミッカ
+  source: manual
+焦る:
+  accent_moras: null
+  reading_hira: アセル
+  reading_kana: アセル
+  source: manual
+鈍らせる:
+  accent_moras: null
+  reading_hira: ニブラセル
+  reading_kana: ニブラセル
+  source: manual
+手を付けない:
+  accent_moras: null
+  reading_hira: テオツケナイ
+  reading_kana: テオツケナイ
+  source: manual
+手を付けられずに:
+  accent_moras: null
+  reading_hira: テオツケラレズニ
+  reading_kana: テオツケラレズニ
+  source: manual
+一行目:
+  accent_moras: null
+  reading_hira: イチギョウメ
+  reading_kana: イチギョウメ
+  source: manual
+二行目:
+  accent_moras: null
+  reading_hira: ニギョウメ
+  reading_kana: ニギョウメ
+  source: manual
+三行目:
+  accent_moras: null
+  reading_hira: サンギョウメ
+  reading_kana: サンギョウメ
+  source: manual
+四行目:
+  accent_moras: null
+  reading_hira: ヨンギョウメ
+  reading_kana: ヨンギョウメ
+  source: manual
+五行目:
+  accent_moras: null
+  reading_hira: ゴギョウメ
+  reading_kana: ゴギョウメ
+  source: manual
+一行加える:
+  accent_moras: null
+  reading_hira: イチギョウクワエル
+  reading_kana: イチギョウクワエル
+  source: manual
+一回:
+  accent_moras: null
+  reading_hira: イッカイ
+  reading_kana: イッカイ
+  source: manual
+一分で:
+  accent_moras: null
+  reading_hira: イップンデ
+  reading_kana: イップンデ
+  source: manual
+一分追加:
+  accent_moras: null
+  reading_hira: イップンツイカ
+  reading_kana: イップンツイカ
+  source: manual
+一分短く:
+  accent_moras: null
+  reading_hira: イップンミジカク
+  reading_kana: イップンミジカク
+  source: manual
+一分間:
+  accent_moras: null
+  reading_hira: イップンカン
+  reading_kana: イップンカン
+  source: manual
+一日一分:
+  accent_moras: null
+  reading_hira: イチニチイップン
+  reading_kana: イチニチイップン
+  source: manual
+二日:
+  accent_moras: null
+  reading_hira: フツカ
+  reading_kana: フツカ
+  source: manual
+二日目:
+  accent_moras: null
+  reading_hira: フツカメ
+  reading_kana: フツカメ
+  source: manual
+三日間:
+  accent_moras: null
+  reading_hira: ミッカカン
+  reading_kana: ミッカカン
+  source: manual
+三日目:
+  accent_moras: null
+  reading_hira: ミッカメ
+  reading_kana: ミッカメ
+  source: manual
+些末:
+  accent_moras: null
+  reading_hira: サマツ
+  reading_kana: サマツ
+  source: manual
+埋めよう:
+  accent_moras: null
+  reading_hira: ウメヨウ
+  reading_kana: ウメヨウ
+  source: manual
+怖れ:
+  accent_moras: null
+  reading_hira: オソレ
+  reading_kana: オソレ
+  source: manual
+次は:
+  accent_moras: null
+  reading_hira: ツギワ
+  reading_kana: ツギワ
+  source: manual
+正しく:
+  accent_moras: null
+  reading_hira: タダシク
+  reading_kana: タダシク
+  source: manual
+未達:
+  accent_moras: null
+  reading_hira: ミタツ
+  reading_kana: ミタツ
+  source: manual
+活かせる:
+  accent_moras: null
+  reading_hira: イカセル
+  reading_kana: イカセル
+  source: manual
+背負わない:
+  accent_moras: null
+  reading_hira: セオワナイ
+  reading_kana: セオワナイ
+  source: manual
+良し:
+  accent_moras: null
+  reading_hira: ヨシ
+  reading_kana: ヨシ
+  source: manual
+良し悪し:
+  accent_moras: null
+  reading_hira: ヨシアシ
+  reading_kana: ヨシアシ
+  source: manual
+始めた後も:
+  accent_moras: null
+  reading_hira: ハジメタアトモ
+  reading_kana: ハジメタアトモ
+  source: manual
+どういう状態:
+  accent_moras: null
+  reading_hira: ドウユウジョウタイ
+  reading_kana: ドウユウジョウタイ
+  source: manual
+鈍らせます:
+  accent_moras: null
+  reading_hira: ニブラセマス
+  reading_kana: ニブラセマス
+  source: manual
+六分の一:
+  accent_moras: null
+  reading_hira: ロクブンノイチ
+  reading_kana: ロクブンノイチ
+  source: manual
+十キロ:
+  accent_moras: null
+  reading_hira: ジュッキロ
+  reading_kana: ジュッキロ
+  source: manual
+百回:
+  accent_moras: null
+  reading_hira: ヒャッカイ
+  reading_kana: ヒャッカイ
+  source: manual
+孫子:
+  accent_moras: null
+  reading_hira: ソンシ
+  reading_kana: ソンシ
+  source: manual
+孫武:
+  accent_moras: null
+  reading_hira: ソンブ
+  reading_kana: ソンブ
+  source: manual
+"3分間":
+  accent_moras: null
+  reading_hira: サンプンカン
+  reading_kana: サンプンカン
+  source: manual
+マキャヴェリ:
+  accent_moras: null
+  reading_hira: マキャベリ
+  reading_kana: マキャベリ
+  source: manual
+あっという間に:
+  accent_moras: null
+  reading_hira: アットイウマニ
+  reading_kana: アットイウマニ
+  source: manual
+十件:
+  accent_moras: null
+  reading_hira: ジュッケン
+  reading_kana: ジュッケン
+  source: manual
+二十件:
+  accent_moras: null
+  reading_hira: ニジュッケン
+  reading_kana: ニジュッケン
+  source: manual
+一発:
+  accent_moras: null
+  reading_hira: イッパツ
+  reading_kana: イッパツ
+  source: manual

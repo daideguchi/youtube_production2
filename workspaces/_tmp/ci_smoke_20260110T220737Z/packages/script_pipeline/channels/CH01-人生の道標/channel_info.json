@@ -1,0 +1,111 @@
+{
+  "channel_id": "CH01",
+  "name": "仏教・科学 人生の道標",
+  "description": "仏教の教えと現代科学を融合した人生哲学",
+  "youtube": {
+    "title": "人生の道標 - 癒される仏教",
+    "description": "✨ぜひ、動画は毎日繰り返し、ご視聴ください。✨\n\n👍推奨：動画速度が遅いと感じる場合は、「1.25倍速」をお勧めします。👍\n\n🙇‍♂️応援のコメント大変嬉しく拝見しております。精進してまいりますので、引き続きお付き合いいただければ幸甚です。🙇‍♂️\n\n---\n癒される音楽とともに仏教に関する情報を紹介する「癒される仏教」チャンネルへようこそ。\n\n心を癒し、潜在意識に深く刻み込む旅に、あなたをお招きします。\n\nここでは、ブッダの智慧を、日々の生活に根ざした物語を通じて紹介しています。\n動画を毎日繰り返し視聴することで、ブッダの教えがあなたの潜在意識に深く根ざし、心の平和へと導かれることでしょう。\n\n動画の内容が難しいな、と感じても最初は大丈夫です。何度も繰り返しているうちに心地の良い気持ちになるはずです。\n私も毎日皆様に素晴らしい動画をお届けいたします。\n\nさて、日常生活で直面する様々な問題に対してブッダがどのように対処を提案しているのか、心を穏やかに保つ思考法や、慈悲と共感に基づく生き方について探求しましょう。\n\n初心者から熱心な実践者まで、すべての人がブッダの教えから学び、新たな気づきを見出せるように、願っております。\n心の平和を求めるあなたの旅に、このチャンネルが光となりますように。\nぜひご一緒に、成長していきましょう。\n\nお仕事のご依頼やご相談は下記からお気軽にご連絡ください。\nhttps://forms.gle/D1HyjwDDRyuSduj36\n\n",
+    "handle": "@shaka__namu",
+    "channel_id": "UCdAT_v1_2aTPergMpWy2V-w",
+    "url": "https://www.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w",
+    "custom_url": "@shaka__namu",
+    "view_count": 4715924,
+    "subscriber_count": 42600,
+    "video_count": 198,
+    "synced_at": "2026-01-04T08:18:35.258777+00:00",
+    "source": "UCdAT_v1_2aTPergMpWy2V-w",
+    "published_at": "2023-07-17T10:48:30.792551Z"
+  },
+  "youtube_description": "この動画は、「仏教・科学 人生の道標」の長時間コンテンツです。\n仏教の教えと現代科学を融合した人生哲学\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEPEAK：男性3\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#仏教 #寝落ち\n",
+  "branding": {
+    "avatar_url": "https://yt3.ggpht.com/gq1myfNbV9pA6uGJi5wsw1EjaqTxhEb9t4ty6F1GLvlchxj1prNj-Hxl8lt_EY8c9NS7OUerVQ=s88-c-k-c0x00ffffff-no-rj",
+    "banner_url": "https://yt3.googleusercontent.com/nJD9pt55fMbmEa8VonziascHWAuGrjdS_AccZK3qeBZJnbfZbaW0u1c_Vu3b0QNFfiYRVVMRUg",
+    "title": "人生の道標 - 癒される仏教",
+    "subscriber_count": 42600,
+    "view_count": 4715924,
+    "video_count": 198,
+    "custom_url": "@shaka__namu",
+    "handle": "@shaka__namu",
+    "url": "https://www.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w",
+    "updated_at": "2023-07-17T10:48:30.792551Z"
+  },
+  "persona_path": "workspaces/planning/personas/CH01_PERSONA.md",
+  "template_path": "packages/script_pipeline/channels/CH01-人生の道標/script_prompt.txt",
+  "spreadsheet_id": "1xfaUSqR2lE4MxC4_6O6aiodWmOm3quRBxAQzWk1eTzg",
+  "persona": {
+    "demographics": {
+      "age_range": "60-70代",
+      "life_stage": "人生の岐路や転機にある方、精神的な成長を求めている方",
+      "family_structure": "多様な家族構成"
+    },
+    "interests": [
+      "仏教の教えと現代生活への応用",
+      "精神的な成長と自己理解",
+      "人生の苦しみとその乗り越え方",
+      "瞑想とマインドフルネス"
+    ],
+    "pain_points": [
+      "現代社会におけるストレスと混乱",
+      "人生の目的と意味を見失うこと",
+      "人間関係における葛藤と孤独感",
+      "物質主義と精神的充足のギャップ"
+    ],
+    "language_preference": "優しく、深遠で、親しみやすい話し言葉",
+    "content_preference": "具体的な実践法、仏教の教えを現代的な言葉で説明、日常生活に役立つアドバイス",
+    "target_audience": "仏教に興味のある方、人生の意味や生き方を深く考えたい方"
+  },
+  "script_prompt": "# 人生の道標 MASTER PROMPT\n最終更新: 2025-12-31\n\n役割: 「人生の道標」専属の台本ディレクターとして、視聴者の心を整える仏教の知恵を届ける。\n目的: 傷ついて揺れる反射を鎮め、尊厳を守れる心の扱い方を手渡す。\n\n必須:\n- 抽象で終わらせず、史実・逸話を1〜2件だけ選び、「葛藤→選択→結果→教えとの接点」まで深掘りして証明する。\n  - 年号・出典の断定は避ける。曖昧な点は「伝えられています」「諸説あります」で安全化する。\n  - 会話文の捏造は禁止（心情描写は可。断定しない言い回しで）。\n- 史実の後は、視聴者の日常に戻す橋を1文で入れる（例: さて、私たちの日常に戻りましょう）。\n- 今夜からできる行動を2〜3個に絞り、順番が伝わる文章で短く提示する（箇条書き/番号リストは禁止）。\n\n禁止（CH01は厳守）:\n- 架空の現代人物ストーリー（例: 「田村幸子、六十七歳。」のような人物紹介で始めない）。\n- 現代例での名前/年齢/職業/台詞の作り込み（匿名の生活導線の1場面だけにする）。\n- 説教調・講義調で引き延ばすこと。言い換え水増しは禁止。\n\n文字数: 6,000〜8,000字相当（目安）。\n文体: 分かりやすい日本語。1文は短めを基調に、耳で理解できるテンポで。\n\n▼▼▼プロンプト入力欄\n下記テンプレをそのままコピペし、CSVや企画メモで埋めてから投げる。\n\n````\n<<INPUT TEMPLATE>>\n企画No / 動画ID:\n企画タイトル（CSV）:\n企画意図・ターゲット（CSV「企画意図」「ターゲット層」列）:\n構成案メモ（CSV「具体的な内容（話の構成案）」列）:\n参考にしたい既存動画/ベンチマーク:\n取り上げたい仏教の教え・キーワード:\n史実エピソード候補（1〜2件）:\n避けたい話題/表現（あれば）:\nその他制約（文字数・納期等）:\n<<INPUT TEMPLATE END>>\n````\n",
+  "synced_at": "2025-11-01T13:42:09.926666",
+  "video_workflow": "capcut",
+  "youtube_title": "人生の道標 - 癒される仏教",
+  "youtube_handle": "@shaka__namu",
+  "audience_profile": "他人の目や言葉に振り回されがちな40〜60代。真面目で優しいがゆえに、人間関係・老後・お金・孤独の不安を抱え、仏教の整理術で心を軽くしたいと願っている人。",
+  "default_tags": [
+    "仏教",
+    "法話",
+    "禅",
+    "心理学",
+    "哲学",
+    "内省",
+    "寝落ち",
+    "睡眠用",
+    "作業用BGM",
+    "勉強用BGM",
+    "長時間",
+    "聞き流し",
+    "VOICEPEAK",
+    "男性3"
+  ],
+  "benchmarks": {
+    "version": 1,
+    "updated_at": "2025-12-27",
+    "channels": [
+      {
+        "handle": "@buddha-no09",
+        "name": "人生これから - ブッダの教え",
+        "url": "https://www.youtube.com/@buddha-no09",
+        "note": "中高年向け悩みフック→仏教の視点→具体策（返し言葉/距離の取り方）で回収する型の参考"
+      }
+    ],
+    "script_samples": [
+      {
+        "base": "research",
+        "path": "ブッダ系/人生の道標1",
+        "label": "参考台本/メモ",
+        "note": "構成/テンポ/表現を参考（表現は安全側へ調整）"
+      }
+    ],
+    "notes": "ベンチマークはUIから追加してください。"
+  },
+  "production_sources": {
+    "voice_config_path": "packages/script_pipeline/audio/channels/CH01/voice_config.json",
+    "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
+    "thumbnails_default_template_id": "ch01_memo9_background_right_subject_v1",
+    "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
+    "capcut_preset": {
+      "capcut_template": "CH01-UNK_道標_最新テンプレ",
+      "video_style_id": "jinsei_standard_v2",
+      "prompt_template": "templates/jinsei_warm_gold_blue_strict.txt"
+    }
+  }
+}

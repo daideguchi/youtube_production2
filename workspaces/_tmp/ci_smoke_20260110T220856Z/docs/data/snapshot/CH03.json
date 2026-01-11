@@ -1,0 +1,2167 @@
+{
+  "schema": "ytm.pages.snapshot.channel.v1",
+  "generated_at": "2025-12-28T10:35:19.380956Z",
+  "channel": "CH03",
+  "planning_csv": "workspaces/planning/channels/CH03.csv",
+  "planning_count": 62,
+  "scripts_count": 61,
+  "episodes": [
+    {
+      "channel": "CH03",
+      "video": "001",
+      "video_id": "CH03-001",
+      "title": "【熟睡革命】70代からの睡眠リセット術",
+      "planning": {
+        "動画番号": "1",
+        "タイトル": "【熟睡革命】70代からの睡眠リセット術",
+        "進捗": "completed",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/001/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "002",
+      "video_id": "CH03-002",
+      "title": "【警告】医者が警鐘！60歳過ぎたら絶対口にしてはいけない食べ物ワースト3",
+      "planning": {
+        "動画番号": "2",
+        "タイトル": "【警告】医者が警鐘！60歳過ぎたら絶対口にしてはいけない食べ物ワースト3",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/002/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "003",
+      "video_id": "CH03-003",
+      "title": "【要注意】コレを言うと嫌われる！子供や孫に絶対言ってはいけない一言",
+      "planning": {
+        "動画番号": "3",
+        "タイトル": "【要注意】コレを言うと嫌われる！子供や孫に絶対言ってはいけない一言",
+        "進捗": "completed",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/003/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "004",
+      "video_id": "CH03-004",
+      "title": "【死ぬ前にやるべき】面倒でも絶対に残してはいけない物リスト10選",
+      "planning": {
+        "動画番号": "4",
+        "タイトル": "【死ぬ前にやるべき】面倒でも絶対に残してはいけない物リスト10選",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "6.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/004/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "005",
+      "video_id": "CH03-005",
+      "title": "【知らないと損】60歳から使える「シニア割引」完全攻略ガイド2025",
+      "planning": {
+        "動画番号": "5",
+        "タイトル": "【知らないと損】60歳から使える「シニア割引」完全攻略ガイド2025",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/005/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "006",
+      "video_id": "CH03-006",
+      "title": "【最強の生き方】60歳からの『孤独』は、実は最高の贅沢である理由",
+      "planning": {
+        "動画番号": "6",
+        "タイトル": "【最強の生き方】60歳からの『孤独』は、実は最高の贅沢である理由",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "007",
+      "video_id": "CH03-007",
+      "title": "【相続で絶対モメる】弁護士が語る「遺言書」の絶対NGな書き方",
+      "planning": {
+        "動画番号": "7",
+        "タイトル": "【相続で絶対モメる】弁護士が語る「遺言書」の絶対NGな書き方",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/007/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "008",
+      "video_id": "CH03-008",
+      "title": "【危険なサイン】認知症の初期症状、家族だから気付ける10の兆候",
+      "planning": {
+        "動画番号": "8",
+        "タイトル": "【危険なサイン】認知症の初期症状、家族だから気付ける10の兆候",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/008/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "009",
+      "video_id": "CH03-009",
+      "title": "【寝たきり予防】1日5分！整形外科医が教える「座ったまま体操」",
+      "planning": {
+        "動画番号": "9",
+        "タイトル": "【寝たきり予防】1日5分！整形外科医が教える「座ったまま体操」",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/009/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "010",
+      "video_id": "CH03-010",
+      "title": "【人生の黄金期】70歳からが一番楽しい！幸せな晩年を送る人の思考法",
+      "planning": {
+        "動画番号": "10",
+        "タイトル": "【人生の黄金期】70歳からが一番楽しい！幸せな晩年を送る人の思考法",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/010/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "011",
+      "video_id": "CH03-011",
+      "title": "【高血圧】薬を飲む前に試して！血圧が正常値になる奇跡の習慣5選",
+      "planning": {
+        "動画番号": "11",
+        "タイトル": "【高血圧】薬を飲む前に試して！血圧が正常値になる奇跡の習慣5選",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/011/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "012",
+      "video_id": "CH03-012",
+      "title": "【危険な寝方】60歳からの睡眠で絶対やってはいけないNG習慣ワースト3",
+      "planning": {
+        "動画番号": "12",
+        "タイトル": "【危険な寝方】60歳からの睡眠で絶対やってはいけないNG習慣ワースト3",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/012/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "013",
+      "video_id": "CH03-013",
+      "title": "【詐欺の手口】その電話、絶対に出てはダメ！弁護士が教える最新詐欺撃退法",
+      "planning": {
+        "動画番号": "13",
+        "タイトル": "【詐欺の手口】その電話、絶対に出てはダメ！弁護士が教える最新詐欺撃退法",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/013/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "014",
+      "video_id": "CH03-014",
+      "title": "【スマホ教室】これだけは使えなきゃ損！60歳からの必須アプリTOP5",
+      "planning": {
+        "動画番号": "14",
+        "タイトル": "【スマホ教室】これだけは使えなきゃ損！60歳からの必須アプリTOP5",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "015",
+      "video_id": "CH03-015",
+      "title": "【生前贈与】税務署は見ています！絶対やってはいけない相続税対策",
+      "planning": {
+        "動画番号": "15",
+        "タイトル": "【生前贈与】税務署は見ています！絶対やってはいけない相続税対策",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "016",
+      "video_id": "CH03-016",
+      "title": "【口腔ケア】歯周病が全身の病気を招く！歯科医が教える正しい歯の磨き方",
+      "planning": {
+        "動画番号": "16",
+        "タイトル": "【口腔ケア】歯周病が全身の病気を招く！歯科医が教える正しい歯の磨き方",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "0.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "017",
+      "video_id": "CH03-017",
+      "title": "【熟年離婚】夫の定年後、絶対やってはいけない妻を怒らせる行動リスト",
+      "planning": {
+        "動画番号": "17",
+        "タイトル": "【熟年離婚】夫の定年後、絶対やってはいけない妻を怒らせる行動リスト",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/017/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "018",
+      "video_id": "CH03-018",
+      "title": "介護保険制度を正しく使えば数十万円も節約可能",
+      "planning": {
+        "動画番号": "18",
+        "タイトル": "介護保険制度を正しく使えば数十万円も節約可能",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "019",
+      "video_id": "CH03-019",
+      "title": "【終活】子供に迷惑をかけない「お墓」の新しい常識2025",
+      "planning": {
+        "動画番号": "19",
+        "タイトル": "【終活】子供に迷惑をかけない「お墓」の新しい常識2025",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/019/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "020",
+      "video_id": "CH03-020",
+      "title": "【脳トレ】実は意味がない？科学的根拠のある本当に効く認知症予防法",
+      "planning": {
+        "動画番号": "20",
+        "タイトル": "【脳トレ】実は意味がない？科学的根拠のある本当に効く認知症予防法",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "12.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/020/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "021",
+      "video_id": "CH03-021",
+      "title": "【目の病気】失明原因第1位も！絶対に見逃してはいけない危険なサイン",
+      "planning": {
+        "動画番号": "21",
+        "タイトル": "【目の病気】失明原因第1位も！絶対に見逃してはいけない危険なサイン",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/021/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "022",
+      "video_id": "CH03-022",
+      "title": "60歳からの片付けで人生を軽やかに",
+      "planning": {
+        "動画番号": "22",
+        "タイトル": "60歳からの片付けで人生を軽やかに",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/022/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "023",
+      "video_id": "CH03-023",
+      "title": "【友達の作り方】定年後、孤立しない！60歳からの新しい人間関係術",
+      "planning": {
+        "動画番号": "23",
+        "タイトル": "【友達の作り方】定年後、孤立しない！60歳からの新しい人間関係術",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/023/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "024",
+      "video_id": "CH03-024",
+      "title": "【タンパク質不足】知らないうちに要介護へ！医師が教える賢い摂り方",
+      "planning": {
+        "動画番号": "24",
+        "タイトル": "【タンパク質不足】知らないうちに要介護へ！医師が教える賢い摂り方",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/024/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "025",
+      "video_id": "CH03-025",
+      "title": "【薬の飲み合わせ】それ、超キケン！薬剤師が語る「多剤服用」の恐怖",
+      "planning": {
+        "動画番号": "25",
+        "タイトル": "【薬の飲み合わせ】それ、超キケン！薬剤師が語る「多剤服用」の恐怖",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/025/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "026",
+      "video_id": "CH03-026",
+      "title": "【正しい歩き方】そのウォーキング、膝と腰を壊します！",
+      "planning": {
+        "動画番号": "26",
+        "タイトル": "【正しい歩き方】そのウォーキング、膝と腰を壊します！",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "14.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/026/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "027",
+      "video_id": "CH03-027",
+      "title": "【アンガーマネジメント】老後のイライラは万病のもと！精神科医が教える怒りの鎮め方",
+      "planning": {
+        "動画番号": "27",
+        "タイトル": "【アンガーマネジメント】老後のイライラは万病のもと！精神科医が教える怒りの鎮め方",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "0.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/027/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "028",
+      "video_id": "CH03-028",
+      "title": "【人生会議】もしもの時、どうしたい？家族と絶対に話しておくべき5つのこと",
+      "planning": {
+        "動画番号": "28",
+        "タイトル": "【人生会議】もしもの時、どうしたい？家族と絶対に話しておくべき5つのこと",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "7.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/028/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "029",
+      "video_id": "CH03-029",
+      "title": "聞こえにくさが認知症リスクを2倍にする驚きの真相",
+      "planning": {
+        "動画番号": "29",
+        "タイトル": "聞こえにくさが認知症リスクを2倍にする驚きの真相",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/029/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "030",
+      "video_id": "CH03-030",
+      "title": "【シニアの仕事】65歳からでも月5万円！ハローワークで人気の仕事リスト",
+      "planning": {
+        "動画番号": "30",
+        "タイトル": "【シニアの仕事】65歳からでも月5万円！ハローワークで人気の仕事リスト",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/030/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "031",
+      "video_id": "CH03-031",
+      "title": "【骨折→寝たきり】1日1分で激変！理学療法士が教える「転倒予防」最強の習慣",
+      "planning": {
+        "動画番号": "31",
+        "タイトル": "【骨折→寝たきり】1日1分で激変！理学療法士が教える「転倒予防」最強の習慣",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "8.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/031/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/031/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "032",
+      "video_id": "CH03-032",
+      "title": "【いつの間にか骨折】骨密度がどんどん下がる！骨粗しょう症を招く最悪の習慣5選",
+      "planning": {
+        "動画番号": "32",
+        "タイトル": "【いつの間にか骨折】骨密度がどんどん下がる！骨粗しょう症を招く最悪の習慣5選",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/032/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/032/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "033",
+      "video_id": "CH03-033",
+      "title": "【便秘は万病のもと】腸内環境が劇的に改善！医師が勧める最強の食べ物TOP5",
+      "planning": {
+        "動画番号": "33",
+        "タイトル": "【便秘は万病のもと】腸内環境が劇的に改善！医師が勧める最強の食べ物TOP5",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/033/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/033/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "034",
+      "video_id": "CH03-034",
+      "title": "【熱中症】室内でもキケン！命を守る、高齢者のための正しい水分補給術",
+      "planning": {
+        "動画番号": "34",
+        "タイトル": "【熱中症】室内でもキケン！命を守る、高齢者のための正しい水分補給術",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/034/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/034/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "036",
+      "video_id": "CH03-036",
+      "title": "【頻尿・尿漏れ】誰にも言えない…泌尿器科医が教えるトイレの悩みを解決する方法",
+      "planning": {
+        "動画番号": "36",
+        "タイトル": "【頻尿・尿漏れ】誰にも言えない…泌尿器科医が教えるトイレの悩みを解決する方法",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/036/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/036/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "037",
+      "video_id": "CH03-037",
+      "title": "【100歳まで歩く】足の専門家が教える！シニアの「靴選び」で絶対守るべき鉄則",
+      "planning": {
+        "動画番号": "37",
+        "タイトル": "【100歳まで歩く】足の専門家が教える！シニアの「靴選び」で絶対守るべき鉄則",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/037/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/037/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "038",
+      "video_id": "CH03-038",
+      "title": "【嚥下障害】むせる・飲み込みづらい…命に関わる「飲み込む力」の衰え",
+      "planning": {
+        "動画番号": "38",
+        "タイトル": "【嚥下障害】むせる・飲み込みづらい…命に関わる「飲み込む力」の衰え",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "13.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/038/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/038/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "039",
+      "video_id": "CH03-039",
+      "title": "【うつ病のサイン】それ、ただの気分の落ち込みじゃない！家族が気付くべき高齢者のSOS",
+      "planning": {
+        "動画番号": "39",
+        "タイトル": "【うつ病のサイン】それ、ただの気分の落ち込みじゃない！家族が気付くべき高齢者のSOS",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "15.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/039/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/039/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "040",
+      "video_id": "CH03-040",
+      "title": "【血糖値スパイク】食後の眠気は危険のサイン！糖尿病を招く、血糖値を上げない食べ方",
+      "planning": {
+        "動画番号": "40",
+        "タイトル": "【血糖値スパイク】食後の眠気は危険のサイン！糖尿病を招く、血糖値を上げない食べ方",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "16.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/040/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/040/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "041",
+      "video_id": "CH03-041",
+      "title": "【血管年齢】ドロドロ血液が命を縮める！血管を若返らせる奇跡の食べ物",
+      "planning": {
+        "動画番号": "41",
+        "タイトル": "【血管年齢】ドロドロ血液が命を縮める！血管を若返らせる奇跡の食べ物",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "18.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/041/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/041/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "042",
+      "video_id": "CH03-042",
+      "title": "【大人のワクチン】知らないと損！60歳から受けるべき予防接種リスト【肺炎・帯状疱疹】",
+      "planning": {
+        "動画番号": "42",
+        "タイトル": "【大人のワクチン】知らないと損！60歳から受けるべき予防接種リスト【肺炎・帯状疱疹】",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/042/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/042/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "043",
+      "video_id": "CH03-043",
+      "title": "【ひざ痛】変形性膝関節症を食い止める！整形外科医が教える、やってはいけないこと",
+      "planning": {
+        "動画番号": "43",
+        "タイトル": "【ひざ痛】変形性膝関節症を食い止める！整形外科医が教える、やってはいけないこと",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/043/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/043/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "044",
+      "video_id": "CH03-044",
+      "title": "【沈黙の臓器】腎臓は一度壊れたら治らない！腎臓病を招く危険な習慣",
+      "planning": {
+        "動画番号": "44",
+        "タイトル": "【沈黙の臓器】腎臓は一度壊れたら治らない！腎臓病を招く危険な習慣",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/044/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/044/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "045",
+      "video_id": "CH03-045",
+      "title": "【ドライマウス】口の渇きは万病の元！唾液を増やす、プロが教える口腔ケア",
+      "planning": {
+        "動画番号": "45",
+        "タイトル": "【ドライマウス】口の渇きは万病の元！唾液を増やす、プロが教える口腔ケア",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "17.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/045/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/045/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "046",
+      "video_id": "CH03-046",
+      "title": "【睡眠時無呼吸症候群】そのイビキ、命の危険信号！放置すると突然死のリスクも",
+      "planning": {
+        "動画番号": "46",
+        "タイトル": "【睡眠時無呼吸症候群】そのイビキ、命の危険信号！放置すると突然死のリスクも",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "19.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/046/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/046/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "047",
+      "video_id": "CH03-047",
+      "title": "【帯状疱疹】経験者が語る…あの痛みは地獄だった！50歳からのワクチンという選択",
+      "planning": {
+        "動画番号": "47",
+        "タイトル": "【帯状疱疹】経験者が語る…あの痛みは地獄だった！50歳からのワクチンという選択",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "20.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/047/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/047/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "048",
+      "video_id": "CH03-048",
+      "title": "【白内障】視界のかすみ・ぼやけは手術で治る！眼科医が教える最新治療と眼内レンズ",
+      "planning": {
+        "動画番号": "48",
+        "タイトル": "【白内障】視界のかすみ・ぼやけは手術で治る！眼科医が教える最新治療と眼内レンズ",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/048/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/048/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "049",
+      "video_id": "CH03-049",
+      "title": "【サルコペニア】70代の4人に1人！筋肉の衰えが要介護を招く！予防と対策",
+      "planning": {
+        "動画番号": "49",
+        "タイトル": "【サルコペニア】70代の4人に1人！筋肉の衰えが要介護を招く！予防と対策",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/049/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/049/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "050",
+      "video_id": "CH03-050",
+      "title": "【フレイル】「健康」と「要介護」の間の危険な段階！今すぐ始めるべき虚弱対策",
+      "planning": {
+        "動画番号": "50",
+        "タイトル": "【フレイル】「健康」と「要介護」の間の危険な段階！今すぐ始めるべき虚弱対策",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/050/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/050/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "051",
+      "video_id": "CH03-051",
+      "title": "【めまい】ぐるぐる・ふわふわ…危険なめまいと、心配ないめまいの見分け方",
+      "planning": {
+        "動画番号": "51",
+        "タイトル": "【めまい】ぐるぐる・ふわふわ…危険なめまいと、心配ないめまいの見分け方",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/051/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/051/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "052",
+      "video_id": "CH03-052",
+      "title": "【エコノミークラス症候群】長時間のバス旅行・避難所で命を落とす！足の血栓の恐怖",
+      "planning": {
+        "動画番号": "52",
+        "タイトル": "【エコノミークラス症候群】長時間のバス旅行・避難所で命を落とす！足の血栓の恐怖",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/052/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/052/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "053",
+      "video_id": "CH03-053",
+      "title": "【誤嚥性肺炎】死因第6位！「むせる」を放置してはいけない本当の理由",
+      "planning": {
+        "動画番号": "53",
+        "タイトル": "【誤嚥性肺炎】死因第6位！「むせる」を放置してはいけない本当の理由",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/053/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/053/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "054",
+      "video_id": "CH03-054",
+      "title": "【ヒートショック】冬の入浴が一番キケン！年間1万人が死亡する、突然死の恐怖",
+      "planning": {
+        "動画番号": "54",
+        "タイトル": "【ヒートショック】冬の入浴が一番キケン！年間1万人が死亡する、突然死の恐怖",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/054/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/054/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "055",
+      "video_id": "CH03-055",
+      "title": "【慢性閉塞性肺疾患(COPD)】「年のせい」では済まされない、息切れの本当の原因",
+      "planning": {
+        "動画番号": "55",
+        "タイトル": "【慢性閉塞性肺疾患(COPD)】「年のせい」では済まされない、息切れの本当の原因",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/055/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/055/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "056",
+      "video_id": "CH03-056",
+      "title": "【逆流性食道炎】胸やけ・ゲップ・喉の違和感…シニアに急増中の胃酸トラブル",
+      "planning": {
+        "動画番号": "56",
+        "タイトル": "【逆流性食道炎】胸やけ・ゲップ・喉の違和感…シニアに急増中の胃酸トラブル",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/056/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/056/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "057",
+      "video_id": "CH03-057",
+      "title": "【下肢静脈瘤】足の血管がボコボコ…命に関わらないがQOLを下げる足の悩み",
+      "planning": {
+        "動画番号": "57",
+        "タイトル": "【下肢静脈瘤】足の血管がボコボコ…命に関わらないがQOLを下げる足の悩み",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/057/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/057/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "058",
+      "video_id": "CH03-058",
+      "title": "【甲状腺の病気】疲れやすい・動悸・体重減少…年のせいと見過ごされる甲状腺ホルモンの異常",
+      "planning": {
+        "動画番号": "58",
+        "タイトル": "【甲状腺の病気】疲れやすい・動悸・体重減少…年のせいと見過ごされる甲状腺ホルモンの異常",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/058/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/058/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "059",
+      "video_id": "CH03-059",
+      "title": "【皮膚のかゆみ】乾燥・かぶれ・じんましん…医師が教える、高齢者のしつこい痒みの止め方",
+      "planning": {
+        "動画番号": "59",
+        "タイトル": "【皮膚のかゆみ】乾燥・かぶれ・じんましん…医師が教える、高齢者のしつこい痒みの止め方",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/059/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/059/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "060",
+      "video_id": "CH03-060",
+      "title": "【健康診断】その検査、もう不要です！専門医が語る、受けるべき検査・やめるべき検査",
+      "planning": {
+        "動画番号": "60",
+        "タイトル": "【健康診断】その検査、もう不要です！専門医が語る、受けるべき検査・やめるべき検査",
+        "進捗": "script_validated",
+        "更新日時": "2025-10-29 21:44:30",
+        "作成フラグ": "1.0",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/060/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/060/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "061",
+      "video_id": "CH03-061",
+      "title": "【高齢者の便秘】本当に効く！自然な改善法と生活習慣の見直しポイント",
+      "planning": {
+        "動画番号": "61",
+        "タイトル": "【高齢者の便秘】本当に効く！自然な改善法と生活習慣の見直しポイント",
+        "進捗": "script_validated",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/061/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/061/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "062",
+      "video_id": "CH03-062",
+      "title": "【高齢者の便秘】本当に効く！自然な改善法と生活習慣の見直しポイント",
+      "planning": {
+        "動画番号": "62",
+        "タイトル": "【高齢者の便秘】本当に効く！自然な改善法と生活習慣の見直しポイント",
+        "進捗": "script_validated",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": "workspaces/scripts/CH03/062/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH03/062/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "quality_check": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH03",
+      "video": "063",
+      "video_id": "CH03-063",
+      "title": "【シニアの健康】朗読図書館新企画",
+      "planning": {
+        "動画番号": "63",
+        "タイトル": "【シニアの健康】朗読図書館新企画",
+        "進捗": "script_validated",
+        "更新日時": "",
+        "作成フラグ": "",
+        "悩みタグ_メイン": "血流ケア",
+        "悩みタグ_サブ": "冷え",
+        "ライフシーン": "朝の台所",
+        "キーコンセプト": "養生訓",
+        "ベネフィット一言": "体のこわばりが和らぐ",
+        "内容（企画要約）": "",
+        "説明文_リード": "病院に行くほどではない不調を、今日の生活習慣で整えましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    }
+  ]
+}

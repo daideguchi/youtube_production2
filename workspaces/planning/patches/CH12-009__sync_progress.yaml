@@ -1,0 +1,10 @@
+schema: ytm.planning_patch.v1
+patch_id: CH12-009__sync_progress_20260109
+target:
+  channel: CH12
+  video: 009
+apply:
+  set:
+    進捗: script_validated
+notes: 'CH12 007-030: progress was topic_research: pending but script/video already
+  completed; set to script_validated.'

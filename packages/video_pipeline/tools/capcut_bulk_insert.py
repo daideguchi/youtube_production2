@@ -603,11 +603,12 @@ def pre_flight_check(args, logger: logging.Logger) -> list[str]:
                     data = json.loads(image_cues.read_text(encoding="utf-8"))
                     cues = data.get("cues") or []
                     if cues:
+                        cue_mode = str(data.get("cue_mode") or "").strip().lower()
                         end_sec = max(float(c.get("end_sec") or 0.0) for c in cues)
                         avg_sec = end_sec / max(1, len(cues))
                         # Default: for 10+ min videos, average image duration above ~60s is suspicious.
                         max_avg = float(os.getenv("CAPCUT_PREFLIGHT_MAX_AVG_IMG_SEC") or "60")
-                        if end_sec >= 600 and avg_sec > max_avg:
+                        if cue_mode != "single" and end_sec >= 600 and avg_sec > max_avg:
                             errors.append(
                                 "❌ image_cues density looks wrong: "
                                 f"end_sec={end_sec:.1f}s cues={len(cues)} avg={avg_sec:.1f}s (> {max_avg:.0f}s). "
@@ -1018,7 +1019,12 @@ def ensure_absolute_indices(draft_dir: Path) -> None:
         logger.warning(f"Failed to enforce absolute_index: {exc}")
 
 
-def _apply_common_subtitle_style(draft_dir: Path) -> None:
+def _apply_common_subtitle_style(
+    draft_dir: Path,
+    *,
+    adapter: Optional[CapCutStyleAdapter] = None,
+    layout_config: object | None = None,
+) -> None:
     """
     Normalize subtitle track styling to match CapCut's default subtitle insertion.
 
@@ -1026,7 +1032,7 @@ def _apply_common_subtitle_style(draft_dir: Path) -> None:
       - line_spacing: 0.12
       - background_style: 1, background_color: #000000, background_alpha: 1.0
       - content: JSON string with {text, styles:[{size:5.0, fill:white, strokes:[{width:0.00016, black}]}]}
-      - clip.transform: x=0.0, y=-0.8 ; clip.scale: 1.0
+      - clip.transform: x/y are overridden per-channel when style adapter is provided
     """
     cfg = {
         "alignment": 1,  # center
@@ -1049,6 +1055,41 @@ def _apply_common_subtitle_style(draft_dir: Path) -> None:
         "style_size": 5.0,
         "stroke_width": 0.00016,
     }
+
+    # Optional: honor per-channel style position (e.g., CH09/CH26 portrait-right layout wants left-side subtitles).
+    pos_x: float | None = None
+    if adapter is not None:
+        try:
+            sub_cfg = adapter.get_subtitle_config() or {}
+            pos = sub_cfg.get("position") or {}
+            if isinstance(pos, dict):
+                if pos.get("x") is not None:
+                    pos_x = float(pos.get("x"))
+                    cfg["clip_transform_x"] = pos_x
+                if pos.get("y") is not None:
+                    cfg["clip_transform_y"] = float(pos.get("y"))
+        except Exception:
+            pass
+
+    # Optional: layout-config override (SSOT). Use this for width constraints when present.
+    try:
+        if layout_config is not None and getattr(layout_config, "subtitleMaxWidthPct", None) is not None:
+            pct = float(getattr(layout_config, "subtitleMaxWidthPct"))
+            if pct > 0:
+                cfg["line_max_width"] = max(0.1, min(0.99, pct / 100.0))
+                # Narrow widths should be enforced to prevent spilling into the portrait area.
+                if cfg["line_max_width"] < 0.75:
+                    cfg["force_apply_line_max_width"] = True
+    except Exception:
+        pass
+
+    # Final cap: when subtitles are placed on the left side, ensure max width doesn't leak into the portrait.
+    try:
+        if isinstance(pos_x, float) and pos_x < -0.25:
+            cfg["line_max_width"] = min(cfg["line_max_width"], 0.48)
+            cfg["force_apply_line_max_width"] = True
+    except Exception:
+        pass
 
     def _extract_text_from_content(content_field) -> str:
         if isinstance(content_field, dict):
@@ -3575,7 +3616,7 @@ def main():
     # - Restore template belt styling only for CH02 (some styling lives only in draft_info.json).
     # Must run AFTER all sync/post-processing so it won't be wiped.
     try:
-        _apply_common_subtitle_style(draft_dir)
+        _apply_common_subtitle_style(draft_dir, adapter=adapter, layout_config=layout_cfg)
         logger.info("✅ Subtitle style normalized (CapCut default: black background)")
     except Exception as exc:
         logger.error(f"❌ Subtitle style normalization failed: {exc}")

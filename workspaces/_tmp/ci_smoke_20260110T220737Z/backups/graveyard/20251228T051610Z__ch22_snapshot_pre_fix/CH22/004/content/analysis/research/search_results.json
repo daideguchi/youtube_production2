@@ -1,0 +1,64 @@
+{
+  "schema": "ytm.web_search_results.v1",
+  "provider": "openrouter:perplexity/sonar",
+  "query": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
+  "retrieved_at": "2025-12-28T04:42:04Z",
+  "hits": [
+    {
+      "title": "LINEのグループラインで既読がつかない原因まとめ",
+      "url": "https://xn--line-e67f524q.com/entry/blog-group-block-124",
+      "snippet": "LINEのグループラインで既読がつかない原因としては以下のようなことが考えられます。- グループラインのトークルームが削除された- 通知オフにして放置されている- 相手がメッセージを受信できていない- グループを退会している- 既読をつけずに読む方法の使用",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "グループLINEから個人LINEへ友達追加したのに既読に ...",
+      "url": "https://iphone-appguide.xyz/add-friend-from-line-group-leave-unread",
+      "snippet": "グループLINEから個人LINEへ友達追加したのに既読にならない3つの理由 · 理由①：相手がメッセージ受信拒否をONにしている · 理由②：相手にブロックされている",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "LINEが読んだのに既読つかない？その原因と対処法",
+      "url": "https://jp.imyfone.com/line-tips/solution-when-line-is-not-read/",
+      "snippet": "Part1：LINE既読つかない理由 · 1LINEアプリの不具合 · 2ブロックされた · 3相手が受信拒否を設定した · 4相手が誤操作でトークルームを削除した",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "グループLINEから個人LINEにすると既読つかない？原因と ...",
+      "url": "https://appsiru.xsrv.jp/from-group-line-to-individual-line/",
+      "snippet": "グループLINEから個人LINEにしたのに既読がつかない原因. メッセージ受信拒否設定にしている; 相手が友達追加していない; 相手が自分を友達追加したか",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "LINEで既読がつかない理由とその対策を解説します",
+      "url": "https://kininarutrendnews.hatenablog.com/entry/172",
+      "snippet": "LINEで既読がつかない理由. 既読がつかない主な原因とは; バグや不具合の可能性; 相手がLINEをブロックしている場合 ; 既読がつかない状況の対処法.",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "LINEグループの既読を確認するには？仕組み・原因・代替 ...",
+      "url": "https://ty-jos.com/3435.html",
+      "snippet": "LINEグループでメッセージを送ると「既読◯」とだけ表示され、誰が読んだのかまでは分かりません。",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "グループラインで未読なのに、既読になる",
+      "url": "https://community.worksmobile.com/jp/posts/9457?cno=3&bno=1001",
+      "snippet": "グループラインで数名が参加しているのですが、まだトークを確認していない人が、既読と表示されてしまいます。 これはバグでしょうか？",
+      "source": null,
+      "age": null
+    },
+    {
+      "title": "トークの送信状況／既読／未読を﻿確認するには？",
+      "url": "https://help.line.me/line/smartphone?lang=ja&contentId=20021705",
+      "snippet": "グループトークの場合は、[既読 2]というような数字も表示されますが、これは自分が送ったメッセージを閲覧した人数です。",
+      "source": null,
+      "age": null
+    }
+  ]
+}

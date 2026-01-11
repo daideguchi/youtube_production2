@@ -1,0 +1,61 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:14:58+00:00",
+  "status": "ready",
+  "stage": "script_review",
+  "task": "script_cta",
+  "channel": "CH22",
+  "video": "001",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/001/content/final/cta.txt",
+    "sha1": "558315cfc156fa7d70903b85b988570dc7e38641"
+  },
+  "content": "あのランチ会の誘い漏れは、単なる偶然ではなく、友情が静かに形を変える瞬間だったのかもしれません。距離を置くことは、関係を壊すことではなく、お互いのあり方を尊重する選択でもあります。\n---\n本当のつながりとは、無理に近づくことではなく、適度な距離の中で育まれるものなのでしょうか。静かに考える時間を、そっと手放さないでください。\n\n[[END]]",
+  "sources": [
+    {
+      "path": "inline:TOPIC",
+      "sha1": "9c51d565a21d5177e366eb65c900cf244133dfce"
+    },
+    {
+      "path": "inline:CHANNEL_CONTEXT",
+      "sha1": "4aab052639b8a8d821665bc5ad96bab640fb2ec0"
+    },
+    {
+      "path": "inline:AUDIENCE_PROFILE",
+      "sha1": "468bbd729a740ec3d109a761c5a263f304860453"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    },
+    {
+      "path": "inline:CTA_PURPOSE",
+      "sha1": "01666fe2e14ae4aecb6b95c6e0da7f335aa03b11"
+    },
+    {
+      "path": "inline:TARGET_LENGTH",
+      "sha1": "be057d4ca44c10a0fc1dfcffd99cce1490291dc7"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766895261-hK79bHUzAen5Zr2hTTAz",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 37571,
+    "usage": {
+      "prompt_tokens": 3180,
+      "completion_tokens": 1829,
+      "total_tokens": 5009
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_cta/67/678c410ba2c3ac62227e281d5f26c3d5.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/001/logs/script_review_prompt.txt"
+}

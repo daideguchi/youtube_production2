@@ -1,0 +1,271 @@
+﻿No.,チャンネル,動画番号,動画ID,台本番号,タイトル,進捗,作成フラグ,台本,品質チェック結果,文字数,更新日時,サムネタイトル上,サムネタイトル下,サムネ画像プロンプト（URL・テキスト指示込み）,企画意図,ターゲット層,具体的な内容（話の構成案）,DALL-Eプロンプト（URL・テキスト指示込み）,台本本文（冒頭サンプル）,音声整形,音声検証,音声生成,音声品質,納品,サムネタイトル,AI向け画像生成プロンプト (背景用),テキスト配置・デザイン指示 (人間/ツール向け),サムネ用DALL-Eプロンプト（URL・テキスト指示込み）,内容,動画内挿絵AI向けプロンプト（10個）,内容（企画要約）,台本パス,GPT用プロンプト（日本人シニア女性）,台本本文,GPT用プロンプト（日本人シニア女性）_1,悩みタグ_メイン,悩みタグ_サブ,ライフシーン,キーコンセプト,ベネフィット一言,たとえ話イメージ,説明文_リード,説明文_この動画でわかること
+1,CH21,001,CH21-001,CH21-001,京都・嵐山 早朝散歩｜川の音で寝落ち,topic_research: pending,,workspaces/scripts/CH21/001/content/assembled.md,未完了,,2025-12-23 23:43:33,嵐山 早朝,川の音で寝落ち,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「嵐山 早朝」を入口に、ゆるむ方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 京都・嵐山の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,嵐山 早朝 川の音で寝落ち,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Early morning river in Japan, soft mist, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 京都・嵐山の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,京都・嵐山 早朝散歩｜川の音で寝落ち,workspaces/scripts/CH21/001/content/assembled.md,,,,疲れ,ストレス,京都・嵐山の朝,旅の情景,ゆるむ,川音,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+2,CH21,002,CH21-002,CH21-002,鎌倉の雨｜静かな寺と海,topic_research: pending,,workspaces/scripts/CH21/002/content/assembled.md,未完了,,2025-12-23 23:43:33,鎌倉の雨,静かな寺と海,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「鎌倉の雨」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 雨の鎌倉の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,鎌倉の雨 静かな寺と海,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Rainy street and sea, soft bokeh, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 雨の鎌倉の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,鎌倉の雨｜静かな寺と海,workspaces/scripts/CH21/002/content/assembled.md,,,,疲れ,ストレス,雨の鎌倉,旅の情景,落ち着く,雨音,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+3,CH21,003,CH21-003,CH21-003,函館の夜景｜光を見下ろす夜,topic_research: pending,,workspaces/scripts/CH21/003/content/assembled.md,未完了,,2025-12-23 23:43:33,函館の夜景,光の余韻,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「函館の夜景」を入口に、落ち着く方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 函館の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,,,,,,,函館の夜景 光の余韻,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Night city lights from hill, calm bokeh, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 函館の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,函館の夜景｜光を見下ろす夜,workspaces/scripts/CH21/003/content/assembled.md,,,,疲れ,ストレス,函館の夜,旅の情景,落ち着く,灯り,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+4,CH21,004,CH21-004,CH21-004,白川郷の雪｜あたたかい灯り,topic_research: pending,,workspaces/scripts/CH21/004/content/assembled.md,未完了,,2025-12-23 23:43:33,白川郷の雪,あたたかい灯り,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「白川郷の雪」を入口に、ほっとする方向へ静かに運びます。最後は 毛布を整える を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 雪の集落の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 毛布を整える
+締め: 余韻を残して静かに終える。",,,,,,,,白川郷の雪 あたたかい灯り,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Snow village at night, warm window lights, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 雪の集落の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 毛布を整える
+締め: 余韻を残して静かに終える。",,白川郷の雪｜あたたかい灯り,workspaces/scripts/CH21/004/content/assembled.md,,,,疲れ,冷える,雪の集落,旅の情景,ほっとする,雪灯り,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+5,CH21,005,CH21-005,CH21-005,瀬戸内の夕暮れ｜船と波の音,topic_research: pending,,workspaces/scripts/CH21/005/content/assembled.md,未完了,,2025-12-23 23:43:33,瀬戸内 夕暮れ,船と波の音,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「瀬戸内 夕暮れ」を入口に、ゆるむ方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 瀬戸内の海の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,瀬戸内 夕暮れ 船と波の音,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Calm sea at sunset, small ferry silhouette, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 瀬戸内の海の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,瀬戸内の夕暮れ｜船と波の音,workspaces/scripts/CH21/005/content/assembled.md,,,,疲れ,ストレス,瀬戸内の海,旅の情景,ゆるむ,波,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+6,CH21,006,CH21-006,CH21-006,金沢の朝｜茶屋街の静けさ,topic_research: pending,,workspaces/scripts/CH21/006/content/assembled.md,未完了,,2025-12-23 23:43:33,金沢の朝,茶屋街の静けさ,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「金沢の朝」を入口に、落ち着く方向へ静かに運びます。最後は 深呼吸を3回 を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 金沢の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 深呼吸を3回
+締め: 余韻を残して静かに終える。",,,,,,,,金沢の朝 茶屋街の静けさ,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet old street morning, soft light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 金沢の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 深呼吸を3回
+締め: 余韻を残して静かに終える。",,金沢の朝｜茶屋街の静けさ,workspaces/scripts/CH21/006/content/assembled.md,,,,疲れ,ストレス,金沢の朝,旅の情景,落ち着く,石畳,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+7,CH21,007,CH21-007,CH21-007,高原の牧場｜風の匂い,topic_research: pending,,workspaces/scripts/CH21/007/content/assembled.md,未完了,,2025-12-23 23:43:33,高原の風,牧場の匂い,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「高原の風」を入口に、ゆるむ方向へ静かに運びます。最後は 肩を落として吐く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 高原の午後の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩を落として吐く
+締め: 余韻を残して静かに終える。",,,,,,,,高原の風 牧場の匂い,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Highland pasture, gentle breeze, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 高原の午後の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩を落として吐く
+締め: 余韻を残して静かに終える。",,高原の牧場｜風の匂い,workspaces/scripts/CH21/007/content/assembled.md,,,,疲れ,ストレス,高原の午後,旅の情景,ゆるむ,風,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+8,CH21,008,CH21-008,CH21-008,屋久島の森｜苔と雨の音,topic_research: pending,,workspaces/scripts/CH21/008/content/assembled.md,未完了,,2025-12-23 23:43:33,屋久島の森,雨の音,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「屋久島の森」を入口に、落ち着く方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 森の雨の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,屋久島の森 雨の音,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Rainy ancient forest, moss, soft, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 森の雨の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,屋久島の森｜苔と雨の音,workspaces/scripts/CH21/008/content/assembled.md,,,,疲れ,ストレス,森の雨,旅の情景,落ち着く,苔,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+9,CH21,009,CH21-009,CH21-009,沖縄の星空｜波が近い夜,topic_research: pending,,workspaces/scripts/CH21/009/content/assembled.md,未完了,,2025-12-23 23:43:33,沖縄の星空,波が近い夜,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「沖縄の星空」を入口に、眠りに落ちる方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 海辺の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,沖縄の星空 波が近い夜,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Starry beach night, gentle waves, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 海辺の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,沖縄の星空｜波が近い夜,workspaces/scripts/CH21/009/content/assembled.md,,,,疲れ,ストレス,海辺の夜,旅の情景,眠りに落ちる,星,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+10,CH21,010,CH21-010,CH21-010,小樽の運河｜夜の水面,topic_research: pending,,workspaces/scripts/CH21/010/content/assembled.md,未完了,,2025-12-23 23:43:33,小樽の運河,夜の水面,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「小樽の運河」を入口に、落ち着く方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 運河の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,,,,,,,小樽の運河 夜の水面,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Canal at night, lantern reflections, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 運河の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,小樽の運河｜夜の水面,workspaces/scripts/CH21/010/content/assembled.md,,,,疲れ,ストレス,運河の夜,旅の情景,落ち着く,水面,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+11,CH21,011,CH21-011,CH21-011,伊勢の参道｜木陰の静けさ,topic_research: pending,,workspaces/scripts/CH21/011/content/assembled.md,未完了,,2025-12-23 23:43:33,参道,木陰の静けさ,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「参道」を入口に、落ち着く方向へ静かに運びます。最後は 深呼吸を3回 を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 参道の夕の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 深呼吸を3回
+締め: 余韻を残して静かに終える。",,,,,,,,参道 木陰の静けさ,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Quiet shrine approach (no text), trees, soft dusk, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 参道の夕の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 深呼吸を3回
+締め: 余韻を残して静かに終える。",,伊勢の参道｜木陰の静けさ,workspaces/scripts/CH21/011/content/assembled.md,,,,疲れ,ストレス,参道の夕,旅の情景,落ち着く,木陰,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+12,CH21,012,CH21-012,CH21-012,阿蘇の朝霧｜広い空で眠る,topic_research: pending,,workspaces/scripts/CH21/012/content/assembled.md,未完了,,2025-12-23 23:43:33,朝霧,広い空,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「朝霧」を入口に、ゆるむ方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 阿蘇の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,朝霧 広い空,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Morning fog over wide fields, soft light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 阿蘇の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,阿蘇の朝霧｜広い空で眠る,workspaces/scripts/CH21/012/content/assembled.md,,,,疲れ,ストレス,阿蘇の朝,旅の情景,ゆるむ,霧,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+13,CH21,013,CH21-013,CH21-013,富士五湖｜静かな水と月,topic_research: pending,,workspaces/scripts/CH21/013/content/assembled.md,未完了,,2025-12-23 23:43:33,湖と月,静かな水,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「湖と月」を入口に、落ち着く方向へ静かに運びます。最後は 窓の外を見る を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 湖の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 窓の外を見る
+締め: 余韻を残して静かに終える。",,,,,,,,湖と月 静かな水,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Moon over calm lake, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 湖の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 窓の外を見る
+締め: 余韻を残して静かに終える。",,富士五湖｜静かな水と月,workspaces/scripts/CH21/013/content/assembled.md,,,,疲れ,ストレス,湖の夜,旅の情景,落ち着く,月光,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+14,CH21,014,CH21-014,CH21-014,夜行列車で日本縦断｜音だけの旅,topic_research: pending,,workspaces/scripts/CH21/014/content/assembled.md,未完了,,2025-12-23 23:43:33,夜行列車,音だけの旅,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「夜行列車」を入口に、眠りに落ちる方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 夜行列車の車内の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,夜行列車 音だけの旅,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Train window at night, ticket, soft lights, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 夜行列車の車内の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,夜行列車で日本縦断｜音だけの旅,workspaces/scripts/CH21/014/content/assembled.md,,,,疲れ,ストレス,夜行列車の車内,旅の情景,眠りに落ちる,切符,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+15,CH21,015,CH21-015,CH21-015,鈍行列車の窓辺｜駅ごとの小話,topic_research: pending,,workspaces/scripts/CH21/015/content/assembled.md,未完了,,2025-12-23 23:43:33,鈍行列車,窓辺の余韻,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「鈍行列車」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 列車の窓辺の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,鈍行列車 窓辺の余韻,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Slow train window, countryside dusk, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 列車の窓辺の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,鈍行列車の窓辺｜駅ごとの小話,workspaces/scripts/CH21/015/content/assembled.md,,,,疲れ,ストレス,列車の窓辺,旅の情景,落ち着く,窓灯り,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+16,CH21,016,CH21-016,CH21-016,フェリーの夜｜甲板の風,topic_research: pending,,workspaces/scripts/CH21/016/content/assembled.md,未完了,,2025-12-23 23:43:33,フェリーの夜,甲板の風,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「フェリーの夜」を入口に、ゆるむ方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 船の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,,,,,,,フェリーの夜 甲板の風,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Night ferry deck, gentle wind, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 船の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,フェリーの夜｜甲板の風,workspaces/scripts/CH21/016/content/assembled.md,,,,疲れ,ストレス,船の夜,旅の情景,ゆるむ,波,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+17,CH21,017,CH21-017,CH21-017,スイスアルプス 列車の旅｜白い山々,topic_research: pending,,workspaces/scripts/CH21/017/content/assembled.md,未完了,,2025-12-23 23:43:33,アルプス列車,白い山々,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「アルプス列車」を入口に、落ち着く方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 山の列車の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,アルプス列車 白い山々,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Alpine train, snowy mountains, soft light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 山の列車の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,スイスアルプス 列車の旅｜白い山々,workspaces/scripts/CH21/017/content/assembled.md,,,,疲れ,ストレス,山の列車,旅の情景,落ち着く,雪山,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+18,CH21,018,CH21-018,CH21-018,北欧のフィヨルド｜静かな水の谷,topic_research: pending,,workspaces/scripts/CH21/018/content/assembled.md,未完了,,2025-12-23 23:43:33,フィヨルド,静かな水,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「フィヨルド」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 水の谷の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,フィヨルド 静かな水,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Fjord landscape, calm water, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 水の谷の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,北欧のフィヨルド｜静かな水の谷,workspaces/scripts/CH21/018/content/assembled.md,,,,疲れ,ストレス,水の谷,旅の情景,落ち着く,水面,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+19,CH21,019,CH21-019,CH21-019,フランスの田舎道｜麦畑の風,topic_research: pending,,workspaces/scripts/CH21/019/content/assembled.md,未完了,,2025-12-23 23:43:33,田舎道,麦畑の風,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「田舎道」を入口に、ゆるむ方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 田舎の午後の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,,,,,,,田舎道 麦畑の風,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Countryside road, wheat field, soft breeze, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 田舎の午後の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,フランスの田舎道｜麦畑の風,workspaces/scripts/CH21/019/content/assembled.md,,,,疲れ,ストレス,田舎の午後,旅の情景,ゆるむ,風,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+20,CH21,020,CH21-020,CH21-020,ベネツィアの水路｜ゆっくり進む舟,topic_research: pending,,workspaces/scripts/CH21/020/content/assembled.md,未完了,,2025-12-23 23:43:33,水路,ゆっくり進む,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「水路」を入口に、落ち着く方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 水路の夕の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,水路 ゆっくり進む,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Canal at dusk, slow boat, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 水路の夕の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,ベネツィアの水路｜ゆっくり進む舟,workspaces/scripts/CH21/020/content/assembled.md,,,,疲れ,ストレス,水路の夕,旅の情景,落ち着く,舟,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+21,CH21,021,CH21-021,CH21-021,バリ島の夕暮れ｜南国の波音,topic_research: pending,,workspaces/scripts/CH21/021/content/assembled.md,未完了,,2025-12-23 23:43:33,南国の夕,波音,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「南国の夕」を入口に、ゆるむ方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 浜辺の夕の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,南国の夕 波音,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Tropical beach sunset, gentle waves, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 浜辺の夕の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,バリ島の夕暮れ｜南国の波音,workspaces/scripts/CH21/021/content/assembled.md,,,,疲れ,ストレス,浜辺の夕,旅の情景,ゆるむ,波,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+22,CH21,022,CH21-022,CH21-022,砂漠と星空のキャラバン｜焚火の余韻,topic_research: pending,,workspaces/scripts/CH21/022/content/assembled.md,未完了,,2025-12-23 23:43:33,砂漠と星空,焚火の余韻,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「砂漠と星空」を入口に、落ち着く方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 砂漠の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,砂漠と星空 焚火の余韻,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Desert night, campfire glow, starry sky, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 砂漠の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,砂漠と星空のキャラバン｜焚火の余韻,workspaces/scripts/CH21/022/content/assembled.md,,,,疲れ,ストレス,砂漠の夜,旅の情景,落ち着く,星,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+23,CH21,023,CH21-023,CH21-023,森の小さな山小屋｜雨音と木の匂い,topic_research: pending,,workspaces/scripts/CH21/023/content/assembled.md,未完了,,2025-12-23 23:43:33,山小屋,雨音,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「山小屋」を入口に、ほっとする方向へ静かに運びます。最後は 毛布を整える を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 森の小屋の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 毛布を整える
+締め: 余韻を残して静かに終える。",,,,,,,,山小屋 雨音,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cabin in forest, rainy night, warm window light, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 森の小屋の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 毛布を整える
+締め: 余韻を残して静かに終える。",,森の小さな山小屋｜雨音と木の匂い,workspaces/scripts/CH21/023/content/assembled.md,,,,疲れ,ストレス,森の小屋,旅の情景,ほっとする,木の匂い,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+24,CH21,024,CH21-024,CH21-024,海辺の灯台｜遠い光と静けさ,topic_research: pending,,workspaces/scripts/CH21/024/content/assembled.md,未完了,,2025-12-23 23:43:33,灯台,遠い光,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「灯台」を入口に、落ち着く方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 海辺の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,灯台 遠い光,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Seaside lighthouse night, gentle glow, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 海辺の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,海辺の灯台｜遠い光と静けさ,workspaces/scripts/CH21/024/content/assembled.md,,,,疲れ,ストレス,海辺の夜,旅の情景,落ち着く,灯り,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+25,CH21,025,CH21-025,CH21-025,温泉街の夜｜湯気と提灯,topic_research: pending,,workspaces/scripts/CH21/025/content/assembled.md,未完了,,2025-12-23 23:43:33,温泉街,湯気と提灯,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「温泉街」を入口に、ほっとする方向へ静かに運びます。最後は 肩の力を抜く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 温泉街の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,,,,,,,温泉街 湯気と提灯,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Onsen street at night, lanterns, steam, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 温泉街の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 肩の力を抜く
+締め: 余韻を残して静かに終える。",,温泉街の夜｜湯気と提灯,workspaces/scripts/CH21/025/content/assembled.md,,,,疲れ,冷える,温泉街の夜,旅の情景,ほっとする,湯気,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+26,CH21,026,CH21-026,CH21-026,秋の紅葉トンネル｜落ち葉の音,topic_research: pending,,workspaces/scripts/CH21/026/content/assembled.md,未完了,,2025-12-23 23:43:33,紅葉,落ち葉の音,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「紅葉」を入口に、落ち着く方向へ静かに運びます。最後は 目を閉じて聞き流す を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 紅葉の道の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,,,,,,,紅葉 落ち葉の音,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Autumn tree tunnel, soft leaves, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 紅葉の道の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 目を閉じて聞き流す
+締め: 余韻を残して静かに終える。",,秋の紅葉トンネル｜落ち葉の音,workspaces/scripts/CH21/026/content/assembled.md,,,,疲れ,ストレス,紅葉の道,旅の情景,落ち着く,落ち葉,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+27,CH21,027,CH21-027,CH21-027,春の桜並木｜やさしい朝,topic_research: pending,,workspaces/scripts/CH21/027/content/assembled.md,未完了,,2025-12-23 23:43:33,桜並木,やさしい朝,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「桜並木」を入口に、ゆるむ方向へ静かに運びます。最後は 深呼吸を3回 を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 桜の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 深呼吸を3回
+締め: 余韻を残して静かに終える。",,,,,,,,桜並木 やさしい朝,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cherry blossom path morning, soft petals, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 桜の朝の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 深呼吸を3回
+締め: 余韻を残して静かに終える。",,春の桜並木｜やさしい朝,workspaces/scripts/CH21/027/content/assembled.md,,,,疲れ,ストレス,桜の朝,旅の情景,ゆるむ,花びら,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+28,CH21,028,CH21-028,CH21-028,夏の高原 夜風｜涼しい眠り,topic_research: pending,,workspaces/scripts/CH21/028/content/assembled.md,未完了,,2025-12-23 23:43:33,高原の夜風,涼しい眠り,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「高原の夜風」を入口に、眠りに落ちる方向へ静かに運びます。最後は 吐く息を長く を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 高原の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,,,,,,,高原の夜風 涼しい眠り,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Highland night breeze, starry sky, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 高原の夜の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 吐く息を長く
+締め: 余韻を残して静かに終える。",,夏の高原 夜風｜涼しい眠り,workspaces/scripts/CH21/028/content/assembled.md,,,,疲れ,ストレス,高原の夜,旅の情景,眠りに落ちる,夜風,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+29,CH21,029,CH21-029,CH21-029,雨音のカフェ｜旅の休憩,topic_research: pending,,workspaces/scripts/CH21/029/content/assembled.md,未完了,,2025-12-23 23:43:33,雨音のカフェ,旅の休憩,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「雨音のカフェ」を入口に、ほっとする方向へ静かに運びます。最後は 温かい飲み物を一口 を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: カフェの窓辺の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 温かい飲み物を一口
+締め: 余韻を残して静かに終える。",,,,,,,,雨音のカフェ 旅の休憩,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Cafe window with rain, warm cup, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: カフェの窓辺の旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 温かい飲み物を一口
+締め: 余韻を残して静かに終える。",,雨音のカフェ｜旅の休憩,workspaces/scripts/CH21/029/content/assembled.md,,,,疲れ,ストレス,カフェの窓辺,旅の情景,ほっとする,雨音,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地
+30,CH21,030,CH21-030,CH21-030,夜明けの小さな駅｜一日を閉じる旅,topic_research: pending,,workspaces/scripts/CH21/030/content/assembled.md,未完了,,2025-12-23 23:43:33,夜明けの駅,一日を閉じる,,旅の情景を音だけで案内し、ゆっくり寝落ちへ。 「夜明けの駅」を入口に、安心する方向へ静かに運びます。最後は 布団を整える を一手だけ残して、安心で終えます。,20〜60代中心。旅の情景を想像しながら、音だけでリラックスして眠りたい人。,"導入: 小さな駅の夜明けの旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 布団を整える
+締め: 余韻を残して静かに終える。",,,,,,,,夜明けの駅 一日を閉じる,"16:9, high resolution, calm night travel mood, beautiful landscape, minimal composition, subtle watercolor texture, clean lineart, soft shading, left 35% empty space for text, top 15% and bottom 25% clean background, no text, no logo, no watermark. SCENE: Small station at dawn, soft lights, minimal, empty left space. NEGATIVE: text, logo, watermark, signature, speech bubble, lowres, blur, noise.",左35%を余白（文字エリア）。上15%/下25%は重要物なし。上段: Noto Sans JP Black／下段: BIZ UDPゴシック Bold。白文字＋黒影。,,"導入: 小さな駅の夜明けの旅先へ案内する。
+本編: 五感描写を重ね、盛り上げすぎない。
+間: 場面の区切りで静かな間を入れる。
+今夜の一手: 布団を整える
+締め: 余韻を残して静かに終える。",,夜明けの小さな駅｜一日を閉じる旅,workspaces/scripts/CH21/030/content/assembled.md,,,,疲れ,ストレス,小さな駅の夜明け,旅の情景,安心する,始発の灯り,眠れない夜に、音だけで旅へ。,・静かな旅の気分<br>・眠りの着地

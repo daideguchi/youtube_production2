@@ -111,6 +111,11 @@
   - Reader: `scripts/aggregate_voicevox_reading_logs.py`
   - 種別: **L1**
 
+- `workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json`
+  - Writer: `packages/audio_tts/tts/arbiter.py`（不一致検出時 / 常時ON）
+  - 役割: 誤読混入防止の fail-fast レポート（VOICEVOX実読 vs 期待読みの差分）
+  - 種別: **L3 / デバッグ（修正の入口）**
+
 - `workspaces/logs/annot_raw_fail.json`  
   - Writer: `packages/audio_tts/tts/llm_adapter.py`（annotate_tokens 失敗時の raw 出力保存）
   - 種別: **L3 / デバッグ**
@@ -189,6 +194,8 @@
     - `scripts/ops/idea.py`（`dedup/select/archive` の report を `workspaces/logs/regression/idea_manager/<op>/` に出力）
     - `scripts/ops/production_pack.py`（`production_pack_<label>__<ts>.{json,md}` + `production_pack_<label>__latest.{json,md}` + `production_pack_<label>__diff__*.{json,md}` under `workspaces/logs/regression/production_pack/`）
     - `scripts/ops/preproduction_audit.py`（`preproduction_audit_<label>__<ts>.{json,md}` + `preproduction_audit_<label>__latest.{json,md}` under `workspaces/logs/regression/preproduction_audit/`）
+    - `scripts/ops/script_prompt_integrity_audit.py`（`script_prompt_integrity_<label>__<ts>.{json,md}` + `script_prompt_integrity_<label>__latest.{json,md}` under `workspaces/logs/regression/script_prompt_integrity/`）
+    - `scripts/ops/a_text_quality_scan.py`（`a_text_quality_scan_<label>__<ts>.{json,md}` + `a_text_quality_scan_<label>__latest.{json,md}` under `workspaces/logs/regression/a_text_quality_scan/`）
     - `scripts/ops/cleanup_broken_symlinks.py`（`broken_symlinks_<timestamp>.json` under `workspaces/logs/regression/broken_symlinks/`）
     - `scripts/ops/archive_capcut_local_drafts.py`（`capcut_local_drafts_archive_<timestamp>.json` under `workspaces/logs/regression/capcut_local_drafts_archive/`）
     - `scripts/ops/restore_video_runs.py`（`restore_video_runs_dryrun_<timestamp>.json` / `restore_report_<timestamp>.json`）

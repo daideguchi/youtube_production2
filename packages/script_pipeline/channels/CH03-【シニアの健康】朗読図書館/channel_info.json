@@ -1,6 +1,6 @@
 {
   "channel_id": "CH03",
-  "name": "シニア健康",
+  "name": "【シニアの健康】朗読図書館",
   "persona_path": "workspaces/planning/personas/CH03_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH03-【シニアの健康】朗読図書館/script_prompt.txt",
   "branding": {
@@ -71,7 +71,7 @@
     "VOICEPEAK",
     "女性2"
   ],
-  "youtube_description": "この動画は、「シニア健康」の長時間コンテンツです。\n60歳以上の高齢者向け健康情報\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEPEAK：女性2\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
+  "youtube_description": "この動画は、「【シニアの健康】朗読図書館」の長時間コンテンツです。\n60歳以上の高齢者向け健康情報\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEPEAK：女性2\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#寝落ち\n",
   "benchmarks": {
     "version": 1,
     "updated_at": "2025-12-27",

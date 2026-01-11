@@ -1,0 +1,690 @@
+{
+  "schema": "ytm.thumbnail.styleguide.v1",
+  "generated_at": "2026-01-09T04:43:35.326537+00:00",
+  "source": {
+    "report_json": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/research/YouTubeベンチマーク（yt-dlp）/UCdAT_v1_2aTPergMpWy2V-w/report.json",
+    "yt_dlp_genre_dir": "YouTubeベンチマーク（yt-dlp）",
+    "target": "recent",
+    "limit": 20,
+    "download_thumbs": true
+  },
+  "channel": {
+    "playlist_channel_id": "UCdAT_v1_2aTPergMpWy2V-w",
+    "playlist_channel": "人生の道標 - 癒される仏教",
+    "playlist_uploader_id": "@shaka__namu",
+    "source_url": "https://www.youtube.com/@shaka__namu/videos",
+    "avatar_url": "https://yt3.googleusercontent.com/gq1myfNbV9pA6uGJi5wsw1EjaqTxhEb9t4ty6F1GLvlchxj1prNj-Hxl8lt_EY8c9NS7OUerVQ=s0"
+  },
+  "stats": {
+    "video_features_count": 10,
+    "has_thumbnail_insights": false
+  },
+  "signals": {
+    "layout_hint": "top_band",
+    "union_bbox_median": null,
+    "top_darkness_median": 18.22757339477539,
+    "left_darkness_median": 9.85883903503418
+  },
+  "recommendations": {
+    "safe_left_tsz": null,
+    "top_band": {
+      "y0": 0.0,
+      "y1": 0.3
+    }
+  },
+  "top": {
+    "hook_types": [],
+    "design_elements": [],
+    "tags": [],
+    "palette_quantized": [
+      {
+        "value": "#000000",
+        "score": 13.80883999774166
+      },
+      {
+        "value": "#fff0c0",
+        "score": 1.3309853724611405
+      },
+      {
+        "value": "#101010",
+        "score": 0.807247424551071
+      },
+      {
+        "value": "#f0d070",
+        "score": 0.8044195331312696
+      },
+      {
+        "value": "#ffe0a0",
+        "score": 0.7216373684426083
+      },
+      {
+        "value": "#fff0b0",
+        "score": 0.6565228194477903
+      },
+      {
+        "value": "#201000",
+        "score": 0.6183938268567538
+      },
+      {
+        "value": "#f0d080",
+        "score": 0.5747909880650564
+      },
+      {
+        "value": "#101000",
+        "score": 0.5604443711618993
+      },
+      {
+        "value": "#f0e080",
+        "score": 0.5378670609929904
+      },
+      {
+        "value": "#102010",
+        "score": 0.5319907519017797
+      },
+      {
+        "value": "#f0d050",
+        "score": 0.49711295223865926
+      },
+      {
+        "value": "#808030",
+        "score": 0.4908896569624483
+      },
+      {
+        "value": "#a09020",
+        "score": 0.48017746265121847
+      },
+      {
+        "value": "#90a040",
+        "score": 0.4469469404243972
+      },
+      {
+        "value": "#f0e0a0",
+        "score": 0.44614004734984936
+      },
+      {
+        "value": "#204040",
+        "score": 0.44200852202049845
+      },
+      {
+        "value": "#100000",
+        "score": 0.4405206551793436
+      }
+    ]
+  },
+  "samples": [
+    {
+      "video_id": "7DQlA6dIPiw",
+      "title": "【９割が知らない幸せの正体】何かを得る必要はない。気づくだけで幸せになれる理由 | ブッダの教え",
+      "view_count": 16164,
+      "thumbnail_url": "https://i.ytimg.com/vi/7DQlA6dIPiw/hqdefault.jpg",
+      "phash": "83b333797959490b",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.3073611111111111
+        },
+        {
+          "rgb": [
+            240,
+            208,
+            127
+          ],
+          "hex": "#f0d07f",
+          "ratio": 0.13656828703703705
+        },
+        {
+          "rgb": [
+            254,
+            233,
+            175
+          ],
+          "hex": "#fee9af",
+          "ratio": 0.12425925925925926
+        },
+        {
+          "rgb": [
+            173,
+            146,
+            82
+          ],
+          "hex": "#ad9252",
+          "ratio": 0.0963599537037037
+        },
+        {
+          "rgb": [
+            253,
+            226,
+            160
+          ],
+          "hex": "#fde2a0",
+          "ratio": 0.09234953703703704
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "AfgkTl6twfw",
+      "title": "【忘却は最高の鎮痛剤】終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え",
+      "view_count": 15279,
+      "thumbnail_url": "https://i.ytimg.com/vi/AfgkTl6twfw/hqdefault.jpg",
+      "phash": "50f6743636351507",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.2602951388888889
+        },
+        {
+          "rgb": [
+            246,
+            221,
+            134
+          ],
+          "hex": "#f6dd86",
+          "ratio": 0.12854166666666667
+        },
+        {
+          "rgb": [
+            235,
+            201,
+            86
+          ],
+          "hex": "#ebc956",
+          "ratio": 0.11880208333333334
+        },
+        {
+          "rgb": [
+            127,
+            121,
+            48
+          ],
+          "hex": "#7f7930",
+          "ratio": 0.11731481481481482
+        },
+        {
+          "rgb": [
+            241,
+            225,
+            165
+          ],
+          "hex": "#f1e1a5",
+          "ratio": 0.10662037037037037
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "dqKQXiIznq8",
+      "title": "【運の正体】不運を“運”に変える人の考え方｜ブッダの教え",
+      "view_count": 2934,
+      "thumbnail_url": "https://i.ytimg.com/vi/dqKQXiIznq8/hqdefault.jpg",
+      "phash": "cfcd4c4d4cdc7464",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.34191550925925923
+        },
+        {
+          "rgb": [
+            144,
+            152,
+            72
+          ],
+          "hex": "#909848",
+          "ratio": 0.1288425925925926
+        },
+        {
+          "rgb": [
+            27,
+            68,
+            60
+          ],
+          "hex": "#1b443c",
+          "ratio": 0.12741898148148148
+        },
+        {
+          "rgb": [
+            93,
+            94,
+            43
+          ],
+          "hex": "#5d5e2b",
+          "ratio": 0.09899305555555556
+        },
+        {
+          "rgb": [
+            11,
+            12,
+            9
+          ],
+          "hex": "#0b0c09",
+          "ratio": 0.07126157407407407
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "QQ_M82n69FM",
+      "title": "【無敵になる】江戸時代の有名僧侶が教える無視の極意 | ブッダの教え",
+      "view_count": 1633,
+      "thumbnail_url": "https://i.ytimg.com/vi/QQ_M82n69FM/hqdefault.jpg",
+      "phash": "c16989c94c460621",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.3788425925925926
+        },
+        {
+          "rgb": [
+            252,
+            218,
+            99
+          ],
+          "hex": "#fcda63",
+          "ratio": 0.11315972222222222
+        },
+        {
+          "rgb": [
+            244,
+            171,
+            20
+          ],
+          "hex": "#f4ab14",
+          "ratio": 0.09195601851851852
+        },
+        {
+          "rgb": [
+            248,
+            204,
+            67
+          ],
+          "hex": "#f8cc43",
+          "ratio": 0.09134259259259259
+        },
+        {
+          "rgb": [
+            9,
+            3,
+            3
+          ],
+          "hex": "#090303",
+          "ratio": 0.08406828703703703
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "zRPR6p0IhW0",
+      "title": "【違和感は体の警報】理由はないけど、なんか嫌だ。その違和感は放置すると超危険です。 | ブッダの教え",
+      "view_count": 1371,
+      "thumbnail_url": "https://i.ytimg.com/vi/zRPR6p0IhW0/hqdefault.jpg",
+      "phash": "088c9c6ce6a60f0e",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.32872106481481483
+        },
+        {
+          "rgb": [
+            233,
+            201,
+            111
+          ],
+          "hex": "#e9c96f",
+          "ratio": 0.13342592592592592
+        },
+        {
+          "rgb": [
+            251,
+            227,
+            156
+          ],
+          "hex": "#fbe39c",
+          "ratio": 0.10603009259259259
+        },
+        {
+          "rgb": [
+            254,
+            238,
+            184
+          ],
+          "hex": "#feeeb8",
+          "ratio": 0.09479166666666666
+        },
+        {
+          "rgb": [
+            17,
+            12,
+            7
+          ],
+          "hex": "#110c07",
+          "ratio": 0.08211226851851852
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "0pi7B8GK8H8",
+      "title": "【99%勘違い】それを喋った瞬間、人生が不利になる話｜ブッダの教え",
+      "view_count": 1324,
+      "thumbnail_url": "https://i.ytimg.com/vi/0pi7B8GK8H8/hqdefault.jpg",
+      "phash": "e9e9e9f9f092b637",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.2135300925925926
+        },
+        {
+          "rgb": [
+            25,
+            20,
+            5
+          ],
+          "hex": "#191405",
+          "ratio": 0.1978761574074074
+        },
+        {
+          "rgb": [
+            252,
+            238,
+            195
+          ],
+          "hex": "#fceec3",
+          "ratio": 0.13105324074074073
+        },
+        {
+          "rgb": [
+            156,
+            119,
+            33
+          ],
+          "hex": "#9c7721",
+          "ratio": 0.12404513888888889
+        },
+        {
+          "rgb": [
+            234,
+            193,
+            80
+          ],
+          "hex": "#eac150",
+          "ratio": 0.12291666666666666
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "Hatf30pL4hQ",
+      "title": "【「変な人」と思われることの価値】普通でありたいと願うほど、心が窮屈になりがちなあなたへ | ブッダの教え",
+      "view_count": 1262,
+      "thumbnail_url": "https://i.ytimg.com/vi/Hatf30pL4hQ/hqdefault.jpg",
+      "phash": "e8686979194d4d07",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.35366898148148146
+        },
+        {
+          "rgb": [
+            148,
+            113,
+            73
+          ],
+          "hex": "#947149",
+          "ratio": 0.12756944444444446
+        },
+        {
+          "rgb": [
+            172,
+            170,
+            130
+          ],
+          "hex": "#acaa82",
+          "ratio": 0.1106712962962963
+        },
+        {
+          "rgb": [
+            71,
+            77,
+            68
+          ],
+          "hex": "#474d44",
+          "ratio": 0.10980324074074074
+        },
+        {
+          "rgb": [
+            246,
+            198,
+            95
+          ],
+          "hex": "#f6c65f",
+          "ratio": 0.08602430555555556
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "8I6QI1lw7Po",
+      "title": "【荘子×仏教】心が折れない人の「反応しない技術」 | ブッダの教え",
+      "view_count": 1259,
+      "thumbnail_url": "https://i.ytimg.com/vi/8I6QI1lw7Po/hqdefault.jpg",
+      "phash": "3e3ebefefebebeba",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.29597800925925927
+        },
+        {
+          "rgb": [
+            240,
+            209,
+            115
+          ],
+          "hex": "#f0d173",
+          "ratio": 0.12419560185185186
+        },
+        {
+          "rgb": [
+            3,
+            3,
+            3
+          ],
+          "hex": "#030303",
+          "ratio": 0.11384259259259259
+        },
+        {
+          "rgb": [
+            124,
+            98,
+            38
+          ],
+          "hex": "#7c6226",
+          "ratio": 0.1119212962962963
+        },
+        {
+          "rgb": [
+            59,
+            40,
+            14
+          ],
+          "hex": "#3b280e",
+          "ratio": 0.09837384259259259
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "nlO8ryuVrC8",
+      "title": "【恩を売ると損】「してあげた」と思った瞬間、それは善行ではなく取引になる | ブッダの教え",
+      "view_count": 1074,
+      "thumbnail_url": "https://i.ytimg.com/vi/nlO8ryuVrC8/hqdefault.jpg",
+      "phash": "8ebeb2a2b8f0f0f4",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.23641782407407408
+        },
+        {
+          "rgb": [
+            18,
+            26,
+            17
+          ],
+          "hex": "#121a11",
+          "ratio": 0.1752835648148148
+        },
+        {
+          "rgb": [
+            158,
+            149,
+            38
+          ],
+          "hex": "#9e9526",
+          "ratio": 0.15821180555555556
+        },
+        {
+          "rgb": [
+            115,
+            82,
+            27
+          ],
+          "hex": "#73521b",
+          "ratio": 0.12953125
+        },
+        {
+          "rgb": [
+            227,
+            208,
+            91
+          ],
+          "hex": "#e3d05b",
+          "ratio": 0.09167824074074074
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    },
+    {
+      "video_id": "Tg_iXDcuQv4",
+      "title": "【今すぐ縁を切るべき人】あなたの運気を吸い取る「5つのタイプ」 | ブッダの教え",
+      "view_count": 760,
+      "thumbnail_url": "https://i.ytimg.com/vi/Tg_iXDcuQv4/hqdefault.jpg",
+      "phash": "bcbd79eb83a5abdb",
+      "text_union_bbox": null,
+      "palette_top": [
+        {
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "ratio": 0.4861574074074074
+        },
+        {
+          "rgb": [
+            254,
+            225,
+            139
+          ],
+          "hex": "#fee18b",
+          "ratio": 0.08269675925925926
+        },
+        {
+          "rgb": [
+            136,
+            114,
+            57
+          ],
+          "hex": "#887239",
+          "ratio": 0.07242476851851852
+        },
+        {
+          "rgb": [
+            253,
+            250,
+            233
+          ],
+          "hex": "#fdfae9",
+          "ratio": 0.06468171296296296
+        },
+        {
+          "rgb": [
+            254,
+            241,
+            187
+          ],
+          "hex": "#fef1bb",
+          "ratio": 0.06260416666666667
+        }
+      ],
+      "hook_type": null,
+      "design_elements": null
+    }
+  ],
+  "notes": {
+    "copyright_safety": "この出力は“特徴の抽象化”のための材料。特定サムネの完全再現（配置/色/素材/文字の一致）は避け、テンプレは必ずレンジ（可変）で運用すること。",
+    "deps": "opencv-python-headless が入っていない場合はテキストbbox検出をスキップし、画像ハッシュはdHashにフォールバックします。"
+  }
+}

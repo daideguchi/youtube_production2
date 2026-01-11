@@ -614,6 +614,28 @@ def _extract_json_object_chunk(text: str) -> Optional[str]:
         return None
 
 
+def _extract_json_value_chunk(text: str) -> Optional[str]:
+    """
+    Best-effort extraction of a JSON value substring (dict or list) from a possibly noisy model output.
+
+    This is used for Fireworks JSON-mode streaming where some models emit the final JSON in
+    `reasoning_content` (and may output a bare list instead of an object), leaving `content` empty.
+    """
+    s = _strip_code_fences(text)
+    if not s:
+        return None
+    decoder = json.JSONDecoder()
+    last_chunk: str | None = None
+    for m in re.finditer(r"[\\[{]", s):
+        try:
+            obj, end = decoder.raw_decode(s[m.start() :])
+        except Exception:
+            continue
+        if isinstance(obj, (dict, list)):
+            last_chunk = s[m.start() : m.start() + end].strip()
+    return last_chunk
+
+
 def _is_parseable_json_value(text: str) -> bool:
     """
     Best-effort: return True if the string contains a parseable JSON dict/list.
@@ -2605,6 +2627,7 @@ class LLMRouter:
                         raise last_exc
                     raise RuntimeError("Fireworks streaming request failed")
                 parts: List[str] = []
+                reasoning_parts: List[str] = []
                 finish_reason = None
                 last_id = None
                 last_model = None
@@ -2656,6 +2679,18 @@ class LLMRouter:
                                     tc = getattr(c0, "text", None)
                                     if tc:
                                         final_message_content = tc
+
+                        # Fireworks (DeepSeek V3p2 + reasoning_effort) can stream JSON output via `reasoning_content`
+                        # while leaving `content` empty. We only consider this for JSON-mode tasks to avoid leaking
+                        # chain-of-thought into non-JSON callers.
+                        if fireworks_json_mode:
+                            reasoning_piece = None
+                            if isinstance(delta, dict):
+                                reasoning_piece = delta.get("reasoning_content")
+                            elif delta is not None:
+                                reasoning_piece = getattr(delta, "reasoning_content", None)
+                            if reasoning_piece:
+                                reasoning_parts.append(str(reasoning_piece))
                         if fr:
                             finish_reason = fr
 
@@ -2664,6 +2699,35 @@ class LLMRouter:
                 content_text = "".join(parts)
                 if (not content_text) and final_message_content:
                     content_text = str(final_message_content)
+                if (not content_text) and fireworks_json_mode and reasoning_parts:
+                    reasoning_text = "".join(reasoning_parts)
+                    candidate: Optional[str] = None
+                    try:
+                        obj = json.loads(reasoning_text)
+                        if isinstance(obj, dict):
+                            # Some Fireworks streams emit a wrapper object like:
+                            #   {"query": "...", "thoughts": "...", "key_elements": [...], "response": "..."}
+                            # Prefer extracting a JSON object from `response` if present.
+                            wrapper_keys = {"query", "thoughts", "key_elements", "response"}
+                            if set(obj.keys()).issubset(wrapper_keys) and isinstance(obj.get("response"), str):
+                                resp = str(obj.get("response") or "").strip()
+                                chunk = _extract_json_value_chunk(resp)
+                                if chunk is not None:
+                                    candidate = chunk
+                            else:
+                                candidate = reasoning_text
+                        elif isinstance(obj, list):
+                            candidate = reasoning_text
+                    except Exception:
+                        chunk = _extract_json_value_chunk(reasoning_text)
+                        if chunk is not None:
+                            candidate = chunk
+                    if candidate is not None:
+                        try:
+                            if isinstance(json.loads(_strip_code_fences(candidate)), (dict, list)):
+                                content_text = candidate
+                        except Exception:
+                            pass
                 try:
                     def _usage_get(obj, key: str):
                         if obj is None:

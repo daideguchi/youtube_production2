@@ -36,7 +36,9 @@ def test_reading_dict_roundtrip(tmp_path, monkeypatch):
 def test_is_trivial_diff_filters_minor_variations():
     assert risk_utils.is_trivial_diff("こと", "コト")
     assert risk_utils.is_trivial_diff("コーヒー", "コヒー")
+    assert risk_utils.is_trivial_diff("コーヒー", "コオヒイ")
     assert risk_utils.is_trivial_diff("０．５", "0.5")
+    assert not risk_utils.is_trivial_diff("イイヒト", "イイジン")
     assert not risk_utils.is_trivial_diff("怒り", "オコリ")
 
 

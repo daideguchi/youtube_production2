@@ -1,0 +1,87 @@
+{
+  "script_id": "CH22-022",
+  "channel": "CH22",
+  "status": "script_completed",
+  "metadata": {
+    "assembled_path": "workspaces/scripts/CH22/022/content/assembled.md",
+    "assembled_characters": 548,
+    "sheet_title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+    "expected_title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+    "title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+    "title_sanitized": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+    "alignment": {
+      "schema": "ytm.alignment.v1",
+      "computed_at": "2025-12-27T08:07:47Z",
+      "planning_hash": "590d5433940b9ed1190e516c93e74489e0ed30ed",
+      "script_hash": "4d9c88f254b78bdf54f31eb3cb1f6e49f0b0f44e",
+      "planning": {
+        "title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+        "thumbnail_catch": ""
+      }
+    },
+    "planning": {
+      "thumbnail_upper": "距離が近すぎる",
+      "thumbnail_lower": "最初の友の正体",
+      "concept_intent": "友人・近所のすれ違いを物語で見せて、心がすり減らない距離感へ。 「距離が近すぎる」から始まる物語で、守れるための見方を静かに渡します。最後は 『すぐ約束しない』をルールにする を一手だけ残して、安心で終えます。",
+      "content_notes": "導入: 新しい住宅街の場面で違和感→今夜の物語を予告。\n物語: 出来事→転換→結末（煽らず、静かに）。\nほどき: 見極めるの視点で『なぜ心がすり減るのか』を1つに絞って説明。\n今夜の一手: 『すぐ約束しない』をルールにする\n締め: 余韻を残して、安心で終える。",
+      "content_summary": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
+      "target_audience": "60代以上中心（女性多め）。友人関係・近所付き合いで心がすり減り、孤独を増やさずに距離を整えたい人。",
+      "outline_notes": "導入: 新しい住宅街の場面で違和感→今夜の物語を予告。\n物語: 出来事→転換→結末（煽らず、静かに）。\nほどき: 見極めるの視点で『なぜ心がすり減るのか』を1つに絞って説明。\n今夜の一手: 『すぐ約束しない』をルールにする\n締め: 余韻を残して、安心で終える。",
+      "thumbnail_title": "距離が近すぎる 最初の友の正体",
+      "primary_pain_tag": "不安",
+      "secondary_pain_tag": "警戒",
+      "life_scene": "新しい住宅街",
+      "key_concept": "見極める",
+      "benefit_blurb": "守れる",
+      "analogy_image": "鍵",
+      "description_lead": "※本チャンネルの物語はフィクションです。",
+      "description_takeaways": "・関係を壊さない距離の置き方<br>・今夜できる一手"
+    }
+  },
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_master_plan": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {
+        "reconciled": true
+      }
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "details": {}
+    }
+  },
+  "channel_code": "CH22",
+  "video_number": "022"
+}

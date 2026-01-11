@@ -1,0 +1,87 @@
+{
+  "script_id": "CH22-020",
+  "channel": "CH22",
+  "status": "script_completed",
+  "metadata": {
+    "assembled_path": "workspaces/scripts/CH22/020/content/assembled.md",
+    "assembled_characters": 542,
+    "sheet_title": "優しさが怖い友人｜近づくほど奪われる関係",
+    "expected_title": "優しさが怖い友人｜近づくほど奪われる関係",
+    "title": "優しさが怖い友人｜近づくほど奪われる関係",
+    "title_sanitized": "優しさが怖い友人｜近づくほど奪われる関係",
+    "alignment": {
+      "schema": "ytm.alignment.v1",
+      "computed_at": "2025-12-27T08:07:47Z",
+      "planning_hash": "a50e1a882e2eba2687c7afb3a437a15c391b0c62",
+      "script_hash": "9381ac5879375990b9ddf7ef9a924b6c2b98fcc8",
+      "planning": {
+        "title": "優しさが怖い友人｜近づくほど奪われる関係",
+        "thumbnail_catch": ""
+      }
+    },
+    "planning": {
+      "thumbnail_upper": "優しさが怖い",
+      "thumbnail_lower": "近づくほど奪われる",
+      "concept_intent": "友人・近所のすれ違いを物語で見せて、心がすり減らない距離感へ。 「優しさが怖い」から始まる物語で、守れるための見方を静かに渡します。最後は 連絡頻度を『半分』に減らす を一手だけ残して、安心で終えます。",
+      "content_notes": "導入: 室内の場面で違和感→今夜の物語を予告。\n物語: 出来事→転換→結末（煽らず、静かに）。\nほどき: 境界線の視点で『なぜ心がすり減るのか』を1つに絞って説明。\n今夜の一手: 連絡頻度を『半分』に減らす\n締め: 余韻を残して、安心で終える。",
+      "content_summary": "優しさが怖い友人｜近づくほど奪われる関係",
+      "target_audience": "60代以上中心（女性多め）。友人関係・近所付き合いで心がすり減り、孤独を増やさずに距離を整えたい人。",
+      "outline_notes": "導入: 室内の場面で違和感→今夜の物語を予告。\n物語: 出来事→転換→結末（煽らず、静かに）。\nほどき: 境界線の視点で『なぜ心がすり減るのか』を1つに絞って説明。\n今夜の一手: 連絡頻度を『半分』に減らす\n締め: 余韻を残して、安心で終える。",
+      "thumbnail_title": "優しさが怖い 近づくほど奪われる",
+      "primary_pain_tag": "不安",
+      "secondary_pain_tag": "支配",
+      "life_scene": "室内",
+      "key_concept": "境界線",
+      "benefit_blurb": "守れる",
+      "analogy_image": "強い握手",
+      "description_lead": "※本チャンネルの物語はフィクションです。",
+      "description_takeaways": "・関係を壊さない距離の置き方<br>・今夜できる一手"
+    }
+  },
+  "stages": {
+    "topic_research": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_outline": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_master_plan": {
+      "status": "pending",
+      "details": {}
+    },
+    "chapter_brief": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_draft": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_enhancement": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_review": {
+      "status": "completed",
+      "details": {
+        "reconciled": true
+      }
+    },
+    "quality_check": {
+      "status": "pending",
+      "details": {}
+    },
+    "script_validation": {
+      "status": "pending",
+      "details": {}
+    },
+    "audio_synthesis": {
+      "status": "pending",
+      "details": {}
+    }
+  },
+  "channel_code": "CH22",
+  "video_number": "020"
+}

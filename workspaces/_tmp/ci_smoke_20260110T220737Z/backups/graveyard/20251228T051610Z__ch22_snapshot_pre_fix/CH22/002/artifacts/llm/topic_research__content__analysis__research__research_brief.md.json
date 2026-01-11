@@ -1,0 +1,57 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:16:22+00:00",
+  "status": "ready",
+  "stage": "topic_research",
+  "task": "script_topic_research",
+  "channel": "CH22",
+  "video": "002",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/content/analysis/research/research_brief.md",
+    "sha1": "398d1d869f773348a38bcb12f1374802b8bd1729"
+  },
+  "content": "## 1. 視聴者の「悩み・期待・ツッコミ」仮説\n*   **「私が何か悪いことしたのかな」と自己責任で考えすぎてしまう。** 挨拶が返らない原因を自分に求め、振り返り続けることで余計に消耗している。\n*   **「無視されている」と感じる瞬間の積み重ねが、外出や共用部分の利用を憂鬱にしている。** 物理的な距離が近いからこそ、毎回のすれ違いが心理的負担に。\n*   **「このまま無視し続けるのも気まずいが、わざわざ話しかけるのも気が重い」という板挟み。** 関係を壊したくないが、現状維持も苦痛というジレンマ。\n*   **「相手は単純に人見知りや無愛想なだけかも」とは思いつつ、やはりモヤモラする。** 理屈では理解できても、感情が追いつかない。\n*   **「適度な距離」の具体的なラインが知りたい。** 完全な絶交ではなく、「顔見知り程度の隣人」に戻る、現実的な方法を模索している。\n\n## 2. 押さえるべき主要論点と比較軸\n*   **原因の切り分け：「意図的な無視」か「性格・習慣の違い」か。** 相手が他の人とは普通に接しているか、誰にでも無愛想かを見極めることが第一歩。\n*   **行動選択の軸：「関係修復」か「自己防衛（距離確保）」か。** 本動画の視聴者は後者が主目的。修復の努力をすべきか、それ以上近づかないことを選ぶか。\n*   **距離の置き方のグラデーション：** 完全無視→会釈のみ→最小限の挨拶→世間話…のうち、自分が一番心理的負担の少ない段階を選ぶ。\n\n## 3. 強調したい感情の流れと根拠\n*   **共感（「そうそう、あの感じ」）→ 解放（「自分だけじゃない・悪くない」）→ 選択肢の提示（「こういう手もある」）。**\n*   根拠：検索結果にある「挨拶は一方通行で苦痛なら無理に続ける必要はない」「適切な距離を保つことも大切」という意見は、視聴者の「悪者探しではなく静かに整理したい」という動機に直結する。\n\n## 4. 事実確認が必要な論点・検索ワード候補\n*   **※事実確認が必要：** 「挨拶を返さない人は法律違反や管理規約違反になるのか？」（法的・契約的観点）\n*   検索ワード候補：\n    *   `マンション 挨拶 義務 管理規約`\n    *   `無視 された 精神的苦痛 法的対応`\n    *   `ご近所 トラブル 仲裁 第三者機関`\n\n## 5. 反対意見・懐疑派の視点\n*   **「挨拶は社会の基本礼儀。返さない方が非常識で、むしろ注意すべきだ」** という意見。特に地域コミュニティを重んじる立場からはこの考えも根強い。\n*   **「こちらの態度がよそよそしくなったら、かえって関係が悪化するのでは？」** という懸念。距離を置くことが、新たなトラブルの火種になる可能性を危惧する視点。\n\n## 6. 文字数を増やすための要素（具体例・たとえ話）\n*   **具体例：** 「エレベーターで二人きりになった時」「ゴミ捨て場での鉢合わせ」など、逃げ場のないシチュエーションでの、気まずさを軽減する小さな工夫（例えば、軽く会釈してスマホを見るふりをする等）。\n*   **たとえ話：** 「隣人関係を、同じ温室で育てる必要のない、別々の鉢植えの植物に例える」。水（＝深い関わり）のやりすぎが根腐れの原因になることもある。\n\n## 7. 参考URL\n*   挨拶しない人の心理を理解してご近所トラブルを防ぐ！ (https://tantei-ch.jp/article/85/)\n*   マンションで挨拶しない人への対処法｜心理を理解して適度な ... (https://shintoa-tosou.jp/blog/apartment-no-greetings/)\n*   挨拶しない人の8つの心理。職場や近所で挨拶を返さないで ... (https://smartlog.jp/147123)\n*   隣人の無愛想なあいさつに嫌気がさします (https://baby-calendar.jp/knowledge/qanda/qa12/2426)",
+  "sources": [
+    {
+      "path": "inline:TOPIC",
+      "sha1": "442e6df94dfd5d2195c0f41dd7f61afa4312054d"
+    },
+    {
+      "path": "inline:CHANNEL_CONTEXT",
+      "sha1": "4aab052639b8a8d821665bc5ad96bab640fb2ec0"
+    },
+    {
+      "path": "inline:AUDIENCE_PROFILE",
+      "sha1": "468bbd729a740ec3d109a761c5a263f304860453"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/content/analysis/research/search_results.json",
+      "sha1": "276b693a9c0abd1735a09eb7a5804c12e7f36cab"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766895335-0kcbJ2cH7xqcZDNVKpdN",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 47213,
+    "usage": {
+      "prompt_tokens": 6442,
+      "completion_tokens": 1470,
+      "total_tokens": 7912
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_topic_research/ac/ac4f710f9f8996a169c6bd9e2730025a.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/logs/topic_research_prompt.txt"
+}

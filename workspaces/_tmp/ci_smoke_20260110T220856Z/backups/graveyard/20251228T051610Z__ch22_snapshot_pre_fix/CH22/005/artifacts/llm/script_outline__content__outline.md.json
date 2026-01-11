@@ -1,0 +1,77 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:54:20+00:00",
+  "status": "ready",
+  "stage": "script_outline",
+  "task": "script_outline",
+  "channel": "CH22",
+  "video": "005",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/005/content/outline.md",
+    "sha1": "c987db7b36b0c1c105875682f38f7d48fc2c68d0"
+  },
+  "content": "# 導入\n駐車場で、長年の友人に「今回は難しいの」とだけ伝えました。すると、その日を境に連絡はぱったり。送迎を断ったことで、あっけなく関係が終わってしまったのです。都合のいい人扱いだったのか、ただの勘違いだったのか。後味の悪いすれ違いを、静かに振り返ってみましょう。\n\n---\n\n## 第1章、かつての笑顔と今のため息\n買い物や食事に一緒に行くのが、何よりの楽しみでした。お互いの家を行き来し、お茶をしながら愚痴を言い合う。そんな穏やかな時間が、いつからか少しずつ変わっていきます。こちらの車で送迎することが、いつの間にか暗黙の了解のようになっていったのです。最初はごく自然な親切のつもりが、回数を重ねるうちに、なぜか私だけが動いているような気持ちになり始めました。\n\n---\n\n## 第2章、頼まれるたびに募る小さな違和感\n「車出せるでしょ？」という一言が、次第に前置きなくなる。こちらの予定は聞かれず、行き先も相手の都合で決まることが増えていきました。断りたい気持ちがあっても、「またお願い」と言われれば「いいよ」と答えてしまう。一度引き受けると、次から断りづらくなるのです。感謝の言葉はあっても、何かが返ってくるわけではない。一方通行の親切に、少しずつ心が疲れていきました。\n\n---\n\n## 第3章、押し込めてきた本音と向き合う日々\n「都合のいい時だけ連絡が来る」そんな寂しい気持ちを、ずっと押し殺していました。本当は私も助けてほしい時があったのに、こちからは頼めなかった。この関係は本当に友情なのか、それともただの便利な存在なのか。考えれば考えるほど、自分が小さく見えてくる。相手に悪気はないのだろう、そう思えば思うほど、自分の不満が言い出せなくなるのです。\n\n---\n\n## 第4章、戻れなくなった決定的な一言\nある日、何気ない会話の中で、相手がこう言いました。「あなたが送迎係だから安心してるよ」。その言葉を聞いた瞬間、長年ため込んできた違和感が、一つの確信に変わりました。これはもう、対等な付き合いではない。親切の押し売りでも、わがままを言うつもりもない。ただ、このままでは自分がすり減っていくだけだと、初めてはっきり認識したのです。\n\n---\n\n## 第5章、静かな距離の置き方という選択\n絶縁が目的ではなく、心を守るための距離が必要でした。「今回は難しいの」とだけ伝え、長い説明はしません。罪悪感に押しつぶされそうになりますが、これ以上一方通行に耐える方が、関係を壊すと気づいたのです。新しい距離感は、すべてをゼロにするわけではありません。会えば普通に挨拰はするけれど、深く入り込まない。かつての親密さは戻らなくても、それでいいのだと思えるようになります。\n\n---\n\n# まとめ\n送迎を断ったことで終わった関係は、もともとバランスを失っていたのかもしれません。一方通行の親切は、いつか必ず無理が生じます。大切なのは、関係を壊すことではなく、自分がすり減らない線引きを見つけること。今回難しい、そう一言伝えることで生まれる静かな距離。それもまた、長い付き合いを続けるための、ひとつの知恵なのです。",
+  "sources": [
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/005/content/analysis/research/research_brief.md",
+      "sha1": "11a8c025e44de96f516d256b0d2661fecf44bf8c"
+    },
+    {
+      "path": "inline:TOPIC",
+      "sha1": "b72f675f5c5371a63b334bc1624d8a44b216222e"
+    },
+    {
+      "path": "inline:CHANNEL_CONTEXT",
+      "sha1": "4aab052639b8a8d821665bc5ad96bab640fb2ec0"
+    },
+    {
+      "path": "inline:AUDIENCE_PROFILE",
+      "sha1": "468bbd729a740ec3d109a761c5a263f304860453"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    },
+    {
+      "path": "inline:CHAPTER_COUNT",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:WORD_TARGET_TOTAL",
+      "sha1": "7f50914da1f9c70cf6359be4534e6ab0f7e1cbde"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "c9a6315407833e2b99bba25ff204e5f3fc2284ff"
+    },
+    {
+      "path": "inline:OUTLINE_FORMAT_EXAMPLE",
+      "sha1": "98d96add748a32b9a439264b96ea30a9463d90bd"
+    },
+    {
+      "path": "inline:ALIGNMENT_FEEDBACK",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766897603-Flq4MZpwPZmHQ9UOw829",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 56761,
+    "usage": {
+      "prompt_tokens": 4734,
+      "completion_tokens": 1707,
+      "total_tokens": 6441
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_outline/c4/c4eecd7e54f38b34929022914dcfaa80.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/005/logs/script_outline_prompt.txt"
+}

@@ -1,0 +1,554 @@
+import { useCallback, useEffect, useMemo } from "react";
+import type { SsotCatalogFlowStep } from "../api/types";
+
+export type SsotFlowEdge = { from: string; to: string; label?: string };
+
+type Orientation = "horizontal" | "vertical";
+
+function pad2(n: number | undefined) {
+  if (!n) return "";
+  return String(n).padStart(2, "0");
+}
+
+function nodeBadge(step: SsotCatalogFlowStep): string {
+  if (step.phase && step.order) return `${step.phase}-${pad2(step.order)}`;
+  return step.phase || "";
+}
+
+function nodeTask(step: SsotCatalogFlowStep): string | null {
+  const llm = step.llm as any;
+  const t = llm?.task ? String(llm.task) : "";
+  if (!t) return null;
+  const kind = llm?.kind ? String(llm.kind) : "";
+  if (kind === "image_client") return `IMG ${t}`;
+  return `LLM ${t}`;
+}
+
+function stableNodeSort(a: SsotCatalogFlowStep, b: SsotCatalogFlowStep) {
+  const ao = typeof a.order === "number" ? a.order : 0;
+  const bo = typeof b.order === "number" ? b.order : 0;
+  if (ao !== bo) return ao - bo;
+  return `${a.name || ""}${a.node_id}`.localeCompare(`${b.name || ""}${b.node_id}`);
+}
+
+function shortenLabel(label: string, maxChars: number) {
+  const s = String(label || "").trim();
+  if (!s) return "";
+  if (s.length <= maxChars) return s;
+  return `${s.slice(0, Math.max(0, maxChars - 1))}…`;
+}
+
+type LayoutNode = {
+  id: string;
+  step: SsotCatalogFlowStep;
+  rank: number;
+  row: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+function domIdForNode(nodeId: string): string {
+  const safe = (nodeId || "").replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 160);
+  return `ssot-node-${safe || "unknown"}`;
+}
+
+function computeLayout(
+  steps: SsotCatalogFlowStep[],
+  edges: SsotFlowEdge[],
+  orientation: Orientation,
+): { nodes: LayoutNode[]; paths: Array<{ from: LayoutNode; to: LayoutNode; d: string; label?: string; labelX: number; labelY: number }> } {
+  // Layout tuned for readability-first in small graphs (mainline, per-phase views) while
+  // remaining compact enough for large pipelines.
+  const ultraDense = steps.length >= 40;
+  const dense = steps.length >= 18;
+  const small = steps.length <= 12;
+  const compactSmallHorizontal = orientation === "horizontal" && steps.length >= 7;
+
+  const nodeWidth = ultraDense ? 170 : dense ? 190 : small ? (compactSmallHorizontal ? 150 : 230) : 210;
+  const nodeHeight = ultraDense ? 62 : dense ? 70 : small ? (compactSmallHorizontal ? 114 : 124) : 104;
+
+  const gapMain = ultraDense ? 48 : dense ? 56 : small ? (compactSmallHorizontal ? 26 : 60) : 72;
+  const gapCross = ultraDense ? 44 : dense ? 52 : small ? (compactSmallHorizontal ? 60 : 72) : 80;
+  const margin = ultraDense ? 16 : small ? 20 : 24;
+
+  const idToStep = new Map<string, SsotCatalogFlowStep>();
+  for (const s of steps) idToStep.set(s.node_id, s);
+
+  const nodeIds = steps.map((s) => s.node_id);
+  const inDeg = new Map<string, number>(nodeIds.map((id) => [id, 0]));
+  const outgoing = new Map<string, string[]>(nodeIds.map((id) => [id, []]));
+
+  const usableEdges = edges.filter((e) => idToStep.has(e.from) && idToStep.has(e.to));
+  for (const e of usableEdges) {
+    outgoing.get(e.from)!.push(e.to);
+    inDeg.set(e.to, (inDeg.get(e.to) || 0) + 1);
+  }
+
+  // Topological rank = longest distance from any root (best-effort; cycles fall back to 0).
+  const rank = new Map<string, number>(nodeIds.map((id) => [id, 0]));
+  const q: string[] = nodeIds.filter((id) => (inDeg.get(id) || 0) === 0);
+  const popped: string[] = [];
+  while (q.length > 0) {
+    const id = q.shift()!;
+    popped.push(id);
+    const r = rank.get(id) || 0;
+    for (const to of outgoing.get(id) || []) {
+      rank.set(to, Math.max(rank.get(to) || 0, r + 1));
+      inDeg.set(to, (inDeg.get(to) || 0) - 1);
+      if ((inDeg.get(to) || 0) === 0) q.push(to);
+    }
+  }
+
+  const ranks = new Map<number, SsotCatalogFlowStep[]>();
+  for (const s of steps) {
+    const r = rank.get(s.node_id) || 0;
+    const list = ranks.get(r) || [];
+    list.push(s);
+    ranks.set(r, list);
+  }
+  for (const [r, list] of Array.from(ranks.entries())) {
+    list.sort(stableNodeSort);
+    ranks.set(r, list);
+  }
+
+  const laidOut: LayoutNode[] = [];
+  for (const [r, list] of Array.from(ranks.entries()).sort((a, b) => a[0] - b[0])) {
+    for (let row = 0; row < list.length; row++) {
+      const step = list[row];
+      const primary = orientation === "horizontal" ? r : row;
+      const secondary = orientation === "horizontal" ? row : r;
+      const x = margin + primary * (nodeWidth + gapMain);
+      const y = margin + secondary * (nodeHeight + gapCross);
+      laidOut.push({
+        id: step.node_id,
+        step,
+        rank: r,
+        row,
+        x,
+        y,
+        width: nodeWidth,
+        height: nodeHeight,
+      });
+    }
+  }
+
+  const idToNode = new Map<string, LayoutNode>(laidOut.map((n) => [n.id, n]));
+
+  const paths: Array<{ from: LayoutNode; to: LayoutNode; d: string; label?: string; labelX: number; labelY: number }> = [];
+  for (const e of usableEdges) {
+    const from = idToNode.get(e.from);
+    const to = idToNode.get(e.to);
+    if (!from || !to) continue;
+
+    if (orientation === "horizontal") {
+      const sx = from.x + from.width;
+      const sy = from.y + from.height / 2;
+      const ex = to.x;
+      const ey = to.y + to.height / 2;
+      const dx = Math.max(40, Math.min(140, Math.abs(ex - sx) / 2));
+      const d = `M ${sx} ${sy} C ${sx + dx} ${sy}, ${ex - dx} ${ey}, ${ex} ${ey}`;
+      paths.push({ from, to, d, label: e.label, labelX: (sx + ex) / 2, labelY: (sy + ey) / 2 });
+    } else {
+      const sx = from.x + from.width / 2;
+      const sy = from.y + from.height;
+      const ex = to.x + to.width / 2;
+      const ey = to.y;
+      const dy = Math.max(40, Math.min(140, Math.abs(ey - sy) / 2));
+      const d = `M ${sx} ${sy} C ${sx} ${sy + dy}, ${ex} ${ey - dy}, ${ex} ${ey}`;
+      paths.push({ from, to, d, label: e.label, labelX: (sx + ex) / 2, labelY: (sy + ey) / 2 });
+    }
+  }
+
+  return { nodes: laidOut, paths };
+}
+
+export function SsotFlowGraph({
+  steps,
+  edges,
+  selectedNodeId,
+  onSelect,
+  onOpen,
+  orientation,
+  highlightedNodeIds,
+  onSize,
+  executed,
+  executedEdges,
+}: {
+  steps: SsotCatalogFlowStep[];
+  edges: SsotFlowEdge[];
+  selectedNodeId: string | null;
+  onSelect: (nodeId: string) => void;
+  onOpen?: (nodeId: string) => void;
+  orientation: Orientation;
+  highlightedNodeIds?: string[];
+  onSize?: (size: { width: number; height: number }) => void;
+  executed?: Record<string, { firstIndex: number; count: number }>;
+  executedEdges?: Record<string, { firstIndex: number; count: number }>;
+}) {
+  const isUltraDense = steps.length >= 40;
+  const isDense = steps.length >= 18;
+  const showDescription = !isDense;
+  const showTaskInFooter = !isUltraDense;
+  const descriptionClamp = steps.length <= 12 ? (orientation === "horizontal" && steps.length >= 7 ? 2 : 3) : 2;
+
+  const highlighted = useMemo(() => new Set(highlightedNodeIds || []), [highlightedNodeIds]);
+  const { nodes, paths } = useMemo(() => computeLayout(steps, edges, orientation), [edges, orientation, steps]);
+
+  const width = useMemo(() => {
+    if (nodes.length === 0) return 640;
+    return Math.max(...nodes.map((n) => n.x + n.width)) + 24;
+  }, [nodes]);
+  const height = useMemo(() => {
+    if (nodes.length === 0) return 240;
+    return Math.max(...nodes.map((n) => n.y + n.height)) + 24;
+  }, [nodes]);
+  const renderWidth = useMemo(() => Math.max(width, 640), [width]);
+  const renderHeight = useMemo(() => Math.max(height, 220), [height]);
+
+  useEffect(() => {
+    onSize?.({ width: renderWidth, height: renderHeight });
+  }, [onSize, renderHeight, renderWidth]);
+
+  const selectedPath = useMemo(() => {
+    const selected = (selectedNodeId || "").trim();
+    if (!selected) return { upstream: new Set<string>(), downstream: new Set<string>() };
+
+    const nodeIds = new Set(steps.map((s) => s.node_id));
+    if (!nodeIds.has(selected)) return { upstream: new Set<string>(), downstream: new Set<string>() };
+
+    const fwd = new Map<string, string[]>();
+    const rev = new Map<string, string[]>();
+    for (const id of Array.from(nodeIds)) {
+      fwd.set(id, []);
+      rev.set(id, []);
+    }
+    for (const e of edges) {
+      if (!nodeIds.has(e.from) || !nodeIds.has(e.to)) continue;
+      fwd.get(e.from)!.push(e.to);
+      rev.get(e.to)!.push(e.from);
+    }
+
+    const bfs = (start: string, adj: Map<string, string[]>) => {
+      const seen = new Set<string>();
+      const q: string[] = [start];
+      while (q.length > 0) {
+        const cur = q.shift()!;
+        for (const nxt of adj.get(cur) || []) {
+          if (seen.has(nxt) || nxt === start) continue;
+          seen.add(nxt);
+          q.push(nxt);
+        }
+      }
+      return seen;
+    };
+
+    return { upstream: bfs(selected, rev), downstream: bfs(selected, fwd) };
+  }, [edges, selectedNodeId, steps]);
+
+  const edgeStyle = useCallback(
+    (fromId: string, toId: string) => {
+      const selected = (selectedNodeId || "").trim();
+      const execKey = `${fromId} -> ${toId}`;
+      const exec = executedEdges ? executedEdges[execKey] : undefined;
+      const hasExec = Boolean(exec);
+      if (!selected) {
+        if (hasExec) return { stroke: "rgba(14, 165, 233, 0.9)", strokeWidth: 3, opacity: 1, marker: "exec", title: `executed: run#${(exec?.firstIndex ?? 0) + 1} ×${exec?.count ?? 1}` };
+        return { stroke: "rgba(100, 116, 139, 0.85)", strokeWidth: 2, opacity: 0.9, marker: "normal", title: "" };
+      }
+
+      const upstream = selectedPath.upstream;
+      const downstream = selectedPath.downstream;
+      const isUpEdge = upstream.has(fromId) && (toId === selected || upstream.has(toId));
+      const isDownEdge = (fromId === selected || downstream.has(fromId)) && downstream.has(toId);
+
+      if (isDownEdge) return { stroke: "rgba(67, 160, 71, 0.9)", strokeWidth: 3, opacity: 1, marker: "down", title: "" };
+      if (isUpEdge) return { stroke: "rgba(156, 39, 176, 0.85)", strokeWidth: 3, opacity: 1, marker: "up", title: "" };
+      if (hasExec) return { stroke: "rgba(14, 165, 233, 0.85)", strokeWidth: 3, opacity: 0.85, marker: "exec", title: `executed: run#${(exec?.firstIndex ?? 0) + 1} ×${exec?.count ?? 1}` };
+      return { stroke: "rgba(100, 116, 139, 0.55)", strokeWidth: 2, opacity: 0.55, marker: "normal", title: "" };
+    },
+    [executedEdges, selectedNodeId, selectedPath.downstream, selectedPath.upstream],
+  );
+
+  return (
+    <div style={{ position: "relative", width: renderWidth, height: renderHeight }}>
+      <svg width={renderWidth} height={renderHeight} style={{ position: "absolute", inset: 0 }}>
+        <defs>
+          <marker id="ssotArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(100, 116, 139, 0.9)" />
+          </marker>
+          <marker id="ssotArrowDown" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(67, 160, 71, 0.95)" />
+          </marker>
+          <marker id="ssotArrowUp" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(156, 39, 176, 0.9)" />
+          </marker>
+          <marker id="ssotArrowExec" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <path d="M0,0 L12,6 L0,12 Z" fill="rgba(14, 165, 233, 0.95)" />
+          </marker>
+        </defs>
+        {paths.map((p, idx) => (
+          (() => {
+            const st = edgeStyle(p.from.id, p.to.id);
+            const marker =
+              st.marker === "down"
+                ? "url(#ssotArrowDown)"
+                : st.marker === "up"
+                  ? "url(#ssotArrowUp)"
+                  : st.marker === "exec"
+                    ? "url(#ssotArrowExec)"
+                    : "url(#ssotArrow)";
+            return (
+              <g key={idx}>
+                <path
+                  d={p.d}
+                  fill="none"
+                  stroke={st.stroke}
+                  strokeWidth={st.strokeWidth}
+                  markerEnd={marker}
+                  opacity={st.opacity}
+                >
+                  {st.title ? <title>{st.title}</title> : null}
+                </path>
+                {p.label && steps.length <= 10 ? (
+                  <text
+                    x={p.labelX}
+                    y={p.labelY - 10}
+                    textAnchor="middle"
+                    fontSize={11}
+                    fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace"
+                    fill="#0f172a"
+                    style={{
+                      paintOrder: "stroke",
+                      stroke: "rgba(255,255,255,0.9)",
+                      strokeWidth: 6,
+                      strokeLinejoin: "round",
+                    }}
+                  >
+                    <title>{p.label}</title>
+                    {shortenLabel(p.label, 34)}
+                  </text>
+                ) : null}
+              </g>
+            );
+          })()
+        ))}
+      </svg>
+
+      {nodes.map((n) => {
+        const badge = nodeBadge(n.step);
+        const task = nodeTask(n.step);
+        const subCount = Array.isArray((n.step as any)?.substeps) ? ((n.step as any).substeps as any[]).length : 0;
+        const related = String((n.step as any)?.related_flow || "").trim();
+        const isSelected = selectedNodeId === n.id;
+        const isHighlighted = highlighted.has(n.id);
+        const isUp = selectedPath.upstream.has(n.id);
+        const isDown = selectedPath.downstream.has(n.id);
+        const exec = executed ? executed[n.id] : undefined;
+        const isExec = Boolean(exec);
+        const border = isSelected
+          ? "var(--color-primary)"
+          : isDown
+            ? "rgba(67, 160, 71, 0.85)"
+            : isUp
+              ? "rgba(156, 39, 176, 0.85)"
+              : isExec
+                ? "rgba(14, 165, 233, 0.85)"
+              : "var(--color-border-muted)";
+        const background = isSelected
+          ? "#eff6ff"
+          : isDown
+            ? "#f0fdf4"
+            : isUp
+              ? "#faf5ff"
+              : isExec
+                ? "#ecfeff"
+              : isHighlighted
+                ? "#fffbeb"
+                : "var(--color-surface)";
+        const description = String(n.step.description || "").trim();
+        const dblHint = related
+          ? `\n\nDouble-click: open flow (${related})`
+          : subCount > 0
+            ? "\n\nDouble-click: open substeps"
+            : onOpen
+              ? "\n\nDouble-click: open details"
+              : "";
+        const nameFontSize = isUltraDense ? 12 : isDense ? 13 : 14;
+        const metaFontSize = isUltraDense ? 10 : 11;
+        return (
+          <button
+            key={n.id}
+            id={domIdForNode(n.id)}
+            data-ssot-node-id={n.id}
+            type="button"
+            onClick={() => onSelect(n.id)}
+            onDoubleClick={(e) => {
+              if (!onOpen) return;
+              e.stopPropagation();
+              onOpen(n.id);
+            }}
+            title={`${n.id}${n.step.description ? `\n${n.step.description}` : ""}${dblHint}`}
+            style={{
+              position: "absolute",
+              left: n.x,
+              top: n.y,
+              width: n.width,
+              height: n.height,
+              padding: isDense ? 8 : 10,
+              paddingRight: isExec ? 66 : 10,
+              borderRadius: 14,
+              border: `2px solid ${border}`,
+              background,
+              color: "#0f172a",
+              boxShadow: isSelected ? "0 10px 24px rgba(29, 78, 216, 0.18)" : "none",
+              transform: "none",
+              transition: "none",
+              display: "grid",
+              gridTemplateRows: showDescription ? "auto auto auto" : "auto auto",
+              gap: showDescription ? 6 : 4,
+              textAlign: "left",
+              overflow: "hidden",
+              cursor: "pointer",
+            }}
+          >
+            {isExec ? (
+              <span
+                className="mono"
+                style={{
+                  position: "absolute",
+                  right: 8,
+                  top: 8,
+                  fontSize: 11,
+                  padding: "2px 6px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(14, 165, 233, 0.35)",
+                  background: "rgba(14, 165, 233, 0.10)",
+                  color: "rgba(2, 132, 199, 0.95)",
+                }}
+              >
+                run#{(exec?.firstIndex ?? 0) + 1}×{exec?.count ?? 1}
+              </span>
+            ) : null}
+            <div style={{ display: "flex", gap: 8, alignItems: "baseline", minWidth: 0 }}>
+              {badge ? (
+                <span
+                  className="mono"
+                  style={{
+                    flex: "none",
+                    fontSize: isDense ? 10 : 11,
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(15, 23, 42, 0.14)",
+                    background: "rgba(15, 23, 42, 0.06)",
+                    color: "#0f172a",
+                  }}
+                >
+                  {badge}
+                </span>
+              ) : null}
+              {subCount > 0 && !isUltraDense ? (
+                <span
+                  className="mono"
+                  style={{
+                    flex: "none",
+                    fontSize: isDense ? 10 : 11,
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(29, 78, 216, 0.18)",
+                    background: "rgba(29, 78, 216, 0.08)",
+                    color: "#1e3a8a",
+                  }}
+                  title="substeps（内部処理）あり"
+                >
+                  sub×{subCount}
+                </span>
+              ) : null}
+              {related && !isUltraDense ? (
+                <span
+                  className="mono"
+                  style={{
+                    flex: "none",
+                    fontSize: isDense ? 10 : 11,
+                    fontWeight: 800,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    border: "1px solid rgba(2, 132, 199, 0.24)",
+                    background: "rgba(2, 132, 199, 0.08)",
+                    color: "#0c4a6e",
+                    maxWidth: 180,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                  title={`open flow: ${related}`}
+                >
+                  ↳ {related}
+                </span>
+              ) : null}
+              <div
+                style={{
+                  fontWeight: 900,
+                  fontSize: nameFontSize,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {n.step.name || n.step.node_id}
+              </div>
+            </div>
+            {showDescription ? (
+              <div
+                className="small-text"
+                style={{
+                  color: "#334155",
+                  lineHeight: 1.35,
+                  display: "-webkit-box",
+                  WebkitLineClamp: descriptionClamp,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {description || n.id}
+              </div>
+            ) : null}
+            <div
+              className="small-text"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+                minWidth: 0,
+                color: "#475569",
+                fontSize: metaFontSize,
+              }}
+            >
+              <span className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: "1 1 0" }}>
+                {n.id}
+              </span>
+              {showTaskInFooter && task ? (
+                <span
+                  className="mono"
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    minWidth: 0,
+                    flex: "1 1 0",
+                    textAlign: "right",
+                  }}
+                >
+                  {task}
+                </span>
+              ) : null}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}

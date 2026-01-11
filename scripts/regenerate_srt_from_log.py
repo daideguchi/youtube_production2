@@ -228,7 +228,20 @@ def _assert_srt_clean(srt_text: str) -> None:
                         if last_effective in _PUNCT or last in _CLOSE:
                             if pos0 == "助詞" and surf0 in {"より", "という", "と"}:
                                 allow = True
+                            # Discourse connector: "かといって" can be tokenized as a leading particle "か".
+                            # Allow only when the previous cue ends a sentence (prevents mid-phrase breaks).
+                            elif (
+                                pos0 == "助詞"
+                                and surf0 == "か"
+                                and last_effective in _SENTENCE_END
+                                and (b_compact.startswith("かといって") or b_compact.startswith("かと言って"))
+                            ):
+                                allow = True
                             elif pos0 == "助動詞" and b_compact.startswith("だったら") and last_effective in _SENTENCE_END:
+                                allow = True
+                            elif pos0 == "助動詞" and b_compact.startswith("だとしたら") and last_effective in _SENTENCE_END:
+                                allow = True
+                            elif pos0 == "助動詞" and b_compact.startswith("べき") and last_effective in _SENTENCE_END:
                                 allow = True
                             elif pos0 == "助動詞" and b_compact.startswith("なのに") and last_effective in _SENTENCE_END:
                                 allow = True

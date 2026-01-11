@@ -1,0 +1,83 @@
+schema_version: 1
+
+# LLM execution routing by numeric slot (operator-friendly).
+#
+# Goal:
+# - Avoid ad-hoc env juggling for "where the LLM runs".
+# - Make runtime switching numeric & stable (no model-name rewrites).
+#
+# What this controls:
+# - execution mode: api | think | agent
+# - Codex exec layer (read-only) enable/disable override
+# - API → THINK failover enable/disable override (non-script only; script_* still stops)
+#
+# Usage:
+# - Default (slot 0): no env needed
+# - Force: LLM_EXEC_SLOT=3 ./scripts/with_ytm_env.sh python3 ...
+# - Or:   ./scripts/with_ytm_env.sh --exec-slot 3 python3 ...
+#
+# Notes:
+# - Under `YTM_ROUTING_LOCKDOWN=1` (default), direct env overrides like `LLM_MODE` / `YTM_CODEX_EXEC_*`
+#   / `LLM_API_FAILOVER_TO_THINK` are forbidden and will hard-stop. Use exec-slot instead.
+# - When `YTM_ROUTING_LOCKDOWN=0` or `YTM_EMERGENCY_OVERRIDE=1`, explicit env overrides may take precedence.
+# - Per-machine overrides belong in: configs/llm_exec_slots.local.yaml
+
+default_slot: 0
+
+slots:
+  0:
+    label: api_default
+    description: |
+      Normal run.
+      - mode: API
+      - codex exec: follow configs/codex_exec.yaml (and local override)
+      - API→THINK failover: default ON
+    llm_mode: api
+
+  1:
+    label: api_force_codex_on
+    description: |
+      Force codex exec ON (for eligible tasks) before API.
+      - mode: API
+      - codex exec: forced ON
+      - NOTE: `codex exec`（非対話CLI）は「AIエージェントCodex（pending運用）」とは別物。
+        TTS（`tts_*`）は codex exec に寄せず、`./scripts/think.sh --tts -- ...` で pending を作って解決する。
+    llm_mode: api
+    codex_exec:
+      enabled: true
+
+  2:
+    label: api_force_codex_off
+    description: |
+      Force codex exec OFF.
+      - mode: API
+      - codex exec: forced OFF
+    llm_mode: api
+    codex_exec:
+      enabled: false
+
+  3:
+    label: think_mode
+    description: |
+      THINK MODE (agent queue).
+      - API is not called; pending is created for target tasks
+    llm_mode: think
+
+  4:
+    label: agent_mode
+    description: |
+      AGENT MODE (agent queue; explicit).
+    llm_mode: agent
+
+  5:
+    label: api_failover_off
+    description: |
+      Disable API→THINK failover for non-script tasks.
+      (script_* still stops on API failure.)
+      - mode: API
+      - api→think failover: OFF
+      Note:
+      - Under `YTM_ROUTING_LOCKDOWN=1` (default), non-script failover is forced ON (absolute rule).
+        To truly disable failover, run with `YTM_EMERGENCY_OVERRIDE=1` (debug only).
+    llm_mode: api
+    api_failover_to_think: false

@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH01-200__mark_published_20251228_20251228
+target:
+  channel: CH01
+  video: '200'
+apply:
+  set:
+    進捗: 投稿済み
+notes: 一旦全て投稿完了として扱う（企画棚卸し）

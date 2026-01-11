@@ -1,0 +1,89 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:24:17+00:00",
+  "status": "ready",
+  "stage": "script_draft",
+  "task": "script_chapter_draft",
+  "channel": "CH22",
+  "video": "002",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/content/chapters/chapter_4.md",
+    "sha1": "bbbea6aa106bfac69fc148e9290a3991b14ceb2c"
+  },
+  "content": "会釈だけにするか、最小限の挨拶に戻すか、あなたならどちらを選びますか。\n\nどちらも正解です。むしろ、この二択以外にも、たくさんの中間地点があることに気づくことが、今日の一歩です。完全に無視するのでもなく、以前のように気軽に話しかけるのでもない。その狭間で、私たちは途方に暮れがちです。けれど、心を守る距離の取り方には、実は細やかなグラデーションがあります。\n\n例えば、一番軽やかな段階。それは、会釈だけを通り過ぎることです。\n\n目が合った瞬間、軽くうなずく。あるいはほのかな笑みを浮かべる。それは挨拶というより、一種の合図です。こちらから声は発しない。相手が無言であれば、それ以上は求めない。そのまま自然に視線を外し、自分の道を進む。エレベーターの中で、郵便受けの前で、この一瞬のやりとりだけで済ませる選択です。\n\n心理的な負担は、ぐっと軽くなります。声をかけて無視されるかもしれないというドキドキが、最初からありません。自分からは合図だけを送り、あとは相手に委ねる。返ってこなくても、それはそれでいい。最初はぎこちなく感じるかもしれませんが、これを習慣にすると、不思議と気が楽になります。関係をゼロにするのではなく、ほんの少しだけ、存在を認め合う最小限の線引きです。\n\nもう一段階、関わりを戻すのであれば、最小限の挨拶に戻す方法があります。\n\nおはようございます。こんにちは。この一言だけを、澄んだ声で伝えます。それ以上、天気の話も体調の話も、何も続けない。言い終えたら、もう相手の口元を見つめない。自然に前を向いて、あるいは手元の用事に目を落とす。返事があれば、それでよし。なければ、それもよし。ここでのポイントは、挨拶を「相手の反応を引き出すための投げかけ」ではなく、「自分がすべき礼儀として行う行為」と捉え直すことです。\n\n自分が礼儀を尽くした。その事実だけを大切にします。相手の反応は、その先の別の問題。自分の手の内にあることと、相手の領域にあることを、静かに分けていく感覚です。これなら、毎朝ゴミ捨てで顔を合わせるたびに、心がざわつくことは減っていくでしょう。\n\nそして、もう少し踏み込んだ段階。それは、用事がある時だけ、必要最小限の会話をすることです。\n\n集合住宅の廊下の掃除当番について、町内会からの回覧板を渡す時。ゴミ出しのルールが少し変わったことを伝える時。そうしたごく実務的な、誰がやっても同じ内容の伝達だけに、会話を限定します。用件が済んだら、さっと引く。長話に発展する可能性を、最初から断ち切っておくのです。\n\nここで難しいのは、用件が済んだ後の間です。ついでに天気の話を、と流れていきがちです。それをぐっとこらえて、にっこりと笑って「では、失礼します」と区切る。この一線を引く練習が必要かもしれません。けれど、これを繰り返すうちに、お互いの間に不思議な了解が生まれます。この人とは、必要最低限の用件だけで話す間柄なのだ、と。それは冷たい取引ではなく、お互いが無理をしなくて済む、透明な約束のようなものです。\n\n会釈だけ、最小限の挨拶、用事がある時だけ。どれを選ぶかは、その日の気分や相手の様子によって、変えてもかまいません。今日は気力があるから、一言挨拶をしてみよう。今日は少し疲れているから、会釈だけで通り過ぎよう。そう自分に許してもいいのです。\n\n大切なのは、このグラデーションの中に、自分が一番楽にいられる地点を見つけることです。他人の反応ではなく、自分自身の心が「これなら苦しくない」と感じる行為を、手探りで探していく。それは、相手との関係を調整する作業であると同時に、自分自身の心地よさの感覚を取り戻す作業でもあります。\n\nこうした段階を一つずつ考えていると、ふと気づくことがあります。私たちはつい、白か黒か、ゼロか百かで考えがちだということです。しかし現実の人間関係は、その間の無限の灰色でできています。会釈というほのかな灰色もあれば、用件だけのくすんだ灰色もある。その中から、今の自分に一番似合う色を、そっと選び取ればいいのです。\n\nでは、その選択をした後に訪れるかもしれない罪悪感は、どうすればいいのでしょうか。距離を取ることへの後ろめたさは、自然な感情です。次は、その静かな感情とどう向き合い、手放していくのか。最後の章で、一緒に考えてみましょう。",
+  "sources": [
+    {
+      "path": "inline:CHAPTER_NUMBER",
+      "sha1": "1b6453892473a467d07372d45eb05abc2031647a"
+    },
+    {
+      "path": "inline:CHAPTER_TITLE",
+      "sha1": "df274316be698249bb94ef3ba04197aa3491dc76"
+    },
+    {
+      "path": "inline:WORD_TARGET",
+      "sha1": "d2df16bee9d37212d9dc0a9709c3a8579fedcfff"
+    },
+    {
+      "path": "inline:META_JSON",
+      "sha1": "d5d51ca6c2d1931c8daffdb459ba93f4a28a2a19"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/content/outline.md",
+      "sha1": "995a1bb51e4b1bac88c83b28928f087dff6ac398"
+    },
+    {
+      "path": "inline:CHAPTER_JSON",
+      "sha1": "4cfcc4fb0b65a6e7c157e1977580175c5dce13ab"
+    },
+    {
+      "path": "inline:SCRIPT_PROMPT",
+      "sha1": "11de3eb92ea2c79d46be9d808e6685fd062d4bcb"
+    },
+    {
+      "path": "inline:TOTAL_CHAPTERS",
+      "sha1": "ac3478d69a3c81fa62e60f5c3696165a4e5e6ac4"
+    },
+    {
+      "path": "inline:A_TEXT_PLAN_SUMMARY",
+      "sha1": "a9c0ac44a802f1296bf27024102059b277ddbd36"
+    },
+    {
+      "path": "inline:CORE_EPISODE_GUIDE",
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    },
+    {
+      "path": "inline:A_TEXT_RULES_SUMMARY",
+      "sha1": "1d399a3b955dcfa48908168c0c275a6aa53cd6d1"
+    },
+    {
+      "path": "inline:BRIEF_JSON",
+      "sha1": "d72c16b898e80465ed535061cc68d8d8b957b895"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766895779-txegXxgwpAw7oeQB7048",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 77742,
+    "usage": {
+      "prompt_tokens": 9003,
+      "completion_tokens": 2520,
+      "total_tokens": 11523
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_chapter_draft/2d/2d60d134a77a58be6b0428b8f2085b14.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/002/logs/script_draft_prompt.txt"
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "ytm.llm_text_output.v1",
+  "generated_at": "2025-12-28T04:53:23+00:00",
+  "status": "ready",
+  "stage": "topic_research",
+  "task": "script_topic_research",
+  "channel": "CH22",
+  "video": "005",
+  "output": {
+    "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/005/content/analysis/research/research_brief.md",
+    "sha1": "11a8c025e44de96f516d256b0d2661fecf44bf8c"
+  },
+  "content": "## 1. 視聴者の「悩み・期待・ツッコミ」の仮説\n*   「便利だから」と頼まれるうちに、いつの間にか自分の役割が固定化され、負担になっていた。\n*   一度「いいよ」と言ってしまうと、次から断りづらく、関係がギクシャクすることを恐れている。\n*   「本当は私も送迎してほしいときがあったのに、こちらからは頼めなかった」という一方通行の不満をため込んでいる。\n*   断ったら「ケチ」「冷たい」と思われるのが怖いが、利用されているような後味の悪さも感じている。\n*   「都合のいい時だけ連絡が来る」関係に、寂しさと諦めが混ざった複雑な気持ちを抱えている。\n\n## 2. 主要論点と比較軸\n*   **一方的な「奉仕」と相互的な「親切」の境界線**：頼まれること自体が問題ではなく、感謝や配慮が返ってこない「一方通行」が心をすり減らす。\n*   **小さな不満の積み重ねと決定的な一言**：日々の小さな負担は我慢できても、相手の無神経な一言（例：「送迎係」発言）で関係性の本質が見えてしまう瞬間。\n*   **「NO」と言う技術と「関係の質」の変化**：断ることが関係の終わりではなく、新しい距離感の始まりになりうる。断った後の関係の再定義が課題。\n\n## 3. 強調したい感情の流れと根拠\n*   **共感（「わかるわかる」）** → 検索結果の「酒好きママ友」エピソードのように、多くの人が「当たり前」にされながらも言い出せない経験を持つ。\n*   **気づき（「これは『都合のいい人』扱いかもしれない」）** → 自分の負担感と、相手がその関係にどれだけ投資しているかを客観視するきっかけを提供。\n*   **解放（「断ってもいいんだ」）** → 絶縁ではなく、「静かな距離の置き方」という現実的な選択肢があることを提示し、罪悪感を軽減する。\n\n## 4. 事実確認が必要な論点と検索ワード候補\n*   ※今回の検索結果は具体例が少ない。以下の追加検索でエピソードを補強すべき。\n*   **検索ワード候補**：\n    1.  ママ友 送迎 断り方 距離\n    2.  義理の送迎 負担 人間関係\n    3.  一方通行 友人関係 疲れた 60代\n    4.  頼まれると断れない 心理 対処法\n    5.  近所付き合い 車 お願い トラブル\n\n## 5. 反対意見や懐疑派の視点\n*   **「送迎くらいで…」論**：コミュニティの助け合いの一環であり、多少の不便は受け入れるべきだという意見。特に地方や車必須の環境では強い。\n*   **「あなたも得をしていたのでは？」論**：送迎する代わりにランチや情報をもらっている等、見えないメリットがあった可能性を指摘する視点。\n*   **「すぐ『利用』と決めつけるのは短絡的」論**：相手は単に鈍感だっただけで、悪意はなかったかもしれない。コミュニケーション不足が問題だった可能性。\n\n## 6. 文字数を増やすための要素\n*   **具体例の拡張**：「酒好きママ友」の記事内容を詳細に描写（車出しが暗黙の了解化していく過程、衝撃発言の内容とその後の心境）。\n*   **別のケーススタディ**：検索結果の「結婚式の送迎係」エピソードを、親族・友人関係バージョンにアレンジして引用。\n*   **「静かな距離の置き方」の具体策**：例えば、「徐々に回数を減らす」「代替案を提案する（タクシー代を出そうか？）」「次からは難しい理由を伝える」などの実践例を複数提示。\n\n## 7. 参考URL\n*   「私は送迎係…？」酒好きママ友との外出で車を出すのが当たり前に…→ある日、聞き捨てならない衝撃発言を！？ (https://baby-calendar.jp/smilenews/detail/80092)\n*   仲の良い(と個人的には思ってた)ママさんとの関係に少し悩んでます。 (https://h-navi.jp/qa/questions/186089)\n*   結婚式会場まで距離500キロ！ 親戚一同の送迎係を頼まれた ... (https://news.careerconnection.jp/lifestyle/145539/)",
+  "sources": [
+    {
+      "path": "inline:TOPIC",
+      "sha1": "b72f675f5c5371a63b334bc1624d8a44b216222e"
+    },
+    {
+      "path": "inline:CHANNEL_CONTEXT",
+      "sha1": "4aab052639b8a8d821665bc5ad96bab640fb2ec0"
+    },
+    {
+      "path": "inline:AUDIENCE_PROFILE",
+      "sha1": "468bbd729a740ec3d109a761c5a263f304860453"
+    },
+    {
+      "path": "inline:CHANNEL_STYLE_GUIDE",
+      "sha1": "e100634c6c7fd7c9d001f5d5f565fb79b8c7174a"
+    },
+    {
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/005/content/analysis/research/search_results.json",
+      "sha1": "ef8e3204bc83ffba0e76b229582a98b270120f3e"
+    }
+  ],
+  "llm_meta": {
+    "provider": "openrouter",
+    "model": "or_deepseek_v3_2_exp",
+    "request_id": "gen-1766897538-vu4ds2p6OIJQwTkB8fLz",
+    "chain": [
+      "or_deepseek_v3_2_exp"
+    ],
+    "latency_ms": 64665,
+    "usage": {
+      "prompt_tokens": 4735,
+      "completion_tokens": 2113,
+      "total_tokens": 6848
+    },
+    "finish_reason": "stop",
+    "routing": null,
+    "cache": {
+      "write": true,
+      "path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/logs/llm_api_cache/script_topic_research/61/617bfb613dde00eeeba8c9f247e8467f.json"
+    }
+  },
+  "notes": "prompt_log=/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH22/005/logs/topic_research_prompt.txt"
+}

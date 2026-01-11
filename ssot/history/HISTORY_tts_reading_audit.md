@@ -26,3 +26,36 @@
 - 結果: OK / 修正あり（再合成済み）
 - メモ:
 
+---
+
+### 2026-01-09 CH04-023
+- 実行: `SKIP_TTS_READING=1`（fail-fast mismatch check / 再合成: yes）
+- 確認範囲: 全segments（VOICEVOXの実読カナ vs MeCab+辞書の正解読み） mismatch=0
+- 修正:
+  - 辞書: `packages/audio_tts/data/reading_dict/CH04.yaml`（例: いい人/脱ぎ捨て/OK/NG/Aが など）
+- 結果: OK（再合成済み）
+- メモ: mismatchが出た場合は `workspaces/scripts/CH04/023/audio_prep/reading_mismatches__skip_llm.json` を出して停止（誤読混入を防止）
+
+### 2026-01-09 CH04-027
+- 実行: `SKIP_TTS_READING=1`（fail-fast mismatch check / 再合成: yes）
+- 確認範囲: 全segments（VOICEVOXの実読カナ vs MeCab+辞書の正解読み） mismatch=0
+- 修正:
+  - 辞書: `packages/audio_tts/data/reading_dict/CH04.yaml`（例: 方が/中に/爽快感 など）
+- 結果: OK（再合成済み）
+- メモ: mismatchが出た場合は `workspaces/scripts/CH04/027/audio_prep/reading_mismatches__skip_llm.json` を出して停止
+
+### 2026-01-09 CH04-028
+- 実行: `SKIP_TTS_READING=1`（fail-fast mismatch check / 再合成: yes）
+- 確認範囲: 全segments（VOICEVOXの実読カナ vs MeCab+辞書の正解読み） mismatch=0
+- 修正:
+  - 辞書: `packages/audio_tts/data/reading_dict/CH04.yaml`（例: デヴィッド/一・五倍/留まらない/悪影響 など）
+- 結果: OK（再合成済み）
+- メモ: mismatchが出た場合は `workspaces/scripts/CH04/028/audio_prep/reading_mismatches__skip_llm.json` を出して停止
+
+### 2026-01-09 CH04-029
+- 実行: `SKIP_TTS_READING=1`（fail-fast mismatch check / 再合成: yes）
+- 確認範囲: 全segments（VOICEVOXの実読カナ vs MeCab+辞書の正解読み） mismatch=0
+- 修正:
+  - 辞書: `packages/audio_tts/data/reading_dict/CH04.yaml`（例: 行っている/十分間/過去世/抱いた など）
+- 結果: OK（再合成済み）
+- メモ: mismatchが出た場合は `workspaces/scripts/CH04/029/audio_prep/reading_mismatches__skip_llm.json` を出して停止

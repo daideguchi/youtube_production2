@@ -1,6 +1,6 @@
 {
   "channel_id": "CH10",
-  "name": "人生を変える偉人思考【今日から実装】",
+  "name": "人生を変える偉人思考",
   "persona_path": "workspaces/planning/personas/CH10_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH10-人生を変える偉人思考【今日から実装】/script_prompt.txt",
   "branding": {
@@ -112,7 +112,7 @@
     "VOICEVOX",
     "青山流星"
   ],
-  "youtube_description": "この動画は、「人生を変える偉人思考【今日から実装】」の長時間コンテンツです。\n偉人の思考を今日から実装できる形で届ける長尺チャンネル\n作業・勉強中の“聞き流し”としてもお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#偉人\n",
+  "youtube_description": "この動画は、「人生を変える偉人思考」の長時間コンテンツです。\n偉人の思考を今日から実装できる形で届ける長尺チャンネル\n作業・勉強中の“聞き流し”としてもお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#偉人\n",
   "production_sources": {
     "voice_config_path": "packages/script_pipeline/audio/channels/CH10/voice_config.json",
     "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",

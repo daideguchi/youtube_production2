@@ -1,0 +1,201 @@
+.header__right {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.controls {
+  grid-template-columns: minmax(260px, 420px) 1fr 120px;
+}
+
+@media (max-width: 860px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+.alert {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.08);
+  border-radius: 14px;
+  color: rgba(233, 238, 255, 0.92);
+  white-space: pre-wrap;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+.table th,
+.table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.table th {
+  text-align: left;
+  font-size: 12px;
+  color: rgba(233, 238, 255, 0.86);
+  position: sticky;
+  top: 0;
+  background: rgba(15, 23, 48, 0.92);
+}
+
+.table tbody tr:hover {
+  background: rgba(110, 168, 255, 0.08);
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.link {
+  color: rgba(233, 238, 255, 0.9);
+  text-decoration: underline;
+  text-decoration-color: rgba(110, 168, 255, 0.55);
+}
+
+.link:hover {
+  color: var(--text);
+  text-decoration-color: rgba(110, 168, 255, 0.85);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(233, 238, 255, 0.04);
+  font-size: 11px;
+  color: rgba(233, 238, 255, 0.88);
+  white-space: nowrap;
+}
+
+.badge--ok {
+  border-color: rgba(110, 255, 181, 0.35);
+  background: rgba(110, 255, 181, 0.12);
+}
+
+.badge--warn {
+  border-color: rgba(255, 205, 110, 0.38);
+  background: rgba(255, 205, 110, 0.12);
+}
+
+.badge--bad {
+  border-color: rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.12);
+}
+
+.badge--run {
+  border-color: rgba(110, 168, 255, 0.55);
+  background: rgba(110, 168, 255, 0.12);
+}
+
+.badge--off {
+  opacity: 0.66;
+}
+
+.cell-title {
+  max-width: 420px;
+}
+
+.cell-title__title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-title__sub {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.links .btn {
+  padding: 6px 10px;
+}
+
+.meta__subtitle {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.summary__kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.progressbar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 48, 0.55);
+  display: flex;
+}
+
+.progressbar__seg {
+  height: 100%;
+  min-width: 2px;
+}
+
+.progressbar__seg--ok {
+  background: rgba(110, 255, 181, 0.55);
+}
+
+.progressbar__seg--run {
+  background: rgba(110, 168, 255, 0.55);
+}
+
+.progressbar__seg--warn {
+  background: rgba(255, 205, 110, 0.6);
+}
+
+.progressbar__seg--bad {
+  background: rgba(255, 107, 107, 0.6);
+}
+
+.progressbar__seg--off {
+  background: rgba(233, 238, 255, 0.18);
+}
+
+.badge--progress {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

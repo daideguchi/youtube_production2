@@ -427,6 +427,12 @@ def main() -> None:
     ap.add_argument("--run", required=True, help="run_dir containing timeline_manifest.json and capcut_draft symlink")
     ap.add_argument("--draft", default="", help="Optional explicit draft dir (overrides run_dir/capcut_draft)")
     ap.add_argument("--opening-offset", type=float, default=None, help="Opening offset seconds (default: try run_dir/channel_preset.json else 0)")
+    ap.add_argument(
+        "--tolerance-sec",
+        type=float,
+        default=1.0,
+        help="Allowed wav/srt end mismatch tolerance for timeline_manifest validation (default: 1.0s)",
+    )
     ap.add_argument("--no-style", action="store_true", help="Skip subtitle style normalization (debug)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
@@ -436,7 +442,7 @@ def main() -> None:
     if not mf_path.exists():
         raise SystemExit(f"timeline manifest missing: {mf_path}")
     manifest = _read_json(mf_path)
-    validate_timeline_manifest(manifest, run_dir=run_dir, tolerance_sec=1.0)
+    validate_timeline_manifest(manifest, run_dir=run_dir, tolerance_sec=float(args.tolerance_sec))
     wav_path, srt_path = _resolve_manifest_paths(manifest)
 
     if args.draft:
@@ -469,6 +475,7 @@ def main() -> None:
         print("[DRY] wav:", wav_path)
         print("[DRY] srt:", srt_path)
         print("[DRY] opening_offset:", opening_offset)
+        print("[DRY] tolerance_sec:", float(args.tolerance_sec))
         return
 
     _ensure_unique_track_names(draft_dir, channel=str(manifest.get("episode", {}).get("channel") or ""))

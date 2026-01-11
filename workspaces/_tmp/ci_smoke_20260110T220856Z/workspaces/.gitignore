@@ -1,0 +1,28 @@
+# Generated artifacts under workspaces/ (do not commit)
+audio/**
+logs/**
+scripts/**
+video/input/**
+video/runs/**
+video/remotion_exports/**
+video/_archive/**
+video/_capcut_drafts/**
+video/_state/**
+episodes/*
+
+# Keep docs (tracked)
+!README.md
+!audio/README.md
+!logs/README.md
+!scripts/README.md
+!video/README.md
+!video/input/.gitkeep
+!video/runs/.gitkeep
+!episodes/README.md
+
+# Allow publishing A-text SoT only (confirmed narration script)
+!scripts/CH*/
+!scripts/CH*/[0-9]*/
+!scripts/CH*/[0-9]*/content/
+!scripts/CH*/[0-9]*/content/assembled.md
+!scripts/CH*/[0-9]*/content/assembled_human.md

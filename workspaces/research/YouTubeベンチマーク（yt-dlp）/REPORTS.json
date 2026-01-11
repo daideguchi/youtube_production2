@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-01-08T10:30:17.625741+00:00",
+  "generated_at": "2026-01-09T04:41:54.917577+00:00",
   "entries": [
     {
       "playlist_channel_id": "UC06rREl2zUsv6_qbtqYAHmw",
@@ -140,6 +140,34 @@
         "duration_median_sec": 2195.0,
         "title_starts_with_bracket_ratio": 0.4583333333333333,
         "top_bracket_prefix": "空海の教え"
+      }
+    },
+    {
+      "playlist_channel_id": "UCdAT_v1_2aTPergMpWy2V-w",
+      "playlist_uploader_id": "@shaka__namu",
+      "playlist_channel": "人生の道標 - 癒される仏教",
+      "channel_avatar_url": "https://yt3.googleusercontent.com/gq1myfNbV9pA6uGJi5wsw1EjaqTxhEb9t4ty6F1GLvlchxj1prNj-Hxl8lt_EY8c9NS7OUerVQ=s0",
+      "source_url": "https://www.youtube.com/@shaka__namu/videos",
+      "fetched_at": "2026-01-09T04:41:47.909798+00:00",
+      "playlist_end": 80,
+      "video_count": 80,
+      "report_md_path": "YouTubeベンチマーク（yt-dlp）/UCdAT_v1_2aTPergMpWy2V-w/report.md",
+      "report_json_path": "YouTubeベンチマーク（yt-dlp）/UCdAT_v1_2aTPergMpWy2V-w/report.json",
+      "top_video": {
+        "id": "-dGBn_uFOn0",
+        "title": "【９割が知らない鈍感力】心が楽になるブッダの「受け流す」技術。自分の心を守るための優しさと賢さが身につきます。",
+        "url": "https://www.youtube.com/watch?v=-dGBn_uFOn0",
+        "duration_sec": 628.0,
+        "view_count": 268780,
+        "thumbnail_url": "https://i.ytimg.com/vi/-dGBn_uFOn0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAEcd5IhOH-hKPfJT30Y_6MkpsjAw",
+        "playlist_index": 28
+      },
+      "stats": {
+        "view_count_median": 2115.5,
+        "view_count_p75": 3196.75,
+        "duration_median_sec": 782.0,
+        "title_starts_with_bracket_ratio": 0.875,
+        "top_bracket_prefix": "危険"
       }
     },
     {

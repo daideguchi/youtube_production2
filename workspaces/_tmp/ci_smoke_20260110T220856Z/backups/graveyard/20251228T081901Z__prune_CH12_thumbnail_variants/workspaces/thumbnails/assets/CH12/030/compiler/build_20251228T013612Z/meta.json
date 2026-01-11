@@ -1,0 +1,20 @@
+{
+  "schema": "ytm.thumbnail.compiler.build.v1",
+  "built_at": "2025-12-28T01:36:23.722981+00:00",
+  "channel": "CH12",
+  "video": "030",
+  "stylepack_id": "ch12_buddha_left_3line_v1",
+  "stylepack_path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/thumbnails/compiler/stylepacks/CH12_buddha_left_3line_v1.yaml",
+  "base_image": "/Users/dd/10_YouTube_Automation/factory_commentary/asset/thumbnails/CH12/ch12_buddha_bg_setC2_1536x1024.png",
+  "flip_base": true,
+  "impact": true,
+  "belt_enabled": null,
+  "text": {
+    "upper": "放置は危険だ",
+    "title": "夜の癖",
+    "lower": "一気に軽くなる"
+  },
+  "output": {
+    "image": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/thumbnails/assets/CH12/030/compiler/build_20251228T013612Z/out_01.png"
+  }
+}

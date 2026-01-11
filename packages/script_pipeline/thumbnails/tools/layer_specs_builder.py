@@ -419,7 +419,79 @@ def _sanitize_prompt_for_generation(*, channel: str, prompt: str) -> str:
             + "ABSOLUTE RESTRICTIONS: NO people, NO face, NO portrait, NO silhouette, NO human figure, NO animals."
         ).strip()
         return out
+    if ch == "CH01":
+        out = p
+        out = out.replace("Buddhist monk", "Buddha figure")
+        out = out.replace("buddhist monk", "Buddha figure")
+        out = out.replace("monk", "Buddha")
+        out = out.replace("僧侶", "ブッダ")
+        out = out.replace("shaved head", "curled hair and ushnisha")
+        if "ushnisha" not in out.lower():
+            out = (out + "\n\nEnsure Buddha iconography: ushnisha, urna, elongated earlobes.").strip()
+        return out.strip()
     return p
+
+
+def _fallback_image_prompt_for_style(channel: str, *, text_template_id: Optional[str]) -> str:
+    """
+    Provide a safe default prompt when neither layer_specs nor Planning CSV provides one.
+
+    This is mainly to prevent "missing image prompt" hard errors when mass-producing with a fixed style.
+    """
+    ch = _normalize_channel(channel)
+    tpl = str(text_template_id or "").strip()
+    if ch == "CH04":
+        return (
+            "YouTube thumbnail background image, 16:9 (1920x1080).\n\n"
+            "STYLE (HIDDEN LIBRARY):\n"
+            "Moonlit hidden library interior, teal and gold color palette, cinematic lighting,\n"
+            "soft fog, floating dust particles, shallow depth of field, premium digital painting.\n\n"
+            "COMPOSITION:\n"
+            "Keep the UPPER 30–40% dark and low-detail for overlaid typography.\n"
+            "Place the main objects in the lower-right area; leave generous negative space.\n\n"
+            "SUBJECT:\n"
+            "Antique wooden desk, warm desk lamp glow, open old book, subtle mystical light particles\n"
+            "(abstract shapes only; NOT letters/characters).\n\n"
+            "ABSOLUTE RESTRICTIONS:\n"
+            "NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.\n"
+        )
+    if ch != "CH01" or not tpl:
+        return ""
+
+    if tpl == "CH01_recent_post_bottom_band_3line_v1":
+        return (
+            "YouTube thumbnail background image, 16:9 (1920x1080).\n\n"
+            "STYLE (RECENT POSTS):\n"
+            "Japanese ink wash + watercolor illustration on warm parchment paper.\n"
+            "Sepia / ochre paper texture, subtle grain, calm and minimal (NOT photoreal, NOT anime).\n\n"
+            "COMPOSITION:\n"
+            "Place the Buddha figure on the RIGHT side (right 35–45%), facing left.\n"
+            "Keep the bottom 55–60% visually simple and low-detail (text will be overlaid).\n\n"
+            "SUBJECT:\n"
+            "Serene Buddha figure (ushnisha, urna, elongated earlobes), saffron robe, thin halo ring.\n\n"
+            "ABSOLUTE RESTRICTIONS:\n"
+            "NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.\n"
+        )
+
+    if tpl == "CH01_canva_gold_right_stack_3line_v1":
+        return (
+            "YouTube thumbnail background image, 16:9 (1920x1080).\n\n"
+            "STYLE (GOLD / CANVA-LIKE):\n"
+            "Strong painterly illustration (NOT photoreal), gritty premium texture.\n"
+            "Warm gold / bronze patina wall texture, cinematic contrast, light film grain.\n\n"
+            "COMPOSITION (LOCKED):\n"
+            "Place the Buddha figure on the FAR LEFT, pushing to the edge (left 40–45%).\n"
+            "The right 55–60% must remain open for typography: darker, smoother, low-detail, no bright spots.\n\n"
+            "SUBJECT (LOCKED):\n"
+            "Serene Buddha figure (ushnisha, urna, elongated earlobes), calm expression, finger-to-lips gesture (optional).\n"
+            "Saffron/orange robe texture (illustration), warm rim light.\n\n"
+            "LIGHTING (LOCKED):\n"
+            "Warm golden rim light from left, smooth falloff to the right.\n\n"
+            "ABSOLUTE RESTRICTIONS:\n"
+            "NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature.\n"
+        )
+
+    return ""
 
 
 def _negative_prompt_for_generation(*, channel: str) -> Optional[str]:
@@ -958,6 +1030,12 @@ def build_channel_thumbnails(
     regen_bg: bool = False,
     build_id: Optional[str] = None,
     output_mode: PngOutputMode = "final",
+    text_layout_id_override: Optional[str] = None,
+    image_prompts_id_override: Optional[str] = None,
+    text_template_id_override: Optional[str] = None,
+    effects_override_base: Optional[Dict[str, Any]] = None,
+    overlays_override_base: Optional[Dict[str, Any]] = None,
+    text_override_base: Optional[Dict[str, str]] = None,
 ) -> None:
     if bool(regen_bg) and bool(skip_generate):
         raise ValueError("regen_bg cannot be used with skip_generate")
@@ -976,6 +1054,10 @@ def build_channel_thumbnails(
         resolved_variant_label = "thumb_00" if stable_thumb_name == "00_thumb.png" else Path(stable_thumb_name).stem
     compiler_defaults = _load_compiler_defaults_from_templates(ch)
     img_id, txt_id = resolve_channel_layer_spec_ids(ch)
+    if isinstance(text_layout_id_override, str) and text_layout_id_override.strip():
+        txt_id = text_layout_id_override.strip()
+    if isinstance(image_prompts_id_override, str) and image_prompts_id_override.strip():
+        img_id = image_prompts_id_override.strip()
     if not txt_id:
         txt_id = "text_layout_v3"
     text_spec = load_layer_spec_yaml(txt_id)
@@ -1028,7 +1110,8 @@ def build_channel_thumbnails(
         video_dir = assets_root / target.video
         video_dir.mkdir(parents=True, exist_ok=True)
 
-        out_bg = video_dir / "10_bg.png"
+        bg_name = "10_bg.png" if stable_id is None else f"10_bg.{stable_id}.png"
+        out_bg = video_dir / bg_name
         stable_thumb = video_dir / stable_thumb_name
         flat_out: Optional[Path] = None
         if export_flat:
@@ -1075,6 +1158,8 @@ def build_channel_thumbnails(
         video_text_offset_y = float(overrides_leaf.get("overrides.text_offset_y", 0.0))
 
         template_id_override = str(overrides_leaf.get("overrides.text_template_id") or "").strip() or None
+        if not template_id_override:
+            template_id_override = str(text_template_id_override or "").strip() or None
 
         effects_override: Optional[Dict[str, Any]] = None
         overlays_override: Optional[Dict[str, Any]] = None
@@ -1129,11 +1214,39 @@ def build_channel_thumbnails(
                 p = f"overrides.overlays.left_tsz.{k}"
                 if p in overrides_leaf:
                     left_tsz[k] = overrides_leaf[p]
-            for k in ("enabled", "color", "alpha_top", "alpha_bottom", "y0", "y1"):
+            for k in (
+                "enabled",
+                "color",
+                "alpha_top",
+                "alpha_bottom",
+                "y0",
+                "y1",
+                "mode",
+                "alpha",
+                "roughness",
+                "feather_px",
+                "hole_count",
+                "blur_px",
+                "seed",
+            ):
                 p = f"overrides.overlays.top_band.{k}"
                 if p in overrides_leaf:
                     top_band[k] = overrides_leaf[p]
-            for k in ("enabled", "color", "alpha_top", "alpha_bottom", "y0", "y1"):
+            for k in (
+                "enabled",
+                "color",
+                "alpha_top",
+                "alpha_bottom",
+                "y0",
+                "y1",
+                "mode",
+                "alpha",
+                "roughness",
+                "feather_px",
+                "hole_count",
+                "blur_px",
+                "seed",
+            ):
                 p = f"overrides.overlays.bottom_band.{k}"
                 if p in overrides_leaf:
                     bottom_band[k] = overrides_leaf[p]
@@ -1147,6 +1260,27 @@ def build_channel_thumbnails(
             if ov:
                 overlays_override = ov
 
+        def _deep_merge_dict(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
+            out: Dict[str, Any] = dict(base)
+            for key, value in patch.items():
+                if isinstance(value, dict) and isinstance(out.get(key), dict):
+                    out[key] = _deep_merge_dict(out[key], value)
+                else:
+                    out[key] = value
+            return out
+
+        effects_override_final: Optional[Dict[str, Any]] = None
+        if isinstance(effects_override_base, dict) and effects_override_base:
+            effects_override_final = dict(effects_override_base)
+        if isinstance(effects_override, dict) and effects_override:
+            effects_override_final = _deep_merge_dict(effects_override_final or {}, effects_override)
+
+        overlays_override_final: Optional[Dict[str, Any]] = None
+        if isinstance(overlays_override_base, dict) and overlays_override_base:
+            overlays_override_final = dict(overlays_override_base)
+        if isinstance(overlays_override, dict) and overlays_override:
+            overlays_override_final = _deep_merge_dict(overlays_override_final or {}, overlays_override)
+
         copy_override: Dict[str, str] = {}
         for k in ("upper", "title", "lower"):
             p = f"overrides.copy_override.{k}"
@@ -1156,6 +1290,8 @@ def build_channel_thumbnails(
         bg_source = resolve_background_source(video_dir=video_dir, channel_root=assets_root, video=target.video)
         bg_src = None if bool(regen_bg) else bg_source.bg_src
         legacy_moved_from = None if bool(regen_bg) else bg_source.legacy_moved_from
+        if stable_id is not None and not bool(regen_bg) and out_bg.exists():
+            bg_src = out_bg
 
         generated: Optional[Dict[str, Any]] = None
         if bg_src is None:
@@ -1163,10 +1299,21 @@ def build_channel_thumbnails(
                 print(f"[{idx}/{len(targets)}] {target.video_id}: missing bg (skip_generate)")
                 continue
             prompt = None
-            if image_spec is not None:
+            use_image_spec_prompt = True
+            if (
+                ch == "CH01"
+                and str(text_template_id_override or "").strip() == "CH01_canva_gold_right_stack_3line_v1"
+                and str(img_id or "").strip() == "ch01_image_prompts_memo9_v1"
+            ):
+                # Gold/canva style wants LEFT-subject composition; memo9 prompts are RIGHT-subject.
+                # Prefer Planning prompt (if authored) or a style fallback prompt instead of reusing memo9 prompts.
+                use_image_spec_prompt = False
+            if image_spec is not None and use_image_spec_prompt:
                 prompt = next((it.prompt_ja for it in image_spec.items if it.video_id == target.video_id), None)
             if not isinstance(prompt, str) or not prompt.strip():
                 prompt = _load_planning_image_prompt(ch, target.video)
+            if not isinstance(prompt, str) or not prompt.strip():
+                prompt = _fallback_image_prompt_for_style(ch, text_template_id=text_template_id_override)
             if not isinstance(prompt, str) or not prompt.strip():
                 raise RuntimeError(
                     f"image prompt missing for {target.video_id} "
@@ -1175,12 +1322,13 @@ def build_channel_thumbnails(
             prompt = _sanitize_prompt_for_generation(channel=ch, prompt=prompt)
             negative_prompt = _negative_prompt_for_generation(channel=ch)
             try:
+                raw_name = "90_bg_ai_raw.png" if stable_id is None else f"90_bg_ai_raw.{stable_id}.png"
                 gen = generate_background_with_retries(
                     client=client,
                     prompt=prompt,
                     model_key=model_key,
                     negative_prompt=negative_prompt,
-                    out_raw_path=video_dir / "90_bg_ai_raw.png",
+                    out_raw_path=video_dir / raw_name,
                     video_id=target.video_id,
                     max_attempts=int(max_gen_attempts),
                     sleep_sec=float(sleep_sec),
@@ -1314,6 +1462,21 @@ def build_channel_thumbnails(
                 planned = _planning_value_for_slot(slot_key, planning_copy)
                 resolved_text_by_slot[slot_key] = forced or authored or planned or ""
 
+        if isinstance(slots, dict) and isinstance(text_override_base, dict) and text_override_base:
+            for raw_key, raw_val in text_override_base.items():
+                if not isinstance(raw_key, str) or not raw_key.strip():
+                    continue
+                slot_key = raw_key.strip()
+                if slot_key not in slots:
+                    continue
+                val = str(raw_val or "").strip()
+                if not val:
+                    continue
+                if str(resolved_text_by_slot.get(slot_key) or "").strip():
+                    continue
+                resolved_text_by_slot[slot_key] = val
+                text_override.setdefault(slot_key, val)
+
         use_canva_text = abs(float(video_text_offset_x)) > 1e-9 or abs(float(video_text_offset_y)) > 1e-9
         if not use_canva_text:
             for line in (text_line_spec_lines or {}).values():
@@ -1386,8 +1549,8 @@ def build_channel_thumbnails(
                             text_offset_x=float(video_text_offset_x),
                             text_offset_y=float(video_text_offset_y),
                             template_id_override=template_id_override,
-                            effects_override=effects_override,
-                            overlays_override=overlays_override,
+                            effects_override=effects_override_final,
+                            overlays_override=overlays_override_final,
                         )
                     else:
                         compose_text_to_png(
@@ -1398,8 +1561,8 @@ def build_channel_thumbnails(
                             output_mode=output_mode,
                             text_override=text_override if text_override else None,
                             template_id_override=template_id_override,
-                            effects_override=effects_override,
-                            overlays_override=overlays_override,
+                            effects_override=effects_override_final,
+                            overlays_override=overlays_override_final,
                         )
                 else:
                     # CH26 benchmark: portrait is composited as a separate layer (本人肖像素材を使用)
@@ -1560,8 +1723,8 @@ def build_channel_thumbnails(
                                         text_offset_x=float(video_text_offset_x),
                                         text_offset_y=float(video_text_offset_y),
                                         template_id_override=template_id_override,
-                                        effects_override=effects_override,
-                                        overlays_override=overlays_override,
+                                        effects_override=effects_override_final,
+                                        overlays_override=overlays_override_final,
                                     )
                                 else:
                                     compose_text_to_png(
@@ -1572,8 +1735,8 @@ def build_channel_thumbnails(
                                         output_mode=output_mode,
                                         text_override=text_override if text_override else None,
                                         template_id_override=template_id_override,
-                                        effects_override=effects_override,
-                                        overlays_override=overlays_override,
+                                        effects_override=effects_override_final,
+                                        overlays_override=overlays_override_final,
                                     )
                     else:
                         base_for_portrait = base_for_text
@@ -1621,8 +1784,8 @@ def build_channel_thumbnails(
                                     text_offset_x=float(video_text_offset_x),
                                     text_offset_y=float(video_text_offset_y),
                                     template_id_override=template_id_override,
-                                    effects_override=effects_override,
-                                    overlays_override=overlays_override,
+                                    effects_override=effects_override_final,
+                                    overlays_override=overlays_override_final,
                                 )
                             else:
                                 compose_text_to_png(
@@ -1633,8 +1796,8 @@ def build_channel_thumbnails(
                                     output_mode=output_mode,
                                     text_override=text_override if text_override else None,
                                     template_id_override=template_id_override,
-                                    effects_override=effects_override,
-                                    overlays_override=overlays_override,
+                                    effects_override=effects_override_final,
+                                    overlays_override=overlays_override_final,
                                 )
             else:
                 base_for_text_out = base_for_text
@@ -1667,8 +1830,8 @@ def build_channel_thumbnails(
                         text_offset_x=float(video_text_offset_x),
                         text_offset_y=float(video_text_offset_y),
                         template_id_override=template_id_override,
-                        effects_override=effects_override,
-                        overlays_override=overlays_override,
+                        effects_override=effects_override_final,
+                        overlays_override=overlays_override_final,
                     )
                 else:
                     compose_text_to_png(
@@ -1679,8 +1842,8 @@ def build_channel_thumbnails(
                         output_mode=output_mode,
                         text_override=text_override if text_override else None,
                         template_id_override=template_id_override,
-                        effects_override=effects_override,
-                        overlays_override=overlays_override,
+                        effects_override=effects_override_final,
+                        overlays_override=overlays_override_final,
                     )
         # Update stable artifact (00_thumb.png) from this build output.
         tmp_stable = stable_thumb.with_suffix(stable_thumb.suffix + ".tmp")

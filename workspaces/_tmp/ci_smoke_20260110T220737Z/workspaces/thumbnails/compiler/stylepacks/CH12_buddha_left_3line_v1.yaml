@@ -1,0 +1,88 @@
+id: ch12_buddha_left_3line_v1
+channel: CH12
+name: "CH12: ブッダ左＋3段テキスト（赤/黄/白）"
+version: 1
+
+canvas:
+  width: 1280
+  height: 720
+
+variant_policy_id: standard12
+
+layout:
+  safe_margin:
+    left: 56
+    top: 48
+    right: 56
+    bottom: 48
+  # NOTE: `impact=true` subtracts 0.14 from this value in the compiler.
+  # Set a larger base ratio so the effective split stays around the middle,
+  # keeping the text block firmly in the right-side negative space.
+  split_left_ratio: 0.56
+  subject:
+    anchor: left_center
+    max_width_ratio: 0.48
+    max_height_ratio: 0.92
+    x_offset: 0
+    y_offset: 0
+  text_block:
+    anchor: right_center
+    align: left
+    padding_left: 28
+    padding_right: 28
+    padding_top: 22
+    padding_bottom: 22
+    gap: 10
+
+belt:
+  enabled: false
+  mode: rect
+  color: "#000000"
+  opacity: 0.55
+  radius: 24
+
+typography:
+  font:
+    family: "Noto Sans JP"
+    size_base: 86
+    size_min: 54
+  stroke:
+    width: 8
+    color: "#000000"
+  shadow:
+    enabled: false
+    offset_x: 3
+    offset_y: 3
+    color: "rgba(0,0,0,0.55)"
+  line_height: 1.02
+
+colors:
+  upper: "#ff2d2d"
+  title: "#ffd200"
+  lower: "#ffffff"
+
+render:
+  background:
+    mode: auto
+    fallback_gradient:
+      from: "#0b1020"
+      to: "#0f172a"
+  vignette:
+    enabled: true
+    strength: 0.25
+  base_pan_zoom:
+    # Push the flipped Buddha further toward the left edge and keep more clean space on the right for text.
+    zoom: 1.10
+    pan_x: 0.85
+    pan_y: 0.0
+  subject_enhance:
+    # Make the left-side Buddha brighter and more "sacred" without washing out the text area.
+    brightness: 1.10
+    contrast: 1.16
+    color: 1.06
+    gamma: 0.92
+  subject_band:
+    # Full effect on the far left, fade out toward the center (keeps the text background dark).
+    x0: 0.26
+    x1: 0.38
+    power: 1.60

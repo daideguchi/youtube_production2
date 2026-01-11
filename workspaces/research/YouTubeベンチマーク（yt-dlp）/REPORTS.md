@@ -52,6 +52,10 @@
   - id: `UC_wQ5hHiTgCN8JP_wPupCWA` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UC_wQ5hHiTgCN8JP_wPupCWA/report.md`
   - median views: `2482.5` / median duration: `36:35`
+- **人生の道標 - 癒される仏教** `@shaka__namu`
+  - id: `UCdAT_v1_2aTPergMpWy2V-w` / fetched_at: `2026-01-09T04:41:47.909798+00:00`
+  - report: `YouTubeベンチマーク（yt-dlp）/UCdAT_v1_2aTPergMpWy2V-w/report.md`
+  - median views: `2115.5` / median duration: `13:02`
 - **思考の核** `@Shikounokaku`
   - id: `UCg-rxafnhzN6hiiakU1NGYw` / fetched_at: `2025-12-29T00:17:37.578030+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UCg-rxafnhzN6hiiakU1NGYw/report.md`

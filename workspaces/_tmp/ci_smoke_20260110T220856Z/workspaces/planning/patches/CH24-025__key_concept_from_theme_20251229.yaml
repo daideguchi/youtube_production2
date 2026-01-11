@@ -1,0 +1,9 @@
+schema: ytm.planning_patch.v1
+patch_id: CH24-025__key_concept_from_theme_20251229
+target:
+  channel: CH24
+  video: '025'
+apply:
+  set:
+    キーコンセプト: 謝り癖
+notes: planning_lint duplicate_key_concept_with_published を解消（企画テーマをキーコンセプトとして採用）。

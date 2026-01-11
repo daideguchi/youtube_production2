@@ -82,6 +82,12 @@ episode を識別する最小キー:
 - **Config（正本）**: `packages/script_pipeline/channels/CHxx-*/script_prompt.txt`
 - **参照解決**: `configs/sources.yaml: channels.CHxx.channel_prompt` が入口（runnerは repo相対で解決）
 - **位置づけ**: “無くても動く”よりも、再現性と品質に直結するため **原則必須**（無い場合は投入判断で止める寄せ方）。
+- **補助（legacy mirror / 任意）**: `packages/script_pipeline/prompts/channels/CHxx.yaml`
+  - runner は YAML を読み込まない（`script_prompt.txt` が正本）。
+  - YAML は `script_pipeline.tools.channel_prompt_sync` の入力（YAML→`script_prompt.txt`/`channel_info.json` を上書き）としてのみ使う。
+  - **安全策**: `channel_prompt_sync` は、既存 `script_prompt.txt` と YAML の `prompt_body` が不一致のとき **デフォルトで上書きを拒否**する（事故防止）。意図した上書きは `--force` が必要。
+  - YAML と `script_prompt.txt` が不一致でも runner の実行は壊れないが、「どれが正本か」を誤る事故の温床になるため、使うなら運用で統一する。
+  - ズレ検出/監査: `python3 scripts/ops/script_prompt_integrity_audit.py --all --write-latest`
 
 ### 2.6 sources.yaml（入口の参照解決）
 

@@ -1,0 +1,60 @@
+/* Remotion views clean styles. Scoped by workspace--remotion-clean. */
+
+.workspace--remotion-clean .remotion-workspace,
+.workspace--remotion-clean .remotion-preview,
+.workspace--remotion-clean .remotion-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  padding: 16px 18px;
+  gap: 12px;
+}
+
+.workspace--remotion-clean .remotion-panel__header h2,
+.workspace--remotion-clean .remotion-preview__header h2 {
+  color: var(--color-text-strong);
+}
+
+.workspace--remotion-clean .remotion-panel__meta,
+.workspace--remotion-clean .remotion-preview__meta {
+  color: var(--color-text-muted);
+}
+
+.workspace--remotion-clean .status-chip {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-muted);
+  color: var(--color-text-strong);
+  box-shadow: none;
+}
+
+.workspace--remotion-clean .status-chip--danger {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+.workspace--remotion-clean .remotion-grid {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 12px;
+}
+
+.workspace--remotion-clean .remotion-grid__item {
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-surface);
+  border-radius: 10px;
+}
+
+.workspace--remotion-clean .remotion-grid__item--active {
+  border-color: rgba(29, 78, 216, 0.4);
+  background: var(--color-primary-soft);
+}
+
+@media (max-width: 960px) {
+  .workspace--remotion-clean .remotion-workspace,
+  .workspace--remotion-clean .remotion-preview,
+  .workspace--remotion-clean .remotion-panel {
+    padding: 14px;
+  }
+}
