@@ -248,6 +248,27 @@ def main(argv: list[str] | None = None) -> int:
             return ""
         return _as_str(ent.get("provider"))
 
+    # Policy: script-main-1 is fixed to Fireworks DeepSeek V3.2 exp (no silent swap).
+    if "script-main-1" not in code_to_model_key:
+        errors.append(f"policy: llm_model_codes: missing required code 'script-main-1' ({codes_path.as_posix()})")
+    else:
+        mk = resolve_selector("script-main-1")
+        if mk not in models:
+            errors.append(
+                f"policy: llm_model_codes: 'script-main-1' -> {mk!r} not in llm_router.models ({router_path.as_posix()})"
+            )
+        else:
+            prov = provider_of(mk)
+            if prov != "fireworks":
+                errors.append(f"policy: script-main-1 must use provider='fireworks' (got {prov!r}; model_key={mk})")
+            ent = models.get(mk) if isinstance(models.get(mk), dict) else {}
+            model_name = _as_str(ent.get("model_name"))
+            if model_name != "deepseek/deepseek-v3.2-exp":
+                errors.append(
+                    "policy: script-main-1 must resolve to model_name='deepseek/deepseek-v3.2-exp' "
+                    f"(got {model_name!r}; model_key={mk})"
+                )
+
     # Slot config
     slots_cfg, err = _load_yaml(slots_path)
     if err:
