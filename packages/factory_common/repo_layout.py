@@ -14,6 +14,7 @@ ALLOWED_REPO_ROOT_DIR_NAMES = frozenset(
         "credentials",
         "data",
         "docs",
+        "gh_releases_archive",
         "log_research",
         "packages",
         "prompts",

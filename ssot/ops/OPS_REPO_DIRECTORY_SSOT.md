@@ -67,6 +67,10 @@
 - `docs/`（GitHub Pages 公開ルート）:
   - 現行のGitHub Pages設定が `./docs` を参照しているため、このディレクトリが公開ルート（= 静的サイトの正本）。
   - Script Viewer（台本ビューア）もここに置く（重複防止のため `pages/` は使わない）。
+- `gh_releases_archive/`（GitHub Releases 書庫のインデックス/マニフェスト）:
+  - 重い成果物を **GitHub Releases** 側に置く運用のための「公開してよいメタデータ置き場」。
+  - 実体のアップロード/取得は `scripts/ops/release_archive.py` で行う。
+  - ローカル排他用の `gh_releases_archive/manifest/manifest.lock` は gitignore（CI/SSOTは参照しない）。
 - `prompts/`（索引/ハブ）:
   - **人間/UI向けの“入口”**。実体の正本をここに複製・同期しない（= 二重SoTを作らない）。
   - 参照先の一覧: `prompts/PROMPTS_INDEX.md`
@@ -108,6 +112,7 @@
 | 静的素材（BGM/ロゴ等） | `asset/` | git管理のL0。cleanup対象外 |
 | 設定（非機密） | `configs/` | 機密は `.env` / `credentials/` |
 | 設計/運用ドキュメント | `ssot/` | 追加したら `DOCS_INDEX` 更新 |
+| GitHub Releases 書庫（manifest/index） | `gh_releases_archive/` | 実体は GitHub Releases。`manifest.lock` は gitignore |
 | 退避/復元用アーカイブ | `backups/` | 実行入口にしない |
 | 旧資産/試作（退避） | `backups/graveyard/` | archive-first のみ。実行/同期/SoT にしない |
 | ローカル試作（untracked） | `workspaces/_scratch/` | git管理しない。フロー確定前の一時置き場 |
