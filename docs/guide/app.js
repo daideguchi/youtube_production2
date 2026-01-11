@@ -337,7 +337,7 @@ function createEl(tag, className, text) {
 }
 
 const OVERVIEW_SPEC = {
-  updatedAt: "2026-01-10",
+  updatedAt: "2026-01-11",
   purpose: "YouTube量産の「入力→台本→音声→動画→公開」を、SSOT中心で再現性高く回す。",
   what: [
     { title: "Planning（入力SoT）", desc: "タイトル/要件を確定して、台本生成の入力を作る。" },
@@ -353,7 +353,7 @@ const OVERVIEW_SPEC = {
   fixedRules: [
     "SSOT-first: 迷ったらSSOTが正。変更はSSOT→実装の順。",
     "Lock: 触る前に lock（並列衝突防止）。",
-    "台本（script_*）は LLM API（Fireworks/DeepSeek）固定。THINK/AGENT/Codex（exec）は台本を書かない（遮断済み）。",
+    "台本（script_*）は LLM API（Fireworks/DeepSeek）固定（CI lint + runbook で強制）。THINK/AGENT/Codex exec へ流さない。",
     "tts_* は AIエージェント（Codex）主担当（THINK/AGENTのpending運用）。codex exec（非対話CLI）とは別物。",
     "TTS辞書運用: ユニーク誤読のみ辞書へ。曖昧語は辞書に入れず、Bテキストのカナ化/位置overrideで対応（DECISIONS:D-014）。",
     "モデル/プロバイダの自動ローテ禁止（勝手に切り替えない）。",
@@ -365,6 +365,7 @@ const OVERVIEW_SPEC = {
   ],
   pmLinks: [
     { title: "Plan Status（Active/Draft/Completed）", path: "ssot/plans/PLAN_STATUS.md" },
+    { title: "Slack→Git Archive Plan", path: "ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md" },
     { title: "DECISIONS（今の正解）", path: "ssot/DECISIONS.md" },
     { title: "Agent Playbook（運用ルール）", path: "ssot/ops/OPS_AGENT_PLAYBOOK.md" },
   ],
@@ -390,6 +391,11 @@ const OVERVIEW_SPEC = {
       title: "THINK MODE（非台本の保留処理）",
       cmd: "./scripts/think.sh --all-text -- <command> [args...]",
       note: "非scriptのテキスト系だけ。台本生成の入口には使わない。",
+    },
+    {
+      title: "PM loop（Slack→Inbox + PID）",
+      cmd: "python3 scripts/ops/slack_pm_loop.py run --channel <CHANNEL_ID> --thread-ts <THREAD_TS> --dd-user <DD_USER_ID> --post-digest --process",
+      note: "Slackの指示/決定を取りこぼさないための要約Inbox更新 + プロセス可視化（Slack IDはgitに固定しない）。",
     },
   ],
 };
@@ -498,7 +504,7 @@ function openOverview() {
 }
 
 const FLOW_SPEC = {
-  updatedAt: "2026-01-10",
+  updatedAt: "2026-01-11",
   purpose: "YouTube量産の「入力→台本→音声→動画→公開」を SSOT中心で再現性高く回す。",
   rails: [
     { title: "SSOT-first", desc: "ルール/運用/フローはSSOTが正。変更はSSOT→実装の順。" },
