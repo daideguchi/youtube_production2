@@ -4858,25 +4858,6 @@ class ThumbnailOverrideResponse(BaseModel):
     updated_at: str
 
 
-class PublishLockRequest(BaseModel):
-    force_complete: bool = True
-    published_at: Optional[str] = None
-
-
-class PublishLockResponse(BaseModel):
-    status: str
-    channel: str
-    video: str
-    published_at: str
-    updated_at: str
-
-
-class PublishUnlockResponse(BaseModel):
-    status: str
-    channel: str
-    video: str
-    updated_at: str
-
 class AudioIntegrityItem(BaseModel):
     channel: str
     video: str
@@ -12785,37 +12766,6 @@ def _clear_redo_flags(channel: str, video: str, *, redo_script: Optional[bool] =
         # ベストエフォートなので握りつぶす
         pass
 
-
-@app.post("/api/channels/{channel}/videos/{video}/published", response_model=PublishLockResponse)
-def mark_video_published(channel: str, video: str, payload: PublishLockRequest):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    result = mark_episode_published_locked(
-        channel_code,
-        video_number,
-        force_complete=bool(payload.force_complete),
-        published_at=payload.published_at,
-    )
-    return PublishLockResponse(
-        status="ok",
-        channel=channel_code,
-        video=video_number,
-        published_at=result.published_at,
-        updated_at=current_timestamp(),
-    )
-
-
-@app.delete("/api/channels/{channel}/videos/{video}/published", response_model=PublishUnlockResponse)
-def unmark_video_published(channel: str, video: str):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    unmark_episode_published_locked(channel_code, video_number)
-    return PublishUnlockResponse(
-        status="ok",
-        channel=channel_code,
-        video=video_number,
-        updated_at=current_timestamp(),
-    )
 
 @app.get("/api/channels/{channel}/videos/{video}/tts/plain", response_model=ScriptTextResponse)
 def get_tts_plain_text(channel: str, video: str):

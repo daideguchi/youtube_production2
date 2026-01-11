@@ -9,22 +9,29 @@ from fastapi import APIRouter, HTTPException, Query
 from backend.app.channel_info_store import refresh_channel_info
 from backend.app.publish_sheet_client import PublishSheetClient, PublishSheetError
 from backend.app.publishing_models import (
+    PublishLockRequest,
+    PublishLockResponse,
+    PublishUnlockResponse,
     PublishingScheduleChannelSummary,
     PublishingScheduleOverviewResponse,
     PublishingScheduleVideoItem,
 )
 from backend.main import (
     _channel_sort_key,
+    current_timestamp,
     list_known_channel_codes,
+    normalize_channel_code,
     normalize_optional_text,
     normalize_planning_video_number,
+    normalize_video_number,
     parse_iso_datetime,
 )
+from factory_common.publish_lock import mark_episode_published_locked, unmark_episode_published_locked
 
-router = APIRouter(prefix="/api/publishing", tags=["publishing"])
+router = APIRouter(prefix="/api", tags=["publishing"])
 
 
-@router.get("/runway", response_model=PublishingScheduleOverviewResponse)
+@router.get("/publishing/runway", response_model=PublishingScheduleOverviewResponse)
 def publishing_runway_overview(
     refresh: bool = Query(False, description="キャッシュを無視して外部SoTを再取得"),
     limit: int = Query(12, ge=0, le=100, description="各チャンネルで返す今後の予約本数"),
@@ -140,4 +147,36 @@ def publishing_runway_overview(
         fetched_at=fetched_at,
         channels=summaries,
         warnings=warnings[:200],
+    )
+
+
+@router.post("/channels/{channel}/videos/{video}/published", response_model=PublishLockResponse)
+def mark_video_published(channel: str, video: str, payload: PublishLockRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    result = mark_episode_published_locked(
+        channel_code,
+        video_number,
+        force_complete=bool(payload.force_complete),
+        published_at=payload.published_at,
+    )
+    return PublishLockResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        published_at=result.published_at,
+        updated_at=current_timestamp(),
+    )
+
+
+@router.delete("/channels/{channel}/videos/{video}/published", response_model=PublishUnlockResponse)
+def unmark_video_published(channel: str, video: str):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    unmark_episode_published_locked(channel_code, video_number)
+    return PublishUnlockResponse(
+        status="ok",
+        channel=channel_code,
+        video=video_number,
+        updated_at=current_timestamp(),
     )

@@ -11,6 +11,26 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class PublishLockRequest(BaseModel):
+    force_complete: bool = True
+    published_at: Optional[str] = None
+
+
+class PublishLockResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    published_at: str
+    updated_at: str
+
+
+class PublishUnlockResponse(BaseModel):
+    status: str
+    channel: str
+    video: str
+    updated_at: str
+
+
 class PublishingScheduleVideoItem(BaseModel):
     channel: str
     video: Optional[str] = None
@@ -40,4 +60,3 @@ class PublishingScheduleOverviewResponse(BaseModel):
     fetched_at: Optional[str] = None
     channels: List[PublishingScheduleChannelSummary]
     warnings: List[str] = Field(default_factory=list)
-

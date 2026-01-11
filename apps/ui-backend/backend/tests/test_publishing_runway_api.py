@@ -19,6 +19,7 @@ def publishing_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
     planning_channels_dir = workspace_root / "planning" / "channels"
     scripts_root.mkdir(parents=True, exist_ok=True)
     planning_channels_dir.mkdir(parents=True, exist_ok=True)
+    (scripts_root / "CH01").mkdir(parents=True, exist_ok=True)
 
     # Isolate channel discovery from the real repo.
     script_pipeline_root = tmp_path / "script_pipeline"
@@ -116,3 +117,46 @@ def test_publishing_runway_returns_503_on_publish_sheet_error(monkeypatch):
         assert resp.status_code == 503
         assert "missing env" in resp.text
 
+
+def test_mark_video_published_uses_publish_lock(publishing_test_env, monkeypatch):
+    client: TestClient = publishing_test_env["client"]  # type: ignore[assignment]
+
+    called = {}
+
+    def fake_mark(channel: str, video: str, *, force_complete: bool, published_at):
+        called["channel"] = channel
+        called["video"] = video
+        called["force_complete"] = force_complete
+        called["published_at"] = published_at
+        return SimpleNamespace(published_at="2026-01-01T00:00:00Z")
+
+    monkeypatch.setattr(publishing_router, "mark_episode_published_locked", fake_mark)
+
+    resp = client.post("/api/channels/CH01/videos/1/published", json={})
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["status"] == "ok"
+    assert payload["channel"] == "CH01"
+    assert payload["video"] == "001"
+    assert payload["published_at"] == "2026-01-01T00:00:00Z"
+    assert called == {"channel": "CH01", "video": "001", "force_complete": True, "published_at": None}
+
+
+def test_unmark_video_published_uses_publish_lock(publishing_test_env, monkeypatch):
+    client: TestClient = publishing_test_env["client"]  # type: ignore[assignment]
+
+    called = {}
+
+    def fake_unmark(channel: str, video: str):
+        called["channel"] = channel
+        called["video"] = video
+
+    monkeypatch.setattr(publishing_router, "unmark_episode_published_locked", fake_unmark)
+
+    resp = client.delete("/api/channels/CH01/videos/1/published")
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["status"] == "ok"
+    assert payload["channel"] == "CH01"
+    assert payload["video"] == "001"
+    assert called == {"channel": "CH01", "video": "001"}
