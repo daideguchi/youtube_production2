@@ -5,6 +5,7 @@ const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json
 const THUMB_PROJECTS_PATH = "workspaces/thumbnails/projects.json";
 const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const CHUNK_SIZE = 10_000;
+const UI_STATE_KEY = "ytm_script_viewer_state_v1";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -92,6 +93,78 @@ function siteUrl(relPath) {
     .replace(/^\/+/, "")
     .replace(/^\.\/+/, "");
   return s ? `./${s}` : "";
+}
+
+function normalizeView(raw) {
+  const v = String(raw || "").trim().toLowerCase();
+  if (v === "audio" || v === "thumb" || v === "script") return v;
+  return "script";
+}
+
+function normalizeChannelParam(raw) {
+  const s = String(raw || "").trim().toUpperCase();
+  const m = s.match(/^CH(\d{1,3})$/);
+  if (m) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n)) return `CH${String(n).padStart(2, "0")}`;
+  }
+  return s;
+}
+
+function normalizeVideoParam(raw) {
+  const s = String(raw || "").trim();
+  if (/^\d{3}$/.test(s)) return s;
+  const n = Number(s);
+  if (Number.isFinite(n)) return String(n).padStart(3, "0");
+  return s;
+}
+
+function parseVideoIdParam(raw) {
+  const s = String(raw || "").trim().toUpperCase();
+  const m = s.match(/^(CH\d{2})-(\d{3})$/);
+  if (m) return { channel: m[1], video: m[2] };
+  const m2 = s.match(/^CH(\d{1,3})-(\d{1,4})$/);
+  if (m2) return { channel: normalizeChannelParam(`CH${m2[1]}`), video: normalizeVideoParam(m2[2]) };
+  return null;
+}
+
+function readUiStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const view = normalizeView(params.get("view"));
+
+  const id = params.get("id");
+  const parsed = parseVideoIdParam(id);
+  if (parsed) return { channel: parsed.channel, video: parsed.video, view };
+
+  const ch = normalizeChannelParam(params.get("ch"));
+  const v = normalizeVideoParam(params.get("v"));
+  if (ch && v) return { channel: ch, video: v, view };
+
+  return { channel: "", video: "", view };
+}
+
+function readUiStateFromStorage() {
+  try {
+    const raw = window.localStorage.getItem(UI_STATE_KEY);
+    if (!raw) return { channel: "", video: "", view: "script" };
+    const obj = JSON.parse(raw);
+    const channel = normalizeChannelParam(obj?.channel);
+    const video = normalizeVideoParam(obj?.video);
+    const view = normalizeView(obj?.view);
+    return { channel, video, view };
+  } catch (_err) {
+    return { channel: "", video: "", view: "script" };
+  }
+}
+
+function getInitialUiState() {
+  const fromUrl = readUiStateFromUrl();
+  const fromStorage = readUiStateFromStorage();
+  return {
+    channel: fromUrl.channel || fromStorage.channel || "",
+    video: fromUrl.video || fromStorage.video || "",
+    view: fromUrl.view || fromStorage.view || "script",
+  };
 }
 
 const rawBase = resolveRawBase();
@@ -231,7 +304,10 @@ let loadedText = "";
 let loadedNoSepText = "";
 let audioPrepScriptText = "";
 let audioPrepMetaText = "";
-let currentView = "script";
+const initialUiState = getInitialUiState();
+let initialChannelWanted = initialUiState.channel || "";
+let initialVideoWanted = initialUiState.video || "";
+let currentView = initialUiState.view || "script";
 let scriptState = "idle"; // idle | loading | ok | error
 let audioState = "idle"; // idle | loading | ok | partial | missing | error
 let thumbState = "idle"; // idle | loading | ok | partial | missing | error
@@ -335,13 +411,62 @@ function updateBadges() {
   }
 }
 
+function persistUiState() {
+  try {
+    const stored = readUiStateFromStorage();
+    const channel = selected?.channel || stored.channel || "";
+    const video = selected?.video || stored.video || "";
+    const view = normalizeView(currentView);
+    window.localStorage.setItem(
+      UI_STATE_KEY,
+      JSON.stringify({ channel, video, view, updated_at: new Date().toISOString() })
+    );
+  } catch (_err) {
+    // ignore
+  }
+
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (selected?.video_id) {
+      params.set("id", String(selected.video_id));
+      params.delete("ch");
+      params.delete("v");
+    }
+    const v = normalizeView(currentView);
+    if (v && v !== "script") {
+      params.set("view", v);
+    } else {
+      params.delete("view");
+    }
+    const qs = params.toString();
+    const next = `${window.location.pathname}${qs ? "?" + qs : ""}${window.location.hash || ""}`;
+    window.history.replaceState(null, "", next);
+  } catch (_err) {
+    // ignore
+  }
+}
+
 function setActiveView(view) {
-  currentView = view;
-  const v = String(view || "script");
+  const v = normalizeView(view);
+  currentView = v;
   appRoot.dataset.view = v;
   tabScript.classList.toggle("view-tab--active", v === "script");
   tabAudio.classList.toggle("view-tab--active", v === "audio");
   tabThumb.classList.toggle("view-tab--active", v === "thumb");
+
+  // Open only the relevant details for the selected view.
+  if (v === "script") {
+    audioPrepDetails.open = false;
+    thumbDetails.open = false;
+  } else if (v === "audio") {
+    audioPrepDetails.open = true;
+    thumbDetails.open = false;
+  } else if (v === "thumb") {
+    thumbDetails.open = true;
+    audioPrepDetails.open = false;
+  }
+
+  persistUiState();
 }
 
 function scrollToEl(el) {
@@ -358,20 +483,8 @@ function scrollToEl(el) {
 }
 
 function goToView(view) {
-  const v = String(view || "script");
+  const v = normalizeView(view);
   setActiveView(v);
-
-  // Open only the relevant details for the selected view.
-  if (v === "script") {
-    audioPrepDetails.open = false;
-    thumbDetails.open = false;
-  } else if (v === "audio") {
-    audioPrepDetails.open = true;
-    thumbDetails.open = false;
-  } else if (v === "thumb") {
-    thumbDetails.open = true;
-    audioPrepDetails.open = false;
-  }
 
   if (v === "audio") {
     scrollToEl(audioPrepDetails);
@@ -771,6 +884,9 @@ function renderNoSepChunkButtons() {
 
 async function loadScript(it) {
   selected = it;
+  initialChannelWanted = String(it?.channel || "").trim();
+  initialVideoWanted = String(it?.video || "").trim();
+  persistUiState();
   loadedText = "";
   loadedNoSepText = "";
   scriptState = "loading";
@@ -832,8 +948,11 @@ async function reloadIndex() {
     renderChannels();
 
     // Default selection: first item, or keep current if possible
-    const firstChannel = channelSelect.value || Array.from(grouped.keys())[0];
-    if (!firstChannel) {
+    const preferredChannel =
+      (initialChannelWanted && grouped.has(initialChannelWanted) ? initialChannelWanted : "") ||
+      channelSelect.value ||
+      Array.from(grouped.keys())[0];
+    if (!preferredChannel) {
       metaTitle.textContent = "index.json が空です";
       metaPath.textContent = "—";
       contentPre.textContent = "";
@@ -841,10 +960,16 @@ async function reloadIndex() {
       hideSearchResults();
       return;
     }
-    renderVideos(firstChannel);
-    const firstVideo = videoSelect.value || (grouped.get(firstChannel)?.[0]?.video ?? null);
-    if (firstVideo) {
-      selectItem(firstChannel, firstVideo);
+    channelSelect.value = preferredChannel;
+    renderVideos(preferredChannel);
+
+    const preferredVideoCandidate = initialVideoWanted || "";
+    const preferredVideo =
+      (preferredVideoCandidate && findItem(preferredChannel, preferredVideoCandidate) ? preferredVideoCandidate : "") ||
+      videoSelect.value ||
+      (grouped.get(preferredChannel)?.[0]?.video ?? null);
+    if (preferredVideo) {
+      selectItem(preferredChannel, preferredVideo);
     }
     footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")}`;
     hideSearchResults();
