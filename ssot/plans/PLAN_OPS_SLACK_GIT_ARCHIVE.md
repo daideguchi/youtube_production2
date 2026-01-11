@@ -75,7 +75,10 @@
   - もしくは **`--git-push-if-clean`**（後述）で「他の変更が無い時だけpush」する。
 
 導入（推奨: インストーラでローカルに生成）:
-- `python3 scripts/ops/install_slack_pm_launchagent.py --channel <CHANNEL_ID> --thread-ts <THREAD_TS> --dd-user <DD_USER_ID> --interval-sec 1800 --post-digest --process --errors`
+- まずは `--dry-run` で plist の生成先と実行コマンドを確認する:
+  - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <CHANNEL_ID> --thread-ts <THREAD_TS> --dd-user <DD_USER_ID> --interval-sec 1800 --post-digest --process --errors --triage-ops-errors --flush-outbox --dry-run`
+- OKなら生成して `launchctl` で load する:
+  - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <CHANNEL_ID> --thread-ts <THREAD_TS> --dd-user <DD_USER_ID> --interval-sec 1800 --post-digest --process --errors --triage-ops-errors --flush-outbox`
 
 自動push（任意・推奨は慎重）:
 - `--git-push-if-clean` を付けると、**PM Inbox以外に変更が無い時だけ** `git add/commit/push` を行う。

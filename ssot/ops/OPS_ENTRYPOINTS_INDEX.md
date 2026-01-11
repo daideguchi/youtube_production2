@@ -253,7 +253,7 @@
         - 任意（安全な自動push）: `--git-push-if-clean`（PM Inbox以外の変更が無い時だけ `git add/commit/push`）
       - （互換）`python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
     - 自動運用（macOS / launchd; ローカル専用）:
-      - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <C...> --thread-ts <...> --dd-user <U...> --interval-sec 1800 --post-digest --process --errors`
+      - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <C...> --thread-ts <...> --dd-user <U...> --interval-sec 1800 --post-digest --process --errors --triage-ops-errors --flush-outbox`
         - 任意: `--git-push-if-clean`
   - PID稼働状況（「いつから/何をしているか」）:
     - まとめ（自動検出→Slack）: `python3 scripts/ops/process_report.py --auto --slack --channel <C...> --thread-ts <thread_ts>`

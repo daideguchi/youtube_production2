@@ -72,6 +72,16 @@ def _program_args(args: argparse.Namespace) -> List[str]:
             "--errors-grep",
             str(args.errors_grep),
         ]
+    if bool(args.triage_ops_errors):
+        cmd += [
+            "--triage-ops-errors",
+            "--triage-top",
+            str(int(args.triage_top)),
+            "--triage-max-events",
+            str(int(args.triage_max_events)),
+        ]
+    if bool(args.flush_outbox):
+        cmd += ["--flush-outbox", "--flush-outbox-limit", str(int(args.flush_outbox_limit))]
     if bool(args.git_push_if_clean):
         cmd += ["--git-push-if-clean"]
     return cmd
@@ -110,8 +120,13 @@ def main(argv: List[str] | None = None) -> int:
     ap.add_argument("--errors", action="store_true", help="Also capture error-like channel history")
     ap.add_argument("--errors-grep", default=r"(error|failed|traceback|exception|LLM Smoke|smoke)")
     ap.add_argument("--errors-limit", type=int, default=200)
+    ap.add_argument("--triage-ops-errors", action="store_true", help="Post ops failure triage (episode/status based)")
+    ap.add_argument("--triage-top", type=int, default=5)
+    ap.add_argument("--triage-max-events", type=int, default=200)
     ap.add_argument("--process", action="store_true", help="Also post PID snapshot to the thread")
     ap.add_argument("--include-command", action="store_true", help="Include redacted command line in PID snapshot")
+    ap.add_argument("--flush-outbox", action="store_true", help="Flush local Slack outbox messages (best effort)")
+    ap.add_argument("--flush-outbox-limit", type=int, default=50)
     ap.add_argument("--git-push-if-clean", action="store_true", help="Auto git add/commit/push ONLY when repo is clean")
 
     ap.add_argument("--out", default="", help="Write plist to this path (default: ~/Library/LaunchAgents/<label>.plist)")
@@ -149,4 +164,3 @@ def main(argv: List[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
