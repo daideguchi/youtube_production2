@@ -70,6 +70,7 @@
 | 2q | Thumbnail override（`/api/channels/{channel}/videos/{video}/thumbnail`）を `routers/thumbnails_overrides.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 2r | Redo flags（`/api/channels/{channel}/videos/{video}/redo`）を `routers/redo_flags.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 2s | TTS plain text（`/api/channels/{channel}/videos/{video}/tts/plain`）を `routers/tts_text.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
+| 2t | Human scripts（`/api/channels/{channel}/videos/{video}/scripts/human`）を `routers/human_scripts.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
