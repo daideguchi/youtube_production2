@@ -21,11 +21,12 @@ def test_image_models_use_image_gen_tier():
     assert "video_image_gen" in tiers, "video_image_gen tier must exist"
     video_tier = tiers["video_image_gen"]
     assert isinstance(video_tier, list) and video_tier, "video_image_gen tier must be a non-empty list"
-    assert video_tier[0] == "fireworks_flux_1_schnell_fp8"
+    # SSOT: tier defaults are Gemini-first; per-channel routing pins the exact model_key.
+    assert video_tier[0] == "gemini_2_5_flash_image"
 
     thumb_tier = tiers.get("thumbnail_image_gen")
     assert isinstance(thumb_tier, list) and thumb_tier, "thumbnail_image_gen tier must be a non-empty list"
-    assert thumb_tier == ["fireworks_flux_kontext_max"]
+    assert thumb_tier == ["gemini_2_5_flash_image"]
 
     # tasks point to video_image_gen (bulk video images)
     for task in ("image_generation", "visual_image_gen"):

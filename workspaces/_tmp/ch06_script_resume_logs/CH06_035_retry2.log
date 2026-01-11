@@ -1,0 +1,2 @@
+./scripts/with_ytm_env.sh: line 249: exec: --: invalid option
+exec: usage: exec [-cl] [-a name] file [redirection ...]

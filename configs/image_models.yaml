@@ -55,6 +55,16 @@ models:
       supports_seed: true
       max_batch_n: 1
 
+  gemini_imagen_4_fast_generate_001:
+    provider: gemini
+    model_name: imagen-4.0-fast-generate-001
+    capabilities:
+      supports_aspect_ratio: true
+      supports_size: false
+      supports_negative_prompt: true
+      supports_seed: false
+      max_batch_n: 1
+
   openrouter_gemini_2_5_flash_image_preview:
     provider: openrouter
     model_name: google/gemini-2.5-flash-image-preview

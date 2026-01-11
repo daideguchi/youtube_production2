@@ -18,7 +18,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, List
 
 try:
     from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
@@ -108,55 +108,96 @@ def _patch_draft_belt_text(draft_dir: Path, belt_text: str) -> bool:
     return changed_any
 
 
-def _extract_bracket_topic(sheet_title: str) -> Optional[str]:
-    m = re.search(r"【([^】]+)】", sheet_title or "")
-    if not m:
-        return None
-    topic = (m.group(1) or "").strip()
-    return topic or None
-
-
-def _derive_topic_from_status(channel: str, video: str) -> str:
+def _derive_belt_text_from_status(channel: str, video: str) -> str:
     path = script_status_path(channel, video)
     data = _load_json(path)
     meta = data.get("metadata", {}) if isinstance(data, dict) else {}
     sheet_title = meta.get("sheet_title")
     if isinstance(sheet_title, str) and sheet_title.strip():
-        topic = _extract_bracket_topic(sheet_title)
-        if topic:
-            return topic
-    # fallback: try long 'title' field (intro-style), extract a short keyword
-    title = meta.get("title")
+        return " ".join(sheet_title.split())
+    title = meta.get("title_sanitized") or meta.get("title") or ""
     if isinstance(title, str) and title.strip():
-        # Heuristic: pick a known phrase if present
-        if "燃え尽き" in title:
-            return "静かな燃え尽き"
-        if "優しさの疲労" in title:
-            return "優しさの疲労"
-        if "刃" in title and "丸め" in title:
-            return "前向きの刃を丸める"
-        if "刃" in title:
-            return "言葉の刃"
-        # otherwise, take first sentence fragment
-        first = re.split(r"[。！？]", title.strip())[0]
-        first = re.sub(r"\s+", "", first)
-        return first[:14] if first else "CH02"
-    return "CH02"
+        return " ".join(title.split())
+    return f"{channel}-{video}"
 
 
-def _find_draft_dirs(channel: str, videos: list[str]) -> list[Path]:
-    out: list[Path] = []
+def _is_star_draft(name: str) -> bool:
+    return str(name or "").startswith("★")
+
+
+def _find_latest_draft_dirs(channel: str, videos: list[str]) -> list[Path]:
+    """
+    Find the latest draft dir per video.
+
+    Supports both:
+    - legacy: CH02-014_regen_YYYYMMDD_HHMMSS_draft
+    - current: ★CH02-043-<title...>  (created by capcut_bulk_insert)
+    """
+    selected: List[Path] = []
     for video in videos:
-        pat = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
+        legacy = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
+        star = re.compile(rf"^★?{re.escape(channel)}-{re.escape(video)}-")
+        matches: List[Path] = []
         for child in CAPCUT_DRAFT_ROOT.iterdir():
-            if child.is_dir() and pat.match(child.name):
-                out.append(child)
-    return sorted(out, key=lambda p: p.name)
+            if not child.is_dir():
+                continue
+            if legacy.match(child.name) or star.match(child.name):
+                matches.append(child)
+        if not matches:
+            continue
+
+        def score(p: Path) -> tuple[int, float, str]:
+            try:
+                mtime = p.stat().st_mtime
+            except Exception:
+                mtime = 0.0
+            return (1 if _is_star_draft(p.name) else 0, mtime, p.name)
+
+        selected.append(sorted(matches, key=score, reverse=True)[0])
+    return sorted(selected, key=lambda p: p.name)
 
 
-def _patch_run_belt_config(channel: str, draft_dir_name: str, belt_text: str) -> bool:
-    run_name = draft_dir_name.removesuffix("_draft")
-    belt_path = RUN_ROOT / run_name / "belt_config.json"
+def _find_run_dir_for_draft(channel: str, video: str, draft_dir: Path) -> Optional[Path]:
+    prefix = f"{channel}-{video}"
+    candidates: List[Path] = []
+    for p in RUN_ROOT.iterdir():
+        if not p.is_dir():
+            continue
+        if not p.name.startswith(prefix):
+            continue
+        candidates.append(p)
+
+    # Prefer the run_dir whose capcut_draft symlink points to this draft.
+    for p in candidates:
+        cap = p / "capcut_draft"
+        try:
+            if cap.exists() and cap.is_symlink() and cap.resolve() == draft_dir:
+                return p
+        except Exception:
+            continue
+
+    # Fall back to "best" (has draft + newest).
+    def score(p: Path) -> tuple[int, float]:
+        cap = p / "capcut_draft"
+        has_draft = 0
+        try:
+            has_draft = int(cap.exists() or cap.is_symlink())
+        except Exception:
+            has_draft = 0
+        try:
+            mtime = p.stat().st_mtime
+        except Exception:
+            mtime = 0.0
+        return (has_draft, mtime)
+
+    return sorted(candidates, key=score, reverse=True)[0] if candidates else None
+
+
+def _patch_run_belt_config(channel: str, video: str, draft_dir: Path, belt_text: str) -> bool:
+    run_dir = _find_run_dir_for_draft(channel, video, draft_dir)
+    if run_dir is None:
+        return False
+    belt_path = run_dir / "belt_config.json"
     if not belt_path.exists():
         return False
     data = _load_json(belt_path)
@@ -180,21 +221,23 @@ def main() -> None:
     if not videos:
         raise SystemExit("videos empty")
 
-    draft_dirs = _find_draft_dirs(channel, videos)
+    draft_dirs = _find_latest_draft_dirs(channel, videos)
     if not draft_dirs:
         raise SystemExit("No matching draft dirs found")
 
     changed = 0
     for d in draft_dirs:
-        # parse video from name: CH02-014_regen_..._draft
-        m = re.match(rf"^{re.escape(channel)}-(\d{{3}})_regen_", d.name)
+        # parse video from name:
+        # - CH02-014_regen_..._draft
+        # - ★CH02-043-...
+        m = re.match(rf"^★?{re.escape(channel)}-(\d{{3}})", d.name)
         if not m:
             continue
         video = m.group(1)
-        belt_text = _derive_topic_from_status(channel, video)
+        belt_text = _derive_belt_text_from_status(channel, video)
         did = _patch_draft_belt_text(d, belt_text)
         if args.update_run_belt_config:
-            _patch_run_belt_config(channel, d.name, belt_text)
+            _patch_run_belt_config(channel, video, d, belt_text)
         if did:
             print(f"OK  {d.name}: {belt_text}")
             changed += 1

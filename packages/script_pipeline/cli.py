@@ -135,6 +135,16 @@ def parse_args() -> argparse.Namespace:
         action="append",
         help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable). DEBUG ONLY.",
     )
+    common.add_argument(
+        "--llm-task-temperature",
+        action="append",
+        help="Per-task temperature override: TASK=FLOAT (repeatable). DEBUG ONLY.",
+    )
+    common.add_argument(
+        "--llm-task-option",
+        action="append",
+        help="Per-task option override: TASK=JSON_OBJECT (repeatable). DEBUG ONLY.",
+    )
 
     sub.add_parser("init", parents=[common], help="Initialize status.json if missing")
     run_p = sub.add_parser("run", parents=[common], help="Run specific stage")
@@ -268,6 +278,65 @@ def main() -> None:
                     "Use numeric slots (LLM_MODEL_SLOT) and SSOT task routing instead."
                 )
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
+
+    # Optional per-task option overrides (debug only; requires emergency override under lockdown).
+    task_opts: dict[str, dict[str, Any]] = {}
+
+    if getattr(args, "llm_task_temperature", None):
+        for raw in args.llm_task_temperature or []:
+            spec = str(raw).strip()
+            if not spec:
+                continue
+            if "=" not in spec:
+                raise SystemExit(f"--llm-task-temperature must be TASK=FLOAT; got: {spec}")
+            task, temp = spec.split("=", 1)
+            task = task.strip()
+            temp = temp.strip()
+            if not task:
+                raise SystemExit(f"--llm-task-temperature task is empty: {spec}")
+            try:
+                tval = float(temp)
+            except Exception:
+                raise SystemExit(f"--llm-task-temperature value must be FLOAT; got: {spec}")
+            task_opts.setdefault(task, {})["temperature"] = tval
+
+    if getattr(args, "llm_task_option", None):
+        def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+            out: dict[str, Any] = dict(base or {})
+            for k, v in (override or {}).items():
+                if isinstance(v, dict) and isinstance(out.get(k), dict):
+                    out[k] = _deep_merge(out.get(k) or {}, v)  # type: ignore[arg-type]
+                else:
+                    out[k] = v
+            return out
+
+        for raw in args.llm_task_option or []:
+            spec = str(raw).strip()
+            if not spec:
+                continue
+            if "=" not in spec:
+                raise SystemExit(f"--llm-task-option must be TASK=JSON_OBJECT; got: {spec}")
+            task, raw_json = spec.split("=", 1)
+            task = task.strip()
+            raw_json = raw_json.strip()
+            if not task:
+                raise SystemExit(f"--llm-task-option task is empty: {spec}")
+            try:
+                parsed = json.loads(raw_json)
+            except Exception as e:
+                raise SystemExit(f"--llm-task-option JSON parse failed for task={task}: {e}")
+            if not isinstance(parsed, dict):
+                raise SystemExit(f"--llm-task-option must be a JSON object for task={task}; got: {type(parsed).__name__}")
+            cur = task_opts.get(task) or {}
+            task_opts[task] = _deep_merge(cur, parsed)
+
+    if task_opts:
+        if lockdown_active():
+            raise SystemExit(
+                "Forbidden: --llm-task-temperature/--llm-task-option under YTM_ROUTING_LOCKDOWN=1. "
+                "Use numeric slots (LLM_MODEL_SLOT) and SSOT task routing instead, or set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging."
+            )
+        os.environ["LLM_FORCE_TASK_OPTIONS_JSON"] = json.dumps(task_opts, ensure_ascii=False)
 
     if args.command == "a-text-rebuild":
         _sync_episode_targets_from_sources(ch, no)

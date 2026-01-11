@@ -55,13 +55,25 @@ def _find_latest_draft_dirs(draft_root: Path, channel: str, videos: List[str]) -
     found: List[Path] = []
     missing: List[str] = []
     for video in videos:
-        pat = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
-        matches = [p for p in draft_root.iterdir() if p.is_dir() and pat.match(p.name)]
-        matches.sort(key=lambda p: p.name)
+        # Support both legacy and current naming:
+        # - legacy: CH02-014_regen_YYYYMMDD_HHMMSS_draft
+        # - current: ★CH02-043-<title...> (created by capcut_bulk_insert)
+        legacy = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
+        star = re.compile(rf"^★?{re.escape(channel)}-{re.escape(video)}-")
+        matches = [p for p in draft_root.iterdir() if p.is_dir() and (legacy.match(p.name) or star.match(p.name))]
         if not matches:
             missing.append(video)
             continue
-        found.append(matches[-1])
+
+        def score(p: Path) -> tuple[int, float, str]:
+            is_star = int(p.name.startswith("★"))
+            try:
+                mtime = p.stat().st_mtime
+            except Exception:
+                mtime = 0.0
+            return (is_star, mtime, p.name)
+
+        found.append(sorted(matches, key=score, reverse=True)[0])
     return found, missing
 
 
@@ -311,24 +323,27 @@ def _validate_images(draft_content: Dict[str, Any], draft_dir: Path) -> List[str
         # Continue to surface more diagnostics
 
     missing_files = 0
-    photo_paths: List[Path] = []
-    non_photo = 0
+    asset_paths: List[Path] = []
+    unsupported = 0
     for mid in seg_ids:
         mat = by_id.get(mid)
         if not mat:
             continue
-        if mat.get("type") != "photo":
-            non_photo += 1
+        # CH02 may include a small number of b-roll mp4 clips; allow both.
+        if mat.get("type") not in {"photo", "video"}:
+            unsupported += 1
         p = mat.get("path")
         if isinstance(p, str) and p:
             fp = Path(p)
-            photo_paths.append(fp)
+            asset_paths.append(fp)
             if not fp.exists():
                 missing_files += 1
-    if non_photo:
-        errors.append(f"images: {non_photo} segment materials are not type=photo")
+    if unsupported:
+        errors.append(f"images: {unsupported} segment materials are not type=photo|video")
     if missing_files:
-        errors.append(f"images: {missing_files} photo files missing on disk (sample={str(photo_paths[0]) if photo_paths else 'n/a'})")
+        errors.append(
+            f"images: {missing_files} asset files missing on disk (sample={str(asset_paths[0]) if asset_paths else 'n/a'})"
+        )
 
     # assets/image directory presence (CapCut expects copied assets there)
     assets_dir = draft_dir / "assets" / "image"
@@ -340,7 +355,7 @@ def _validate_images(draft_content: Dict[str, Any], draft_dir: Path) -> List[str
             errors.append("images: no .png found under draft assets/image")
 
     # Heuristic: flag noise-placeholder batches (uniform huge PNG sizes)
-    existing = [p for p in photo_paths if p.exists()]
+    existing = [p for p in asset_paths if p.exists() and p.suffix.lower() == ".png"]
     sample = existing[: min(12, len(existing))]
     if len(sample) >= 5:
         sizes = [p.stat().st_size for p in sample]
@@ -380,9 +395,10 @@ def main() -> None:
     if args.all_matching:
         targets: List[Path] = []
         for video in videos:
-            pat = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
-            matches = [p for p in draft_root.iterdir() if p.is_dir() and pat.match(p.name)]
-            matches.sort(key=lambda p: p.name)
+            legacy = re.compile(rf"^{re.escape(channel)}-{re.escape(video)}_regen_\d{{8}}_\d{{6}}_draft$")
+            star = re.compile(rf"^★?{re.escape(channel)}-{re.escape(video)}-")
+            matches = [p for p in draft_root.iterdir() if p.is_dir() and (legacy.match(p.name) or star.match(p.name))]
+            matches.sort(key=lambda p: (int(p.name.startswith("★")), p.name))
             targets.extend(matches)
         missing = []
     else:

@@ -286,7 +286,9 @@ const resolveEpisodeKey = (row: Row): { keyRaw: string; keyNorm: string } => {
 
 const isAdoptedEpisodeRow = (row: Row): boolean => {
   const progress = String(row["進捗"] ?? (row as any)["progress"] ?? "");
+  const youtubeId = String(row["YouTubeID"] ?? (row as any)["youtube_id"] ?? "").trim();
   return (
+    youtubeId.length > 0 ||
     toBool((row as any)["published_lock"], false) ||
     progress.includes("投稿済み") ||
     progress.includes("公開済み") ||
@@ -449,6 +451,7 @@ export function PlanningPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [redoOnly, setRedoOnly] = useState(false);
+  const [unpublishedOnly, setUnpublishedOnly] = useState(false);
   const [detailRow, setDetailRow] = useState<Row | null>(null);
   const [saving, setSaving] = useState(false);
   const [redoScriptValue, setRedoScriptValue] = useState<boolean>(true);
@@ -800,13 +803,17 @@ export function PlanningPage() {
   }, [channel, videoParam, loading, requestThumbForRow, rows]);
 
   useEffect(() => {
-    const next = redoOnly
-      ? rows.filter((row) => toBool(row["redo_script"], true) || toBool(row["redo_audio"], true))
-      : rows;
+    let next = rows;
+    if (redoOnly) {
+      next = next.filter((row) => toBool(row["redo_script"], true) || toBool(row["redo_audio"], true));
+    }
+    if (unpublishedOnly) {
+      next = next.filter((row) => !isAdoptedEpisodeRow(row));
+    }
     setFilteredRows(next);
     // サムネを上位40件だけ事前取得（ベストエフォート）
     next.slice(0, 40).forEach(requestThumbForRow);
-  }, [rows, redoOnly, channel, requestThumbForRow]);
+  }, [rows, redoOnly, unpublishedOnly, channel, requestThumbForRow]);
 
   const keyConceptDupes = useMemo(() => {
     const adoptedByKey: Record<string, string[]> = {};
@@ -943,6 +950,17 @@ export function PlanningPage() {
             onChange={(e) => setRedoOnly(e.target.checked)}
           />
           リテイクのみ
+        </label>
+        <label
+          className="planning-page__toggle"
+          title="投稿済み/公開済み/投稿完了（ロック）/YouTubeIDあり の行を除外します"
+        >
+          <input
+            type="checkbox"
+            checked={unpublishedOnly}
+            onChange={(e) => setUnpublishedOnly(e.target.checked)}
+          />
+          未投稿のみ
         </label>
         <button
           type="button"

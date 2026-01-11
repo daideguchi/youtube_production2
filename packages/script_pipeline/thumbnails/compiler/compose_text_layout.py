@@ -1561,6 +1561,206 @@ def _deep_merge_dict(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, A
     return out
 
 
+def _is_auto_scalar(value: Any) -> bool:
+    if not isinstance(value, str):
+        return False
+    s = value.strip().lower()
+    return s in {"auto", "fit", "fit_text", "text", "auto_text"}
+
+
+def _as_float_or_none(value: Any) -> Optional[float]:
+    try:
+        return float(value)
+    except Exception:
+        return None
+
+
+def _compute_auto_top_band_y1(
+    *,
+    top_band: Dict[str, Any],
+    slots: Dict[str, Any],
+    text_payload: Dict[str, Any],
+    text_override: Optional[Dict[str, str]],
+    img_w: int,
+    img_h: int,
+    fonts_cfg: Dict[str, Any],
+    effects: Dict[str, Any],
+    stroke_width_default: int,
+) -> Optional[float]:
+    auto_slot = str(top_band.get("auto_slot") or "main").strip()
+    if not auto_slot or auto_slot not in slots:
+        for k in slots.keys():
+            if isinstance(k, str) and k.strip():
+                auto_slot = k.strip()
+                break
+    slot_cfg = slots.get(auto_slot)
+    if not isinstance(slot_cfg, dict):
+        return None
+
+    raw_text = ""
+    if isinstance(text_override, dict) and isinstance(text_override.get(auto_slot), str):
+        raw_text = str(text_override.get(auto_slot) or "")
+    else:
+        raw_text = str(text_payload.get(auto_slot) or "")
+    raw_text = _decode_text_escapes(raw_text).strip()
+    if not raw_text:
+        return None
+
+    fill_key = str(slot_cfg.get("fill") or "").strip()
+    plain_text, _spans = _parse_inline_fill_tags(raw_text, default_fill_key=fill_key)
+    plain_text = plain_text.strip()
+    if not plain_text:
+        return None
+
+    box = slot_cfg.get("box")
+    if not isinstance(box, list) or len(box) != 4:
+        return None
+    try:
+        x0 = int(round(float(box[0]) * img_w))
+        y0 = int(round(float(box[1]) * img_h))
+        w = int(round(float(box[2]) * img_w))
+        h = int(round(float(box[3]) * img_h))
+    except Exception:
+        return None
+
+    font_key = str(slot_cfg.get("font") or "").strip()
+    font_path = _resolve_font_path_from_spec(fonts_cfg, font_key) if font_key else _fallback_font_path()
+
+    base_size = int(slot_cfg.get("base_size_px", 64))
+    tracking = int(slot_cfg.get("tracking", 0))
+    max_lines = int(slot_cfg.get("max_lines", 2))
+
+    valign = str(slot_cfg.get("valign") or "top").strip().lower()
+    if valign in {"center", "middle"}:
+        valign = "middle"
+    if valign not in {"top", "middle", "bottom"}:
+        valign = "top"
+
+    stroke_enabled = bool(slot_cfg.get("stroke", True))
+    slot_stroke_width = int(stroke_width_default)
+    if slot_cfg.get("stroke_width_px") is not None:
+        try:
+            slot_stroke_width = int(slot_cfg.get("stroke_width_px"))
+        except Exception:
+            slot_stroke_width = int(stroke_width_default)
+    slot_stroke_width = max(0, int(slot_stroke_width))
+
+    fit = _fit_text_to_box(
+        plain_text,
+        font_path=font_path,
+        base_size=base_size,
+        max_width=max(1, w),
+        max_height=max(1, h),
+        max_lines=max(1, max_lines),
+        stroke_width=slot_stroke_width if stroke_enabled else 0,
+        tracking=tracking,
+    )
+    if not fit.lines:
+        return None
+
+    text_h = _total_text_height_px(
+        lines=fit.lines,
+        font_path=font_path,
+        font_size=fit.font_size,
+        line_gap=fit.line_gap,
+        stroke_width=fit.stroke_width if stroke_enabled else 0,
+    )
+    y_draw = int(y0)
+    if valign != "top" and text_h > 0 and text_h < h:
+        if valign == "bottom":
+            y_draw = int(y0 + (h - text_h))
+        else:
+            y_draw = int(y0 + (h - text_h) // 2)
+    y_draw = _apply_auto_shift_y_draw(
+        top_band=top_band,
+        y0=y0,
+        h=h,
+        base_y_draw=y_draw,
+        base_size=base_size,
+        fit_font_size=fit.font_size,
+        text_h=text_h,
+    )
+
+    try:
+        pad_px = int(top_band.get("auto_pad_px", 6))
+    except Exception:
+        pad_px = 6
+    pad_px = max(0, int(pad_px))
+
+    y1_px = int(y_draw + text_h + pad_px)
+    y1 = float(y1_px) / float(max(1, img_h))
+
+    y0_band = _as_float_or_none(top_band.get("y0", 0.0))
+    if y0_band is not None:
+        y1 = max(float(y0_band), y1)
+
+    min_y1 = _as_float_or_none(top_band.get("auto_min_y1"))
+    max_y1 = _as_float_or_none(top_band.get("auto_max_y1"))
+    if min_y1 is not None:
+        y1 = max(float(min_y1), y1)
+    if max_y1 is not None:
+        y1 = min(float(max_y1), y1)
+
+    return max(0.0, min(1.0, float(y1)))
+
+
+def _apply_auto_shift_y_draw(
+    *,
+    top_band: Dict[str, Any],
+    y0: int,
+    h: int,
+    base_y_draw: int,
+    base_size: int,
+    fit_font_size: int,
+    text_h: int,
+) -> int:
+    """
+    Optionally shift text downward (within the slot box) when the font is shrunk,
+    to reduce the perceived variance in empty space across titles.
+
+    Controlled by `global.overlays.top_band.auto_shift_strength` (0..1).
+    """
+    try:
+        strength = float(top_band.get("auto_shift_strength", 0.0))
+    except Exception:
+        strength = 0.0
+    if strength <= 1e-6:
+        return int(base_y_draw)
+
+    try:
+        ratio_hi = float(top_band.get("auto_shift_ratio_hi", 0.92))
+    except Exception:
+        ratio_hi = 0.92
+    try:
+        ratio_lo = float(top_band.get("auto_shift_ratio_lo", 0.72))
+    except Exception:
+        ratio_lo = 0.72
+
+    ratio_hi = max(0.0, min(1.5, float(ratio_hi)))
+    ratio_lo = max(0.0, min(float(ratio_hi), float(ratio_lo)))
+
+    bs = max(1, int(base_size))
+    ratio = float(int(fit_font_size)) / float(bs)
+    if ratio >= ratio_hi:
+        return int(base_y_draw)
+
+    slack = max(0, int(h) - int(text_h))
+    if slack <= 0:
+        return int(base_y_draw)
+
+    denom = max(1e-6, float(ratio_hi) - float(ratio_lo))
+    t = (float(ratio_hi) - float(ratio)) / denom
+    t = max(0.0, min(1.0, float(t)))
+
+    frac = float(strength) * float(t)
+    frac = max(0.0, min(1.0, float(frac)))
+
+    max_y = int(int(y0) + int(slack))
+    y_base = int(base_y_draw)
+    target = int(round(float(y_base) + float(max_y - y_base) * float(frac)))
+    return int(max(min(target, max_y), min(y_base, max_y)))
+
+
 def compose_text_layout(
     base_image_path: Path,
     *,
@@ -1572,6 +1772,7 @@ def compose_text_layout(
     overlays_override: Optional[Dict[str, Any]] = None,
 ) -> Image.Image:
     base = Image.open(base_image_path).convert("RGBA")
+    img_w, img_h = base.size
 
     item = find_text_layout_item_for_video(text_layout_spec, video_id)
     if not isinstance(item, dict):
@@ -1588,6 +1789,68 @@ def compose_text_layout(
     overlays_cfg = global_cfg.get("overlays") if isinstance(global_cfg.get("overlays"), dict) else {}
     if isinstance(overlays_override, dict) and overlays_override:
         overlays_cfg = _deep_merge_dict(overlays_cfg, overlays_override)
+
+    fonts_cfg = global_cfg.get("fonts") if isinstance(global_cfg.get("fonts"), dict) else {}
+    effects = global_cfg.get("effects_defaults") if isinstance(global_cfg.get("effects_defaults"), dict) else {}
+    if isinstance(effects_override, dict) and effects_override:
+        effects = _deep_merge_dict(effects, effects_override)
+    stroke_cfg = effects.get("stroke") if isinstance(effects.get("stroke"), dict) else {}
+    shadow_cfg = effects.get("shadow") if isinstance(effects.get("shadow"), dict) else {}
+
+    stroke_color = _parse_color(str(stroke_cfg.get("color") or "#000000"))
+    stroke_width = int(stroke_cfg.get("width_px", 8))
+
+    shadow_alpha = float(shadow_cfg.get("alpha", 0.65))
+    shadow_alpha = max(0.0, min(1.0, shadow_alpha))
+    shadow_rgba = _parse_color(str(shadow_cfg.get("color") or "#000000"))
+    shadow_color: RGBA = (shadow_rgba[0], shadow_rgba[1], shadow_rgba[2], int(round(shadow_alpha * 255)))
+    shadow_offset = shadow_cfg.get("offset_px") or [6, 6]
+    try:
+        off_x = int(shadow_offset[0])
+        off_y = int(shadow_offset[1])
+    except Exception:
+        off_x, off_y = (6, 6)
+    blur = int(shadow_cfg.get("blur_px", 10))
+    shadow_spec = ShadowSpec(color=shadow_color, offset=(off_x, off_y), blur=blur)
+    shadow_rgb_default = (shadow_color[0], shadow_color[1], shadow_color[2])
+
+    glow_cfg = effects.get("glow") if isinstance(effects.get("glow"), dict) else {}
+    glow_alpha = float(glow_cfg.get("alpha", 0.0))
+    glow_alpha = max(0.0, min(1.0, glow_alpha))
+    glow_rgba = _parse_color(str(glow_cfg.get("color") or "#ffffff"))
+    glow_color: RGBA = (glow_rgba[0], glow_rgba[1], glow_rgba[2], int(round(glow_alpha * 255)))
+    glow_blur = int(glow_cfg.get("blur_px", 0))
+    glow_spec = ShadowSpec(color=glow_color, offset=(0, 0), blur=max(0, glow_blur))
+
+    templates = text_layout_spec.get("templates")
+    if not isinstance(templates, dict):
+        raise ValueError("text_layout.templates is missing")
+    tpl = templates.get(template_id)
+    if not isinstance(tpl, dict):
+        raise KeyError(f"template_id not found: {template_id}")
+    slots = tpl.get("slots")
+    if not isinstance(slots, dict):
+        raise ValueError(f"template slots missing for {template_id}")
+
+    text_payload = item.get("text")
+    if not isinstance(text_payload, dict):
+        raise ValueError(f"text missing for {video_id}")
+
+    auto_top_band_y1: Optional[float] = None
+    top_band_cfg = overlays_cfg.get("top_band") if isinstance(overlays_cfg.get("top_band"), dict) else None
+    if isinstance(top_band_cfg, dict) and bool(top_band_cfg.get("enabled", True)) and _is_auto_scalar(top_band_cfg.get("y1")):
+        auto_top_band_y1 = _compute_auto_top_band_y1(
+            top_band=top_band_cfg,
+            slots=slots,
+            text_payload=text_payload,
+            text_override=text_override,
+            img_w=img_w,
+            img_h=img_h,
+            fonts_cfg=fonts_cfg,
+            effects=effects,
+            stroke_width_default=stroke_width,
+        )
+
     left_overlay = overlays_cfg.get("left_tsz") if isinstance(overlays_cfg.get("left_tsz"), dict) else None
     if isinstance(left_overlay, dict) and bool(left_overlay.get("enabled", True)):
         safe = global_cfg.get("safe_zones") if isinstance(global_cfg.get("safe_zones"), dict) else {}
@@ -1609,7 +1872,11 @@ def compose_text_layout(
     top_band = overlays_cfg.get("top_band") if isinstance(overlays_cfg.get("top_band"), dict) else None
     if isinstance(top_band, dict) and bool(top_band.get("enabled", True)):
         y0 = float(top_band.get("y0", 0.0))
-        y1 = float(top_band.get("y1", 0.25))
+        y1_raw = top_band.get("y1", 0.25)
+        if _is_auto_scalar(y1_raw):
+            y1 = float(auto_top_band_y1) if auto_top_band_y1 is not None else 0.25
+        else:
+            y1 = float(_as_float_or_none(y1_raw) if _as_float_or_none(y1_raw) is not None else 0.25)
         alpha_top = float(top_band.get("alpha_top", 0.70))
         alpha_bottom = float(top_band.get("alpha_bottom", 0.0))
         col = _parse_color(str(top_band.get("color") or "#000000"))
@@ -1690,53 +1957,6 @@ def compose_text_layout(
                 alpha_bottom=alpha_bottom,
             )
 
-    fonts_cfg = global_cfg.get("fonts") if isinstance(global_cfg.get("fonts"), dict) else {}
-    effects = global_cfg.get("effects_defaults") if isinstance(global_cfg.get("effects_defaults"), dict) else {}
-    if isinstance(effects_override, dict) and effects_override:
-        effects = _deep_merge_dict(effects, effects_override)
-    stroke_cfg = effects.get("stroke") if isinstance(effects.get("stroke"), dict) else {}
-    shadow_cfg = effects.get("shadow") if isinstance(effects.get("shadow"), dict) else {}
-
-    stroke_color = _parse_color(str(stroke_cfg.get("color") or "#000000"))
-    stroke_width = int(stroke_cfg.get("width_px", 8))
-
-    shadow_alpha = float(shadow_cfg.get("alpha", 0.65))
-    shadow_alpha = max(0.0, min(1.0, shadow_alpha))
-    shadow_rgba = _parse_color(str(shadow_cfg.get("color") or "#000000"))
-    shadow_color: RGBA = (shadow_rgba[0], shadow_rgba[1], shadow_rgba[2], int(round(shadow_alpha * 255)))
-    shadow_offset = shadow_cfg.get("offset_px") or [6, 6]
-    try:
-        off_x = int(shadow_offset[0])
-        off_y = int(shadow_offset[1])
-    except Exception:
-        off_x, off_y = (6, 6)
-    blur = int(shadow_cfg.get("blur_px", 10))
-    shadow_spec = ShadowSpec(color=shadow_color, offset=(off_x, off_y), blur=blur)
-    shadow_rgb_default = (shadow_color[0], shadow_color[1], shadow_color[2])
-
-    glow_cfg = effects.get("glow") if isinstance(effects.get("glow"), dict) else {}
-    glow_alpha = float(glow_cfg.get("alpha", 0.0))
-    glow_alpha = max(0.0, min(1.0, glow_alpha))
-    glow_rgba = _parse_color(str(glow_cfg.get("color") or "#ffffff"))
-    glow_color: RGBA = (glow_rgba[0], glow_rgba[1], glow_rgba[2], int(round(glow_alpha * 255)))
-    glow_blur = int(glow_cfg.get("blur_px", 0))
-    glow_spec = ShadowSpec(color=glow_color, offset=(0, 0), blur=max(0, glow_blur))
-
-    templates = text_layout_spec.get("templates")
-    if not isinstance(templates, dict):
-        raise ValueError("text_layout.templates is missing")
-    tpl = templates.get(template_id)
-    if not isinstance(tpl, dict):
-        raise KeyError(f"template_id not found: {template_id}")
-    slots = tpl.get("slots")
-    if not isinstance(slots, dict):
-        raise ValueError(f"template slots missing for {template_id}")
-
-    text_payload = item.get("text")
-    if not isinstance(text_payload, dict):
-        raise ValueError(f"text missing for {video_id}")
-
-    img_w, img_h = base.size
     out = base
 
     for slot_name, slot_cfg in slots.items():
@@ -1877,8 +2097,18 @@ def compose_text_layout(
                     )
                 inline_spans = [colored]
 
-        y_draw = y0
-        if valign != "top":
+        needs_auto_shift = False
+        if isinstance(top_band, dict):
+            try:
+                shift_strength = float(top_band.get("auto_shift_strength", 0.0))
+            except Exception:
+                shift_strength = 0.0
+            if shift_strength > 1e-6:
+                auto_slot = str(top_band.get("auto_slot") or "main").strip()
+                needs_auto_shift = (auto_slot == str(slot_name))
+
+        text_h = 0
+        if valign != "top" or needs_auto_shift:
             text_h = _total_text_height_px(
                 lines=fit.lines,
                 font_path=font_path,
@@ -1886,11 +2116,23 @@ def compose_text_layout(
                 line_gap=fit.line_gap,
                 stroke_width=fit.stroke_width if stroke_enabled else 0,
             )
-            if text_h > 0 and text_h < h:
-                if valign == "bottom":
-                    y_draw = int(y0 + (h - text_h))
-                else:
-                    y_draw = int(y0 + (h - text_h) // 2)
+
+        y_draw = y0
+        if valign != "top" and text_h > 0 and text_h < h:
+            if valign == "bottom":
+                y_draw = int(y0 + (h - text_h))
+            else:
+                y_draw = int(y0 + (h - text_h) // 2)
+        if needs_auto_shift:
+            y_draw = _apply_auto_shift_y_draw(
+                top_band=top_band,
+                y0=y0,
+                h=h,
+                base_y_draw=y_draw,
+                base_size=base_size,
+                fit_font_size=fit.font_size,
+                text_h=text_h,
+            )
 
         backdrop_cfg = slot_cfg.get("backdrop")
         if isinstance(backdrop_cfg, dict) and bool(backdrop_cfg.get("enabled", True)):

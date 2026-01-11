@@ -1,0 +1,60 @@
+[ops] run_id=ops__20260111T023759Z__6ed88d61 mode=API exec_slot=0 lockdown=ON
+[ops] API MODE: script pipeline is API-only (no THINK/CODEX).
+[ops] help: `./ops patterns list` / `./ops latest --channel CHxx --video NNN`
+/Users/dd/10_YouTube_Automation/factory_commentary/packages/factory_common/llm_router.py:331: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:LLMRouter:Router: cache hit for script_a_text_quality_judge (task_id=script_a_text_quality_judge__2ab062d41bf7ead83b4cf7c473e3b6a1)
+INFO:LLMRouter:Router: Invoking fw_mixtral_8x22b_instruct for script_a_text_quality_fix...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+WARNING:LLMRouter:Router: fw_mixtral_8x22b_instruct returned finish_reason=length; retrying with max_tokens=44000 (was 22000)
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_fix succeeded via fw_mixtral_8x22b_instruct (fallback_chain=['fw_mixtral_8x22b_instruct'], latency_ms=407875, usage={'prompt_tokens': 30676, 'completion_tokens': 23529, 'total_tokens': 54205}, request_id=e9d0a106-e7e9-4038-9af1-b3dadd17eab4)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_judge...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_judge succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=14616, usage={'prompt_tokens': 16926, 'completion_tokens': 832, 'total_tokens': 17758}, request_id=f47f9ea3-25bc-4bb4-aa10-2d332fdd978c)
+INFO:LLMRouter:Router: Invoking fw_mixtral_8x22b_instruct for script_a_text_quality_fix...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+WARNING:LLMRouter:Router: fw_mixtral_8x22b_instruct returned finish_reason=length; retrying with max_tokens=44000 (was 22000)
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_fix succeeded via fw_mixtral_8x22b_instruct (fallback_chain=['fw_mixtral_8x22b_instruct'], latency_ms=413295, usage={'prompt_tokens': 30872, 'completion_tokens': 23528, 'total_tokens': 54400}, request_id=b50f9f5b-b17d-411b-bb63-053099d9202e)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_judge...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_judge succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=11038, usage={'prompt_tokens': 16927, 'completion_tokens': 771, 'total_tokens': 17698}, request_id=10a7a19d-586e-46ab-bbe5-67092b17355f)
+{
+  "channel": "CH06",
+  "video": "035",
+  "mode": "resume",
+  "ok": false,
+  "status": "script_in_progress",
+  "script_validation_status": "pending",
+  "judge_verdict": "fail",
+  "judge_report_json": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH06/035/content/analysis/quality_gate/judge_latest.json",
+  "semantic_verdict": "minor",
+  "semantic_alignment_report_json": "",
+  "a_text_path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH06/035/content/assembled.md",
+  "a_text_local_ok": true,
+  "a_text_hard_issue_codes": [],
+  "a_text_stats": {
+    "char_count": 20855,
+    "pause_lines": 12,
+    "quote_marks": 20,
+    "paren_marks": 0,
+    "target_chars_min": 20000,
+    "target_chars_max": 26000,
+    "quote_marks_max": 20,
+    "paren_marks_max": 10
+  },
+  "a_text_validated_script_hash": "",
+  "a_text_current_script_hash": "9a0e3db3967d475d46fdd44a9ecaffce33eb56e2",
+  "a_text_hash_match": null,
+  "planning_coherence": "no_content_summary_tag",
+  "status_json": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH06/035/status.json",
+  "note": ""
+}

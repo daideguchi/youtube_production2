@@ -1129,14 +1129,17 @@ class GeminiImageAdapter:
                 continue
         return os.getenv(env_name)
 
-    def generate(
-        self, model_conf: Dict[str, Any], options: ImageTaskOptions
-    ) -> ImageResult:
-        model_name = model_conf.get("model_name")
+    @staticmethod
+    def _looks_like_imagen_model(model_name: str) -> bool:
+        # Imagen models (e.g. imagen-4.0-fast-generate-001) use the generate_images endpoint.
+        name = str(model_name or "").strip().lower()
+        return bool(name) and name.startswith("imagen-")
+
+    def generate(self, model_conf: Dict[str, Any], options: ImageTaskOptions) -> ImageResult:
+        model_name = str(model_conf.get("model_name") or "").strip()
         if not model_name:
             raise ImageGenerationError("Gemini model name is missing from configuration")
 
-        images: List[bytes] = []
         metadata: Dict[str, Any] = {
             "aspect_ratio": options.aspect_ratio,
             "image_size": options.size,
@@ -1144,6 +1147,49 @@ class GeminiImageAdapter:
             "negative_prompt": options.negative_prompt,
             "n": options.n,
         }
+
+        if self._looks_like_imagen_model(model_name):
+            try:
+                cfg = genai_types.GenerateImagesConfig(
+                    numberOfImages=int(max(1, int(options.n or 1))),
+                    aspectRatio=(str(options.aspect_ratio).strip() if options.aspect_ratio else None),
+                    negativePrompt=(str(options.negative_prompt).strip() if options.negative_prompt else None),
+                    seed=(int(options.seed) if options.seed is not None else None),
+                )
+                response = self.client.models.generate_images(
+                    model=model_name,
+                    prompt=str(options.prompt or ""),
+                    config=cfg,
+                )
+            except Exception as e:  # pragma: no cover
+                raise ImageGenerationError(str(e)) from e
+
+            images: List[bytes] = []
+            for item in getattr(response, "generated_images", []) or []:
+                img_obj = getattr(item, "image", None)
+                if not img_obj:
+                    continue
+                data = getattr(img_obj, "image_bytes", None)
+                if isinstance(data, str):
+                    try:
+                        images.append(base64.b64decode(data))
+                    except Exception:
+                        continue
+                elif isinstance(data, (bytes, bytearray)):
+                    images.append(bytes(data))
+
+            if not images:
+                raise ImageGenerationError("Imagen response did not return any image data")
+
+            return ImageResult(
+                images=images,
+                provider="gemini",
+                model=model_name,
+                request_id=None,
+                metadata=metadata,
+            )
+
+        images: List[bytes] = []
         # NOTE: Gemini 2.5 image API (2025-12) returns image bytes via generate_content.
         # - generate_images is not available for model=gemini-2.5-flash-image (404 on this SDK).
         # - response_modalities / aspect_ratio / image_size parameters cause server errors, so

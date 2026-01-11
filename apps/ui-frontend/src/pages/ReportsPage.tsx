@@ -66,6 +66,7 @@ export function ReportsPage() {
   const channelParam = normalizeChannel(searchParams.get("channel")) ?? selectedChannel ?? null;
   const keyword = (searchParams.get("q") ?? "").trim();
   const hideCompleted = toBoolParam(searchParams.get("hide_completed"));
+  const unpublishedOnly = toBoolParam(searchParams.get("unpublished_only"));
 
   const [reloadKey, setReloadKey] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -73,11 +74,12 @@ export function ReportsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const applyParams = useCallback(
-    (next: { channel?: string | null; q?: string; hide_completed?: boolean }) => {
+    (next: { channel?: string | null; q?: string; hide_completed?: boolean; unpublished_only?: boolean }) => {
       const params = new URLSearchParams(searchParams);
       const normalizedChannel = normalizeChannel(next.channel ?? channelParam);
       const nextKeyword = (next.q ?? keyword).trim();
       const nextHideCompleted = next.hide_completed ?? hideCompleted;
+      const nextUnpublishedOnly = next.unpublished_only ?? unpublishedOnly;
 
       if (normalizedChannel) {
         params.set("channel", normalizedChannel);
@@ -97,9 +99,15 @@ export function ReportsPage() {
         params.delete("hide_completed");
       }
 
+      if (nextUnpublishedOnly) {
+        params.set("unpublished_only", "1");
+      } else {
+        params.delete("unpublished_only");
+      }
+
       setSearchParams(params, { replace: true });
     },
-    [searchParams, setSearchParams, channelParam, keyword, hideCompleted]
+    [searchParams, setSearchParams, channelParam, keyword, hideCompleted, unpublishedOnly]
   );
 
   const load = useCallback(async () => {
@@ -160,12 +168,13 @@ export function ReportsPage() {
   const filteredVideos = useMemo(() => {
     const q = keyword.toLowerCase();
     return allVideos.filter((video) => {
+      if (unpublishedOnly && Boolean(video.published_lock)) return false;
       if (hideCompleted && COMPLETED_STATUSES.has(video.status)) return false;
       if (!q) return true;
       const hay = `${video.channel} ${video.video} ${video.title ?? ""} ${video.script_id ?? ""}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [allVideos, keyword, hideCompleted]);
+  }, [allVideos, keyword, hideCompleted, unpublishedOnly]);
 
   const summary = useMemo(() => {
     let total = 0;
@@ -240,6 +249,14 @@ export function ReportsPage() {
                 onChange={(event) => applyParams({ hide_completed: event.target.checked })}
               />
               <span>完了を隠す</span>
+            </label>
+            <label style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+              <input
+                type="checkbox"
+                checked={unpublishedOnly}
+                onChange={(event) => applyParams({ unpublished_only: event.target.checked })}
+              />
+              <span>未投稿のみ</span>
             </label>
 
             <button type="button" className="button button--ghost" onClick={() => setReloadKey((v) => v + 1)}>

@@ -5,6 +5,7 @@ batch_regenerate_tts — UI BatchTTS 用のバックグラウンド実行スク�
 役割:
 - 指定チャンネルの video を列挙し、`python -m script_pipeline.cli audio` を順番に実行
 - 進捗 JSON とログを更新（UI がポーリングして表示）
+- `--prepass` で「読み解決のみ（wav生成なし）」を高速に回せる（アノテーション除去/辞書適用の確認用）
 
 安全:
 - `script_pipeline.cli audio` 側に script_validation gate があるため、未検証台本は失敗として記録される
@@ -48,7 +49,13 @@ def _append_log(log_path: Path, text: str) -> None:
             f.write("\n")
 
 
-def _discover_targets(channels: List[str]) -> Tuple[List[Tuple[str, str]], Dict[str, Dict[str, int]]]:
+def _discover_targets(
+    channels: List[str],
+    *,
+    min_video: int | None,
+    max_video: int | None,
+    only_missing_final: bool,
+) -> Tuple[List[Tuple[str, str]], Dict[str, Dict[str, int]]]:
     data_root = repo_paths.script_data_root()
     targets: List[Tuple[str, str]] = []
     per_channel: Dict[str, Dict[str, int]] = {}
@@ -62,8 +69,15 @@ def _discover_targets(channels: List[str]) -> Tuple[List[Tuple[str, str]], Dict[
                     continue
                 if not p.name.isdigit():
                     continue
+                n = int(p.name)
+                if min_video is not None and n < min_video:
+                    continue
+                if max_video is not None and n > max_video:
+                    continue
                 videos.append(p.name.zfill(3))
         videos = sorted(set(videos), key=lambda s: int(s))
+        if only_missing_final:
+            videos = [v for v in videos if not repo_paths.audio_final_dir(ch, v).exists()]
         per_channel[ch] = {"total": len(videos), "completed": 0, "success": 0, "failed": 0}
         for v in videos:
             targets.append((ch, v))
@@ -74,14 +88,35 @@ def _discover_targets(channels: List[str]) -> Tuple[List[Tuple[str, str]], Dict[
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--channel", action="append", required=True, help="Target channel (repeatable). e.g. CH06")
-    ap.add_argument("--progress-path", required=True, help="Path to batch_tts_progress.json")
-    ap.add_argument("--log-path", required=True, help="Path to batch_tts_regeneration.log")
+    ap.add_argument(
+        "--progress-path",
+        default=str(repo_paths.logs_root() / "ui" / "batch_tts_progress.json"),
+        help="Path to batch_tts_progress.json (default: workspaces/logs/ui/batch_tts_progress.json)",
+    )
+    ap.add_argument(
+        "--log-path",
+        default=str(repo_paths.logs_root() / "ui" / "batch_tts_regeneration.log"),
+        help="Path to batch_tts_regeneration.log (default: workspaces/logs/ui/batch_tts_regeneration.log)",
+    )
     ap.add_argument("--resume", action="store_true", help="Resume from existing chunks (pass-through to CLI audio)")
     ap.add_argument(
         "--allow-unvalidated",
         action="store_true",
         help="Allow TTS even when script_validation is not completed (not recommended).",
     )
+    ap.add_argument("--prepass", action="store_true", help="Reading-only pass (no wav synthesis).")
+    ap.add_argument(
+        "--skip-tts-reading",
+        action="store_true",
+        help="Disable reading-LLM path (sets SKIP_TTS_READING=1).",
+    )
+    ap.add_argument(
+        "--only-missing-final",
+        action="store_true",
+        help="Only process videos missing workspaces/audio/final outputs.",
+    )
+    ap.add_argument("--min-video", type=int, default=None, help="Only process videos >= N (numeric).")
+    ap.add_argument("--max-video", type=int, default=None, help="Only process videos <= N (numeric).")
     args = ap.parse_args()
 
     channels = [str(ch).strip().upper() for ch in (args.channel or []) if str(ch).strip()]
@@ -96,7 +131,12 @@ def main() -> int:
         base_paths.append(pythonpath)
     os.environ["PYTHONPATH"] = os.pathsep.join(base_paths)
 
-    targets, per_channel = _discover_targets(channels)
+    targets, per_channel = _discover_targets(
+        channels,
+        min_video=args.min_video,
+        max_video=args.max_video,
+        only_missing_final=bool(args.only_missing_final),
+    )
     progress: Dict[str, Any] = {
         "status": "running",
         "current_channel": None,
@@ -112,14 +152,17 @@ def main() -> int:
     }
     _write_json(progress_path, progress)
 
-    _append_log(log_path, f"[batch_regenerate_tts] start { _now_iso() } channels={channels} total={len(targets)}")
+    _append_log(
+        log_path,
+        f"[batch_regenerate_tts] start {_now_iso()} channels={channels} total={len(targets)} prepass={bool(args.prepass)} skip_tts_reading={bool(args.skip_tts_reading)} only_missing_final={bool(args.only_missing_final)}",
+    )
 
     try:
         with log_path.open("a", encoding="utf-8") as log_fh:
             for ch, video in targets:
                 progress["current_channel"] = ch
                 progress["current_video"] = video
-                progress["current_step"] = "audio"
+                progress["current_step"] = "audio_prepass" if args.prepass else "audio"
                 progress["updated_at"] = _now_iso()
                 _write_json(progress_path, progress)
 
@@ -127,6 +170,8 @@ def main() -> int:
                 log_fh.flush()
 
                 env = os.environ.copy()
+                if args.skip_tts_reading:
+                    env["SKIP_TTS_READING"] = "1"
                 rc = subprocess.run(
                     [
                         sys.executable,
@@ -138,6 +183,7 @@ def main() -> int:
                         "--video",
                         video,
                         *(["--resume"] if args.resume else []),
+                        *(["--prepass"] if args.prepass else []),
                         *(["--allow-unvalidated"] if args.allow_unvalidated else []),
                     ],
                     cwd=str(repo_paths.repo_root()),
@@ -164,7 +210,7 @@ def main() -> int:
                         {
                             "channel": ch,
                             "video": video,
-                            "error": f"audio failed (exit={rc}). see log.",
+                            "error": f"{'audio_prepass' if args.prepass else 'audio'} failed (exit={rc}). see log.",
                         }
                     )
                 progress["channels"][ch] = ch_state

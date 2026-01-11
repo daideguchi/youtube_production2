@@ -106,6 +106,10 @@
   - BatchTTS（UIパネル）:
     - `POST /api/batch-tts/start`（backend が `scripts/batch_regenerate_tts.py` を起動）
     - `GET /api/batch-tts/progress`, `GET /api/batch-tts/log`, `POST /api/batch-tts/reset`
+    - 直叩き（CLI）:
+      - prepass（wav生成なし / アノテーション除去・辞書適用の確認用）: `python3 scripts/batch_regenerate_tts.py --channel CHxx --prepass --skip-tts-reading`
+      - 合成（wav生成あり）: `python3 scripts/batch_regenerate_tts.py --channel CHxx --skip-tts-reading`
+      - 範囲/欠損のみ: `--min-video N --max-video N` / `--only-missing-final`
 - Frontend (React): `apps/ui-frontend`
   - 配線SSOT（UI↔Backend）: `ssot/ops/OPS_UI_WIRING.md`
   - API base URL（GitHub Pages / 別origin向け）: `apps/ui-frontend/src/api/baseUrl.ts`（`REACT_APP_API_BASE_URL`）

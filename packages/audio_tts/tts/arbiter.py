@@ -457,10 +457,186 @@ def _patch_tokens_with_words(
     def has_override_in_range(start: int, end: int) -> bool:
         return (prefix[end + 1] - prefix[start]) > 0
 
+    def _is_kana_like(s: str) -> bool:
+        if not s:
+            return False
+        for ch in s:
+            o = ord(ch)
+            if 0x3040 <= o <= 0x309F:  # Hiragana
+                continue
+            if 0x30A0 <= o <= 0x30FF:  # Katakana (incl. long vowel mark)
+                continue
+            if ch in {"ー", "・"}:
+                continue
+            return False
+        return True
+
+    def _is_ascii_like(s: str) -> bool:
+        if not s:
+            return False
+        for ch in s:
+            if "0" <= ch <= "9":
+                continue
+            if "A" <= ch <= "Z" or "a" <= ch <= "z":
+                continue
+            if ch in {"_", "-", ".", "&", "+", "/"}:
+                continue
+            return False
+        return True
+
+    def _phrase_surface(start: int, end: int) -> str:
+        return "".join(str(tokens[k].get("surface") or "") for k in range(start, end + 1))
+
+    def _phrase_spoken_from_left(start: int, end: int) -> str:
+        # Prefer dictionary (supports multi-token surfaces).
+        surf = _phrase_surface(start, end)
+        if words:
+            repl = words.get(surf)
+            if isinstance(repl, str) and repl:
+                normalized = normalize_reading_kana(repl)
+                if is_safe_reading(normalized):
+                    return normalized
+        # Fallback: MeCab reading for JP phrases (ASCII surfaces often fail safety checks).
+        reading = "".join(str(tokens[k].get("reading_mecab") or "") for k in range(start, end + 1))
+        normalized = normalize_reading_kana(reading)
+        return normalized if is_safe_reading(normalized) else ""
+
+    def _phrase_spoken_from_right(start: int, end: int) -> str:
+        surf = _phrase_surface(start, end)
+        if words:
+            repl = words.get(surf)
+            if isinstance(repl, str) and repl:
+                normalized = normalize_reading_kana(repl)
+                if is_safe_reading(normalized):
+                    return normalized
+        if _is_kana_like(surf):
+            normalized = normalize_reading_kana(surf)
+            return normalized if is_safe_reading(normalized) else ""
+        return ""
+
+    def _left_phrase_bounds(before_idx: int) -> Optional[tuple[int, int]]:
+        if before_idx < 0:
+            return None
+        end = before_idx
+        start = end
+        while start - 1 >= 0:
+            prev = tokens[start - 1]
+            surface = str(prev.get("surface") or "")
+            if not surface:
+                break
+            if surface in {"、", "。", "（", "）", "「", "」", "(", ")", "[", "]"}:
+                break
+            pos = str(prev.get("pos") or "")
+            if pos in {"名詞", "接尾", "接頭詞"}:
+                start -= 1
+                continue
+            break
+        return (start, end) if start <= end else None
+
+    def _compute_inline_annotation_skips() -> set[int]:
+        """
+        Drop inline reading hints from B-text only, e.g.:
+        - 刈羽郡、かりわぐん
+        - 大河内正敏、おおこうちまさとし
+        - Apple（アップル）
+        - 禅、Zen  (only when Zen is mapped to ゼン via dict)
+        """
+        skip: set[int] = set()
+        n = len(tokens)
+
+        def _mark_skip(start: int, end: int) -> None:
+            if start < 0 or end < start:
+                return
+            if has_override_in_range(start, end):
+                return
+            for k in range(start, end + 1):
+                skip.add(k)
+
+        # Parentheses-based annotations: X（Y） where spoken(X)==spoken(Y)
+        for i in range(n):
+            if str(tokens[i].get("surface") or "") != "（":
+                continue
+            left_bounds = _left_phrase_bounds(i - 1)
+            if not left_bounds:
+                continue
+            ls, le = left_bounds
+            # Find closing paren.
+            close = None
+            for j in range(i + 1, min(i + 32, n)):
+                if str(tokens[j].get("surface") or "") == "）":
+                    close = j
+                    break
+            if close is None or close <= i + 1:
+                continue
+            left_spoken = _phrase_spoken_from_left(ls, le)
+            if not left_spoken:
+                continue
+            right_spoken = _phrase_spoken_from_right(i + 1, close - 1)
+            if not right_spoken:
+                continue
+            if normalize_reading_kana(left_spoken) == normalize_reading_kana(right_spoken):
+                _mark_skip(i, close)
+
+        # Comma-based annotations: X、Y where spoken(X)==spoken(Y)
+        for i in range(n):
+            if str(tokens[i].get("surface") or "") != "、":
+                continue
+            if i in skip:
+                continue
+            left_bounds = _left_phrase_bounds(i - 1)
+            if not left_bounds:
+                continue
+            ls, le = left_bounds
+            left_spoken = _phrase_spoken_from_left(ls, le)
+            if not left_spoken:
+                continue
+
+            # 1) Kana reading chunk (often split into multiple tokens).
+            cand = ""
+            for j in range(i + 1, min(i + 32, n)):
+                surface = str(tokens[j].get("surface") or "")
+                if not surface:
+                    break
+                if surface in {"、", "。", "（", "）", "「", "」", "(", ")", "[", "]"}:
+                    break
+                if not _is_kana_like(surface):
+                    break
+                cand += surface
+                cand_spoken = normalize_reading_kana(cand)
+                if not left_spoken.startswith(cand_spoken):
+                    break
+                if cand_spoken == left_spoken:
+                    _mark_skip(i, j)
+                    break
+
+            if i in skip:
+                continue
+
+            # 2) ASCII token(s) mapped by dict (e.g., 禅、Zen).
+            for j in range(i + 1, min(i + 6, n)):
+                surface = str(tokens[j].get("surface") or "")
+                if not surface:
+                    break
+                if surface in {"、", "。", "（", "）", "「", "」", "(", ")", "[", "]"}:
+                    break
+                if not _is_ascii_like(surface):
+                    break
+                right_spoken = _phrase_spoken_from_right(i + 1, j)
+                if right_spoken and normalize_reading_kana(right_spoken) == normalize_reading_kana(left_spoken):
+                    _mark_skip(i, j)
+                    break
+
+        return skip
+
+    skip_indices = _compute_inline_annotation_skips()
+
     parts: List[str] = []
     i = 0
     n = len(tokens)
     while i < n:
+        if i in skip_indices:
+            i += 1
+            continue
         if i in override_map:
             parts.append(str(override_map[i]))
             i += 1
@@ -472,6 +648,8 @@ def _patch_tokens_with_words(
             cand = ""
             for j in range(i, n):
                 tok = tokens[j]
+                if j in skip_indices:
+                    break
                 if tok.get("pos") == "silence_tag":
                     break
                 surface = str(tok.get("surface") or "")

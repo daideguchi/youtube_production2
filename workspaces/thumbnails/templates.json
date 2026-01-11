@@ -84,6 +84,36 @@
         "path": "workspaces/thumbnails/compiler/layer_specs/ch23_text_layout_ch23_v1.yaml",
         "name": "ch23_text_layout_ch23_v1"
       },
+      "ch27_image_prompts_ch22_style_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch27_image_prompts_ch22_style_v1.yaml",
+        "name": "ch27_image_prompts_ch22_style_v1"
+      },
+      "ch28_image_prompts_ch22_style_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch28_image_prompts_ch22_style_v1.yaml",
+        "name": "ch28_image_prompts_ch22_style_v1"
+      },
+      "ch29_image_prompts_ch22_style_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch29_image_prompts_ch22_style_v1.yaml",
+        "name": "ch29_image_prompts_ch22_style_v1"
+      },
+      "ch30_image_prompts_ch22_style_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch30_image_prompts_ch22_style_v1.yaml",
+        "name": "ch30_image_prompts_ch22_style_v1"
+      },
+      "ch31_image_prompts_ch22_style_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch31_image_prompts_ch22_style_v1.yaml",
+        "name": "ch31_image_prompts_ch22_style_v1"
+      },
       "ch02_image_prompts_sample_v3": {
         "kind": "image_prompts",
         "version": 3,
@@ -377,7 +407,7 @@
         {
           "id": "ch09_background_dark_portrait_v1",
           "name": "CH09: 背景生成（暗背景・中央肖像・上下余白/ビネット・NO WORDS）v1",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n超リアルな実写・写真風の偉人肖像（フォトリアル、シネマティック、シャープ）。顔は暗すぎず、目にキャッチライト。人物の顔が主役。人物は中央〜やや左寄りに大きく（胸上〜上半身）。人物の背後に薄い円形スポットライト/リムライトを控えめに。上部と下部は文字合成のため情報量を落とし、自然な暗めの余白/ビネットで読めるスペースを作る（帯のような均一な黒い矩形やはっきりした水平帯は作らない）。\\n\\n{{thumbnail_prompt}}\\n\\n※英字/日本語などの単語・文章（キャプション/字幕/ラベル/署名/ロゴ/透かし/UI）を絶対に描かない。数字/数式/記号は薄く入れてよい。\\n",
           "negative_prompt": "文字、ロゴ、透かし、UI、看板の文字、署名、読める本の文字",
           "notes": "CH09はCH26寄せ（上白/下赤テンプレを想定）。背景は暗基調＋中央肖像＋自然な上下余白/ビネット（帯は作らない）で統一。",
@@ -417,7 +447,7 @@
         {
           "id": "ch10_background_left_space_v3",
           "name": "CH10: 背景生成（左TSZ/NO TEXT）v3",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "文字、ロゴ、透かし、UI、看板の文字、署名",
           "notes": "Layer Specsの image_prompts を planning CSV の thumbnail_prompt に同期して使う（背景のみ生成）。文字は別レイヤで合成する。",
@@ -446,7 +476,7 @@
         {
           "id": "ch07_buddha_left_3line_v1",
           "name": "CH07: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH07の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -468,7 +498,7 @@
         {
           "id": "ch12_buddha_left_3line_v1",
           "name": "CH12: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH12の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -490,7 +520,7 @@
         {
           "id": "ch13_buddha_left_3line_v1",
           "name": "CH13: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH13の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -512,7 +542,7 @@
         {
           "id": "ch14_buddha_left_3line_v1",
           "name": "CH14: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH14の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -534,7 +564,7 @@
         {
           "id": "ch15_buddha_left_3line_v1",
           "name": "CH15: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH15の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -556,7 +586,7 @@
         {
           "id": "ch16_buddha_left_3line_v1",
           "name": "CH16: ブッダ左＋3段テキスト（赤/黄/白）",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "YouTubeサムネ(16:9)を生成してください。\\n\\n【テーマ】\\n{{title}}\\n\\n【構図（チャンネル共通スタイル）】\\n- 左側: インパクト強めの仏陀(ブッダ)キャラクターを大きく配置。表情は強いが不快にならない。輪郭はくっきり、コントラスト強め。\\n- 右側: 文字を置くための余白を確保（背景は単純/暗め/グラデOK）。文字が読みやすいようにする。\\n\\n【テキスト（3段）】\\n- 視認性最優先（太字、黒フチ、影）。改行は3段を崩さない。\\n- 上段(赤): {{thumbnail_upper}}\\n- 中段(黄): {{thumbnail_title}}\\n- 下段(白): {{thumbnail_lower}}\\n\\n【全体トーン】\\n- ダーク背景 + 赤/黄/白が映える\\n- スマホでも読める大きさ\\n\\n【個別指示（あれば反映）】\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "低解像度、文字が小さい、文字が読めない、文字が崩れる、背景が騒がしい、余白不足、ウォーターマーク、ロゴ、署名",
           "notes": "CH16の基本テンプレ。文言は planning CSV の thumbnail_upper / thumbnail_title / thumbnail_lower を更新して運用。",
@@ -596,7 +626,7 @@
         {
           "id": "ch25_background_dark_portrait_v1",
           "name": "CH25: 背景生成（暗背景・左肖像/右余白/NO TEXT）v1",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n人物は中央〜左寄りに大きく（胸上〜上半身）。右側40〜45%は文字スペースとして暗い滑らかなグラデーションのみ。背景に偉人モチーフを5〜15%でうっすら（低コントラスト/ぼかし）。\\n\\n{{thumbnail_prompt}}\\n\\n※絶対に文字・数字・ロゴ・透かし・UIを描かない（NO TEXT）。\\n",
           "negative_prompt": "文字、ロゴ、透かし、UI、看板の文字、署名、読める本の文字",
           "notes": "CH25は上白/下赤の文字をローカル合成（Layer Specs v3）で乗せる。背景は暗基調＋左肖像＋右余白で統一。",
@@ -641,7 +671,7 @@
         {
           "id": "ch26_background_dark_portrait_v1",
           "name": "CH26: 背景生成（暗背景・中央肖像・上下余白/ビネット・NO WORDS）v1",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n超リアルな実写・写真風の偉人肖像（フォトリアル、シネマティック、シャープ）。顔は暗すぎず、目にキャッチライト。人物の顔が主役。人物は中央〜やや左寄りに大きく（胸上〜上半身）。人物の背後に薄い円形スポットライト/リムライトを控えめに。上部と下部は文字合成のため情報量を落とし、自然な暗めの余白/ビネットで読めるスペースを作る（帯のような均一な黒い矩形やはっきりした水平帯は作らない）。\\n\\n{{thumbnail_prompt}}\\n\\n※英字/日本語などの単語・文章（キャプション/字幕/ラベル/署名/ロゴ/透かし/UI）を絶対に描かない。数字/数式/記号は薄く入れてよい。\\n",
           "negative_prompt": "文字、ロゴ、透かし、UI、看板の文字、署名、読める本の文字",
           "notes": "CH26は上白/下赤の文字をローカル合成（Layer Specs v3）で乗せる。背景は暗基調＋中央肖像＋自然な上下余白/ビネット（ベンチ寄せ）で統一。帯（はっきりした黒い水平帯）は作らない。",
@@ -686,7 +716,7 @@
         {
           "id": "ch22_manual_bg_v1",
           "name": "CH22: 背景生成（NO TEXT/左60%を単純化）v1",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 写実寄り（過度なイラスト化は避ける）\\n- 左側60%は文字スペースとして比較的シンプル（均一なボケ/壁/テーブルなど）にし、読みやすさを確保\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
           "notes": "CH22は手動背景(10_bg.*)も許容するが、画像やり直し/再生成が多いため生成を有効化。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
@@ -731,12 +761,237 @@
         {
           "id": "ch23_manual_bg_v1",
           "name": "CH23: 背景生成（NO TEXT/左35%を単純化）v1",
-          "image_model_key": "img-flux-max-1",
+          "image_model_key": "img-gemini-flash-1",
           "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 日本の60代夫婦の家庭ドラマ（落ち着いた水彩コミック調、フルカラー）\\n- 左側35%は文字スペースとして比較的シンプル（壁/テーブル/ボケ）にし、読みやすさを確保\\n- 上部15%と下部25%は文字合成のため情報量を落とす\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
           "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
-          "notes": "CH23は layer_specs の prompt_ja を使って背景(10_bg)をFireworks MAXで生成し、文字はローカル合成する。",
+          "notes": "CH23は layer_specs の prompt_ja を使って背景(10_bg)をGeminiで生成し、文字はローカル合成する。",
           "created_at": "2026-01-03T00:00:00Z",
           "updated_at": "2026-01-03T00:00:00Z"
+        }
+      ]
+    },
+    "CH27": {
+      "default_template_id": "ch27_manual_bg_ch22_v1",
+      "layer_specs": {
+        "image_prompts_id": "ch27_image_prompts_ch22_style_v1",
+        "text_layout_id": "ch22_text_layout_ch22_v1"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.15,
+          "contrast": 1.08,
+          "color": 1.04,
+          "gamma": 0.92
+        },
+        "bg_pan_zoom": {
+          "zoom": 1.0,
+          "pan_x": 0.0,
+          "pan_y": 0.0
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH27: CH22型（Layer Specs v3）",
+        "benchmark_path": null,
+        "preview_upper": "親友の冗談",
+        "preview_title": null,
+        "preview_lower": "友情が冷えた"
+      },
+      "templates": [
+        {
+          "id": "ch27_manual_bg_ch22_v1",
+          "name": "CH27: 背景生成（NO TEXT/左60%を単純化）v1",
+          "image_model_key": "img-gemini-flash-1",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 写実寄り（過度なイラスト化は避ける）\\n- 左側60%は文字スペースとして比較的シンプル（均一なボケ/壁/テーブルなど）にし、読みやすさを確保\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
+          "notes": "CH27はCH22型（手動背景(10_bg.*)も許容）。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
+          "created_at": "2026-01-11T00:00:00Z",
+          "updated_at": "2026-01-11T00:00:00Z"
+        }
+      ]
+    },
+    "CH28": {
+      "default_template_id": "ch28_manual_bg_ch22_v1",
+      "layer_specs": {
+        "image_prompts_id": "ch28_image_prompts_ch22_style_v1",
+        "text_layout_id": "ch22_text_layout_ch22_v1"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.15,
+          "contrast": 1.08,
+          "color": 1.04,
+          "gamma": 0.92
+        },
+        "bg_pan_zoom": {
+          "zoom": 1.0,
+          "pan_x": 0.0,
+          "pan_y": 0.0
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH28: CH22型（Layer Specs v3）",
+        "benchmark_path": null,
+        "preview_upper": "誰にも呼ばれない",
+        "preview_title": null,
+        "preview_lower": "救われた一言"
+      },
+      "templates": [
+        {
+          "id": "ch28_manual_bg_ch22_v1",
+          "name": "CH28: 背景生成（NO TEXT/左60%を単純化）v1",
+          "image_model_key": "img-gemini-flash-1",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 写実寄り（過度なイラスト化は避ける）\\n- 左側60%は文字スペースとして比較的シンプル（均一なボケ/壁/テーブルなど）にし、読みやすさを確保\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
+          "notes": "CH28はCH22型（手動背景(10_bg.*)も許容）。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
+          "created_at": "2026-01-11T00:00:00Z",
+          "updated_at": "2026-01-11T00:00:00Z"
+        }
+      ]
+    },
+    "CH29": {
+      "default_template_id": "ch29_manual_bg_ch22_v1",
+      "layer_specs": {
+        "image_prompts_id": "ch29_image_prompts_ch22_style_v1",
+        "text_layout_id": "ch22_text_layout_ch22_v1"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.15,
+          "contrast": 1.08,
+          "color": 1.04,
+          "gamma": 0.92
+        },
+        "bg_pan_zoom": {
+          "zoom": 1.0,
+          "pan_x": 0.0,
+          "pan_y": 0.0
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH29: CH22型（Layer Specs v3）",
+        "benchmark_path": null,
+        "preview_upper": "当然扱い",
+        "preview_title": null,
+        "preview_lower": "私が壊れる"
+      },
+      "templates": [
+        {
+          "id": "ch29_manual_bg_ch22_v1",
+          "name": "CH29: 背景生成（NO TEXT/左60%を単純化）v1",
+          "image_model_key": "img-gemini-flash-1",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 写実寄り（過度なイラスト化は避ける）\\n- 左側60%は文字スペースとして比較的シンプル（均一なボケ/壁/テーブルなど）にし、読みやすさを確保\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
+          "notes": "CH29はCH22型（手動背景(10_bg.*)も許容）。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
+          "created_at": "2026-01-11T00:00:00Z",
+          "updated_at": "2026-01-11T00:00:00Z"
+        }
+      ]
+    },
+    "CH30": {
+      "default_template_id": "ch30_manual_bg_ch22_v1",
+      "layer_specs": {
+        "image_prompts_id": "ch30_image_prompts_ch22_style_v1",
+        "text_layout_id": "ch22_text_layout_ch22_v1"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.15,
+          "contrast": 1.08,
+          "color": 1.04,
+          "gamma": 0.92
+        },
+        "bg_pan_zoom": {
+          "zoom": 1.0,
+          "pan_x": 0.0,
+          "pan_y": 0.0
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH30: CH22型（Layer Specs v3）",
+        "benchmark_path": null,
+        "preview_upper": "退職金の話",
+        "preview_title": null,
+        "preview_lower": "目が変わる"
+      },
+      "templates": [
+        {
+          "id": "ch30_manual_bg_ch22_v1",
+          "name": "CH30: 背景生成（NO TEXT/左60%を単純化）v1",
+          "image_model_key": "img-gemini-flash-1",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 写実寄り（過度なイラスト化は避ける）\\n- 左側60%は文字スペースとして比較的シンプル（均一なボケ/壁/テーブルなど）にし、読みやすさを確保\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
+          "notes": "CH30はCH22型（手動背景(10_bg.*)も許容）。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
+          "created_at": "2026-01-11T00:00:00Z",
+          "updated_at": "2026-01-11T00:00:00Z"
+        }
+      ]
+    },
+    "CH31": {
+      "default_template_id": "ch31_manual_bg_ch22_v1",
+      "layer_specs": {
+        "image_prompts_id": "ch31_image_prompts_ch22_style_v1",
+        "text_layout_id": "ch22_text_layout_ch22_v1"
+      },
+      "compiler_defaults": {
+        "bg_enhance": {
+          "brightness": 1.15,
+          "contrast": 1.08,
+          "color": 1.04,
+          "gamma": 0.92
+        },
+        "bg_pan_zoom": {
+          "zoom": 1.0,
+          "pan_x": 0.0,
+          "pan_y": 0.0
+        },
+        "qc": {
+          "tile_w": 640,
+          "tile_h": 360,
+          "cols": 6,
+          "pad": 8
+        }
+      },
+      "channel_style": {
+        "name": "CH31: CH22型（Layer Specs v3）",
+        "benchmark_path": null,
+        "preview_upper": "町内会で",
+        "preview_title": null,
+        "preview_lower": "私だけ外される"
+      },
+      "templates": [
+        {
+          "id": "ch31_manual_bg_ch22_v1",
+          "name": "CH31: 背景生成（NO TEXT/左60%を単純化）v1",
+          "image_model_key": "img-gemini-flash-1",
+          "prompt_template": "以下の指示どおりに、YouTubeサムネ背景(16:9)を生成してください。\\n\\n- 写実寄り（過度なイラスト化は避ける）\\n- 左側60%は文字スペースとして比較的シンプル（均一なボケ/壁/テーブルなど）にし、読みやすさを確保\\n- 文字・ロゴ・透かし・看板文字・字幕・UIを絶対に描かない（NO TEXT）\\n\\n{{thumbnail_prompt}}\\n",
+          "negative_prompt": "文字、ロゴ、透かし、UI、字幕、看板文字、署名、ウォーターマーク",
+          "notes": "CH31はCH22型（手動背景(10_bg.*)も許容）。基本は layer_specs の prompt_ja を使って生成し、必要時は --regen-bg で作り直す。",
+          "created_at": "2026-01-11T00:00:00Z",
+          "updated_at": "2026-01-11T00:00:00Z"
         }
       ]
     }

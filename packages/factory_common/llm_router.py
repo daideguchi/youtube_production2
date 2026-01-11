@@ -1074,26 +1074,11 @@ class LLMRouter:
                     self._fireworks_lease_ttl_sec = int(os.getenv("FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC", "1800"))
                 except Exception:
                     self._fireworks_lease_ttl_sec = 1800
-                purpose = (
-                    f"llm_router:{(os.getenv('LLM_ROUTING_KEY') or '').strip() or 'global'}"
-                )
-
-                chosen = None
-                for i, cand in enumerate(self._fireworks_keys):
-                    lease = fireworks_keys.try_acquire_specific_key(
-                        "script",
-                        key=cand,
-                        purpose=purpose,
-                        ttl_sec=int(self._fireworks_lease_ttl_sec),
-                        preflight=True,
-                    )
-                    if lease is None:
-                        continue
-                    chosen = cand
-                    self._fireworks_key_index = i
-                    self._fireworks_lease = lease
-                    break
-
+                # IMPORTANT:
+                # - Do NOT acquire a lease at client-setup time. Long-lived processes (UI backend/reloader)
+                #   would otherwise "hog" a key and block one-off ops (script_runbook, batch resume, etc.).
+                # - Instead, acquire/renew the lease on demand right before each Fireworks call.
+                chosen = self._fireworks_keys[0] if self._fireworks_keys else None
                 if chosen:
                     try:
                         self.clients["fireworks"] = OpenAI(api_key=chosen, base_url=base)
@@ -1223,6 +1208,22 @@ class LLMRouter:
 
         # Couldn't reclaim the same key → rotate.
         self._fireworks_rotate_client()
+
+    def _fireworks_release_lease(self) -> None:
+        """
+        Best-effort: release the currently held Fireworks key lease.
+
+        Rationale:
+        - Keep exclusivity strict per *call*, but avoid idle key hogging by long-lived processes.
+        """
+        lease = getattr(self, "_fireworks_lease", None)
+        if lease is None:
+            return
+        try:
+            fireworks_keys.release_lease(lease)
+        except Exception:
+            pass
+        self._fireworks_lease = None
 
     def _fireworks_budget_routing_key(self) -> str:
         rk = (os.getenv("LLM_ROUTING_KEY") or "").strip()
@@ -1638,6 +1639,13 @@ class LLMRouter:
         allow_fallback: Optional[bool],
         **kwargs,
     ) -> Dict[str, Any]:
+        # Under routing lockdown (default ON), forbid ad-hoc per-task option overrides that can cause drift.
+        # Debug-only: set YTM_EMERGENCY_OVERRIDE=1 for this run.
+        assert_env_absent(
+            ["LLM_FORCE_TASK_OPTIONS_JSON"],
+            context=f"llm_router._call_internal({task})",
+            hint="Use slots/codes + SSOT task routing. Debug only: YTM_EMERGENCY_OVERRIDE=1.",
+        )
         models = self.get_models_for_task(task, model_keys_override=model_keys)
         if not models:
             raise ValueError(f"No models available for task: {task}")
@@ -1780,11 +1788,32 @@ class LLMRouter:
                 opt["max_tokens"] = opt.pop("max_output_tokens")
             if "max_tokens" not in opt and "max_completion_tokens" in opt:
                 opt["max_tokens"] = opt.pop("max_completion_tokens")
+
+        # Optional: "this run only" per-task option overrides (debug only; never commit as SSOT changes).
+        forced_task_options: Dict[str, Any] = {}
+        forced_task_options_json = (os.getenv("LLM_FORCE_TASK_OPTIONS_JSON") or "").strip()
+        if forced_task_options_json:
+            try:
+                mapping = json.loads(forced_task_options_json)
+                if isinstance(mapping, dict):
+                    ent = mapping.get(task)
+                    if isinstance(ent, dict):
+                        forced_task_options = {k: v for k, v in ent.items() if not str(k).startswith("_")}
+                    elif ent is not None:
+                        logger.warning("LLM_FORCE_TASK_OPTIONS_JSON: task override must be an object: task=%s", task)
+                else:
+                    logger.warning("LLM_FORCE_TASK_OPTIONS_JSON must be a JSON object; ignoring override")
+            except Exception as e:
+                logger.warning("LLM_FORCE_TASK_OPTIONS_JSON parse failed; ignoring override: %s", e)
+
         base_options: Dict[str, Any] = {
             **task_options,
             **override_options,
-            **kwargs,
         }
+        if forced_task_options:
+            base_options = _deep_merge_dict(base_options, forced_task_options)
+        base_options.update(kwargs)
+
         # Only override defaults when explicitly provided.
         if temperature is not None:
             base_options["temperature"] = temperature
@@ -2030,6 +2059,9 @@ class LLMRouter:
                 client = self.clients.get(provider_name)
                 if not client:
                     logger.debug("Fireworks client not ready after lease refresh. Skipping %s", model_key)
+                    continue
+                if getattr(self, "_fireworks_lease", None) is None:
+                    logger.debug("Fireworks lease unavailable after refresh. Skipping %s", model_key)
                     continue
 
             try:
@@ -2278,6 +2310,8 @@ class LLMRouter:
                 # Drop nulls to keep the JSONL tidy
                 log_payload = {k: v for k, v in log_payload.items() if v is not None}
                 self._log_usage(log_payload)
+                if provider_name == "fireworks":
+                    self._fireworks_release_lease()
                 return {
                     "content": content,
                     "raw": raw_result if return_raw else None,
@@ -2294,8 +2328,12 @@ class LLMRouter:
                 }
             except FireworksBudgetExceeded:
                 # Budget guard is a deliberate STOP (no fallback to other models/providers).
+                if provider_name == "fireworks":
+                    self._fireworks_release_lease()
                 raise
             except Exception as e:
+                if provider_name == "fireworks":
+                    self._fireworks_release_lease()
                 status = _extract_status(e)
                 logger.warning(f"Failed to call {model_key}: {e} (status={status})")
                 last_error = e

@@ -168,6 +168,11 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
     echo "❌ [LOCKDOWN] LLM_FORCE_TASK_MODELS_JSON is forbidden. Use SSOT task routing + slots instead." >&2
     exit 3
   fi
+  if [[ -n "${LLM_FORCE_TASK_OPTIONS_JSON:-}" ]]; then
+    echo "❌ [LOCKDOWN] LLM_FORCE_TASK_OPTIONS_JSON is forbidden. Use SSOT task routing + slots instead." >&2
+    echo "    debug only: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+    exit 3
+  fi
   if [[ -n "${YTM_SCRIPT_ALLOW_OPENROUTER:-}" ]]; then
     _v="$(printf '%s' "${YTM_SCRIPT_ALLOW_OPENROUTER:-}" | tr '[:upper:]' '[:lower:]')"
     if [[ "${_v}" != "" && "${_v}" != "0" && "${_v}" != "false" && "${_v}" != "no" && "${_v}" != "off" ]]; then

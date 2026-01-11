@@ -111,6 +111,8 @@ export type ShellOutletContext = {
   setVideoKeyword: (value: string) => void;
   readyFilter: ReadyFilter;
   setReadyFilter: (value: ReadyFilter) => void;
+  unpublishedOnly: boolean;
+  setUnpublishedOnly: (value: boolean) => void;
   summaryFilter: "blocked" | "review" | "pendingAudio" | null;
   applySummaryFilter: (value: "blocked" | "review" | "pendingAudio" | null) => void;
   clearSummaryFilter: () => void;
@@ -200,6 +202,10 @@ function readyFilterStorageKey(channel: string): string {
   return `ui.video.readyFilter.${normalizeChannelStorageKey(channel)}`;
 }
 
+function unpublishedOnlyStorageKey(channel: string): string {
+  return `ui.video.unpublishedOnly.${normalizeChannelStorageKey(channel)}`;
+}
+
 function sanitizeDetailTabParam(value: string | null): DetailTab | null {
   if (!value) {
     return null;
@@ -230,6 +236,11 @@ function safeRemove(key: string): void {
   } catch {
     /* no-op */
   }
+}
+
+function sanitizeStoredBool(value: string | null): boolean {
+  const raw = (value ?? "").trim().toLowerCase();
+  return raw === "1" || raw === "true" || raw === "yes" || raw === "y";
 }
 
 function formatDateTime(value?: string | null): string {
@@ -523,10 +534,21 @@ export function AppShell() {
     }
     return sanitizeReadyFilter(safeGet(readyFilterStorageKey(channel)));
   });
+  const [unpublishedOnly, setUnpublishedOnly] = useState<boolean>(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    const channel = safeGet("ui.channel.selected");
+    if (!channel) {
+      return false;
+    }
+    return sanitizeStoredBool(safeGet(unpublishedOnlyStorageKey(channel)));
+  });
   const [summaryFilter, setSummaryFilter] = useState<"blocked" | "review" | "pendingAudio" | null>(null);
   const pendingAudioReadyFilterRef = useRef<ReadyFilter>("all");
   const videoKeywordPersistRef = useRef<{ channel: string | null; value: string }>({ channel: null, value: "" });
   const readyFilterPersistRef = useRef<{ channel: string | null; value: ReadyFilter }>({ channel: null, value: "all" });
+  const unpublishedOnlyPersistRef = useRef<{ channel: string | null; value: boolean }>({ channel: null, value: false });
 
   const [detailTab, setDetailTabState] = useState<DetailTab>(() => {
     if (typeof window === "undefined") {
@@ -708,6 +730,7 @@ export function AppShell() {
     }
     setVideoKeyword(safeGet(videoKeywordStorageKey(selectedChannel)) ?? "");
     setReadyFilterState(sanitizeReadyFilter(safeGet(readyFilterStorageKey(selectedChannel))));
+    setUnpublishedOnly(sanitizeStoredBool(safeGet(unpublishedOnlyStorageKey(selectedChannel))));
   }, [selectedChannel]);
 
   useEffect(() => {
@@ -725,6 +748,21 @@ export function AppShell() {
     }
     safeSet(readyFilterStorageKey(selectedChannel), readyFilter);
   }, [selectedChannel, readyFilter]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const previous = unpublishedOnlyPersistRef.current;
+    unpublishedOnlyPersistRef.current = { channel: selectedChannel, value: unpublishedOnly };
+    if (!selectedChannel) {
+      return;
+    }
+    if (previous.channel !== selectedChannel && previous.value === unpublishedOnly) {
+      return;
+    }
+    safeSet(unpublishedOnlyStorageKey(selectedChannel), unpublishedOnly ? "1" : "0");
+  }, [selectedChannel, unpublishedOnly]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -748,6 +786,7 @@ export function AppShell() {
       if (previous) {
         setVideoKeyword("");
         setReadyFilterState("all");
+        setUnpublishedOnly(false);
       }
       return;
     }
@@ -766,6 +805,9 @@ export function AppShell() {
   const filteredVideos = useMemo(() => {
     const keyword = videoKeyword.trim().toLowerCase();
     return videos.filter((video) => {
+      if (unpublishedOnly && Boolean(video.published_lock)) {
+        return false;
+      }
       const audioState = resolveAudioSubtitleState(video);
       const isReadyState = audioState !== "pending";
       const keywordMatch = keyword
@@ -787,7 +829,7 @@ export function AppShell() {
               : audioState === "pending";
       return keywordMatch && readyMatch && summaryMatch;
     });
-  }, [videos, videoKeyword, readyFilter, summaryFilter]);
+  }, [videos, videoKeyword, readyFilter, summaryFilter, unpublishedOnly]);
 
   const channelSummaryMap = useMemo(() => {
     const map = new Map<string, ChannelSummary>();
@@ -1048,6 +1090,10 @@ export function AppShell() {
     [summaryFilter]
   );
 
+  const handleUnpublishedOnlyChange = useCallback((value: boolean) => {
+    setUnpublishedOnly(value);
+  }, []);
+
   const handleClearSummaryFilter = useCallback(() => {
     setSummaryFilter((current) => {
       if (current === "pendingAudio") {
@@ -1248,6 +1294,8 @@ export function AppShell() {
       setVideoKeyword: handleKeywordChange,
       readyFilter,
       setReadyFilter: handleReadyFilterChange,
+      unpublishedOnly,
+      setUnpublishedOnly: handleUnpublishedOnlyChange,
       summaryFilter,
       applySummaryFilter,
       clearSummaryFilter: handleClearSummaryFilter,
@@ -1293,6 +1341,7 @@ export function AppShell() {
       handleOpenAudio,
       handleOpenScript,
       handleReadyFilterChange,
+      handleUnpublishedOnlyChange,
       handleSelectChannel,
       handleSelectListVideo,
       handleSidebarChannelSelect,
@@ -1313,6 +1362,7 @@ export function AppShell() {
       videosLoading,
       readyFilter,
       summaryFilter,
+      unpublishedOnly,
       view,
     ]
   );

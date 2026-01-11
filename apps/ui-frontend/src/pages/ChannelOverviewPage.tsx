@@ -19,9 +19,11 @@ export function ChannelOverviewPage() {
     selectChannel,
     videoKeyword,
     readyFilter,
+    unpublishedOnly,
     summaryFilter,
     setVideoKeyword,
     setReadyFilter,
+    setUnpublishedOnly,
     applySummaryFilter,
     clearSummaryFilter,
     selectVideo,
@@ -134,9 +136,11 @@ export function ChannelOverviewPage() {
         selectedVideo={selectedVideo}
         keyword={videoKeyword}
         readyFilter={readyFilter}
+        unpublishedOnly={unpublishedOnly}
         summaryFilter={summaryFilter}
         onKeywordChange={setVideoKeyword}
         onReadyFilterChange={setReadyFilter}
+        onUnpublishedOnlyChange={setUnpublishedOnly}
         onSummaryFilterChange={applySummaryFilter}
         onClearSummaryFilter={clearSummaryFilter}
         onSelectVideo={selectVideo}

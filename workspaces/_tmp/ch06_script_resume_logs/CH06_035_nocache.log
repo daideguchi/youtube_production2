@@ -1,0 +1,64 @@
+[ops] run_id=ops__20260111T023030Z__3da53a1e mode=API exec_slot=0 lockdown=ON
+[ops] API MODE: script pipeline is API-only (no THINK/CODEX).
+[ops] help: `./ops patterns list` / `./ops latest --channel CHxx --video NNN`
+/Users/dd/10_YouTube_Automation/factory_commentary/packages/factory_common/llm_router.py:331: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_judge...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_judge succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=15072, usage={'prompt_tokens': 16934, 'completion_tokens': 991, 'total_tokens': 17925}, request_id=dc4d9944-513a-4839-9397-41ecd2cf4d28)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_fix...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_fix succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=25221, usage={'prompt_tokens': 19174, 'completion_tokens': 2360, 'total_tokens': 21534}, request_id=f1faef64-7fa3-4b38-ba8d-94970f8d218c)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_expand...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_expand succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=26059, usage={'prompt_tokens': 4466, 'completion_tokens': 2057, 'total_tokens': 6523}, request_id=edc95f7d-63f8-4d9e-9fbc-469306d40acc)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_expand...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_expand succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=31748, usage={'prompt_tokens': 6405, 'completion_tokens': 2674, 'total_tokens': 9079}, request_id=d4c836b1-3de5-4d0e-9322-e2141ca554ac)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_expand...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_expand succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=26332, usage={'prompt_tokens': 6405, 'completion_tokens': 2414, 'total_tokens': 8819}, request_id=48df9155-a8c2-4979-90ba-a37678c3f327)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_expand...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_expand succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=16386, usage={'prompt_tokens': 8671, 'completion_tokens': 1641, 'total_tokens': 10312}, request_id=fb2d8e51-a23b-456c-8ca5-ea9fd2658c4a)
+INFO:LLMRouter:Router: Invoking or_deepseek_v3_2_exp for script_a_text_quality_expand...
+INFO:httpx:HTTP Request: POST https://api.fireworks.ai/inference/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:LLMRouter:Router: script_a_text_quality_expand succeeded via or_deepseek_v3_2_exp (fallback_chain=['or_deepseek_v3_2_exp'], latency_ms=21054, usage={'prompt_tokens': 8745, 'completion_tokens': 1898, 'total_tokens': 10643}, request_id=d13ad75d-0038-4acd-9bba-850a3c75d477)
+{
+  "channel": "CH06",
+  "video": "035",
+  "mode": "resume",
+  "ok": false,
+  "status": "script_in_progress",
+  "script_validation_status": "pending",
+  "judge_verdict": "",
+  "judge_report_json": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH06/035/content/analysis/quality_gate/judge_latest.json",
+  "semantic_verdict": "minor",
+  "semantic_alignment_report_json": "",
+  "a_text_path": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH06/035/content/assembled.md",
+  "a_text_local_ok": true,
+  "a_text_hard_issue_codes": [],
+  "a_text_stats": {
+    "char_count": 20855,
+    "pause_lines": 12,
+    "quote_marks": 20,
+    "paren_marks": 0,
+    "target_chars_min": 20000,
+    "target_chars_max": 26000,
+    "quote_marks_max": 20,
+    "paren_marks_max": 10
+  },
+  "a_text_validated_script_hash": "",
+  "a_text_current_script_hash": "9a0e3db3967d475d46fdd44a9ecaffce33eb56e2",
+  "a_text_hash_match": null,
+  "planning_coherence": "no_content_summary_tag",
+  "status_json": "/Users/dd/10_YouTube_Automation/factory_commentary/workspaces/scripts/CH06/035/status.json",
+  "note": ""
+}

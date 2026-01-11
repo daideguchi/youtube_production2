@@ -61,8 +61,24 @@ Edited configs/llm_task_overrides.yaml (+4 -4)
 - “収束しない”系は、まず artifacts（judge/fix/length_rescue 等）の証跡を提示し、対処方針を合意してから実行する。
 - debugでモデル切替が必要な場合は、まず `LLM_MODEL_SLOT` 等の **一時的スイッチ** を使い、設定ファイル編集は最後に回す（必要ならSSOTに手順を追記してから）。
 
-## 6) 補足（規約/運用観点）
+## 6) 対処（今回実施 / 実装）
+
+目的: 「大元設定を書き換えず、実行時に安全に調整できる」状態に寄せる。
+
+- `./ops api script ...`（= `scripts/ops/script_runbook.py`）に、**実行時のみ**の task option 上書きフラグを追加:
+  - `--llm-task-temperature TASK=FLOAT`（repeatable）→ `LLM_FORCE_TASK_OPTIONS_JSON`
+  - `--llm-task-option TASK=JSON_OBJECT`（repeatable）→ `LLM_FORCE_TASK_OPTIONS_JSON`
+- これらの上書きは **Lockdown有効時はデフォルト禁止**（`YTM_EMERGENCY_OVERRIDE=1` のときのみ許可）として運用事故を防止。
+
+実装ファイル:
+- `scripts/ops/script_runbook.py`
+
+## 7) 運用メモ（オーケストレーター向け要点）
+
+- 原則: `configs/llm_task_overrides.yaml` は触らず、**slot（`--llm-slot` / `LLM_MODEL_SLOT`）**で切替する。
+- どうしても task 単位で温度/オプションを変えたい場合は、**一時的に** `YTM_EMERGENCY_OVERRIDE=1` を付けて上記フラグを使う（台本の再現性/並列運用のため、常用しない）。
+
+## 8) 補足（規約/運用観点）
 
 - 本repoはマルチエージェント前提であり、設定変更は影響範囲が大きい（並列運用・再現性・コストの観点）。
 - 本件は「ユーザーの明示指示に反して設定ファイルを変更した」ことが問題であり、技術的に正しい/誤りの議論よりも先に運用ルール逸脱として扱う。
-

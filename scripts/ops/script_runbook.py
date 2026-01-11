@@ -93,6 +93,8 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
     - --llm-slot N → LLM_MODEL_SLOT
     - --exec-slot N → LLM_EXEC_SLOT
     - --llm-task-model TASK=MODELKEY[,MODELKEY...] (repeatable) → LLM_FORCE_TASK_MODELS_JSON
+    - --llm-task-temperature TASK=FLOAT (repeatable) → LLM_FORCE_TASK_OPTIONS_JSON
+    - --llm-task-option TASK=JSON_OBJECT (repeatable) → LLM_FORCE_TASK_OPTIONS_JSON
     """
     # Compatibility shim (operator ergonomics):
     # - Some operators reach for `--llm api|think|codex` (used by `./ops`).
@@ -170,6 +172,67 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
                 )
             os.environ["LLM_FORCE_TASK_MODELS_JSON"] = json.dumps(mapping, ensure_ascii=False)
 
+    # Optional per-task option overrides (debug only; requires emergency override under lockdown).
+    task_opts: dict[str, dict[str, Any]] = {}
+
+    if getattr(args, "llm_task_temperature", None):
+        for raw in args.llm_task_temperature or []:
+            spec = str(raw).strip()
+            if not spec:
+                continue
+            if "=" not in spec:
+                raise SystemExit(f"--llm-task-temperature must be TASK=FLOAT; got: {spec}")
+            task, temp = spec.split("=", 1)
+            task = task.strip()
+            temp = temp.strip()
+            if not task:
+                raise SystemExit(f"--llm-task-temperature task is empty: {spec}")
+            try:
+                tval = float(temp)
+            except Exception:
+                raise SystemExit(f"--llm-task-temperature value must be FLOAT; got: {spec}")
+            task_opts.setdefault(task, {})["temperature"] = tval
+
+    if getattr(args, "llm_task_option", None):
+        def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+            out: dict[str, Any] = dict(base or {})
+            for k, v in (override or {}).items():
+                if isinstance(v, dict) and isinstance(out.get(k), dict):
+                    out[k] = _deep_merge(out.get(k) or {}, v)  # type: ignore[arg-type]
+                else:
+                    out[k] = v
+            return out
+
+        for raw in args.llm_task_option or []:
+            spec = str(raw).strip()
+            if not spec:
+                continue
+            if "=" not in spec:
+                raise SystemExit(f"--llm-task-option must be TASK=JSON_OBJECT; got: {spec}")
+            task, raw_json = spec.split("=", 1)
+            task = task.strip()
+            raw_json = raw_json.strip()
+            if not task:
+                raise SystemExit(f"--llm-task-option task is empty: {spec}")
+            try:
+                parsed = json.loads(raw_json)
+            except Exception as e:
+                raise SystemExit(f"--llm-task-option JSON parse failed for task={task}: {e}")
+            if not isinstance(parsed, dict):
+                raise SystemExit(
+                    f"--llm-task-option must be a JSON object for task={task}; got: {type(parsed).__name__}"
+                )
+            cur = task_opts.get(task) or {}
+            task_opts[task] = _deep_merge(cur, parsed)
+
+    if task_opts:
+        if lockdown_active():
+            raise SystemExit(
+                "Forbidden: --llm-task-temperature/--llm-task-option under YTM_ROUTING_LOCKDOWN=1. "
+                "Use numeric slots (LLM_MODEL_SLOT) and SSOT task routing instead, or set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging."
+            )
+        os.environ["LLM_FORCE_TASK_OPTIONS_JSON"] = json.dumps(task_opts, ensure_ascii=False)
+
 
 def _assert_script_api_only() -> None:
     from factory_common.llm_exec_slots import active_llm_exec_slot_id, effective_llm_mode
@@ -212,6 +275,16 @@ def _add_llm_override_flags(p: argparse.ArgumentParser) -> None:
         "--llm-task-model",
         action="append",
         help="Per-task LLM override: TASK=MODELKEY[,MODELKEY...] (repeatable).",
+    )
+    p.add_argument(
+        "--llm-task-temperature",
+        action="append",
+        help="Per-task temperature override: TASK=FLOAT (repeatable). DEBUG ONLY.",
+    )
+    p.add_argument(
+        "--llm-task-option",
+        action="append",
+        help="Per-task option override: TASK=JSON_OBJECT (repeatable). DEBUG ONLY.",
     )
 
 

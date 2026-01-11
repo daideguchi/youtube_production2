@@ -59,3 +59,75 @@
   - 辞書: `packages/audio_tts/data/reading_dict/CH04.yaml`（例: 行っている/十分間/過去世/抱いた など）
 - 結果: OK（再合成済み）
 - メモ: mismatchが出た場合は `workspaces/scripts/CH04/029/audio_prep/reading_mismatches__skip_llm.json` を出して停止
+
+### 2026-01-11 CH26-022
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/022/audio_prep/local_reading_dict.json`
+- 結果: OK（`workspaces/audio/final/CH26/022` 生成）
+- メモ: Aは不変、B側で読み固定
+
+### 2026-01-11 CH26-023
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/023/audio_prep/local_reading_dict.json`
+- 結果: OK（`workspaces/audio/final/CH26/023` 生成）
+- メモ: 数字/英字の読みをB側で明示
+
+### 2026-01-11 CH26-024
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/024/audio_prep/local_reading_dict.json`（例: `暇を -> ヒマオ`）
+- 結果: OK（`workspaces/audio/final/CH26/024` 生成）
+- メモ: 1文字漢字はキー禁止のためフレーズ化
+
+### 2026-01-11 CH26-025
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/025/audio_prep/local_reading_dict.json`（例: `実験を行っている -> ジッケンオオコナッテイル`）
+- 結果: OK（`workspaces/audio/final/CH26/025` 生成）
+- メモ: 曖昧語はフレーズキーで局所固定
+
+### 2026-01-11 CH26-026
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/026/audio_prep/local_reading_dict.json`（例: `PC -> ピースィー`）
+- 結果: OK（`workspaces/audio/final/CH26/026` 生成）
+- メモ: VOICEVOXの実読カナ表現に合わせた読み表記を採用
+
+### 2026-01-11 CH26-027
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/027/audio_prep/local_reading_dict.json`（例: `SPC -> エスピースィー` / `書き -> カキ`）
+- 結果: OK（`workspaces/audio/final/CH26/027` 生成）
+- メモ: Aに含まれる読み補助重複はB側で自動除去（SSOT/arbiter固定）
+
+### 2026-01-11 CH26-028
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/028/audio_prep/local_reading_dict.json`（例: `TPS -> ティーピーエス` / `GoandSee -> ゴーアンドシー`）
+- 結果: OK（`workspaces/audio/final/CH26/028` 生成）
+- メモ: 英字1文字はキー禁止のため `Aから` / `Bに` のようにフレーズ化
+
+### 2026-01-11 CH26-029
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/029/audio_prep/local_reading_dict.json`（例: `P、 -> ピー、` / `PC -> ピースィー` / `スティーブン・R・ -> スティーブンアール`）
+- 結果: OK（`workspaces/audio/final/CH26/029` 生成）
+- メモ: キーはb_textではなくA由来のsurface連結で作る（SSOT反映済み）
+
+### 2026-01-11 CH26-030
+- 実行: `SKIP_TTS_READING=1`（合成/再合成: yes）
+- 確認範囲: 全segments mismatch=0（fail-fast）
+- 修正:
+  - 動画ローカル辞書: `workspaces/scripts/CH26/030/audio_prep/local_reading_dict.json`（例: `2000年 -> ニセンネン` / `Tranquility -> トランクィリティ` / `暇や -> ヒマヤ`）
+- 結果: OK（`workspaces/audio/final/CH26/030` 生成）
+- メモ: 数字は unit 付きで固定し、Aは不変

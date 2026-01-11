@@ -37,6 +37,14 @@ slots:
       visual_image_gen: gemini_3_pro_image_preview
       thumbnail_image_gen: gemini_3_pro_image_preview
 
+  i-1:
+    label: imagen_4_fast
+    description: Imagen 4 Fast (Gemini API) for quick-quality comparisons.
+    tasks:
+      image_generation: gemini_imagen_4_fast_generate_001
+      visual_image_gen: gemini_imagen_4_fast_generate_001
+      thumbnail_image_gen: gemini_imagen_4_fast_generate_001
+
   f-1:
     label: flux_schnell
     description: Fireworks FLUX.1 schnell (fast).
@@ -77,6 +85,14 @@ slots:
       image_generation: gemini_3_pro_image_preview
       visual_image_gen: gemini_3_pro_image_preview
       thumbnail_image_gen: gemini_3_pro_image_preview
+
+  img-imagen-4-fast-1:
+    label: imagen_4_fast
+    description: Alias of i-1 (Imagen 4 Fast via Gemini API).
+    tasks:
+      image_generation: gemini_imagen_4_fast_generate_001
+      visual_image_gen: gemini_imagen_4_fast_generate_001
+      thumbnail_image_gen: gemini_imagen_4_fast_generate_001
 
   img-flux-schnell-1:
     label: flux_schnell

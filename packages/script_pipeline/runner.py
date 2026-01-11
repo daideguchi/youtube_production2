@@ -208,6 +208,7 @@ SKIP_STAGES: Set[str] = set()
 # LLM quality gate prompts (Judge -> Fixer) for script_validation
 A_TEXT_QUALITY_JUDGE_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_judge_prompt.txt"
 A_TEXT_QUALITY_FIX_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_fix_prompt.txt"
+A_TEXT_QUALITY_FIX_PATCH_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_fix_patch_prompt.txt"
 A_TEXT_QUALITY_EXTEND_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_extend_prompt.txt"
 A_TEXT_QUALITY_EXPAND_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_expand_prompt.txt"
 A_TEXT_QUALITY_SHRINK_PROMPT_PATH = SCRIPT_PKG_ROOT / "prompts" / "a_text_quality_shrink_prompt.txt"
@@ -1330,6 +1331,82 @@ def _budget_trim_a_text_to_target(text: str, *, target_chars: int, min_segment_c
         if seg.strip():
             parts.append(seg.strip())
         if i < len(trimmed_segments) - 1:
+            parts.append("---")
+    return "\n\n".join(parts).strip() + "\n"
+
+
+def _apply_a_text_segment_patch(a_text: str, replacements: Any) -> str | None:
+    """
+    Apply segment replacements to an A-text split by pause lines (`---`).
+
+    Expected shape (lenient):
+      [
+        {"segment_index": 0, "segment_text": "..."},
+        {"segment_index": 12, "segment_text": "..."}
+      ]
+    """
+    raw = (a_text or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not raw.strip():
+        return None
+    if not isinstance(replacements, list) or not replacements:
+        return None
+
+    segments: list[str] = []
+    cur: list[str] = []
+    for ln in raw.split("\n"):
+        if ln.strip() == "---":
+            segments.append("\n".join(cur).strip())
+            cur = []
+            continue
+        cur.append(ln)
+    segments.append("\n".join(cur).strip())
+    if not segments:
+        return None
+
+    changed = False
+    for item in replacements:
+        if not isinstance(item, dict):
+            continue
+        try:
+            idx = int(item.get("segment_index"))
+        except Exception:
+            continue
+        seg_text = item.get("segment_text")
+        if seg_text is None:
+            seg_text = item.get("text")
+        if seg_text is None:
+            seg_text = item.get("replacement")
+        if not isinstance(seg_text, str):
+            continue
+        cleaned = seg_text.replace("\r\n", "\n").replace("\r", "\n").strip()
+        if not cleaned:
+            continue
+        # Be forgiving: some models accidentally include pause markers / block headers.
+        # Drop those lines rather than rejecting the entire replacement.
+        cleaned_lines: list[str] = []
+        for ln in cleaned.split("\n"):
+            if ln.strip() == "---":
+                continue
+            if re.match(r"(?m)^\s*<<<PAUSE_\d+>>>\s*$", ln or ""):
+                continue
+            if re.match(r"(?i)^\s*segment_index\s*=", ln or ""):
+                continue
+            cleaned_lines.append(ln)
+        cleaned = "\n".join(cleaned_lines).strip()
+        if not cleaned:
+            continue
+        if 0 <= idx < len(segments):
+            segments[idx] = cleaned
+            changed = True
+
+    if not changed:
+        return None
+
+    parts: list[str] = []
+    for i, seg in enumerate(segments):
+        if seg.strip():
+            parts.append(seg.strip())
+        if i < len(segments) - 1:
             parts.append("---")
     return "\n\n".join(parts).strip() + "\n"
 
@@ -9145,6 +9222,9 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 "judge_round2_report",
                 "fix_output",
                 "fix_llm_meta",
+                "fix_patch_output",
+                "fix_patch_llm_meta",
+                "fix_patch_prompt",
                 "length_rescue_report",
                 "shrink_output",
                 "shrink_llm_meta",
@@ -9178,6 +9258,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             judge_round1_path = quality_dir / "judge_round1.json"
             judge_round2_path = quality_dir / "judge_round2.json"
             fix_latest_path = quality_dir / "fix_latest.md"
+            fix_patch_latest_path = quality_dir / "fix_patch_latest.json"
             shrink_latest_path = quality_dir / "shrink_latest.md"
             length_rescue_latest_path = quality_dir / "length_rescue_latest.json"
             rebuild_plan_latest_path = quality_dir / "rebuild_plan_latest.json"
@@ -9619,8 +9700,8 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                     if isinstance(target_max, int) and target_max > char_count:
                         room = target_max - char_count
 
-                    if shortage <= 1200:
-                        # For very small shortages, avoid forcing a large paragraph.
+                    if shortage <= 1800:
+                        # For small/medium shortages, prefer a single bounded insertion (more stable than multi-insert).
                         if shortage <= 120:
                             add_min = max(shortage + 40, 90)
                             add_max = max(add_min, shortage + 140)
@@ -9788,12 +9869,23 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                     }
                                 ]
                         if not isinstance(insertions, list) or not insertions:
-                            try:
-                                insertions_list = _parse_json_list_lenient(expand_raw)
-                            except Exception:
-                                insertions_list = None
-                            if isinstance(insertions_list, list) and insertions_list:
-                                insertions = insertions_list
+                            if str(expand_raw).lstrip().startswith("["):
+                                try:
+                                    insertions_list = _parse_json_list_lenient(expand_raw)
+                                except Exception:
+                                    insertions_list = None
+                                if isinstance(insertions_list, list) and insertions_list:
+                                    insertions = insertions_list
+
+                        if isinstance(insertions, list) and insertions:
+                            cleaned_insertions: list[dict[str, Any]] = []
+                            for ins in insertions:
+                                if not isinstance(ins, dict):
+                                    continue
+                                if "addition" not in ins and "after_pause_index" not in ins:
+                                    continue
+                                cleaned_insertions.append(ins)
+                            insertions = cleaned_insertions
 
                         if isinstance(insertions, list) and insertions:
                             break
@@ -10236,48 +10328,250 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         pass
                     return st
 
-                fixer_prompt = _render_template(
-                    A_TEXT_QUALITY_FIX_PROMPT_PATH,
-                    {
-                        **placeholders_base,
-                        "A_TEXT": (current_text or "").strip(),
-                        "JUDGE_JSON": json.dumps(judge_obj or {}, ensure_ascii=False, indent=2),
-                        "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
-                    },
-                )
+                fix_input_text = (current_text or "")
                 try:
-                    snap = _write_prompt_snapshot(
-                        prompt_snap_dir,
-                        f"script_validation_fix_round{round_no}_prompt.txt",
-                        fixer_prompt,
-                        base=base,
-                    )
-                    if snap:
-                        llm_gate_details["fix_prompt"] = snap
-                        llm_gate_details[f"fix_round{round_no}_prompt"] = snap
+                    # Preserve pause markers across whole-script rewrites:
+                    # some models drop standalone `---` lines even when instructed not to.
+                    # We encode existing pause lines as stable tokens (<<<PAUSE_n>>>),
+                    # then convert them back to `---` during sanitization.
+                    _lines = (fix_input_text or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+                    _pi = 0
+                    _out_lines: list[str] = []
+                    for _ln in _lines:
+                        if _ln.strip() == "---":
+                            _pi += 1
+                            _out_lines.append(f"<<<PAUSE_{_pi}>>>")
+                        else:
+                            _out_lines.append(_ln)
+                    if (fix_input_text or "").strip():
+                        fix_input_text = "\n".join(_out_lines).rstrip() + "\n"
                 except Exception:
-                    pass
-                prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
-                os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
-                try:
-                    fix_result = router_client.call_with_raw(
-                        task=fix_task,
-                        messages=[{"role": "user", "content": fixer_prompt}],
-                    )
-                finally:
-                    if prev_routing_key is None:
-                        os.environ.pop("LLM_ROUTING_KEY", None)
-                    else:
-                        os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+                    fix_input_text = (current_text or "")
 
-                fixed = _extract_llm_text_content(fix_result) or ""
-                candidate = _sanitize_candidate(fixed)
+                candidate = ""
+                fix_used_mode = ""
+                fix_result: Dict[str, Any] = {}
+
+                fix_mode_raw = str(os.getenv("SCRIPT_VALIDATION_LLM_FIX_MODE") or "").strip().lower()
+                if fix_mode_raw not in {"", "full", "patch"}:
+                    fix_mode_raw = ""
+                fix_mode = fix_mode_raw
+                if not fix_mode:
+                    cur_errs, _cur_stats = _non_warning_errors(current_text or "")
+                    fix_mode = "patch" if not cur_errs else "full"
+                llm_gate_details["fix_mode"] = fix_mode
+
+                if fix_mode == "patch":
+                    # Patch-mode: only send the segments that need fixing (keeps prompt small and schema-compliant).
+                    raw_current = (current_text or "").replace("\r\n", "\n").replace("\r", "\n")
+                    segments: list[str] = []
+                    cur: list[str] = []
+                    for ln in raw_current.split("\n"):
+                        if ln.strip() == "---":
+                            segments.append("\n".join(cur).strip())
+                            cur = []
+                            continue
+                        cur.append(ln)
+                    segments.append("\n".join(cur).strip())
+                    if not segments:
+                        segments = [raw_current.strip()]
+
+                    pause_lines = max(0, len(segments) - 1)
+                    segment_count = max(1, len(segments))
+
+                    # Heuristic mapping from Judge's qualitative location hints → segment indices.
+                    target_idxs: set[int] = set()
+                    must_fix_items = judge_obj.get("must_fix") if isinstance(judge_obj, dict) else None
+                    if isinstance(must_fix_items, list):
+                        for it in must_fix_items:
+                            if not isinstance(it, dict):
+                                continue
+                            typ = str(it.get("type") or "").strip().lower()
+                            loc = str(it.get("location_hint") or "").strip()
+                            if typ in {"filler"} or any(k in loc for k in ["導入", "冒頭", "最初", "序盤", "最初のポーズ"]):
+                                target_idxs.add(0)
+                            if typ in {"flow_break"} or any(
+                                k in loc for k in ["終盤", "結び", "最後", "ラスト", "締め", "終わり"]
+                            ):
+                                target_idxs.add(max(0, segment_count - 1))
+
+                    if not target_idxs:
+                        # Safe fallback: intro + ending are the most common qualitative failure points.
+                        target_idxs.add(0)
+                        if segment_count > 1:
+                            target_idxs.add(segment_count - 1)
+
+                    try:
+                        max_patch_segments = max(
+                            1, int(str(os.getenv("SCRIPT_VALIDATION_LLM_PATCH_MAX_SEGMENTS") or "3").strip() or "3")
+                        )
+                    except Exception:
+                        max_patch_segments = 3
+                    max_patch_segments = max(1, min(6, int(max_patch_segments)))
+
+                    ordered = sorted({i for i in target_idxs if 0 <= i < segment_count})
+                    if len(ordered) > max_patch_segments:
+                        preferred: list[int] = []
+                        if 0 in ordered:
+                            preferred.append(0)
+                        last = segment_count - 1
+                        if last in ordered and last not in preferred:
+                            preferred.append(last)
+                        ordered = preferred + [i for i in ordered if i not in preferred]
+                        ordered = ordered[:max_patch_segments]
+
+                    excerpt_blocks: list[str] = []
+                    for idx in ordered:
+                        seg = segments[idx] if 0 <= idx < len(segments) else ""
+                        seg_clean = str(seg or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+                        if not seg_clean:
+                            continue
+                        cleaned_lines: list[str] = []
+                        for ln in seg_clean.split("\n"):
+                            if ln.strip() == "---":
+                                continue
+                            if re.match(r"(?m)^\s*<<<PAUSE_\d+>>>\s*$", ln or ""):
+                                continue
+                            cleaned_lines.append(ln)
+                        seg_clean = "\n".join(cleaned_lines).strip()
+                        if not seg_clean:
+                            continue
+                        excerpt_blocks.append(f"segment_index={idx}\n{seg_clean}")
+
+                    excerpt_text = "\n\n".join(excerpt_blocks).strip()
+                    llm_gate_details["fix_patch_target_segments"] = ordered
+                    try:
+                        llm_gate_details["fix_patch_excerpt_chars"] = len(excerpt_text.replace("\n", ""))
+                    except Exception:
+                        pass
+
+                    if excerpt_text:
+                        patch_prompt = _render_template(
+                            A_TEXT_QUALITY_FIX_PATCH_PROMPT_PATH,
+                            {
+                                **placeholders_base,
+                                "A_TEXT": excerpt_text,
+                                "JUDGE_JSON": json.dumps(judge_obj or {}, ensure_ascii=False, indent=2),
+                                "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
+                                "ACTUAL_PAUSE_LINES": str(pause_lines),
+                                "ACTUAL_SEGMENT_COUNT": str(segment_count),
+                            },
+                        )
+                        try:
+                            snap2 = _write_prompt_snapshot(
+                                prompt_snap_dir,
+                                f"script_validation_fix_patch_round{round_no}_prompt.txt",
+                                patch_prompt,
+                                base=base,
+                            )
+                            if snap2:
+                                llm_gate_details["fix_patch_prompt"] = snap2
+                                llm_gate_details[f"fix_patch_round{round_no}_prompt"] = snap2
+                        except Exception:
+                            pass
+
+                        prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                        os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                        try:
+                            fix_result = router_client.call_with_raw(
+                                task=fix_task,
+                                messages=[{"role": "user", "content": patch_prompt}],
+                                response_format="json_object",
+                                temperature=0.0,
+                            )
+                        finally:
+                            if prev_routing_key is None:
+                                os.environ.pop("LLM_ROUTING_KEY", None)
+                            else:
+                                os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                        patch_raw = _extract_llm_text_content(fix_result) or ""
+                        patch_obj = _parse_json_lenient(patch_raw)
+                        reps: Any = None
+                        if isinstance(patch_obj, dict):
+                            reps = (
+                                patch_obj.get("segments")
+                                or patch_obj.get("replacements")
+                                or patch_obj.get("patch")
+                                or patch_obj.get("updates")
+                            )
+                        if isinstance(reps, dict):
+                            reps = [reps]
+                        if reps is None and str(patch_raw).lstrip().startswith("["):
+                            try:
+                                reps_list = _parse_json_list_lenient(patch_raw)
+                            except Exception:
+                                reps_list = None
+                            if isinstance(reps_list, list):
+                                reps = reps_list
+
+                        patched = _apply_a_text_segment_patch(current_text or "", reps)
+                        candidate = _sanitize_candidate(patched or "")
+                        try:
+                            atomic_write_json(
+                                fix_patch_latest_path,
+                                {
+                                    "schema": "ytm.a_text_quality_fix_patch.v1",
+                                    "generated_at": utc_now_iso(),
+                                    "llm_meta": _llm_meta(fix_result),
+                                    "raw": patch_raw,
+                                },
+                            )
+                            llm_gate_details["fix_patch_output"] = str(fix_patch_latest_path.relative_to(base))
+                            llm_gate_details["fix_patch_llm_meta"] = _llm_meta(fix_result)
+                        except Exception:
+                            pass
+                        fix_used_mode = "patch"
+                    else:
+                        llm_gate_details["fix_patch_skipped"] = True
+                        llm_gate_details["fix_patch_skipped_reason"] = "no_excerpt_text"
+
                 if not candidate:
-                    continue
+                    fixer_prompt = _render_template(
+                        A_TEXT_QUALITY_FIX_PROMPT_PATH,
+                        {
+                            **placeholders_base,
+                            "A_TEXT": (fix_input_text or "").strip(),
+                            "JUDGE_JSON": json.dumps(judge_obj or {}, ensure_ascii=False, indent=2),
+                            "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
+                        },
+                    )
+                    try:
+                        snap = _write_prompt_snapshot(
+                            prompt_snap_dir,
+                            f"script_validation_fix_round{round_no}_prompt.txt",
+                            fixer_prompt,
+                            base=base,
+                        )
+                        if snap:
+                            llm_gate_details["fix_prompt"] = snap
+                            llm_gate_details[f"fix_round{round_no}_prompt"] = snap
+                    except Exception:
+                        pass
+                    prev_routing_key = os.environ.get("LLM_ROUTING_KEY")
+                    os.environ["LLM_ROUTING_KEY"] = f"{st.channel}-{st.video}"
+                    try:
+                        fix_result = router_client.call_with_raw(
+                            task=fix_task,
+                            messages=[{"role": "user", "content": fixer_prompt}],
+                        )
+                    finally:
+                        if prev_routing_key is None:
+                            os.environ.pop("LLM_ROUTING_KEY", None)
+                        else:
+                            os.environ["LLM_ROUTING_KEY"] = prev_routing_key
+
+                    fixed = _extract_llm_text_content(fix_result) or ""
+                    candidate = _sanitize_candidate(fixed)
+                    if not candidate:
+                        continue
+                    fix_used_mode = "full"
+
                 try:
                     fix_latest_path.write_text(candidate, encoding="utf-8")
                     llm_gate_details["fix_output"] = str(fix_latest_path.relative_to(base))
                     llm_gate_details["fix_llm_meta"] = _llm_meta(fix_result)
+                    llm_gate_details["fix_used_mode"] = fix_used_mode
                 except Exception:
                     pass
 
@@ -11230,11 +11524,27 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                         pass
                     return st
 
+                fix_input_text = (current_text or "")
+                try:
+                    _lines = (fix_input_text or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+                    _pi = 0
+                    _out_lines: list[str] = []
+                    for _ln in _lines:
+                        if _ln.strip() == "---":
+                            _pi += 1
+                            _out_lines.append(f"<<<PAUSE_{_pi}>>>")
+                        else:
+                            _out_lines.append(_ln)
+                    if (fix_input_text or "").strip():
+                        fix_input_text = "\n".join(_out_lines).rstrip() + "\n"
+                except Exception:
+                    fix_input_text = (current_text or "")
+
                 fixer_prompt = _render_template(
                     A_TEXT_QUALITY_FIX_PROMPT_PATH,
                     {
                         **placeholders_base,
-                        "A_TEXT": (current_text or "").strip(),
+                        "A_TEXT": (fix_input_text or "").strip(),
                         "JUDGE_JSON": json.dumps(judge_obj, ensure_ascii=False, indent=2),
                         "LENGTH_FEEDBACK": _a_text_length_feedback(current_text or "", st.metadata or {}),
                     },
@@ -11271,6 +11581,11 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                 if not fixed:
                     continue
                 candidate = fixed.strip() + "\n"
+                # Preserve pause markers if the Fixer outputs internal tokens (<<<PAUSE_n>>>).
+                try:
+                    candidate = re.sub(r"(?m)^\\s*<<<PAUSE_\\d+>>>\\s*$", "---", candidate)
+                except Exception:
+                    pass
                 try:
                     fix_latest_path.write_text(candidate, encoding="utf-8")
                     llm_gate_details["fix_output"] = str(fix_latest_path.relative_to(base))

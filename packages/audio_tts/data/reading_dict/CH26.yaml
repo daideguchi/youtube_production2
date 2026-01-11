@@ -105,8 +105,13 @@ Output:
   source: manual
 PC:
   accent_moras: null
-  reading_hira: ピーシー
-  reading_kana: ピーシー
+  reading_hira: ピースィー
+  reading_kana: ピースィー
+  source: manual
+SPC:
+  accent_moras: null
+  reading_hira: エスピースィー
+  reading_kana: エスピースィー
   source: manual
 RAM:
   accent_moras: null
@@ -122,6 +127,21 @@ Standard:
   accent_moras: null
   reading_hira: スタンダード
   reading_kana: スタンダード
+  source: manual
+TODO:
+  accent_moras: null
+  reading_hira: トゥードゥー
+  reading_kana: トゥードゥー
+  source: manual
+TPS:
+  accent_moras: null
+  reading_hira: ティーピーエス
+  reading_kana: ティーピーエス
+  source: manual
+ToDo:
+  accent_moras: null
+  reading_hira: トゥードゥー
+  reading_kana: トゥードゥー
   source: manual
 Turing:
   accent_moras: null
@@ -667,4 +687,74 @@ Aルート:
   accent_moras: null
   reading_hira: イッパツ
   reading_kana: イッパツ
+  source: manual
+出せ:
+  accent_moras: null
+  reading_hira: ダセ
+  reading_kana: ダセ
+  source: manual
+書き出せ:
+  accent_moras: null
+  reading_hira: カキダセ
+  reading_kana: カキダセ
+  source: manual
+紙に:
+  accent_moras: null
+  reading_hira: カミニ
+  reading_kana: カミニ
+  source: manual
+見えれば:
+  accent_moras: null
+  reading_hira: ミエレバ
+  reading_kana: ミエレバ
+  source: manual
+学べば:
+  accent_moras: null
+  reading_hira: マナベバ
+  reading_kana: マナベバ
+  source: manual
+"10分の":
+  accent_moras: null
+  reading_hira: ジュップンノ
+  reading_kana: ジュップンノ
+  source: manual
+"10回":
+  accent_moras: null
+  reading_hira: ジュッカイ
+  reading_kana: ジュッカイ
+  source: manual
+"1000":
+  accent_moras: null
+  reading_hira: セン
+  reading_kana: セン
+  source: manual
+"1000回":
+  accent_moras: null
+  reading_hira: センカイ
+  reading_kana: センカイ
+  source: manual
+"100回":
+  accent_moras: null
+  reading_hira: ヒャッカイ
+  reading_kana: ヒャッカイ
+  source: manual
+"3割":
+  accent_moras: null
+  reading_hira: サンワリ
+  reading_kana: サンワリ
+  source: manual
+"3回":
+  accent_moras: null
+  reading_hira: サンカイ
+  reading_kana: サンカイ
+  source: manual
+"5行":
+  accent_moras: null
+  reading_hira: ゴギョウ
+  reading_kana: ゴギョウ
+  source: manual
+"7割":
+  accent_moras: null
+  reading_hira: ナナワリ
+  reading_kana: ナナワリ
   source: manual

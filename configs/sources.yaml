@@ -18,7 +18,7 @@ channels:
       lang: ja
       fallback_lang: en
     chapter_count: 5
-    target_chars_min: 6000
+    target_chars_min: 4500
     target_chars_max: 8000
     video_broll:
       enabled: false

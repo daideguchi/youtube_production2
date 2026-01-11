@@ -17,9 +17,11 @@ interface ChannelProjectListProps {
   selectedVideo: string | null;
   keyword: string;
   readyFilter: ReadyFilterOption;
+  unpublishedOnly: boolean;
   summaryFilter: SummaryFilterOption;
   onKeywordChange: (value: string) => void;
   onReadyFilterChange: (value: ReadyFilterOption) => void;
+  onUnpublishedOnlyChange: (value: boolean) => void;
   onSummaryFilterChange: (value: SummaryFilterOption) => void;
   onClearSummaryFilter: () => void;
   onSelectVideo: (video: string) => void;
@@ -45,9 +47,11 @@ export function ChannelProjectList({
   selectedVideo,
   keyword,
   readyFilter,
+  unpublishedOnly,
   summaryFilter,
   onKeywordChange,
   onReadyFilterChange,
+  onUnpublishedOnlyChange,
   onSummaryFilterChange,
   onClearSummaryFilter,
   onSelectVideo,
@@ -64,7 +68,13 @@ export function ChannelProjectList({
     let notReady = 0;
     let blocked = 0;
     let review = 0;
+    let unpublished = 0;
     for (const video of videos) {
+      if (Boolean(video.published_lock)) {
+        // published
+      } else {
+        unpublished += 1;
+      }
       const audioState = resolveAudioSubtitleState(video);
       if (audioState === "pending") {
         notReady += 1;
@@ -85,6 +95,7 @@ export function ChannelProjectList({
       notReady,
       blocked,
       review,
+      unpublished,
     };
   }, [videos]);
 
@@ -120,14 +131,24 @@ export function ChannelProjectList({
       <div className="channel-projects__filters" role="group" aria-label="フィルター">
         <button
           type="button"
-          className={`filter-chip${readyFilter === "all" && summaryFilter === null ? " filter-chip--active" : ""}`}
+          className={`filter-chip${!unpublishedOnly && readyFilter === "all" && summaryFilter === null ? " filter-chip--active" : ""}`}
           onClick={() => {
-            onReadyFilterChange("all");
             onSummaryFilterChange(null);
+            onUnpublishedOnlyChange(false);
+            onReadyFilterChange("all");
           }}
         >
           <span className="filter-chip__label">すべて</span>
           <span className="filter-chip__count">{summaryCounts.total}</span>
+        </button>
+        <button
+          type="button"
+          className={`filter-chip${unpublishedOnly ? " filter-chip--active" : ""}`}
+          title="投稿済み（ロック）を除外します"
+          onClick={() => onUnpublishedOnlyChange(!unpublishedOnly)}
+        >
+          <span className="filter-chip__label">未投稿のみ</span>
+          <span className="filter-chip__count">{summaryCounts.unpublished}</span>
         </button>
         <button
           type="button"
@@ -167,8 +188,16 @@ export function ChannelProjectList({
           <span className="filter-chip__label">検証待ち</span>
           <span className="filter-chip__count">{summaryCounts.review}</span>
         </button>
-        {(readyFilter !== "all" || summaryFilter !== null) && (
-          <button type="button" className="filter-chip filter-chip--clear" onClick={onClearSummaryFilter}>
+        {(unpublishedOnly || readyFilter !== "all" || summaryFilter !== null) && (
+          <button
+            type="button"
+            className="filter-chip filter-chip--clear"
+            onClick={() => {
+              onUnpublishedOnlyChange(false);
+              onSummaryFilterChange(null);
+              onReadyFilterChange("all");
+            }}
+          >
             フィルター解除
           </button>
         )}
