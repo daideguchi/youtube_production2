@@ -166,6 +166,46 @@ def assert_task_overrides_unchanged(*, context: str) -> None:
             )
         )
 
+    # Local override file is gitignored and may exist for one-off experiments.
+    # Under lockdown, forbid overriding `script_*` tasks (model policy must be fixed & reproducible).
+    local_rel = "configs/llm_task_overrides.local.yaml"
+    local_path = repo / local_rel
+    if local_path.exists():
+        try:
+            import yaml  # type: ignore
+
+            local_doc = yaml.safe_load(local_path.read_text(encoding="utf-8")) or {}
+        except Exception as e:
+            raise RuntimeError(
+                "\n".join(
+                    [
+                        "[LOCKDOWN] Local task overrides file is present but unreadable.",
+                        f"- context: {context}",
+                        f"- file: {local_rel}",
+                        "- policy: remove/fix the file; do not use it to override script_* tasks under lockdown.",
+                        "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only).",
+                    ]
+                )
+            ) from e
+
+        tasks = local_doc.get("tasks") if isinstance(local_doc, dict) else None
+        if isinstance(tasks, dict):
+            bad = sorted({str(k) for k in tasks.keys() if str(k).startswith("script_")})
+            if bad:
+                raise RuntimeError(
+                    "\n".join(
+                        [
+                            "[LOCKDOWN] Forbidden local overrides detected for script tasks.",
+                            f"- context: {context}",
+                            f"- file: {local_rel}",
+                            f"- tasks: {', '.join(bad)}",
+                            "- policy: 台本（script_*）は固定ロジック。local overrideでモデル/温度を変えない。",
+                            "- hint: remove those entries (or delete the file) and rerun.",
+                            "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only).",
+                        ]
+                    )
+                )
+
     clean = _git_diff_clean(repo, rel)
     if clean is False:
         raise RuntimeError(

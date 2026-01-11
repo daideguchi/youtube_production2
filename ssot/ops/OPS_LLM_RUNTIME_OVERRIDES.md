@@ -18,6 +18,9 @@
 - 例外は **緊急デバッグのみ**: `YTM_EMERGENCY_OVERRIDE=1`
   - 「このプロセス/この実行だけ」ロックダウンを解除する
   - 終わったら必ず戻す（恒久運用しない）
+- `configs/llm_task_overrides.local.yaml`（gitignore）:
+  - ローカル実験用だが、**ロックダウンONでは `script_*` を上書きしない**（台本モデル固定のため）。
+  - 台本側でモデルを変える必要がある場合は、必ずSSOT/Decisionを更新してから（= tracked側で確定する）。
 
 ---
 
@@ -57,4 +60,3 @@
 注:
 - 上書きは **task overrides の上**に overlay される（ただし、呼び出し側が明示した引数が最優先）。
 - オプションは最終的に `sanitize_params`（モデルcapabilityガード）を通る。
-
