@@ -72,6 +72,7 @@
 | 2s | TTS plain text（`/api/channels/{channel}/videos/{video}/tts/plain`）を `routers/tts_text.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 2t | Human scripts（`/api/channels/{channel}/videos/{video}/scripts/human`）を `routers/human_scripts.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 2u | TTS edit（`/api/channels/{channel}/videos/{video}/tts`, `/tts/validate`, `/tts/replace`）を `routers/tts.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
+| 2v | SRT edit/verify（`/api/channels/{channel}/videos/{video}/srt`, `/srt/verify`）を `routers/srt.py` に移設し、`include_router` へ接続 | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
