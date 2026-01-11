@@ -48,3 +48,6 @@
 
 推奨（Slackエラー洪水の棚卸も含める）:
 - `python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
+  - `--errors` は **チャンネル履歴（history）側のみ**:
+    - bot投稿も拾う（GitHub Actions通知などがbotになりやすいため）
+    - `--dd-user` のフィルタを適用しない（= エラー投稿の取りこぼし防止）
