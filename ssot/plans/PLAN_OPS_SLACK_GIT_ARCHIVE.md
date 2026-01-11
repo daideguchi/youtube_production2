@@ -24,6 +24,9 @@
   - thread返信取り込み: `--poll-thread ... --poll-write-memos`
   - チャンネル履歴（エラー棚卸）: `--history ... --history-grep '(error|failed|traceback)'`
 - PM Inbox同期（gitへ要約保存）: `scripts/ops/slack_inbox_sync.py`（このPlanで追加）
+- PID稼働状況の可視化（ps→Slack通知）: `scripts/ops/process_report.py`
+  - 自動検出: `python3 scripts/ops/process_report.py --auto --slack`
+  - 明示PID: `python3 scripts/ops/process_report.py --pid 52211 --pid 52239 --slack`
 
 安全（必須）:
 - Slack→git 取り込みは **token-like文字列を自動redact**し、本文は短く切る（長文は要約のみ）。
@@ -34,4 +37,3 @@
 2) ddの返信を取り込む（`slack_notify.py --poll-thread ...`）
 3) `slack_inbox_sync.py sync` で **PM Inboxを更新**（gitへ要約）
 4) SSOT/実装を更新 → push → Slackで報告
-

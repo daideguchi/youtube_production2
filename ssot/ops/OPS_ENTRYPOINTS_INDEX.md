@@ -247,6 +247,7 @@
   - Slack返信の取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
   - チャンネル履歴の棚卸（エラー抽出）: `python3 scripts/ops/slack_notify.py --history --history-grep '(error|failed|traceback)' --history-limit 200`
   - PM Inbox（git書庫; 要約のみ）: `python3 scripts/ops/slack_inbox_sync.py sync`（SSOT: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`）
+  - PID稼働状況（「いつから/何をしているか」）: `python3 scripts/ops/process_report.py --auto --slack --thread-ts <thread_ts>`（明示PID: `--pid 123 --pid 456`）
 
 ### 3.5 Thumbnails（サムネ量産/修正）
 - SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
