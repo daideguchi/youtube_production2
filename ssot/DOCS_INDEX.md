@@ -81,6 +81,7 @@
 - `ops/OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm_router.yaml` + codes/slots）。
 - `ops/OPS_CHANNEL_MODEL_ROUTING.md`: チャンネル別モデルルーティング（slot/codes/画像コードの運用正本）。
 - `ops/OPS_ENV_VARS.md`: 環境変数・キー管理の原則と必須一覧。
+- `ops/OPS_LLM_RUNTIME_OVERRIDES.md`: 設定ファイルを編集せずに「この実行だけ」LLMを調整する（lockdown + emergency override）。
 - `ops/OPS_CONFIRMED_PIPELINE_FLOW.md`: 現行フローの確定ロジック/確定処理フロー（フェーズ別I/O正本）。
 - `ops/OPS_ARTIFACT_DRIVEN_PIPELINES.md`: THINK/API共通のartifact駆動設計（型→処理継続の原則）。
 - `ops/OPS_ALIGNMENT_CHECKPOINTS.md`: SoT整合チェック（壊さないための確定チェックリスト）。
@@ -92,6 +93,7 @@
 - `ops/OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
 - `ops/OPS_ZOMBIE_CODE_REGISTER.md`: ゾンビコード候補台帳（未確定の棚卸し・意思決定の入口）。
 - `ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`: published済みエピソードのアーカイブ（planning progress 連動、探索ノイズ削減）。
+- `ops/OPS_GH_RELEASES_ARCHIVE.md`: GitHub Releases を“重い物置き”にする（manifest/index + push/pull）。
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
