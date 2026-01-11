@@ -42,6 +42,24 @@
   - 任意: エラー棚卸（チャンネル履歴を grep して Inbox に残す。Slack ID は git に保存しない）
   - outbox flush（推奨）: `python3 scripts/ops/slack_pm_loop.py run ... --flush-outbox`
 
+---
+
+## Slackの「fail通知が多すぎる」対策（重要）
+
+対象:
+- Slackの `[ops] FAILED ...` が連投される（同じ episode を何度も resume/redo している等）
+- GitHub Actions の失敗通知（SlackのGitHubアプリ側）
+
+固定ロジック（推奨）:
+1) `[ops] FAILED/WARN/PENDING` は **同一内容の再通知を抑制**する（ノイズ削減）
+   - 実装: `scripts/ops/slack_notify.py`（ops_cli finish event のみ）
+   - 同一判定の軸: `cmd/op/episode/llm/exit_code/pending_ids` を元にした dedupe key
+   - window（秒）: `YTM_SLACK_DEDUPE_WINDOW_SEC`（default: 3600）
+   - state（ローカルのみ / git管理しない）: `workspaces/logs/ops/slack_notify_dedupe_state.json`
+   - 無効化したい場合: `YTM_SLACK_DEDUPE_OFF=1`
+2) GitHub Actions の通知は **走らせる頻度を減らす**（= 書庫だけの変更では走らない）
+   - 例: `LLM Smoke` は `ssot/history/**`, `workspaces/logs/**` を `paths-ignore` する
+
 安全（必須）:
 - Slack→git 取り込みは **token-like文字列を自動redact**し、本文は短く切る（長文は要約のみ）。
 - `.env` や keys を Slack/Issue/Doc に貼らない（貼った時点で漏洩扱い）。

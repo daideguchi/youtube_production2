@@ -204,6 +204,7 @@
 - `configs/image_models.yaml` / `configs/image_model_slots.yaml` にBatch/Syncの選択肢を明示追加する
 - `factory_common.image_client` がBatch運用（submit/poll/resume）に対応する
 - SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md` / `ssot/ops/OPS_THUMBNAILS_PIPELINE.md` に運用導線を追記する
+- Plan: `ssot/plans/PLAN_IMAGE_BATCH_MIGRATION.md`（段階導入 / DoD / ロールバック / 観測）
 
 ---
 

@@ -118,6 +118,7 @@
 
 ### 3.2 LLM / ルーティング
 - `plans/PLAN_LLM_PIPELINE_REFACTOR.md` (Active): 台本/TTS/画像のLLM呼び出し統合計画。
+- `plans/PLAN_IMAGE_BATCH_MIGRATION.md` (Active): 画像生成を「Batch優先（コスト最優先）」へ段階移行する計画。
 - `plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md` (Active): API LLM を AIエージェント運用（Runbook/キュー）へ置換する計画。
 - `plans/PLAN_AGENT_ORG_COORDINATION.md` (Active): Orchestrator + Workers（複数AIエージェント）協調の仕組み。
 - `plans/PLAN_LLM_USAGE_MODEL_EVAL.md`: LLMコスト/トークン/モデル適性の評価計画。

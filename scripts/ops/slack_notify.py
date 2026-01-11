@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 import urllib.parse
@@ -19,10 +20,121 @@ from _bootstrap import bootstrap
 PROJECT_ROOT = Path(bootstrap())
 
 _DEFAULT_OUTBOX_DIR = PROJECT_ROOT / "workspaces" / "logs" / "ops" / "slack_outbox"
+_DEFAULT_DEDUPE_STATE_PATH = PROJECT_ROOT / "workspaces" / "logs" / "ops" / "slack_notify_dedupe_state.json"
 
 
 def _now_iso_utc() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _env_truthy(key: str) -> bool:
+    v = str(os.getenv(key) or "").strip().lower()
+    return v in {"1", "true", "yes", "y", "on"}
+
+
+def _slack_dedupe_off() -> bool:
+    return _env_truthy("YTM_SLACK_DEDUPE_OFF")
+
+
+def _slack_dedupe_window_sec() -> int:
+    raw = str(os.getenv("YTM_SLACK_DEDUPE_WINDOW_SEC") or "").strip()
+    if not raw:
+        return 3600
+    try:
+        v = int(float(raw))
+    except Exception:
+        return 3600
+    return max(0, v)
+
+
+def _load_slack_dedupe_state(path: Path) -> Dict[str, float]:
+    """
+    Local-only Slack notification dedupe state (not tracked by git).
+    """
+    try:
+        if not path.exists():
+            return {}
+        obj = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(obj, dict) and isinstance(obj.get("sent"), dict):
+            raw = obj.get("sent") or {}
+            return {str(k): float(v) for k, v in raw.items() if str(k).strip() and isinstance(v, (int, float))}
+        if isinstance(obj, dict):
+            return {str(k): float(v) for k, v in obj.items() if str(k).strip() and isinstance(v, (int, float))}
+        return {}
+    except Exception:
+        return {}
+
+
+def _save_slack_dedupe_state(path: Path, sent: Dict[str, float]) -> None:
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {"schema_version": 1, "updated_at": _now_iso_utc(), "sent": sent}
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp.replace(path)
+    except Exception:
+        return
+
+
+def _ops_event_dedupe_key(event: Dict[str, Any]) -> Optional[str]:
+    status = _status_label(event)
+    if status not in {"FAILED", "WARN", "PENDING"}:
+        return None
+
+    cmd = str(event.get("cmd") or "").strip()
+    op = str(event.get("op") or "").strip()
+    llm = str(event.get("llm") or "").strip()
+    episode = _extract_episode_label(event)
+
+    try:
+        exit_code = int(event.get("exit_code"))
+    except Exception:
+        exit_code = -1
+
+    pending = event.get("pending") if isinstance(event.get("pending"), dict) else {}
+    pending_ids = pending.get("ids") if isinstance(pending.get("ids"), list) else []
+    pending_ids = sorted({str(x).strip() for x in pending_ids if str(x).strip()})[:8]
+
+    git = event.get("git") if isinstance(event.get("git"), dict) else {}
+    head = str(git.get("head") or "").strip()
+    head_short = head[:7] if head else "-"
+
+    key_obj = {
+        "kind": "ops_cli.finish",
+        "status": status,
+        "cmd": cmd,
+        "op": op,
+        "episode": episode,
+        "llm": llm,
+        "exit_code": exit_code,
+        "pending_ids": pending_ids,
+        "git_head": head_short,
+    }
+    raw = json.dumps(key_obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:20]
+
+
+def _slack_dedupe_should_skip(key: str, *, now_ts: float, window_sec: int) -> bool:
+    state = _load_slack_dedupe_state(_DEFAULT_DEDUPE_STATE_PATH)
+    last = state.get(str(key))
+    return bool(last and (now_ts - float(last)) < float(window_sec))
+
+
+def _slack_dedupe_mark_sent(key: str, *, now_ts: float, window_sec: int) -> None:
+    state = _load_slack_dedupe_state(_DEFAULT_DEDUPE_STATE_PATH)
+    state[str(key)] = float(now_ts)
+
+    # Prune: keep the file bounded.
+    max_age = max(7 * 24 * 3600, int(window_sec) * 4)
+    cutoff = float(now_ts) - float(max_age)
+    for k, ts in list(state.items()):
+        try:
+            if float(ts) < cutoff:
+                del state[k]
+        except Exception:
+            del state[k]
+
+    _save_slack_dedupe_state(_DEFAULT_DEDUPE_STATE_PATH, state)
 
 
 def _outbox_dir(args: argparse.Namespace) -> Path:
@@ -974,6 +1086,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     if not url and not (token and channel):
         return 0
 
+    ops_event: Optional[Dict[str, Any]] = None
     text = str(args.text or "").strip()
     if not text:
         raw = str(args.event_json or "").strip()
@@ -987,6 +1100,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         else:
             event = {"kind": "unknown", "at": _now_iso_utc()}
         if isinstance(event, dict) and event.get("kind") == "ops_cli" and event.get("event") == "finish":
+            ops_event = event
             text = _build_text_from_ops_event(event)
         elif isinstance(event, dict) and event.get("kind") == "agent_task" and event.get("event") in {"claim", "complete"}:
             text = _build_text_from_agent_task_event(event)
@@ -1000,6 +1114,15 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     if not _guard_slack_text_or_block(text):
         return 0
+
+    dedupe_key = None
+    dedupe_now = time.time()
+    dedupe_window = _slack_dedupe_window_sec()
+    if ops_event is not None and not _slack_dedupe_off() and dedupe_window > 0:
+        key = _ops_event_dedupe_key(ops_event)
+        if key and _slack_dedupe_should_skip(key, now_ts=dedupe_now, window_sec=dedupe_window):
+            return 0
+        dedupe_key = key
 
     thread_ts = str(getattr(args, "thread_ts", "") or "").strip() or None
     try:
@@ -1050,6 +1173,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         else:
             print(f"[slack_notify] failed: {exc}", file=sys.stderr)
         return 0
+
+    if dedupe_key:
+        _slack_dedupe_mark_sent(dedupe_key, now_ts=dedupe_now, window_sec=dedupe_window)
 
     return 0
 
