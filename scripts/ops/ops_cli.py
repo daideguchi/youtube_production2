@@ -802,6 +802,9 @@ def _print_list() -> None:
     print("  Idea cards (pre-planning):")
     print("    ./ops idea help")
     print("")
+    print("  Slack / PM (取りこぼし防止):")
+    print("    ./ops slack pm-loop --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors")
+    print("")
     print("  Script (runbook):")
     print("    ./ops script <MODE> --channel CHxx --video NNN")
     print("    ./ops api script <MODE> --channel CHxx --video NNN   # 台本はAPI固定（THINK/CODEX禁止）")
@@ -1059,6 +1062,20 @@ def cmd_ui(args: argparse.Namespace) -> int:
 def cmd_agent(args: argparse.Namespace) -> int:
     inner = ["python3", "scripts/agent_runner.py", *args.args]
     return _run(inner)
+
+
+def cmd_slack(args: argparse.Namespace) -> int:
+    """
+    Slack helpers.
+    NOTE: Slack operations are orthogonal to LLM mode; this wrapper does not set exec-slot.
+    """
+    forwarded = _strip_leading_double_dash(list(args.args))
+    action = str(args.action or "").strip()
+    if action == "pm-loop":
+        inner = ["python3", "scripts/ops/slack_pm_loop.py", "run", *forwarded]
+        return _run(inner)
+    print(f"unknown slack action: {action}", file=sys.stderr)
+    return 2
 
 
 def cmd_planning_lint(args: argparse.Namespace) -> int:
@@ -1937,6 +1954,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("agent", help="agent queue helper (agent_runner.py passthrough)")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/agent_runner.py")
     sp.set_defaults(func=cmd_agent)
+
+    sp = sub.add_parser("slack", help="slack helpers (PM loop / inbox triage)")
+    sp.add_argument("action", choices=["pm-loop"], help="slack operation")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/slack_pm_loop.py run")
+    sp.set_defaults(func=cmd_slack)
 
     sp = sub.add_parser("progress", help="derived episode progress view (read-only)")
     sp.add_argument("--channel", required=True, help="e.g. CH12")
