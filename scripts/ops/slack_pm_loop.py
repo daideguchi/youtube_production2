@@ -41,6 +41,10 @@ def _process_report_path() -> Path:
     return PROJECT_ROOT / "scripts" / "ops" / "process_report.py"
 
 
+def _slack_notify_path() -> Path:
+    return PROJECT_ROOT / "scripts" / "ops" / "slack_notify.py"
+
+
 def _git(args: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(["git", *args], cwd=str(PROJECT_ROOT), capture_output=True, text=True, check=False)
 
@@ -163,6 +167,20 @@ def cmd_run(args: argparse.Namespace) -> int:
         if rc != 0:
             return rc
 
+    if bool(getattr(args, "flush_outbox", False)):
+        flush_cmd: list[str] = [
+            sys.executable,
+            str(_slack_notify_path()),
+            "--channel",
+            channel,
+            "--flush-outbox",
+            "--flush-outbox-limit",
+            str(int(getattr(args, "flush_outbox_limit", 50) or 50)),
+        ]
+        rc = _run(flush_cmd, dry_run=dry_run)
+        if rc != 0:
+            return rc
+
     return 0
 
 
@@ -189,6 +207,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--auto-process", action="store_true", help="Auto-detect repo-related processes when --process (default)")
     sp.add_argument("--include-command", action="store_true", help="Include redacted command line in process snapshot")
     sp.add_argument("--git-push-if-clean", action="store_true", help="Auto git add/commit/push ONLY when repo has no other changes")
+    sp.add_argument("--flush-outbox", action="store_true", help="Flush local Slack outbox messages (best effort)")
+    sp.add_argument("--flush-outbox-limit", type=int, default=50, help="Max outbox messages to try per flush (default: 50)")
     sp.add_argument("--dry-run", action="store_true", help="Print commands without executing")
     sp.set_defaults(func=cmd_run)
 

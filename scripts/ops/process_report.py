@@ -22,6 +22,7 @@ process_report.py — PIDごとの「いつから/何をしているか」を可
 import argparse
 import os
 import re
+import signal
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -87,34 +88,65 @@ class ProcRow:
         return _redact_text(self.command)
 
 
-def _ps_all() -> list[ProcRow]:
+def _ps_all() -> tuple[list[ProcRow], Optional[str]]:
     """
-    Cross-platform-ish process snapshot.
-    Uses LC_ALL=C so lstart is stable (e.g. "Thu Jan  8 09:22:44 2026").
+    Process snapshot via psutil (best effort).
+
+    Rationale:
+    - Some environments block `ps` execution.
+    - psutil can still resolve per-PID info even when full process listing is restricted.
     """
-    env = dict(os.environ)
-    env["LC_ALL"] = "C"
-    # pid lstart etime command
-    cmd = ["ps", "-ax", "-o", "pid=,lstart=,etime=,command="]
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=env, check=False)
-    out = (proc.stdout or "").splitlines()
-    rows: list[ProcRow] = []
-    for ln in out:
-        s = ln.strip()
-        if not s:
-            continue
-        parts = s.split()
-        if len(parts) < 8:
-            continue
-        try:
-            pid = int(parts[0])
-        except Exception:
-            continue
-        since = " ".join(parts[1:6])
-        etime = parts[6]
-        command = " ".join(parts[7:])
-        rows.append(ProcRow(pid=pid, since=since, etime=etime, command=command))
-    return rows
+    try:
+        import psutil  # type: ignore[import-not-found]
+
+        now = datetime.now(timezone.utc).timestamp()
+        rows: list[ProcRow] = []
+        for p in psutil.process_iter(attrs=["pid", "create_time", "cmdline"]):
+            info = p.info if isinstance(getattr(p, "info", None), dict) else {}
+            pid = int(info.get("pid") or 0)
+            if pid <= 0:
+                continue
+            create_time = float(info.get("create_time") or 0.0) if info.get("create_time") else 0.0
+            etime = _format_etime_seconds(max(0.0, now - create_time)) if create_time else "?"
+            since = (
+                datetime.fromtimestamp(create_time, tz=timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
+                if create_time
+                else "?"
+            )
+            cmdline = info.get("cmdline") if isinstance(info.get("cmdline"), list) else None
+            command = " ".join([str(x) for x in cmdline if str(x).strip()]) if cmdline else ""
+            rows.append(ProcRow(pid=pid, since=since, etime=etime, command=command))
+        return rows, None
+    except Exception as exc:
+        return [], f"{type(exc).__name__}: {exc}"
+
+
+def _format_etime_seconds(seconds: float) -> str:
+    s = int(max(0.0, float(seconds)))
+    days, rem = divmod(s, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, secs = divmod(rem, 60)
+    if days > 0:
+        return f"{days}-{hours:02d}:{minutes:02d}:{secs:02d}"
+    if hours > 0:
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    return f"{minutes:02d}:{secs:02d}"
+
+
+def _proc_row_for_pid(pid: int) -> Optional[ProcRow]:
+    try:
+        import psutil  # type: ignore[import-not-found]
+
+        p = psutil.Process(int(pid))
+        create_time = float(p.create_time())
+        now = datetime.now(timezone.utc).timestamp()
+        etime = _format_etime_seconds(max(0.0, now - create_time))
+        since = datetime.fromtimestamp(create_time, tz=timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
+        cmdline = p.cmdline()
+        command = " ".join([str(x) for x in cmdline if str(x).strip()])
+        return ProcRow(pid=int(pid), since=since, etime=etime, command=command)
+    except Exception:
+        return None
 
 
 def _classify(row: ProcRow) -> tuple[str, str]:
@@ -292,12 +324,15 @@ def _format_report(
     requested_pids: list[int],
     rows: list[ProcRow],
     include_command: bool,
+    ps_error: Optional[str] = None,
 ) -> str:
     by_pid: Dict[int, ProcRow] = {r.pid: r for r in rows}
 
     lines: list[str] = []
     lines.append(f"*【PID稼働状況】{PROJECT_ROOT.name}*")
     lines.append(f"_generated_at={_now_iso_utc()}_")
+    if ps_error:
+        lines.append(f"_warning={ps_error}_")
     lines.append("")
 
     if requested_pids:
@@ -374,6 +409,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--auto", action="store_true", help="Auto-detect repo-related processes (default when no --pid).")
     ap.add_argument("--grep", default="", help="Regex filter for command line (optional).")
     ap.add_argument("--include-command", action="store_true", help="Include full command line in output (redacted).")
+    ap.add_argument("--kill", action="store_true", help="Kill the specified --pid processes (policy: explicit PIDs only).")
+    ap.add_argument("--yes", action="store_true", help="Confirm --kill execution (otherwise dry-run plan only).")
     ap.add_argument("--slack", action="store_true", help="Post the report to Slack via scripts/ops/slack_notify.py")
     ap.add_argument("--channel", default="", help="Slack channel (ID or name; default: env SLACK_CHANNEL)")
     ap.add_argument("--thread-ts", default="", help="Slack thread ts to reply to (optional)")
@@ -392,15 +429,62 @@ def main(argv: Optional[list[str]] = None) -> int:
     grep = str(args.grep or "").strip()
     grep_re = re.compile(grep, flags=re.IGNORECASE) if grep else None
 
-    rows = _ps_all()
-    if grep_re:
-        rows = [r for r in rows if grep_re.search(r.command)]
-
     auto = bool(args.auto) or not requested_pids
-    if auto:
-        rows = [r for r in rows if _auto_match(r)]
+    ps_error: Optional[str] = None
+    rows: list[ProcRow] = []
 
-    text = _format_report(requested_pids=requested_pids, rows=rows, include_command=bool(args.include_command))
+    if auto:
+        rows, ps_error = _ps_all()
+        if grep_re:
+            rows = [r for r in rows if grep_re.search(r.command)]
+        rows = [r for r in rows if _auto_match(r)]
+    else:
+        for pid in requested_pids:
+            r = _proc_row_for_pid(pid)
+            if not r:
+                continue
+            if grep_re and not grep_re.search(r.command):
+                continue
+            rows.append(r)
+
+    text = _format_report(
+        requested_pids=requested_pids,
+        rows=rows,
+        include_command=bool(args.include_command),
+        ps_error=ps_error,
+    )
+
+    if bool(args.kill):
+        if not requested_pids:
+            raise SystemExit("missing --pid for --kill (policy: explicit PID only)")
+        dry = not bool(args.yes)
+        kill_lines: list[str] = []
+        kill_lines.append("■ kill")
+        kill_lines.append(f"- mode: {'DRY-RUN' if dry else 'EXEC'} (add --yes to execute)")
+        for pid in requested_pids:
+            r = next((x for x in rows if x.pid == pid), None) or _proc_row_for_pid(pid)
+            label_txt = "details unavailable"
+            etime_txt = "?"
+            sec_txt = "?"
+            if r:
+                section, label = _classify(r)
+                label_txt, _label_red = _redact_text(label)
+                etime_txt = r.etime
+                sec_txt = section
+            if dry:
+                kill_lines.append(f"- {pid}: would SIGTERM (etime={etime_txt}) [{sec_txt}] {label_txt}")
+                continue
+            try:
+                os.kill(pid, signal.SIGTERM)
+                kill_lines.append(f"- {pid}: SIGTERM sent (etime={etime_txt}) [{sec_txt}] {label_txt}")
+            except ProcessLookupError:
+                kill_lines.append(f"- {pid}: already exited")
+            except PermissionError as exc:
+                kill_lines.append(f"- {pid}: permission denied ({exc})")
+            except Exception as exc:
+                kill_lines.append(f"- {pid}: kill failed ({type(exc).__name__}: {exc})")
+
+        text = (text + "\n\n" + "\n".join(kill_lines)).strip()
 
     if args.slack:
         channel = str(args.channel or os.getenv("SLACK_CHANNEL") or os.getenv("YTM_SLACK_CHANNEL") or "").strip()

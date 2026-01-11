@@ -18,9 +18,135 @@ from _bootstrap import bootstrap
 
 PROJECT_ROOT = Path(bootstrap())
 
+_DEFAULT_OUTBOX_DIR = PROJECT_ROOT / "workspaces" / "logs" / "ops" / "slack_outbox"
+
 
 def _now_iso_utc() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _outbox_dir(args: argparse.Namespace) -> Path:
+    raw = str(getattr(args, "outbox_dir", "") or "").strip()
+    if raw:
+        return Path(raw)
+    return _DEFAULT_OUTBOX_DIR
+
+
+def _write_outbox_message(
+    outbox_dir: Path,
+    *,
+    channel: str,
+    thread_ts: Optional[str],
+    text: str,
+    error: str,
+) -> Optional[Path]:
+    """
+    Write a Slack message into a local outbox when sending fails.
+
+    NOTE:
+    - Outbox is local-only under workspaces/ (not tracked by git).
+    - Content is already guarded (no secrets / no env dumps). Still, we store only the intended text.
+    """
+    try:
+        outbox_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        key = f"slack_outbox:{channel}:{thread_ts or ''}:{text}"
+        suffix = hashlib.sha256(key.encode("utf-8")).hexdigest()[:10]
+        p = outbox_dir / f"outbox__{ts}__{suffix}.json"
+        payload = {
+            "kind": "slack_outbox",
+            "created_at": _now_iso_utc(),
+            "channel": str(channel or "").strip(),
+            "thread_ts": str(thread_ts or "").strip(),
+            "text": str(text or ""),
+            "error": str(error or "").strip(),
+        }
+        tmp = p.with_suffix(p.suffix + ".tmp")
+        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp.replace(p)
+        return p
+    except Exception:
+        return None
+
+
+def _iter_outbox_files(outbox_dir: Path) -> list[Path]:
+    if not outbox_dir.exists():
+        return []
+    return sorted([p for p in outbox_dir.glob("outbox__*.json") if p.is_file()])
+
+
+def _flush_outbox(
+    outbox_dir: Path,
+    *,
+    token: str,
+    fallback_channel: str,
+    webhook_url: str,
+    limit: int,
+    dry_run: bool,
+) -> dict:
+    """
+    Best-effort resend for local outbox messages.
+    - On success: move to outbox/sent/
+    - On failure: keep in place
+    """
+    out = {
+        "ok": True,
+        "outbox_dir": str(outbox_dir),
+        "attempted": 0,
+        "sent": 0,
+        "failed": 0,
+        "moved": 0,
+        "errors": [],
+    }
+
+    files = _iter_outbox_files(outbox_dir)[: max(0, int(limit or 0))]
+    if not files:
+        return out
+
+    sent_dir = outbox_dir / "sent"
+    if not dry_run:
+        sent_dir.mkdir(parents=True, exist_ok=True)
+
+    for p in files:
+        out["attempted"] += 1
+        try:
+            raw = p.read_text(encoding="utf-8")
+            obj = json.loads(raw) if raw else {}
+            if not isinstance(obj, dict):
+                raise ValueError("invalid outbox json")
+            text = str(obj.get("text") or "").strip()
+            if not text:
+                raise ValueError("empty text")
+            ch = str(obj.get("channel") or "").strip() or str(fallback_channel or "").strip()
+            thread_ts = str(obj.get("thread_ts") or "").strip() or None
+
+            if dry_run:
+                continue
+
+            # If a thread_ts is present, webhook cannot be used; require bot token + channel.
+            if thread_ts:
+                if not (token and ch):
+                    raise RuntimeError("missing SLACK_BOT_TOKEN/SLACK_CHANNEL for thread reply")
+                _post_chat_post_message(token, ch, text=text, thread_ts=thread_ts)
+            else:
+                # Prefer webhook when available; otherwise use bot if configured.
+                if webhook_url:
+                    _post_webhook(webhook_url, {"text": text})
+                elif token and ch:
+                    _post_chat_post_message(token, ch, text=text, thread_ts=None)
+                else:
+                    raise RuntimeError("missing Slack credentials (webhook or bot token)")
+
+            out["sent"] += 1
+            dest = sent_dir / p.name
+            p.replace(dest)
+            out["moved"] += 1
+        except Exception as exc:
+            out["failed"] += 1
+            out["errors"].append(f"{p.name}: {type(exc).__name__}: {exc}")
+            continue
+
+    return out
 
 
 def _webhook_url(args: argparse.Namespace) -> str:
@@ -700,6 +826,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--text", default="", help="Send raw text (Slack mrkdwn) instead of formatting an event")
     ap.add_argument("--channel", default="", help="Override Slack channel (default: env SLACK_CHANNEL)")
     ap.add_argument("--thread-ts", default="", help="Post as a reply in this thread (bot mode only)")
+    ap.add_argument("--outbox-dir", default="", help="Local outbox dir for failed sends (default: workspaces/logs/ops/slack_outbox)")
+    ap.add_argument("--flush-outbox", action="store_true", help="Resend local outbox messages (best effort)")
+    ap.add_argument("--flush-outbox-limit", type=int, default=50, help="Max outbox messages to try per flush (default: 50)")
     ap.add_argument("--out-json", default="", help="Write Slack API response JSON to this path (bot mode only)")
     ap.add_argument("--print-ts", action="store_true", help="Print Slack message ts (bot mode only)")
     ap.add_argument("--poll-thread", default="", help="Poll replies for this thread ts (bot mode only)")
@@ -725,6 +854,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     url = _webhook_url(args)
     token = _bot_token()
     channel = str(args.channel or "").strip() or _channel()
+    outbox_dir = _outbox_dir(args)
 
     poll_thread = str(getattr(args, "poll_thread", "") or "").strip()
     if poll_thread:
@@ -775,6 +905,21 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 0
         if str(args.poll_out_json or "").strip():
             Path(str(args.poll_out_json)).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            return 0
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+        return 0
+
+    if bool(getattr(args, "flush_outbox", False)):
+        out = _flush_outbox(
+            outbox_dir,
+            token=token,
+            fallback_channel=channel,
+            webhook_url=url,
+            limit=int(getattr(args, "flush_outbox_limit", 50) or 50),
+            dry_run=bool(getattr(args, "dry_run", False)),
+        )
+        if args.dry_run:
+            print(json.dumps(out, ensure_ascii=False, indent=2))
             return 0
         print(json.dumps(out, ensure_ascii=False, indent=2))
         return 0
@@ -858,7 +1003,21 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     thread_ts = str(getattr(args, "thread_ts", "") or "").strip() or None
     try:
-        if url:
+        # Thread replies require bot mode; webhook cannot post into a thread.
+        if thread_ts:
+            if not (token and channel):
+                raise RuntimeError("missing SLACK_BOT_TOKEN/SLACK_CHANNEL for thread reply")
+            resp = _post_chat_post_message(token, channel, text=text, thread_ts=thread_ts)
+            out_path = str(getattr(args, "out_json", "") or "").strip()
+            if out_path:
+                Path(out_path).write_text(json.dumps(resp, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            if bool(getattr(args, "print_ts", False)):
+                ts = str(resp.get("ts") or "")
+                if not ts and isinstance(resp.get("message"), dict):
+                    ts = str(resp["message"].get("ts") or "")
+                if ts:
+                    print(ts)
+        elif url:
             _post_webhook(url, payload)
         else:
             resp = _post_chat_post_message(token, channel, text=text, thread_ts=thread_ts)
@@ -875,7 +1034,21 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"[slack_notify] http_error status={exc.code}", file=sys.stderr)
         return 0
     except Exception as exc:
-        print(f"[slack_notify] failed: {exc}", file=sys.stderr)
+        p = _write_outbox_message(
+            outbox_dir,
+            channel=channel,
+            thread_ts=thread_ts,
+            text=text,
+            error=f"{type(exc).__name__}: {exc}",
+        )
+        if p:
+            try:
+                prel = str(p.resolve().relative_to(PROJECT_ROOT))
+            except Exception:
+                prel = str(p)
+            print(f"[slack_notify] failed: {exc} (saved outbox: {prel})", file=sys.stderr)
+        else:
+            print(f"[slack_notify] failed: {exc}", file=sys.stderr)
         return 0
 
     return 0
