@@ -17,6 +17,9 @@
 
 ## Inbox（auto）
 <!-- inbox:start -->
+- [ ] 2026-01-11T02:52:11.086369Z key=bee17347a0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T02:36:38.285969Z key=fc34ba9cf4 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T02:33:15.611039Z key=f79038aab9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:26:42.590689Z key=37de41410a src=thread kind=request who=dd plain | 30分に一回ペースくらいでポーリング的なやつ打って、slackの投稿拾って、codex execのxhighで処理させる仕掛け作ろう。これ実装すれば対話型が止まってたとしても、slackとローカルが常時接続状態になる。もちろんMacが稼働してるときだけど。もちろん非対話だからといって記憶なしに進めるのではなく、対話非…
 - [ ] 2026-01-11T02:15:29.355439Z key=1c5f92886d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T00:49:02.218679Z key=9c63fba7f0 src=thread kind=request who=dd plain | pid稼働に関しては、そんな情報を羅列されても、結局どの処理が今回ってるか分からない。私が把握できる形式に整理して通知してほしい
