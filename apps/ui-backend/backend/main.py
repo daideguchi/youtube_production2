@@ -6084,6 +6084,12 @@ except Exception as e:
     logger.error("Failed to load tts_progress router: %s", e)
 
 try:
+    from backend.routers import tts_text
+    app.include_router(tts_text.router)
+except Exception as e:
+    logger.error("Failed to load tts_text router: %s", e)
+
+try:
     from backend.routers import audio_tts
     app.include_router(audio_tts.router)
 except Exception as e:
@@ -12607,34 +12613,6 @@ def _clear_redo_flags(channel: str, video: str, *, redo_script: Optional[bool] =
     except Exception:
         # ベストエフォートなので握りつぶす
         pass
-
-
-@app.get("/api/channels/{channel}/videos/{video}/tts/plain", response_model=ScriptTextResponse)
-def get_tts_plain_text(channel: str, video: str):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    base_dir = video_base_dir(channel_code, video_number)
-    tts_path = base_dir / "audio_prep" / "script_sanitized.txt"
-    final_snapshot = audio_final_dir(channel_code, video_number) / "a_text.txt"
-    if not tts_path.exists() and final_snapshot.exists():
-        tts_path = final_snapshot
-    if not tts_path.exists():
-        raise HTTPException(status_code=404, detail="TTS input text not found (script_sanitized.txt / a_text.txt)")
-    content = resolve_text_file(tts_path) or ""
-    updated_at = None
-    try:
-        updated_at = (
-            datetime.fromtimestamp(tts_path.stat().st_mtime, timezone.utc)
-            .isoformat()
-            .replace("+00:00", "Z")
-        )
-    except OSError:
-        updated_at = None
-    return ScriptTextResponse(
-        path=safe_relative_path(tts_path),
-        content=content,
-        updated_at=updated_at,
-    )
 
 
 @app.put("/api/channels/{channel}/videos/{video}/assembled")
