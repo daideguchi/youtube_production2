@@ -17,20 +17,23 @@
 
 ## Inbox（auto）
 <!-- inbox:start -->
+- [ ] 2026-01-11T06:17:44.551999Z key=d7c7dbacef src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T06:09:22.828429Z key=cd90da40a6 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T05:59:48.094249Z key=4f6e5d49a4 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T05:39:22.859559Z key=705b48b83e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T05:30:39.768409Z key=3b47205194 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T05:23:01.549039Z key=717dcc38b5 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
 - [ ] 2026-01-11T05:13:46.327199Z key=cda48816e0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
-- [ ] 2026-01-11T04:37:31.970429Z key=78b185feef src=thread kind=request who=dd plain | 推奨でどんどん進めて。明らかに死んでるワーカーは止めてもいいよ。明らかに死んでたらね
+- [ ] 2026-01-11T04:37:31.970429Z key=78b185feef src=thread kind=request who=human plain | 推奨でどんどん進めて。明らかに死んでるワーカーは止めてもいいよ。明らかに死んでたらね
 - [ ] 2026-01-11T03:41:36.506959Z key=aa0e8474e9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T03:36:42.233509Z key=c146e83458 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:52:11.086369Z key=bee17347a0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:36:38.285969Z key=fc34ba9cf4 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:33:15.611039Z key=f79038aab9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
-- [ ] 2026-01-11T02:26:42.590689Z key=37de41410a src=thread kind=request who=dd plain | 30分に一回ペースくらいでポーリング的なやつ打って、slackの投稿拾って、codex execのxhighで処理させる仕掛け作ろう。これ実装すれば対話型が止まってたとしても、slackとローカルが常時接続状態になる。もちろんMacが稼働してるときだけど。もちろん非対話だからといって記憶なしに進めるのではなく、対話非…
+- [ ] 2026-01-11T02:26:42.590689Z key=37de41410a src=thread kind=request who=human plain | 30分に一回ペースくらいでポーリング的なやつ打って、slackの投稿拾って、codex execのxhighで処理させる仕掛け作ろう。これ実装すれば対話型が止まってたとしても、slackとローカルが常時接続状態になる。もちろんMacが稼働してるときだけど。もちろん非対話だからといって記憶なしに進めるのではなく、対話非…
 - [ ] 2026-01-11T02:15:29.355439Z key=1c5f92886d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
-- [ ] 2026-01-11T00:49:02.218679Z key=9c63fba7f0 src=thread kind=request who=dd plain | pid稼働に関しては、そんな情報を羅列されても、結局どの処理が今回ってるか分からない。私が把握できる形式に整理して通知してほしい
-- [ ] 2026-01-11T00:47:38.029999Z key=9599c1355c src=thread kind=question who=dd plain | そういえば、gitをストレージ保管庫にする作戦を伝えてたはずだけどどうなった？長文だったから3回くらいに分けて送信してたんだけど。これ実装すれば、容量問題は解決しそうだけど、、、あとはレガシー系のロジックもgitの書庫リポにぶち込んでいけば、躊躇せずに整理が進む気もするが。
+- [ ] 2026-01-11T00:49:02.218679Z key=9c63fba7f0 src=thread kind=request who=human plain | pid稼働に関しては、そんな情報を羅列されても、結局どの処理が今回ってるか分からない。私が把握できる形式に整理して通知してほしい
+- [ ] 2026-01-11T00:47:38.029999Z key=9599c1355c src=thread kind=question who=human plain | そういえば、gitをストレージ保管庫にする作戦を伝えてたはずだけどどうなった？長文だったから3回くらいに分けて送信してたんだけど。これ実装すれば、容量問題は解決しそうだけど、、、あとはレガシー系のロジックもgitの書庫リポにぶち込んでいけば、躊躇せずに整理が進む気もするが。
 - [ ] 2026-01-10T23:50:10.662459Z key=765b33afd2 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T23:44:23.667209Z key=82ae8d39f2 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T22:36:47.229739Z key=58d17eb121 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
@@ -39,8 +42,8 @@
 - [ ] 2026-01-10T22:08:54.890759Z key=adfd1b77ad src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T13:51:21.660629Z key=9a9a6e8758 src=channel kind=error who=bot plain | 【push済み】Slackエラー通知を“読める形”に改善（削除なし）
 - [ ] 2026-01-10T13:31:34.289909Z key=5e0e042e06 src=channel kind=error who=bot plain | 意訳して実行します → /codex say daideguchi/youtube_production2] LLM Smoke workflow run      LLM Smoke: All jobs have failed   View workflow run   smoke  LLM Smoke / smo…
-- [ ] 2026-01-10T13:31:32.140019Z key=7ad0b2b227 src=thread kind=request who=dd plain | daideguchi/youtube_production2] LLM Smoke workflow run
-- [ ] 2026-01-10T12:26:04.210179Z key=ce9d2a24a2 src=thread kind=question who=dd plain | ローカル辞書は疑問。不要と思う。汎用的な修正がむずしいから個別対応してるわけでしょ？
+- [ ] 2026-01-10T13:31:32.140019Z key=7ad0b2b227 src=thread kind=request who=human plain | daideguchi/youtube_production2] LLM Smoke workflow run
+- [ ] 2026-01-10T12:26:04.210179Z key=ce9d2a24a2 src=thread kind=question who=human plain | ローカル辞書は疑問。不要と思う。汎用的な修正がむずしいから個別対応してるわけでしょ？
 - [ ] 2026-01-10T12:16:13.728769Z key=316c312737 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T12:04:37.416229Z key=bd9994233d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T11:58:37.582489Z key=9c697e33cb src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
@@ -49,7 +52,7 @@
 - [ ] 2026-01-10T11:20:15.153579Z key=8b90a102da src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-10T06:44:56.837919Z key=50ccd473e8 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-10T06:41:54.088239Z key=dd416243c3 src=channel kind=error who=bot plain | 意訳して実行します → /codex say 毎回ここ失敗する！！いい加減にしてほしい！！！！  daideguchi/youtube_production2] LLM Smoke workflow run      LLM Smoke: All jobs have failed   View workflow ru…
-- [ ] 2026-01-10T06:41:51.584179Z key=41dffbe094 src=channel kind=error who=dd plain | 毎回ここ失敗する！！いい加減にしてほしい！！！！
+- [ ] 2026-01-10T06:41:51.584179Z key=41dffbe094 src=channel kind=error who=human plain | 毎回ここ失敗する！！いい加減にしてほしい！！！！
 - [ ] 2026-01-10T06:39:08.696489Z key=a12e9ed1e0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-10T06:37:24.557349Z key=38eb6f2999 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-10T06:30:52.949919Z key=4af8b2db0a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
@@ -69,7 +72,7 @@
 - [ ] 2026-01-10T03:29:22.261979Z key=32dd20ca72 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=seed-expand episode=CH06-035
 - [ ] 2026-01-10T03:28:13.380409Z key=132c0d7fc9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-10T02:47:56.795129Z key=2f5e072d92 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
-- [ ] 2026-01-10T00:15:30.439699Z key=95bab0ac37 src=thread kind=rule who=dd plain | ローテはしない！！
+- [ ] 2026-01-10T00:15:30.439699Z key=95bab0ac37 src=thread kind=rule who=human plain | ローテはしない！！
 - [ ] 2026-01-09T23:26:17.653509Z key=8b9f2f0110 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-09T23:23:25.394959Z key=b0d02f793a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-09T23:16:52.165299Z key=981dac3b49 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
@@ -142,7 +145,7 @@
 - [ ] 2026-01-09T15:13:15.652639Z key=77bd0ddfdf src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
 - [ ] 2026-01-09T14:59:19.401379Z key=250996fbfc src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
 - [ ] 2026-01-09T14:50:08.088929Z key=6a385f6116 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
-- [ ] 2026-01-09T14:39:46.733219Z key=8b6ef6ee8c src=thread kind=decision who=dd plain | Aはok
+- [ ] 2026-01-09T14:39:46.733219Z key=8b6ef6ee8c src=thread kind=decision who=human plain | Aはok
 - [ ] 2026-01-09T14:01:58.571139Z key=96dac2a488 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
 - [ ] 2026-01-09T13:41:44.101589Z key=fdb2398d2e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
 - [ ] 2026-01-09T13:26:48.612739Z key=273cb3de18 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
