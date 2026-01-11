@@ -223,8 +223,6 @@ THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
 THUMBNAIL_SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 THUMBNAIL_PROJECTS_LOCK = threading.Lock()
 THUMBNAIL_TEMPLATES_LOCK = threading.Lock()
-THUMBNAIL_QC_NOTES_PATH = ssot_thumbnails_root() / "qc_notes.json"
-THUMBNAIL_QC_NOTES_LOCK = threading.Lock()
 VIDEO_CHANNEL_PRESETS_PATH = VIDEO_PIPELINE_ROOT / "config" / "channel_presets.json"
 VIDEO_CHANNEL_PRESETS_LOCK = threading.Lock()
 IMAGE_MODEL_KEY_BLOCKLIST = {
@@ -6007,78 +6005,6 @@ def _read_thumbnail_quick_history(channel_code: Optional[str], limit: int) -> Li
     return entries
 
 
-def _is_thumbnail_qc_relative_path(relative_path: str) -> bool:
-    rel = (relative_path or "").strip().replace("\\", "/")
-    if not rel:
-        return False
-    if rel.startswith("/") or rel.startswith("../") or "/../" in rel:
-        return False
-    if rel.startswith("_qc/") or rel.startswith("library/qc/") or rel.startswith("qc/"):
-        return True
-    name = Path(rel).name
-    return name.startswith("qc__") or name.startswith("contactsheet")
-
-
-def _load_thumbnail_qc_notes_document() -> Dict[str, Dict[str, str]]:
-    path = THUMBNAIL_QC_NOTES_PATH
-    if not path.exists():
-        return {}
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-    if not isinstance(payload, dict):
-        return {}
-    out: Dict[str, Dict[str, str]] = {}
-    for channel_code, raw_notes in payload.items():
-        if not isinstance(channel_code, str) or not isinstance(raw_notes, dict):
-            continue
-        normalized_channel = channel_code.strip().upper()
-        if not normalized_channel:
-            continue
-        notes: Dict[str, str] = {}
-        for rel, note in raw_notes.items():
-            if not isinstance(rel, str) or not isinstance(note, str):
-                continue
-            rel_norm = rel.strip().replace("\\", "/")
-            note_norm = note.strip()
-            if not rel_norm or not note_norm:
-                continue
-            notes[rel_norm] = note_norm
-        if notes:
-            out[normalized_channel] = notes
-    return out
-
-
-def _write_thumbnail_qc_notes_document(notes_by_channel: Dict[str, Dict[str, str]]) -> None:
-    THUMBNAIL_QC_NOTES_PATH.parent.mkdir(parents=True, exist_ok=True)
-    payload: Dict[str, Dict[str, str]] = {}
-    for channel_code, notes in notes_by_channel.items():
-        if not isinstance(channel_code, str) or not isinstance(notes, dict):
-            continue
-        normalized_channel = channel_code.strip().upper()
-        if not normalized_channel:
-            continue
-        cleaned: Dict[str, str] = {}
-        for rel, note in notes.items():
-            if not isinstance(rel, str) or not isinstance(note, str):
-                continue
-            rel_norm = rel.strip().replace("\\", "/")
-            note_norm = note.strip()
-            if not rel_norm or not note_norm:
-                continue
-            cleaned[rel_norm] = note_norm
-        if cleaned:
-            payload[normalized_channel] = dict(sorted(cleaned.items(), key=lambda item: item[0]))
-
-    tmp_path = THUMBNAIL_QC_NOTES_PATH.with_suffix(".tmp")
-    tmp_path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-    tmp_path.replace(THUMBNAIL_QC_NOTES_PATH)
-
-
 def _color_name(rgb: tuple[int, int, int]) -> str:
     r, g, b = rgb
     if max(rgb) < 60:
@@ -6238,6 +6164,13 @@ try:
     app.include_router(thumbnails.router)
 except Exception as e:
     logger.error("Failed to load thumbnails router: %s", e)
+
+try:
+    from backend.routers import thumbnails_qc_notes
+
+    app.include_router(thumbnails_qc_notes.router)
+except Exception as e:
+    logger.error("Failed to load thumbnails_qc_notes router: %s", e)
 
 try:
     from backend.routers import dashboard
@@ -12050,55 +11983,6 @@ def import_thumbnail_library_asset(channel: str, payload: ThumbnailLibraryImport
 def get_thumbnail_library(channel: str):
     channel_code = normalize_channel_code(channel)
     return _list_channel_thumbnail_library(channel_code)
-
-
-@app.get(
-    "/api/workspaces/thumbnails/{channel}/qc-notes",
-    response_model=Dict[str, str],
-)
-def get_thumbnail_qc_notes(channel: str):
-    channel_code = normalize_channel_code(channel)
-    with THUMBNAIL_QC_NOTES_LOCK:
-        document = _load_thumbnail_qc_notes_document()
-    return document.get(channel_code, {})
-
-
-@app.put(
-    "/api/workspaces/thumbnails/{channel}/qc-notes",
-    response_model=Dict[str, str],
-)
-def upsert_thumbnail_qc_note(channel: str, payload: ThumbnailQcNoteUpdateRequest):
-    channel_code = normalize_channel_code(channel)
-    rel = (payload.relative_path or "").strip().replace("\\", "/")
-    while rel.startswith("./"):
-        rel = rel[2:]
-    if not _is_thumbnail_qc_relative_path(rel):
-        raise HTTPException(status_code=400, detail="invalid QC relative_path")
-
-    base_dir = (THUMBNAIL_ASSETS_DIR / channel_code).resolve()
-    candidate = (THUMBNAIL_ASSETS_DIR / channel_code / rel).resolve()
-    try:
-        candidate.relative_to(base_dir)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail="invalid relative_path") from exc
-    if not candidate.exists():
-        raise HTTPException(status_code=404, detail="QC asset not found")
-
-    note = (payload.note or "").strip()
-    with THUMBNAIL_QC_NOTES_LOCK:
-        document = _load_thumbnail_qc_notes_document()
-        channel_notes = dict(document.get(channel_code, {}))
-        if note:
-            channel_notes[rel] = note
-        else:
-            channel_notes.pop(rel, None)
-        if channel_notes:
-            document[channel_code] = channel_notes
-        else:
-            document.pop(channel_code, None)
-        _write_thumbnail_qc_notes_document(document)
-        return document.get(channel_code, {})
-
 
 @app.patch(
     "/api/workspaces/thumbnails/{channel}/library/{asset_name}",
