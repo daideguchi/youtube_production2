@@ -101,6 +101,19 @@ def _ts_to_iso(ts: str) -> str:
         return _now_iso_utc()
 
 
+def _iso_to_epoch_seconds(iso: str) -> float:
+    s = str(iso or "").strip()
+    if not s:
+        return 0.0
+    try:
+        # fromisoformat needs +00:00 for UTC.
+        if s.endswith("Z"):
+            s = s[:-1] + "+00:00"
+        return float(datetime.fromisoformat(s).timestamp())
+    except Exception:
+        return 0.0
+
+
 def _hash_key(*parts: str) -> str:
     payload = "|".join([str(p or "") for p in parts]).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()[:10]
@@ -601,6 +614,17 @@ def cmd_sync(args: argparse.Namespace) -> int:
             raise SystemExit("--post-digest requires exactly one --thread-ts (reply in-thread)")
         new_keys = set(new_map_items.keys())
         new_items = [it for it in filtered_sorted if it.key in new_keys]
+        # Keep operator-relevant items visible even when channel error floods are included.
+        # Priority: dd/thread -> other thread -> channel (errors, bots, etc.), newest-first inside each group.
+        new_items = sorted(
+            new_items,
+            key=lambda it: (
+                0 if it.source == "thread" else 1,
+                0 if it.who == "dd" else (1 if it.who == "human" else 2),
+                0 if it.kind in {"decision", "request", "question", "rule"} else 1,
+                -_iso_to_epoch_seconds(it.when_iso),
+            ),
+        )
         digest_ts = _post_digest_to_slack(
             channel=channel,
             thread_ts=thread_ts_list[0],
