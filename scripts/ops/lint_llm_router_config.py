@@ -13,6 +13,7 @@ Validates that:
     - policy: slot tiers/script_tiers are single-model (no automatic fallback)
   - configs/llm_task_overrides.yaml override models resolve (codes -> model_key -> models)
     - policy: allow_fallback=true is forbidden (no silent model/provider swap)
+    - policy: script_* tasks must use models=['script-main-1'] (fixed)
     - policy: script_* tasks must not route to provider=azure/openrouter (Fireworks-only by default)
   - configs/codex_exec.yaml policy guards
     - policy: codex exec must not include `script_*` tasks
@@ -337,6 +338,10 @@ def main(argv: list[str] | None = None) -> int:
                 errors.append(f"llm_task_overrides: tasks.{t}.tier unknown: {tn}")
         model_list = ent.get("models")
         if model_list is None:
+            if t.startswith("script_"):
+                errors.append(
+                    f"policy: llm_task_overrides: tasks.{t}.models is required for script_* (must be ['script-main-1'])"
+                )
             continue
         if not isinstance(model_list, list):
             errors.append(f"llm_task_overrides: tasks.{t}.models must be a list")
@@ -344,6 +349,10 @@ def main(argv: list[str] | None = None) -> int:
         normalized = [_as_str(x) for x in model_list if _as_str(x)]
         if len(normalized) != 1:
             errors.append(f"policy: llm_task_overrides: tasks.{t}.models must contain exactly 1 selector (no automatic fallback)")
+        if t.startswith("script_") and normalized and normalized[0] != "script-main-1":
+            errors.append(
+                f"policy: llm_task_overrides: tasks.{t}.models must be ['script-main-1'] (got {normalized[0]!r})"
+            )
         for raw in model_list:
             sel = _as_str(raw)
             if not sel:
