@@ -32,6 +32,8 @@
   - 明示PID: `python3 scripts/ops/process_report.py --pid 52211 --pid 52239 --slack`
   - kill（運用を軽くする）: `python3 scripts/ops/process_report.py --pid 52211 --kill --yes`
     - 方針: **killは明示PIDのみ**（自動killはしない）。まず report で目的/稼働時間を把握してから止める。
+- Ops失敗トリアージ（episode別に「何が止まっているか」を説明）: `scripts/ops/ops_error_triage.py`
+  - `HISTORY_slack_pm_inbox.md` の `[ops] FAILED ... episode=CHxx-NNN` を集約し、`workspaces/scripts/.../status.json` から停止原因を推定する（LLM不使用）。
 - PMループ（推奨: 1コマンド）: `scripts/ops/slack_pm_loop.py`
   - Slack返信→PM Inbox更新→要点返信→（任意でPIDスナップショット）までをまとめて実行する
   - 任意: エラー棚卸（チャンネル履歴を grep して Inbox に残す。Slack ID は git に保存しない）
