@@ -17,6 +17,7 @@
 
 ## Inbox（auto）
 <!-- inbox:start -->
+- [ ] 2026-01-11T12:01:33.344009Z key=69ba15eb14 src=thread kind=request who=dd plain | UIから台本とかが消えてる！ちゃんと整理して
 - [ ] 2026-01-11T09:29:12.403069Z key=e8e8bc4bb1 src=thread kind=request who=dd plain | スマホで今台本見れてるけど、音声とサムネも確認できるようにして。
 - [ ] 2026-01-11T07:55:05.601499Z key=1ab22abe96 src=thread kind=question who=dd plain | まず、モデル指定はコード、スロットって運用はokだよね？
 - [ ] 2026-01-11T07:12:03.745109Z key=56391899fe src=thread kind=question who=dd plain | script-main-1はそれで固定でいいが、script-main-2は？　kimiだよね？

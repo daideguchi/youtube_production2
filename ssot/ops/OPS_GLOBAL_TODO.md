@@ -73,6 +73,11 @@
   - thread: `note__20251222T145553Z__1a607eb2`
   - DoD: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards` が green
 
+- [ ] `TODO-UI-003` UIで台本/本文が「消える」症状を解消（P0, todo）
+  - scope: `apps/ui-frontend/**`, `apps/ui-backend/**`, `workspaces/scripts/**`
+  - thread: `note__20251222T145553Z__1a607eb2`
+  - DoD: UIで `assembled` / `human scripts` / `tts plain` が “空/404/読めない” にならず、対象episodeを開けば必ず表示できる（read-onlyでも可）
+
 ---
 
 ## 4) P1（主線）— 収益ラインを“迷わず回せる”状態へ
@@ -115,6 +120,12 @@
   - scope: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`, `workspaces/thumbnails/compiler/layer_specs/**`, `workspaces/planning/**`, `apps/ui-*`
   - thread: `note__20251229T130544Z__867b4dbb`
   - DoD: CH22のコピーが「どこを直せば反映されるか」UI/運用で即答できる（空欄注入の挙動も固定）
+
+### 4.5 PM/Coord（Slack/進捗）
+- [ ] `TODO-COORD-002` Slack取りこぼしゼロ化（30分ポーリング）を設計→実装（P1, todo）
+  - scope: `scripts/ops/slack_pm_loop.py`, `scripts/ops/slack_inbox_sync.py`, `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`
+  - thread: `note__20251222T145419Z__c13676e2`
+  - DoD: “Mac稼働中のみ” で `slack_pm_loop` が定期実行され、SSOT inbox 更新＋（任意）digest返信までが事故なく回る（secretsはgitに固定しない）
 
 ---
 
