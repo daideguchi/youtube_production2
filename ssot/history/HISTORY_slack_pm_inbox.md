@@ -17,17 +17,180 @@
 
 ## Inbox（auto）
 <!-- inbox:start -->
+- [ ] 2026-01-11T12:38:22.933849Z key=4713e40079 src=channel kind=error who=bot plain | [ops] FAILED cmd=video op=auto-capcut episode=-
+- [ ] 2026-01-11T12:28:27.252049Z key=a960e06f1e src=channel kind=error who=bot plain | [ops] FAILED cmd=video op=auto-capcut episode=-
+- [ ] 2026-01-11T12:13:26.759239Z key=6a492a0baa src=channel kind=error who=bot plain | [ops] FAILED cmd=video op=auto-capcut episode=-
+- [ ] 2026-01-11T12:07:54.448309Z key=41f35b439d src=channel kind=error who=bot plain | [ops] FAILED cmd=video op=auto-capcut episode=-
+- [ ] 2026-01-11T12:02:31.816909Z key=84a2ba6b06 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=video episode=CH12-016
 - [ ] 2026-01-11T12:01:33.344009Z key=69ba15eb14 src=thread kind=request who=dd plain | UIから台本とかが消えてる！ちゃんと整理して
+- [ ] 2026-01-11T11:55:59.304269Z key=81d60706c4 src=channel kind=error who=bot plain | [ops] FAILED cmd=video op=auto-capcut episode=-
+- [ ] 2026-01-11T11:54:45.884909Z key=ea59d579fc src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=video episode=CH12-016
+- [ ] 2026-01-11T11:42:19.028919Z key=f754d6e1de src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=video episode=-
+- [ ] 2026-01-11T11:40:40.410189Z key=54970e520f src=channel kind=error who=bot plain | [ops] FAILED cmd=audio op=- episode=CH12-016
+- [ ] 2026-01-11T11:13:57.020609Z key=e5e9a0f3ee src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T11:08:56.699349Z key=23c78bcce9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T11:04:40.377569Z key=06a2967a63 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T11:00:08.950919Z key=9d5d933242 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T10:51:36.271979Z key=421940ad37 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T10:44:03.726499Z key=9c570be41e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T10:40:50.081629Z key=6c24cae487 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T10:34:36.839579Z key=2e037eeffe src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T09:29:12.403069Z key=e8e8bc4bb1 src=thread kind=request who=dd plain | スマホで今台本見れてるけど、音声とサムネも確認できるようにして。
+- [ ] 2026-01-11T08:04:37.339709Z key=947afe770f src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T07:55:05.601499Z key=1ab22abe96 src=thread kind=question who=dd plain | まず、モデル指定はコード、スロットって運用はokだよね？
+- [ ] 2026-01-11T07:46:58.365479Z key=8831394eb2 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T07:22:13.418009Z key=e47b844e38 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T07:17:57.635429Z key=da2ebb0949 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T07:14:36.724539Z key=6a35ce676d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T07:12:50.582999Z key=5f0842d899 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T07:12:03.745109Z key=56391899fe src=thread kind=question who=dd plain | script-main-1はそれで固定でいいが、script-main-2は？　kimiだよね？
+- [ ] 2026-01-11T07:04:38.123999Z key=94a356fb61 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T06:54:24.149009Z key=ecfbaade1e src=thread kind=question who=dd plain | ただ、死んだ処理や、やり直したいって時はkillを積極的に許容しないとやばくない？
+- [ ] 2026-01-11T06:52:44.273739Z key=98800784f1 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T06:38:44.999519Z key=9377ff1f01 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T06:36:08.471109Z key=0f97cae7fb src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T06:35:01.914189Z key=3e9fc9679d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T06:25:53.920439Z key=2f5f0eb8fd src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T06:17:44.551999Z key=d7c7dbacef src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T06:09:22.828429Z key=cd90da40a6 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T05:59:48.094249Z key=4f6e5d49a4 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T05:39:22.859559Z key=705b48b83e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T05:30:39.768409Z key=3b47205194 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T05:23:01.549039Z key=717dcc38b5 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T05:13:46.327199Z key=cda48816e0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T04:37:31.970429Z key=78b185feef src=thread kind=request who=dd plain | 推奨でどんどん進めて。明らかに死んでるワーカーは止めてもいいよ。明らかに死んでたらね
+- [ ] 2026-01-11T03:41:36.506959Z key=aa0e8474e9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T03:36:42.233509Z key=c146e83458 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T02:52:11.086369Z key=bee17347a0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T02:36:38.285969Z key=fc34ba9cf4 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T02:33:15.611039Z key=f79038aab9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:26:42.590689Z key=37de41410a src=thread kind=request who=dd plain | 30分に一回ペースくらいでポーリング的なやつ打って、slackの投稿拾って、codex execのxhighで処理させる仕掛け作ろう。これ実装すれば対話型が止まってたとしても、slackとローカルが常時接続状態になる。もちろんMacが稼働してるときだけど。もちろん非対話だからといって記憶なしに進めるのではなく、対話非…
+- [ ] 2026-01-11T02:15:29.355439Z key=1c5f92886d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T00:49:02.218679Z key=9c63fba7f0 src=thread kind=request who=dd plain | pid稼働に関しては、そんな情報を羅列されても、結局どの処理が今回ってるか分からない。私が把握できる形式に整理して通知してほしい
 - [ ] 2026-01-11T00:47:38.029999Z key=9599c1355c src=thread kind=question who=dd plain | そういえば、gitをストレージ保管庫にする作戦を伝えてたはずだけどどうなった？長文だったから3回くらいに分けて送信してたんだけど。これ実装すれば、容量問題は解決しそうだけど、、、あとはレガシー系のロジックもgitの書庫リポにぶち込んでいけば、躊躇せずに整理が進む気もするが。
+- [ ] 2026-01-10T23:50:10.662459Z key=765b33afd2 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T23:44:23.667209Z key=82ae8d39f2 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T22:36:47.229739Z key=58d17eb121 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T22:20:05.882119Z key=9acc38caf7 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T22:17:09.002779Z key=bb874d9180 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=new episode=CH06-033
+- [ ] 2026-01-10T22:08:54.890759Z key=adfd1b77ad src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T13:51:21.660629Z key=9a9a6e8758 src=channel kind=error who=bot plain | 【push済み】Slackエラー通知を“読める形”に改善（削除なし）
+- [ ] 2026-01-10T13:31:34.289909Z key=5e0e042e06 src=channel kind=error who=bot plain | 意訳して実行します → /codex say daideguchi/youtube_production2] LLM Smoke workflow run      LLM Smoke: All jobs have failed   View workflow run   smoke  LLM Smoke / smo…
 - [ ] 2026-01-10T13:31:32.140019Z key=7ad0b2b227 src=thread kind=request who=dd plain | daideguchi/youtube_production2] LLM Smoke workflow run
 - [ ] 2026-01-10T12:26:04.210179Z key=ce9d2a24a2 src=thread kind=question who=dd plain | ローカル辞書は疑問。不要と思う。汎用的な修正がむずしいから個別対応してるわけでしょ？
+- [ ] 2026-01-10T12:16:13.728769Z key=316c312737 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T12:04:37.416229Z key=bd9994233d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T11:58:37.582489Z key=9c697e33cb src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T11:45:10.401239Z key=01d72afde7 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T11:30:08.299849Z key=2a8906ad94 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T11:20:15.153579Z key=8b90a102da src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T06:44:56.837919Z key=50ccd473e8 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T06:41:54.088239Z key=dd416243c3 src=channel kind=error who=bot plain | 意訳して実行します → /codex say 毎回ここ失敗する！！いい加減にしてほしい！！！！  daideguchi/youtube_production2] LLM Smoke workflow run      LLM Smoke: All jobs have failed   View workflow ru…
+- [ ] 2026-01-10T06:41:51.584179Z key=41dffbe094 src=channel kind=error who=dd plain | 毎回ここ失敗する！！いい加減にしてほしい！！！！
+- [ ] 2026-01-10T06:39:08.696489Z key=a12e9ed1e0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T06:37:24.557349Z key=38eb6f2999 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T06:30:52.949919Z key=4af8b2db0a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T06:26:39.169259Z key=6306540e90 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T06:18:45.988529Z key=7c0ead603a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T06:13:36.332609Z key=12f222060a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T05:05:26.642969Z key=7c93e43a2c src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-040
+- [ ] 2026-01-10T04:57:24.496799Z key=d880f9ba3b src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-039
+- [ ] 2026-01-10T04:47:49.349979Z key=58821044b8 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-038
+- [ ] 2026-01-10T04:39:37.805119Z key=e0789d83f9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-037
+- [ ] 2026-01-10T04:38:56.069359Z key=6148a7f578 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-037
+- [ ] 2026-01-10T04:19:24.797119Z key=efa2bd1c7f src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T04:08:59.846109Z key=dc1b1f774c src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T03:53:59.940419Z key=b1b13d7e84 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T03:38:07.765979Z key=6920aea113 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T03:36:00.466389Z key=9e7a045865 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-10T03:29:22.261979Z key=32dd20ca72 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=seed-expand episode=CH06-035
+- [ ] 2026-01-10T03:28:13.380409Z key=132c0d7fc9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-10T02:47:56.795129Z key=2f5e072d92 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T00:15:30.439699Z key=95bab0ac37 src=thread kind=rule who=dd plain | ローテはしない！！
+- [ ] 2026-01-09T23:26:17.653509Z key=8b9f2f0110 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T23:23:25.394959Z key=b0d02f793a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T23:16:52.165299Z key=981dac3b49 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T23:14:52.167979Z key=bf47dc1135 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T23:13:25.398729Z key=3f457c4d29 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T23:06:31.590909Z key=a9d1736515 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T22:59:31.147669Z key=9fe985ac53 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T22:56:44.259139Z key=816f4ba4e4 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
+- [ ] 2026-01-09T22:55:38.556459Z key=6fd4372929 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T22:54:25.798079Z key=b4faf88822 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T22:24:24.756269Z key=4d48a2bd2c src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T22:11:48.871059Z key=421f940551 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-033
+- [ ] 2026-01-09T22:11:47.227719Z key=e5fbfa8a10 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-032
+- [ ] 2026-01-09T22:11:45.632819Z key=71e7aa83e9 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-031
+- [ ] 2026-01-09T22:11:43.779459Z key=6d0193c41d src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-030
+- [ ] 2026-01-09T22:11:41.578149Z key=085a78a91a src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-029
+- [ ] 2026-01-09T22:11:40.257909Z key=85870cacee src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-028
+- [ ] 2026-01-09T22:11:38.740449Z key=7a20e58cc0 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-027
+- [ ] 2026-01-09T22:11:37.210339Z key=7ed4e1fb15 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-026
+- [ ] 2026-01-09T22:11:35.436999Z key=9f363e80a6 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-025
+- [ ] 2026-01-09T22:11:33.883529Z key=7fe59b7f1c src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-024
+- [ ] 2026-01-09T22:11:32.319559Z key=339e8ebf5c src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-023
+- [ ] 2026-01-09T22:11:30.740369Z key=01ffdbc335 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-022
+- [ ] 2026-01-09T22:11:29.055619Z key=4511211396 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-021
+- [ ] 2026-01-09T22:11:24.618969Z key=e5bf6e31ec src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-020
+- [ ] 2026-01-09T22:11:22.866479Z key=5798f9dcba src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-019
+- [ ] 2026-01-09T22:11:19.714579Z key=056b064f82 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-018
+- [ ] 2026-01-09T22:11:18.052449Z key=96c35b9736 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-017
+- [ ] 2026-01-09T22:11:16.837399Z key=3bab210501 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-016
+- [ ] 2026-01-09T22:11:15.273069Z key=7769ba623c src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-015
+- [ ] 2026-01-09T22:11:13.711869Z key=5126d6190f src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-014
+- [ ] 2026-01-09T22:11:12.309189Z key=7a8b1170d7 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-013
+- [ ] 2026-01-09T22:11:11.004479Z key=d3e0bc21c3 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-012
+- [ ] 2026-01-09T22:11:09.632909Z key=ec9647552c src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-011
+- [ ] 2026-01-09T22:11:07.930549Z key=185ca1ef2e src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-010
+- [ ] 2026-01-09T22:11:04.881029Z key=89ea6dc3d0 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-009
+- [ ] 2026-01-09T22:11:03.322529Z key=f02603c0ff src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-008
+- [ ] 2026-01-09T22:11:01.465009Z key=ac594a97ec src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-007
+- [ ] 2026-01-09T22:10:59.274289Z key=d86f65134e src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-006
+- [ ] 2026-01-09T22:10:57.661439Z key=4d82ec3a39 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-005
+- [ ] 2026-01-09T22:10:53.797079Z key=465042a7df src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-004
+- [ ] 2026-01-09T22:10:52.311869Z key=468dbff96f src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-003
+- [ ] 2026-01-09T22:10:48.780089Z key=323e5705a0 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-002
+- [ ] 2026-01-09T22:10:47.081979Z key=694667a6c4 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=episode episode=CH06-001
+- [ ] 2026-01-09T19:29:29.978469Z key=d1a9682b42 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T19:27:16.720179Z key=7ffc699f0c src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T19:15:27.086639Z key=1415dd3dec src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T19:05:21.917649Z key=9c3b7bfd5a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T18:56:55.131149Z key=f8879964c9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T18:53:40.164929Z key=c78f6f23fb src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T18:03:18.310909Z key=18eb12ecd0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T17:53:41.718659Z key=fe6bfab19a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T17:52:53.673609Z key=27e680a85f src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=new episode=CH06-035
+- [ ] 2026-01-09T17:46:54.039339Z key=d292b1ac2e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=new episode=CH06-035
+- [ ] 2026-01-09T17:39:34.136849Z key=1289059bf1 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T17:39:16.407869Z key=c8fecb8d80 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T17:33:31.244559Z key=3ed89dd9c3 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=new episode=CH06-035
+- [ ] 2026-01-09T17:23:09.162579Z key=6bfd8d8308 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T17:22:17.766009Z key=12afd3984a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T17:10:55.607699Z key=9df4016276 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-09T17:03:52.319739Z key=4255596a8d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=new episode=CH06-035
+- [ ] 2026-01-09T16:28:08.684939Z key=e2a542e0d0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
+- [ ] 2026-01-09T16:20:25.232759Z key=481a5fb77e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
+- [ ] 2026-01-09T16:17:23.348349Z key=b47bb985d0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
+- [ ] 2026-01-09T16:12:24.240199Z key=27f19b7692 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
+- [ ] 2026-01-09T16:10:43.594909Z key=904eb31d3a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
+- [ ] 2026-01-09T15:41:46.360869Z key=f997f484f2 src=channel kind=error who=bot plain | [ops] FAILED cmd=video op=auto-capcut episode=-
+- [ ] 2026-01-09T15:23:51.019689Z key=a6ecdcb46d src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
+- [ ] 2026-01-09T15:15:20.939249Z key=9047d78e0f src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
+- [ ] 2026-01-09T15:13:15.652639Z key=77bd0ddfdf src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
+- [ ] 2026-01-09T14:59:19.401379Z key=250996fbfc src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
+- [ ] 2026-01-09T14:50:08.088929Z key=6a385f6116 src=channel kind=error who=bot plain | [ops] FAILED cmd=resume op=script episode=CH06-034
 - [ ] 2026-01-09T14:39:46.733219Z key=8b6ef6ee8c src=thread kind=decision who=dd plain | Aはok
+- [ ] 2026-01-09T14:01:58.571139Z key=96dac2a488 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T13:41:44.101589Z key=fdb2398d2e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T13:26:48.612739Z key=273cb3de18 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T13:21:16.672829Z key=a61d92da92 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T13:10:58.850789Z key=6a1f00bac8 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T13:03:02.110239Z key=0dc2f143bb src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T12:53:44.265969Z key=31609817ef src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
+- [ ] 2026-01-09T12:52:45.631399Z key=50b57949ee src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T02:04:18.907519Z key=0af9fc112a src=channel kind=request who=bot plain | [main反映] CI修復 + モデル/容量導線の更新を main へ統合完了
+- [ ] 2026-01-09T01:55:14.200889Z key=e902b492e3 src=channel kind=error who=bot plain | [CI修復] LLM Smoke の失敗原因（build_ssot_catalog import順）を修正
+- [ ] 2026-01-08T23:24:17.419299Z key=29fd878212 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo-full episode=-
+- [ ] 2026-01-08T23:20:34.405509Z key=2d26624ed5 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo-full episode=-
+- [ ] 2026-01-08T22:02:09.766669Z key=736b617827 src=channel kind=request who=bot plain | [factory_commentary] CI修正: LLM Smoke の missing script を解消
 <!-- inbox:end -->
