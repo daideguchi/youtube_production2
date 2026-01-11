@@ -6,6 +6,7 @@
 
 更新:
 - 生成/追記: `python3 scripts/ops/slack_inbox_sync.py sync --write-ssot`
+- 任意（取り込み要約をSlackへ返信）: `python3 scripts/ops/slack_inbox_sync.py sync --write-ssot --post-digest`
 - 運用正本: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`
 
 注意（安全）:
@@ -21,4 +22,3 @@
 - [ ] 2026-01-10T00:15:30.439699Z key=95bab0ac37 src=thread kind=rule who=dd plain | ローテはしない！！
 - [ ] 2026-01-09T14:39:46.733219Z key=8b6ef6ee8c src=thread kind=decision who=dd plain | Aはok
 <!-- inbox:end -->
-

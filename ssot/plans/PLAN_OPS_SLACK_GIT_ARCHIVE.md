@@ -24,6 +24,7 @@
   - thread返信取り込み: `--poll-thread ... --poll-write-memos`
   - チャンネル履歴（エラー棚卸）: `--history ... --history-grep '(error|failed|traceback)'`
 - PM Inbox同期（gitへ要約保存）: `scripts/ops/slack_inbox_sync.py`（このPlanで追加）
+  - Slack側にも「取り込んだ要点」を返す（任意）: `slack_inbox_sync.py sync --post-digest`（新規Inboxのみをスレへ要約返信）
 - PID稼働状況の可視化（ps→Slack通知）: `scripts/ops/process_report.py`
   - 自動検出: `python3 scripts/ops/process_report.py --auto --slack`
   - 明示PID: `python3 scripts/ops/process_report.py --pid 52211 --pid 52239 --slack`
@@ -36,4 +37,5 @@
 1) 進捗/質問をSlackスレに投げる（`slack_notify.py --thread-ts ...`）
 2) ddの返信を取り込む（`slack_notify.py --poll-thread ...`）
 3) `slack_inbox_sync.py sync` で **PM Inboxを更新**（gitへ要約）
+   - 任意: `--post-digest` で「取り込んだ要点」をスレへ返信（取りこぼし/見落とし防止）
 4) SSOT/実装を更新 → push → Slackで報告

@@ -330,6 +330,59 @@ def _load_map(path: Path) -> Dict[str, Any]:
     return {"schema_version": 1, "updated_at": _now_iso_utc(), "items": {}}
 
 
+def _post_digest_to_slack(*, channel: str, thread_ts: str, items: list[InboxItem], out_md: Path, limit: int) -> str:
+    """
+    Post a short digest back into the same Slack thread.
+    (Slack IDs are never written to git; this is just a convenience reply.)
+    """
+    if not channel or not thread_ts:
+        raise ValueError("missing channel/thread_ts")
+
+    safe_n = max(0, int(limit))
+    picked = items[:safe_n] if safe_n else items
+
+    rel = None
+    try:
+        rel = str(out_md.resolve().relative_to(ROOT))
+    except Exception:
+        rel = str(out_md)
+
+    lines: list[str] = []
+    lines.append("*【PM Inbox更新】*")
+    lines.append(f"- file: `{rel}`")
+    lines.append(f"- new_items: {len(items)} (showing {min(len(picked), len(items))})")
+    lines.append("")
+    if picked:
+        for it in picked:
+            red = "redacted" if it.redacted else "plain"
+            lines.append(f"- key={it.key} kind={it.kind} who={it.who} {red} | {it.text}")
+    else:
+        lines.append("- (no new items)")
+
+    payload = "\n".join(lines).strip()
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(_slack_notify_path()),
+            "--channel",
+            channel,
+            "--thread-ts",
+            thread_ts,
+            "--text",
+            payload,
+            "--print-ts",
+        ],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "").strip()
+        raise RuntimeError(f"failed to post digest to slack (exit={proc.returncode}): {err[:400]}")
+    return (proc.stdout or "").strip()
+
+
 def _sync_from_thread(
     *,
     channel: str,
@@ -508,6 +561,8 @@ def cmd_sync(args: argparse.Namespace) -> int:
     if args.write_ssot:
         updated_md = _replace_inbox_block(existing_md, new_lines)
         out_md.write_text(updated_md, encoding="utf-8")
+    elif getattr(args, "post_digest", False):
+        raise SystemExit("--post-digest requires --write-ssot (do not ack without updating SSOT)")
 
     # Update mapping (local, not tracked).
     obj = _load_map(map_path)
@@ -518,6 +573,20 @@ def cmd_sync(args: argparse.Namespace) -> int:
     obj["updated_at"] = _now_iso_utc()
     _save_map(map_path, obj)
 
+    digest_ts = ""
+    if getattr(args, "post_digest", False):
+        if len(thread_ts_list) != 1:
+            raise SystemExit("--post-digest requires exactly one --thread-ts (reply in-thread)")
+        new_keys = set(new_map_items.keys())
+        new_items = [it for it in filtered_sorted if it.key in new_keys]
+        digest_ts = _post_digest_to_slack(
+            channel=channel,
+            thread_ts=thread_ts_list[0],
+            items=new_items,
+            out_md=out_md,
+            limit=int(getattr(args, "digest_max", 8)),
+        )
+
     summary = {
         "ok": True,
         "now": _now_iso_utc(),
@@ -525,6 +594,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
         "written": len(new_lines),
         "out_md": str(out_md.relative_to(ROOT)) if out_md.is_absolute() and str(out_md).startswith(str(ROOT)) else str(out_md),
         "map_json": str(map_path),
+        "digest_ts": digest_ts,
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0
@@ -542,6 +612,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--out-md", default="", help="Output markdown path (default: ssot/history/HISTORY_slack_pm_inbox.md)")
     sp.add_argument("--map-json", default="", help="Local mapping JSON path (default: workspaces/logs/ops/slack_pm_inbox_map.json)")
     sp.add_argument("--write-ssot", action="store_true", help="Actually write to SSOT markdown (tracked).")
+    sp.add_argument("--post-digest", action="store_true", help="Post a short digest of NEW inbox items back into the same Slack thread.")
+    sp.add_argument("--digest-max", type=int, default=8, help="Max items to include in the Slack digest (default: 8).")
     sp.add_argument("--include-nonactionable", action="store_true", help="Include non-actionable chatter (ack/thanks/note).")
     sp.add_argument("--include-history", action="store_true", help="Also include recent channel history messages (optional; can be noisy).")
     sp.add_argument("--history-limit", type=int, default=200, help="Max history messages (default: 200).")
