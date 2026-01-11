@@ -17,6 +17,7 @@
   - 復帰コマンド固定（SSOT）: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`
   - Reconcile（issues→復帰コマンドを配線; dry-run既定）: `./ops reconcile --channel CHxx --video NNN`
   - SSOTの最新ロジック確認: `./ops ssot status`
+- SSOTがカオスに見えたら（読む優先順位の固定）: `ssot/SSOT_COMPASS.md`
 
 - 全体像（まず読む）: `ssot/OPS_SYSTEM_OVERVIEW.md`
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`

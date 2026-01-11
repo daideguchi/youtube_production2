@@ -35,7 +35,8 @@
   - strict 読み置換: ローカル `dic.json` に加えて `~/Library/Application Support/Dreamtonics/Voicepeak/settings/user.csv` も best-effort で取り込み（安全な語のみ）
 - VOICEVOX user dict（公式ユーザー辞書 / ローカル確認用）:
   - SoT（repo / strict側の読み置換）:
-    - グローバル: `packages/audio_tts/configs/learning_dict.json`（全CH共通。ユニーク誤読のみ）
+    - グローバル（確定/手でレビューして昇格させる領域）: `packages/audio_tts/data/global_knowledge_base.json`
+    - グローバル（自動学習/補助。公式辞書へは自動同期しない）: `packages/audio_tts/configs/learning_dict.json`
     - チャンネル: `packages/audio_tts/data/reading_dict/CHxx.yaml`（そのCHで読みが一意な語のみ）
 	    - 動画ローカル（その回だけ）:
 	      - **原則**: Bテキスト（`audio_prep/script_sanitized.txt`）をカナ表記にして個別対応
@@ -252,7 +253,7 @@ VOICEPEAK は VOICEVOX のような `audio_query.kana` が無いため、**自�
 ### 8.3 追加先の決め方（最小で回す）
 - **コードで解決できるもの**（数字/英字/重複読み注釈除去）は辞書を増やさない（B決定論に寄せる）。
 - 辞書に入れるのは「読みが1つに確定できる」ものだけ（D-014）。
-  - 全チャンネルで一意 → `packages/audio_tts/configs/learning_dict.json`
+  - 全チャンネルで一意（確定語/人間レビュー済） → `packages/audio_tts/data/global_knowledge_base.json`
   - そのチャンネルで一意 → `packages/audio_tts/data/reading_dict/CHxx.yaml`
   - その回だけ/文脈依存 → `audio_prep/local_token_overrides.json`（推奨） / `audio_prep/local_reading_dict.json`（フレーズのみ）
 

@@ -34,6 +34,7 @@ from audio_tts.tts.reading_dict import (
     load_channel_reading_dict,
     normalize_reading_kana,
     is_safe_reading,
+    is_banned_surface,
 )
 from factory_common.paths import audio_pkg_root
 from audio_tts.tts.routing import load_routing_config
@@ -89,6 +90,39 @@ def _discover_channels() -> List[str]:
         return []
     return sorted(p.stem for p in root.glob("*.yaml"))
 
+def _load_global_kb_words() -> Dict[str, str]:
+    """
+    Load curated global words from repo SoT (global_knowledge_base.json).
+
+    NOTE: This is intentionally small/curated; do NOT auto-sync learning_dict.json
+    to VOICEVOX official user dict (too large / higher accident risk).
+    """
+
+    path = audio_pkg_root() / "data" / "global_knowledge_base.json"
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        words = (data.get("words") or {}) if isinstance(data, dict) else {}
+        if not isinstance(words, dict):
+            return {}
+        out: Dict[str, str] = {}
+        for surface, reading in words.items():
+            key = str(surface or "").strip()
+            if is_banned_surface(key):
+                continue
+            if not isinstance(reading, str) or not reading.strip():
+                continue
+            pronunciation = normalize_reading_kana(reading)
+            if not pronunciation or not is_safe_reading(pronunciation):
+                continue
+            if pronunciation == key:
+                continue
+            out[key] = pronunciation
+        return out
+    except Exception:
+        return {}
+
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -119,6 +153,11 @@ def main() -> None:
 
     # Collect candidate entries with conflict detection across channels.
     entries: List[Tuple[str, str, str, Dict[str, object]]] = []
+
+    # Global curated dict (repo SoT) — always included.
+    for surface, pronunciation in _load_global_kb_words().items():
+        entries.append(("GLOBAL", surface, pronunciation, {"source": "global_knowledge_base"}))
+
     for ch in channels:
         for surface, meta in load_channel_reading_dict(ch).items():
             reading = meta.get("reading_kana") or meta.get("reading_hira") or ""
@@ -169,6 +208,7 @@ def main() -> None:
 
     print(f"[VOICEVOX_USER_DICT] base_url={base_url}")
     print(f"[VOICEVOX_USER_DICT] channels={channels}")
+    print(f"[VOICEVOX_USER_DICT] global_kb_entries={len(_load_global_kb_words())}")
     print(f"[VOICEVOX_USER_DICT] added={added} updated={updated} skipped={skipped}")
     if conflicts:
         print(f"[VOICEVOX_USER_DICT] conflicts_skipped={len(conflicts)}")

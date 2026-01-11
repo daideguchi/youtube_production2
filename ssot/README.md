@@ -2,6 +2,7 @@
 
 - このディレクトリは最新の設計・運用ドキュメントの正本です。
 - **索引の正本**: `DOCS_INDEX.md`
+- SSOTがカオスに見えたら: `SSOT_COMPASS.md`
 - **全体TODO（正本）**: `ops/OPS_GLOBAL_TODO.md`（日々のやり取りは board thread へ）
 - **計画書の状態一覧**: `plans/PLAN_STATUS.md`
 - **入口（迷わない）**: `../START_HERE.md`

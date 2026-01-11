@@ -6,8 +6,14 @@
 
 ## 使い方
 
+基本（CH01/CH06 など）:
 1. `prompts/antigravity_gemini/MASTER_PROMPT.md` を Gemini に貼る
-2. 対象チャンネルと動画の個別プロンプトを続けて貼る
+2. 対象動画の個別プロンプト（例: `prompts/antigravity_gemini/CH06/CH06_040_PROMPT.md`）を続けて貼る
+3. Gemini の出力が本文のみになっていることを確認し、台本に反映する
+
+CH27〜CH31（チャンネル別マスターを使う）:
+1. 対象チャンネルの `prompts/antigravity_gemini/CH27/MASTER_PROMPT.md`（など）を貼る
+2. 対象動画の個別プロンプト（例: `prompts/antigravity_gemini/CH27/CH27_001_PROMPT.md`）を続けて貼る
 3. Gemini の出力が本文のみになっていることを確認し、台本に反映する
 
 Batch運用（Gemini Developer API Batch）:
@@ -21,15 +27,25 @@ Batch運用（Gemini Developer API Batch）:
 - 本文に URL、脚注、箇条書き、見出し行、丸括弧が混入したら不合格。
 - ポーズは `---` のみ。`---` 以外の区切りは不合格。
 
-## CH06 対応状況
+## 対応状況
 
-作成済み:
+CH01:
+- `prompts/antigravity_gemini/CH01/CH01_001_PROMPT.md`
+
+CH06:
 - `prompts/antigravity_gemini/CH06/CH06_035_PROMPT.md`
 - `prompts/antigravity_gemini/CH06/CH06_036_PROMPT.md`
 - `prompts/antigravity_gemini/CH06/CH06_037_PROMPT.md`
 - `prompts/antigravity_gemini/CH06/CH06_038_PROMPT.md`
 - `prompts/antigravity_gemini/CH06/CH06_039_PROMPT.md`
 - `prompts/antigravity_gemini/CH06/CH06_040_PROMPT.md`
+
+CH27〜CH31:
+- `prompts/antigravity_gemini/CH27/MASTER_PROMPT.md` + `CH27_001_PROMPT.md`〜`CH27_030_PROMPT.md`
+- `prompts/antigravity_gemini/CH28/MASTER_PROMPT.md` + `CH28_001_PROMPT.md`〜`CH28_030_PROMPT.md`
+- `prompts/antigravity_gemini/CH29/MASTER_PROMPT.md` + `CH29_001_PROMPT.md`〜`CH29_030_PROMPT.md`
+- `prompts/antigravity_gemini/CH30/MASTER_PROMPT.md` + `CH30_001_PROMPT.md`〜`CH30_030_PROMPT.md`
+- `prompts/antigravity_gemini/CH31/MASTER_PROMPT.md` + `CH31_001_PROMPT.md`〜`CH31_030_PROMPT.md`
 
 補足:
 - 現在の `workspaces/scripts/CH06/` には 041 以降のディレクトリが存在しないため、対象は 035〜040 の 6 本。

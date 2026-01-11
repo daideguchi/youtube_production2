@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "updated_at": "2026-01-11T23:28:32.809036Z",
+  "count": 1,
+  "items": [
+    {
+      "video_id": "CH01-001",
+      "channel": "CH01",
+      "video": "001",
+      "status": "review",
+      "selected_variant_id": "ytm::5ca6cc03e17b",
+      "selected_image_path": "CH01/001/001_buddha.png",
+      "src_rel": "workspaces/thumbnails/assets/CH01/001/001_buddha.png",
+      "src_exists": true,
+      "preview_rel": "media/thumbs/CH01/001.jpg",
+      "preview_exists": true
+    }
+  ]
+}
