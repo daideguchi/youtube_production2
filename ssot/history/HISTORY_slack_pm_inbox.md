@@ -17,6 +17,8 @@
 
 ## Inbox（auto）
 <!-- inbox:start -->
+- [ ] 2026-01-11T05:23:01.549039Z key=717dcc38b5 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
+- [ ] 2026-01-11T05:13:46.327199Z key=cda48816e0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T04:37:31.970429Z key=78b185feef src=thread kind=request who=dd plain | 推奨でどんどん進めて。明らかに死んでるワーカーは止めてもいいよ。明らかに死んでたらね
 - [ ] 2026-01-11T03:41:36.506959Z key=aa0e8474e9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T03:36:42.233509Z key=c146e83458 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
@@ -150,4 +152,16 @@
 - [ ] 2026-01-09T13:41:44.101589Z key=fdb2398d2e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
 - [ ] 2026-01-09T13:26:48.612739Z key=273cb3de18 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
 - [ ] 2026-01-09T13:21:16.672829Z key=a61d92da92 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T13:10:58.850789Z key=6a1f00bac8 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T13:03:02.110239Z key=0dc2f143bb src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T12:53:44.265969Z key=31609817ef src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
+- [ ] 2026-01-09T12:52:45.631399Z key=50b57949ee src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
+- [ ] 2026-01-09T08:14:34.128819Z key=1b0d906c6f src=channel kind=note who=bot redacted | tied path PATH=/Users/dd/.codex/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/co…
+- [ ] 2026-01-09T02:33:24.436989Z key=51b68c71ba src=channel kind=note who=bot plain | 【進捗報告 / dd-ops-tidy-01】
+- [ ] 2026-01-09T02:04:18.907519Z key=0af9fc112a src=channel kind=request who=bot plain | [main反映] CI修復 + モデル/容量導線の更新を main へ統合完了
+- [ ] 2026-01-09T01:55:14.200889Z key=e902b492e3 src=channel kind=error who=bot plain | [CI修復] LLM Smoke の失敗原因（build_ssot_catalog import順）を修正
+- [ ] 2026-01-08T23:24:17.419299Z key=29fd878212 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo-full episode=-
+- [ ] 2026-01-08T23:20:34.405509Z key=2d26624ed5 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo-full episode=-
+- [ ] 2026-01-08T22:22:32.337989Z key=d6c5ff3b6c src=channel kind=note who=bot plain | [factory_commentary] 徹底チェック強化: モデル管理( router + codes + slots + overrides )のlintを追加
+- [ ] 2026-01-08T22:02:09.766669Z key=736b617827 src=channel kind=request who=bot plain | [factory_commentary] CI修正: LLM Smoke の missing script を解消
 <!-- inbox:end -->
