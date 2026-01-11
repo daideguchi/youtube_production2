@@ -1363,7 +1363,15 @@ def cmd_rewrite(args: argparse.Namespace) -> int:
     issues, _stats = validate_a_text(new_text, st.metadata or {})
     hard = [it for it in issues if str((it or {}).get("severity") or "error").lower() != "warning"]
     if hard:
-        raise SystemExit(f"rewrite_failed: deterministic_validation_failed ({len(hard)} issues)")
+        codes: List[str] = []
+        for it in hard:
+            if not isinstance(it, dict):
+                continue
+            c = str(it.get("code") or "").strip()
+            if c and c not in codes:
+                codes.append(c)
+        hint = f" codes={','.join(codes[:8])}" if codes else ""
+        raise SystemExit(f"rewrite_failed: deterministic_validation_failed ({len(hard)} issues){hint}")
 
     # Backup then write canonical + mirror.
     backup_dir = human_path.parent / "analysis" / "rewrite"
