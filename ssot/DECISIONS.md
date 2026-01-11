@@ -24,6 +24,7 @@
 | D-013 | P0 | TTSのCodex（agent vs codex exec） | **TTSはAIエージェントCodex（pending）固定 / codex execと区別** | Done |
 | D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
 | D-015 | P1 | Slack→Git書庫（PM Inbox） | **Slack→memos→git要約（hash keyで識別 / IDは残さない）** | Proposed |
+| D-016 | P1 | 画像生成のコスト/待ち（Batch vs Sync） | **量産=Gemini Batch優先 / 即時=Imagen 4 Fast**（サイレント切替禁止） | Proposed |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
 | D-006 | P2 | Video入口の一本化 | **`auto_capcut_run` 主線固定**（capcut engine stubは非推奨） | Proposed |
@@ -171,6 +172,36 @@
 
 ### Impact（影響/作業）
 - `ssot/ops/OPS_AUDIO_TTS.md` / `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md` に辞書運用（A/B/C）を明記して固定する。
+
+---
+
+## D-016（P1）画像生成の「安さ」と「待ち」をどう両立する？（Batch vs Sync）
+
+### Decision
+- **量産（コスト最優先）と即時（比較/リテイク）を分ける**。Batch APIは安いが非同期のため、**用途を固定**して迷いを無くす。
+
+### Recommended（推奨）
+- 量産（大量/夜間）: **Gemini Batch** を優先（コスト最優先）
+  - 参考単価（1024×1024相当）: `$0.0195/枚`（例: `gemini-2.5-flash-image` Batch / `gemini-2.0-flash` Batch）
+  - 注意: Batchは非同期（完了まで最大24hターゲット）。パイプラインは「投げて終わり」ではなく、**完了待ち→再実行**の導線を持つ。
+- 即時（数枚の比較/急ぎ）: **Imagen 4 Fast**（Gemini API）を使う
+  - 参考単価（1024×1024相当）: `$0.02/枚`（`imagen-4.0-fast-generate-001`）
+  - slot code（例）: `i-1`（Imagen 4 Fast）
+- 固定ルール:
+  - **サイレント切替は禁止**（正本: `D-002`）。Batch⇄Syncの切替は slot code / model_key で必ず明示する。
+
+### Rationale（根拠）
+- 量産は「安さ」が最重要だが、即時作業は「待ち」がボトルネックになるため、両方を同じ既定にすると運用が破綻しやすい。
+- “明示切替”に寄せると、コスト/納期/品質のトレードオフが追える。
+
+### Alternatives（代替案）
+- A) 常に即時（Sync）: 速いがコストが積み上がる（非推奨）
+- B) 常にBatch: 安いがリテイク/比較が遅くなり、開発速度が落ちる（非推奨）
+
+### Impact（影響/作業）
+- `configs/image_models.yaml` / `configs/image_model_slots.yaml` にBatch/Syncの選択肢を明示追加する
+- `factory_common.image_client` がBatch運用（submit/poll/resume）に対応する
+- SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md` / `ssot/ops/OPS_THUMBNAILS_PIPELINE.md` に運用導線を追記する
 
 ---
 

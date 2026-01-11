@@ -33,6 +33,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 | code | 意味 | ざっくり用途 |
 |---|---|---|
 | `g-1` | Gemini（画像生成） | いま安定して通る前提 |
+| `i-1` | Imagen 4 Fast（Gemini API） | 即時の比較/リテイク用（速い/安い） |
 | `f-1` | FLUX schnell | 速い（動画内画像のデフォ候補） |
 | `f-3` | FLUX pro | 高品質（動画内画像の候補） |
 | `f-4` | FLUX max | 最高品質（サムネ/重要シーン向け） |
@@ -138,6 +139,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 `configs/image_model_slots.yaml`
 
 - `img-gemini-flash-1`（alias: `g-1`）
+- `img-imagen-4-fast-1`（alias: `i-1`）
 - `img-flux-schnell-1`（alias: `f-1`）
 - `img-flux-pro-1`（alias: `f-3`）
 - `img-flux-max-1`（alias: `f-4`）

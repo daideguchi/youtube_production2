@@ -27,6 +27,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
     - slot code 正本: `configs/image_model_slots.yaml`（例: `f-4`）
     - 運用既定（現行）: **Gemini 2.5 Flash Image**（`g-1` / `img-gemini-flash-1`）
       - ポリシー: サムネは **Gemini > FLUX max**（サイレント切替はしない）
+      - 補足（コスト/待ち）: 量産は Gemini Batch を優先し、即時の比較/リテイクは `i-1`（Imagen 4 Fast）を使う（正本: `ssot/DECISIONS.md:D-016`）
       - 例外（許可）: サムネ背景生成（`thumbnail_image_gen`）に限り **Gemini 3**（例: `gemini_3_pro_image_preview`）の利用を許可する（必要時のみ明示して使う）。
         - 注意: 動画内画像（`visual_image_gen`）では Gemini 3 は禁止（別SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md`）。
   - Fireworks（画像）キー運用（固定）:
@@ -41,6 +42,8 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
       - **サイレント切替は禁止**（正本: `ssot/DECISIONS.md:D-002`）。切替は必ず明示する。
     - サムネ背景生成だけ FLUX max に切替する場合は、タスク強制で固定する:
       - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
+    - 即時の比較/リテイクで Imagen 4 Fast に切替する場合も、同様に明示する:
+      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=i-1 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
     - サムネ背景生成で Gemini 3 を使う場合（許可・明示）:
       - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
     - 事故防止のため `allow_fallback` は有効化しない（明示 `model_key` は strict が原則）。
