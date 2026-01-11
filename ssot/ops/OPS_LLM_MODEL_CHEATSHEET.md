@@ -64,6 +64,7 @@
   - 固定: **自動フォールバック禁止**（別モデルへ自動すり替えしない）。失敗時は停止して原因を残す。
   - 重要: 台本系のモデル指定は `configs/llm_task_overrides.yaml` の `models` が正（slot は未指定の task/tier のみに適用）
   - 再発防止（CI）: `scripts/ops/lint_llm_router_config.py` が `script_*` の `models` を `script-main-1` 固定としてlintする（違反は LLM Smoke で落ちる）
+  - 再発防止（CI）: `script-main-1` は `deepseek/deepseek-v3.2-exp`（Fireworks）に解決されることをlintで検証する（勝手に別モデルへ差し替えない）
   - 参考（比較用・自動では使わない）: `fw-glm-4p7-1`, `fw-kimi-thinking-1`, `fw-mixtral-8x22b-1`
 
 #### 2.1.1 Decision（2026-01-09）: 台本は Fireworks DeepSeek V3.2 exp(thinking) を既定に戻す（固定ロジック）
@@ -170,6 +171,8 @@
   - 出力: `packages/script_pipeline/config/openrouter_models.json`
 
 ### 4.1 CLI/Env での一時上書き（ルーター改造なしで可変にする）
+
+詳細（安全な手順/ロックダウン）: `ssot/ops/OPS_LLM_RUNTIME_OVERRIDES.md`
 
 目的: 実験/比較/コスト最適化のため、**設定ファイルを編集せず**に「この実行だけ」モデルを差し替える。
 
