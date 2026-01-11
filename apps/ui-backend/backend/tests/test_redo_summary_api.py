@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from backend import main
 from backend.app import channel_info_store
 from backend.main import app
+from backend.routers import redo as redo_router
 
 
 @pytest.fixture()
@@ -55,6 +56,9 @@ def redo_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "PROJECT_ROOT", project_root)
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
+    monkeypatch.setattr(redo_router, "PROJECT_ROOT", project_root)
+    monkeypatch.setattr(redo_router, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(redo_router, "CHANNEL_PLANNING_DIR", planning_channels_dir)
     monkeypatch.setattr(main, "SCRIPT_PIPELINE_ROOT", script_pipeline_root)
     monkeypatch.setattr(channel_info_store, "CHANNELS_DIR", channels_dir)
     monkeypatch.setattr(channel_info_store, "CHANNEL_INFO_PATH", channels_dir / "channels_info.json")

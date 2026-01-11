@@ -34,7 +34,7 @@ def normalize_channel_code(channel: str) -> str:
     if not raw or Path(raw).name != raw:
         raise HTTPException(status_code=400, detail="Invalid channel identifier")
     channel_code = raw.upper()
-    if not re.match(r"^CH\\d+$", channel_code):
+    if not re.match(r"^CH\d+$", channel_code):
         raise HTTPException(status_code=400, detail="Invalid channel identifier")
     if (DATA_ROOT / channel_code).is_dir():
         return channel_code
@@ -148,4 +148,3 @@ def update_planning_template(channel: str, payload: PlanningTemplateUpdateReques
         headers=headers,
         sample=sample,
     )
-

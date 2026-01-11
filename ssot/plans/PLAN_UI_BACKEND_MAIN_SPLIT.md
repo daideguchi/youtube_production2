@@ -61,6 +61,7 @@
 | 2h | Settings（`/api/settings/llm` / `/api/settings/codex`）の Pydantic モデルを `app/settings_models.py` に切り出し | dd | - | Done（2026-01-09） |
 | 2i | SSOT docs（`/api/ssot/persona` / `/api/ssot/templates`）を `routers/ssot_docs.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-10） |
 | 2j | Guards（`/api/guards/workflow-precheck`）を `routers/guards.py` + `app/workflow_precheck_models.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
+| 2k | Redo（`/api/redo`, `/api/redo/summary`）を `routers/redo.py` + `app/redo_models.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
