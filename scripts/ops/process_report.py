@@ -348,6 +348,56 @@ def _is_stale(row: ProcRow, *, stale_min: int) -> bool:
         return False
 
 
+def _render_summary(*, rows: list[ProcRow], stale_min: int) -> list[str]:
+    """
+    Human-first summary:
+    - dd が「どの処理が回ってるか」を最初に把握できる形にする
+    - 詳細は後段のセクションへ
+    """
+    if not rows:
+        return []
+
+    priority = [
+        "Script pipeline",
+        "Audio/TTS",
+        "Orchestrator",
+        "Agent workers",
+        "Ops runs",
+        "UI/Docs",
+        "Codex exec",
+        "Other",
+    ]
+    items_by_section: dict[str, list[tuple[ProcRow, str]]] = {}
+    for r in rows:
+        section, label = _classify(r)
+        items_by_section.setdefault(section, []).append((r, label))
+
+    ordered_sections = [s for s in priority if s in items_by_section] + [
+        s for s in sorted(items_by_section.keys()) if s not in priority
+    ]
+
+    lines: list[str] = []
+    lines.append(f"■ サマリ（いま何が回ってるか） total={len(rows)}")
+    for sec in ordered_sections:
+        pairs = items_by_section.get(sec) or []
+        pairs = sorted(pairs, key=lambda x: float(x[0].etime_seconds), reverse=True)
+
+        parts: list[str] = []
+        for r, label in pairs[:2]:
+            label_txt, _label_red = _redact_text(label)
+            label_txt = _truncate_for_label(label_txt, limit=70)
+            ep = _extract_episode_hint(r.command)
+            ep_part = f" episode={ep}" if ep else ""
+            stale_tag = f" stale>={int(stale_min)}m" if _is_stale(r, stale_min=stale_min) else ""
+            parts.append(f"pid={r.pid} etime={r.etime}{stale_tag}{ep_part} {label_txt}".strip())
+
+        suffix = (" / ".join(parts)).strip() if parts else "-"
+        lines.append(f"- {sec} ({len(pairs)}): {suffix}")
+
+    lines.append("")
+    return lines
+
+
 def _format_report(
     *,
     requested_pids: list[int],
@@ -365,6 +415,8 @@ def _format_report(
     if ps_error:
         lines.append(f"_warning={ps_error}_")
     lines.append("")
+
+    lines.extend(_render_summary(rows=rows, stale_min=stale_min))
 
     if requested_pids:
         lines.append("■ 指定PID")
@@ -415,6 +467,8 @@ def _format_report(
         section, _ = _classify(r)
         groups.setdefault(section, []).append(r)
 
+    max_items_per_section = 12 if include_command else 8
+
     for section in [
         "Ops runs",
         "Script pipeline",
@@ -430,7 +484,7 @@ def _format_report(
             continue
         lines.append(f"■ {section}")
         procs_sorted = sorted(procs, key=lambda x: float(x.etime_seconds), reverse=True)
-        for r in procs_sorted[:30]:
+        for r in procs_sorted[:max_items_per_section]:
             sec, label = _classify(r)
             label_txt, label_red = _redact_text(label)
             cmd_txt, cmd_red = r.redacted_command()
@@ -438,8 +492,8 @@ def _format_report(
             red_suffix = " redacted" if (label_red or cmd_red) else ""
             stale_suffix = f" stale>={int(stale_min)}m" if _is_stale(r, stale_min=stale_min) else ""
             lines.append(f"- pid={r.pid} etime={r.etime} since={r.since}{stale_suffix} {label_txt}{red_suffix}{cmd_suffix}")
-        if len(procs) > 30:
-            lines.append(f"- … +{len(procs) - 30} more")
+        if len(procs) > max_items_per_section:
+            lines.append(f"- … +{len(procs) - max_items_per_section} more")
         lines.append("")
 
     if suggest_kill_stale and int(stale_min) > 0:
@@ -504,6 +558,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         action="store_true",
         help="Include stop suggestions for stale Agent workers/Orchestrator (still explicit --pid + --kill --yes).",
     )
+    ap.add_argument(
+        "--kill-stale",
+        action="store_true",
+        help="Kill stale Agent workers/Orchestrator from --auto list (requires --stale-min + --yes).",
+    )
     ap.add_argument("--kill", action="store_true", help="Kill the specified --pid processes (policy: explicit PIDs only).")
     ap.add_argument("--yes", action="store_true", help="Confirm --kill execution (otherwise dry-run plan only).")
     ap.add_argument("--slack", action="store_true", help="Post the report to Slack via scripts/ops/slack_notify.py")
@@ -541,6 +600,13 @@ def main(argv: Optional[list[str]] = None) -> int:
             if grep_re and not grep_re.search(r.command):
                 continue
             rows.append(r)
+
+    if bool(args.kill) and bool(args.kill_stale):
+        raise SystemExit("choose one: --kill (explicit --pid) OR --kill-stale (auto stale selection)")
+    if bool(args.kill_stale) and requested_pids:
+        raise SystemExit("--kill-stale cannot be used with --pid (use --kill for explicit PIDs)")
+    if bool(args.kill_stale) and int(args.stale_min) <= 0:
+        raise SystemExit("--kill-stale requires --stale-min >= 1")
 
     text = _format_report(
         requested_pids=requested_pids,
@@ -580,6 +646,46 @@ def main(argv: Optional[list[str]] = None) -> int:
                 kill_lines.append(f"- {pid}: permission denied ({exc})")
             except Exception as exc:
                 kill_lines.append(f"- {pid}: kill failed ({type(exc).__name__}: {exc})")
+
+        text = (text + "\n\n" + "\n".join(kill_lines)).strip()
+
+    if bool(args.kill_stale):
+        dry = not bool(args.yes)
+        stale_min = int(args.stale_min)
+        stale_candidates: list[ProcRow] = []
+        for r in rows:
+            if not _is_stale(r, stale_min=stale_min):
+                continue
+            section, _label = _classify(r)
+            if section not in {"Agent workers", "Orchestrator"}:
+                continue
+            stale_candidates.append(r)
+
+        kill_lines: list[str] = []
+        kill_lines.append("■ kill-stale")
+        kill_lines.append(f"- threshold: {int(stale_min)}m (sections=Agent workers, Orchestrator)")
+        kill_lines.append(f"- mode: {'DRY-RUN' if dry else 'EXEC'} (add --yes to execute)")
+        if not stale_candidates:
+            kill_lines.append("- candidates: none")
+        else:
+            stale_candidates = sorted(stale_candidates, key=lambda x: float(x.etime_seconds), reverse=True)
+            for r in stale_candidates[:25]:
+                section, label = _classify(r)
+                label_txt, _label_red = _redact_text(label)
+                if dry:
+                    kill_lines.append(f"- {r.pid}: would SIGTERM (etime={r.etime}) [{section}] {label_txt}")
+                    continue
+                try:
+                    os.kill(r.pid, signal.SIGTERM)
+                    kill_lines.append(f"- {r.pid}: SIGTERM sent (etime={r.etime}) [{section}] {label_txt}")
+                except ProcessLookupError:
+                    kill_lines.append(f"- {r.pid}: already exited")
+                except PermissionError as exc:
+                    kill_lines.append(f"- {r.pid}: permission denied ({exc})")
+                except Exception as exc:
+                    kill_lines.append(f"- {r.pid}: kill failed ({type(exc).__name__}: {exc})")
+            if len(stale_candidates) > 25:
+                kill_lines.append(f"- … +{len(stale_candidates) - 25} more")
 
         text = (text + "\n\n" + "\n".join(kill_lines)).strip()
 

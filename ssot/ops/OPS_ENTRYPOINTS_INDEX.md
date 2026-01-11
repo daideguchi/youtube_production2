@@ -261,6 +261,8 @@
     - 明示PID: `python3 scripts/ops/process_report.py --pid 123 --pid 456`
     - 停止（安全: 明示PIDのみ / dry-runがデフォルト）: `python3 scripts/ops/process_report.py --pid 123 --kill --yes`
     - （任意）停止候補の提示（stale）: `python3 scripts/ops/process_report.py --auto --stale-min 180 --suggest-kill-stale`
+    - （任意）停止（staleを一括; 安全: --stale-min必須 / dry-runがデフォルト）:
+      - `python3 scripts/ops/process_report.py --auto --stale-min 180 --kill-stale --yes`
   - Ops失敗トリアージ（Slackエラー洪水を episode 別に要約）:
     - Inboxから集約→Slack: `python3 scripts/ops/ops_error_triage.py --inbox-md ssot/history/HISTORY_slack_pm_inbox.md --slack --channel <C...> --thread-ts <thread_ts>`
     - 直接episode指定（例）: `python3 scripts/ops/ops_error_triage.py --episode CH06-035`
