@@ -283,6 +283,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/research", pathname)) {
     return "research";
   }
+  if (matchPath("/thumbnails/mobile", pathname)) {
+    return "thumbnails";
+  }
   if (matchPath("/thumbnails", pathname)) {
     return "thumbnails";
   }

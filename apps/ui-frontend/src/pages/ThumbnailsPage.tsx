@@ -12,6 +12,9 @@ export function ThumbnailsPage() {
           <p className="thumbnail-page__subtitle">まず「量産（Canva）」でコピーを整え、CSVで一括生成。採用画像の紐付けやAI生成は必要なときだけ。</p>
         </div>
         <div className="thumbnail-page__header-actions">
+          <Link className="action-chip" to="/thumbnails/mobile">
+            モバイル確認
+          </Link>
           <Link className="action-chip" to="/dashboard">
             ダッシュボード
           </Link>
