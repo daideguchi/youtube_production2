@@ -434,3 +434,88 @@ channels:
       enabled: false
       provider: pexels
       ratio: 0.2
+
+  CH27:
+    planning_csv: workspaces/planning/channels/CH27.csv
+    persona: workspaces/planning/personas/CH27_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH27-老後の心がほどける物語/script_prompt.txt
+    web_search_policy: disabled
+    wikipedia:
+      policy: disabled
+      lang: ja
+      fallback_lang: en
+    chapter_count: 5
+    target_chars_min: 6000
+    target_chars_max: 8000
+    video_broll:
+      enabled: false
+      provider: pexels
+      ratio: 0.2
+
+  CH28:
+    planning_csv: workspaces/planning/channels/CH28.csv
+    persona: workspaces/planning/personas/CH28_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH28-60代からの静かな救いの物語/script_prompt.txt
+    web_search_policy: disabled
+    wikipedia:
+      policy: disabled
+      lang: ja
+      fallback_lang: en
+    chapter_count: 5
+    target_chars_min: 6000
+    target_chars_max: 8000
+    video_broll:
+      enabled: false
+      provider: pexels
+      ratio: 0.2
+
+  CH29:
+    planning_csv: workspaces/planning/channels/CH29.csv
+    persona: workspaces/planning/personas/CH29_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH29-シニアの人生が軽くなる話/script_prompt.txt
+    web_search_policy: disabled
+    wikipedia:
+      policy: disabled
+      lang: ja
+      fallback_lang: en
+    chapter_count: 5
+    target_chars_min: 6000
+    target_chars_max: 8000
+    video_broll:
+      enabled: false
+      provider: pexels
+      ratio: 0.2
+
+  CH30:
+    planning_csv: workspaces/planning/channels/CH30.csv
+    persona: workspaces/planning/personas/CH30_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH30-今日が少し楽になる老後ストーリー/script_prompt.txt
+    web_search_policy: disabled
+    wikipedia:
+      policy: disabled
+      lang: ja
+      fallback_lang: en
+    chapter_count: 5
+    target_chars_min: 6000
+    target_chars_max: 8000
+    video_broll:
+      enabled: false
+      provider: pexels
+      ratio: 0.2
+
+  CH31:
+    planning_csv: workspaces/planning/channels/CH31.csv
+    persona: workspaces/planning/personas/CH31_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH31-老後の人間関係、心が晴れる物語/script_prompt.txt
+    web_search_policy: disabled
+    wikipedia:
+      policy: disabled
+      lang: ja
+      fallback_lang: en
+    chapter_count: 5
+    target_chars_min: 6000
+    target_chars_max: 8000
+    video_broll:
+      enabled: false
+      provider: pexels
+      ratio: 0.2
