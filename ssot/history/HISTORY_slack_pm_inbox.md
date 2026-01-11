@@ -17,12 +17,13 @@
 
 ## Inbox（auto）
 <!-- inbox:start -->
+- [ ] 2026-01-11T05:39:22.859559Z key=705b48b83e src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
+- [ ] 2026-01-11T05:30:39.768409Z key=3b47205194 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T05:23:01.549039Z key=717dcc38b5 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=rewrite episode=CH06-035
 - [ ] 2026-01-11T05:13:46.327199Z key=cda48816e0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T04:37:31.970429Z key=78b185feef src=thread kind=request who=dd plain | 推奨でどんどん進めて。明らかに死んでるワーカーは止めてもいいよ。明らかに死んでたらね
 - [ ] 2026-01-11T03:41:36.506959Z key=aa0e8474e9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T03:36:42.233509Z key=c146e83458 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
-- [ ] 2026-01-11T03:13:24.892619Z key=177a121f92 src=thread kind=note who=dd plain | 1は別リポでok 2はもっと熟考して提案し直して
 - [ ] 2026-01-11T02:52:11.086369Z key=bee17347a0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:36:38.285969Z key=fc34ba9cf4 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:33:15.611039Z key=f79038aab9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
@@ -39,11 +40,6 @@
 - [ ] 2026-01-10T13:51:21.660629Z key=9a9a6e8758 src=channel kind=error who=bot plain | 【push済み】Slackエラー通知を“読める形”に改善（削除なし）
 - [ ] 2026-01-10T13:31:34.289909Z key=5e0e042e06 src=channel kind=error who=bot plain | 意訳して実行します → /codex say daideguchi/youtube_production2] LLM Smoke workflow run      LLM Smoke: All jobs have failed   View workflow run   smoke  LLM Smoke / smo…
 - [ ] 2026-01-10T13:31:32.140019Z key=7ad0b2b227 src=thread kind=request who=dd plain | daideguchi/youtube_production2] LLM Smoke workflow run
-- [ ] 2026-01-10T13:17:52.548959Z key=955cc7fba0 src=thread kind=note who=dd plain | やり取り保守
-- [ ] 2026-01-10T13:17:30.425089Z key=3dcac3f399 src=thread kind=ack who=dd plain | 了解:ok_hand:
-- [ ] 2026-01-10T13:01:25.346009Z key=4ce61a8367 src=channel kind=note who=dd plain | :star:続き
-- [ ] 2026-01-10T13:01:15.377689Z key=e47ea821ef src=channel kind=note who=dd plain | 9.2 tools/archive_push.sh（投入スクリプト：完全版）
-- [ ] 2026-01-10T12:26:26.646179Z key=9218c0b1ad src=thread kind=thanks who=dd plain | あなたとここで会話ができてとても嬉しい。良い仕組みを作ってくれてありがとう
 - [ ] 2026-01-10T12:26:04.210179Z key=ce9d2a24a2 src=thread kind=question who=dd plain | ローカル辞書は疑問。不要と思う。汎用的な修正がむずしいから個別対応してるわけでしょ？
 - [ ] 2026-01-10T12:16:13.728769Z key=316c312737 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T12:04:37.416229Z key=bd9994233d src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
@@ -59,7 +55,6 @@
 - [ ] 2026-01-10T06:30:52.949919Z key=4af8b2db0a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-10T06:26:39.169259Z key=6306540e90 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
 - [ ] 2026-01-10T06:18:45.988529Z key=7c0ead603a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-036
-- [ ] 2026-01-10T06:18:42.560649Z key=9f63ba80e8 src=thread kind=note who=dd plain | 基本的にttsってvoicevoxかvoicepeakで音声作るようになってて、それぞれ公式の辞書があります。
 - [ ] 2026-01-10T06:13:36.332609Z key=12f222060a src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-10T05:05:26.642969Z key=7c93e43a2c src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-040
 - [ ] 2026-01-10T04:57:24.496799Z key=d880f9ba3b src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-039
@@ -156,12 +151,9 @@
 - [ ] 2026-01-09T13:03:02.110239Z key=0dc2f143bb src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
 - [ ] 2026-01-09T12:53:44.265969Z key=31609817ef src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-034
 - [ ] 2026-01-09T12:52:45.631399Z key=50b57949ee src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo episode=-
-- [ ] 2026-01-09T08:14:34.128819Z key=1b0d906c6f src=channel kind=note who=bot redacted | tied path PATH=/Users/dd/.codex/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/co…
-- [ ] 2026-01-09T02:33:24.436989Z key=51b68c71ba src=channel kind=note who=bot plain | 【進捗報告 / dd-ops-tidy-01】
 - [ ] 2026-01-09T02:04:18.907519Z key=0af9fc112a src=channel kind=request who=bot plain | [main反映] CI修復 + モデル/容量導線の更新を main へ統合完了
 - [ ] 2026-01-09T01:55:14.200889Z key=e902b492e3 src=channel kind=error who=bot plain | [CI修復] LLM Smoke の失敗原因（build_ssot_catalog import順）を修正
 - [ ] 2026-01-08T23:24:17.419299Z key=29fd878212 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo-full episode=-
 - [ ] 2026-01-08T23:20:34.405509Z key=2d26624ed5 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=redo-full episode=-
-- [ ] 2026-01-08T22:22:32.337989Z key=d6c5ff3b6c src=channel kind=note who=bot plain | [factory_commentary] 徹底チェック強化: モデル管理( router + codes + slots + overrides )のlintを追加
 - [ ] 2026-01-08T22:02:09.766669Z key=736b617827 src=channel kind=request who=bot plain | [factory_commentary] CI修正: LLM Smoke の missing script を解消
 <!-- inbox:end -->
