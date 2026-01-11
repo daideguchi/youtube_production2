@@ -104,6 +104,7 @@ from backend.core.tools.audio_manager import AudioManager
 from backend.core.tools.channel_profile import load_channel_profile
 from backend.core.tools.channel_stats_store import merge_channel_stats_into_channel_info, write_channel_stats
 from backend.core.tools.prompt_utils import auto_placeholder_values
+from backend.core.tools import thumbnails_lookup as thumbnails_lookup_tools
 # 移行先: script_pipeline/tools 配下の簡易実装を利用
 from script_pipeline.tools import planning_requirements, planning_store
 from script_pipeline.tools import openrouter_models as openrouter_model_utils
@@ -6395,21 +6396,16 @@ try:
 except Exception as e:
     logger.error("Failed to load redo router: %s", e)
 
+try:
+    from backend.routers import thumbnails
+
+    app.include_router(thumbnails.router)
+except Exception as e:
+    logger.error("Failed to load thumbnails router: %s", e)
+
 # NOTE: Do not mount StaticFiles for thumbnails here: it would shadow
 # API routes (/thumbnails/library/, /thumbnails/assets/). Use the API routes.
 
-
-@app.get("/api/thumbnails/lookup")
-def thumbnail_lookup(
-    channel: str = Query(..., description="CHコード (例: CH02)"),
-    video: Optional[str] = Query(None, description="動画番号 (例: 019)"),
-    title: Optional[str] = Query(None, description="動画タイトル（任意）"),
-    limit: int = Query(3, description="返す件数"),
-):
-    channel_code = normalize_channel_code(channel)
-    video_no = normalize_video_number(video) if video else None
-    thumbs = _find_thumbnails(channel_code, video_no, title, limit=limit)
-    return {"items": thumbs}
 try:
     from backend.routers import auto_draft
 
@@ -13189,90 +13185,6 @@ def unmark_video_published(channel: str, video: str):
         updated_at=current_timestamp(),
     )
 
-
-def _find_thumbnails(channel: str, video: Optional[str] = None, title: Optional[str] = None, limit: int = 3) -> List[Dict[str, str]]:
-    """
-    workspaces/thumbnails/ 配下からチャンネルコード・動画番号に合致しそうなサムネをスコアで探す。
-    スコア: channel一致 +3, video番号含む(+2) / 数字一致(+2)、タイトルワード一致(+1)。スコア同点は更新日時降順。
-    """
-    base = ssot_thumbnails_root()
-    if not base.exists():
-        return []
-    channel_code = normalize_channel_code(channel)
-    video_no = normalize_video_number(video) if video else None
-
-    # Fast path: when channel+video is known, prefer stable outputs from the standard assets layout.
-    # This keeps 2案(00_thumb_1/2) discoverable and avoids expensive full-tree scans.
-    if video_no:
-        asset_dir = base / "assets" / channel_code / video_no
-        preferred_names = ("00_thumb_1.png", "00_thumb_2.png", "00_thumb.png")
-        candidates = [asset_dir / name for name in preferred_names if (asset_dir / name).is_file()]
-        if candidates:
-            results: List[Dict[str, str]] = []
-            for p in candidates[: max(0, int(limit))]:
-                rel = p.relative_to(PROJECT_ROOT)
-                results.append(
-                    {
-                        "path": str(rel),
-                        "url": f"/thumbnails/assets/{channel_code}/{video_no}/{p.name}",
-                        "name": p.name,
-                    }
-                )
-            return results
-    video_no_int = None
-    if video_no and video_no.isdigit():
-        try:
-            video_no_int = int(video_no)
-        except Exception:
-            video_no_int = None
-    title_tokens: List[str] = []
-    if title:
-        # 短い単語のみ加点対象
-        title_tokens = [t.lower() for t in re.findall(r"[\\w一-龠ぁ-んァ-ヴー]+", title) if len(t) >= 2]
-    matches: List[Tuple[int, float, Path]] = []
-    for path in base.rglob("*"):
-        if not path.is_file():
-            continue
-        if path.suffix.lower() not in [".png", ".jpg", ".jpeg", ".webp"]:
-            continue
-        score = 0
-        lower = str(path).lower()
-        if channel_code.lower() in lower:
-            score += 3
-
-        video_matched = False
-        if video_no and video_no in lower:
-            score += 2
-            video_matched = True
-        elif video_no_int is not None:
-            nums = re.findall(r"(\\d{1,4})", lower)
-            for n in nums:
-                try:
-                    if int(n) == video_no_int:
-                        score += 2
-                        video_matched = True
-                        break
-                except Exception:
-                    continue
-        if title_tokens:
-            for tok in title_tokens:
-                if tok and tok in lower:
-                    score += 1
-                    break
-        if video_no and not video_matched:
-            continue
-        if score == 0 and channel_code.lower() not in lower:
-            continue
-        mtime = path.stat().st_mtime
-        matches.append((score, mtime, path))
-    matches.sort(key=lambda x: (-x[0], -x[1]))
-    results: List[Dict[str, str]] = []
-    for _, _, p in matches[:limit]:
-        rel = p.relative_to(PROJECT_ROOT)
-        url = f"/{rel.as_posix()}"
-        results.append({"path": str(rel), "url": url, "name": p.name})
-    return results
-
 @app.get("/api/channels/{channel}/videos/{video}/tts/plain", response_model=ScriptTextResponse)
 def get_tts_plain_text(channel: str, video: str):
     channel_code = normalize_channel_code(channel)
@@ -15157,7 +15069,7 @@ def api_planning_channel(channel_code: str):
             if not has_thumb:
                 try:
                     title = row.get("タイトル") or row.get("title") or None
-                    thumbs = _find_thumbnails(channel_code, norm_video, title, limit=1)
+                    thumbs = thumbnails_lookup_tools.find_thumbnails(channel_code, norm_video, title, limit=1)
                     if thumbs:
                         row["thumbnail_url"] = thumbs[0]["url"]
                         row["thumbnail_path"] = thumbs[0]["path"]
