@@ -23,14 +23,19 @@
 - 送信/受信（Bot方式）: `scripts/ops/slack_notify.py`
   - thread返信取り込み: `--poll-thread ... --poll-write-memos`
   - チャンネル履歴（エラー棚卸）: `--history ... --history-grep '(error|failed|traceback)'`
+  - 重要: `--thread-ts` を使う場合は **Bot方式が必須**（webhookではスレ返信できない）
+  - 重要: Slack送信に失敗した場合は **outbox（ローカル）に退避**して取りこぼさない（後述）
 - PM Inbox同期（gitへ要約保存）: `scripts/ops/slack_inbox_sync.py`（このPlanで追加）
   - Slack側にも「取り込んだ要点」を返す（任意）: `slack_inbox_sync.py sync --post-digest`（新規Inboxのみをスレへ要約返信）
 - PID稼働状況の可視化（ps→Slack通知）: `scripts/ops/process_report.py`
   - 自動検出: `python3 scripts/ops/process_report.py --auto --slack`
   - 明示PID: `python3 scripts/ops/process_report.py --pid 52211 --pid 52239 --slack`
+  - kill（運用を軽くする）: `python3 scripts/ops/process_report.py --pid 52211 --kill --yes`
+    - 方針: **killは明示PIDのみ**（自動killはしない）。まず report で目的/稼働時間を把握してから止める。
 - PMループ（推奨: 1コマンド）: `scripts/ops/slack_pm_loop.py`
   - Slack返信→PM Inbox更新→要点返信→（任意でPIDスナップショット）までをまとめて実行する
   - 任意: エラー棚卸（チャンネル履歴を grep して Inbox に残す。Slack ID は git に保存しない）
+  - outbox flush（推奨）: `python3 scripts/ops/slack_pm_loop.py run ... --flush-outbox`
 
 安全（必須）:
 - Slack→git 取り込みは **token-like文字列を自動redact**し、本文は短く切る（長文は要約のみ）。
@@ -72,3 +77,14 @@
 自動push（任意・推奨は慎重）:
 - `--git-push-if-clean` を付けると、**PM Inbox以外に変更が無い時だけ** `git add/commit/push` を行う。
   - 例: `python3 scripts/ops/install_slack_pm_launchagent.py ... --git-push-if-clean`
+
+---
+
+## Slack outbox（送信失敗時の退避 / ローカルのみ）
+
+目的:
+- ネットワーク/DNS不調などでSlack送信が失敗しても、**メッセージを捨てない**（後で再送できる）。
+
+方針:
+- 送信失敗時、`workspaces/logs/ops/slack_outbox/` に JSON を保存する（git管理しない）。
+- `slack_pm_loop.py --flush-outbox`（または `slack_notify.py --flush-outbox`）で再送する。
