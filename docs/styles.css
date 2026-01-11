@@ -190,6 +190,73 @@ body {
   gap: 8px;
 }
 
+.view-tabs {
+  border: 1px solid var(--border);
+  background: rgba(17, 26, 51, 0.7);
+  border-radius: 14px;
+  padding: 8px;
+}
+
+.view-tabs__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.view-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 48, 0.55);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.view-tab:hover {
+  background: rgba(233, 238, 255, 0.06);
+}
+
+.view-tab--active {
+  border-color: rgba(110, 168, 255, 0.55);
+  box-shadow: 0 0 0 1px rgba(110, 168, 255, 0.18) inset;
+}
+
+.view-tab__label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.view-tab__badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: rgba(233, 238, 255, 0.92);
+  background: rgba(233, 238, 255, 0.06);
+}
+
+.view-tab__badge[data-kind="ok"] {
+  border-color: rgba(110, 168, 255, 0.55);
+  background: rgba(110, 168, 255, 0.18);
+}
+
+.view-tab__badge[data-kind="warn"] {
+  border-color: rgba(255, 211, 0, 0.45);
+  background: rgba(255, 211, 0, 0.14);
+}
+
+.view-tab__badge[data-kind="error"] {
+  border-color: rgba(255, 107, 107, 0.55);
+  background: rgba(255, 107, 107, 0.18);
+}
+
 .assets {
   padding: 12px 14px;
   border: 1px solid var(--border);
@@ -401,6 +468,7 @@ body {
 @media (max-width: 720px) {
   .app {
     padding: 12px;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   }
 
   .header {
@@ -429,6 +497,50 @@ body {
 
   .assets__grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Mobile: focus the screen by view (tabs) */
+  .app[data-view="script"] .assets {
+    display: none;
+  }
+
+  .app[data-view="audio"] .content,
+  .app[data-view="thumb"] .content {
+    display: none;
+  }
+
+  .app[data-view="audio"] .meta__row--buttons,
+  .app[data-view="thumb"] .meta__row--buttons {
+    display: none;
+  }
+
+  .app[data-view="audio"] #thumbDetails {
+    display: none;
+  }
+
+  .app[data-view="thumb"] #audioPrepDetails {
+    display: none;
+  }
+
+  .view-tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(11, 16, 32, 0.92);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 -12px 24px rgba(0, 0, 0, 0.35);
+    z-index: 20;
+  }
+
+  .view-tabs__inner {
+    max-width: 1100px;
+    margin: 0 auto;
   }
 }
 

@@ -8,7 +8,7 @@
     <script defer src="./app.js"></script>
   </head>
   <body>
-    <div class="app">
+    <div id="appRoot" class="app" data-view="script">
       <header class="header">
         <div>
           <h1>Script Viewer</h1>
@@ -59,6 +59,23 @@
           <span id="copyStatus" class="muted"></span>
         </div>
       </section>
+
+      <nav id="viewTabs" class="view-tabs" aria-label="表示切替（台本/音声/サムネ）">
+        <div class="view-tabs__inner">
+          <button id="tabScript" class="view-tab" type="button" data-view="script">
+            <span class="view-tab__label">台本</span>
+            <span id="badgeScript" class="view-tab__badge" data-kind="neutral">—</span>
+          </button>
+          <button id="tabAudio" class="view-tab" type="button" data-view="audio">
+            <span class="view-tab__label">音声</span>
+            <span id="badgeAudio" class="view-tab__badge" data-kind="neutral">—</span>
+          </button>
+          <button id="tabThumb" class="view-tab" type="button" data-view="thumb">
+            <span class="view-tab__label">サムネ</span>
+            <span id="badgeThumb" class="view-tab__badge" data-kind="neutral">—</span>
+          </button>
+        </div>
+      </nav>
 
       <section class="assets" aria-label="音声/サムネ">
         <details id="audioPrepDetails" class="details" open>

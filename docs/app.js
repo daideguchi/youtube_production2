@@ -189,6 +189,10 @@ let loadedText = "";
 let loadedNoSepText = "";
 let audioPrepScriptText = "";
 let audioPrepMetaText = "";
+let currentView = "script";
+let scriptState = "idle"; // idle | loading | ok | error
+let audioState = "idle"; // idle | loading | ok | partial | missing | error
+let thumbState = "idle"; // idle | loading | ok | missing | error
 
 const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
@@ -202,6 +206,16 @@ const copyStatus = $("copyStatus");
 const copyNoSepChunks = $("copyNoSepChunks");
 const loading = $("loading");
 const footerMeta = $("footerMeta");
+const appRoot = $("appRoot");
+const viewTabs = $("viewTabs");
+const tabScript = $("tabScript");
+const tabAudio = $("tabAudio");
+const tabThumb = $("tabThumb");
+const badgeScript = $("badgeScript");
+const badgeAudio = $("badgeAudio");
+const badgeThumb = $("badgeThumb");
+const audioPrepDetails = $("audioPrepDetails");
+const thumbDetails = $("thumbDetails");
 const audioPrepScriptPre = $("audioPrepScriptPre");
 const audioPrepMetaPre = $("audioPrepMetaPre");
 const openAudioPrepScript = $("openAudioPrepScript");
@@ -223,6 +237,107 @@ function setCopyStatus(text, isError = false) {
       copyStatus.textContent = "";
     }
   }, 2500);
+}
+
+function isNarrowView() {
+  try {
+    return Boolean(window.matchMedia && window.matchMedia("(max-width: 720px)").matches);
+  } catch (_err) {
+    return false;
+  }
+}
+
+function setBadge(el, text, kind) {
+  el.textContent = text || "—";
+  el.dataset.kind = kind || "neutral";
+}
+
+function updateBadges() {
+  if (scriptState === "loading") {
+    setBadge(badgeScript, "…", "neutral");
+  } else if (scriptState === "error") {
+    setBadge(badgeScript, "ERR", "error");
+  } else if (scriptState === "ok") {
+    const k = Math.round((loadedText || "").length / 1000);
+    setBadge(badgeScript, k ? `${k}k` : "OK", "ok");
+  } else {
+    setBadge(badgeScript, "—", "neutral");
+  }
+
+  if (audioState === "loading") {
+    setBadge(badgeAudio, "…", "neutral");
+  } else if (audioState === "error") {
+    setBadge(badgeAudio, "ERR", "error");
+  } else if (audioState === "ok") {
+    setBadge(badgeAudio, "OK", "ok");
+  } else if (audioState === "partial") {
+    setBadge(badgeAudio, "一部", "warn");
+  } else if (audioState === "missing") {
+    setBadge(badgeAudio, "未", "neutral");
+  } else {
+    setBadge(badgeAudio, "—", "neutral");
+  }
+
+  if (thumbState === "loading") {
+    setBadge(badgeThumb, "…", "neutral");
+  } else if (thumbState === "error") {
+    setBadge(badgeThumb, "ERR", "error");
+  } else if (thumbState === "ok") {
+    setBadge(badgeThumb, "OK", "ok");
+  } else if (thumbState === "missing") {
+    setBadge(badgeThumb, "未", "neutral");
+  } else {
+    setBadge(badgeThumb, "—", "neutral");
+  }
+}
+
+function setActiveView(view) {
+  currentView = view;
+  const v = String(view || "script");
+  appRoot.dataset.view = v;
+  tabScript.classList.toggle("view-tab--active", v === "script");
+  tabAudio.classList.toggle("view-tab--active", v === "audio");
+  tabThumb.classList.toggle("view-tab--active", v === "thumb");
+}
+
+function scrollToEl(el) {
+  try {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (_err) {
+    // Fallback without smooth scroll.
+    try {
+      el.scrollIntoView(true);
+    } catch (_err2) {
+      // ignore
+    }
+  }
+}
+
+function goToView(view) {
+  const v = String(view || "script");
+  setActiveView(v);
+
+  // Keep UX compact on mobile: open only the relevant details.
+  if (isNarrowView()) {
+    if (v === "script") {
+      audioPrepDetails.open = false;
+      thumbDetails.open = false;
+    } else if (v === "audio") {
+      audioPrepDetails.open = true;
+      thumbDetails.open = false;
+    } else if (v === "thumb") {
+      thumbDetails.open = true;
+      audioPrepDetails.open = false;
+    }
+  }
+
+  if (v === "audio") {
+    scrollToEl(audioPrepDetails);
+  } else if (v === "thumb") {
+    scrollToEl(thumbDetails);
+  } else {
+    scrollToEl(contentPre);
+  }
 }
 
 function buildGrouped(itemsList) {
@@ -253,6 +368,8 @@ async function loadAudioPrep(it) {
   const currentId = it?.video_id || "";
   audioPrepScriptText = "";
   audioPrepMetaText = "";
+  audioState = "loading";
+  updateBadges();
   copyAudioPrepScript.disabled = true;
   copyAudioPrepMeta.disabled = true;
   audioPrepScriptPre.textContent = "読み込み中…";
@@ -270,6 +387,9 @@ async function loadAudioPrep(it) {
     const [scriptText, metaText] = await Promise.all([fetchTextOptional(scriptUrl), fetchTextOptional(metaUrl)]);
     if (selected?.video_id !== currentId) return;
 
+    const hasScript = scriptText != null;
+    const hasMeta = metaText != null;
+
     if (scriptText == null) {
       audioPrepScriptPre.textContent = "未生成（audio_prep/script_sanitized.txt が見つかりません）";
     } else {
@@ -285,11 +405,22 @@ async function loadAudioPrep(it) {
       audioPrepMetaPre.textContent = audioPrepMetaText;
       copyAudioPrepMeta.disabled = false;
     }
+
+    if (hasScript && hasMeta) {
+      audioState = "ok";
+    } else if (hasScript || hasMeta) {
+      audioState = "partial";
+    } else {
+      audioState = "missing";
+    }
+    updateBadges();
   } catch (err) {
     if (selected?.video_id !== currentId) return;
     const msg = `読み込みに失敗しました。\n${String(err)}`;
     audioPrepScriptPre.textContent = msg;
     audioPrepMetaPre.textContent = msg;
+    audioState = "error";
+    updateBadges();
   }
 }
 
@@ -332,7 +463,7 @@ function renderThumbProject(it, proj) {
     const url = String(v?.image_url || "").trim();
     const imagePath = String(v?.image_path || "").trim();
     const pathUrl = imagePath ? joinUrl(rawBase, `workspaces/thumbnails/assets/${imagePath}`) : "";
-    const previewUrl = url && /^https?:\\/\\//.test(url) ? url : pathUrl;
+    const previewUrl = url && /^https?:\/\//.test(url) ? url : pathUrl;
 
     if (previewUrl) {
       const a = document.createElement("a");
@@ -377,6 +508,8 @@ function renderThumbProject(it, proj) {
 
 async function loadThumb(it) {
   const currentId = it?.video_id || "";
+  thumbState = "loading";
+  updateBadges();
   thumbBody.textContent = "読み込み中…";
   try {
     const map = await loadThumbProjects();
@@ -384,12 +517,18 @@ async function loadThumb(it) {
     const proj = map.get(currentId);
     if (!proj) {
       thumbBody.textContent = "projects.json に未登録（thumb未作成 or 未同期）";
+      thumbState = "missing";
+      updateBadges();
       return;
     }
     renderThumbProject(it, proj);
+    thumbState = "ok";
+    updateBadges();
   } catch (err) {
     if (selected?.video_id !== currentId) return;
     thumbBody.textContent = `読み込みに失敗しました: ${String(err)}`;
+    thumbState = "error";
+    updateBadges();
   }
 }
 
@@ -501,6 +640,8 @@ async function loadScript(it) {
   selected = it;
   loadedText = "";
   loadedNoSepText = "";
+  scriptState = "loading";
+  updateBadges();
   renderNoSepChunkButtons();
   void loadAudioPrep(it);
   void loadThumb(it);
@@ -521,6 +662,8 @@ async function loadScript(it) {
     loadedNoSepText = stripPauseSeparators(loadedText);
     renderNoSepChunkButtons();
     contentPre.textContent = loadedText;
+    scriptState = "ok";
+    updateBadges();
     footerMeta.textContent = `index: ${indexData?.count || items.length} items · loaded: ${it.video_id} · chars: ${loadedText.length.toLocaleString(
       "ja-JP"
     )}`;
@@ -529,6 +672,8 @@ async function loadScript(it) {
     contentPre.textContent = `読み込みに失敗しました。\n\n${String(err)}`;
     footerMeta.textContent = "—";
     loadedNoSepText = "";
+    scriptState = "error";
+    updateBadges();
     renderNoSepChunkButtons();
   } finally {
     setLoading(false);
@@ -583,6 +728,13 @@ async function reloadIndex() {
 
 function setupEvents() {
   $("reloadIndex").addEventListener("click", () => void reloadIndex());
+
+  viewTabs.addEventListener("click", (ev) => {
+    const target = ev.target instanceof Element ? ev.target.closest("[data-view]") : null;
+    const view = target?.getAttribute("data-view") || "";
+    if (!view) return;
+    goToView(view);
+  });
 
   channelSelect.addEventListener("change", () => {
     const ch = channelSelect.value;
@@ -657,4 +809,6 @@ function setupEvents() {
 }
 
 setupEvents();
+setActiveView(currentView);
+updateBadges();
 void reloadIndex();
