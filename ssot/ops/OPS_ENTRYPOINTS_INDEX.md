@@ -250,7 +250,11 @@
     - 取り込み要約をSlackへ返す（任意）: `python3 scripts/ops/slack_inbox_sync.py sync --post-digest`
     - PMループ（推奨: 1コマンド）:
       - `./ops slack pm-loop --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
+        - 任意（安全な自動push）: `--git-push-if-clean`（PM Inbox以外の変更が無い時だけ `git add/commit/push`）
       - （互換）`python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
+    - 自動運用（macOS / launchd; ローカル専用）:
+      - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <C...> --thread-ts <...> --dd-user <U...> --interval-sec 1800 --post-digest --process --errors`
+        - 任意: `--git-push-if-clean`
   - PID稼働状況（「いつから/何をしているか」）: `python3 scripts/ops/process_report.py --auto --slack --thread-ts <thread_ts>`（明示PID: `--pid 123 --pid 456`）
 
 ### 3.5 Thumbnails（サムネ量産/修正）

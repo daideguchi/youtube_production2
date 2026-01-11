@@ -51,3 +51,24 @@
   - `--errors` は **チャンネル履歴（history）側のみ**:
     - bot投稿も拾う（GitHub Actions通知などがbotになりやすいため）
     - `--dd-user` のフィルタを適用しない（= エラー投稿の取りこぼし防止）
+
+---
+
+## 自動運用（macOS / 30分ポーリング）: Slack↔ローカルの“常時接続”
+
+目的:
+- ddのSlack投稿を「手動実行のタイミング次第」にせず、取りこぼしを減らす。
+- ただし **LLMは使わない（決定論）**。台本やモデルには触れない。
+
+重要（安全）:
+- LaunchAgent の plist は **ローカルだけ**に置く（Slackの channel/thread 等のIDをgitに入れない）。
+- `ssot/history/HISTORY_slack_pm_inbox.md` は tracked なので、バックグラウンド更新で repo がdirtyになりうる。
+  - 事故を避けるには「Slack同期専用のclone」を作るのが安全。
+  - もしくは **`--git-push-if-clean`**（後述）で「他の変更が無い時だけpush」する。
+
+導入（推奨: インストーラでローカルに生成）:
+- `python3 scripts/ops/install_slack_pm_launchagent.py --channel <CHANNEL_ID> --thread-ts <THREAD_TS> --dd-user <DD_USER_ID> --interval-sec 1800 --post-digest --process --errors`
+
+自動push（任意・推奨は慎重）:
+- `--git-push-if-clean` を付けると、**PM Inbox以外に変更が無い時だけ** `git add/commit/push` を行う。
+  - 例: `python3 scripts/ops/install_slack_pm_launchagent.py ... --git-push-if-clean`
