@@ -4,8 +4,14 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths-ignore:
+      - "ssot/history/**"
+      - "workspaces/logs/**"
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - "ssot/history/**"
+      - "workspaces/logs/**"
 
 env:
   PYTHONDONTWRITEBYTECODE: 1

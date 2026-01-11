@@ -83,6 +83,8 @@
 自動push（任意・推奨は慎重）:
 - `--git-push-if-clean` を付けると、**PM Inbox以外に変更が無い時だけ** `git add/commit/push` を行う。
   - 例: `python3 scripts/ops/install_slack_pm_launchagent.py ... --git-push-if-clean`
+ - 注意（CIノイズ）: `ssot/history/**` の更新を自動pushすると、GitHub Actions（LLM Smoke等）が過剰に走ってSlack通知が増える。
+   - 対策: `LLM Smoke` は `ssot/history/**` など “書庫系” だけの変更では走らないよう `paths-ignore` を設定する（workflow側で対応）。
 
 ---
 
