@@ -243,14 +243,32 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--inbox-md", default=str(DEFAULT_INBOX_MD.as_posix()), help="Path to HISTORY_slack_pm_inbox.md")
     ap.add_argument("--max-events", type=int, default=200, help="Max inbox events to scan (default: 200)")
     ap.add_argument("--top", type=int, default=5, help="Top N episodes to show (default: 5)")
+    ap.add_argument("--episode", action="append", default=[], help="Triage this episode directly (repeatable). e.g. CH06-035")
     ap.add_argument("--slack", action="store_true", help="Post the triage report to Slack")
     ap.add_argument("--channel", default="", help="Slack channel id/name (required with --slack)")
     ap.add_argument("--thread-ts", default="", help="Slack thread ts (required with --slack)")
     args = ap.parse_args(argv)
 
-    inbox_md = Path(str(args.inbox_md or "").strip())
-    events = _read_inbox_events(inbox_md, max_events=int(args.max_events))
-    text = _render_report(events, inbox_md=inbox_md, top=int(args.top))
+    direct_eps = [str(x or "").strip().upper() for x in (args.episode or []) if str(x or "").strip()]
+    direct_eps = sorted(set(direct_eps))
+
+    if direct_eps:
+        lines: list[str] = []
+        lines.append("*【ops失敗トリアージ】*")
+        lines.append(f"_generated_at={_now_iso_utc()}_")
+        lines.append("_source=direct episodes_")
+        lines.append("")
+        lines.append("■ 状態（status.json から推定）")
+        for ep in direct_eps:
+            summ, detail = _summarize_episode(ep)
+            lines.extend(summ)
+            lines.extend(detail)
+            lines.append("")
+        text = "\n".join(lines).strip()
+    else:
+        inbox_md = Path(str(args.inbox_md or "").strip())
+        events = _read_inbox_events(inbox_md, max_events=int(args.max_events))
+        text = _render_report(events, inbox_md=inbox_md, top=int(args.top))
     if len(text) > 3800:
         text = text[:3790].rstrip() + "…\n_(truncated)_"
 
