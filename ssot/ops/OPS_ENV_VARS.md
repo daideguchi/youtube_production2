@@ -78,6 +78,7 @@
   - 目的: どのAIエージェントが実行しても「同じスロット/コードなら同じルーティング」になるように、**上書き経路を潰す**
   - ON のとき、次の “非スロット上書き” は **検出した時点で停止**（事故防止）:
     - モデル系: `LLM_FORCE_MODELS` / `LLM_FORCE_MODEL`（※数字だけならslot互換として許可） / `LLM_FORCE_TASK_MODELS_JSON`
+    - オプション系: `LLM_FORCE_TASK_OPTIONS_JSON`（温度など; 緊急デバッグ専用）
     - 実行系: `LLM_MODE` / `LLM_API_FAILOVER_TO_THINK` / `LLM_API_FALLBACK_TO_THINK` / `YTM_CODEX_EXEC_*`
     - 隠し切替（禁止）: `YTM_SCRIPT_ALLOW_OPENROUTER` / `LLM_ENABLE_TIER_CANDIDATES_OVERRIDE`
   - SSOT保護: `configs/llm_task_overrides.yaml` は運用中に書き換えない（モデル名の書き換え事故防止）

@@ -319,7 +319,12 @@ def _try_acquire_lease(
         try:
             path.unlink()
         except Exception:
-            return None
+            # Some environments restrict unlink but allow rename; keep an audit trail and proceed.
+            try:
+                suffix = f"stale.{int(now)}.{os.getpid()}.{os.urandom(4).hex()}"
+                path.replace(path.with_name(path.name + f".{suffix}"))
+            except Exception:
+                return None
         try:
             fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         except Exception:
@@ -368,7 +373,13 @@ def release_lease(lease: FireworksKeyLease) -> None:
     try:
         path.unlink()
     except Exception:
-        return
+        # Some environments restrict unlink but allow rename; keep an audit trail and avoid blocking future leases.
+        try:
+            now = time.time()
+            suffix = f"released.{int(now)}.{os.getpid()}.{os.urandom(4).hex()}"
+            path.replace(path.with_name(path.name + f".{suffix}"))
+        except Exception:
+            return
 
 
 def _load_state(pool: str) -> Dict[str, Dict[str, Any]]:
