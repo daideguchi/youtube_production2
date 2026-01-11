@@ -432,6 +432,491 @@ def _apply_phrase_dict(text: str, words: Dict[str, str]) -> str:
     return out
 
 
+_ASCII_TOKEN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.\\-]*$")
+_VOICEVOX_LETTER_KANA = {
+    "A": "エー",
+    "B": "ビー",
+    "C": "スィー",  # VOICEVOX normalizes シー -> スィー, so prefer スィー for stable comparisons
+    "D": "ディー",
+    "E": "イー",
+    "F": "エフ",
+    "G": "ジー",
+    "H": "エイチ",
+    "I": "アイ",
+    "J": "ジェイ",
+    "K": "ケー",
+    "L": "エル",
+    "M": "エム",
+    "N": "エヌ",
+    "O": "オー",
+    "P": "ピー",
+    "Q": "キュー",
+    "R": "アール",
+    "S": "エス",
+    "T": "ティー",
+    "U": "ユー",
+    "V": "ブイ",
+    "W": "ダブリュー",
+    "X": "エックス",
+    "Y": "ワイ",
+    "Z": "ゼット",
+}
+_ASCII_WORD_OVERRIDES = {
+    # Minimal set: keep global behavior stable; channel dict can override richer vocabulary.
+    "and": "アンド",
+    "or": "オア",
+    "it": "イット",
+    "through": "スルー",
+}
+
+
+def _ascii_token_to_kana(surface: str) -> Optional[str]:
+    """Best-effort ASCII token -> Katakana reading (B-text only)."""
+    s = str(surface or "").strip()
+    if not s or not _ASCII_TOKEN_RE.match(s):
+        return None
+
+    lower = s.lower()
+    if lower in _ASCII_WORD_OVERRIDES:
+        return _ASCII_WORD_OVERRIDES[lower]
+
+    # Known all-caps words often used as loanwords
+    if s == "LINE":
+        return "ライン"
+    if s == "OFF":
+        return "オフ"
+
+    buf: List[str] = []
+    for ch in s:
+        if "A" <= ch <= "Z" or "a" <= ch <= "z":
+            kana = _VOICEVOX_LETTER_KANA.get(ch.upper())
+            if kana:
+                buf.append(kana)
+            continue
+        if "0" <= ch <= "9":
+            buf.append(
+                ["ゼロ", "イチ", "ニ", "サン", "ヨン", "ゴ", "ロク", "ナナ", "ハチ", "キュウ"][ord(ch) - ord("0")]
+            )
+            continue
+        # ignore separators like '.' / '-'
+    out = "".join(buf)
+    return out or None
+
+
+def _jp_number_kana_under_10000(n: int) -> str:
+    digits = ["ゼロ", "イチ", "ニ", "サン", "ヨン", "ゴ", "ロク", "ナナ", "ハチ", "キュウ"]
+    if n <= 0:
+        return ""
+    parts: List[str] = []
+    thousands = (n // 1000) % 10
+    hundreds = (n // 100) % 10
+    tens = (n // 10) % 10
+    ones = n % 10
+
+    if thousands:
+        if thousands == 1:
+            parts.append("セン")
+        elif thousands == 3:
+            parts.append("サンゼン")
+        elif thousands == 8:
+            parts.append("ハッセン")
+        else:
+            parts.append(digits[thousands] + "セン")
+    if hundreds:
+        if hundreds == 1:
+            parts.append("ヒャク")
+        elif hundreds == 3:
+            parts.append("サンビャク")
+        elif hundreds == 6:
+            parts.append("ロッピャク")
+        elif hundreds == 8:
+            parts.append("ハッピャク")
+        else:
+            parts.append(digits[hundreds] + "ヒャク")
+    if tens:
+        if tens == 1:
+            parts.append("ジュウ")
+        else:
+            parts.append(digits[tens] + "ジュウ")
+    if ones:
+        parts.append(digits[ones])
+    return "".join(parts)
+
+
+def _jp_number_kana(n: int) -> str:
+    """Arabic integer -> Katakana reading (no counters)."""
+    if n == 0:
+        return "ゼロ"
+    if n < 0:
+        return "マイナス" + _jp_number_kana(-n)
+
+    units = [
+        (10**12, "チョウ"),
+        (10**8, "オク"),
+        (10**4, "マン"),
+        (1, ""),
+    ]
+    parts: List[str] = []
+    remaining = n
+    for base, unit in units:
+        chunk = remaining // base
+        remaining = remaining % base
+        if chunk <= 0:
+            continue
+        chunk_read = _jp_number_kana_under_10000(int(chunk))
+        if not chunk_read:
+            continue
+        parts.append(chunk_read + unit)
+    return "".join(parts) or "ゼロ"
+
+
+def _jp_number_with_counter_kana(n: int, counter: str) -> str:
+    """Arabic integer + counter -> Katakana reading."""
+    counter = str(counter or "")
+
+    if counter == "つ":
+        special = {
+            1: "ヒトツ",
+            2: "フタツ",
+            3: "ミッツ",
+            4: "ヨッツ",
+            5: "イツツ",
+            6: "ムッツ",
+            7: "ナナツ",
+            8: "ヤッツ",
+            9: "ココノツ",
+            10: "トオ",
+        }
+        return special.get(n) or (_jp_number_kana(n) + "ツ")
+
+    if counter == "人":
+        if n == 1:
+            return "ヒトリ"
+        if n == 2:
+            return "フタリ"
+        return _jp_number_kana(n) + "ニン"
+
+    if counter == "回":
+        special = {1: "イッカイ", 6: "ロッカイ", 8: "ハッカイ", 10: "ジュッカイ"}
+        return special.get(n) or (_jp_number_kana(n) + "カイ")
+
+    if counter == "個":
+        special = {1: "イッコ", 6: "ロッコ", 8: "ハッコ", 10: "ジュッコ"}
+        return special.get(n) or (_jp_number_kana(n) + "コ")
+
+    if counter == "分":
+        special = {
+            1: "イップン",
+            2: "ニフン",
+            3: "サンプン",
+            4: "ヨンプン",
+            5: "ゴフン",
+            6: "ロップン",
+            7: "ナナフン",
+            8: "ハップン",
+            9: "キュウフン",
+            10: "ジュップン",
+            20: "ニジュップン",
+            30: "サンジュップン",
+            40: "ヨンジュップン",
+            50: "ゴジュップン",
+            60: "ロクジュップン",
+            70: "ナナジュップン",
+            80: "ハチジュップン",
+            90: "キュウジュップン",
+        }
+        return special.get(n) or (_jp_number_kana(n) + "フン")
+
+    if counter == "分間":
+        # Mirror "分" assimilation (イップンカン / ジュップンカン etc).
+        return _jp_number_with_counter_kana(n, "分") + "カン"
+
+    if counter == "秒":
+        return _jp_number_kana(n) + "ビョウ"
+
+    if counter == "歳":
+        special = {
+            1: "イッサイ",
+            8: "ハッサイ",
+            10: "ジュッサイ",
+            20: "ニジュッサイ",
+            30: "サンジュッサイ",
+            40: "ヨンジュッサイ",
+            50: "ゴジュッサイ",
+            60: "ロクジュッサイ",
+            70: "ナナジュッサイ",
+            80: "ハチジュッサイ",
+            90: "キュウジュッサイ",
+        }
+        return special.get(n) or (_jp_number_kana(n) + "サイ")
+
+    if counter == "日":
+        special = {
+            1: "イチニチ",
+            2: "フツカ",
+            3: "ミッカ",
+            4: "ヨッカ",
+            5: "イツカ",
+            6: "ムイカ",
+            7: "ナノカ",
+            8: "ヨウカ",
+            9: "ココノカ",
+            10: "トオカ",
+            20: "ハツカ",
+        }
+        return special.get(n) or (_jp_number_kana(n) + "ニチ")
+
+    if counter == "ヶ月":
+        special = {1: "イッカゲツ", 6: "ロッカゲツ", 8: "ハッカゲツ", 10: "ジュッカゲツ"}
+        return special.get(n) or (_jp_number_kana(n) + "カゲツ")
+
+    if counter == "年":
+        if n % 10 == 4:
+            prefix = _jp_number_kana(n - 4) if n >= 4 else ""
+            return (prefix + "ヨネン") if prefix else "ヨネン"
+        return _jp_number_kana(n) + "ネン"
+
+    if counter == "時":
+        special = {0: "レイジ", 4: "ヨジ", 7: "シチジ", 9: "クジ"}
+        if n in special:
+            return special[n]
+        if n % 10 == 4:
+            prefix = _jp_number_kana(n - 4) if n >= 4 else ""
+            return (prefix + "ヨジ") if prefix else "ヨジ"
+        return _jp_number_kana(n) + "ジ"
+
+    if counter == "時間":
+        if n % 10 == 4:
+            prefix = _jp_number_kana(n - 4) if n >= 4 else ""
+            return (prefix + "ヨジカン") if prefix else "ヨジカン"
+        return _jp_number_kana(n) + "ジカン"
+
+    if counter == "円":
+        return _jp_number_kana(n) + "エン"
+
+    if counter == "点":
+        return _jp_number_kana(n) + "テン"
+
+    if counter == "割":
+        return _jp_number_kana(n) + "ワリ"
+
+    if counter in {"%", "パーセント"}:
+        return _jp_number_kana(n) + "パーセント"
+
+    # Fallback
+    return _jp_number_kana(n) + counter
+
+
+def _try_numeric_replacement(tokens: List[Dict[str, object]], i: int) -> Optional[tuple[str, int]]:
+    """Return (replacement, end_index) for numeric token sequences, else None."""
+    try:
+        surface = str(tokens[i].get("surface") or "")
+    except Exception:
+        return None
+    if not surface or not surface.isdigit():
+        return None
+    n = int(surface)
+    n_tokens = len(tokens)
+
+    # Decimal: 0 . 5  -> レイテンゴ (best-effort)
+    if i + 2 < n_tokens:
+        mid = str(tokens[i + 1].get("surface") or "")
+        right = str(tokens[i + 2].get("surface") or "")
+        if mid in {".", "．"} and right.isdigit():
+            left_read = "レイ" if n == 0 else _jp_number_kana(n)
+            return (left_read + "テン" + _jp_number_kana(int(right)), i + 2)
+
+    # Fraction / minute+particle: 100 分の 1 / 30 分の 余白
+    # NOTE: When the RHS is not a number, treat "X分のY" as "X分の(Y)" (= X minutes of Y).
+    if i + 1 < n_tokens and str(tokens[i + 1].get("surface") or "") == "分の":
+        right = str(tokens[i + 2].get("surface") or "") if (i + 2) < n_tokens else ""
+        if right.isdigit():
+            return (_jp_number_kana(n) + "ブンノ" + _jp_number_kana(int(right)), i + 2)
+        return (_jp_number_with_counter_kana(n, "分") + "ノ", i + 1)
+
+    # Range: 2 から 3
+    if i + 2 < n_tokens and str(tokens[i + 1].get("surface") or "") == "から":
+        right = str(tokens[i + 2].get("surface") or "")
+        if right.isdigit():
+            return (_jp_number_kana(n) + "カラ" + _jp_number_kana(int(right)), i + 2)
+
+    # Large units: 100 万 円 / 1600 億 ドル / 20 兆 円
+    if i + 1 < n_tokens and str(tokens[i + 1].get("surface") or "") in {"万", "億", "兆"}:
+        unit = str(tokens[i + 1].get("surface") or "")
+        unit_kana = {"万": "マン", "億": "オク", "兆": "チョウ"}.get(unit, unit)
+        end = i + 1
+        suffix = ""
+        if i + 2 < n_tokens:
+            s2 = str(tokens[i + 2].get("surface") or "")
+            if s2 in {"円", "ドル"}:
+                suffix = "エン" if s2 == "円" else "ドル"
+                end = i + 2
+        return (_jp_number_kana(n) + unit_kana + suffix, end)
+
+    # Simple counter: 94 年 / 9 歳 / 98 パーセント / 10 分間 ...
+    if i + 1 < n_tokens:
+        counter = str(tokens[i + 1].get("surface") or "")
+        if counter:
+            if counter in {
+                "年",
+                "歳",
+                "人",
+                "回",
+                "個",
+                "つ",
+                "分",
+                "分間",
+                "秒",
+                "時間",
+                "時",
+                "日",
+                "ヶ月",
+                "円",
+                "点",
+                "割",
+                "%",
+                "パーセント",
+            }:
+                return (_jp_number_with_counter_kana(n, counter), i + 1)
+
+    # Bare number (fallback): still convert to avoid digits staying in B-text.
+    return (_jp_number_kana(n), i)
+
+
+_KANJI_NUM_DIGITS: dict[str, int] = {
+    "〇": 0,
+    "零": 0,
+    "一": 1,
+    "二": 2,
+    "三": 3,
+    "四": 4,
+    "五": 5,
+    "六": 6,
+    "七": 7,
+    "八": 8,
+    "九": 9,
+}
+_KANJI_NUM_SMALL_UNITS: dict[str, int] = {"十": 10, "百": 100, "千": 1000}
+_KANJI_NUM_BIG_UNITS: dict[str, int] = {"万": 10**4, "億": 10**8, "兆": 10**12}
+_KANJI_NUM_CHARS = set(_KANJI_NUM_DIGITS) | set(_KANJI_NUM_SMALL_UNITS) | set(_KANJI_NUM_BIG_UNITS)
+
+
+def _parse_kanji_number(seq: List[str]) -> Optional[int]:
+    """Parse a Kanji number sequence (tokens) into an int (best-effort)."""
+    if not seq:
+        return None
+    if any(ch not in _KANJI_NUM_CHARS for ch in seq):
+        return None
+
+    total = 0
+    current = 0
+    num = 0
+    for ch in seq:
+        if ch in _KANJI_NUM_DIGITS:
+            num = _KANJI_NUM_DIGITS[ch]
+            continue
+        if ch in _KANJI_NUM_SMALL_UNITS:
+            unit = _KANJI_NUM_SMALL_UNITS[ch]
+            current += (num or 1) * unit
+            num = 0
+            continue
+        if ch in _KANJI_NUM_BIG_UNITS:
+            unit = _KANJI_NUM_BIG_UNITS[ch]
+            current += num
+            num = 0
+            total += (current or 1) * unit
+            current = 0
+            continue
+        return None
+    return total + current + num
+
+
+def _is_kanji_number_token(tok: Dict[str, object]) -> bool:
+    surface = str(tok.get("surface") or "")
+    subpos = str(tok.get("subpos") or "")
+    if subpos != "数":
+        return False
+    if not surface:
+        return False
+    return all(ch in _KANJI_NUM_CHARS for ch in surface)
+
+
+def _try_kanji_numeric_replacement(tokens: List[Dict[str, object]], i: int) -> Optional[tuple[str, int]]:
+    """Return (replacement, end_index) for Kanji-number + counter sequences, else None."""
+    n_tokens = len(tokens)
+    if i < 0 or i >= n_tokens:
+        return None
+    # Avoid converting approximations like "数十万円" into a concrete value.
+    prev_surface = str(tokens[i - 1].get("surface") or "") if i > 0 else ""
+    if prev_surface == "数":
+        return None
+    if not _is_kanji_number_token(tokens[i]):
+        return None
+
+    seq: List[str] = []
+    j = i
+    while j < n_tokens and _is_kanji_number_token(tokens[j]) and len(seq) < 16:
+        seq.append(str(tokens[j].get("surface") or ""))
+        j += 1
+    # Don't treat bare big-units like "万/億/兆" as "一万/一億/一兆".
+    if len(seq) == 1 and seq[0] in _KANJI_NUM_BIG_UNITS:
+        return None
+
+    n_val = _parse_kanji_number(seq)
+    if n_val is None:
+        return None
+
+    if j >= n_tokens:
+        return None
+
+    counter = str(tokens[j].get("surface") or "")
+    if not counter:
+        return None
+
+    # Fraction / minute+particle: 三十 分の 一 / 三十 分の 余白
+    if counter == "分の":
+        # RHS numeric => true fraction
+        if (j + 1) < n_tokens:
+            rhs_surface = str(tokens[j + 1].get("surface") or "")
+            if rhs_surface.isdigit():
+                return (_jp_number_kana(n_val) + "ブンノ" + _jp_number_kana(int(rhs_surface)), j + 1)
+            if _is_kanji_number_token(tokens[j + 1]):
+                rhs_seq: List[str] = []
+                k = j + 1
+                while k < n_tokens and _is_kanji_number_token(tokens[k]) and len(rhs_seq) < 16:
+                    rhs_seq.append(str(tokens[k].get("surface") or ""))
+                    k += 1
+                rhs_val = _parse_kanji_number(rhs_seq)
+                if rhs_val is not None:
+                    return (_jp_number_kana(n_val) + "ブンノ" + _jp_number_kana(rhs_val), k - 1)
+        # Otherwise: treat as minutes + particle "の" (e.g., 三十分の余白)
+        return (_jp_number_with_counter_kana(n_val, "分") + "ノ", j)
+
+    # Simple counters
+    if counter in {
+        "年",
+        "歳",
+        "人",
+        "回",
+        "個",
+        "つ",
+        "分",
+        "分間",
+        "秒",
+        "時間",
+        "時",
+        "日",
+        "ヶ月",
+        "円",
+        "点",
+        "割",
+        "%",
+        "パーセント",
+    }:
+        return (_jp_number_with_counter_kana(n_val, counter), j)
+
+    return None
+
 def _patch_tokens_with_words(
     tokens: List[Dict[str, object]],
     words: Dict[str, str],
@@ -668,7 +1153,164 @@ def _patch_tokens_with_words(
             continue
 
         surface = str(tokens[i].get("surface") or "")
-        parts.append(words.get(surface, surface) if words else surface)
+        # Single-token dictionary replacement
+        if words:
+            direct = words.get(surface)
+            if direct:
+                parts.append(direct)
+                i += 1
+                continue
+
+        # Deterministic numeric normalization (B-text only)
+        numeric = _try_numeric_replacement(tokens, i)
+        if numeric:
+            repl, j = numeric
+            if j >= i and not has_override_in_range(i, j) and all(k not in skip_indices for k in range(i, j + 1)):
+                parts.append(repl)
+                i = j + 1
+                continue
+        kanji_numeric = _try_kanji_numeric_replacement(tokens, i)
+        if kanji_numeric:
+            repl, j = kanji_numeric
+            if j >= i and not has_override_in_range(i, j) and all(k not in skip_indices for k in range(i, j + 1)):
+                parts.append(repl)
+                i = j + 1
+                continue
+
+        # 「十分」は「十分だ(ジュウブン)」と「十分(ジュップン)」が文脈で揺れるため、
+        # 時間用法が強い形だけ B 側で確定（Aは不変）。
+        if surface == "十分":
+            prev_surface = str(tokens[i - 1].get("surface") or "") if i > 0 else ""
+            prev_prev_surface = str(tokens[i - 2].get("surface") or "") if i > 1 else ""
+            next_surface = str(tokens[i + 1].get("surface") or "") if (i + 1) < n else ""
+            # Examples:
+            # - 時間に十分を加える / 十分後 / 十分間(は別tokenだが保険)
+            if next_surface in {"を", "後", "間", "だけ", "ほど", "くらい"}:
+                parts.append("ジュップン")
+                i += 1
+                continue
+            # - 毎日の十分が続く（毎日の + 十分 + が）
+            if prev_surface == "の" and prev_prev_surface in {"毎日", "毎朝", "毎晩"} and next_surface == "が":
+                parts.append("ジュップン")
+                i += 1
+                continue
+
+        # Deterministic 1-char Kanji fixes (only when token is standalone + MeCab reading indicates on-yomi)
+        # Avoid global dict for 1-char surfaces (banned); keep it in code with conservative guards.
+        reading_mecab = str(tokens[i].get("reading_mecab") or "")
+        subpos = str(tokens[i].get("subpos") or "")
+        prev_surface = str(tokens[i - 1].get("surface") or "") if i > 0 else ""
+        next_surface = str(tokens[i + 1].get("surface") or "") if (i + 1) < n else ""
+        next_base = str(tokens[i + 1].get("base") or "") if (i + 1) < n else ""
+        if surface == "何" and ((i + 1) < n) and (next_surface.isdigit() or _is_kanji_number_token(tokens[i + 1])):
+            parts.append("ナン")
+            i += 1
+            continue
+        # "行った/行って" は文脈で「イッ(た)」「オコナッ(た)」が分かれるため、
+        # MeCab が既に「オコナッ」を返している場合はそれを優先して VOICEVOX にも強制する。
+        if surface == "行っ" and reading_mecab == "オコナッ":
+            parts.append("オコナッ")
+            i += 1
+            continue
+        # 「一行(イッコウ)」は「一行書く(イチギョウ)」文脈で誤読しやすいので、
+        # 書く系の直後に限り「イチギョウ」に寄せる（「一行が進む」等は除外）。
+        if surface == "一行" and reading_mecab == "イッコウ" and next_base == "書く":
+            parts.append("イチギョウ")
+            i += 1
+            continue
+        # 「心」は直前がカタカナ等だと MeCab が「シン」になりがち（例: ドウシテ心を…）。
+        # 「好奇心」などの名詞+接尾は「シン」を維持し、それ以外は「ココロ」に寄せる。
+        prev_pos = str(tokens[i - 1].get("pos") or "") if i > 0 else ""
+        if surface == "心" and next_surface in {"を", "が", "に", "で", "は", "も", "の", "と", "という", "って", "、", "。"}:
+            if subpos != "接尾" or prev_pos != "名詞":
+                parts.append("ココロ")
+                i += 1
+                continue
+        # 「体」は直前がカタカナ等だと MeCab が「タイ」になりがち（例: カレノ体は…）。
+        # 接尾（身体能力など）は除外しつつ、語としての「体」は「カラダ」に寄せる。
+        if surface == "体" and subpos != "接尾" and next_surface in {"が", "を", "に", "で", "は", "も", "、", "。"}:
+            parts.append("カラダ")
+            i += 1
+            continue
+        if (
+            surface == "後"
+            and prev_surface != "年"  # keep "10年後" -> ゴ
+            and reading_mecab in {"ノチ", "ゴ"}
+            and next_surface in {"", "、", "。", "に", "の", "は", "を", "が", "で", "も", "から"}
+        ):
+            parts.append("アト")
+            i += 1
+            continue
+        if surface == "間" and prev_surface == "ヶ月" and next_surface in {"", "、", "。", "に", "の", "は", "を", "が", "で", "も"}:
+            parts.append("カン")
+            i += 1
+            continue
+        if surface == "間" and reading_mecab == "マ" and next_surface in {"だけ", "、", "。", "に", "は", "を", "が", "で", "も", "から"}:
+            parts.append("アイダ")
+            i += 1
+            continue
+        if surface == "水" and reading_mecab == "スイ":
+            parts.append("ミズ")
+            i += 1
+            continue
+        if surface == "土" and reading_mecab == "ド":
+            parts.append("ツチ")
+            i += 1
+            continue
+        if (
+            surface == "君"
+            and next_surface in {"に", "の", "は", "が", "を", "も", "へ", "と", "という", "って"}
+        ):
+            prev_pos = str(tokens[i - 1].get("pos") or "") if i > 0 else ""
+            prev_subpos = str(tokens[i - 1].get("subpos") or "") if i > 0 else ""
+            prev_is_name = prev_pos == "名詞" and prev_subpos in {"固有名詞", "人名"}
+            if not prev_is_name:
+                parts.append("キミ")
+                i += 1
+                continue
+        if surface == "獣" and reading_mecab == "シシ":
+            parts.append("ケモノ")
+            i += 1
+            continue
+        if surface == "暇" and next_surface in {"が", "を", "に", "で", "は", "も", "など", "、", "。"}:
+            parts.append("ヒマ")
+            i += 1
+            continue
+        if surface == "隙" and reading_mecab == "ヒマ":
+            parts.append("スキ")
+            i += 1
+            continue
+        if surface == "芥" and reading_mecab == "ゴミ":
+            parts.append("アクタ")
+            i += 1
+            continue
+        if surface == "怒" and reading_mecab == "イカ" and next_surface == "」":
+            parts.append("イカリ")
+            i += 1
+            continue
+        if surface == "虚" and reading_mecab == "ウロ":
+            parts.append("キョ")
+            i += 1
+            continue
+        # 「鏡」は前後の文脈で MeCab の読みが揺れやすい（例: 心の鏡→カガミ / ココロノ鏡→キョウ）。
+        # 1文字surfaceは辞書キーにできないため、語として単独で出た場合は決定的に「カガミ」へ寄せる。
+        if surface == "鏡" and next_surface in {"が", "を", "に", "で", "は", "も", "、", "。", "だ", "です", "だった", "でした"}:
+            parts.append("カガミ")
+            i += 1
+            continue
+        if surface == "証" and reading_mecab == "アカシ" and next_surface in {"か", "かも", "が", "を", "に", "は", "も", "、", "。"}:
+            parts.append("アカシ")
+            i += 1
+            continue
+
+        # ASCII token fallback (for cases not covered by channel dict)
+        ascii_kana = _ascii_token_to_kana(surface)
+        if ascii_kana:
+            parts.append(ascii_kana)
+            i += 1
+            continue
+
+        parts.append(surface)
         i += 1
 
     return "".join(parts)
@@ -702,20 +1344,26 @@ def resolve_readings_strict(
 
     # 1. 辞書ロード（グローバル + チャンネル固有 + ローカル + Voicepeak SoT）
     kb = WordDictionary(KB_PATH)
-    try:
-        kb.words.update(_load_voicepeak_repo_dict_words())
-    except Exception:
-        pass
-    try:
-        # Local Voicepeak dict overrides repo dict (user's manual corrections win).
-        kb.words.update(_load_voicepeak_local_dict_words())
-    except Exception:
-        pass
-    try:
-        # Also respect the user's Voicepeak user.csv (often the main place GUI-edits land).
-        kb.words.update(_load_voicepeak_local_user_csv_words())
-    except Exception:
-        pass
+    # IMPORTANT:
+    # - VOICEVOX: Do NOT import Voicepeak local dictionaries (they are machine-local state and can
+    #   silently change B-text, hurting reproducibility and causing ambiguous-surface accidents).
+    # - VOICEPEAK: Import repo/local Voicepeak dicts for better stability, but keep them filtered
+    #   by is_banned_surface/is_safe_reading.
+    if engine == "voicepeak":
+        try:
+            kb.words.update(_load_voicepeak_repo_dict_words())
+        except Exception:
+            pass
+        try:
+            # Local Voicepeak dict overrides repo dict (user's manual corrections win).
+            kb.words.update(_load_voicepeak_local_dict_words())
+        except Exception:
+            pass
+        try:
+            # Also respect the user's Voicepeak user.csv (often the main place GUI-edits land).
+            kb.words.update(_load_voicepeak_local_user_csv_words())
+        except Exception:
+            pass
     channel_dict = load_channel_reading_dict(channel) if channel else {}
     if channel_dict:
         kb.words.update(export_words_for_word_dict(channel_dict))

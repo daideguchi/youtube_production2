@@ -312,6 +312,52 @@ def _ops_force_llm_mode() -> str | None:
     # Force mode for this `./ops` invocation (set by `./ops think|api|codex ...`).
     return _normalize_llm_mode(os.getenv("YTM_OPS_FORCE_LLM"))
 
+def _ops_force_exec_slot() -> int | None:
+    """
+    Optional exec-slot override for *this ops invocation* (advanced).
+
+    Motivation:
+    - Default behavior maps `--llm api|think|codex` to exec-slot (0/3/1).
+    - Operators sometimes need to pin an exec-slot for a one-off run without editing configs
+      or exporting env vars globally.
+
+    Note:
+    - This is an ops wrapper feature; it only affects processes spawned by `./ops`.
+    - Script pipeline remains API-only and ignores this override (policy).
+    """
+    raw = (os.getenv("YTM_OPS_FORCE_EXEC_SLOT") or "").strip()
+    if not raw:
+        return None
+    try:
+        return max(0, int(raw))
+    except Exception:
+        return None
+
+
+def _apply_ops_runtime_overrides(args: argparse.Namespace) -> None:
+    """
+    Apply *per-run* override knobs for ops_cli itself.
+
+    This is intentionally env-backed so wrapper commands (`./ops api|think|codex ...`) re-exec
+    with the same overrides without needing to forward flags.
+    """
+    llm_slot = getattr(args, "llm_slot", None)
+    if llm_slot is not None:
+        try:
+            os.environ["LLM_MODEL_SLOT"] = str(max(0, int(llm_slot)))
+        except Exception:
+            raise SystemExit(f"invalid --llm-slot: {llm_slot!r} (expected int)")
+
+    exec_slot = getattr(args, "exec_slot", None)
+    if exec_slot is not None:
+        try:
+            os.environ["YTM_OPS_FORCE_EXEC_SLOT"] = str(max(0, int(exec_slot)))
+        except Exception:
+            raise SystemExit(f"invalid --exec-slot: {exec_slot!r} (expected int)")
+
+    if bool(getattr(args, "emergency_override", False)):
+        os.environ["YTM_EMERGENCY_OVERRIDE"] = "1"
+
 
 def _ops_default_llm_mode() -> str:
     # Default mode when a command doesn't pass `--llm`.
@@ -622,6 +668,7 @@ def _maybe_print_ops_tips(args: argparse.Namespace, *, llm: str, exec_slot: int 
     lockdown = _routing_lockdown_on()
     lockdown_label = "ON" if lockdown is True else ("OFF" if lockdown is False else "-")
     slot_label = str(exec_slot) if exec_slot is not None else "-"
+    emergency_tag = " emergency_override=ON" if _env_truthy("YTM_EMERGENCY_OVERRIDE") else ""
 
     # Wrapper commands: keep it short (they re-invoke ops).
     if cmd in {"think", "api", "codex"}:
@@ -632,7 +679,10 @@ def _maybe_print_ops_tips(args: argparse.Namespace, *, llm: str, exec_slot: int 
     mode_tag = eff.upper() if eff else "-"
     forced_tag = f" forced={forced}" if forced else ""
     default_tag = f" default={default_env}" if default_env else ""
-    print(f"[ops] run_id={run_id} mode={mode_tag} exec_slot={slot_label} lockdown={lockdown_label}{forced_tag}{default_tag}", file=sys.stderr)
+    print(
+        f"[ops] run_id={run_id} mode={mode_tag} exec_slot={slot_label} lockdown={lockdown_label}{emergency_tag}{forced_tag}{default_tag}",
+        file=sys.stderr,
+    )
 
     # Decide whether this command is expected to invoke LLM routing (and thus spend / queue).
     llm_expected = False
@@ -1031,6 +1081,9 @@ def _run_with_llm_mode(llm: str, inner_cmd: List[str]) -> int:
     llm = _apply_forced_llm(llm)
     if llm == "think":
         return _run_think(inner_cmd)
+    forced_exec_slot = _ops_force_exec_slot()
+    if forced_exec_slot is not None:
+        return _run(inner_cmd, env=_env_with_llm_exec_slot(forced_exec_slot))
     slot = _llm_mode_slot(llm)
     return _run(inner_cmd, env=_env_with_llm_exec_slot(slot))
 
@@ -1050,8 +1103,11 @@ def cmd_script(args: argparse.Namespace) -> int:
         print("- rule: 台本（script_*）は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。", file=sys.stderr)
         print("- action: rerun with `./ops api script ...` (or `--llm api`)", file=sys.stderr)
         return 2
+    # Policy: never run the script pipeline with an ops-level exec-slot override.
+    if _ops_force_exec_slot() not in (None, 0):
+        print("[ops] NOTE: ignoring --exec-slot for script pipeline (API-only; exec_slot forced to 0).", file=sys.stderr)
     inner = ["python3", "scripts/ops/script_runbook.py", args.mode, *args.args]
-    return _run_with_llm_mode(llm, inner)
+    return _run(inner, env=_env_with_llm_exec_slot(0))
 
 
 def cmd_audio(args: argparse.Namespace) -> int:
@@ -1602,8 +1658,10 @@ def cmd_resume(args: argparse.Namespace) -> int:
             print("- rule: 台本（script_*）は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。", file=sys.stderr)
             print("- action: rerun with `./ops api resume script ...` (or add `--llm api`)", file=sys.stderr)
             return 2
+        if _ops_force_exec_slot() not in (None, 0):
+            print("[ops] NOTE: ignoring --exec-slot for script pipeline (API-only; exec_slot forced to 0).", file=sys.stderr)
         inner = ["python3", "scripts/ops/script_runbook.py", "resume", *forwarded]
-        return _run_with_llm_mode(eff, inner)
+        return _run(inner, env=_env_with_llm_exec_slot(0))
 
     if target == "audio":
         inner = ["python3", "-m", "script_pipeline.cli", "audio", *forwarded]
@@ -1873,6 +1931,26 @@ def cmd_ssot(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="ops", description="Unified operator entrypoint (P0 launcher)")
+    p.add_argument(
+        "--llm-slot",
+        dest="llm_slot",
+        type=int,
+        default=None,
+        help="Set LLM_MODEL_SLOT for this ops run (numeric model slot).",
+    )
+    p.add_argument(
+        "--exec-slot",
+        dest="exec_slot",
+        type=int,
+        default=None,
+        help="Override exec-slot for this ops run (advanced; prefer ./ops api|think|codex).",
+    )
+    p.add_argument(
+        "--emergency-override",
+        dest="emergency_override",
+        action="store_true",
+        help="Set YTM_EMERGENCY_OVERRIDE=1 for this ops run (debug only).",
+    )
     sub = p.add_subparsers(dest="cmd", required=True)
 
     sp = sub.add_parser("list", help="show P0 entrypoints")
@@ -2057,6 +2135,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    _apply_ops_runtime_overrides(args)
 
     run_id = _new_run_id()
     llm = _llm_mode_from_args(args) or _llm_mode_from_argv(list(sys.argv[1:]))
@@ -2068,6 +2147,13 @@ def main(argv: Optional[List[str]] = None) -> int:
         llm = _ops_default_llm_mode()
     llm = _apply_forced_llm(llm)
     exec_slot = _exec_slot_for_llm(llm)
+    # ops-level exec-slot override (advanced) — do not apply to script pipeline (API-only policy).
+    is_script_pipeline = cmd_name == "script" or (
+        cmd_name == "resume" and str(getattr(args, "target", "") or "").strip().lower() == "script"
+    )
+    forced_exec_slot = _ops_force_exec_slot()
+    if forced_exec_slot is not None and llm != "think" and not is_script_pipeline:
+        exec_slot = forced_exec_slot
     op = _op_from_args(args)
     episode = _extract_episode_from_argv(list(sys.argv[1:]))
     git = _git_info()
@@ -2089,6 +2175,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "op": op,
             "llm": llm,
             "exec_slot": exec_slot,
+            "exec_slot_override": forced_exec_slot,
             "episode": episode,
             "git": git,
             "actor": actor,
@@ -2125,6 +2212,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             "op": op,
             "llm": llm,
             "exec_slot": exec_slot,
+            "exec_slot_override": forced_exec_slot,
             "episode": episode,
             "git": git,
             "actor": actor,

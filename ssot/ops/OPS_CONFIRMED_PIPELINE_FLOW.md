@@ -236,6 +236,13 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - Script品質ゲート（推奨=主線の安全ガード）:
     - `workspaces/scripts/{CH}/{NNN}/status.json: stages.script_validation.status == "completed"`
     - `run_tts` / `script_pipeline.cli audio` は未完了なら停止（例外が必要な場合のみ `--allow-unvalidated`）
+  - **読みアノテーション/誤読ゼロ（固定ルール）**:
+    - **Aテキスト（台本/表示SoT）は原則変更しない**（TTS目的で触らない）。
+    - 読み注釈が混入している場合（例: `刈羽郡、かりわぐん` / `大河内正敏（おおこうちまさとし）`）は **B生成で重複部分のみ決定的に除去**し、辞書/overrideで読みを固定する。
+    - 数字/英字も **B側で決定的にカナ化**して MeCab/VOICEVOX の読みを一致させる（局所辞書の無限増殖を防ぐ）。
+    - 推奨運用: まず `--prepass`（wav生成なし）で mismatch=0 を確認 → その後に合成へ。
+      - 詳細runbook: `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md`
+      - チャンネル一括: `python3 scripts/batch_regenerate_tts.py --channel CHxx --prepass --skip-tts-reading --min-video 1 --max-video 30`
   - **出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
     - 禁止例: `([戦国ヒストリー][13])` / `[13]` / `https://...` / `Wikipedia/ウィキペディア` を出典として直接書く表現
     - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する

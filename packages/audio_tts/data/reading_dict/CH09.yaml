@@ -1,0 +1,935 @@
+Happiness:
+  accent_moras: null
+  reading_hira: ハピネス
+  reading_kana: ハピネス
+  source: manual
+LINE:
+  accent_moras: null
+  reading_hira: ライン
+  reading_kana: ライン
+  source: manual
+Lose:
+  accent_moras: null
+  reading_hira: ルーズ
+  reading_kana: ルーズ
+  source: manual
+"OFF":
+  accent_moras: null
+  reading_hira: オフ
+  reading_kana: オフ
+  source: manual
+Peace:
+  accent_moras: null
+  reading_hira: ピース
+  reading_kana: ピース
+  source: manual
+Prosperity:
+  accent_moras: null
+  reading_hira: プロスペリティ
+  reading_kana: プロスペリティ
+  source: manual
+Use:
+  accent_moras: null
+  reading_hira: ユーズ
+  reading_kana: ユーズ
+  source: manual
+and:
+  accent_moras: null
+  reading_hira: アンド
+  reading_kana: アンド
+  source: manual
+currency:
+  accent_moras: null
+  reading_hira: カレンシー
+  reading_kana: カレンシー
+  source: manual
+it:
+  accent_moras: null
+  reading_hira: イット
+  reading_kana: イット
+  source: manual
+or:
+  accent_moras: null
+  reading_hira: オア
+  reading_kana: オア
+  source: manual
+through:
+  accent_moras: null
+  reading_hira: スルー
+  reading_kana: スルー
+  source: manual
+夜更かし:
+  accent_moras: null
+  reading_hira: ヨフカシ
+  reading_kana: ヨフカシ
+  source: manual
+大間違い:
+  accent_moras: null
+  reading_hira: オオマチガイ
+  reading_kana: オオマチガイ
+  source: manual
+種蒔き:
+  accent_moras: null
+  reading_hira: タネマキ
+  reading_kana: タネマキ
+  source: manual
+種蒔きが:
+  accent_moras: null
+  reading_hira: タネマキガ
+  reading_kana: タネマキガ
+  source: manual
+焦る:
+  accent_moras: null
+  reading_hira: アセル
+  reading_kana: アセル
+  source: manual
+性根:
+  accent_moras: null
+  reading_hira: ショウネ
+  reading_kana: ショウネ
+  source: manual
+妬み:
+  accent_moras: null
+  reading_hira: ネタミ
+  reading_kana: ネタミ
+  source: manual
+歪ん:
+  accent_moras: null
+  reading_hira: ユガン
+  reading_kana: ユガン
+  source: manual
+演台:
+  accent_moras: null
+  reading_hira: エンダイ
+  reading_kana: エンダイ
+  source: manual
+汚れる:
+  accent_moras: null
+  reading_hira: ヨゴレル
+  reading_kana: ヨゴレル
+  source: manual
+一粒:
+  accent_moras: null
+  reading_hira: ヒトツブ
+  reading_kana: ヒトツブ
+  source: manual
+人たち:
+  accent_moras: null
+  reading_hira: ヒトタチ
+  reading_kana: ヒトタチ
+  source: manual
+十個目:
+  accent_moras: null
+  reading_hira: ジュッコメ
+  reading_kana: ジュッコメ
+  source: manual
+いうて:
+  accent_moras: null
+  reading_hira: ユウテ
+  reading_kana: ユウテ
+  source: manual
+鈍らせ:
+  accent_moras: null
+  reading_hira: ニブラセ
+  reading_kana: ニブラセ
+  source: manual
+怒り:
+  accent_moras: null
+  reading_hira: イカリ
+  reading_kana: イカリ
+  source: manual
+三方よし:
+  accent_moras: null
+  reading_hira: サンポウヨシ
+  reading_kana: サンポウヨシ
+  source: manual
+大海原:
+  accent_moras: null
+  reading_hira: オオウナバラ
+  reading_kana: オオウナバラ
+  source: manual
+賢さ:
+  accent_moras: null
+  reading_hira: カシコサ
+  reading_kana: カシコサ
+  source: manual
+あっという間:
+  accent_moras: null
+  reading_hira: アットイウマ
+  reading_kana: アットイウマ
+  source: manual
+断って:
+  accent_moras: null
+  reading_hira: コトワッテ
+  reading_kana: コトワッテ
+  source: manual
+埋めよう:
+  accent_moras: null
+  reading_hira: ウメヨウ
+  reading_kana: ウメヨウ
+  source: manual
+何物:
+  accent_moras: null
+  reading_hira: ナニモノ
+  reading_kana: ナニモノ
+  source: manual
+漏れ口:
+  accent_moras: null
+  reading_hira: モレグチ
+  reading_kana: モレグチ
+  source: manual
+一匹:
+  accent_moras: null
+  reading_hira: イッピキ
+  reading_kana: イッピキ
+  source: manual
+他に:
+  accent_moras: null
+  reading_hira: ホカニ
+  reading_kana: ホカニ
+  source: manual
+大勢:
+  accent_moras: null
+  reading_hira: オオゼイ
+  reading_kana: オオゼイ
+  source: manual
+いい人:
+  accent_moras: null
+  reading_hira: イイヒト
+  reading_kana: イイヒト
+  source: manual
+妬まれる:
+  accent_moras: null
+  reading_hira: ネタマレル
+  reading_kana: ネタマレル
+  source: manual
+一本:
+  accent_moras: null
+  reading_hira: イッポン
+  reading_kana: イッポン
+  source: manual
+垂れる:
+  accent_moras: null
+  reading_hira: タレル
+  reading_kana: タレル
+  source: manual
+黄金郷:
+  accent_moras: null
+  reading_hira: オウゴンキョウ
+  reading_kana: オウゴンキョウ
+  source: manual
+の中に:
+  accent_moras: null
+  reading_hira: ノナカニ
+  reading_kana: ノナカニ
+  source: manual
+に行って:
+  accent_moras: null
+  reading_hira: ニイッテ
+  reading_kana: ニイッテ
+  source: manual
+彼の中に:
+  accent_moras: null
+  reading_hira: カレノナカニ
+  reading_kana: カレノナカニ
+  source: manual
+甘かった:
+  accent_moras: null
+  reading_hira: アマカッタ
+  reading_kana: アマカッタ
+  source: manual
+叩き割る:
+  accent_moras: null
+  reading_hira: ハタキワル
+  reading_kana: ハタキワル
+  source: manual
+断捨離:
+  accent_moras: null
+  reading_hira: ダンシャリ
+  reading_kana: ダンシャリ
+  source: manual
+出せ:
+  accent_moras: null
+  reading_hira: ダセ
+  reading_kana: ダセ
+  source: manual
+酒を:
+  accent_moras: null
+  reading_hira: サケオ
+  reading_kana: サケオ
+  source: manual
+用済み:
+  accent_moras: null
+  reading_hira: ヨウズミ
+  reading_kana: ヨウズミ
+  source: manual
+筋トレ:
+  accent_moras: null
+  reading_hira: キントレ
+  reading_kana: キントレ
+  source: manual
+来られた:
+  accent_moras: null
+  reading_hira: コラレタ
+  reading_kana: コラレタ
+  source: manual
+癒やす:
+  accent_moras: null
+  reading_hira: イヤス
+  reading_kana: イヤス
+  source: manual
+漏洩源:
+  accent_moras: null
+  reading_hira: ロウエイゲン
+  reading_kana: ロウエイゲン
+  source: manual
+変われる:
+  accent_moras: null
+  reading_hira: カワレル
+  reading_kana: カワレル
+  source: manual
+一目置かれる:
+  accent_moras: null
+  reading_hira: イチモクオカレル
+  reading_kana: イチモクオカレル
+  source: manual
+入ろう:
+  accent_moras: null
+  reading_hira: ハイロウ
+  reading_kana: ハイロウ
+  source: manual
+数時間:
+  accent_moras: null
+  reading_hira: スウジカン
+  reading_kana: スウジカン
+  source: manual
+心の:
+  accent_moras: null
+  reading_hira: ココロノ
+  reading_kana: ココロノ
+  source: manual
+妬んで:
+  accent_moras: null
+  reading_hira: ネタンデ
+  reading_kana: ネタンデ
+  source: manual
+辛くなかった:
+  accent_moras: null
+  reading_hira: ツラクナカッタ
+  reading_kana: ツラクナカッタ
+  source: manual
+雨が:
+  accent_moras: null
+  reading_hira: アメガ
+  reading_kana: アメガ
+  source: manual
+石が:
+  accent_moras: null
+  reading_hira: イシガ
+  reading_kana: イシガ
+  source: manual
+癒やせ:
+  accent_moras: null
+  reading_hira: イヤセ
+  reading_kana: イヤセ
+  source: manual
+水底:
+  accent_moras: null
+  reading_hira: ミナソコ
+  reading_kana: ミナソコ
+  source: manual
+並走:
+  accent_moras: null
+  reading_hira: ヘイソウ
+  reading_kana: ヘイソウ
+  source: manual
+へぇ:
+  accent_moras: null
+  reading_hira: ヘエ
+  reading_kana: ヘエ
+  source: manual
+一回:
+  accent_moras: null
+  reading_hira: イッカイ
+  reading_kana: イッカイ
+  source: manual
+清き:
+  accent_moras: null
+  reading_hira: キヨキ
+  reading_kana: キヨキ
+  source: manual
+犬を:
+  accent_moras: null
+  reading_hira: イヌオ
+  reading_kana: イヌオ
+  source: manual
+砂金:
+  accent_moras: null
+  reading_hira: サキン
+  reading_kana: サキン
+  source: manual
+いい店:
+  accent_moras: null
+  reading_hira: イイミセ
+  reading_kana: イイミセ
+  source: manual
+楽して:
+  accent_moras: null
+  reading_hira: ラクシテ
+  reading_kana: ラクシテ
+  source: manual
+波が:
+  accent_moras: null
+  reading_hira: ナミガ
+  reading_kana: ナミガ
+  source: manual
+一発:
+  accent_moras: null
+  reading_hira: イッパツ
+  reading_kana: イッパツ
+  source: manual
+逃げ癖:
+  accent_moras: null
+  reading_hira: ニゲグセ
+  reading_kana: ニゲグセ
+  source: manual
+船に:
+  accent_moras: null
+  reading_hira: フネニ
+  reading_kana: フネニ
+  source: manual
+船を:
+  accent_moras: null
+  reading_hira: フネオ
+  reading_kana: フネオ
+  source: manual
+引き波:
+  accent_moras: null
+  reading_hira: ヒキナミ
+  reading_kana: ヒキナミ
+  source: manual
+貯金通帳:
+  accent_moras: null
+  reading_hira: チョキンツウチョウ
+  reading_kana: チョキンツウチョウ
+  source: manual
+乗って:
+  accent_moras: null
+  reading_hira: ノッテ
+  reading_kana: ノッテ
+  source: manual
+幅寄せ:
+  accent_moras: null
+  reading_hira: ハバヨセ
+  reading_kana: ハバヨセ
+  source: manual
+不動心:
+  accent_moras: null
+  reading_hira: フドウシン
+  reading_kana: フドウシン
+  source: manual
+時が来れば:
+  accent_moras: null
+  reading_hira: トキガクレバ
+  reading_kana: トキガクレバ
+  source: manual
+強者:
+  accent_moras: null
+  reading_hira: キョウシャ
+  reading_kana: キョウシャ
+  source: manual
+捨て場:
+  accent_moras: null
+  reading_hira: ステバ
+  reading_kana: ステバ
+  source: manual
+行ってはいけない:
+  accent_moras: null
+  reading_hira: イッテワイケナイ
+  reading_kana: イッテワイケナイ
+  source: manual
+園主:
+  accent_moras: null
+  reading_hira: エンシュ
+  reading_kana: エンシュ
+  source: manual
+なぁ:
+  accent_moras: null
+  reading_hira: ナア
+  reading_kana: ナア
+  source: manual
+後に:
+  accent_moras: null
+  reading_hira: アトニ
+  reading_kana: アトニ
+  source: manual
+神輿:
+  accent_moras: null
+  reading_hira: ミコシ
+  reading_kana: ミコシ
+  source: manual
+三日間:
+  accent_moras: null
+  reading_hira: ミッカカン
+  reading_kana: ミッカカン
+  source: manual
+一切:
+  accent_moras: null
+  reading_hira: イッサイ
+  reading_kana: イッサイ
+  source: manual
+出そう:
+  accent_moras: null
+  reading_hira: デソウ
+  reading_kana: デソウ
+  source: manual
+二日目:
+  accent_moras: null
+  reading_hira: フツカメ
+  reading_kana: フツカメ
+  source: manual
+鈍る:
+  accent_moras: null
+  reading_hira: ニブル
+  reading_kana: ニブル
+  source: manual
+認めろ:
+  accent_moras: null
+  reading_hira: ミトメロ
+  reading_kana: ミトメロ
+  source: manual
+癒やし:
+  accent_moras: null
+  reading_hira: イヤシ
+  reading_kana: イヤシ
+  source: manual
+留め金:
+  accent_moras: null
+  reading_hira: トメガネ
+  reading_kana: トメガネ
+  source: manual
+鄧小平:
+  accent_moras: null
+  reading_hira: トウショウヘイ
+  reading_kana: トウショウヘイ
+  source: manual
+六本目:
+  accent_moras: null
+  reading_hira: ロッポンメ
+  reading_kana: ロッポンメ
+  source: manual
+八本目:
+  accent_moras: null
+  reading_hira: ハッポンメ
+  reading_kana: ハッポンメ
+  source: manual
+十本目:
+  accent_moras: null
+  reading_hira: ジュッポンメ
+  reading_kana: ジュッポンメ
+  source: manual
+十六本目:
+  accent_moras: null
+  reading_hira: ジュウロッポンメ
+  reading_kana: ジュウロッポンメ
+  source: manual
+十八本目:
+  accent_moras: null
+  reading_hira: ジュウハッポンメ
+  reading_kana: ジュウハッポンメ
+  source: manual
+名誉欲:
+  accent_moras: null
+  reading_hira: メイヨヨク
+  reading_kana: メイヨヨク
+  source: manual
+支配欲:
+  accent_moras: null
+  reading_hira: シハイヨク
+  reading_kana: シハイヨク
+  source: manual
+正しく:
+  accent_moras: null
+  reading_hira: タダシク
+  reading_kana: タダシク
+  source: manual
+可愛げ:
+  accent_moras: null
+  reading_hira: カワイゲ
+  reading_kana: カワイゲ
+  source: manual
+コントロール欲:
+  accent_moras: null
+  reading_hira: コントロールヨク
+  reading_kana: コントロールヨク
+  source: manual
+通帳:
+  accent_moras: null
+  reading_hira: ツウチョウ
+  reading_kana: ツウチョウ
+  source: manual
+死に金:
+  accent_moras: null
+  reading_hira: シニガネ
+  reading_kana: シニガネ
+  source: manual
+生き金:
+  accent_moras: null
+  reading_hira: イキガネ
+  reading_kana: イキガネ
+  source: manual
+真正面:
+  accent_moras: null
+  reading_hira: マショウメン
+  reading_kana: マショウメン
+  source: manual
+井植:
+  accent_moras: null
+  reading_hira: イウエ
+  reading_kana: イウエ
+  source: manual
+急がば回れ:
+  accent_moras: null
+  reading_hira: イソガバマワレ
+  reading_kana: イソガバマワレ
+  source: manual
+'「生」':
+  accent_moras: null
+  reading_hira: セイ
+  reading_kana: セイ
+  source: manual
+一口一口:
+  accent_moras: null
+  reading_hira: ヒトクチヒトクチ
+  reading_kana: ヒトクチヒトクチ
+  source: manual
+我にも:
+  accent_moras: null
+  reading_hira: ワレニモ
+  reading_kana: ワレニモ
+  source: manual
+美と:
+  accent_moras: null
+  reading_hira: ビト
+  reading_kana: ビト
+  source: manual
+寝室:
+  accent_moras: null
+  reading_hira: シンシツ
+  reading_kana: シンシツ
+  source: manual
+烏枢沙摩明王:
+  accent_moras: null
+  reading_hira: ウスサマミョウオウ
+  reading_kana: ウスサマミョウオウ
+  source: manual
+東司:
+  accent_moras: null
+  reading_hira: トウス
+  reading_kana: トウス
+  source: manual
+サボり癖:
+  accent_moras: null
+  reading_hira: サボリグセ
+  reading_kana: サボリグセ
+  source: manual
+金運:
+  accent_moras: null
+  reading_hira: キンウン
+  reading_kana: キンウン
+  source: manual
+床や:
+  accent_moras: null
+  reading_hira: ユカヤ
+  reading_kana: ユカヤ
+  source: manual
+脚下照顧:
+  accent_moras: null
+  reading_hira: キャッカショウコ
+  reading_kana: キャッカショウコ
+  source: manual
+厄の:
+  accent_moras: null
+  reading_hira: ヤクノ
+  reading_kana: ヤクノ
+  source: manual
+細やかさ:
+  accent_moras: null
+  reading_hira: コマヤカサ
+  reading_kana: コマヤカサ
+  source: manual
+後工程:
+  accent_moras: null
+  reading_hira: アトコウテイ
+  reading_kana: アトコウテイ
+  source: manual
+米にも:
+  accent_moras: null
+  reading_hira: コメニモ
+  reading_kana: コメニモ
+  source: manual
+馬鹿者:
+  accent_moras: null
+  reading_hira: バカモノ
+  reading_kana: バカモノ
+  source: manual
+漏洩:
+  accent_moras: null
+  reading_hira: ロウエイ
+  reading_kana: ロウエイ
+  source: manual
+居所:
+  accent_moras: null
+  reading_hira: イドコロ
+  reading_kana: イドコロ
+  source: manual
+労る:
+  accent_moras: null
+  reading_hira: イタワル
+  reading_kana: イタワル
+  source: manual
+好奇心:
+  accent_moras: null
+  reading_hira: コウキシン
+  reading_kana: コウキシン
+  source: manual
+瑞々:
+  accent_moras: null
+  reading_hira: ミズミズ
+  reading_kana: ミズミズ
+  source: manual
+緑色:
+  accent_moras: null
+  reading_hira: ミドリイロ
+  reading_kana: ミドリイロ
+  source: manual
+延々と:
+  accent_moras: null
+  reading_hira: エンエント
+  reading_kana: エンエント
+  source: manual
+楽そう:
+  accent_moras: null
+  reading_hira: ラクソウ
+  reading_kana: ラクソウ
+  source: manual
+感嘆詞:
+  accent_moras: null
+  reading_hira: カンタンシ
+  reading_kana: カンタンシ
+  source: manual
+守り:
+  accent_moras: null
+  reading_hira: マモリ
+  reading_kana: マモリ
+  source: manual
+劉備玄徳:
+  accent_moras: null
+  reading_hira: リュウビゲントク
+  reading_kana: リュウビゲントク
+  source: manual
+'戯、たわむれて':
+  accent_moras: null
+  reading_hira: タワムレテ
+  reading_kana: タワムレテ
+  source: manual
+一文字一文字:
+  accent_moras: null
+  reading_hira: ヒトモジヒトモジ
+  reading_kana: ヒトモジヒトモジ
+  source: manual
+青魚:
+  accent_moras: null
+  reading_hira: アオザカナ
+  reading_kana: アオザカナ
+  source: manual
+血流:
+  accent_moras: null
+  reading_hira: ケツリュウ
+  reading_kana: ケツリュウ
+  source: manual
+真っ只中:
+  accent_moras: null
+  reading_hira: マッタダナカ
+  reading_kana: マッタダナカ
+  source: manual
+良し悪し:
+  accent_moras: null
+  reading_hira: ヨシアシ
+  reading_kana: ヨシアシ
+  source: manual
+順風満帆:
+  accent_moras: null
+  reading_hira: ジュンプウマンパン
+  reading_kana: ジュンプウマンパン
+  source: manual
+黒帯:
+  accent_moras: null
+  reading_hira: クロオビ
+  reading_kana: クロオビ
+  source: manual
+ただ人:
+  accent_moras: null
+  reading_hira: タダビト
+  reading_kana: タダビト
+  source: manual
+深ければ:
+  accent_moras: null
+  reading_hira: フカケレバ
+  reading_kana: フカケレバ
+  source: manual
+何百回:
+  accent_moras: null
+  reading_hira: ナンビャッカイ
+  reading_kana: ナンビャッカイ
+  source: manual
+中は:
+  accent_moras: null
+  reading_hira: ナカワ
+  reading_kana: ナカワ
+  source: manual
+禁じ手:
+  accent_moras: null
+  reading_hira: キンジテ
+  reading_kana: キンジテ
+  source: manual
+潰れる:
+  accent_moras: null
+  reading_hira: ツブレル
+  reading_kana: ツブレル
+  source: manual
+上は:
+  accent_moras: null
+  reading_hira: ウエワ
+  reading_kana: ウエワ
+  source: manual
+承認印:
+  accent_moras: null
+  reading_hira: ショウニンイン
+  reading_kana: ショウニンイン
+  source: manual
+高級車:
+  accent_moras: null
+  reading_hira: コウキュウシャ
+  reading_kana: コウキュウシャ
+  source: manual
+最初の灯:
+  accent_moras: null
+  reading_hira: サイショノヒ
+  reading_kana: サイショノヒ
+  source: manual
+ズルい人:
+  accent_moras: null
+  reading_hira: ズルイヒト
+  reading_kana: ズルイヒト
+  source: manual
+正直者:
+  accent_moras: null
+  reading_hira: ショウジキモノ
+  reading_kana: ショウジキモノ
+  source: manual
+人度:
+  accent_moras: null
+  reading_hira: ヒトド
+  reading_kana: ヒトド
+  source: manual
+贅沢品:
+  accent_moras: null
+  reading_hira: ゼイタクヒン
+  reading_kana: ゼイタクヒン
+  source: manual
+留めれば:
+  accent_moras: null
+  reading_hira: トメレバ
+  reading_kana: トメレバ
+  source: manual
+近道:
+  accent_moras: null
+  reading_hira: チカミチ
+  reading_kana: チカミチ
+  source: manual
+種は:
+  accent_moras: null
+  reading_hira: タネワ
+  reading_kana: タネワ
+  source: manual
+天網恢恢:
+  accent_moras: null
+  reading_hira: テンモウカイカイ
+  reading_kana: テンモウカイカイ
+  source: manual
+愛おしさ:
+  accent_moras: null
+  reading_hira: イトオシサ
+  reading_kana: イトオシサ
+  source: manual
+少ねえ:
+  accent_moras: null
+  reading_hira: スクネエ
+  reading_kana: スクネエ
+  source: manual
+四つ葉:
+  accent_moras: null
+  reading_hira: ヨツバ
+  reading_kana: ヨツバ
+  source: manual
+二つ折り:
+  accent_moras: null
+  reading_hira: フタツオリ
+  reading_kana: フタツオリ
+  source: manual
+密かに行って:
+  accent_moras: null
+  reading_hira: ヒソカニオコナッテ
+  reading_kana: ヒソカニオコナッテ
+  source: manual
+幸せ者:
+  accent_moras: null
+  reading_hira: シアワセモノ
+  reading_kana: シアワセモノ
+  source: manual
+爆上げ:
+  accent_moras: null
+  reading_hira: バクアゲ
+  reading_kana: バクアゲ
+  source: manual
+爆上げする:
+  accent_moras: null
+  reading_hira: バクアゲスル
+  reading_kana: バクアゲスル
+  source: manual
+引き寄せ:
+  accent_moras: null
+  reading_hira: ヒキヨセ
+  reading_kana: ヒキヨセ
+  source: manual
+健康体:
+  accent_moras: null
+  reading_hira: ケンコウタイ
+  reading_kana: ケンコウタイ
+  source: manual
+呪い:
+  accent_moras: null
+  reading_hira: ノロイ
+  reading_kana: ノロイ
+  source: manual
+癒やされ:
+  accent_moras: null
+  reading_hira: イヤサレ
+  reading_kana: イヤサレ
+  source: manual
+場の:
+  accent_moras: null
+  reading_hira: バノ
+  reading_kana: バノ
+  source: manual
+格上:
+  accent_moras: null
+  reading_hira: カクウエ
+  reading_kana: カクウエ
+  source: manual
+生を:
+  accent_moras: null
+  reading_hira: セイオ
+  reading_kana: セイオ
+  source: manual

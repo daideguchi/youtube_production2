@@ -26,7 +26,9 @@ AMBIGUOUS_SURFACES = {
     "今年",
     "来年",
     "去年",
+    "十分",
     "一行",
+    "行ったり",
 }
 
 KANJI_RE = re.compile(r"[\u4E00-\u9FFF]")

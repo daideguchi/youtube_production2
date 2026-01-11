@@ -1,6 +1,6 @@
 # OPS_TTS_MANUAL_READING_AUDIT (SSOT)
 
-- 最終更新日: 2026-01-10  
+- 最終更新日: 2026-01-11  
 - 目的: **LLM読み監査を使わず**、エージェントが手動推論で VOICEVOX 読み誤りをゼロに近づけるための再現性100%手順書。  
 - 適用範囲: `packages/audio_tts/scripts/run_tts.py` による strict TTS パイプライン（VOICEVOX）。  
 - 本書は **手動監査の唯一の正本**。運用・引き継ぎは必ず本書に従う。
@@ -21,6 +21,15 @@
 - 読み補助が混入している場合（例: `刈羽郡、かりわぐん` / `大河内正敏（おおこうちまさとし）`）は、
   **Bテキスト側で重複部分を除去**し、読みは辞書/override で固定する（後述）。
   - 重複除去は `audio_tts.tts.arbiter._patch_tokens_with_words` で **Bのみ** に自動適用（Aは不変）。
+- **（固定ルール）数字/英字は B 側で決定的にカナ化**し、MeCab/VOICEVOX の読みを一致させる（Aは不変）。
+  - 目的: prepass で mismatch が大量発生しても、局所辞書を無限増殖させずに収束させるため。
+  - 例: `94年→キュウジュウヨネン` / `100分の1→ヒャクブンノイチ` / `GHQ→ジーエイチキュー`。
+  - 実装: `audio_tts.tts.arbiter._patch_tokens_with_words`（辞書/override の後段で適用。VOICEVOX問い合わせ前に B を確定）。
+  - 対象: 数字+単位（年/歳/人/回/個/つ/分/秒/時間/円/万/億/兆/%/パーセント/点/割…）と ASCII（略語/英単語）。
+  - 重要: 1文字 surface は辞書キーとして禁止のため、**単独英字/単独漢字の一部はここで処理**し、辞書はフレーズキーで安全に運用する。
+- **（固定ルール）SKIP_TTS_READING=1 時の読み確定は辞書/overrideで行う**（Aは不変）。
+  - 優先順位: `local_token_overrides.json` > `local_reading_dict.json` > `{CH}.yaml` > グローバル辞書。
+  - 未カバーが残る場合は `{CH}.yaml` か `local_reading_dict.json` を追加し、mismatch=0 まで詰める。
 - 監査対象は **候補の全件**。候補抽出・確認・記録までを1セットとする。
 - 修正が必要なら **辞書/位置パッチを手で追加 → 該当動画のみ再合成**。
 - 辞書登録の固定ルールは `ssot/DECISIONS.md` の **D-014** に従う（ユニーク誤読のみ辞書へ / 曖昧語は辞書に入れない）。
@@ -119,6 +128,12 @@
     --prepass --skip-tts-reading \
     --min-video 1 --max-video 30
   ```
+  - 全チャンネルを一括で回す場合（自動検出）:
+    ```bash
+    python3 scripts/batch_regenerate_tts.py \
+      --all-channels \
+      --prepass --skip-tts-reading
+    ```
   - `--allow-unvalidated` が必要な運用の時のみ付ける（原則は `script_validation` を完了させる）
   - 既に final がある動画をスキップするなら `--only-missing-final`
   - 進捗/ログ（デフォルト）:

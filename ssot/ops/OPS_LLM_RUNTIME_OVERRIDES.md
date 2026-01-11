@@ -18,6 +18,7 @@
 - 例外は **緊急デバッグのみ**: `YTM_EMERGENCY_OVERRIDE=1`
   - 「このプロセス/この実行だけ」ロックダウンを解除する
   - 終わったら必ず戻す（恒久運用しない）
+  - `./ops --emergency-override ...`（P0 launcher の1回だけ上書き）
 - `configs/llm_task_overrides.local.yaml`（gitignore）:
   - ローカル実験用だが、**ロックダウンONでは `script_*` を上書きしない**（台本モデル固定のため）。
   - 台本側でモデルを変える必要がある場合は、必ずSSOT/Decisionを更新してから（= tracked側で確定する）。
@@ -30,6 +31,7 @@
 - 正本: `configs/llm_model_slots.yaml`（必要なら `configs/llm_model_slots.local.yaml` で**ローカルだけ**上書き）
 - 使い方（例）:
   - `LLM_MODEL_SLOT=2 ./ops ...`
+  - `./ops --llm-slot 2 ...`（P0 launcher の1回だけ上書き）
   - `./scripts/with_ytm_env.sh 2 python3 ...`（先頭が整数ならslot扱い）
 
 ### 2.2 実行モード（api/think/codex/agent）: `LLM_EXEC_SLOT`
@@ -37,6 +39,7 @@
 - 使い方（例）:
   - `./scripts/with_ytm_env.sh --exec-slot 0 python3 ...`（API）
   - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`（THINK）
+  - `./ops --exec-slot 0 ...`（P0 launcher の1回だけ上書き。通常は `./ops api|think|codex` 推奨）
 
 ---
 

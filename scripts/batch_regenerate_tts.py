@@ -49,6 +49,25 @@ def _append_log(log_path: Path, text: str) -> None:
             f.write("\n")
 
 
+def _discover_channels(data_root: Path) -> List[str]:
+    channels: List[str] = []
+    if not data_root.exists():
+        return channels
+    for ch_dir in sorted([p for p in data_root.iterdir() if p.is_dir()], key=lambda p: p.name):
+        name = str(ch_dir.name).strip()
+        if not name:
+            continue
+        # Heuristic: channel folders are typically "CHxx". We still require at least one numeric video dir.
+        has_video = False
+        for child in ch_dir.iterdir():
+            if child.is_dir() and child.name.isdigit():
+                has_video = True
+                break
+        if has_video:
+            channels.append(name.upper())
+    return channels
+
+
 def _discover_targets(
     channels: List[str],
     *,
@@ -87,7 +106,18 @@ def _discover_targets(
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--channel", action="append", required=True, help="Target channel (repeatable). e.g. CH06")
+    ap.add_argument("--channel", action="append", help="Target channel (repeatable). e.g. CH06")
+    ap.add_argument(
+        "--all-channels",
+        action="store_true",
+        help="Auto-discover channels from workspaces/scripts and process all of them.",
+    )
+    ap.add_argument(
+        "--exclude-channel",
+        action="append",
+        default=[],
+        help="Exclude channel(s) (repeatable). Useful with --all-channels.",
+    )
     ap.add_argument(
         "--progress-path",
         default=str(repo_paths.logs_root() / "ui" / "batch_tts_progress.json"),
@@ -119,8 +149,14 @@ def main() -> int:
     ap.add_argument("--max-video", type=int, default=None, help="Only process videos <= N (numeric).")
     args = ap.parse_args()
 
+    data_root = repo_paths.script_data_root()
     channels = [str(ch).strip().upper() for ch in (args.channel or []) if str(ch).strip()]
-    channels = sorted(set(channels))
+    if args.all_channels:
+        channels.extend(_discover_channels(data_root))
+    excluded = {str(ch).strip().upper() for ch in (args.exclude_channel or []) if str(ch).strip()}
+    channels = sorted({ch for ch in channels if ch and ch not in excluded})
+    if not channels:
+        ap.error("No channels specified. Provide --channel CHxx (repeatable) or use --all-channels.")
     progress_path = Path(args.progress_path).expanduser().resolve()
     log_path = Path(args.log_path).expanduser().resolve()
 
@@ -154,7 +190,7 @@ def main() -> int:
 
     _append_log(
         log_path,
-        f"[batch_regenerate_tts] start {_now_iso()} channels={channels} total={len(targets)} prepass={bool(args.prepass)} skip_tts_reading={bool(args.skip_tts_reading)} only_missing_final={bool(args.only_missing_final)}",
+        f"[batch_regenerate_tts] start {_now_iso()} channels={channels} excluded={sorted(excluded)} total={len(targets)} prepass={bool(args.prepass)} skip_tts_reading={bool(args.skip_tts_reading)} only_missing_final={bool(args.only_missing_final)}",
     )
 
     try:
@@ -172,6 +208,10 @@ def main() -> int:
                 env = os.environ.copy()
                 if args.skip_tts_reading:
                     env["SKIP_TTS_READING"] = "1"
+                # For prepass runs, retries mostly waste time (mismatch/fail-fast is deterministic).
+                # Allow override by explicitly setting YTM_AUDIO_RETRY_COUNT in the parent environment.
+                if args.prepass and "YTM_AUDIO_RETRY_COUNT" not in env:
+                    env["YTM_AUDIO_RETRY_COUNT"] = "0"
                 rc = subprocess.run(
                     [
                         sys.executable,

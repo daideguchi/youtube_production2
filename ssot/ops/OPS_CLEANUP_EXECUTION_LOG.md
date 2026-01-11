@@ -2404,3 +2404,23 @@ archive-first（repo, tracked）:
 - `packages/script_pipeline/tools/optional_fields_registry.py`（`台本型` を optional fields から除外）
 - `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`（kata pattern を削除）
 - `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md` / `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md` / `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`（廃止注記）
+
+---
+
+## 2026-01-11
+
+### 1) CapCutローカルドラフト（未投稿）の一括削除（Trashへ移動）→やり直し準備
+
+背景:
+- ユーザー指示: **投稿済み以外のドラフトは全てやり直し**（古いものは消す）。
+
+実行（ローカル / CapCut）:
+- CapCut project dir を macOS Trash へ移動（復元可能）
+
+証跡（操作ログ / SoT）:
+- `workspaces/logs/ops/capcut_draft_purge_20260111T113922Z/purge_report.json`
+- `workspaces/logs/ops/capcut_draft_purge_20260111T113922Z/moved_dirs.txt`
+- `workspaces/logs/ops/capcut_draft_purge_20260111T113922Z/episodes_to_rebuild.txt`
+
+備考:
+- `完成★...`（投稿済み想定）のドラフトは保持（例: `CH12-008` は `prefixed_completed_keep`）。
