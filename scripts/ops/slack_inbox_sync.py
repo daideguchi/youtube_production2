@@ -150,7 +150,7 @@ class InboxItem:
     when_iso: str
     who: str
     source: str  # "thread" | "channel"
-    kind: str  # decision|rule|question|request|ack|thanks|note
+    kind: str  # decision|rule|question|request|error|ack|thanks|note
     redacted: bool
     text: str
 
@@ -192,6 +192,22 @@ def _classify_message(text: str) -> str:
         return "thanks"
 
     low = raw.lower()
+
+    # Error reports (CI failures, stack traces, etc.).
+    # Keep this above "request" so we don't drop them as non-actionable noise.
+    err_tokens = [
+        "traceback",
+        "exception",
+        "error",
+        "fatal",
+        "failed",
+        "failure",
+        "exit code",
+        "payment required",
+    ]
+    if any(t in low for t in err_tokens) or any(k in raw for k in ["エラー", "例外", "失敗", "スタックトレース"]):
+        return "error"
+
     if "llm smoke" in low or "smoke" in low:
         return "request"
 
@@ -211,7 +227,7 @@ def _classify_message(text: str) -> str:
 
 
 def _actionable(kind: str) -> bool:
-    return kind in {"decision", "rule", "question", "request"}
+    return kind in {"decision", "rule", "question", "request", "error"}
 
 
 def _load_inbox_md(path: Path) -> str:

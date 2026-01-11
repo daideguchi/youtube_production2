@@ -30,6 +30,7 @@
   - 明示PID: `python3 scripts/ops/process_report.py --pid 52211 --pid 52239 --slack`
 - PMループ（推奨: 1コマンド）: `scripts/ops/slack_pm_loop.py`
   - Slack返信→PM Inbox更新→要点返信→（任意でPIDスナップショット）までをまとめて実行する
+  - 任意: エラー棚卸（チャンネル履歴を grep して Inbox に残す。Slack ID は git に保存しない）
 
 安全（必須）:
 - Slack→git 取り込みは **token-like文字列を自動redact**し、本文は短く切る（長文は要約のみ）。
@@ -44,3 +45,6 @@
 
 推奨（PMループを1コマンド化）:
 - `python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest`
+
+推奨（Slackエラー洪水の棚卸も含める）:
+- `python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`

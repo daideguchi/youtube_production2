@@ -64,6 +64,17 @@ def cmd_run(args: argparse.Namespace) -> int:
     ]
     if dd_user:
         inbox_cmd += ["--dd-user", dd_user]
+    if bool(args.errors):
+        grep = str(args.errors_grep or "").strip()
+        if not grep:
+            raise SystemExit("missing --errors-grep (cannot run --errors with empty grep)")
+        inbox_cmd += [
+            "--include-history",
+            "--history-limit",
+            str(int(args.errors_limit)),
+            "--history-grep",
+            grep,
+        ]
     if bool(args.post_digest):
         inbox_cmd += ["--post-digest", "--digest-max", str(int(args.digest_max))]
     if bool(args.include_nonactionable):
@@ -107,6 +118,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--dd-user", default="", help="dd Slack user id (optional filter)")
     sp.add_argument("--post-digest", action="store_true", help="Reply a short digest of NEW inbox items into the thread")
     sp.add_argument("--digest-max", type=int, default=8, help="Max digest items to include (default: 8)")
+    sp.add_argument("--errors", action="store_true", help="Also capture error-like channel history into SSOT inbox (grep)")
+    sp.add_argument(
+        "--errors-grep",
+        default=r"(error|failed|traceback|exception|LLM Smoke|smoke)",
+        help="Regex for --errors history-grep (default: error/failed/traceback/exception/LLM Smoke/smoke)",
+    )
+    sp.add_argument("--errors-limit", type=int, default=200, help="History limit for --errors (default: 200)")
     sp.add_argument("--include-nonactionable", action="store_true", help="Also include ack/thanks/note in SSOT inbox")
     sp.add_argument("--process", action="store_true", help="Also post process/PID snapshot to the thread")
     sp.add_argument("--pid", action="append", default=[], help="PID to include (repeatable)")
@@ -124,4 +142,3 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
