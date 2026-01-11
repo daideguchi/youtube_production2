@@ -20,6 +20,7 @@
 | --- | --- | --- | --- | --- |
 | D-001 | P0 | redoフラグの正本 | **`status.json` 正本**（CSVは派生ビュー） | Proposed |
 | D-002 | P0 | サイレント降格禁止（モデル/品質） | **明示モデル選択時はfallback禁止**（止めて報告） | Proposed |
+| D-018 | P0 | 台本生成の緊急代替（Gemini Batch） | **master+個別プロンプト生成→Gemini Batch→assembled反映**（サイレントfallback禁止） | Proposed |
 | D-003 | P0 | Publish→ローカル投稿済みロック | **publisherに“任意フラグで”同期**（忘れ事故を防ぐ） | Proposed |
 | D-013 | P0 | TTSのCodex（agent vs codex exec） | **TTSはAIエージェントCodex（pending）固定 / codex execと区別** | Done |
 | D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
@@ -82,6 +83,34 @@
 ### Alternatives（代替案）
 - A) fallbackを常時許可（非推奨）: 目先の完了を優先し、品質が崩れる。
 - B) provider内だけ許可: provider差分が大きい場合、結局品質差が出る（慎重に）。
+
+---
+
+## D-018（P0）台本生成が詰まった時の緊急代替（Gemini Batch）
+
+### Decision
+- Fireworks/OpenRouter が使えず **台本生成がブロック**した場合、`script_pipeline` を無理に回さず、**Gemini Developer API Batch** で台本本文を生成する。
+  - ただし **サイレントfallbackは禁止**（正本: `D-002`）。切替は必ず「明示コマンド/明示ログ」で追える状態にする。
+
+### Recommended（推奨）
+1) 先に「下準備」＝ **マスタープロンプト + 台本ごとの個別プロンプト** を生成し、Gitに保存してレビュー可能にする  
+   - master（固定）: `prompts/antigravity_gemini/MASTER_PROMPT.md`  
+   - individual（台本ごと）: `prompts/antigravity_gemini/CHxx/CHxx_NNN_PROMPT.md`  
+   - full（Batch投入の実体）: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`  
+2) Gemini Batch に投げるのは **台本本文（Aテキスト）だけ**に限定する（外部検索/勝手な補完で破綻しやすいため）  
+3) 生成物は `workspaces/scripts/{CH}/{NNN}/content/assembled.md` に反映し、下流（TTS/動画）へ渡せる状態にする
+
+### Rationale（根拠）
+- 台本は長文・禁則が多く、半端なfallbackで **静かに品質が崩れる**のが最大事故。
+- Batchは安い一方で非同期なので、運用を「下準備→Batch→反映」に固定しないと迷子になる。
+
+### Alternatives（代替案）
+- A) Fireworksが復旧するまで待つ: 正攻法だが、停止期間が長いと量産が止まる。
+- B) Gemini（非Batch）へ手動コピペ: 速いが、証跡/再現性/大量処理に弱い。
+
+### Impact（影響/作業）
+- SSOT: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md` に「Batch運用（台本）」の導線を追加する
+- Tool: `scripts/ops/gemini_batch_script_prompts.py`（下準備）と `scripts/ops/gemini_batch_generate_scripts.py`（submit/fetch）を追加する
 
 ---
 

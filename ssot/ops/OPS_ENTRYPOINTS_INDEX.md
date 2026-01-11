@@ -60,6 +60,12 @@
   - 運用モード正本（new/redo-full/resume/rewrite/seed-expand）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
   - カオス復旧（複数エージェント競合の止血）: `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`
   - 低レベルCLI（内部/詳細制御。通常運用では使わない）: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli ...`（`packages/script_pipeline/cli.py`）
+- 台本（緊急; Fireworks/OpenRouter停止時の代替）: Gemini Batch（D-018）
+  - 下準備（プロンプト生成; Gitに保存）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_script_prompts.py build --channel CHxx --videos NNN-NNN`
+    - master: `prompts/antigravity_gemini/MASTER_PROMPT.md`
+    - individual/full: `prompts/antigravity_gemini/CHxx/CHxx_NNN_{PROMPT|FULL_PROMPT}.md`
+  - Batch submit: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py submit --channel CHxx --videos NNN-NNN`
+  - Batch fetch（assembled反映）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
 - 音声（Audio/TTS）:
   - 推奨: `python -m script_pipeline.cli audio --channel CHxx --video NNN`（wrapper）
   - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`

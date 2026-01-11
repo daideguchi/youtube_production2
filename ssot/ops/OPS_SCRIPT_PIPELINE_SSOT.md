@@ -281,6 +281,21 @@ flowchart LR
 - `content/assembled.md`（結合）
 - `script_validation`（品質ゲート）
 
+### 2.1.1 緊急（Fireworks/OpenRouterが使えない）: Gemini Batchで台本本文だけ生成
+前提:
+- **サイレントfallbackは禁止**（正本: `ssot/DECISIONS.md` の `D-002`）。
+- `script_*` を Codex exec / THINK / AGENT に流して「とりあえず完了」はしない（品質ドリフト防止）。
+
+運用（固定導線）:
+1) 下準備（プロンプト作成）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_script_prompts.py build --channel CHxx --videos NNN-NNN`
+   - マスタープロンプト（固定）: `prompts/antigravity_gemini/MASTER_PROMPT.md`
+   - 台本ごとの個別プロンプト（Gitに保存）:
+     - `prompts/antigravity_gemini/CHxx/CHxx_NNN_PROMPT.md`
+     - `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別の結合。Batch投入の実体）
+2) Batch submit: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py submit --channel CHxx --videos NNN-NNN`
+3) 完了待ち → Batch fetch: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
+4) 復旧後に推奨: `script_validation` を再実行して品質ゲートを通す（LLM品質/意味整合/ファクトチェック）
+
 ### 2.2 長尺（安定化）: Seed→Expand（低コストSeed→追記で収束）
 目的:
 - 長文を一撃で書かせず、**短い本文Seed（ちゃんとした文章）→追記で目標字数へ**の形にして、ズレと往復を減らす。
@@ -486,7 +501,9 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
     - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
     - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
-    - 注（固定ルール）: `script_*` は **Codex exec を使わない**（全task）。台本は `script-main-1`（Fireworks）固定で、失敗時に別LLM/APIへ自動フォールバックしない（停止して記録する）。
+    - 注（固定ルール）: `script_*` は **Codex exec を使わない**（全task）。
+      - 標準運用は `script-main-1`（Fireworks）固定で、失敗時に別LLM/APIへ自動フォールバックしない（停止して記録する）。
+      - Fireworks/OpenRouter が使えない期間は `D-018` に従い、**明示コマンドで** Gemini Batch を使う（勝手に切替しない）。
       - Codex exec を使うのは **非台本タスク**（例: `tts_*` / `visual_*` / レポート生成）のみ（失敗時は LLMRouter API へフォールバック可）。
 - 修正（最小リライト）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
