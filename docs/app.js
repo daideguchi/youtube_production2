@@ -3,6 +3,7 @@
 const INDEX_URL = "./data/index.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
 const THUMB_PROJECTS_PATH = "workspaces/thumbnails/projects.json";
+const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const CHUNK_SIZE = 10_000;
 
 function $(id) {
@@ -85,6 +86,14 @@ function joinUrl(base, path) {
   return safeBase + safePath;
 }
 
+function siteUrl(relPath) {
+  const s = String(relPath || "")
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/^\.\/+/, "");
+  return s ? `./${s}` : "";
+}
+
 const rawBase = resolveRawBase();
 const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
 const thumbProjectsUrl = joinUrl(rawBase, THUMB_PROJECTS_PATH);
@@ -93,6 +102,8 @@ let channelMetaById = new Map();
 let channelMetaPromise = null;
 let thumbProjectByVideoId = new Map();
 let thumbProjectPromise = null;
+let thumbIndexByVideoId = new Map();
+let thumbIndexPromise = null;
 
 function pickChannelDisplayName(meta) {
   const yt = meta?.youtube || {};
@@ -181,6 +192,37 @@ function loadThumbProjects() {
   return thumbProjectPromise;
 }
 
+function loadThumbIndex() {
+  if (thumbIndexPromise) return thumbIndexPromise;
+  thumbIndexPromise = (async () => {
+    try {
+      const res = await fetch(THUMBS_INDEX_URL, { cache: "no-store" });
+      if (res.status === 404) {
+        thumbIndexByVideoId = new Map();
+        return thumbIndexByVideoId;
+      }
+      if (!res.ok) throw new Error(`thumbs_index fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const items = Array.isArray(data?.items) ? data.items : [];
+      const next = new Map();
+      for (const it of items) {
+        const vid = String(it?.video_id || "").trim();
+        if (!vid) continue;
+        next.set(vid, {
+          preview_rel: String(it?.preview_rel || "").trim(),
+          preview_exists: Boolean(it?.preview_exists),
+        });
+      }
+      thumbIndexByVideoId = next;
+    } catch (err) {
+      console.warn("[script_viewer] failed to load thumbs_index.json", err);
+      thumbIndexByVideoId = new Map();
+    }
+    return thumbIndexByVideoId;
+  })();
+  return thumbIndexPromise;
+}
+
 let indexData = null;
 let items = [];
 let grouped = new Map();
@@ -192,7 +234,7 @@ let audioPrepMetaText = "";
 let currentView = "script";
 let scriptState = "idle"; // idle | loading | ok | error
 let audioState = "idle"; // idle | loading | ok | partial | missing | error
-let thumbState = "idle"; // idle | loading | ok | missing | error
+let thumbState = "idle"; // idle | loading | ok | partial | missing | error
 
 const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
@@ -284,6 +326,8 @@ function updateBadges() {
     setBadge(badgeThumb, "ERR", "error");
   } else if (thumbState === "ok") {
     setBadge(badgeThumb, "OK", "ok");
+  } else if (thumbState === "partial") {
+    setBadge(badgeThumb, "META", "warn");
   } else if (thumbState === "missing") {
     setBadge(badgeThumb, "未", "neutral");
   } else {
@@ -317,18 +361,16 @@ function goToView(view) {
   const v = String(view || "script");
   setActiveView(v);
 
-  // Keep UX compact on mobile: open only the relevant details.
-  if (isNarrowView()) {
-    if (v === "script") {
-      audioPrepDetails.open = false;
-      thumbDetails.open = false;
-    } else if (v === "audio") {
-      audioPrepDetails.open = true;
-      thumbDetails.open = false;
-    } else if (v === "thumb") {
-      thumbDetails.open = true;
-      audioPrepDetails.open = false;
-    }
+  // Open only the relevant details for the selected view.
+  if (v === "script") {
+    audioPrepDetails.open = false;
+    thumbDetails.open = false;
+  } else if (v === "audio") {
+    audioPrepDetails.open = true;
+    thumbDetails.open = false;
+  } else if (v === "thumb") {
+    thumbDetails.open = true;
+    audioPrepDetails.open = false;
   }
 
   if (v === "audio") {
@@ -427,83 +469,167 @@ async function loadAudioPrep(it) {
 function renderThumbProject(it, proj) {
   thumbBody.innerHTML = "";
 
-  const head = document.createElement("div");
-  head.className = "thumb-head";
+  const videoId = String(it?.video_id || "").trim();
   const selectedId = String(proj?.selected_variant_id || "").trim();
   const status = String(proj?.status || "").trim();
-  head.textContent = `status=${status || "-"} / selected=${selectedId || "-"}`;
+  const variants = Array.isArray(proj?.variants) ? proj.variants : [];
+
+  const head = document.createElement("div");
+  head.className = "thumb-head";
+  head.textContent = `status=${status || "-"} / selected=${selectedId || "-"} / variants=${variants.length}`;
   thumbBody.appendChild(head);
 
-  const variants = Array.isArray(proj?.variants) ? proj.variants : [];
+  const selectedVar = variants.find((v) => String(v?.id || "").trim() === selectedId) || null;
+
+  const selectedCard = document.createElement("div");
+  selectedCard.className = "thumb-selected";
+
+  const selectedTitle = document.createElement("div");
+  selectedTitle.className = "thumb-selected__title";
+  selectedTitle.textContent = "選択サムネ（タップで拡大）";
+  selectedCard.appendChild(selectedTitle);
+
+  const selectedMeta = document.createElement("div");
+  selectedMeta.className = "thumb-selected__meta muted";
+  const label = String(selectedVar?.label || selectedId || "").trim();
+  const vStatus = String(selectedVar?.status || "").trim();
+  selectedMeta.textContent = `${label || "(no label)"}${vStatus ? " · " + vStatus : ""}`;
+  selectedCard.appendChild(selectedMeta);
+
+  const previewWrap = document.createElement("div");
+  previewWrap.className = "thumb-selected__preview";
+
+  const idx = videoId ? thumbIndexByVideoId.get(videoId) : null;
+  const publishedRel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
+  const publishedUrl = siteUrl(publishedRel);
+  const publishedKnownMissing = idx && idx.preview_rel && idx.preview_exists === false;
+
+  const rawUrl = String(selectedVar?.image_url || "").trim();
+  const remoteUrl = rawUrl && /^https?:\/\//.test(rawUrl) ? rawUrl : "";
+
+  const message = document.createElement("div");
+  message.className = "thumb-selected__message muted";
+
+  if (!selectedVar) {
+    message.textContent = "selected_variant_id のvariantが見つかりません（projects.json）。";
+    previewWrap.appendChild(message);
+  } else if (!remoteUrl && publishedKnownMissing) {
+    message.textContent = [
+      "プレビュー未公開（Pagesでは assets を直接参照できません）。",
+      `次: python3 scripts/ops/pages_thumb_previews.py --channel ${it.channel} --video ${it.video} --write`,
+      "→ commit/push で Pages から表示できます。",
+    ].join("\n");
+    previewWrap.appendChild(message);
+  } else if (!remoteUrl && !publishedUrl) {
+    message.textContent = "プレビューURLを決定できません。";
+    previewWrap.appendChild(message);
+  } else {
+    const primaryUrl = remoteUrl || publishedUrl;
+    const fallbackUrl = remoteUrl ? publishedUrl : "";
+
+    const a = document.createElement("a");
+    a.className = "thumb-selected__imglink";
+    a.target = "_blank";
+    a.rel = "noreferrer";
+    a.href = primaryUrl;
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.alt = `${videoId} thumbnail`;
+    img.hidden = true;
+
+    let triedFallback = false;
+    img.onload = () => {
+      img.hidden = false;
+      message.remove();
+    };
+    img.onerror = () => {
+      if (!triedFallback && fallbackUrl) {
+        triedFallback = true;
+        a.href = fallbackUrl;
+        img.src = fallbackUrl;
+        return;
+      }
+      try {
+        img.remove();
+      } catch (_err) {
+        // ignore
+      }
+      message.textContent = [
+        "画像プレビューを読み込めませんでした。",
+        "（thumb assets は gitignore のため、Pagesでは参照不可です）",
+        `次: python3 scripts/ops/pages_thumb_previews.py --channel ${it.channel} --video ${it.video} --write`,
+      ].join("\n");
+      previewWrap.appendChild(message);
+    };
+    img.src = primaryUrl;
+
+    a.appendChild(img);
+    previewWrap.appendChild(a);
+    previewWrap.appendChild(message);
+  }
+
+  const srcInfo = document.createElement("div");
+  srcInfo.className = "thumb-selected__src muted";
+  const imagePath = String(selectedVar?.image_path || "").trim();
+  if (imagePath || rawUrl) {
+    const code = document.createElement("code");
+    code.textContent = imagePath || rawUrl;
+    srcInfo.appendChild(document.createTextNode("source: "));
+    srcInfo.appendChild(code);
+  } else {
+    srcInfo.textContent = "source: (none)";
+  }
+
+  selectedCard.appendChild(previewWrap);
+  selectedCard.appendChild(srcInfo);
+  thumbBody.appendChild(selectedCard);
+
+  const det = document.createElement("details");
+  det.className = "details thumb-variants";
+  det.open = false;
+  const sum = document.createElement("summary");
+  sum.textContent = `候補一覧（${variants.length}）`;
+  det.appendChild(sum);
+  const body = document.createElement("div");
+  body.className = "details__body";
+
   if (!variants.length) {
     const empty = document.createElement("div");
     empty.className = "muted";
     empty.textContent = "variants が空です（projects.json）";
-    thumbBody.appendChild(empty);
-    return;
-  }
+    body.appendChild(empty);
+  } else {
+    const grid = document.createElement("div");
+    grid.className = "thumb-grid";
+    for (const v of variants) {
+      const card = document.createElement("div");
+      card.className = "thumb-card";
+      if (selectedId && String(v?.id || "").trim() === selectedId) {
+        card.classList.add("thumb-card--selected");
+      }
 
-  const grid = document.createElement("div");
-  grid.className = "thumb-grid";
+      const title = document.createElement("div");
+      title.className = "thumb-card__title";
+      const vLabel = String(v?.label || v?.id || "").trim();
+      const st2 = String(v?.status || "").trim();
+      title.textContent = `${vLabel || "(no label)"}${st2 ? " · " + st2 : ""}`;
+      card.appendChild(title);
 
-  for (const v of variants) {
-    const card = document.createElement("div");
-    card.className = "thumb-card";
-    if (selectedId && String(v?.id || "").trim() === selectedId) {
-      card.classList.add("thumb-card--selected");
-    }
-
-    const title = document.createElement("div");
-    title.className = "thumb-card__title";
-    const label = String(v?.label || v?.id || "").trim();
-    const st = String(v?.status || "").trim();
-    title.textContent = `${label || "(no label)"}${st ? " · " + st : ""}`;
-    card.appendChild(title);
-
-    const url = String(v?.image_url || "").trim();
-    const imagePath = String(v?.image_path || "").trim();
-    const pathUrl = imagePath ? joinUrl(rawBase, `workspaces/thumbnails/assets/${imagePath}`) : "";
-    const previewUrl = url && /^https?:\/\//.test(url) ? url : pathUrl;
-
-    if (previewUrl) {
-      const a = document.createElement("a");
-      a.href = previewUrl;
-      a.target = "_blank";
-      a.rel = "noreferrer";
-      a.className = "thumb-card__imglink";
-      const img = document.createElement("img");
-      img.src = previewUrl;
-      img.loading = "lazy";
-      img.alt = `${it?.video_id || ""} thumbnail`;
-      img.onerror = () => {
-        try {
-          img.remove();
-          const code = document.createElement("code");
-          code.className = "thumb-card__path";
-          code.textContent = imagePath || url || "(no image)";
-          a.appendChild(code);
-        } catch (_err) {
-          // ignore
-        }
-      };
-      a.appendChild(img);
-      card.appendChild(a);
-    } else if (url || imagePath) {
+      const u = String(v?.image_url || "").trim();
+      const p = String(v?.image_path || "").trim();
       const code = document.createElement("code");
       code.className = "thumb-card__path";
-      code.textContent = imagePath || url;
+      code.textContent = p || u || "(no image)";
       card.appendChild(code);
-    } else {
-      const none = document.createElement("div");
-      none.className = "muted";
-      none.textContent = "image_url なし";
-      card.appendChild(none);
-    }
 
-    grid.appendChild(card);
+      grid.appendChild(card);
+    }
+    body.appendChild(grid);
   }
 
-  thumbBody.appendChild(grid);
+  det.appendChild(body);
+  thumbBody.appendChild(det);
 }
 
 async function loadThumb(it) {
@@ -512,7 +638,7 @@ async function loadThumb(it) {
   updateBadges();
   thumbBody.textContent = "読み込み中…";
   try {
-    const map = await loadThumbProjects();
+    const [map] = await Promise.all([loadThumbProjects(), loadThumbIndex()]);
     if (selected?.video_id !== currentId) return;
     const proj = map.get(currentId);
     if (!proj) {
@@ -522,7 +648,14 @@ async function loadThumb(it) {
       return;
     }
     renderThumbProject(it, proj);
-    thumbState = "ok";
+    const variants = Array.isArray(proj?.variants) ? proj.variants : [];
+    const selectedId = String(proj?.selected_variant_id || "").trim();
+    const selectedVar = variants.find((v) => String(v?.id || "").trim() === selectedId) || null;
+    const rawUrl = String(selectedVar?.image_url || "").trim();
+    const hasRemote = rawUrl && /^https?:\/\//.test(rawUrl);
+    const idx = thumbIndexByVideoId.get(currentId);
+    const hasPublished = Boolean(idx?.preview_exists);
+    thumbState = hasRemote || hasPublished ? "ok" : "partial";
     updateBadges();
   } catch (err) {
     if (selected?.video_id !== currentId) return;
