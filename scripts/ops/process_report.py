@@ -20,6 +20,7 @@ process_report.py — PIDごとの「いつから/何をしているか」を可
 """
 
 import argparse
+import json
 import os
 import re
 import signal
@@ -33,6 +34,8 @@ from typing import Any, Dict, List, Optional
 from _bootstrap import bootstrap
 
 PROJECT_ROOT = Path(bootstrap(load_env=True))
+
+_AGENT_BOARD_CACHE: Optional[Dict[str, Dict[str, Any]]] = None
 
 
 def _now_iso_utc() -> str:
@@ -75,6 +78,60 @@ def _redact_text(text: str) -> tuple[str, bool]:
         else:
             lines.append(ln)
     return ("\n".join(lines)).strip(), redacted
+
+
+def _agent_board_path() -> Path:
+    return PROJECT_ROOT / "workspaces" / "logs" / "agent_tasks" / "coordination" / "board.json"
+
+
+def _load_agent_board() -> Dict[str, Dict[str, Any]]:
+    """
+    Best-effort read of agent_org board.json for "doing"/tags.
+    (Local-only; no Slack IDs/secrets should be stored here.)
+    """
+    global _AGENT_BOARD_CACHE
+    if isinstance(_AGENT_BOARD_CACHE, dict):
+        return _AGENT_BOARD_CACHE
+    path = _agent_board_path()
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        _AGENT_BOARD_CACHE = {}
+        return _AGENT_BOARD_CACHE
+
+    agents = obj.get("agents") if isinstance(obj, dict) else None
+    if not isinstance(agents, dict):
+        _AGENT_BOARD_CACHE = {}
+        return _AGENT_BOARD_CACHE
+
+    out: Dict[str, Dict[str, Any]] = {}
+    for name, ent in agents.items():
+        if not isinstance(ent, dict):
+            continue
+        key = str(name or "").strip()
+        if not key:
+            continue
+        doing = str(ent.get("doing") or "").strip()
+        tags_raw = ent.get("tags") if isinstance(ent.get("tags"), list) else []
+        tags = [str(x).strip() for x in tags_raw if str(x).strip()]
+        out[key] = {"doing": doing, "tags": tags}
+    _AGENT_BOARD_CACHE = out
+    return out
+
+
+def _agent_doing_hint(agent_name: str) -> str:
+    name = str(agent_name or "").strip()
+    if not name:
+        return ""
+    board = _load_agent_board()
+    ent = board.get(name) if isinstance(board, dict) else None
+    if not isinstance(ent, dict):
+        return ""
+    doing = _compact_one_line(ent.get("doing") if isinstance(ent.get("doing"), str) else "")
+    if not doing:
+        return ""
+    doing_txt, _ = _redact_text(doing)
+    return _truncate_for_label(doing_txt, limit=80)
 
 
 @dataclass(frozen=True)
@@ -196,6 +253,9 @@ def _classify(row: ProcRow) -> tuple[str, str]:
     if "agent_org.py" in cmd and "orchestrator run" in cmd:
         name = _extract_flag_value_quoted(cmd, "--name") or _extract_flag_value(cmd, "--name") or "unknown"
         parts = [f"orchestrator {name}"]
+        doing = _agent_doing_hint(name)
+        if doing:
+            parts.append(f"doing={doing}")
         if _flag_present(cmd, "--no-process-requests"):
             parts.append("requests=off")
         if _flag_present(cmd, "--verbose"):
@@ -208,6 +268,9 @@ def _classify(row: ProcRow) -> tuple[str, str]:
         note = _extract_flag_value_quoted(cmd, "--note") or _extract_flag_value(cmd, "--note")
         ident = (name or agent_id or "unknown").strip() or "unknown"
         parts = [f"agent {ident}"]
+        doing = _agent_doing_hint(ident)
+        if doing:
+            parts.append(f"doing={doing}")
         if role and role != "worker":
             parts.append(f"role={role}")
         note = _compact_one_line(note)
@@ -405,6 +468,7 @@ def _format_report(
     include_command: bool,
     stale_min: int,
     suggest_kill_stale: bool,
+    suggest_kill_stale_safe: bool,
     ps_error: Optional[str] = None,
 ) -> str:
     by_pid: Dict[int, ProcRow] = {r.pid: r for r in rows}
@@ -521,6 +585,31 @@ def _format_report(
                 lines.append(f"- … +{len(stale_candidates) - 15} more")
             lines.append("")
 
+    if suggest_kill_stale_safe and int(stale_min) > 0:
+        # Suggested stop commands for "safe" sections.
+        stale_candidates = []
+        for r in rows:
+            if not _is_stale(r, stale_min=stale_min):
+                continue
+            section, _label = _classify(r)
+            if section not in {"UI/Docs", "Codex exec"}:
+                continue
+            stale_candidates.append(r)
+        if stale_candidates:
+            lines.append("■ 停止候補（stale-safe）")
+            lines.append(f"_threshold={int(stale_min)}m; 対象=UI/Docs + Codex exec（まずは提案。実行は --kill --yes / --kill-stale-safe --yes）_")
+            stale_candidates = sorted(stale_candidates, key=lambda x: float(x.etime_seconds), reverse=True)
+            for r in stale_candidates[:15]:
+                section, label = _classify(r)
+                label_txt, _label_red = _redact_text(label)
+                lines.append(
+                    f"- pid={r.pid} etime={r.etime} since={r.since} [{section}] {label_txt} -> "
+                    f"python3 scripts/ops/process_report.py --pid {r.pid} --kill --yes"
+                )
+            if len(stale_candidates) > 15:
+                lines.append(f"- … +{len(stale_candidates) - 15} more")
+            lines.append("")
+
     return "\n".join(lines).strip()
 
 
@@ -559,9 +648,19 @@ def main(argv: Optional[list[str]] = None) -> int:
         help="Include stop suggestions for stale Agent workers/Orchestrator (still explicit --pid + --kill --yes).",
     )
     ap.add_argument(
+        "--suggest-kill-stale-safe",
+        action="store_true",
+        help="Include stop suggestions for stale UI/Docs + Codex exec (use --stale-min; execution via --kill --yes or --kill-stale-safe --yes).",
+    )
+    ap.add_argument(
         "--kill-stale",
         action="store_true",
         help="Kill stale Agent workers/Orchestrator from --auto list (requires --stale-min + --yes).",
+    )
+    ap.add_argument(
+        "--kill-stale-safe",
+        action="store_true",
+        help="Kill stale UI/Docs + Codex exec from --auto list (requires --stale-min + --yes).",
     )
     ap.add_argument("--kill", action="store_true", help="Kill the specified --pid processes (policy: explicit PIDs only).")
     ap.add_argument("--yes", action="store_true", help="Confirm --kill execution (otherwise dry-run plan only).")
@@ -601,12 +700,18 @@ def main(argv: Optional[list[str]] = None) -> int:
                 continue
             rows.append(r)
 
-    if bool(args.kill) and bool(args.kill_stale):
-        raise SystemExit("choose one: --kill (explicit --pid) OR --kill-stale (auto stale selection)")
+    if bool(args.kill) and (bool(args.kill_stale) or bool(getattr(args, "kill_stale_safe", False))):
+        raise SystemExit("choose one: --kill (explicit --pid) OR --kill-stale/--kill-stale-safe (auto stale selection)")
+    if bool(args.kill_stale) and bool(getattr(args, "kill_stale_safe", False)):
+        raise SystemExit("choose one: --kill-stale OR --kill-stale-safe")
     if bool(args.kill_stale) and requested_pids:
         raise SystemExit("--kill-stale cannot be used with --pid (use --kill for explicit PIDs)")
     if bool(args.kill_stale) and int(args.stale_min) <= 0:
         raise SystemExit("--kill-stale requires --stale-min >= 1")
+    if bool(getattr(args, "kill_stale_safe", False)) and requested_pids:
+        raise SystemExit("--kill-stale-safe cannot be used with --pid (use --kill for explicit PIDs)")
+    if bool(getattr(args, "kill_stale_safe", False)) and int(args.stale_min) <= 0:
+        raise SystemExit("--kill-stale-safe requires --stale-min >= 1")
 
     text = _format_report(
         requested_pids=requested_pids,
@@ -614,6 +719,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         include_command=bool(args.include_command),
         stale_min=int(args.stale_min),
         suggest_kill_stale=bool(args.suggest_kill_stale),
+        suggest_kill_stale_safe=bool(getattr(args, "suggest_kill_stale_safe", False)),
         ps_error=ps_error,
     )
 
@@ -664,6 +770,46 @@ def main(argv: Optional[list[str]] = None) -> int:
         kill_lines: list[str] = []
         kill_lines.append("■ kill-stale")
         kill_lines.append(f"- threshold: {int(stale_min)}m (sections=Agent workers, Orchestrator)")
+        kill_lines.append(f"- mode: {'DRY-RUN' if dry else 'EXEC'} (add --yes to execute)")
+        if not stale_candidates:
+            kill_lines.append("- candidates: none")
+        else:
+            stale_candidates = sorted(stale_candidates, key=lambda x: float(x.etime_seconds), reverse=True)
+            for r in stale_candidates[:25]:
+                section, label = _classify(r)
+                label_txt, _label_red = _redact_text(label)
+                if dry:
+                    kill_lines.append(f"- {r.pid}: would SIGTERM (etime={r.etime}) [{section}] {label_txt}")
+                    continue
+                try:
+                    os.kill(r.pid, signal.SIGTERM)
+                    kill_lines.append(f"- {r.pid}: SIGTERM sent (etime={r.etime}) [{section}] {label_txt}")
+                except ProcessLookupError:
+                    kill_lines.append(f"- {r.pid}: already exited")
+                except PermissionError as exc:
+                    kill_lines.append(f"- {r.pid}: permission denied ({exc})")
+                except Exception as exc:
+                    kill_lines.append(f"- {r.pid}: kill failed ({type(exc).__name__}: {exc})")
+            if len(stale_candidates) > 25:
+                kill_lines.append(f"- … +{len(stale_candidates) - 25} more")
+
+        text = (text + "\n\n" + "\n".join(kill_lines)).strip()
+
+    if bool(getattr(args, "kill_stale_safe", False)):
+        dry = not bool(args.yes)
+        stale_min = int(args.stale_min)
+        stale_candidates = []
+        for r in rows:
+            if not _is_stale(r, stale_min=stale_min):
+                continue
+            section, _label = _classify(r)
+            if section not in {"UI/Docs", "Codex exec"}:
+                continue
+            stale_candidates.append(r)
+
+        kill_lines = []
+        kill_lines.append("■ kill-stale-safe")
+        kill_lines.append(f"- threshold: {int(stale_min)}m (sections=UI/Docs, Codex exec)")
         kill_lines.append(f"- mode: {'DRY-RUN' if dry else 'EXEC'} (add --yes to execute)")
         if not stale_candidates:
             kill_lines.append("- candidates: none")

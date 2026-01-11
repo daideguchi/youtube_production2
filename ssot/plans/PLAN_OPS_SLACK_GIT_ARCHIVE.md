@@ -32,8 +32,14 @@
 - PID稼働状況の可視化（ps→Slack通知）: `scripts/ops/process_report.py`
   - 自動検出: `python3 scripts/ops/process_report.py --auto --slack`
   - 明示PID: `python3 scripts/ops/process_report.py --pid 52211 --pid 52239 --slack`
-  - kill（運用を軽くする）: `python3 scripts/ops/process_report.py --pid 52211 --kill --yes`
-    - 方針: **killは明示PIDのみ**（自動killはしない）。まず report で目的/稼働時間を把握してから止める。
+  - kill（運用を軽くする）:
+    - 明示PID（最優先・安全）: `python3 scripts/ops/process_report.py --pid 52211 --kill --yes`
+    - stale-safe（UI/Docs + Codex exec を対象。まず提案→必要なら実行）:
+      - 提案のみ: `python3 scripts/ops/process_report.py --auto --stale-min 180 --suggest-kill-stale-safe`
+      - 実行: `python3 scripts/ops/process_report.py --auto --stale-min 180 --kill-stale-safe --yes`
+    - 方針:
+      - 原則: まず report で「目的/稼働時間/担当（doing）」を把握してから止める。
+      - `Orchestrator` / `Agent workers` は **原則 auto kill しない**（止めるなら明示PIDで）。
 - Ops失敗トリアージ（episode別に「何が止まっているか」を説明）: `scripts/ops/ops_error_triage.py`
   - `HISTORY_slack_pm_inbox.md` の `[ops] FAILED ... episode=CHxx-NNN` を集約し、`workspaces/scripts/.../status.json` から停止原因を推定する（LLM不使用）。
   - 直接episode指定（例）: `python3 scripts/ops/ops_error_triage.py --episode CH06-035`
