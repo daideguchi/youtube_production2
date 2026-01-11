@@ -87,7 +87,7 @@
   - 代わりに使うレバー:
     - どのモデル系統で回すか → `LLM_MODEL_SLOT`（数字）
     - どこで動かすか → `LLM_EXEC_SLOT`（数字）
-    - 画像 → `g-1` / `f-1` / `f-3` / `f-4`（`configs/image_model_slots.yaml`）
+    - 画像 → `g-1` / `i-1` / `f-1` / `f-3` / `f-4`（`configs/image_model_slots.yaml`）
   - 緊急デバッグだけ例外: `YTM_EMERGENCY_OVERRIDE=1`（この実行だけロック解除。通常運用では使わない）
 - 画像モデル選択は **短いslot code**（例: `g-1`, `f-4`）で行う（`image_models.yaml` の書き換え禁止）。
   - スロット定義: `configs/image_model_slots.yaml`（個別調整: `configs/image_model_slots.local.yaml`）
