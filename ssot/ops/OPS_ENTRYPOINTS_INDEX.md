@@ -260,6 +260,7 @@
     - 詳細（目的/コマンド含む）: `python3 scripts/ops/process_report.py --auto --include-command --slack --channel <C...> --thread-ts <thread_ts>`
     - 明示PID: `python3 scripts/ops/process_report.py --pid 123 --pid 456`
     - 停止（安全: 明示PIDのみ / dry-runがデフォルト）: `python3 scripts/ops/process_report.py --pid 123 --kill --yes`
+    - （任意）停止候補の提示（stale）: `python3 scripts/ops/process_report.py --auto --stale-min 180 --suggest-kill-stale`
 
 ### 3.5 Thumbnails（サムネ量産/修正）
 - SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`

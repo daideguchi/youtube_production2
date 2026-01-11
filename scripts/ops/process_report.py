@@ -83,6 +83,8 @@ class ProcRow:
     since: str
     etime: str
     command: str
+    started_at_unix: float
+    etime_seconds: float
 
     def redacted_command(self) -> tuple[str, bool]:
         return _redact_text(self.command)
@@ -107,7 +109,8 @@ def _ps_all() -> tuple[list[ProcRow], Optional[str]]:
             if pid <= 0:
                 continue
             create_time = float(info.get("create_time") or 0.0) if info.get("create_time") else 0.0
-            etime = _format_etime_seconds(max(0.0, now - create_time)) if create_time else "?"
+            etime_seconds = max(0.0, now - create_time) if create_time else 0.0
+            etime = _format_etime_seconds(etime_seconds) if create_time else "?"
             since = (
                 datetime.fromtimestamp(create_time, tz=timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
                 if create_time
@@ -115,7 +118,16 @@ def _ps_all() -> tuple[list[ProcRow], Optional[str]]:
             )
             cmdline = info.get("cmdline") if isinstance(info.get("cmdline"), list) else None
             command = " ".join([str(x) for x in cmdline if str(x).strip()]) if cmdline else ""
-            rows.append(ProcRow(pid=pid, since=since, etime=etime, command=command))
+            rows.append(
+                ProcRow(
+                    pid=pid,
+                    since=since,
+                    etime=etime,
+                    command=command,
+                    started_at_unix=create_time,
+                    etime_seconds=etime_seconds,
+                )
+            )
         return rows, None
     except Exception as exc:
         return [], f"{type(exc).__name__}: {exc}"
@@ -140,11 +152,19 @@ def _proc_row_for_pid(pid: int) -> Optional[ProcRow]:
         p = psutil.Process(int(pid))
         create_time = float(p.create_time())
         now = datetime.now(timezone.utc).timestamp()
-        etime = _format_etime_seconds(max(0.0, now - create_time))
+        etime_seconds = max(0.0, now - create_time)
+        etime = _format_etime_seconds(etime_seconds)
         since = datetime.fromtimestamp(create_time, tz=timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
         cmdline = p.cmdline()
         command = " ".join([str(x) for x in cmdline if str(x).strip()])
-        return ProcRow(pid=int(pid), since=since, etime=etime, command=command)
+        return ProcRow(
+            pid=int(pid),
+            since=since,
+            etime=etime,
+            command=command,
+            started_at_unix=create_time,
+            etime_seconds=etime_seconds,
+        )
     except Exception:
         return None
 
@@ -319,11 +339,22 @@ def _auto_match(row: ProcRow) -> bool:
     return False
 
 
+def _is_stale(row: ProcRow, *, stale_min: int) -> bool:
+    try:
+        if int(stale_min) <= 0:
+            return False
+        return float(row.etime_seconds) >= float(int(stale_min)) * 60.0
+    except Exception:
+        return False
+
+
 def _format_report(
     *,
     requested_pids: list[int],
     rows: list[ProcRow],
     include_command: bool,
+    stale_min: int,
+    suggest_kill_stale: bool,
     ps_error: Optional[str] = None,
 ) -> str:
     by_pid: Dict[int, ProcRow] = {r.pid: r for r in rows}
@@ -347,7 +378,35 @@ def _format_report(
             cmd_txt, cmd_red = r.redacted_command()
             cmd_suffix = f" | cmd={cmd_txt}" if include_command else ""
             red_suffix = " redacted" if (label_red or cmd_red) else ""
-            lines.append(f"- {pid}: etime={r.etime} since={r.since} [{section}] {label_txt}{red_suffix}{cmd_suffix}")
+            stale_suffix = f" stale>={int(stale_min)}m" if _is_stale(r, stale_min=stale_min) else ""
+            lines.append(
+                f"- {pid}: etime={r.etime} since={r.since}{stale_suffix} [{section}] {label_txt}{red_suffix}{cmd_suffix}"
+            )
+        lines.append("")
+
+    # Episode-oriented view (helps humans answer: "which episode is running?").
+    by_episode: Dict[str, list[ProcRow]] = {}
+    for r in rows:
+        ep = _extract_episode_hint(r.command)
+        if ep:
+            by_episode.setdefault(ep, []).append(r)
+    if by_episode:
+        lines.append("■ Episode別（推定）")
+        for ep in sorted(by_episode.keys()):
+            procs = sorted(by_episode[ep], key=lambda x: float(x.etime_seconds), reverse=True)
+            lines.append(f"- {ep}")
+            for r in procs[:10]:
+                section, label = _classify(r)
+                label_txt, label_red = _redact_text(label)
+                cmd_txt, cmd_red = r.redacted_command()
+                cmd_suffix = f" | cmd={cmd_txt}" if include_command else ""
+                red_suffix = " redacted" if (label_red or cmd_red) else ""
+                stale_suffix = f" stale>={int(stale_min)}m" if _is_stale(r, stale_min=stale_min) else ""
+                lines.append(
+                    f"  - pid={r.pid} etime={r.etime} since={r.since}{stale_suffix} [{section}] {label_txt}{red_suffix}{cmd_suffix}"
+                )
+            if len(by_episode[ep]) > 10:
+                lines.append(f"  - … +{len(by_episode[ep]) - 10} more")
         lines.append("")
 
     # Auto summary (grouped).
@@ -370,18 +429,43 @@ def _format_report(
         if not procs:
             continue
         lines.append(f"■ {section}")
-        # stable-ish ordering: longest-running first (rough, by etime string length + lexicographic)
-        procs_sorted = sorted(procs, key=lambda x: (len(x.etime), x.etime), reverse=True)
+        procs_sorted = sorted(procs, key=lambda x: float(x.etime_seconds), reverse=True)
         for r in procs_sorted[:30]:
             sec, label = _classify(r)
             label_txt, label_red = _redact_text(label)
             cmd_txt, cmd_red = r.redacted_command()
             cmd_suffix = f" | cmd={cmd_txt}" if include_command else ""
             red_suffix = " redacted" if (label_red or cmd_red) else ""
-            lines.append(f"- pid={r.pid} etime={r.etime} since={r.since} {label_txt}{red_suffix}{cmd_suffix}")
+            stale_suffix = f" stale>={int(stale_min)}m" if _is_stale(r, stale_min=stale_min) else ""
+            lines.append(f"- pid={r.pid} etime={r.etime} since={r.since}{stale_suffix} {label_txt}{red_suffix}{cmd_suffix}")
         if len(procs) > 30:
             lines.append(f"- … +{len(procs) - 30} more")
         lines.append("")
+
+    if suggest_kill_stale and int(stale_min) > 0:
+        # Suggested stop commands (still explicit PID; do not auto-kill).
+        stale_candidates: list[ProcRow] = []
+        for r in rows:
+            if not _is_stale(r, stale_min=stale_min):
+                continue
+            section, _label = _classify(r)
+            if section not in {"Agent workers", "Orchestrator"}:
+                continue
+            stale_candidates.append(r)
+        if stale_candidates:
+            lines.append("■ 停止候補（stale）")
+            lines.append(f"_threshold={int(stale_min)}m; 実行は明示PIDのみ（--kill --yes）_")
+            stale_candidates = sorted(stale_candidates, key=lambda x: float(x.etime_seconds), reverse=True)
+            for r in stale_candidates[:15]:
+                section, label = _classify(r)
+                label_txt, _label_red = _redact_text(label)
+                lines.append(
+                    f"- pid={r.pid} etime={r.etime} since={r.since} [{section}] {label_txt} -> "
+                    f"python3 scripts/ops/process_report.py --pid {r.pid} --kill --yes"
+                )
+            if len(stale_candidates) > 15:
+                lines.append(f"- … +{len(stale_candidates) - 15} more")
+            lines.append("")
 
     return "\n".join(lines).strip()
 
@@ -409,6 +493,17 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--auto", action="store_true", help="Auto-detect repo-related processes (default when no --pid).")
     ap.add_argument("--grep", default="", help="Regex filter for command line (optional).")
     ap.add_argument("--include-command", action="store_true", help="Include full command line in output (redacted).")
+    ap.add_argument(
+        "--stale-min",
+        type=int,
+        default=0,
+        help="Minutes threshold for 'stale' tagging (0 disables; default: 0).",
+    )
+    ap.add_argument(
+        "--suggest-kill-stale",
+        action="store_true",
+        help="Include stop suggestions for stale Agent workers/Orchestrator (still explicit --pid + --kill --yes).",
+    )
     ap.add_argument("--kill", action="store_true", help="Kill the specified --pid processes (policy: explicit PIDs only).")
     ap.add_argument("--yes", action="store_true", help="Confirm --kill execution (otherwise dry-run plan only).")
     ap.add_argument("--slack", action="store_true", help="Post the report to Slack via scripts/ops/slack_notify.py")
@@ -451,6 +546,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         requested_pids=requested_pids,
         rows=rows,
         include_command=bool(args.include_command),
+        stale_min=int(args.stale_min),
+        suggest_kill_stale=bool(args.suggest_kill_stale),
         ps_error=ps_error,
     )
 
