@@ -255,7 +255,11 @@
     - 自動運用（macOS / launchd; ローカル専用）:
       - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <C...> --thread-ts <...> --dd-user <U...> --interval-sec 1800 --post-digest --process --errors`
         - 任意: `--git-push-if-clean`
-  - PID稼働状況（「いつから/何をしているか」）: `python3 scripts/ops/process_report.py --auto --slack --thread-ts <thread_ts>`（明示PID: `--pid 123 --pid 456`）
+  - PID稼働状況（「いつから/何をしているか」）:
+    - まとめ（自動検出→Slack）: `python3 scripts/ops/process_report.py --auto --slack --channel <C...> --thread-ts <thread_ts>`
+    - 詳細（目的/コマンド含む）: `python3 scripts/ops/process_report.py --auto --include-command --slack --channel <C...> --thread-ts <thread_ts>`
+    - 明示PID: `python3 scripts/ops/process_report.py --pid 123 --pid 456`
+    - 停止（安全: 明示PIDのみ / dry-runがデフォルト）: `python3 scripts/ops/process_report.py --pid 123 --kill --yes`
 
 ### 3.5 Thumbnails（サムネ量産/修正）
 - SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
@@ -301,6 +305,9 @@
 - Gitロールバック事故の予防（push前チェック含む）:
   - `python3 scripts/ops/git_write_lock.py {status|lock|unlock|unlock-for-push}`（既定は unlocked。必要時のみ lock。詳細: `ssot/ops/OPS_GIT_SAFETY.md`）
   - `python3 scripts/ops/pre_push_final_check.py --run-tests --write-ssot-report`（push前の最終チェック）
+- 大容量アーカイブ（GitHub Releases assets）:
+  - SSOT: `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md`
+  - CLI: `python3 scripts/ops/release_archive.py --help`
 - 統合 cleanup（推奨）:
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs: `python -m scripts.cleanup_workspace --video-runs --dry-run --channel CHxx --video NNN` → OKなら `--run`
