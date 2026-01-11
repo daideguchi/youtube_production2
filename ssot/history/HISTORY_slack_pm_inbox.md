@@ -17,6 +17,7 @@
 
 ## Inbox（auto）
 <!-- inbox:start -->
+- [ ] 2026-01-11T04:37:31.970429Z key=78b185feef src=thread kind=request who=dd plain | 推奨でどんどん進めて。明らかに死んでるワーカーは止めてもいいよ。明らかに死んでたらね
 - [ ] 2026-01-11T03:41:36.506959Z key=aa0e8474e9 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T03:36:42.233509Z key=c146e83458 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
 - [ ] 2026-01-11T02:52:11.086369Z key=bee17347a0 src=channel kind=error who=bot plain | [ops] FAILED cmd=script op=resume episode=CH06-035
