@@ -124,12 +124,44 @@ def _classify(row: ProcRow) -> tuple[str, str]:
     cmd = row.command
     low = cmd.lower()
 
+    # Try to surface "what is running" first: ops_cli / runbooks usually carry the best hints.
+    if "ops_cli.py" in low and "scripts/ops" in low:
+        top_cmd, op = _extract_ops_cli_cmd_op(cmd)
+        episode = _extract_episode_hint(cmd)
+        op_part = f" {op}" if op else ""
+        ep_part = f" episode={episode}" if episode else ""
+        return ("Ops runs", f"ops {top_cmd}{op_part}{ep_part}".strip())
+    if "script_runbook.py" in low:
+        mode = _extract_subcommand_after(cmd, "script_runbook.py") or "run"
+        episode = _extract_episode_hint(cmd)
+        ep_part = f" episode={episode}" if episode else ""
+        return ("Script pipeline", f"script_runbook {mode}{ep_part}".strip())
+    if "script_pipeline.cli" in low and " audio" in f" {low} ":
+        episode = _extract_episode_hint(cmd)
+        ep_part = f" episode={episode}" if episode else ""
+        return ("Audio/TTS", f"script_pipeline audio{ep_part}".strip())
+
     if "agent_org.py" in cmd and "orchestrator run" in cmd:
-        name = _extract_flag_value(cmd, "--name") or "unknown"
-        return ("Orchestrator", f"agent_org orchestrator ({name})")
+        name = _extract_flag_value_quoted(cmd, "--name") or _extract_flag_value(cmd, "--name") or "unknown"
+        parts = [f"orchestrator {name}"]
+        if _flag_present(cmd, "--no-process-requests"):
+            parts.append("requests=off")
+        if _flag_present(cmd, "--verbose"):
+            parts.append("verbose")
+        return ("Orchestrator", " ".join(parts).strip())
     if "agent_org.py" in cmd and "agents run" in cmd:
-        name = _extract_flag_value(cmd, "--name") or "unknown"
-        return ("Agent workers", f"{name}")
+        name = _extract_flag_value_quoted(cmd, "--name") or _extract_flag_value(cmd, "--name")
+        agent_id = _extract_flag_value(cmd, "--agent-id").strip()
+        role = (_extract_flag_value(cmd, "--role") or "").strip()
+        note = _extract_flag_value_quoted(cmd, "--note") or _extract_flag_value(cmd, "--note")
+        ident = (name or agent_id or "unknown").strip() or "unknown"
+        parts = [f"agent {ident}"]
+        if role and role != "worker":
+            parts.append(f"role={role}")
+        note = _compact_one_line(note)
+        if note:
+            parts.append(f"note={_truncate_for_label(note, limit=70)}")
+        return ("Agent workers", " ".join(parts).strip())
     if "uvicorn" in low and "backend.main:app" in cmd:
         return ("UI/Docs", "ui-backend (uvicorn backend.main:app)")
     if "start_manager.py" in cmd and "apps/ui-backend" in cmd:
@@ -153,10 +185,92 @@ def _extract_flag_value(cmd: str, flag: str) -> str:
     return ""
 
 
+def _extract_flag_value_quoted(cmd: str, flag: str) -> str:
+    """
+    Extract a flag value allowing quoted strings:
+      --flag value
+      --flag "value with spaces"
+      --flag 'value with spaces'
+    """
+    pat = re.compile(rf"(?:^|\s){re.escape(flag)}\s+(?:\"([^\"]+)\"|'([^']+)'|(\S+))")
+    m = pat.search(str(cmd or ""))
+    if not m:
+        return ""
+    for g in m.groups():
+        if g:
+            return str(g).strip()
+    return ""
+
+
+def _flag_present(cmd: str, flag: str) -> bool:
+    return bool(re.search(rf"(?:^|\s){re.escape(flag)}(?:\s|$)", str(cmd or "")))
+
+
+def _compact_one_line(text: str) -> str:
+    return re.sub(r"[\s\u3000]+", " ", str(text or "")).strip()
+
+
+def _truncate_for_label(text: str, *, limit: int) -> str:
+    s = str(text or "").strip()
+    if len(s) <= limit:
+        return s
+    return s[: max(0, limit - 1)].rstrip() + "…"
+
+
+def _extract_subcommand_after(cmd: str, token_endswith: str) -> str:
+    parts = cmd.split()
+    for i, p in enumerate(parts):
+        if str(p).endswith(token_endswith) and i + 1 < len(parts):
+            nxt = str(parts[i + 1])
+            return "" if nxt.startswith("-") else nxt
+    return ""
+
+
+def _extract_episode_hint(cmd: str) -> str:
+    """
+    Best-effort extraction for episode hints from argv:
+    - --channel CHxx + --video NNN
+    - or inline "CHxx-NNN"
+    """
+    ch = _extract_flag_value(cmd, "--channel").strip().upper()
+    vid = _extract_flag_value(cmd, "--video").strip()
+    if ch and re.fullmatch(r"CH\d{2}", ch):
+        if vid.isdigit():
+            vid = vid.zfill(3)
+        if vid:
+            return f"{ch}-{vid}"
+    m = re.search(r"\bCH\d{2}-\d{3}\b", cmd, flags=re.IGNORECASE)
+    return str(m.group(0)).upper() if m else ""
+
+
+def _extract_ops_cli_cmd_op(cmd: str) -> tuple[str, str]:
+    parts = cmd.split()
+    idx = None
+    for i, p in enumerate(parts):
+        if str(p).endswith("ops_cli.py"):
+            idx = i
+            break
+    if idx is None:
+        return ("ops", "")
+    top = str(parts[idx + 1]).strip() if idx + 1 < len(parts) else "ops"
+    op = ""
+    if idx + 2 < len(parts):
+        nxt = str(parts[idx + 2]).strip()
+        if nxt and not nxt.startswith("-"):
+            op = nxt
+    return (top or "ops", op)
+
+
 def _auto_match(row: ProcRow) -> bool:
     cmd = row.command
     # Keep the default narrow (signal-only) to avoid noisy system/indexer processes.
     if "agent_org.py" in cmd and "workspaces/logs/agent_tasks" in cmd:
+        return True
+    if "scripts/ops/ops_cli.py" in cmd:
+        return True
+    if "scripts/ops/script_runbook.py" in cmd:
+        return True
+    if "script_pipeline.cli" in cmd and " audio" in f" {cmd.lower()} ":
         return True
     if "codex exec" in cmd.lower() and f"-C {PROJECT_ROOT}" in cmd:
         return True
@@ -194,10 +308,11 @@ def _format_report(
                 lines.append(f"- {pid}: not running")
                 continue
             section, label = _classify(r)
-            cmd_txt, red = r.redacted_command()
+            label_txt, label_red = _redact_text(label)
+            cmd_txt, cmd_red = r.redacted_command()
             cmd_suffix = f" | cmd={cmd_txt}" if include_command else ""
-            red_suffix = " redacted" if red else ""
-            lines.append(f"- {pid}: etime={r.etime} since={r.since} [{section}] {label}{red_suffix}{cmd_suffix}")
+            red_suffix = " redacted" if (label_red or cmd_red) else ""
+            lines.append(f"- {pid}: etime={r.etime} since={r.since} [{section}] {label_txt}{red_suffix}{cmd_suffix}")
         lines.append("")
 
     # Auto summary (grouped).
@@ -206,7 +321,16 @@ def _format_report(
         section, _ = _classify(r)
         groups.setdefault(section, []).append(r)
 
-    for section in ["Orchestrator", "Agent workers", "UI/Docs", "Codex exec", "Other"]:
+    for section in [
+        "Ops runs",
+        "Script pipeline",
+        "Audio/TTS",
+        "Orchestrator",
+        "Agent workers",
+        "UI/Docs",
+        "Codex exec",
+        "Other",
+    ]:
         procs = groups.get(section) or []
         if not procs:
             continue
@@ -215,10 +339,11 @@ def _format_report(
         procs_sorted = sorted(procs, key=lambda x: (len(x.etime), x.etime), reverse=True)
         for r in procs_sorted[:30]:
             sec, label = _classify(r)
-            cmd_txt, red = r.redacted_command()
+            label_txt, label_red = _redact_text(label)
+            cmd_txt, cmd_red = r.redacted_command()
             cmd_suffix = f" | cmd={cmd_txt}" if include_command else ""
-            red_suffix = " redacted" if red else ""
-            lines.append(f"- pid={r.pid} etime={r.etime} since={r.since} {label}{red_suffix}{cmd_suffix}")
+            red_suffix = " redacted" if (label_red or cmd_red) else ""
+            lines.append(f"- pid={r.pid} etime={r.etime} since={r.since} {label_txt}{red_suffix}{cmd_suffix}")
         if len(procs) > 30:
             lines.append(f"- … +{len(procs) - 30} more")
         lines.append("")
