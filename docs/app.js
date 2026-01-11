@@ -158,8 +158,9 @@ function loadThumbProjects() {
             label: String(v?.label || "").trim(),
             status: String(v?.status || "").trim(),
             image_url: String(v?.image_url || "").trim(),
+            image_path: String(v?.image_path || "").trim(),
           }))
-          .filter((v) => v.id || v.label || v.image_url);
+          .filter((v) => v.id || v.label || v.image_url || v.image_path);
 
         next.set(videoId, {
           channel: String(p?.channel || "").trim(),
@@ -329,22 +330,37 @@ function renderThumbProject(it, proj) {
     card.appendChild(title);
 
     const url = String(v?.image_url || "").trim();
-    if (url && /^https?:\\/\\//.test(url)) {
+    const imagePath = String(v?.image_path || "").trim();
+    const pathUrl = imagePath ? joinUrl(rawBase, `workspaces/thumbnails/assets/${imagePath}`) : "";
+    const previewUrl = url && /^https?:\\/\\//.test(url) ? url : pathUrl;
+
+    if (previewUrl) {
       const a = document.createElement("a");
-      a.href = url;
+      a.href = previewUrl;
       a.target = "_blank";
       a.rel = "noreferrer";
       a.className = "thumb-card__imglink";
       const img = document.createElement("img");
-      img.src = url;
+      img.src = previewUrl;
       img.loading = "lazy";
       img.alt = `${it?.video_id || ""} thumbnail`;
+      img.onerror = () => {
+        try {
+          img.remove();
+          const code = document.createElement("code");
+          code.className = "thumb-card__path";
+          code.textContent = imagePath || url || "(no image)";
+          a.appendChild(code);
+        } catch (_err) {
+          // ignore
+        }
+      };
       a.appendChild(img);
       card.appendChild(a);
-    } else if (url) {
+    } else if (url || imagePath) {
       const code = document.createElement("code");
       code.className = "thumb-card__path";
-      code.textContent = url;
+      code.textContent = imagePath || url;
       card.appendChild(code);
     } else {
       const none = document.createElement("div");
