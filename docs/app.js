@@ -8,7 +8,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_22";
+const SITE_ASSET_VERSION = "20260112_23";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -244,6 +244,8 @@ let videoImagesIndexByVideoId = new Map();
 let videoImagesIndexPromise = null;
 let snapshotByChannel = new Map();
 let snapshotChannelsPromise = null;
+let snapshotEpisodeByVideoId = new Map();
+let snapshotEpisodePromiseByChannel = new Map();
 
 function pickChannelDisplayName(meta) {
   const yt = meta?.youtube || {};
@@ -455,6 +457,45 @@ function loadSnapshotChannels() {
   return snapshotChannelsPromise;
 }
 
+function snapshotChannelDataPath(channelId) {
+  const ch = String(channelId || "").trim();
+  if (!ch) return "";
+  const row = snapshotByChannel.get(ch);
+  const p = String(row?.data_path || "").trim();
+  return p || `data/snapshot/${ch}.json`;
+}
+
+async function loadSnapshotChannel(channelId) {
+  const ch = String(channelId || "").trim();
+  if (!ch) return null;
+  if (snapshotEpisodePromiseByChannel.has(ch)) return snapshotEpisodePromiseByChannel.get(ch);
+
+  const promise = (async () => {
+    try {
+      await loadSnapshotChannels();
+      const dataPath = snapshotChannelDataPath(ch);
+      if (!dataPath) return null;
+      const res = await fetch(siteUrl(dataPath), { cache: "no-store" });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`snapshot fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const eps = Array.isArray(data?.episodes) ? data.episodes : [];
+      for (const ep of eps) {
+        const vid = String(ep?.video_id || "").trim();
+        if (!vid) continue;
+        snapshotEpisodeByVideoId.set(vid, ep);
+      }
+      return data;
+    } catch (err) {
+      console.warn("[script_viewer] failed to load snapshot channel", ch, err);
+      return null;
+    }
+  })();
+
+  snapshotEpisodePromiseByChannel.set(ch, promise);
+  return promise;
+}
+
 let indexData = null;
 let items = [];
 let grouped = new Map();
@@ -610,10 +651,30 @@ function cleanText(raw) {
   return normalizeNewlines(String(raw || "")).trim();
 }
 
+function effectivePlanning(it) {
+  const p = it?.planning;
+  if (p && typeof p === "object") return p;
+  const videoId = String(it?.video_id || "").trim();
+  const ep = videoId ? snapshotEpisodeByVideoId.get(videoId) : null;
+  const p2 = ep?.planning;
+  return p2 && typeof p2 === "object" ? p2 : {};
+}
+
+function planningText(planning, keys) {
+  const p = planning && typeof planning === "object" ? planning : {};
+  for (const k of keys) {
+    if (!k) continue;
+    const v = p[k];
+    const t = cleanText(v);
+    if (t) return t;
+  }
+  return "";
+}
+
 function buildEpisodeDescription(it) {
-  const planning = it?.planning || {};
-  const lead = cleanText(planning?.description_lead);
-  const body = cleanText(planning?.description_body);
+  const planning = effectivePlanning(it);
+  const lead = planningText(planning, ["description_lead", "説明文_リード"]);
+  const body = planningText(planning, ["description_body", "説明文_この動画でわかること", "説明文_本文"]);
   return [lead, body].filter(Boolean).join("\n");
 }
 
@@ -633,13 +694,15 @@ function uniquePush(list, raw) {
 function buildYtTags(it) {
   const out = [];
 
-  const planning = it?.planning || {};
+  const planning = effectivePlanning(it);
   const tagsRaw = Array.isArray(planning?.tags) ? planning.tags : [];
   if (tagsRaw.length) {
     for (const t of tagsRaw) uniquePush(out, t);
   } else {
     uniquePush(out, planning?.main_tag);
     uniquePush(out, planning?.sub_tag);
+    uniquePush(out, planning["悩みタグ_メイン"]);
+    uniquePush(out, planning["悩みタグ_サブ"]);
   }
 
   const ch = String(it?.channel || "").trim();
@@ -1986,6 +2049,16 @@ async function loadScript(it) {
   const assembledPath = String(it?.assembled_path || "").trim();
   metaPath.textContent = assembledPath || "（台本未生成/未公開）";
   renderYoutubeMeta(it);
+  void (async () => {
+    const currentId = String(it?.video_id || "").trim();
+    const ch = String(it?.channel || "").trim();
+    if (!currentId || !ch) return;
+    await loadSnapshotChannel(ch);
+    if (String(selected?.video_id || "").trim() !== currentId) return;
+    const ep = snapshotEpisodeByVideoId.get(currentId);
+    if (!ep) return;
+    renderYoutubeMeta({ ...it, title: cleanText(it?.title) || cleanText(ep?.title), planning: ep?.planning || it?.planning });
+  })();
 
   if (!assembledPath) {
     openRaw.removeAttribute("href");
@@ -2043,7 +2116,29 @@ function selectItem(channel, video) {
   if (it) {
     void loadScript(it);
   } else {
-    clearSelectionForChannel(channel);
+    void (async () => {
+      const ch = normalizeChannelParam(channel);
+      const v = normalizeVideoParam(video);
+      const vid = ch && v ? `${ch}-${v}` : "";
+      if (!vid) {
+        clearSelectionForChannel(channel);
+        return;
+      }
+      await loadSnapshotChannel(ch);
+      const ep = snapshotEpisodeByVideoId.get(vid);
+      if (!ep) {
+        clearSelectionForChannel(channel);
+        return;
+      }
+      void loadScript({
+        channel: ch,
+        video: v,
+        video_id: vid,
+        title: cleanText(ep?.title),
+        planning: ep?.planning || {},
+        assembled_path: cleanText(ep?.assembled_path),
+      });
+    })();
   }
 }
 
