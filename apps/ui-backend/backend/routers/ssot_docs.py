@@ -2,50 +2,24 @@ from __future__ import annotations
 
 import csv
 import io
-import re
 from pathlib import Path
 from typing import List, Tuple
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.channel_info_store import find_channel_directory, refresh_channel_info
 from backend.app.channels_models import (
     PersonaDocumentResponse,
     PersonaDocumentUpdateRequest,
     PlanningTemplateResponse,
     PlanningTemplateUpdateRequest,
 )
+from backend.app.normalize import normalize_channel_code
 from backend.app.prompts_store import safe_relative_path, write_text_with_lock
 from factory_common.paths import persona_path as ssot_persona_path
 from factory_common.paths import planning_root as ssot_planning_root
-from factory_common.paths import repo_root
-from factory_common.paths import script_data_root as ssot_script_data_root
 from script_pipeline.tools import planning_requirements
 
 router = APIRouter(prefix="/api/ssot", tags=["ssot"])
-
-PROJECT_ROOT = repo_root()
-DATA_ROOT = ssot_script_data_root()
-CHANNEL_PLANNING_DIR = ssot_planning_root() / "channels"
-
-
-def normalize_channel_code(channel: str) -> str:
-    raw = channel.strip()
-    if not raw or Path(raw).name != raw:
-        raise HTTPException(status_code=400, detail="Invalid channel identifier")
-    channel_code = raw.upper()
-    if not re.match(r"^CH\d+$", channel_code):
-        raise HTTPException(status_code=400, detail="Invalid channel identifier")
-    if (DATA_ROOT / channel_code).is_dir():
-        return channel_code
-    if (CHANNEL_PLANNING_DIR / f"{channel_code}.csv").is_file():
-        return channel_code
-    if find_channel_directory(channel_code) is not None:
-        return channel_code
-    # Fallback: allow channels known only via channels_info.json cache.
-    if channel_code in refresh_channel_info():
-        return channel_code
-    raise HTTPException(status_code=404, detail=f"Channel {channel_code} not found")
 
 
 def _persona_doc_path(channel_code: str) -> Path:

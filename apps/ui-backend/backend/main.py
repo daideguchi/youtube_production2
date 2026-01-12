@@ -141,6 +141,7 @@ from backend.app.scripts_models import (
     TextUpdateRequest,
 )
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
+from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
@@ -2262,34 +2263,6 @@ def _load_channel_spreadsheet(channel_code: str) -> PlanningSpreadsheetResponse:
             return PlanningSpreadsheetResponse(channel=channel_code, headers=headers, rows=rows)
         logger.warning("%s は有効な CSV として解析できません。planning SoT から再構成します。", csv_path)
     return _build_spreadsheet_from_planning(channel_code)
-
-
-def normalize_channel_code(channel: str) -> str:
-    raw = channel.strip()
-    if not raw or Path(raw).name != raw:
-        raise HTTPException(status_code=400, detail="Invalid channel identifier")
-    channel_code = raw.upper()
-    if not re.match(r"^CH\d+$", channel_code):
-        raise HTTPException(status_code=400, detail="Invalid channel identifier")
-    if (DATA_ROOT / channel_code).is_dir():
-        return channel_code
-    if (CHANNEL_PLANNING_DIR / f"{channel_code}.csv").is_file():
-        return channel_code
-    if find_channel_directory(channel_code) is not None:
-        return channel_code
-    # Fallback: allow channels known only via channels_info.json cache.
-    if channel_code in refresh_channel_info():
-        return channel_code
-    raise HTTPException(status_code=404, detail=f"Channel {channel_code} not found")
-
-
-def normalize_video_number(video: str) -> str:
-    raw = video.strip()
-    if not raw or Path(raw).name != raw:
-        raise HTTPException(status_code=400, detail="Invalid video identifier")
-    if not raw.isdigit():
-        raise HTTPException(status_code=400, detail="Video identifier must be numeric")
-    return raw.zfill(3)
 
 
 def normalize_planning_video_number(value: Any) -> Optional[str]:
