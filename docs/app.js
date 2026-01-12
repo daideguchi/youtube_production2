@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_13";
+const SITE_ASSET_VERSION = "20260112_14";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -1969,6 +1969,20 @@ function setupEvents() {
         closeBrowseIfNarrow();
         return;
       }
+    }
+
+    // If only a channel is provided (e.g. CH27), jump to that channel's default video.
+    const chOnly = normalizeChannelParam(raw);
+    if (chOnly && grouped.has(chOnly)) {
+      hideSearchResults();
+      const video = defaultVideoForChannel(chOnly);
+      if (video) {
+        selectItem(chOnly, video);
+      } else {
+        clearSelectionForChannel(chOnly);
+      }
+      closeBrowseIfNarrow();
+      return;
     }
 
     // If only a video number is provided, show candidates across channels.
