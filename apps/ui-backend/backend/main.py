@@ -148,6 +148,7 @@ from backend.routers import params
 from backend.routers import kb
 from backend.routers import reading_dict
 from backend.routers import audio_check
+from backend.routers import health
 from factory_common.publish_lock import (
     is_episode_published_locked,
     mark_episode_published_locked,
@@ -6003,6 +6004,7 @@ app.include_router(params.router)
 app.include_router(kb.router)
 app.include_router(reading_dict.router)
 app.include_router(audio_check.router)
+app.include_router(health.router)
 try:
     from backend.routers import prompts
 
@@ -13140,12 +13142,6 @@ def reset_batch_tts_progress():
     except Exception:
         pass
     return {"status": "reset", "message": "バッチ進捗をリセットしました。"}
-
-
-@app.get("/api/ping")
-def ping():
-    return {"status": "ok"}
-
 
 @app.get("/api/admin/lock-metrics", response_model=LockMetricsResponse)
 def get_lock_metrics():
