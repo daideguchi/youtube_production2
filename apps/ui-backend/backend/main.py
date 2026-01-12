@@ -142,6 +142,16 @@ from backend.app.scripts_models import (
 )
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.ui_settings_store import (
+    OPENROUTER_API_KEY,
+    _get_effective_openai_key,
+    _get_effective_openrouter_key,
+    _get_ui_settings,
+    _load_env_value,
+    _normalize_llm_settings,
+    _validate_provider_endpoint,
+    _write_ui_settings,
+)
 from backend.video_production import video_router
 from backend.routers import swap
 from backend.routers import params
@@ -248,7 +258,6 @@ OPENROUTER_GENERATION_URL = "https://openrouter.ai/api/v1/generation"
 OPENROUTER_MODELS_CACHE_LOCK = threading.Lock()
 OPENROUTER_MODELS_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "pricing_by_id": {}}
 OPENROUTER_MODELS_CACHE_TTL_SEC = 60 * 60
-UI_SETTINGS_PATH = PROJECT_ROOT / "configs" / "ui_settings.json"
 CODEX_CONFIG_TOML_PATH = Path.home() / ".codex" / "config.toml"
 CODEX_EXEC_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.yaml"
 CODEX_EXEC_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.local.yaml"
@@ -271,200 +280,7 @@ TASK_TABLE = "batch_tasks"
 QUEUE_TABLE = "batch_queue"
 QUEUE_CONFIG_DIR = TASK_LOG_DIR / "queue_configs"
 QUEUE_PROGRESS_DIR = TASK_LOG_DIR / "queue_progress"
-from backend.core.llm import LLMFactory, ModelPhase, ModelConfig, LLMProvider
-
-OPENAI_CAPTION_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_CAPTION_MODEL", "gpt-5-chat")
-DEFAULT_CAPTION_PROVIDER = os.getenv("THUMBNAIL_CAPTION_PROVIDER", "openai")
-DEFAULT_OPENAI_CAPTION_MODEL = os.getenv("OPENAI_DEFAULT_CAPTION_MODEL", OPENAI_CAPTION_DEFAULT_MODEL)
-
-SETTINGS_LOCK = threading.Lock()
-DEFAULT_UI_SETTINGS: Dict[str, Any] = {
-    "llm": {
-        "caption_provider": DEFAULT_CAPTION_PROVIDER,
-        "openai_api_key": None,
-        "openai_caption_model": DEFAULT_OPENAI_CAPTION_MODEL,
-        "openrouter_api_key": None,
-        "openrouter_caption_model": "qwen/qwen3-14b:free",
-        # Phase models are now managed by LLMRegistry, but kept here for UI compatibility
-        "phase_models": {},
-    }
-}
-UI_SETTINGS: Dict[str, Any] = {}
-UI_SETTINGS_DISK_STATE: Dict[str, Optional[float]] = {
-    "ui_settings_mtime": None,
-}
-
 CODEX_SETTINGS_LOCK = threading.Lock()
-
-
-def _safe_mtime(path: Path) -> Optional[float]:
-    try:
-        return path.stat().st_mtime
-    except FileNotFoundError:
-        return None
-    except Exception:
-        return None
-
-
-def _normalize_llm_settings(raw: Optional[dict]) -> dict:
-    """Normalize settings using LLMRegistry defaults."""
-    llm = copy.deepcopy(DEFAULT_UI_SETTINGS["llm"])
-    if not isinstance(raw, dict):
-        return llm
-    
-    # Copy basic settings
-    for key in ["caption_provider", "openai_api_key", "openai_caption_model", "openrouter_api_key", "openrouter_caption_model"]:
-        if raw.get(key):
-            llm[key] = raw.get(key)
-
-    # Merge phase models from registry and raw input
-    registry = LLMFactory.get_registry()
-    merged_phase_models: Dict[str, Dict[str, object]] = {}
-    
-    # 1. Start with registry defaults
-    for phase, config in registry.phases.items():
-        merged_phase_models[phase.value] = {
-            "label": config.label or phase.value,
-            "provider": config.provider.value,
-            "model": config.model,
-        }
-
-    # 2. Override with incoming raw settings
-    incoming_phases = raw.get("phase_models") or {}
-    for phase_id, incoming in incoming_phases.items():
-        if not isinstance(incoming, dict):
-            continue
-        current = merged_phase_models.get(phase_id, {})
-        merged_phase_models[phase_id] = {
-            "label": incoming.get("label") or current.get("label") or phase_id,
-            "provider": incoming.get("provider") or current.get("provider") or "openrouter",
-            "model": incoming.get("model") or current.get("model"),
-        }
-
-    llm["phase_models"] = merged_phase_models
-    return llm
-
-
-def _resolve_phase_choice(
-    llm: Dict[str, Any],
-    phase_id: str,
-    *,
-    default_provider: str,
-    default_model: str,
-    allowed_providers: Optional[set[str]] = None,
-) -> tuple[str, str]:
-    # Try to use LLMFactory logic if possible, but for UI resolution we might need raw dict access
-    phase_models = llm.get("phase_models") or {}
-    entry = phase_models.get(phase_id) or {}
-    
-    # If entry is empty, try to get from registry
-    if not entry:
-        try:
-            phase_enum = ModelPhase(phase_id)
-            config = LLMFactory.get_registry().get_config(phase_enum)
-            entry = {
-                "provider": config.provider.value,
-                "model": config.model
-            }
-        except ValueError:
-            pass
-
-    provider = (entry.get("provider") or default_provider).lower()
-    model = entry.get("model") or default_model
-    if allowed_providers and provider not in allowed_providers:
-        provider = default_provider
-    _validate_provider_endpoint(provider)
-    return provider, model
-
-
-def _validate_provider_endpoint(provider: str) -> None:
-    """
-    Fail-fast to avoid sending OpenRouter payloads to Azure or vice versa.
-    """
-    if provider == "openrouter":
-        base = os.getenv("OPENAI_BASE_URL", "").lower()
-        if "cognitiveservices.azure.com" in base:
-            raise HTTPException(
-                status_code=400,
-                detail=(
-                    "provider=openrouter ですが OPENAI_BASE_URL が Azure を指しています。"
-                    " OPENAI_BASE_URL=https://openrouter.ai/api/v1 にしてください。"
-                ),
-            )
-        key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_TOKEN")
-        if not key:
-            raise HTTPException(status_code=400, detail="provider=openrouter には OPENROUTER_API_KEY が必要です。")
-    elif provider == "openai":
-        if not _get_effective_openai_key():
-            raise HTTPException(status_code=400, detail="provider=openai には OpenAI/Azure APIキーが必要です。")
-    elif provider == "gemini":
-        if not os.getenv("GEMINI_API_KEY"):
-            raise HTTPException(status_code=400, detail="provider=gemini には GEMINI_API_KEY が必要です。")
-
-
-def _load_ui_settings_from_disk() -> None:
-    global UI_SETTINGS
-    with SETTINGS_LOCK:
-        settings = copy.deepcopy(DEFAULT_UI_SETTINGS)
-        if UI_SETTINGS_PATH.exists():
-            try:
-                loaded = json.loads(UI_SETTINGS_PATH.read_text(encoding="utf-8"))
-                if isinstance(loaded, dict):
-                    settings["llm"] = _normalize_llm_settings(loaded.get("llm"))
-            except Exception as exc:  # pragma: no cover - corrupted settings
-                logger.warning("Failed to read %s: %s", UI_SETTINGS_PATH, exc)
-        UI_SETTINGS = settings
-        UI_SETTINGS_DISK_STATE["ui_settings_mtime"] = _safe_mtime(UI_SETTINGS_PATH)
-
-
-def _write_ui_settings(settings: Dict[str, Any]) -> None:
-    UI_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with SETTINGS_LOCK:
-        UI_SETTINGS_PATH.write_text(json.dumps(settings, ensure_ascii=False, indent=2), encoding="utf-8")
-        UI_SETTINGS.update(copy.deepcopy(settings))
-        UI_SETTINGS_DISK_STATE["ui_settings_mtime"] = _safe_mtime(UI_SETTINGS_PATH)
-
-
-def _maybe_reload_ui_settings_from_disk() -> None:
-    ui_mtime = _safe_mtime(UI_SETTINGS_PATH)
-    with SETTINGS_LOCK:
-        if ui_mtime == UI_SETTINGS_DISK_STATE.get("ui_settings_mtime"):
-            return
-    _load_ui_settings_from_disk()
-
-
-def _get_ui_settings() -> Dict[str, Any]:
-    _maybe_reload_ui_settings_from_disk()
-    with SETTINGS_LOCK:
-        return copy.deepcopy(UI_SETTINGS)
-
-
-_load_ui_settings_from_disk()
-
-
-def _ensure_openrouter_api_key() -> str:
-    getter = globals().get("_get_ui_settings")
-    if callable(getter):
-        settings = getter()
-    else:  # pragma: no cover - defensive fallback for reload edge cases
-        logger.error("_get_ui_settings is unavailable during OpenRouter key resolution; using defaults.")
-        settings = copy.deepcopy(DEFAULT_UI_SETTINGS)
-    value = settings.get("llm", {}).get("openrouter_api_key")
-    if value:
-        os.environ.setdefault("OPENROUTER_API_KEY", value)
-        return value
-    value = os.getenv("OPENROUTER_API_KEY") or _load_env_value("OPENROUTER_API_KEY")
-    if value:
-        return value
-    if os.getenv("YTM_ALLOW_OPENROUTER_MISSING") == "1":
-        logger.warning(
-            "OPENROUTER_API_KEY is not configured, but YTM_ALLOW_OPENROUTER_MISSING=1 so continuing in degraded mode."
-        )
-        return ""
-    raise RuntimeError(
-        "OPENROUTER_API_KEY が設定されていません。`.env` を更新し `python scripts/check_env.py --keys OPENROUTER_API_KEY` "
-        "を通過させてから UI を起動してください。"
-    )
 
 def _read_csv_file(path: Path) -> Tuple[List[str], List[List[str]]]:
     with path.open("r", encoding="utf-8", newline="") as handle:
@@ -958,36 +774,6 @@ async def _handle_task_completion(task_id: str, channel_code: str, status: Batch
     await _maybe_start_queue(channel_code)
 
 
-ENV_FILE_CANDIDATES = [
-    PROJECT_ROOT / ".env",
-    PROJECT_ROOT / "ui" / ".env",
-    ssot_research_root() / ".env",
-    PROJECT_ROOT.parent / ".env",
-]
-
-
-def _load_env_value(name: str) -> Optional[str]:
-    value = os.getenv(name)
-    if value:
-        return value
-    for env_path in ENV_FILE_CANDIDATES:
-        if not env_path or not env_path.exists():
-            continue
-        try:
-            for raw_line in env_path.read_text(encoding="utf-8").splitlines():
-                line = raw_line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                if line.startswith(f"{name}="):
-                    _, raw_value = line.split("=", 1)
-                    os.environ[name] = raw_value
-                    logger.info("Loaded %s from %s", name, env_path)
-                    return raw_value
-        except Exception as exc:  # pragma: no cover - best-effort parsing
-            logger.warning("Failed to parse %s for %s: %s", env_path, name, exc)
-    return None
-
-
 PROGRESS_STATUS_PATH = DATA_ROOT / "_progress" / "processing_status.json"
 AUDIO_CHANNELS_DIR = SCRIPT_PIPELINE_ROOT / "audio" / "channels"
 LOCK_TIMEOUT_SECONDS = 5.0
@@ -1009,22 +795,6 @@ LOCK_ALERT_STATE = {
     "unexpected": 0,
     "last_alert_at": None,
 }
-
-
-def _get_effective_openrouter_key() -> Optional[str]:
-    settings = _get_ui_settings()
-    key = settings.get("llm", {}).get("openrouter_api_key")
-    if key:
-        return key
-    return OPENROUTER_API_KEY or None
-
-
-def _get_effective_openai_key() -> Optional[str]:
-    settings = _get_ui_settings()
-    key = settings.get("llm", {}).get("openai_api_key")
-    if key:
-        return key
-    return os.getenv("OPENAI_API_KEY") or _load_env_value("OPENAI_API_KEY")
 
 def _fetch_openrouter_model_ids_via_rest(api_key: str) -> List[str]:
     headers = {
@@ -1133,8 +903,6 @@ YOUTUBE_BRANDING_BACKOFF: Dict[str, datetime] = {}
 
 if not os.getenv("YOUTUBE_API_KEY"):
     _load_env_value("YOUTUBE_API_KEY")
-
-OPENROUTER_API_KEY = _ensure_openrouter_api_key()
 
 def _parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
     if not value:
