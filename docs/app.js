@@ -2184,7 +2184,20 @@ function setupEvents() {
   });
 
   $("copyLink").addEventListener("click", async () => {
-    const url = String(window.location.href || "").trim();
+    let url = String(window.location.href || "").trim();
+    try {
+      const ch = normalizeChannelParam(selected?.channel || "");
+      const v = normalizeVideoParam(selected?.video || "");
+      if (ch && v) {
+        const base = new URL(".", window.location.href);
+        const view = normalizeView(currentView);
+        let path = `ep/${ch}/${v}/`;
+        if (view && view !== "script") path += `${view}/`;
+        url = new URL(path, base).href;
+      }
+    } catch (_err) {
+      // ignore (fallback to current URL)
+    }
     if (!url) return;
     const ok = await copyText(url);
     setCopyStatus(ok ? "リンクをコピーしました" : "コピーに失敗しました", !ok);
