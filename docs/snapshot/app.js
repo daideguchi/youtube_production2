@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 
-const INDEX_URL = "../data/snapshot/channels.json";
+const INDEX_URL = "data/snapshot/channels.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
-const VIDEO_IMAGES_INDEX_URL = "../data/video_images_index.json";
-const SITE_ASSET_VERSION = "20260112_07";
+const VIDEO_IMAGES_INDEX_URL = "data/video_images_index.json";
+const SITE_ASSET_VERSION = "20260112_08";
 
 const PAGES_ROOT_URL = new URL("../", window.location.href);
 
@@ -229,7 +229,7 @@ function loadVideoImagesIndex() {
   if (videoImagesIndexPromise) return videoImagesIndexPromise;
   videoImagesIndexPromise = (async () => {
     try {
-      const res = await fetch(VIDEO_IMAGES_INDEX_URL, { cache: "no-store" });
+      const res = await fetch(assetUrl(VIDEO_IMAGES_INDEX_URL), { cache: "no-store" });
       if (!res.ok) throw new Error(`video_images_index fetch failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
       const items = Array.isArray(data?.items) ? data.items : [];
@@ -514,7 +514,7 @@ async function loadChannel(channel) {
   setAlert("");
   setLoading(true);
   try {
-    const url = joinUrl(new URL("../", window.location.href).toString(), entry.data_path);
+    const url = assetUrl(entry.data_path);
     openDataJson.href = url;
 
     const res = await fetch(url, { cache: "no-store" });
@@ -553,7 +553,11 @@ async function reloadIndex() {
   setLoading(true);
   setAlert("");
   try {
-    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta(), loadVideoImagesIndex()]);
+    const [res] = await Promise.all([
+      fetch(assetUrl(INDEX_URL), { cache: "no-store" }),
+      loadChannelMeta(),
+      loadVideoImagesIndex(),
+    ]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
     indexData = await res.json();
     channels = Array.isArray(indexData?.channels) ? indexData.channels : [];
