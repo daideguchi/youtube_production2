@@ -1,12 +1,24 @@
 {
   "channel_code": "CH28",
   "channel_name": "60代からの静かな救いの物語",
-  "default_voice_key": "voicevox_aoyama",
+  "default_voice_key": "namine_ritsu_normal",
   "output": {
     "final_root": "data/CH28/_audio_workspace/final",
     "temp_root": "data/CH28/_audio_workspace/temp"
   },
   "voices": {
+    "namine_ritsu_normal": {
+      "engine": "voicevox",
+      "character": "波音リツ",
+      "style": "ノーマル",
+      "voicevox_speaker_id": 9,
+      "speed_scale": 0.96,
+      "pitch_scale": -0.02,
+      "intonation_scale": 1.0,
+      "volume_scale": 1.0,
+      "pre_phoneme_length": 0.11,
+      "post_phoneme_length": 0.13
+    },
     "voicevox_aoyama": {
       "engine": "voicevox",
       "character": "青山龍星",

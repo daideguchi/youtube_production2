@@ -439,6 +439,22 @@ def _discover_thumb_alt_variants(repo_root: Path) -> dict[str, dict[str, set[str
     return out
 
 
+def _thumbs_alt_index_json(*, variants: dict[str, dict[str, set[str]]], updated_at: str) -> str:
+    """JSON for Script Viewer: available thumb_alt variants/videos by channel."""
+    out: dict[str, Any] = {"generated_at": updated_at, "channels": {}}
+    ch_obj: dict[str, Any] = {}
+    for ch in sorted(variants.keys(), key=_channel_sort_key):
+        per_variant = variants.get(ch) or {}
+        v_obj: dict[str, Any] = {}
+        for variant in sorted(per_variant.keys()):
+            vids = sorted(per_variant.get(variant) or set())
+            v_obj[variant] = vids
+        if v_obj:
+            ch_obj[ch] = v_obj
+    out["channels"] = ch_obj
+    return json.dumps(out, ensure_ascii=False, indent=2) + "\n"
+
+
 def _standard_links(*, page_dir: Path, docs_root: Path, ep_root: Path, channel_dir: Path | None) -> str:
     ep_href = _rel_href(page_dir, ep_root, is_dir=True)
     viewer_href = _rel_href(page_dir, docs_root / "index.html", is_dir=False)
@@ -1001,6 +1017,10 @@ def main() -> int:
 
     if args.clean and ep_root.exists():
         shutil.rmtree(ep_root)
+
+    data_root = docs_root / "data"
+    data_root.mkdir(parents=True, exist_ok=True)
+    _write_text_atomic(data_root / "thumbs_alt_index.json", _thumbs_alt_index_json(variants=alt_variants, updated_at=updated_at))
 
     _write_text_atomic(ep_root / "styles.css", _styles_css())
     _write_text_atomic(ep_root / "app.js", _app_js())

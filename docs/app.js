@@ -4,11 +4,12 @@ const INDEX_URL = "./data/index.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
 const THUMB_PROJECTS_PATH = "workspaces/thumbnails/projects.json";
 const THUMBS_INDEX_URL = "./data/thumbs_index.json";
+const THUMBS_ALT_INDEX_URL = "./data/thumbs_alt_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_25";
+const SITE_ASSET_VERSION = "20260112_26";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -240,6 +241,8 @@ let thumbProjectByVideoId = new Map();
 let thumbProjectPromise = null;
 let thumbIndexByVideoId = new Map();
 let thumbIndexPromise = null;
+let thumbAltByChannel = new Map();
+let thumbAltPromise = null;
 let videoImagesIndexByVideoId = new Map();
 let videoImagesIndexPromise = null;
 let snapshotByChannel = new Map();
@@ -381,6 +384,49 @@ function loadThumbIndex() {
     return thumbIndexByVideoId;
   })();
   return thumbIndexPromise;
+}
+
+function loadThumbAltIndex() {
+  if (thumbAltPromise) return thumbAltPromise;
+  thumbAltPromise = (async () => {
+    try {
+      const res = await fetch(siteUrl(THUMBS_ALT_INDEX_URL), { cache: "no-store" });
+      if (res.status === 404) {
+        thumbAltByChannel = new Map();
+        return thumbAltByChannel;
+      }
+      if (!res.ok) throw new Error(`thumbs_alt_index fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const channels = data?.channels && typeof data.channels === "object" ? data.channels : {};
+      const next = new Map();
+      for (const [chRaw, variantsRaw] of Object.entries(channels)) {
+        const ch = normalizeChannelParam(chRaw);
+        if (!ch) continue;
+        const vmap = new Map();
+        if (variantsRaw && typeof variantsRaw === "object") {
+          for (const [variantRaw, videosRaw] of Object.entries(variantsRaw)) {
+            const variant = String(variantRaw || "").trim();
+            if (!variant) continue;
+            const set = new Set();
+            if (Array.isArray(videosRaw)) {
+              for (const vvRaw of videosRaw) {
+                const vv = normalizeVideoParam(vvRaw);
+                if (vv) set.add(vv);
+              }
+            }
+            if (set.size) vmap.set(variant, set);
+          }
+        }
+        if (vmap.size) next.set(ch, vmap);
+      }
+      thumbAltByChannel = next;
+    } catch (err) {
+      console.warn("[script_viewer] failed to load thumbs_alt_index.json", err);
+      thumbAltByChannel = new Map();
+    }
+    return thumbAltByChannel;
+  })();
+  return thumbAltPromise;
 }
 
 function loadVideoImagesIndex() {
@@ -583,6 +629,43 @@ function setLoading(on) {
   loading.hidden = !on;
 }
 
+function thumbAltVariantsForEpisode(it) {
+  const ch = normalizeChannelParam(it?.channel || "");
+  const v = normalizeVideoParam(it?.video || "");
+  if (!ch || !v) return [];
+  const per = thumbAltByChannel.get(ch) || null;
+  if (!per) return [];
+  const out = [];
+  for (const [variant, vids] of per.entries()) {
+    if (vids && vids.has(v)) out.push(String(variant || "").trim());
+  }
+  out.sort((a, b) => a.localeCompare(b));
+  return out.filter(Boolean);
+}
+
+function preferredThumbAltVariant(it) {
+  const variants = thumbAltVariantsForEpisode(it);
+  return variants.length ? variants[0] : "";
+}
+
+function pickThumbUrls(it) {
+  const videoId = String(it?.video_id || "").trim();
+  const ch = normalizeChannelParam(it?.channel || "");
+  const v = normalizeVideoParam(it?.video || "");
+  if (!videoId || !ch || !v) return { primaryUrl: "", fallbackUrl: "" };
+
+  const altVariant = preferredThumbAltVariant(it);
+  const altRel = altVariant ? `media/thumbs_alt/${altVariant}/${ch}/${v}.jpg` : "";
+  const altUrl = altRel ? siteUrl(altRel) : "";
+
+  const idx = thumbIndexByVideoId.get(videoId) || null;
+  const rel = String(idx?.preview_rel || `media/thumbs/${ch}/${v}.jpg`).trim();
+  const canShow = idx ? idx.preview_exists !== false : true;
+  const fallbackUrl = canShow ? siteUrl(rel) : "";
+
+  return altUrl ? { primaryUrl: altUrl, fallbackUrl } : { primaryUrl: fallbackUrl, fallbackUrl: "" };
+}
+
 function updateHeroMedia(it) {
   const videoId = String(it?.video_id || "").trim();
   if (!videoId) {
@@ -595,10 +678,15 @@ function updateHeroMedia(it) {
   heroThumbFallback.hidden = false;
   heroThumbFallback.textContent = "サムネ読み込み中…";
 
-  const idx = thumbIndexByVideoId.get(videoId) || null;
-  const rel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
-  const url = siteUrl(rel);
+  const { primaryUrl, fallbackUrl } = pickThumbUrls(it);
   const currentId = videoId;
+  let triedFallback = false;
+  if (!primaryUrl) {
+    heroThumbImg.hidden = true;
+    heroThumbFallback.hidden = false;
+    heroThumbFallback.textContent = "サムネ未（プレビューなし）";
+    return;
+  }
 
   heroThumbImg.onload = () => {
     if (String(selected?.video_id || "").trim() !== currentId) return;
@@ -607,12 +695,17 @@ function updateHeroMedia(it) {
   };
   heroThumbImg.onerror = () => {
     if (String(selected?.video_id || "").trim() !== currentId) return;
+    if (!triedFallback && fallbackUrl) {
+      triedFallback = true;
+      heroThumbImg.src = fallbackUrl;
+      return;
+    }
     heroThumbImg.hidden = true;
     heroThumbFallback.hidden = false;
     heroThumbFallback.textContent = "サムネ未（プレビューなし）";
   };
   heroThumbImg.alt = `${videoId} thumbnail`;
-  heroThumbImg.src = url;
+  heroThumbImg.src = primaryUrl;
 }
 
 function updateBrowseSummary() {
@@ -1333,19 +1426,122 @@ function renderThumbPreviewOnly(it) {
   thumbBody.appendChild(card);
 }
 
+function appendThumbAltPreviews(it) {
+  const variants = thumbAltVariantsForEpisode(it);
+  if (!variants.length) return;
+
+  const ch = normalizeChannelParam(it?.channel || "");
+  const v = normalizeVideoParam(it?.video || "");
+  if (!ch || !v) return;
+
+  const det = document.createElement("details");
+  det.className = "details";
+  det.open = true;
+
+  const sum = document.createElement("summary");
+  sum.textContent = `イラスト（thumb_alt: ${variants.join(", ")}）`;
+  det.appendChild(sum);
+
+  const body = document.createElement("div");
+  body.className = "details__body";
+
+  for (const variant of variants) {
+    const rel = `media/thumbs_alt/${variant}/${ch}/${v}.jpg`;
+    const url = siteUrl(rel);
+
+    const card = document.createElement("div");
+    card.className = "thumb-selected";
+
+    const title = document.createElement("div");
+    title.className = "thumb-selected__title";
+    title.textContent = `thumb_alt:${variant}`;
+    card.appendChild(title);
+
+    const tools = document.createElement("div");
+    tools.className = "video-images-tools";
+
+    const epUrl = encodeURI(`./ep/${ch}/${v}/thumb/${variant}/`);
+    const galUrl = encodeURI(`./ep/${ch}/thumb/${variant}/`);
+
+    const aEp = document.createElement("a");
+    aEp.className = "btn btn--ghost";
+    aEp.target = "_blank";
+    aEp.rel = "noreferrer";
+    aEp.href = epUrl;
+    aEp.textContent = "epで見る";
+    tools.appendChild(aEp);
+
+    const aGal = document.createElement("a");
+    aGal.className = "btn btn--ghost";
+    aGal.target = "_blank";
+    aGal.rel = "noreferrer";
+    aGal.href = galUrl;
+    aGal.textContent = "まとめ（30枚など）";
+    tools.appendChild(aGal);
+
+    const aImg = document.createElement("a");
+    aImg.className = "btn btn--ghost";
+    aImg.target = "_blank";
+    aImg.rel = "noreferrer";
+    aImg.href = url;
+    aImg.textContent = "画像を開く";
+    tools.appendChild(aImg);
+
+    card.appendChild(tools);
+
+    const previewWrap = document.createElement("div");
+    previewWrap.className = "thumb-selected__preview";
+
+    const a = document.createElement("a");
+    a.className = "thumb-selected__imglink";
+    a.target = "_blank";
+    a.rel = "noreferrer";
+    a.href = url;
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.alt = `${ch}-${v} thumb_alt:${variant}`;
+    img.src = url;
+    img.onerror = () => {
+      try {
+        img.remove();
+      } catch (_err) {
+        // ignore
+      }
+      const msg = document.createElement("div");
+      msg.className = "thumb-selected__message muted";
+      msg.textContent = `画像が見つかりません: ${rel}`;
+      previewWrap.appendChild(msg);
+    };
+
+    a.appendChild(img);
+    previewWrap.appendChild(a);
+    card.appendChild(previewWrap);
+
+    body.appendChild(card);
+  }
+
+  det.appendChild(body);
+  thumbBody.appendChild(det);
+}
+
 async function loadThumb(it) {
   const currentId = it?.video_id || "";
   thumbState = "loading";
   updateBadges();
   thumbBody.textContent = "読み込み中…";
   try {
-    const [map] = await Promise.all([loadThumbProjects(), loadThumbIndex()]);
+    const [map] = await Promise.all([loadThumbProjects(), loadThumbIndex(), loadThumbAltIndex()]);
     if (selected?.video_id !== currentId) return;
     const proj = map.get(currentId);
     if (!proj) {
       renderThumbPreviewOnly(it);
+      appendThumbAltPreviews(it);
+      const hasAlt = thumbAltVariantsForEpisode(it).length > 0;
       const idx = thumbIndexByVideoId.get(currentId);
-      if (idx && idx.preview_exists === true) {
+      if (hasAlt) {
+        thumbState = "ok";
+      } else if (idx && idx.preview_exists === true) {
         thumbState = "ok";
       } else if (idx && idx.preview_exists === false) {
         thumbState = "missing";
@@ -1356,6 +1552,7 @@ async function loadThumb(it) {
       return;
     }
     renderThumbProject(it, proj);
+    appendThumbAltPreviews(it);
     const variants = Array.isArray(proj?.variants) ? proj.variants : [];
     const selectedId = String(proj?.selected_variant_id || "").trim();
     const selectedVar = variants.find((v) => String(v?.id || "").trim() === selectedId) || null;
@@ -1363,7 +1560,8 @@ async function loadThumb(it) {
     const hasRemote = rawUrl && /^https?:\/\//.test(rawUrl);
     const idx = thumbIndexByVideoId.get(currentId);
     const hasPublished = Boolean(idx?.preview_exists);
-    thumbState = hasRemote || hasPublished ? "ok" : "partial";
+    const hasAlt = thumbAltVariantsForEpisode(it).length > 0;
+    thumbState = hasRemote || hasPublished || hasAlt ? "ok" : "partial";
     updateBadges();
   } catch (err) {
     if (selected?.video_id !== currentId) return;
@@ -1851,10 +2049,9 @@ function renderVideoList(channel, activeVideo) {
       left.className = "video-list__thumb";
 
       const videoId = String(it?.video_id || "").trim();
-      const idx = videoId ? thumbIndexByVideoId.get(videoId) : null;
-      const rel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
-      const canShow = idx ? idx.preview_exists !== false : true;
-      const thumbUrl = canShow ? siteUrl(rel) : "";
+      const { primaryUrl, fallbackUrl } = pickThumbUrls(it);
+      const thumbUrl = primaryUrl;
+      let triedFallback = false;
 
       if (thumbUrl) {
         const img = document.createElement("img");
@@ -1862,6 +2059,11 @@ function renderVideoList(channel, activeVideo) {
         img.alt = `${videoId} thumb`;
         img.src = thumbUrl;
         img.onerror = () => {
+          if (!triedFallback && fallbackUrl) {
+            triedFallback = true;
+            img.src = fallbackUrl;
+            return;
+          }
           try {
             img.remove();
           } catch (_err) {
@@ -1901,6 +2103,11 @@ function renderVideoList(channel, activeVideo) {
         badges.appendChild(makeMiniBadge("サムネ未", "bad"));
       } else {
         badges.appendChild(makeMiniBadge("サムネ?", "neutral"));
+      }
+
+      const altVariants = thumbAltVariantsForEpisode(it);
+      if (altVariants.length) {
+        badges.appendChild(makeMiniBadge(`イラスト`, "warn"));
       }
 
       const imgs = vid ? videoImagesIndexByVideoId.get(vid) : null;
@@ -2225,6 +2432,8 @@ async function reloadIndex() {
     thumbProjectByVideoId = new Map();
     thumbIndexPromise = null;
     thumbIndexByVideoId = new Map();
+    thumbAltPromise = null;
+    thumbAltByChannel = new Map();
     videoImagesIndexPromise = null;
     videoImagesIndexByVideoId = new Map();
     snapshotChannelsPromise = null;
@@ -2238,6 +2447,7 @@ async function reloadIndex() {
       loadChannelMeta(),
       loadThumbProjects(),
       loadThumbIndex(),
+      loadThumbAltIndex(),
       loadVideoImagesIndex(),
       loadSnapshotChannels(),
     ]);
