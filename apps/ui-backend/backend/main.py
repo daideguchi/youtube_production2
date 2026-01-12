@@ -159,6 +159,7 @@ from backend.routers import kb
 from backend.routers import reading_dict
 from backend.routers import audio_check
 from backend.routers import health
+from backend.routers import healthz
 from factory_common.publish_lock import (
     is_episode_published_locked,
     mark_episode_published_locked,
@@ -5773,6 +5774,7 @@ app.include_router(kb.router)
 app.include_router(reading_dict.router)
 app.include_router(audio_check.router)
 app.include_router(health.router)
+app.include_router(healthz.router)
 try:
     from backend.routers import prompts
 
@@ -5966,35 +5968,6 @@ try:
     app.include_router(settings.router)
 except Exception as e:
     logger.error("Failed to load settings router: %s", e)
-
-
-def _collect_health_components() -> Dict[str, bool]:
-    components: Dict[str, bool] = {
-        "project_root": PROJECT_ROOT.exists(),
-        "data_dir": DATA_ROOT.exists(),
-        "script_pipeline": SCRIPT_PIPELINE_ROOT.exists(),
-        "video_pipeline": VIDEO_PIPELINE_ROOT.exists(),
-        "logs_dir": LOGS_ROOT.exists(),
-        "ui_log_dir": UI_LOG_DIR.exists(),
-        "channel_planning_dir": CHANNEL_PLANNING_DIR.exists(),
-        "gemini_api_key": bool(os.getenv("GEMINI_API_KEY")),
-        "openrouter_api_key": bool(_get_effective_openrouter_key()),
-        "openai_api_key": bool(_get_effective_openai_key()),
-    }
-    return components
-
-
-@app.get("/api/healthz")
-def healthcheck():
-    components = _collect_health_components()
-    issues = [name for name, ok in components.items() if not ok]
-    status = "ok" if not issues else "degraded"
-    return {
-        "status": status,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "issues": issues,
-        "components": components,
-    }
 
 app.add_middleware(
     CORSMiddleware,
