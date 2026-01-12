@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260112_09" />
-    <script defer src="./app.js?v=20260112_09"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260112_10" />
+    <script defer src="./app.js?v=20260112_10"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -54,6 +54,16 @@
 
       <section class="meta">
         <div class="meta__title" id="metaTitle">—</div>
+        <div id="heroMedia" class="hero-media" hidden>
+          <button id="heroThumbButton" class="hero-media__thumb" type="button">
+            <img id="heroThumbImg" alt="" loading="lazy" hidden />
+            <div id="heroThumbFallback" class="hero-media__thumbFallback muted">サムネ未</div>
+          </button>
+          <div class="hero-media__actions">
+            <button id="heroToThumb" class="btn btn--ghost" type="button">サムネを見る</button>
+            <button id="heroToImages" class="btn btn--ghost" type="button">画像を見る</button>
+          </div>
+        </div>
         <div class="meta__row">
           <div class="meta__path">
             <span class="muted">Path:</span>

@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_09";
+const SITE_ASSET_VERSION = "20260112_10";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -134,6 +134,15 @@ function siteUrl(relPath) {
   if (!s) return "";
   const base = `./${s}`;
   return SITE_ASSET_VERSION ? `${base}?v=${encodeURIComponent(SITE_ASSET_VERSION)}` : base;
+}
+
+function docsRawUrl(relPath) {
+  const s = String(relPath || "")
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/^\.\/+/, "");
+  if (!s) return "";
+  return joinUrl(rawBase, `docs/${s}`);
 }
 
 function normalizeView(raw) {
@@ -442,6 +451,12 @@ const browseSummary = $("browseSummary");
 const reloadIndexButton = $("reloadIndex");
 const metaTitle = $("metaTitle");
 const metaPath = $("metaPath");
+const heroMedia = $("heroMedia");
+const heroThumbButton = $("heroThumbButton");
+const heroThumbImg = $("heroThumbImg");
+const heroThumbFallback = $("heroThumbFallback");
+const heroToThumb = $("heroToThumb");
+const heroToImages = $("heroToImages");
 const openRaw = $("openRaw");
 const openAssetPack = $("openAssetPack");
 const openSnapshot = $("openSnapshot");
@@ -474,6 +489,38 @@ const videoImagesBody = $("videoImagesBody");
 
 function setLoading(on) {
   loading.hidden = !on;
+}
+
+function updateHeroMedia(it) {
+  const videoId = String(it?.video_id || "").trim();
+  if (!videoId) {
+    heroMedia.hidden = true;
+    return;
+  }
+
+  heroMedia.hidden = false;
+  heroThumbImg.hidden = true;
+  heroThumbFallback.hidden = false;
+  heroThumbFallback.textContent = "サムネ読み込み中…";
+
+  const idx = thumbIndexByVideoId.get(videoId) || null;
+  const rel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
+  const url = siteUrl(rel);
+  const currentId = videoId;
+
+  heroThumbImg.onload = () => {
+    if (String(selected?.video_id || "").trim() !== currentId) return;
+    heroThumbImg.hidden = false;
+    heroThumbFallback.hidden = true;
+  };
+  heroThumbImg.onerror = () => {
+    if (String(selected?.video_id || "").trim() !== currentId) return;
+    heroThumbImg.hidden = true;
+    heroThumbFallback.hidden = false;
+    heroThumbFallback.textContent = "サムネ未（プレビューなし）";
+  };
+  heroThumbImg.alt = `${videoId} thumbnail`;
+  heroThumbImg.src = url;
 }
 
 function updateBrowseSummary() {
@@ -1115,6 +1162,27 @@ function renderVideoImagesEntry(it, entry) {
   head.textContent = `count=${count || files.length || 0}${runId ? " / run=" + runId : ""}`;
   videoImagesBody.appendChild(head);
 
+  if (files.length) {
+    const tools = document.createElement("div");
+    tools.className = "video-images-tools";
+
+    const copyUrls = document.createElement("button");
+    copyUrls.type = "button";
+    copyUrls.className = "btn btn--ghost";
+    copyUrls.textContent = "raw URL一覧をコピー";
+    copyUrls.addEventListener("click", async () => {
+      const urls = files
+        .map((f) => docsRawUrl(String(f?.rel || "").trim()))
+        .filter(Boolean)
+        .join("\n");
+      const ok = await copyText(urls);
+      setCopyStatus(ok ? "画像URLをコピーしました" : "コピーに失敗しました", !ok);
+    });
+    tools.appendChild(copyUrls);
+
+    videoImagesBody.appendChild(tools);
+  }
+
   if (!files.length) {
     const empty = document.createElement("div");
     empty.className = "muted";
@@ -1295,6 +1363,7 @@ function renderChannelChips(channels, activeChannel) {
 function clearSelectionForChannel(channel) {
   const ch = String(channel || "").trim();
   selected = null;
+  heroMedia.hidden = true;
   loadedText = "";
   loadedNoSepText = "";
   scriptState = "idle";
@@ -1577,6 +1646,7 @@ async function loadScript(it) {
   initialVideoWanted = String(it?.video || "").trim();
   updateBrowseSummary();
   persistUiState();
+  updateHeroMedia(it);
   loadedText = "";
   loadedNoSepText = "";
   scriptState = "loading";
@@ -1710,6 +1780,10 @@ function setupEvents() {
     if (!view) return;
     goToView(view);
   });
+
+  heroThumbButton.addEventListener("click", () => goToView("thumb"));
+  heroToThumb.addEventListener("click", () => goToView("thumb"));
+  heroToImages.addEventListener("click", () => goToView("images"));
 
   channelSelect.addEventListener("change", () => {
     const ch = channelSelect.value;
