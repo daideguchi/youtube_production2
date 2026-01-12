@@ -1,30 +1,32 @@
 #!/usr/bin/env python3
 """
-pages_thumb_placeholders.py — GitHub Pages用「サムネ欠け」をplaceholderで埋める
+pages_thumb_placeholders.py — GitHub Pages用「サムネ未生成」プレースホルダを生成する
 
 目的:
-- Script Viewer（docs/data/index.json）に載っている全回が、モバイルでも必ず一覧でサムネ表示される状態にする。
-- 実サムネが未作成/未pushの回は、最低限 placeholder 画像を置く（“空白/壊れ画像”をなくす）。
+- snapshot / Script Viewer でサムネ画像が「割れない」ことを優先する（モバイル運用の詰まり防止）。
+- thumbnails/projects.json に未登録なチャンネル（例: CH17-CH21）でも、planning CSV は存在するため、
+  `docs/media/thumbs/CHxx/NNN.jpg` を最低限埋めて閲覧性を担保する。
 
 出力:
-- `docs/media/thumbs/CHxx/NNN.jpg`（存在しない場合のみ生成）
+- `docs/media/thumbs/CHxx/NNN.jpg`（プレースホルダ）
 
 注意:
-- 実サムネがある場合は上書きしない（--overwrite でのみ上書き）。
-- placeholder は「未作成」を明示するための仮画像。実サムネの生成/選択は別のフローで行う。
+- これは「本サムネ」ではない。サムネ生成パイプライン未整備の回の暫定表示。
+- secrets は扱わない。
 
 Usage:
-  # 生成（欠けている分だけ）
-  python3 scripts/ops/pages_thumb_placeholders.py --write
+  # 全チャンネル（planning CSV）を対象に不足分だけ生成
+  python3 scripts/ops/pages_thumb_placeholders.py --all --write
 
-  # 既存も含めて上書き（非推奨）
-  python3 scripts/ops/pages_thumb_placeholders.py --write --overwrite
+  # 一部だけ
+  python3 scripts/ops/pages_thumb_placeholders.py --channel CH17 --write
 """
 
 from __future__ import annotations
 
 import argparse
-import json
+import csv
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -32,145 +34,159 @@ from typing import Iterable
 from _bootstrap import bootstrap
 
 try:
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw
 except Exception:  # pragma: no cover
     Image = None  # type: ignore[assignment]
     ImageDraw = None  # type: ignore[assignment]
-    ImageFont = None  # type: ignore[assignment]
+
+bootstrap(load_env=False)
+
+from factory_common.paths import channels_csv_path, repo_root  # noqa: E402
+
+
+CHANNEL_RE = re.compile(r"^CH\d{2}$")
+VIDEO_RE = re.compile(r"^\d{3}$")
+
+
+def _normalize_channel(raw: str) -> str:
+    s = str(raw or "").strip().upper()
+    if re.fullmatch(r"CH\d{2}", s):
+        return s
+    m = re.fullmatch(r"CH(\d+)", s)
+    if m:
+        return f"CH{int(m.group(1)):02d}"
+    return s
+
+
+def _normalize_video(raw: str) -> str:
+    s = str(raw or "").strip()
+    if re.fullmatch(r"\d{3}", s):
+        return s
+    try:
+        return f"{int(s):03d}"
+    except Exception:
+        return s
+
+
+def _thumb_preview_path(*, repo: Path, channel: str, video: str) -> Path:
+    return repo / "docs" / "media" / "thumbs" / channel / f"{video}.jpg"
+
+
+def _iter_planning_rows(path: Path) -> Iterable[dict[str, str]]:
+    if not path.exists():
+        return []
+    raw = path.read_text(encoding="utf-8-sig")
+    reader = csv.DictReader(raw.splitlines())
+    rows: list[dict[str, str]] = []
+    for row in reader:
+        if not isinstance(row, dict):
+            continue
+        rows.append({str(k or "").strip(): str(v or "").strip() for k, v in row.items() if k})
+    return rows
 
 
 @dataclass(frozen=True)
-class ScriptIndexItem:
-    video_id: str
+class Target:
     channel: str
     video: str
-    title: str
 
 
-def _load_script_index_items(repo_root: Path) -> list[ScriptIndexItem]:
-    path = repo_root / "docs" / "data" / "index.json"
-    if not path.exists():
-        raise SystemExit(f"missing: {path}")
-    obj = json.loads(path.read_text(encoding="utf-8"))
-    items = obj.get("items") if isinstance(obj, dict) else None
-    if not isinstance(items, list):
-        return []
-    out: list[ScriptIndexItem] = []
-    for it in items:
-        if not isinstance(it, dict):
+def _targets_for_channel(ch: str) -> list[Target]:
+    csv_path = channels_csv_path(ch)
+    rows = list(_iter_planning_rows(csv_path))
+    out: list[Target] = []
+    for row in rows:
+        raw_video = row.get("動画番号") or row.get("No.") or ""
+        if not raw_video.strip():
             continue
-        video_id = str(it.get("video_id") or "").strip()
-        channel = str(it.get("channel") or "").strip()
-        video = str(it.get("video") or "").strip()
-        title = str(it.get("title") or "").strip()
-        if not (video_id and channel and video):
+        try:
+            v = _normalize_video(raw_video)
+        except Exception:
             continue
-        out.append(ScriptIndexItem(video_id=video_id, channel=channel, video=video, title=title))
+        if VIDEO_RE.match(v):
+            out.append(Target(channel=ch, video=v))
+    # stable order
+    out.sort(key=lambda t: int(t.video))
     return out
 
 
-def _thumb_path(repo_root: Path, channel: str, video: str) -> Path:
-    return repo_root / "docs" / "media" / "thumbs" / channel / f"{video}.jpg"
-
-
-def _safe_title(title: str, max_len: int = 56) -> str:
-    s = " ".join(str(title or "").split()).strip()
-    if len(s) <= max_len:
-        return s
-    return s[: max_len - 1] + "…"
-
-
-def _load_font(size: int) -> "ImageFont.ImageFont":
-    if ImageFont is None:  # pragma: no cover
-        raise RuntimeError("Pillow is required")
-    try:
-        return ImageFont.truetype("DejaVuSans-Bold.ttf", size=size)
-    except Exception:
-        return ImageFont.load_default()
-
-
-def _draw_placeholder(*, video_id: str, title: str, dest: Path, width: int, height: int, quality: int) -> None:
+def _render_placeholder(*, video_id: str, size: tuple[int, int]) -> "Image.Image":
     if Image is None or ImageDraw is None:  # pragma: no cover
-        raise RuntimeError("Pillow is required to generate placeholders.")
+        raise RuntimeError("Pillow (PIL) is required to generate placeholder thumbnails.")
+    w, h = size
+    im = Image.new("RGB", (w, h), (14, 18, 32))
+    d = ImageDraw.Draw(im)
 
-    bg = Image.new("RGB", (int(width), int(height)), (20, 28, 55))
-    d = ImageDraw.Draw(bg)
-
-    # subtle diagonal stripes
-    stripe = (36, 46, 88)
-    step = 24
-    for x in range(-height, width, step):
-        d.line([(x, 0), (x + height, height)], fill=stripe, width=6)
-
-    # top bar
-    d.rectangle([0, 0, width, 64], fill=(15, 23, 48))
-    d.rectangle([0, 0, width, 3], fill=(110, 168, 255))
-
-    # text
-    font_big = _load_font(44)
-    font_mid = _load_font(22)
-    font_small = _load_font(18)
-
-    d.text((18, 14), "THUMBNAIL TBD", fill=(233, 238, 255), font=font_mid)
-    d.text((18, 74), video_id, fill=(233, 238, 255), font=font_big)
-
-    t = _safe_title(title)
-    if t:
-        d.text((18, 140), t, fill=(233, 238, 255), font=font_small)
-
-    note = "この画像は placeholder（未作成）です。実サムネは別フローで生成/選択します。"
-    d.text((18, height - 34), note, fill=(200, 210, 255), font=font_small)
-
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    tmp = dest.with_suffix(dest.suffix + ".tmp")
-    bg.save(tmp, format="JPEG", quality=int(quality), optimize=True, progressive=True)
-    tmp.replace(dest)
-
-
-def _iter_missing(
-    repo_root: Path,
-    items: Iterable[ScriptIndexItem],
-    *,
-    overwrite: bool,
-) -> Iterable[tuple[ScriptIndexItem, Path]]:
-    for it in items:
-        dest = _thumb_path(repo_root, it.channel, it.video)
-        if dest.exists() and not overwrite:
-            continue
-        yield it, dest
+    # Simple, font-agnostic ASCII only (mobile readability + no font dependencies).
+    lines = [
+        video_id,
+        "THUMBNAIL PREVIEW",
+        "NOT GENERATED YET",
+    ]
+    y = int(h * 0.32)
+    for line in lines:
+        # default font; keep centered
+        bbox = d.textbbox((0, 0), line)
+        tw = bbox[2] - bbox[0]
+        th = bbox[3] - bbox[1]
+        x = max(10, (w - tw) // 2)
+        d.text((x, y), line, fill=(235, 238, 255))
+        y += th + 10
+    # border
+    d.rectangle([6, 6, w - 6, h - 6], outline=(110, 168, 255), width=2)
+    return im
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Fill missing thumbnail previews with placeholders for GitHub Pages.")
-    ap.add_argument("--width", type=int, default=640, help="Placeholder width (default: 640)")
-    ap.add_argument("--height", type=int, default=360, help="Placeholder height (default: 360)")
-    ap.add_argument("--quality", type=int, default=82, help="JPEG quality (default: 82)")
-    ap.add_argument("--overwrite", action="store_true", help="Overwrite existing thumbs (NOT recommended)")
-    ap.add_argument("--write", action="store_true", help="Write placeholder images (default: dry-run)")
+    ap = argparse.ArgumentParser(description="Generate placeholder thumbs for GitHub Pages from Planning CSV.")
+    ap.add_argument("--all", action="store_true", help="All planning channels (workspaces/planning/channels/CH*.csv)")
+    ap.add_argument("--channel", action="append", default=[], help="Channel code (repeatable). e.g. CH17")
+    ap.add_argument("--width", type=int, default=640, help="Output width (default: 640)")
+    ap.add_argument("--height", type=int, default=360, help="Output height (default: 360)")
+    ap.add_argument("--overwrite", action="store_true", help="Overwrite existing placeholder JPGs")
+    ap.add_argument("--write", action="store_true", help="Write files (default: dry-run)")
     args = ap.parse_args()
 
-    repo_root = Path(bootstrap(load_env=False))
-    items = _load_script_index_items(repo_root)
-    missing = list(_iter_missing(repo_root, items, overwrite=bool(args.overwrite)))
-    if not missing:
-        print("[pages_thumb_placeholders] no targets (all thumbs exist).")
-        return 0
+    repo = repo_root()
+    channels: list[str] = []
+    if args.all:
+        planning_dir = repo / "workspaces" / "planning" / "channels"
+        for p in sorted(planning_dir.glob("CH*.csv")):
+            ch = _normalize_channel(p.stem)
+            if CHANNEL_RE.match(ch):
+                channels.append(ch)
+    else:
+        channels = [_normalize_channel(x) for x in (args.channel or []) if str(x or "").strip()]
 
-    if args.write:
-        for it, dest in missing:
-            _draw_placeholder(
-                video_id=it.video_id,
-                title=it.title,
-                dest=dest,
-                width=int(args.width),
-                height=int(args.height),
-                quality=int(args.quality),
-            )
+    if not channels:
+        ap.error("Specify --all or at least one --channel")
+
+    width = int(args.width)
+    height = int(args.height)
+    written = 0
+    skipped = 0
+
+    for ch in channels:
+        if not CHANNEL_RE.match(ch):
+            continue
+        for t in _targets_for_channel(ch):
+            dest = _thumb_preview_path(repo=repo, channel=t.channel, video=t.video)
+            if dest.exists() and not args.overwrite:
+                skipped += 1
+                continue
+            if not args.write:
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            im = _render_placeholder(video_id=f"{t.channel}-{t.video}", size=(width, height))
+            tmp = dest.with_suffix(dest.suffix + ".tmp")
+            im.save(tmp, format="JPEG", quality=85, optimize=True, progressive=True)
+            tmp.replace(dest)
+            written += 1
 
     mode = "WRITE" if args.write else "DRY"
-    print(f"[pages_thumb_placeholders] mode={mode} targets={len(missing)}")
+    print(f"[pages_thumb_placeholders] mode={mode} written={written} skipped={skipped} channels={len(channels)}")
     if not args.write:
-        print("Dry-run only. Re-run with --write to generate placeholders.")
+        print("Dry-run only. Re-run with --write.")
     return 0
 
 
