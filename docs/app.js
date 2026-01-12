@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_08";
+const SITE_ASSET_VERSION = "20260112_09";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -788,14 +788,16 @@ function renderThumbProject(it, proj) {
 
   const rawUrl = String(selectedVar?.image_url || "").trim();
   const remoteUrl = rawUrl && /^https?:\/\//.test(rawUrl) ? rawUrl : "";
+  const keepInfoAfterLoad = !selectedVar;
 
   const message = document.createElement("div");
   message.className = "thumb-selected__message muted";
 
   if (!selectedVar) {
-    message.textContent = "selected_variant_id のvariantが見つかりません（projects.json）。";
-    previewWrap.appendChild(message);
-  } else if (!remoteUrl && publishedKnownMissing) {
+    message.textContent = "selected_variant_id のvariantが見つかりません（projects.json）。published preview を表示します。";
+  }
+
+  if (!remoteUrl && publishedKnownMissing) {
     message.textContent = [
       "プレビュー未公開（元画像はgitignoreなので、Pages用プレビュー生成が必要です）。",
       `次: python3 scripts/ops/pages_thumb_previews.py --channel ${it.channel} --video ${it.video} --write`,
@@ -823,7 +825,15 @@ function renderThumbProject(it, proj) {
     let triedFallback = false;
     img.onload = () => {
       img.hidden = false;
-      message.remove();
+      if (!keepInfoAfterLoad) {
+        try {
+          message.remove();
+        } catch (_err) {
+          // ignore
+        }
+      } else {
+        message.textContent = "projects.json未同期（published preview）";
+      }
     };
     img.onerror = () => {
       if (!triedFallback && fallbackUrl) {

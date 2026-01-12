@@ -3,7 +3,7 @@
 const INDEX_URL = "data/snapshot/channels.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
 const VIDEO_IMAGES_INDEX_URL = "data/video_images_index.json";
-const SITE_ASSET_VERSION = "20260112_08";
+const SITE_ASSET_VERSION = "20260112_09";
 
 const PAGES_ROOT_URL = new URL("../", window.location.href);
 
