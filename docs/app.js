@@ -314,6 +314,7 @@ let thumbState = "idle"; // idle | loading | ok | partial | missing | error
 
 const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
+const videoList = $("videoList");
 const searchInput = $("searchInput");
 const searchResults = $("searchResults");
 const browseDetails = $("browseDetails");
@@ -904,6 +905,79 @@ function renderVideos(channel) {
     opt.textContent = `${it.video} ${it.title ? "· " + it.title : ""}`.trim();
     videoSelect.appendChild(opt);
   }
+  renderVideoList(channel, videoSelect.value || "");
+}
+
+function renderVideoList(channel, activeVideo) {
+  const list = grouped.get(channel) || [];
+  const active = String(activeVideo || "").trim() || String(videoSelect.value || "").trim();
+  videoList.innerHTML = "";
+
+  if (!list.length) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.textContent = "このチャンネルには台本がありません。";
+    videoList.appendChild(empty);
+    return;
+  }
+
+  for (const it of list) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "video-list__item";
+    if (active && String(it.video || "") === active) {
+      btn.classList.add("video-list__item--active");
+    }
+
+    const left = document.createElement("div");
+    left.className = "video-list__thumb";
+
+    const videoId = String(it?.video_id || "").trim();
+    const idx = videoId ? thumbIndexByVideoId.get(videoId) : null;
+    const rel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
+    const canShow = idx ? idx.preview_exists !== false : true;
+    const thumbUrl = canShow ? siteUrl(rel) : "";
+
+    if (thumbUrl) {
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = `${videoId} thumb`;
+      img.src = thumbUrl;
+      img.onerror = () => {
+        try {
+          img.remove();
+        } catch (_err) {
+          // ignore
+        }
+        left.textContent = "—";
+      };
+      left.appendChild(img);
+    } else {
+      left.textContent = "—";
+    }
+
+    const right = document.createElement("div");
+    right.className = "video-list__meta";
+
+    const id = document.createElement("div");
+    id.className = "video-list__id";
+    id.textContent = String(it.video_id || "").trim();
+    right.appendChild(id);
+
+    const title = document.createElement("div");
+    title.className = "video-list__title";
+    title.textContent = String(it.title || "").trim();
+    right.appendChild(title);
+
+    btn.appendChild(left);
+    btn.appendChild(right);
+    btn.addEventListener("click", () => {
+      selectItem(it.channel, it.video);
+      searchInput.value = "";
+      hideSearchResults();
+    });
+    videoList.appendChild(btn);
+  }
 }
 
 function findItem(channel, video) {
@@ -1086,6 +1160,7 @@ function selectItem(channel, video) {
   channelSelect.value = channel;
   renderVideos(channel);
   videoSelect.value = video;
+  renderVideoList(channel, video);
   const it = findItem(channel, video);
   if (it) void loadScript(it);
 }
@@ -1267,7 +1342,7 @@ function setupEvents() {
 
 setupEvents();
 try {
-  browseDetails.open = !isNarrowView();
+  browseDetails.open = isNarrowView();
 } catch (_err) {
   // ignore
 }

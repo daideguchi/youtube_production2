@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260112_01" />
-    <script defer src="./app.js?v=20260112_01"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260112_02" />
+    <script defer src="./app.js?v=20260112_02"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -43,6 +43,8 @@
                 <select id="videoSelect" class="control__input"></select>
               </label>
             </div>
+            <div class="video-list__hint muted">下の一覧をタップで選択（サムネ付き）</div>
+            <div id="videoList" class="video-list" aria-label="Video list"></div>
           </div>
         </details>
       </section>
