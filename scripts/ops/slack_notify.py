@@ -84,6 +84,15 @@ def _ops_event_dedupe_key(event: Dict[str, Any]) -> Optional[str]:
     cmd = str(event.get("cmd") or "").strip()
     op = str(event.get("op") or "").strip()
     episode = _extract_episode_label(event)
+    # Noise control: `ops resume --op episode` failures can spam per-episode.
+    # Dedupe them at the channel level (CHxx-*) within the dedupe window.
+    group_episode = bool(status == "FAILED" and cmd == "resume" and op == "episode")
+    if group_episode:
+        m = re.match(r"^(CH\d{2})-\d{3}$", str(episode or "").strip().upper())
+        if m:
+            episode = f"{m.group(1)}-*"
+        else:
+            episode = "*"
 
     try:
         exit_code = int(event.get("exit_code"))
@@ -784,6 +793,13 @@ def _build_text_from_ops_event(event: Dict[str, Any]) -> str:
     exit_code = event.get("exit_code")
     duration = _format_duration_ms(event.get("duration_ms"))
     episode = _extract_episode_label(event)
+    grouped_episode = bool(status == "FAILED" and cmd == "resume" and op == "episode")
+    if grouped_episode:
+        m = re.match(r"^(CH\d{2})-\d{3}$", str(episode or "").strip().upper())
+        if m:
+            episode = f"{m.group(1)}-*"
+        else:
+            episode = "*"
     actor = _extract_actor(event)
 
     git = event.get("git") if isinstance(event.get("git"), dict) else {}
@@ -877,6 +893,8 @@ def _build_text_from_ops_event(event: Dict[str, Any]) -> str:
             lines.append(f"- {w}")
 
     body = "```" + "\n".join(lines) + "\n```"
+    if grouped_episode:
+        body += "\n" + "_note: `resume op=episode` failures are deduped per-channel to reduce noise._"
     return title + "\n" + body
 
 
