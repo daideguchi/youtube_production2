@@ -565,11 +565,14 @@ function updateBadges() {
 function persistUiState() {
   try {
     const stored = readUiStateFromStorage();
-    // Prefer current UI selection over stale `selected` (mobile select quirks / empty-channel cases).
+    // Prefer `selected` as the source of truth (prevents accidental CH01 resets if selects desync).
+    const selCh = normalizeChannelParam(selected?.channel || "");
+    const selV = normalizeVideoParam(selected?.video || "");
+    const hasSelected = Boolean(selCh && selV);
     const chUi = normalizeChannelParam(channelSelect?.value || "");
     const vUi = normalizeVideoParam(videoSelect?.value || "");
-    const channel = chUi || selected?.channel || stored.channel || "";
-    const video = vUi || selected?.video || stored.video || "";
+    const channel = (hasSelected ? selCh : chUi) || stored.channel || "";
+    const video = (hasSelected ? selV : vUi) || stored.video || "";
     const view = normalizeView(currentView);
     window.localStorage.setItem(
       UI_STATE_KEY,
@@ -581,10 +584,10 @@ function persistUiState() {
 
   try {
     const params = new URLSearchParams(window.location.search);
-    const selCh = normalizeChannelParam(channelSelect?.value || "") || String(selected?.channel || "").trim();
-    const selVideo = normalizeVideoParam(videoSelect?.value || "") || String(selected?.video || "").trim();
-    if (selCh && selVideo) {
-      params.set("id", `${selCh}-${selVideo}`);
+    const chosenCh = normalizeChannelParam(selected?.channel || "") || normalizeChannelParam(channelSelect?.value || "");
+    const chosenV = normalizeVideoParam(selected?.video || "") || normalizeVideoParam(videoSelect?.value || "");
+    if (chosenCh && chosenV) {
+      params.set("id", `${chosenCh}-${chosenV}`);
       params.delete("ch");
       params.delete("v");
     }
