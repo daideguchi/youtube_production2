@@ -850,7 +850,8 @@ body {
   .channel-chips {
     display: grid;
     grid-template-columns: 1fr;
-    max-height: 38vh;
+    max-height: none;
+    overflow-y: visible;
   }
 
   .channel-chip {

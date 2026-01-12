@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_14";
+const SITE_ASSET_VERSION = "20260112_16";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -459,6 +459,7 @@ const heroToThumb = $("heroToThumb");
 const heroToImages = $("heroToImages");
 const openRaw = $("openRaw");
 const openAssetPack = $("openAssetPack");
+const openBrowse = $("openBrowse");
 const openSnapshot = $("openSnapshot");
 const openFixedLogic = $("openFixedLogic");
 const openContactBox = $("openContactBox");
@@ -537,9 +538,9 @@ function updateStaticLinks() {
   const fixedLogicPath = "ssot/reference/【消さないで！人間用】確定ロジック.md";
   const contactBoxPath = "ssot/reference/CONTACT_BOX.md";
   if (gitTreeBase) {
-    const blobBase = gitTreeBase.replace("/tree/", "/blob/");
-    openFixedLogic.href = encodeURI(`${blobBase}${fixedLogicPath}`);
-    openContactBox.href = encodeURI(`${blobBase}${contactBoxPath}`);
+    const editBase = gitTreeBase.replace("/tree/", "/edit/");
+    openFixedLogic.href = encodeURI(`${editBase}${fixedLogicPath}`);
+    openContactBox.href = encodeURI(`${editBase}${contactBoxPath}`);
   } else {
     openFixedLogic.href = joinUrl(rawBase, fixedLogicPath);
     openContactBox.href = joinUrl(rawBase, contactBoxPath);
@@ -782,6 +783,20 @@ function episodeBasePath(it) {
   return `workspaces/scripts/${it.channel}/${it.video}`;
 }
 
+function episodeScriptDirPath(it) {
+  const ch = normalizeChannelParam(it?.channel);
+  const v = normalizeVideoParam(it?.video);
+  if (!ch || !v) return "";
+  return `workspaces/scripts/${ch}/${v}`;
+}
+
+function runImagesTreeUrl(runId) {
+  if (!gitTreeBase) return "";
+  const rid = String(runId || "").trim();
+  if (!rid) return "";
+  return `${gitTreeBase}workspaces/video/runs/${rid}/images`;
+}
+
 function episodeAssetPackPath(it) {
   const ch = normalizeChannelParam(it?.channel);
   const v = normalizeVideoParam(it?.video);
@@ -805,7 +820,7 @@ function episodeAssetPackManifestBlobUrl(it) {
 }
 
 function updateAssetPackLink(it) {
-  const rel = episodeAssetPackPath(it);
+  const rel = episodeScriptDirPath(it);
   if (!rel) {
     openAssetPack.removeAttribute("href");
     return;
@@ -1194,6 +1209,17 @@ function renderVideoImagesEntry(it, entry) {
 
   const tools = document.createElement("div");
   tools.className = "video-images-tools";
+
+  const runTreeUrl = runImagesTreeUrl(runId);
+  if (runTreeUrl) {
+    const a = document.createElement("a");
+    a.className = "btn btn--ghost";
+    a.target = "_blank";
+    a.rel = "noreferrer";
+    a.href = runTreeUrl;
+    a.textContent = "runs/images をGitHubで開く";
+    tools.appendChild(a);
+  }
 
   const imagesTreeUrl = episodeAssetPackImagesTreeUrl(it);
   if (imagesTreeUrl) {
@@ -1985,6 +2011,16 @@ function setupEvents() {
       return;
     }
 
+    // If a channel exists in Planning but has no scripts yet, jump to snapshot instead.
+    if (chOnly && /^CH\d{2}$/.test(chOnly) && !grouped.has(chOnly)) {
+      hideSearchResults();
+      const url = new URL("./snapshot/", window.location.href);
+      url.searchParams.set("channel", chOnly);
+      url.searchParams.set("q", chOnly);
+      window.location.href = url.toString();
+      return;
+    }
+
     // If only a video number is provided, show candidates across channels.
     if (/^\d{1,4}$/.test(raw)) {
       const v = normalizeVideoParam(raw);
@@ -2014,6 +2050,15 @@ function setupEvents() {
     }
 
     setCopyStatus("見つかりません（CHxx-NNN 形式か検索結果から選択）", true);
+  });
+
+  openBrowse.addEventListener("click", () => {
+    try {
+      browseDetails.open = true;
+    } catch (_err) {
+      // ignore
+    }
+    scrollToEl(browseDetails);
   });
 
   $("copyPath").addEventListener("click", async () => {

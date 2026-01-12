@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-01-11T23:29:10.680424Z",
+  "updated_at": "2026-01-12T07:38:53.354788Z",
   "count": 745,
   "items": [
     {
@@ -37,7 +37,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH02/004/004_sigma_CH02.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH02/004.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-001",
@@ -49,7 +49,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/001/001_darkvault.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/001.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-002",
@@ -61,7 +61,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/002/002_antarc.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/002.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-003",
@@ -73,7 +73,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/003/003_mystic.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/003.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-004",
@@ -85,7 +85,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/004/004_secret.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/004.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-005",
@@ -97,7 +97,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/005/005_shadow.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/005.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-006",
@@ -109,7 +109,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/006/python_trend.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/006.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-007",
@@ -121,7 +121,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/007/bulk_20.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/007.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH01-003",
@@ -169,7 +169,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH02/001/001_aura_CH02.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH02/001.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH02-002",
@@ -181,7 +181,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH02/002/002_myst_CH02.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH02/002.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH02-003",
@@ -193,7 +193,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH02/003/003_flare_CH02.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH02/003.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH02-005",
@@ -205,7 +205,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH02/005/005_noir_CH02.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH02/005.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH03-001",
@@ -217,7 +217,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH03/001/001_aura_CH03.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH03/001.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH03-002",
@@ -229,7 +229,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH03/002/002_myst_CH03.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH03/002.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH03-003",
@@ -241,7 +241,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH03/003/003_flare_CH03.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH03/003.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH03-004",
@@ -253,7 +253,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH03/004/004_sigma_CH03.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH03/004.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH03-005",
@@ -265,7 +265,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH03/005/005_noir_CH03.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH03/005.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH04-001",
@@ -277,7 +277,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH04/001/001_aura_CH04.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH04/001.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH04-002",
@@ -289,7 +289,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH04/002/002_myst_CH04.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH04/002.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH04-003",
@@ -301,7 +301,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH04/003/003_flare_CH04.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH04/003.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH04-004",
@@ -313,7 +313,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH04/004/004_sigma_CH04.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH04/004.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH04-005",
@@ -325,7 +325,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH04/005/005_noir_CH04.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH04/005.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH05-001",
@@ -337,7 +337,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH05/001/001_aura_CH05.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH05/001.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH05-002",
@@ -349,7 +349,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH05/002/002_myst_CH05.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH05/002.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH05-003",
@@ -361,7 +361,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH05/003/003_flare_CH05.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH05/003.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH05-004",
@@ -373,7 +373,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH05/004/004_sigma_CH05.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH05/004.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH05-005",
@@ -385,7 +385,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH05/005/005_noir_CH05.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH05/005.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-008",
@@ -397,7 +397,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH06/008/trend_a21c38de0e053eca.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH06/008.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH04-009",
@@ -409,7 +409,7 @@
       "src_rel": "workspaces/thumbnails/assets/CH04/009/trend_a21c38de0e053eca.png",
       "src_exists": false,
       "preview_rel": "media/thumbs/CH04/009.jpg",
-      "preview_exists": false
+      "preview_exists": true
     },
     {
       "video_id": "CH06-191",
