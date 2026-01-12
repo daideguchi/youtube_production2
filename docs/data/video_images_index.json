@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": "2026-01-12T01:14:50.694032Z",
-  "count": 2,
+  "updated_at": "2026-01-12T02:28:25.755443Z",
+  "count": 19,
   "items": [
     {
       "video_id": "CH01-251",
@@ -433,6 +433,2509 @@
           "file": "0032.jpg",
           "rel": "media/video_images/CH12/016/0032.jpg",
           "summary": "今夜の一歩: 輪ゴムを置く"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-009",
+      "channel": "CH12",
+      "video": "009",
+      "run_id": "CH12-009",
+      "count": 41,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/009/0001.jpg",
+          "summary": "夜の空虚感と問いかけ"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/009/0002.jpg",
+          "summary": "心の自然な揺らぎ"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/009/0003.jpg",
+          "summary": "感覚からの逃避行動"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/009/0004.jpg",
+          "summary": "逆効果と物語の強化"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/009/0005.jpg",
+          "summary": "穴を埋める老人の寓話"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/009/0006.jpg",
+          "summary": "修行者の指摘"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/009/0007.jpg",
+          "summary": "寓話の心への適用"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/009/0008.jpg",
+          "summary": "仏教の縁起の説明"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/009/0009.jpg",
+          "summary": "思考が穴を広げる循環"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/009/0010.jpg",
+          "summary": "反応パターンこそ問題"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/009/0011.jpg",
+          "summary": "何もしないことの不安"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/009/0012.jpg",
+          "summary": "気づきへの第一歩"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/009/0013.jpg",
+          "summary": "埋めるのをやめる核心"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/009/0014.jpg",
+          "summary": "受容と日常的な実践"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/009/0015.jpg",
+          "summary": "食卓での寂しさと感覚"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/009/0016.jpg",
+          "summary": "感覚全体を受け入れる"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/009/0017.jpg",
+          "summary": "池の水を澄ます寓話"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/009/0018.jpg",
+          "summary": "逃避と受容の違い"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/009/0019.jpg",
+          "summary": "真の受容とは何か"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/009/0020.jpg",
+          "summary": "寂しさを味わう実践"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/009/0021.jpg",
+          "summary": "五呼吸の方法の紹介"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/009/0022.jpg",
+          "summary": "夜の思考の渦"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/009/0023.jpg",
+          "summary": "呼吸が「今ここ」に連れ戻す"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/009/0024.jpg",
+          "summary": "第一の呼吸：流れを感じる"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/009/0025.jpg",
+          "summary": "第二の呼吸：部位に意識を向ける"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/009/0026.jpg",
+          "summary": "第三の呼吸：間を感じる"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH12/009/0027.jpg",
+          "summary": "第四の呼吸：評価せず観察"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH12/009/0028.jpg",
+          "summary": "第五の呼吸：手放し解放"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH12/009/0029.jpg",
+          "summary": "三つのコツ"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH12/009/0030.jpg",
+          "summary": "実践による意識の変化"
+        },
+        {
+          "file": "0031.jpg",
+          "rel": "media/video_images/CH12/009/0031.jpg",
+          "summary": "次章へのつなぎ"
+        },
+        {
+          "file": "0032.jpg",
+          "rel": "media/video_images/CH12/009/0032.jpg",
+          "summary": "病院帰りの空虚と豊かさ"
+        },
+        {
+          "file": "0033.jpg",
+          "rel": "media/video_images/CH12/009/0033.jpg",
+          "summary": "裕福な男の寓話"
+        },
+        {
+          "file": "0034.jpg",
+          "rel": "media/video_images/CH12/009/0034.jpg",
+          "summary": "穴を見つめる変化"
+        },
+        {
+          "file": "0035.jpg",
+          "rel": "media/video_images/CH12/009/0035.jpg",
+          "summary": "空の概念の説明"
+        },
+        {
+          "file": "0036.jpg",
+          "rel": "media/video_images/CH12/009/0036.jpg",
+          "summary": "余白としての空虚"
+        },
+        {
+          "file": "0037.jpg",
+          "rel": "media/video_images/CH12/009/0037.jpg",
+          "summary": "日常での小さな実践例"
+        },
+        {
+          "file": "0038.jpg",
+          "rel": "media/video_images/CH12/009/0038.jpg",
+          "summary": "停止と内省の機会"
+        },
+        {
+          "file": "0039.jpg",
+          "rel": "media/video_images/CH12/009/0039.jpg",
+          "summary": "心のメッセージに耳を傾ける"
+        },
+        {
+          "file": "0040.jpg",
+          "rel": "media/video_images/CH12/009/0040.jpg",
+          "summary": "締めの言葉"
+        },
+        {
+          "file": "0041.jpg",
+          "rel": "media/video_images/CH12/009/0041.jpg",
+          "summary": "まとめと今夜の実践への誘い"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-011",
+      "channel": "CH12",
+      "video": "011",
+      "run_id": "CH12-011",
+      "count": 49,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/011/0001.jpg",
+          "summary": "朝の重い気分の体験"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/011/0002.jpg",
+          "summary": "意志の弱さではない"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/011/0003.jpg",
+          "summary": "体の自然なリズム"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/011/0004.jpg",
+          "summary": "夜中の目覚めと朝のもたつき"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/011/0005.jpg",
+          "summary": "考え事が頭をよぎる"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/011/0006.jpg",
+          "summary": "脱水状態の影響"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/011/0007.jpg",
+          "summary": "水分不足による重だるさ"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/011/0008.jpg",
+          "summary": "コップ一杯の水の力"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/011/0009.jpg",
+          "summary": "体が発するサイン"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/011/0010.jpg",
+          "summary": "自己責めのクセ"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/011/0011.jpg",
+          "summary": "感覚を受け止める"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/011/0012.jpg",
+          "summary": "今夜からの小さな準備"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/011/0013.jpg",
+          "summary": "心と体の深い結びつき"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/011/0014.jpg",
+          "summary": "枕元の水の準備"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/011/0015.jpg",
+          "summary": "寝ている間の水分損失"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/011/0016.jpg",
+          "summary": "水が体を起動させる"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/011/0017.jpg",
+          "summary": "カーテンを10cm開ける"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/011/0018.jpg",
+          "summary": "光の自然な合図"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/011/0019.jpg",
+          "summary": "真っ暗な部屋の問題"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/011/0020.jpg",
+          "summary": "光の調整と安心"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/011/0021.jpg",
+          "summary": "準備を信じて待つ"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/011/0022.jpg",
+          "summary": "自分への気配り"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/011/0023.jpg",
+          "summary": "小さな行為の大きな力"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/011/0024.jpg",
+          "summary": "明日の朝の一手"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/011/0025.jpg",
+          "summary": "布団から出る瞬間"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/011/0026.jpg",
+          "summary": "窓へ向かう動作"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH12/011/0027.jpg",
+          "summary": "深呼吸と光の感覚"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH12/011/0028.jpg",
+          "summary": "一口の水分摂取"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH12/011/0029.jpg",
+          "summary": "五分でできること"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH12/011/0030.jpg",
+          "summary": "体に朝を告げる合図"
+        },
+        {
+          "file": "0031.jpg",
+          "rel": "media/video_images/CH12/011/0031.jpg",
+          "summary": "体に手を添える感覚"
+        },
+        {
+          "file": "0032.jpg",
+          "rel": "media/video_images/CH12/011/0032.jpg",
+          "summary": "無理をしない柔軟さ"
+        },
+        {
+          "file": "0033.jpg",
+          "rel": "media/video_images/CH12/011/0033.jpg",
+          "summary": "習慣が自然になるまで"
+        },
+        {
+          "file": "0034.jpg",
+          "rel": "media/video_images/CH12/011/0034.jpg",
+          "summary": "昼間の光を浴びる"
+        },
+        {
+          "file": "0035.jpg",
+          "rel": "media/video_images/CH12/011/0035.jpg",
+          "summary": "外で光を感じる時間"
+        },
+        {
+          "file": "0036.jpg",
+          "rel": "media/video_images/CH12/011/0036.jpg",
+          "summary": "光のリズムを刻む"
+        },
+        {
+          "file": "0037.jpg",
+          "rel": "media/video_images/CH12/011/0037.jpg",
+          "summary": "ほんの少しの体の動かし方"
+        },
+        {
+          "file": "0038.jpg",
+          "rel": "media/video_images/CH12/011/0038.jpg",
+          "summary": "血の巡りと心地よい疲れ"
+        },
+        {
+          "file": "0039.jpg",
+          "rel": "media/video_images/CH12/011/0039.jpg",
+          "summary": "一日の終わりの振り返り"
+        },
+        {
+          "file": "0040.jpg",
+          "rel": "media/video_images/CH12/011/0040.jpg",
+          "summary": "今日できたこと探し"
+        },
+        {
+          "file": "0041.jpg",
+          "rel": "media/video_images/CH12/011/0041.jpg",
+          "summary": "仏教の教えと執着の手放し"
+        },
+        {
+          "file": "0042.jpg",
+          "rel": "media/video_images/CH12/011/0042.jpg",
+          "summary": "期待を手のひらから下ろす"
+        },
+        {
+          "file": "0043.jpg",
+          "rel": "media/video_images/CH12/011/0043.jpg",
+          "summary": "過去は変えられない事実"
+        },
+        {
+          "file": "0044.jpg",
+          "rel": "media/video_images/CH12/011/0044.jpg",
+          "summary": "自己批判という執着"
+        },
+        {
+          "file": "0045.jpg",
+          "rel": "media/video_images/CH12/011/0045.jpg",
+          "summary": "できた自分を認める"
+        },
+        {
+          "file": "0046.jpg",
+          "rel": "media/video_images/CH12/011/0046.jpg",
+          "summary": "二つの習慣の両輪"
+        },
+        {
+          "file": "0047.jpg",
+          "rel": "media/video_images/CH12/011/0047.jpg",
+          "summary": "よい循環の生まれる仕組み"
+        },
+        {
+          "file": "0048.jpg",
+          "rel": "media/video_images/CH12/011/0048.jpg",
+          "summary": "焦らないで試す"
+        },
+        {
+          "file": "0049.jpg",
+          "rel": "media/video_images/CH12/011/0049.jpg",
+          "summary": "「よし」の積み重ね"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-015",
+      "channel": "CH12",
+      "video": "015",
+      "run_id": "CH12-015",
+      "count": 27,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/015/0001.jpg",
+          "summary": "死への恐怖の告白"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/015/0002.jpg",
+          "summary": "時間の無情と老いの絶望"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/015/0003.jpg",
+          "summary": "生老病死に悩む視聴者へ"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/015/0004.jpg",
+          "summary": "死は還り、完成である"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/015/0005.jpg",
+          "summary": "枯れ葉と川の物語の導入"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/015/0006.jpg",
+          "summary": "リーフ、春の若葉の誕生"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/015/0007.jpg",
+          "summary": "葉っぱたちの楽しい生活"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/015/0008.jpg",
+          "summary": "秋の訪れと仲間の散りゆく様"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/015/0009.jpg",
+          "summary": "リーフの恐怖と必死の抵抗"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/015/0010.jpg",
+          "summary": "冬の孤独としがみつく意志"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/015/0011.jpg",
+          "summary": "枯れ果てたリーフと川の声"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/015/0012.jpg",
+          "summary": "川の教え：変化と流れの本質"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/015/0013.jpg",
+          "summary": "自然の摂理と手放すことの意味"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/015/0014.jpg",
+          "summary": "海へ向かう川の流れを見下ろす"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/015/0015.jpg",
+          "summary": "疲労と孤独、サイクル拒否の自覚"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/015/0016.jpg",
+          "summary": "力の解放と舞い降りる瞬間"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/015/0017.jpg",
+          "summary": "川の水面への落下"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/015/0018.jpg",
+          "summary": "流れに身を任せ、空を見上げる"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/015/0019.jpg",
+          "summary": "全体の一部であることの気付きと旅"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/015/0020.jpg",
+          "summary": "物語の終わりと仏教的考察へ"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/015/0021.jpg",
+          "summary": "死は生の一部、コインの表裏"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/015/0022.jpg",
+          "summary": "科学的視点：原子の旅と宇宙への帰還"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/015/0023.jpg",
+          "summary": "宇宙からの労いと抱擁"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/015/0024.jpg",
+          "summary": "メメント・モリと桜の儚い美しさ"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/015/0025.jpg",
+          "summary": "恐怖のエネルギーを今に活かす"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/015/0026.jpg",
+          "summary": "バトンタッチと流れに身を任せる生き方"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH12/015/0027.jpg",
+          "summary": "死の予行演習と視聴者への祈り"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-017",
+      "channel": "CH12",
+      "video": "017",
+      "run_id": "CH12-017",
+      "count": 28,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/017/0001.jpg",
+          "summary": "体の不調と無視する日常"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/017/0002.jpg",
+          "summary": "病気を敵視する思い込み"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/017/0003.jpg",
+          "summary": "病気は手紙という転回"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/017/0004.jpg",
+          "summary": "傲慢な王様の物語へ"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/017/0005.jpg",
+          "summary": "ワーカーホリックな王様"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/017/0006.jpg",
+          "summary": "休息なき王国"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/017/0007.jpg",
+          "summary": "体の悲鳴の始まり"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/017/0008.jpg",
+          "summary": "王の怒りと追放"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/017/0009.jpg",
+          "summary": "使者「偏頭痛」の警告"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/017/0010.jpg",
+          "summary": "次々と訪れる使者たち"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/017/0011.jpg",
+          "summary": "動かぬ体と最後の使者"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/017/0012.jpg",
+          "summary": "病室での憤り"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/017/0013.jpg",
+          "summary": "回想と後悔の念"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/017/0014.jpg",
+          "summary": "体への謝罪と涙"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/017/0015.jpg",
+          "summary": "回復と体を大切に"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/017/0016.jpg",
+          "summary": "ウェルビーイング国家へ"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/017/0017.jpg",
+          "summary": "物語の終わりと本題へ"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/017/0018.jpg",
+          "summary": "体はパートナー、乗り物"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/017/0019.jpg",
+          "summary": "警告ランプの比喩"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/017/0020.jpg",
+          "summary": "生き方の強制修正プログラム"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/017/0021.jpg",
+          "summary": "心身相関と問いかけ"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/017/0022.jpg",
+          "summary": "病気をギフトと捉える"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/017/0023.jpg",
+          "summary": "公式の休暇と責任の解放"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/017/0024.jpg",
+          "summary": "快・不快に正直になる"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/017/0025.jpg",
+          "summary": "動物の本能に戻る"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/017/0026.jpg",
+          "summary": "感謝の言葉とセルフハグ"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH12/017/0027.jpg",
+          "summary": "自分が最高の主治医"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH12/017/0028.jpg",
+          "summary": "結びの言葉と祈り"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-018",
+      "channel": "CH12",
+      "video": "018",
+      "run_id": "CH12-018",
+      "count": 23,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/018/0001.jpg",
+          "summary": "人間関係のしんどさを語る"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/018/0002.jpg",
+          "summary": "焚き火の距離の名言を紹介"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/018/0003.jpg",
+          "summary": "ヤマアラシの物語へ誘う"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/018/0004.jpg",
+          "summary": "寒波の中のヤマアラシ夫婦"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/018/0005.jpg",
+          "summary": "針がお互いを刺し傷つける"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/018/0006.jpg",
+          "summary": "痛みと寒さの板挟みで途方に暮れる"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/018/0007.jpg",
+          "summary": "愛し合えぬ絶望で泣くヤマアラシ"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/018/0008.jpg",
+          "summary": "フクロウがギリギリの距離を勧める"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/018/0009.jpg",
+          "summary": "試行錯誤で心地よい距離を見つける"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/018/0010.jpg",
+          "summary": "距離を保ち仲良く暮らす結末"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/018/0011.jpg",
+          "summary": "人間も心に針を持つことを説明"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/018/0012.jpg",
+          "summary": "親しさ故の距離の事故を語る"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/018/0013.jpg",
+          "summary": "親しき仲にも礼儀ありの警告"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/018/0014.jpg",
+          "summary": "焚き火の距離と自分の立ち位置"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/018/0015.jpg",
+          "summary": "近づきすぎず、微調整する重要性"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/018/0016.jpg",
+          "summary": "孤独を恐れず自立することを説く"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/018/0017.jpg",
+          "summary": "成熟した人間関係像を描く"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/018/0018.jpg",
+          "summary": "木の根で繋がり枝葉は空ける例え"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/018/0019.jpg",
+          "summary": "勇気を持って一歩下がる勧め"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/018/0020.jpg",
+          "summary": "境界線を引く具体的な方法"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/018/0021.jpg",
+          "summary": "境界線を尊重する真の関係"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/018/0022.jpg",
+          "summary": "つかず離れずが最高の愛"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/018/0023.jpg",
+          "summary": "ご視聴への感謝と祈り"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-019",
+      "channel": "CH12",
+      "video": "019",
+      "run_id": "CH12-019",
+      "count": 27,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/019/0001.jpg",
+          "summary": "お金の悩みと日常"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/019/0002.jpg",
+          "summary": "心の穴の比喩"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/019/0003.jpg",
+          "summary": "鎖が外れる約束"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/019/0004.jpg",
+          "summary": "二つの村の紹介"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/019/0005.jpg",
+          "summary": "ガメツの貪欲な教え"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/019/0006.jpg",
+          "summary": "村人の抗議と拒絶"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/019/0007.jpg",
+          "summary": "陽気な長老ナガレ"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/019/0008.jpg",
+          "summary": "旅人への施し"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/019/0009.jpg",
+          "summary": "自然のルール"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/019/0010.jpg",
+          "summary": "信頼される長老"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/019/0011.jpg",
+          "summary": "大干ばつの襲来"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/019/0012.jpg",
+          "summary": "ガメツの絶叫"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/019/0013.jpg",
+          "summary": "助け合いの精神"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/019/0014.jpg",
+          "summary": "ガメツの悟り"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/019/0015.jpg",
+          "summary": "所有か流れか"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/019/0016.jpg",
+          "summary": "血栓の比喩"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/019/0017.jpg",
+          "summary": "豊かさの定義"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/019/0018.jpg",
+          "summary": "交換チケットと循環"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/019/0019.jpg",
+          "summary": "支払いの貢献"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/019/0020.jpg",
+          "summary": "エネルギーが戻る"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/019/0021.jpg",
+          "summary": "ムヒカの教え再び"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/019/0022.jpg",
+          "summary": "幸福度の限界"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/019/0023.jpg",
+          "summary": "エピクロスの快楽"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/019/0024.jpg",
+          "summary": "分け与える力"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/019/0025.jpg",
+          "summary": "開いた手の逆説"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/019/0026.jpg",
+          "summary": "お金を友人に"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH12/019/0027.jpg",
+          "summary": "命という資産"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-020",
+      "channel": "CH12",
+      "video": "020",
+      "run_id": "CH12-020",
+      "count": 25,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/020/0001.jpg",
+          "summary": "許せない怒りと呪いの言葉"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/020/0002.jpg",
+          "summary": "禅の逸話と苦しみの原因"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/020/0003.jpg",
+          "summary": "物語の導入と約束"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/020/0004.jpg",
+          "summary": "雨上がりの街道と二人の僧侶"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/020/0005.jpg",
+          "summary": "川辺で困る若い娘"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/020/0006.jpg",
+          "summary": "タンザンが娘を背負い川を渡る"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/020/0007.jpg",
+          "summary": "娘との別れとエキドの怒り"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/020/0008.jpg",
+          "summary": "エキドの心の内なる嵐"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/020/0009.jpg",
+          "summary": "エキドがタンザンに詰め寄る"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/020/0010.jpg",
+          "summary": "タンザンの名言「下ろしたぞ」"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/020/0011.jpg",
+          "summary": "エキドの悟りと対比"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/020/0012.jpg",
+          "summary": "エキドの敗北と認め"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/020/0013.jpg",
+          "summary": "物語終了と解説へ移行"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/020/0014.jpg",
+          "summary": "エキドの苦しみと反芻の説明"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/020/0015.jpg",
+          "summary": "脳の反応と自傷行為"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/020/0016.jpg",
+          "summary": "腐った弁当の比喩の導入"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/020/0017.jpg",
+          "summary": "怒りの再燃とリュックの臭い"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/020/0018.jpg",
+          "summary": "許せない気持ちの受容と理解"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/020/0019.jpg",
+          "summary": "感情の排泄とエネルギー放出"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/020/0020.jpg",
+          "summary": "区切りをつける実践"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/020/0021.jpg",
+          "summary": "過去と未来の不在、今ここ"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/020/0022.jpg",
+          "summary": "今に戻る方法とマインドフルネス"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/020/0023.jpg",
+          "summary": "タンザンのように生きるアドバイス"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/020/0024.jpg",
+          "summary": "荷物を下ろして手ぶらになる"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/020/0025.jpg",
+          "summary": "感謝の言葉と祝福"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-021",
+      "channel": "CH12",
+      "video": "021",
+      "run_id": "CH12-021",
+      "count": 25,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/021/0001.jpg",
+          "summary": "子供が思い通りにならない"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/021/0002.jpg",
+          "summary": "「あなたのため」と言いながら"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/021/0003.jpg",
+          "summary": "親心が重たい鎖に"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/021/0004.jpg",
+          "summary": "子供は預かりもの"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/021/0005.jpg",
+          "summary": "庭師と花の物語へ"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/021/0006.jpg",
+          "summary": "熱心な庭師ガーデン"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/021/0007.jpg",
+          "summary": "バラとチューリップへの命令"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/021/0008.jpg",
+          "summary": "ヒマワリへの干涉と花の衰弱"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/021/0009.jpg",
+          "summary": "「なんで期待に応えない」"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/021/0010.jpg",
+          "summary": "賢者が通りかかる"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/021/0011.jpg",
+          "summary": "「花を支配している」"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/021/0012.jpg",
+          "summary": "信頼の話"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/021/0013.jpg",
+          "summary": "「邪魔をしていただけ」"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/021/0014.jpg",
+          "summary": "花が自由に咲き乱れる"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/021/0015.jpg",
+          "summary": "「育つのを手伝うだけ」"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/021/0016.jpg",
+          "summary": "ギブランの詩「子供について」"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/021/0017.jpg",
+          "summary": "親はコンシェルジュ"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/021/0018.jpg",
+          "summary": "「心配」という名の呪い"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/021/0019.jpg",
+          "summary": "「信頼」という肥料"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/021/0020.jpg",
+          "summary": "子供の内なる設計図"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/021/0021.jpg",
+          "summary": "ヒマワリにはヒマワリの美しさ"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/021/0022.jpg",
+          "summary": "子育ては発見の連続"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/021/0023.jpg",
+          "summary": "親が楽しむ姿が手本"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/021/0024.jpg",
+          "summary": "応援団長になる"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/021/0025.jpg",
+          "summary": "愛が太陽のように"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-022",
+      "channel": "CH12",
+      "video": "022",
+      "run_id": "CH12-022",
+      "count": 22,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/022/0001.jpg",
+          "summary": "孤独の導入"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/022/0002.jpg",
+          "summary": "埋め合わせ行動"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/022/0003.jpg",
+          "summary": "孤独の二種類"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/022/0004.jpg",
+          "summary": "語りの転換"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/022/0005.jpg",
+          "summary": "灯台へ案内"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/022/0006.jpg",
+          "summary": "漂着する船乗り"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/022/0007.jpg",
+          "summary": "ライトの応答"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/022/0008.jpg",
+          "summary": "過去の告白"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/022/0009.jpg",
+          "summary": "静寂との出会い"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/022/0010.jpg",
+          "summary": "嵐と光"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/022/0011.jpg",
+          "summary": "船乗りの決意"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/022/0012.jpg",
+          "summary": "物語の締めと分析へ"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/022/0013.jpg",
+          "summary": "一人＝惨めの洗脳"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/022/0014.jpg",
+          "summary": "根を育てる比喩"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/022/0015.jpg",
+          "summary": "孤独の実践例"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/022/0016.jpg",
+          "summary": "自分を満たす重要性"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/022/0017.jpg",
+          "summary": "感性が研ぎ澄まされる"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/022/0018.jpg",
+          "summary": "自由としての孤独"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/022/0019.jpg",
+          "summary": "自分とのデート"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/022/0020.jpg",
+          "summary": "自分を一番の相棒に"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/022/0021.jpg",
+          "summary": "プレミアム・ソリチュード"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/022/0022.jpg",
+          "summary": "結びの祝福"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-023",
+      "channel": "CH12",
+      "video": "023",
+      "run_id": "CH12-023",
+      "count": 25,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/023/0001.jpg",
+          "summary": "自分が嫌いだ。欠点ばかり気になる。"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/023/0002.jpg",
+          "summary": "自分を偽り、罵倒し続ける。"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/023/0003.jpg",
+          "summary": "自己否定の監獄。影を消すな。"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/023/0004.jpg",
+          "summary": "光と影は共存する。"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/023/0005.jpg",
+          "summary": "物語への導入。"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/023/0006.jpg",
+          "summary": "青年ヒカリと彼の悩み。"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/023/0007.jpg",
+          "summary": "影が本音を喋り出す。"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/023/0008.jpg",
+          "summary": "影への憎しみと攻撃。"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/023/0009.jpg",
+          "summary": "影を切り離す旅へ。"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/023/0010.jpg",
+          "summary": "魔法使いの警告と分離。"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/023/0011.jpg",
+          "summary": "離れた影と束の間の喜び。"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/023/0012.jpg",
+          "summary": "影を失い、透明で感情なく。"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/023/0013.jpg",
+          "summary": "人々の反応と孤独。"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/023/0014.jpg",
+          "summary": "倒れ、気づく。"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/023/0015.jpg",
+          "summary": "影の帰還。"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/023/0016.jpg",
+          "summary": "体に血が通い、感情が戻る。"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/023/0017.jpg",
+          "summary": "影との対話と受容。"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/023/0018.jpg",
+          "summary": "影が美しいコントラストに。"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/023/0019.jpg",
+          "summary": "シャドウの概念説明。"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/023/0020.jpg",
+          "summary": "影の投影と内なる戦い。"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/023/0021.jpg",
+          "summary": "降伏と存在を許す。"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/023/0022.jpg",
+          "summary": "欠点は繋がりのフック。"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/023/0023.jpg",
+          "summary": "無条件の自己愛へ。"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/023/0024.jpg",
+          "summary": "自分への優しい言葉がけ。"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/023/0025.jpg",
+          "summary": "コントラストの世界と祝福。"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-024",
+      "channel": "CH12",
+      "video": "024",
+      "run_id": "CH12-024",
+      "count": 27,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/024/0001.jpg",
+          "summary": "後悔の念が脳裏をよぎる"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/024/0002.jpg",
+          "summary": "過去の幻想に取り憑かれる"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/024/0003.jpg",
+          "summary": "視聴者への呼びかけと救済の言葉"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/024/0004.jpg",
+          "summary": "因果と過去の必要性"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/024/0005.jpg",
+          "summary": "砂漠への案内"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/024/0006.jpg",
+          "summary": "カコ、後ろ向きに歩く男"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/024/0007.jpg",
+          "summary": "つまずき、文句を言うカコ"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/024/0008.jpg",
+          "summary": "傷だらけだが前を見ない"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/024/0009.jpg",
+          "summary": "穴の縁と旅人の警告"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/024/0010.jpg",
+          "summary": "警告を無視し穴に落ちる"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/024/0011.jpg",
+          "summary": "穴の底で泣き「もしも」を語る"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/024/0012.jpg",
+          "summary": "光る蝶の登場と問いかけ"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/024/0013.jpg",
+          "summary": "蝶の教え: 今を受け入れる"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/024/0014.jpg",
+          "summary": "カコが現実を直視し認める"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/024/0015.jpg",
+          "summary": "エネルギーが戻り「これから」を考える"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/024/0016.jpg",
+          "summary": "壁の根を見つけ登り始める"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/024/0017.jpg",
+          "summary": "穴から這い上がり前を見る"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/024/0018.jpg",
+          "summary": "物語の結末と教訓"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/024/0019.jpg",
+          "summary": "時間と後悔の正体へ掘り下げ"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/024/0020.jpg",
+          "summary": "過去の意味は今が決める"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/024/0021.jpg",
+          "summary": "「もしも」思考の幻想と別の道"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/024/0022.jpg",
+          "summary": "選んだ道が正解、足跡が道になる"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/024/0023.jpg",
+          "summary": "自分自身を労う"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/024/0024.jpg",
+          "summary": "アドラー心理学: 目的論と鎖の鍵"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/024/0025.jpg",
+          "summary": "過去のコートを脱ぎ捨て、新しく始める"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/024/0026.jpg",
+          "summary": "今に集中し、未来を作る"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH12/024/0027.jpg",
+          "summary": "結びの挨拶と祝福"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-025",
+      "channel": "CH12",
+      "video": "025",
+      "run_id": "CH12-025",
+      "count": 24,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/025/0001.jpg",
+          "summary": "将来への漠然とした不安"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/025/0002.jpg",
+          "summary": "備えても消えない不安"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/025/0003.jpg",
+          "summary": "霧の中を歩く智慧"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/025/0004.jpg",
+          "summary": "今見える範囲で十分"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/025/0005.jpg",
+          "summary": "慎重な若者サキヨミ"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/025/0006.jpg",
+          "summary": "霧の中の恐怖のシミュレーション"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/025/0007.jpg",
+          "summary": "待っても晴れない霧"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/025/0008.jpg",
+          "summary": "老人とランタンの教え"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/025/0009.jpg",
+          "summary": "二歩ずつ進む方法"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/025/0010.jpg",
+          "summary": "人生も霧の中の道"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/025/0011.jpg",
+          "summary": "サキヨミの決意"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/025/0012.jpg",
+          "summary": "恐る恐るの第一歩"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/025/0013.jpg",
+          "summary": "足元だけを見て歩く"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/025/0014.jpg",
+          "summary": "霧を抜けて視界が開ける"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/025/0015.jpg",
+          "summary": "不安は心が生んだスクリーン"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/025/0016.jpg",
+          "summary": "見えないことへの恐怖の正体"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/025/0017.jpg",
+          "summary": "心配事の9割は起こらない"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/025/0018.jpg",
+          "summary": "今ここに集中する教え"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/025/0019.jpg",
+          "summary": "未来は今の連続"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/025/0020.jpg",
+          "summary": "不確実性はチャンス"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/025/0021.jpg",
+          "summary": "未来の自分を信じて丸投げ"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/025/0022.jpg",
+          "summary": "今日を機嫌よく過ごす"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/025/0023.jpg",
+          "summary": "物語はページをめくって進む"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/025/0024.jpg",
+          "summary": "霧の向こうの絶景へ"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-026",
+      "channel": "CH12",
+      "video": "026",
+      "run_id": "CH12-026",
+      "count": 25,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/026/0001.jpg",
+          "summary": "休むのが怖い"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/026/0002.jpg",
+          "summary": "マグロのように"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/026/0003.jpg",
+          "summary": "怠け者の言い訳ではない"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/026/0004.jpg",
+          "summary": "時計の物語へ"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/026/0005.jpg",
+          "summary": "時計の国へ"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/026/0006.jpg",
+          "summary": "チクタクの誇り"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/026/0007.jpg",
+          "summary": "夜も働き続ける"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/026/0008.jpg",
+          "summary": "怠け者と罵る"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/026/0009.jpg",
+          "summary": "完璧なリズム"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/026/0010.jpg",
+          "summary": "老時計の眉ひそめ"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/026/0011.jpg",
+          "summary": "ゼンマイが折れる"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/026/0012.jpg",
+          "summary": "動けなくなる"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/026/0013.jpg",
+          "summary": "スローの言葉"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/026/0014.jpg",
+          "summary": "時計の絶望"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/026/0015.jpg",
+          "summary": "初めての静寂"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/026/0016.jpg",
+          "summary": "時間の意味"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/026/0017.jpg",
+          "summary": "復帰したチクタク"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/026/0018.jpg",
+          "summary": "休息の本当の意味"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/026/0019.jpg",
+          "summary": "機械としての人間"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/026/0020.jpg",
+          "summary": "自己肯定感の低さ"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/026/0021.jpg",
+          "summary": "Human Being"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/026/0022.jpg",
+          "summary": "死ぬときに何を思う"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/026/0023.jpg",
+          "summary": "デフォルト・モード・ネットワーク"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/026/0024.jpg",
+          "summary": "実践的な休息"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/026/0025.jpg",
+          "summary": "心の美容液"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-027",
+      "channel": "CH12",
+      "video": "027",
+      "run_id": "CH12-027",
+      "count": 25,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/027/0001.jpg",
+          "summary": "変わりたくない現状への執着"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/027/0002.jpg",
+          "summary": "世界は待ってくれない焦り"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/027/0003.jpg",
+          "summary": "安定志向の裏の不安"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/027/0004.jpg",
+          "summary": "変わらない唯一の方法"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/027/0005.jpg",
+          "summary": "流れる川の生存の真理"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/027/0006.jpg",
+          "summary": "止まったら倒れる自転車"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/027/0007.jpg",
+          "summary": "頑固なカメレオンの物語へ"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/027/0008.jpg",
+          "summary": "緑への執着と葉っぱの上"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/027/0009.jpg",
+          "summary": "赤い花の誘いを拒否"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/027/0010.jpg",
+          "summary": "岩場の日向ぼっこも拒否"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/027/0011.jpg",
+          "summary": "乾季の訪れと変色する葉"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/027/0012.jpg",
+          "summary": "天敵から必死に逃げ回る"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/027/0013.jpg",
+          "summary": "世界を呪う苦しみ"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/027/0014.jpg",
+          "summary": "衰弱し色あせる姿"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/027/0015.jpg",
+          "summary": "長老カメレオンの助言"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/027/0016.jpg",
+          "summary": "中身がカメレオンという真実"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/027/0017.jpg",
+          "summary": "世界と一つになる変身"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/027/0018.jpg",
+          "summary": "茶褐色への変化と安心感"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/027/0019.jpg",
+          "summary": "多彩な色を楽しむ自由"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/027/0020.jpg",
+          "summary": "無常への抵抗と宇宙の法則"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/027/0021.jpg",
+          "summary": "現実と理想のギャップ解決"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/027/0022.jpg",
+          "summary": "アイデンティティの殻を脱ぐ"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/027/0023.jpg",
+          "summary": "VUCA時代の変化の招待状"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/027/0024.jpg",
+          "summary": "柳の木のようなしなやかさ"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/027/0025.jpg",
+          "summary": "ゲームのレベルアップとしての変化"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-028",
+      "channel": "CH12",
+      "video": "028",
+      "run_id": "CH12-028",
+      "count": 26,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/028/0001.jpg",
+          "summary": "幸せへの欲求"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/028/0002.jpg",
+          "summary": "欠けているもの探し"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/028/0003.jpg",
+          "summary": "増す渇き"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/028/0004.jpg",
+          "summary": "冷たい風の穴"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/028/0005.jpg",
+          "summary": "気づいていない幸せ"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/028/0006.jpg",
+          "summary": "魚と水の寓話"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/028/0007.jpg",
+          "summary": "星空の物語へ誘う"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/028/0008.jpg",
+          "summary": "ホシノと奇跡の星"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/028/0009.jpg",
+          "summary": "望遠鏡での探求"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/028/0010.jpg",
+          "summary": "見過ごされる美しさ"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/028/0011.jpg",
+          "summary": "感謝しない心"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/028/0012.jpg",
+          "summary": "砂漠で倒れる老人"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/028/0013.jpg",
+          "summary": "息を飲む星空"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/028/0014.jpg",
+          "summary": "気づき: 奇跡の星の海"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/028/0015.jpg",
+          "summary": "感謝の涙"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/028/0016.jpg",
+          "summary": "物語の終わりと掘り下げ"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/028/0017.jpg",
+          "summary": "ホシノの失敗と日常"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/028/0018.jpg",
+          "summary": "「当たり前」の奇跡"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/028/0019.jpg",
+          "summary": "失って気づく幸せ"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/028/0020.jpg",
+          "summary": "感謝のレンズ"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/028/0021.jpg",
+          "summary": "コップの水の解釈"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/028/0022.jpg",
+          "summary": "感謝の科学的効用"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/028/0023.jpg",
+          "summary": "「ありがとう」の口癖"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/028/0024.jpg",
+          "summary": "感謝日記の習慣"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/028/0025.jpg",
+          "summary": "足元の宝石"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/028/0026.jpg",
+          "summary": "結びの祈り"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-029",
+      "channel": "CH12",
+      "video": "029",
+      "run_id": "CH12-029",
+      "count": 20,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/029/0001.jpg",
+          "summary": "正しさへの執着と孤立"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/029/0002.jpg",
+          "summary": "高塔の上の寂しさ"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/029/0003.jpg",
+          "summary": "実る稲穂の教え"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/029/0004.jpg",
+          "summary": "山の物語への導入"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/029/0005.jpg",
+          "summary": "野心的な山マウント"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/029/0006.jpg",
+          "summary": "孤独な頂点の過酷さ"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/029/0007.jpg",
+          "summary": "麓の豊かな谷バレー"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/029/0008.jpg",
+          "summary": "水の流れに気づく"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/029/0009.jpg",
+          "summary": "山と谷の対話"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/029/0010.jpg",
+          "summary": "父なる山への変容"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/029/0011.jpg",
+          "summary": "エゴの分離感の分析"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/029/0012.jpg",
+          "summary": "本当の謙虚さとは"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/029/0013.jpg",
+          "summary": "「おかげさま」の気づき"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/029/0014.jpg",
+          "summary": "上善は水の如し"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/029/0015.jpg",
+          "summary": "最強の人間関係戦略"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/029/0016.jpg",
+          "summary": "謝ることの勇気"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/029/0017.jpg",
+          "summary": "意識して谷に降りる"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/029/0018.jpg",
+          "summary": "自信と傲慢の違い"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/029/0019.jpg",
+          "summary": "心の中に谷を作る"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/029/0020.jpg",
+          "summary": "感謝と願いの結び"
+        }
+      ]
+    },
+    {
+      "video_id": "CH12-030",
+      "channel": "CH12",
+      "video": "030",
+      "run_id": "CH12-030",
+      "count": 31,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH12/030/0001.jpg",
+          "summary": "変わりたいのに変われない苦しみ"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH12/030/0002.jpg",
+          "summary": "長い心の旅の回想"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH12/030/0003.jpg",
+          "summary": "監獄の扉は最初から開いていた"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH12/030/0004.jpg",
+          "summary": "立っている場所が出口"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH12/030/0005.jpg",
+          "summary": "囚人の物語への導入"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH12/030/0006.jpg",
+          "summary": "プリズン、地下牢の誕生"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH12/030/0007.jpg",
+          "summary": "鉄格子への叫び"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH12/030/0008.jpg",
+          "summary": "自ら築いた絶望の壁"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH12/030/0009.jpg",
+          "summary": "旅人の突然の訪問"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH12/030/0010.jpg",
+          "summary": "囚人と旅人の最初の対話"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH12/030/0011.jpg",
+          "summary": "扉に鍵がないという指摘"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH12/030/0012.jpg",
+          "summary": "囚人の恐怖と抵抗"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH12/030/0013.jpg",
+          "summary": "旅人の助言と去り際"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH12/030/0014.jpg",
+          "summary": "囚人の内なる葛藤"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH12/030/0015.jpg",
+          "summary": "扉への一歩"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH12/030/0016.jpg",
+          "summary": "錆びた扉が開く"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH12/030/0017.jpg",
+          "summary": "開かれた道の発見"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH12/030/0018.jpg",
+          "summary": "笑いと涙の解放"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH12/030/0019.jpg",
+          "summary": "自分への謝罪と鎖の解放"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH12/030/0020.jpg",
+          "summary": "地上への階段と広がる世界"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH12/030/0021.jpg",
+          "summary": "自由の深呼吸と気づき"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH12/030/0022.jpg",
+          "summary": "旅人の正体と物語の終わり"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH12/030/0023.jpg",
+          "summary": "あなたの心のブレーキ"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH12/030/0024.jpg",
+          "summary": "あなた自身が止めている"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH12/030/0025.jpg",
+          "summary": "扉を開ける怖さ"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH12/030/0026.jpg",
+          "summary": "知ってしまった真実と解脱"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH12/030/0027.jpg",
+          "summary": "問題のレッテルと手に入れた武器"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH12/030/0028.jpg",
+          "summary": "準備万端、宇宙の無条件の愛"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH12/030/0029.jpg",
+          "summary": "顔を上げ、霧が晴れる"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH12/030/0030.jpg",
+          "summary": "自由そのもの、新たな章の始まり"
+        },
+        {
+          "file": "0031.jpg",
+          "rel": "media/video_images/CH12/030/0031.jpg",
+          "summary": "感謝と祝福の別れ"
         }
       ]
     }
