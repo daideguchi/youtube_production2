@@ -388,10 +388,12 @@ const videoList = $("videoList");
 const searchInput = $("searchInput");
 const searchResults = $("searchResults");
 const browseDetails = $("browseDetails");
+const browseSummary = $("browseSummary");
 const reloadIndexButton = $("reloadIndex");
 const metaTitle = $("metaTitle");
 const metaPath = $("metaPath");
 const openRaw = $("openRaw");
+const openSnapshot = $("openSnapshot");
 const contentPre = $("contentPre");
 const copyStatus = $("copyStatus");
 const copyNoSepChunks = $("copyNoSepChunks");
@@ -423,6 +425,27 @@ function setLoading(on) {
   loading.hidden = !on;
 }
 
+function updateBrowseSummary() {
+  const ch = normalizeChannelParam(channelSelect?.value || "") || String(selected?.channel || "").trim();
+  const v = normalizeVideoParam(videoSelect?.value || "") || String(selected?.video || "").trim();
+  const id = ch && v ? `${ch}-${v}` : "";
+  browseSummary.textContent = id ? `Browse（${id}）` : "Browse（Channel/Videoで選ぶ）";
+  updateSnapshotLink();
+}
+
+function updateSnapshotLink() {
+  const ch = normalizeChannelParam(channelSelect?.value || "") || String(selected?.channel || "").trim();
+  const v = normalizeVideoParam(videoSelect?.value || "") || String(selected?.video || "").trim();
+  if (!ch) {
+    openSnapshot.href = "./snapshot/";
+    return;
+  }
+  const url = new URL("./snapshot/", window.location.href);
+  url.searchParams.set("channel", ch);
+  if (v) url.searchParams.set("q", `${ch}-${v}`);
+  openSnapshot.href = url.toString();
+}
+
 function setControlsDisabled(on) {
   const disabled = Boolean(on);
   channelSelect.disabled = disabled;
@@ -450,9 +473,26 @@ function isNarrowView() {
   }
 }
 
+function closeBrowseIfNarrow() {
+  if (!isNarrowView()) return;
+  try {
+    browseDetails.open = false;
+  } catch (_err) {
+    // ignore
+  }
+}
+
 function setBadge(el, text, kind) {
   el.textContent = text || "—";
   el.dataset.kind = kind || "neutral";
+}
+
+function makeMiniBadge(text, kind) {
+  const el = document.createElement("span");
+  el.className = "mini-badge";
+  el.dataset.kind = kind || "neutral";
+  el.textContent = text || "—";
+  return el;
 }
 
 function updateBadges() {
@@ -742,7 +782,7 @@ function renderThumbProject(it, proj) {
     previewWrap.appendChild(message);
   } else if (!remoteUrl && publishedKnownMissing) {
     message.textContent = [
-      "プレビュー未公開（Pagesでは assets を直接参照できません）。",
+      "プレビュー未公開（元画像はgitignoreなので、Pages用プレビュー生成が必要です）。",
       `次: python3 scripts/ops/pages_thumb_previews.py --channel ${it.channel} --video ${it.video} --write`,
       "→ commit/push で Pages から表示できます。",
     ].join("\n");
@@ -784,7 +824,7 @@ function renderThumbProject(it, proj) {
       }
       message.textContent = [
         "画像プレビューを読み込めませんでした。",
-        "（thumb assets は gitignore のため、Pagesでは参照不可です）",
+        "（元画像はgitignoreだが、Pages用プレビューは docs/media/thumbs に出せます）",
         `次: python3 scripts/ops/pages_thumb_previews.py --channel ${it.channel} --video ${it.video} --write`,
       ].join("\n");
       previewWrap.appendChild(message);
@@ -1189,6 +1229,7 @@ function clearSelectionForChannel(channel) {
   contentPre.textContent = "このチャンネルには台本がありません。";
   initialChannelWanted = ch;
   initialVideoWanted = "";
+  updateBrowseSummary();
   persistUiState();
 }
 
@@ -1283,12 +1324,37 @@ function renderVideoList(channel, activeVideo) {
     title.textContent = String(it.title || "").trim();
     right.appendChild(title);
 
+    const badges = document.createElement("div");
+    badges.className = "mini-badges";
+    const vid = String(it?.video_id || "").trim();
+
+    const thumbIdx = vid ? thumbIndexByVideoId.get(vid) : null;
+    if (thumbIdx && thumbIdx.preview_exists === true) {
+      badges.appendChild(makeMiniBadge("サムネ✓", "ok"));
+    } else if (thumbIdx && thumbIdx.preview_exists === false) {
+      badges.appendChild(makeMiniBadge("サムネ未", "bad"));
+    } else {
+      badges.appendChild(makeMiniBadge("サムネ?", "neutral"));
+    }
+
+    const imgs = vid ? videoImagesIndexByVideoId.get(vid) : null;
+    const imgCount = Array.isArray(imgs?.files) ? imgs.files.length : 0;
+    if (imgs && imgCount > 0) {
+      badges.appendChild(makeMiniBadge(`画像${imgCount}`, "ok"));
+    } else if (imgs) {
+      badges.appendChild(makeMiniBadge("画像一部", "warn"));
+    } else {
+      badges.appendChild(makeMiniBadge("画像未", "neutral"));
+    }
+    right.appendChild(badges);
+
     btn.appendChild(left);
     btn.appendChild(right);
     btn.addEventListener("click", () => {
       selectItem(it.channel, it.video);
       searchInput.value = "";
       hideSearchResults();
+      closeBrowseIfNarrow();
     });
     videoList.appendChild(btn);
   }
@@ -1370,6 +1436,7 @@ function showSearchResults(results) {
       hideSearchResults();
       selectItem(it.channel, it.video);
       searchInput.value = "";
+      closeBrowseIfNarrow();
     });
     searchResults.appendChild(btn);
   }
@@ -1427,6 +1494,7 @@ async function loadScript(it) {
   selected = it;
   initialChannelWanted = String(it?.channel || "").trim();
   initialVideoWanted = String(it?.video || "").trim();
+  updateBrowseSummary();
   persistUiState();
   loadedText = "";
   loadedNoSepText = "";
@@ -1477,6 +1545,7 @@ function selectItem(channel, video) {
   renderVideos(channel);
   videoSelect.value = video;
   renderVideoList(channel, video);
+  updateBrowseSummary();
   const it = findItem(channel, video);
   if (it) {
     void loadScript(it);
@@ -1524,6 +1593,7 @@ async function reloadIndex() {
       (grouped.get(preferredChannel)?.[0]?.video ?? null);
     if (preferredVideo) {
       selectItem(preferredChannel, preferredVideo);
+      closeBrowseIfNarrow();
     }
     footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")}`;
     hideSearchResults();
@@ -1602,6 +1672,7 @@ function setupEvents() {
       if (it) {
         hideSearchResults();
         selectItem(it.channel, it.video);
+        closeBrowseIfNarrow();
         return;
       }
     }
@@ -1617,6 +1688,7 @@ function setupEvents() {
       if (matches.length === 1) {
         hideSearchResults();
         selectItem(matches[0].channel, matches[0].video);
+        closeBrowseIfNarrow();
         return;
       }
       showSearchResults(matches);
@@ -1629,6 +1701,7 @@ function setupEvents() {
     if (it2) {
       hideSearchResults();
       selectItem(it2.channel, it2.video);
+      closeBrowseIfNarrow();
       return;
     }
 
@@ -1676,6 +1749,7 @@ try {
 } catch (_err) {
   // ignore
 }
+updateBrowseSummary();
 setActiveView(currentView);
 updateBadges();
 void reloadIndex();

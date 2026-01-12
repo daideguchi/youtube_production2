@@ -9,9 +9,22 @@
   grid-template-columns: minmax(260px, 420px) 1fr 120px;
 }
 
+.cards {
+  display: none;
+}
+
 @media (max-width: 860px) {
   .controls {
     grid-template-columns: 1fr;
+  }
+
+  .table-wrap {
+    display: none;
+  }
+
+  .cards {
+    display: grid;
+    gap: 10px;
   }
 }
 
@@ -198,4 +211,49 @@
   max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.ep-card {
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 48, 0.72);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ep-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ep-card__id {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.ep-card__title {
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.ep-card__sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.ep-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ep-card__links .btn {
+  padding: 8px 10px;
 }

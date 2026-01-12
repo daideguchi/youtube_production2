@@ -155,6 +155,7 @@ const channelSelect = $("channelSelect");
 const searchInput = $("searchInput");
 const rowsSelect = $("rowsSelect");
 const tableBody = $("tableBody");
+const cardsBody = $("cardsBody");
 const alertBox = $("alertBox");
 const metaTitle = $("metaTitle");
 const metaSubtitle = $("metaSubtitle");
@@ -243,10 +244,13 @@ function renderChannelSelect() {
   }
 }
 
-function scriptViewerLink(channel, video) {
+function scriptViewerLink(channel, video, view = "") {
+  const ch = normChannel(channel);
+  const vv = normVideo(video);
   const url = new URL("../", window.location.href);
-  url.searchParams.set("channel", channel);
-  url.searchParams.set("video", video);
+  url.searchParams.set("id", `${ch}-${vv}`);
+  const v = String(view || "").trim().toLowerCase();
+  if (v && v !== "script") url.searchParams.set("view", v);
   return url.toString();
 }
 
@@ -341,6 +345,7 @@ function renderChannelSummary() {
 
 function renderTable() {
   tableBody.innerHTML = "";
+  cardsBody.innerHTML = "";
   if (!channelData?.episodes?.length) return;
 
   const limit = Number(rowsSelect.value) || 100;
@@ -402,7 +407,9 @@ function renderTable() {
     )}</span></div>`;
 
     const links = [
-      `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video))}">open</a>`,
+      `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video, "script"))}">台本</a>`,
+      `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video, "thumb"))}">サムネ</a>`,
+      `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video, "images"))}">画像</a>`,
       assembledUrl ? `<a class="btn btn--ghost" href="${escapeHtml(assembledUrl)}" target="_blank" rel="noreferrer">raw</a>` : "",
       statusUrl ? `<a class="btn btn--ghost" href="${escapeHtml(statusUrl)}" target="_blank" rel="noreferrer">status</a>` : "",
     ]
@@ -420,6 +427,27 @@ function renderTable() {
       <td><div class="links">${links}</div></td>
     `;
     tableBody.appendChild(tr);
+
+    const card = document.createElement("article");
+    card.className = "ep-card";
+    card.innerHTML = `
+      <div class="ep-card__head">
+        <div>
+          <div class="ep-card__id">${idHtml}</div>
+          <div class="ep-card__title">${escapeHtml(ep.title || "—")}</div>
+          <div class="ep-card__sub">${escapeHtml(planningUpdated || "")}</div>
+        </div>
+        <div class="badges">
+          ${progressBadge}
+          <span class="badge badge--${classifyScriptOverallStatus(scriptStatus)}" title="${escapeHtml(
+            scriptStatus || "—"
+          )}">${escapeHtml(scriptLabel)}</span>
+        </div>
+      </div>
+      <div class="badges">${stageBadges}</div>
+      <div class="ep-card__links">${links}</div>
+    `;
+    cardsBody.appendChild(card);
   }
 
   const extra = filtered.length > sliced.length ? ` (showing ${sliced.length}/${filtered.length})` : ` (${filtered.length})`;
