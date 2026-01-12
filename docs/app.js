@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_06";
+const SITE_ASSET_VERSION = "20260112_07";
 
 function $(id) {
   const el = document.getElementById(id);
