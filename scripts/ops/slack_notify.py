@@ -83,7 +83,6 @@ def _ops_event_dedupe_key(event: Dict[str, Any]) -> Optional[str]:
 
     cmd = str(event.get("cmd") or "").strip()
     op = str(event.get("op") or "").strip()
-    llm = str(event.get("llm") or "").strip()
     episode = _extract_episode_label(event)
 
     try:
@@ -91,24 +90,13 @@ def _ops_event_dedupe_key(event: Dict[str, Any]) -> Optional[str]:
     except Exception:
         exit_code = -1
 
-    pending = event.get("pending") if isinstance(event.get("pending"), dict) else {}
-    pending_ids = pending.get("ids") if isinstance(pending.get("ids"), list) else []
-    pending_ids = sorted({str(x).strip() for x in pending_ids if str(x).strip()})[:8]
-
-    git = event.get("git") if isinstance(event.get("git"), dict) else {}
-    head = str(git.get("head") or "").strip()
-    head_short = head[:7] if head else "-"
-
     key_obj = {
         "kind": "ops_cli.finish",
         "status": status,
         "cmd": cmd,
         "op": op,
         "episode": episode,
-        "llm": llm,
         "exit_code": exit_code,
-        "pending_ids": pending_ids,
-        "git_head": head_short,
     }
     raw = json.dumps(key_obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:20]
