@@ -1,9 +1,9 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:19.465485Z",
+  "generated_at": "2026-01-12T03:44:45.387363Z",
   "channel": "CH04",
   "planning_csv": "workspaces/planning/channels/CH04.csv",
-  "planning_count": 30,
+  "planning_count": 90,
   "scripts_count": 30,
   "episodes": [
     {
@@ -35,7 +35,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -70,7 +69,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -105,7 +103,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -140,7 +137,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -175,7 +171,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -210,7 +205,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -245,7 +239,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -280,7 +273,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -315,7 +307,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -350,7 +341,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -385,7 +375,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -420,7 +409,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -455,7 +443,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -490,7 +477,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -525,7 +511,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -545,7 +530,7 @@
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "ラポール",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -560,9 +545,8 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -580,7 +564,7 @@
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "アクティブ・イマジネーション",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -595,9 +579,8 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -609,13 +592,13 @@
       "planning": {
         "動画番号": "018",
         "タイトル": "【今すぐ捨てなさい】あなたから“運”を奪う、家に溜まった邪気（エントロピー）を浄化する、風水と物理学の禁断の法則",
-        "進捗": "",
-        "更新日時": "",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:00.616407Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "エントロピー",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -625,14 +608,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/018/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:00.621987Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -644,13 +626,13 @@
       "planning": {
         "動画番号": "019",
         "タイトル": "【聴き流すだけ】再生した瞬間、脳の不要な“思い込み”が消えていく。潜在意識を書き換える「アファメーション睡眠導入」",
-        "進捗": "",
-        "更新日時": "",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:02.372027Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "アファメーション",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -660,14 +642,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/019/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:02.379512Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -679,13 +660,13 @@
       "planning": {
         "動画番号": "020",
         "タイトル": "【衝撃】「考えている」時、あなたは“聴いている”。頭の中のおしゃべりを止め、本当の“自分”を取り戻す方法",
-        "進捗": "",
-        "更新日時": "",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:03.704749Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "頭内おしゃべり",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -695,14 +676,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/020/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:03.709224Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -714,13 +694,13 @@
       "planning": {
         "動画番号": "021",
         "タイトル": "【9割が知らない】なぜ、あの人は“オーラ”があるのか？ 内側から輝きが溢れ出す「7つのチャクラ」覚醒法",
-        "進捗": "",
-        "更新日時": "",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:04.809656Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "チャクラ",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -730,14 +710,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/021/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:04.814388Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -749,13 +728,13 @@
       "planning": {
         "動画番号": "022",
         "タイトル": "【閲覧注意】あなたの“口癖”が、あなたの“現実”を作っている。「言霊」の力を解放し、人生を好転させる禁断の呪文",
-        "進捗": "",
-        "更新日時": "",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:05.804460Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "言霊",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -765,14 +744,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/022/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:05.810771Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -784,13 +762,13 @@
       "planning": {
         "動画番号": "023",
         "タイトル": "【もう我慢しない】“いい人”の仮面を脱ぎ捨て、その他大勢から抜け出す、ニーチェの「超人」の思考法",
-        "進捗": "",
-        "更新日時": "",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T12:35:41.947289Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "超人",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -800,14 +778,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/023/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T12:35:41.949782Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -819,13 +796,13 @@
       "planning": {
         "動画番号": "024",
         "タイトル": "【運命の人の正体】ツインフレームとソウルメイトの違い。惹かれる理由と、引き寄せる本当の条件",
-        "進捗": "",
-        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:07.064481Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "ツインフレーム",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -835,14 +812,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/024/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:07.071987Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -854,13 +830,13 @@
       "planning": {
         "動画番号": "025",
         "タイトル": "【脳の門番】RASが現実を選別する。願いが叶う人の“フィルター設定”",
-        "進捗": "",
-        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:08.383321Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "RAS",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -870,14 +846,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/025/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:08.388745Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -889,13 +864,13 @@
       "planning": {
         "動画番号": "026",
         "タイトル": "【抜け出せない原因】同じ苦しみを繰り返す「トラウマの再演」を終わらせる方法",
-        "進捗": "",
-        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T08:40:09.506116Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "トラウマ再演",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -905,14 +880,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/026/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T08:40:09.517879Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -924,13 +898,13 @@
       "planning": {
         "動画番号": "027",
         "タイトル": "【危険】感情を抑えるほど苦しくなる。抑圧が心と体を壊すメカニズムと解放法",
-        "進捗": "",
-        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T12:45:50.164167Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "感情抑圧",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -940,14 +914,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/027/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T12:45:50.172207Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -959,13 +932,13 @@
       "planning": {
         "動画番号": "028",
         "タイトル": "【意識レベル】ホーキンズの「200」を越えると人生が動く。意識を高める方法",
-        "進捗": "",
-        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T12:45:51.064310Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "意識レベル200",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -975,14 +948,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/028/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T12:45:51.067029Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -994,13 +966,13 @@
       "planning": {
         "動画番号": "029",
         "タイトル": "【自己催眠】トランス状態で潜在意識を書き換える。無意識を味方につける技法",
-        "進捗": "",
-        "更新日時": "2025-12-17T02:56:15.153627Z",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-09T12:45:35.856713Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "自己催眠",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -1010,14 +982,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH04/029/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-09T12:45:35.859137Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -1035,7 +1006,7 @@
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "",
+        "キーコンセプト": "5つの秘密",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
         "説明文_リード": ""
@@ -1050,11 +1021,1330 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
+    },
+    {
+      "channel": "CH04",
+      "video": "031",
+      "video_id": "CH04-031",
+      "title": "【記憶実験】香りが一瞬で過去を開く理由",
+      "planning": {
+        "動画番号": "31",
+        "タイトル": "【記憶実験】香りが一瞬で過去を開く理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "プルースト現象",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "032",
+      "video_id": "CH04-032",
+      "title": "【偽記憶】確信しているのに間違う脳の罠",
+      "planning": {
+        "動画番号": "32",
+        "タイトル": "【偽記憶】確信しているのに間違う脳の罠",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "偽記憶",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "033",
+      "video_id": "CH04-033",
+      "title": "【心理トリック】初対面で信頼される人の共通点",
+      "planning": {
+        "動画番号": "33",
+        "タイトル": "【心理トリック】初対面で信頼される人の共通点",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "オフィスでの休憩",
+        "キーコンセプト": "初頭効果",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "034",
+      "video_id": "CH04-034",
+      "title": "【バーナム効果】占いが当たると感じる仕組み",
+      "planning": {
+        "動画番号": "34",
+        "タイトル": "【バーナム効果】占いが当たると感じる仕組み",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "心理トリック",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "バーナム効果",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "035",
+      "video_id": "CH04-035",
+      "title": "【シンクロ】同じ数字ばかり見る夜の心理",
+      "planning": {
+        "動画番号": "35",
+        "タイトル": "【シンクロ】同じ数字ばかり見る夜の心理",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "シンクロ",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "確証バイアス",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "036",
+      "video_id": "CH04-036",
+      "title": "【集合的無意識】夢が似るのは偶然なのか",
+      "planning": {
+        "動画番号": "36",
+        "タイトル": "【集合的無意識】夢が似るのは偶然なのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "集合的無意識",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "037",
+      "video_id": "CH04-037",
+      "title": "【選択の錯覚】雑音の中で名前だけ聞こえる理由",
+      "planning": {
+        "動画番号": "37",
+        "タイトル": "【選択の錯覚】雑音の中で名前だけ聞こえる理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "オフィスでの休憩",
+        "キーコンセプト": "カクテルパーティ効果",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "038",
+      "video_id": "CH04-038",
+      "title": "【認知的不協和】都合の悪い事実を無視する心",
+      "planning": {
+        "動画番号": "38",
+        "タイトル": "【認知的不協和】都合の悪い事実を無視する心",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "認知的不協和",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "039",
+      "video_id": "CH04-039",
+      "title": "【ツァイガルニク効果】終わらないタスクが頭を占める",
+      "planning": {
+        "動画番号": "39",
+        "タイトル": "【ツァイガルニク効果】終わらないタスクが頭を占める",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "仕事のひらめき",
+        "ライフシーン": "オフィスでの休憩",
+        "キーコンセプト": "ツァイガルニク効果",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "040",
+      "video_id": "CH04-040",
+      "title": "【プラセボ】言葉ひとつで痛みが変わる夜",
+      "planning": {
+        "動画番号": "40",
+        "タイトル": "【プラセボ】言葉ひとつで痛みが変わる夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "心理トリック",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "プラセボ",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "041",
+      "video_id": "CH04-041",
+      "title": "【ノセボ】不安な情報が体を重くする仕組み",
+      "planning": {
+        "動画番号": "41",
+        "タイトル": "【ノセボ】不安な情報が体を重くする仕組み",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "心理トリック",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "ノセボ",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "042",
+      "video_id": "CH04-042",
+      "title": "【プライミング】見えない刺激が選択を動かすのか",
+      "planning": {
+        "動画番号": "42",
+        "タイトル": "【プライミング】見えない刺激が選択を動かすのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "心理トリック",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "プライミング",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "043",
+      "video_id": "CH04-043",
+      "title": "【ラベリング効果】一言で人が変わる危険",
+      "planning": {
+        "動画番号": "43",
+        "タイトル": "【ラベリング効果】一言で人が変わる危険",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "心理トリック",
+        "ライフシーン": "オフィスでの休憩",
+        "キーコンセプト": "ラベリング",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "044",
+      "video_id": "CH04-044",
+      "title": "【権威バイアス】肩書きで信じてしまう心理",
+      "planning": {
+        "動画番号": "44",
+        "タイトル": "【権威バイアス】肩書きで信じてしまう心理",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "権威バイアス",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "045",
+      "video_id": "CH04-045",
+      "title": "【群集心理】正義が暴走する実験の教訓",
+      "planning": {
+        "動画番号": "45",
+        "タイトル": "【群集心理】正義が暴走する実験の教訓",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "服従実験",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "046",
+      "video_id": "CH04-046",
+      "title": "【ホーソン効果】見られるだけで行動が変わる理由",
+      "planning": {
+        "動画番号": "46",
+        "タイトル": "【ホーソン効果】見られるだけで行動が変わる理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "オフィスでの休憩",
+        "キーコンセプト": "ホーソン効果",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "047",
+      "video_id": "CH04-047",
+      "title": "【物語の力】不安を言葉にすると楽になる仕組み",
+      "planning": {
+        "動画番号": "47",
+        "タイトル": "【物語の力】不安を言葉にすると楽になる仕組み",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "仕事のひらめき",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "ナラティブ",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "048",
+      "video_id": "CH04-048",
+      "title": "【記憶の再固定】思い出は毎回書き換わる",
+      "planning": {
+        "動画番号": "48",
+        "タイトル": "【記憶の再固定】思い出は毎回書き換わる",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "記憶再固定",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "049",
+      "video_id": "CH04-049",
+      "title": "【夢日記】夢を書くだけで直感が冴えるのか",
+      "planning": {
+        "動画番号": "49",
+        "タイトル": "【夢日記】夢を書くだけで直感が冴えるのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "直感",
+        "悩みタグ_サブ": "仕事のひらめき",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "夢日記",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "050",
+      "video_id": "CH04-050",
+      "title": "【ディジャヴ】初めてなのに懐かしい感覚の正体",
+      "planning": {
+        "動画番号": "50",
+        "タイトル": "【ディジャヴ】初めてなのに懐かしい感覚の正体",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "デジャヴ",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "051",
+      "video_id": "CH04-051",
+      "title": "【マンデラ効果】集団の「記憶違い」はなぜ起きる",
+      "planning": {
+        "動画番号": "51",
+        "タイトル": "【マンデラ効果】集団の「記憶違い」はなぜ起きる",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "マンデラ効果",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "052",
+      "video_id": "CH04-052",
+      "title": "【アポフェニア】無意味に意味を見出す脳",
+      "planning": {
+        "動画番号": "52",
+        "タイトル": "【アポフェニア】無意味に意味を見出す脳",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "アポフェニア",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "053",
+      "video_id": "CH04-053",
+      "title": "【直感】迷ったとき体が先に答える理由",
+      "planning": {
+        "動画番号": "53",
+        "タイトル": "【直感】迷ったとき体が先に答える理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "直感",
+        "悩みタグ_サブ": "仕事のひらめき",
+        "ライフシーン": "オフィスでの休憩",
+        "キーコンセプト": "ソマティックマーカー",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "054",
+      "video_id": "CH04-054",
+      "title": "【感覚遮断】静けさが不安を増幅する夜",
+      "planning": {
+        "動画番号": "54",
+        "タイトル": "【感覚遮断】静けさが不安を増幅する夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "感覚遮断",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "055",
+      "video_id": "CH04-055",
+      "title": "【耳鳴り】静かな部屋で音が気になる心理",
+      "planning": {
+        "動画番号": "55",
+        "タイトル": "【耳鳴り】静かな部屋で音が気になる心理",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "注意の固定",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "056",
+      "video_id": "CH04-056",
+      "title": "【暗闇の錯覚】影が動くように見える現象",
+      "planning": {
+        "動画番号": "56",
+        "タイトル": "【暗闇の錯覚】影が動くように見える現象",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "パレイドリア",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "057",
+      "video_id": "CH04-057",
+      "title": "【読書療法】ページをめくると落ち着く理由",
+      "planning": {
+        "動画番号": "57",
+        "タイトル": "【読書療法】ページをめくると落ち着く理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "仕事のひらめき",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "読書療法",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "058",
+      "video_id": "CH04-058",
+      "title": "【儀式】小さな儀式が心を安定させる科学",
+      "planning": {
+        "動画番号": "58",
+        "タイトル": "【儀式】小さな儀式が心を安定させる科学",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "潜在意識",
+        "悩みタグ_サブ": "心理トリック",
+        "ライフシーン": "雨の窓辺",
+        "キーコンセプト": "儀式化",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "059",
+      "video_id": "CH04-059",
+      "title": "【神話】昔話に同じ構造が繰り返される理由",
+      "planning": {
+        "動画番号": "59",
+        "タイトル": "【神話】昔話に同じ構造が繰り返される理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "神話",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "旧図書館",
+        "キーコンセプト": "英雄の旅",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "060",
+      "video_id": "CH04-060",
+      "title": "【アーカイブ】古い手紙が心を変える瞬間",
+      "planning": {
+        "動画番号": "60",
+        "タイトル": "【アーカイブ】古い手紙が心を変える瞬間",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.487844Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "記憶",
+        "悩みタグ_サブ": "人間観察",
+        "ライフシーン": "深夜の書斎",
+        "キーコンセプト": "再解釈",
+        "ベネフィット一言": "日常の違和感を言語化できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "日常の裏側で進む心理実験とアーカイブの話を覗きに行きましょう。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "061",
+      "video_id": "CH04-061",
+      "title": "【禁書効果】禁止されるほど読みたくなる心理",
+      "planning": {
+        "動画番号": "61",
+        "タイトル": "【禁書効果】禁止されるほど読みたくなる心理",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "062",
+      "video_id": "CH04-062",
+      "title": "【秘密の快感】なぜ人は秘密を守れないのか",
+      "planning": {
+        "動画番号": "62",
+        "タイトル": "【秘密の快感】なぜ人は秘密を守れないのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "063",
+      "video_id": "CH04-063",
+      "title": "【鏡の錯覚】鏡を見た時、脳が“理想”に補正する",
+      "planning": {
+        "動画番号": "63",
+        "タイトル": "【鏡の錯覚】鏡を見た時、脳が“理想”に補正する",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "064",
+      "video_id": "CH04-064",
+      "title": "【フレーミング】同じ事実が別物に見える夜",
+      "planning": {
+        "動画番号": "64",
+        "タイトル": "【フレーミング】同じ事実が別物に見える夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "065",
+      "video_id": "CH04-065",
+      "title": "【アンカリング】最初の数字が判断を支配する",
+      "planning": {
+        "動画番号": "65",
+        "タイトル": "【アンカリング】最初の数字が判断を支配する",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "066",
+      "video_id": "CH04-066",
+      "title": "【確証バイアス】都合の良い情報だけ拾う脳",
+      "planning": {
+        "動画番号": "66",
+        "タイトル": "【確証バイアス】都合の良い情報だけ拾う脳",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "067",
+      "video_id": "CH04-067",
+      "title": "【損失回避】失う恐怖が行動を止める仕組み",
+      "planning": {
+        "動画番号": "67",
+        "タイトル": "【損失回避】失う恐怖が行動を止める仕組み",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "068",
+      "video_id": "CH04-068",
+      "title": "【現状維持】変えない選択が一番危ない夜",
+      "planning": {
+        "動画番号": "68",
+        "タイトル": "【現状維持】変えない選択が一番危ない夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "069",
+      "video_id": "CH04-069",
+      "title": "【投影】嫌いな人に映る“自分の影”",
+      "planning": {
+        "動画番号": "69",
+        "タイトル": "【投影】嫌いな人に映る“自分の影”",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "070",
+      "video_id": "CH04-070",
+      "title": "【学習性無力感】諦め癖は“作られる”",
+      "planning": {
+        "動画番号": "70",
+        "タイトル": "【学習性無力感】諦め癖は“作られる”",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "071",
+      "video_id": "CH04-071",
+      "title": "【ハロー効果】見た目が中身を塗りつぶす",
+      "planning": {
+        "動画番号": "71",
+        "タイトル": "【ハロー効果】見た目が中身を塗りつぶす",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "072",
+      "video_id": "CH04-072",
+      "title": "【ピークエンド】最後が記憶を支配する",
+      "planning": {
+        "動画番号": "72",
+        "タイトル": "【ピークエンド】最後が記憶を支配する",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "073",
+      "video_id": "CH04-073",
+      "title": "【サンクコスト】“もったいない”が沼を作る",
+      "planning": {
+        "動画番号": "73",
+        "タイトル": "【サンクコスト】“もったいない”が沼を作る",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "074",
+      "video_id": "CH04-074",
+      "title": "【選択過多】選択肢が多いほど苦しくなる",
+      "planning": {
+        "動画番号": "74",
+        "タイトル": "【選択過多】選択肢が多いほど苦しくなる",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "075",
+      "video_id": "CH04-075",
+      "title": "【感情感染】隣の不機嫌が移る理由",
+      "planning": {
+        "動画番号": "75",
+        "タイトル": "【感情感染】隣の不機嫌が移る理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "076",
+      "video_id": "CH04-076",
+      "title": "【デフォルト効果】標準設定があなたを誘導する",
+      "planning": {
+        "動画番号": "76",
+        "タイトル": "【デフォルト効果】標準設定があなたを誘導する",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "077",
+      "video_id": "CH04-077",
+      "title": "【同調圧力】空気が判断を奪う夜",
+      "planning": {
+        "動画番号": "77",
+        "タイトル": "【同調圧力】空気が判断を奪う夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "078",
+      "video_id": "CH04-078",
+      "title": "【自己正当化】間違いを認められない脳",
+      "planning": {
+        "動画番号": "78",
+        "タイトル": "【自己正当化】間違いを認められない脳",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "079",
+      "video_id": "CH04-079",
+      "title": "【バイアス盲点】自分だけは客観的だと思う錯覚",
+      "planning": {
+        "動画番号": "79",
+        "タイトル": "【バイアス盲点】自分だけは客観的だと思う錯覚",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "080",
+      "video_id": "CH04-080",
+      "title": "【予言の自己成就】信じるほど当たる罠",
+      "planning": {
+        "動画番号": "80",
+        "タイトル": "【予言の自己成就】信じるほど当たる罠",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "081",
+      "video_id": "CH04-081",
+      "title": "【時間の錯覚】待ち時間が長く感じる理由",
+      "planning": {
+        "動画番号": "81",
+        "タイトル": "【時間の錯覚】待ち時間が長く感じる理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "082",
+      "video_id": "CH04-082",
+      "title": "【ストループ効果】“読める文字”が脳を混乱させる",
+      "planning": {
+        "動画番号": "82",
+        "タイトル": "【ストループ効果】“読める文字”が脳を混乱させる",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "083",
+      "video_id": "CH04-083",
+      "title": "【ラバーハンド】手の感覚は簡単に騙される",
+      "planning": {
+        "動画番号": "83",
+        "タイトル": "【ラバーハンド】手の感覚は簡単に騙される",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "084",
+      "video_id": "CH04-084",
+      "title": "【後知恵バイアス】結果の後で「最初から知ってた」になる",
+      "planning": {
+        "動画番号": "84",
+        "タイトル": "【後知恵バイアス】結果の後で「最初から知ってた」になる",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "085",
+      "video_id": "CH04-085",
+      "title": "【物語化】脳は後から理由を作る",
+      "planning": {
+        "動画番号": "85",
+        "タイトル": "【物語化】脳は後から理由を作る",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "086",
+      "video_id": "CH04-086",
+      "title": "【注意の罠】集中は“才能”じゃなく設計",
+      "planning": {
+        "動画番号": "86",
+        "タイトル": "【注意の罠】集中は“才能”じゃなく設計",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "087",
+      "video_id": "CH04-087",
+      "title": "【メタ認知】頭の外から自分を観察する技術",
+      "planning": {
+        "動画番号": "87",
+        "タイトル": "【メタ認知】頭の外から自分を観察する技術",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "088",
+      "video_id": "CH04-088",
+      "title": "【反証】自分の意見を壊すと強くなる",
+      "planning": {
+        "動画番号": "88",
+        "タイトル": "【反証】自分の意見を壊すと強くなる",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "089",
+      "video_id": "CH04-089",
+      "title": "【記憶の偏り】嫌なことだけ残る理由",
+      "planning": {
+        "動画番号": "89",
+        "タイトル": "【記憶の偏り】嫌なことだけ残る理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH04",
+      "video": "090",
+      "video_id": "CH04-090",
+      "title": "【擬人化】無機物に心を感じる夜",
+      "planning": {
+        "動画番号": "90",
+        "タイトル": "【擬人化】無機物に心を感じる夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:50:35.125789Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
     }
   ]
 }

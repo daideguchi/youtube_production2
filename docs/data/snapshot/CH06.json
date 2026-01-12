@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:19.700691Z",
+  "generated_at": "2026-01-12T03:44:45.410644Z",
   "channel": "CH06",
   "planning_csv": "workspaces/planning/channels/CH06.csv",
-  "planning_count": 33,
-  "scripts_count": 33,
+  "planning_count": 93,
+  "scripts_count": 40,
   "episodes": [
     {
       "channel": "CH06",
@@ -35,7 +35,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -70,7 +69,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -105,7 +103,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -140,7 +137,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -175,7 +171,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -210,7 +205,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -245,7 +239,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -280,7 +273,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -315,7 +307,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -350,7 +341,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -385,7 +375,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -420,7 +409,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -455,7 +443,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -490,7 +477,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -525,7 +511,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -560,7 +545,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -595,7 +579,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -630,7 +613,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -665,7 +647,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -700,7 +681,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -735,7 +715,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -770,7 +749,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -805,7 +783,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -840,7 +817,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -875,7 +851,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -910,7 +885,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -945,7 +919,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -980,7 +953,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1015,7 +987,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1050,7 +1021,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1085,7 +1055,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1120,7 +1089,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1155,11 +1123,1414 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
+    },
+    {
+      "channel": "CH06",
+      "video": "034",
+      "video_id": "CH06-034",
+      "title": "【南極の封印】ハイジャンプ作戦と黒塗り航海記",
+      "planning": {
+        "動画番号": "34",
+        "タイトル": "【南極の封印】ハイジャンプ作戦と黒塗り航海記",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "政府陰謀",
+        "悩みタグ_サブ": "軍事",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "黒塗り",
+        "ベネフィット一言": "真相に一歩近づく考察",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/034/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/034/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "035",
+      "video_id": "CH06-035",
+      "title": "【消された超能力計画】スターゲイト計画の遠隔透視",
+      "planning": {
+        "動画番号": "35",
+        "タイトル": "【消された超能力計画】スターゲイト計画の遠隔透視",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "政府陰謀",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "遠隔透視",
+        "ベネフィット一言": "真相に一歩近づく考察",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/035/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/035/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "036",
+      "video_id": "CH06-036",
+      "title": "【禁忌の周波数】タオス・ハムは誰が鳴らすのか",
+      "planning": {
+        "動画番号": "36",
+        "タイトル": "【禁忌の周波数】タオス・ハムは誰が鳴らすのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "周波数",
+        "ベネフィット一言": "断片をつなぐ視点が手に入る",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/036/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/036/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "037",
+      "video_id": "CH06-037",
+      "title": "【沈黙した電波】WOW!シグナルは返信だったのか",
+      "planning": {
+        "動画番号": "37",
+        "タイトル": "【沈黙した電波】WOW!シグナルは返信だったのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "UFO",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "電波信号",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/037/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/037/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "038",
+      "video_id": "CH06-038",
+      "title": "【影の衛星】ブラックナイト―軌道に残る古い目",
+      "planning": {
+        "動画番号": "38",
+        "タイトル": "【影の衛星】ブラックナイト―軌道に残る古い目",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "UFO",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "人工衛星",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/038/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/038/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "039",
+      "video_id": "CH06-039",
+      "title": "【森のUFO報告書】レンデルシャム事件の公式メモ",
+      "planning": {
+        "動画番号": "39",
+        "タイトル": "【森のUFO報告書】レンデルシャム事件の公式メモ",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "UFO",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "公式メモ",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/039/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/039/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "040",
+      "video_id": "CH06-040",
+      "title": "【消失した落下傘】D.B.クーパーはどこへ消えた",
+      "planning": {
+        "動画番号": "40",
+        "タイトル": "【消失した落下傘】D.B.クーパーはどこへ消えた",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "消失",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": "workspaces/scripts/CH06/040/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH06/040/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
+    },
+    {
+      "channel": "CH06",
+      "video": "041",
+      "video_id": "CH06-041",
+      "title": "【無人の幽霊船】メアリー・セレスト号の食卓",
+      "planning": {
+        "動画番号": "41",
+        "タイトル": "【無人の幽霊船】メアリー・セレスト号の食卓",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "幽霊船",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "042",
+      "video_id": "CH06-042",
+      "title": "【暗号の死体】タマム・シュッド事件と紙片の謎",
+      "planning": {
+        "動画番号": "42",
+        "タイトル": "【暗号の死体】タマム・シュッド事件と紙片の謎",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "暗号",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "043",
+      "video_id": "CH06-043",
+      "title": "【黒塗りの実験書】MKウルトラ計画の欠落ページ",
+      "planning": {
+        "動画番号": "43",
+        "タイトル": "【黒塗りの実験書】MKウルトラ計画の欠落ページ",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "政府陰謀",
+        "悩みタグ_サブ": "軍事",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "洗脳",
+        "ベネフィット一言": "真相に一歩近づく考察",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "044",
+      "video_id": "CH06-044",
+      "title": "【封印された島の穴】オークアイランドは装置か罠か",
+      "planning": {
+        "動画番号": "44",
+        "タイトル": "【封印された島の穴】オークアイランドは装置か罠か",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "失われた文明",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "装置",
+        "ベネフィット一言": "失われた歴史を俯瞰できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "045",
+      "video_id": "CH06-045",
+      "title": "【2000年前の歯車】アンティキティラ機械の設計者",
+      "planning": {
+        "動画番号": "45",
+        "タイトル": "【2000年前の歯車】アンティキティラ機械の設計者",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "オーパーツ",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "機械",
+        "ベネフィット一言": "歴史の見え方が変わる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "046",
+      "video_id": "CH06-046",
+      "title": "【古代の電池】バグダッド電池は何に使われた",
+      "planning": {
+        "動画番号": "46",
+        "タイトル": "【古代の電池】バグダッド電池は何に使われた",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "オーパーツ",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "電池",
+        "ベネフィット一言": "歴史の見え方が変わる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "047",
+      "video_id": "CH06-047",
+      "title": "【海底の聖都】ドワルカ遺跡―神話が先か史実か",
+      "planning": {
+        "動画番号": "47",
+        "タイトル": "【海底の聖都】ドワルカ遺跡―神話が先か史実か",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "失われた文明",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "海底神殿",
+        "キーコンセプト": "海底遺跡",
+        "ベネフィット一言": "失われた歴史を俯瞰できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "048",
+      "video_id": "CH06-048",
+      "title": "【消されたUFO調査】ブルーブック計画の結論",
+      "planning": {
+        "動画番号": "48",
+        "タイトル": "【消されたUFO調査】ブルーブック計画の結論",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "UFO",
+        "悩みタグ_サブ": "軍事",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "公式調査",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "049",
+      "video_id": "CH06-049",
+      "title": "【夜空の火の玉】フーファイター目撃が示す兵器説",
+      "planning": {
+        "動画番号": "49",
+        "タイトル": "【夜空の火の玉】フーファイター目撃が示す兵器説",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "UFO",
+        "悩みタグ_サブ": "軍事",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "目撃証言",
+        "ベネフィット一言": "裏付け付きで語れる都市伝説",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "050",
+      "video_id": "CH06-050",
+      "title": "【禁断の布】トリノの聖骸布は偽造か証拠か",
+      "planning": {
+        "動画番号": "50",
+        "タイトル": "【禁断の布】トリノの聖骸布は偽造か証拠か",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "禁書",
+        "悩みタグ_サブ": "宗教儀式",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "聖骸布",
+        "ベネフィット一言": "禁断の知識を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "051",
+      "video_id": "CH06-051",
+      "title": "【黒塗りの墜落】ケックスバーグ事件の鐘型物体",
+      "planning": {
+        "動画番号": "51",
+        "タイトル": "【黒塗りの墜落】ケックスバーグ事件の鐘型物体",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "鐘型物体",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "052",
+      "video_id": "CH06-052",
+      "title": "【消えた遭難信号】オウラング・メダン号の最後",
+      "planning": {
+        "動画番号": "52",
+        "タイトル": "【消えた遭難信号】オウラング・メダン号の最後",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "遭難信号",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "053",
+      "video_id": "CH06-053",
+      "title": "【沈黙の山】ベニントン三角地帯の連続失踪",
+      "planning": {
+        "動画番号": "53",
+        "タイトル": "【沈黙の山】ベニントン三角地帯の連続失踪",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "失踪",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "054",
+      "video_id": "CH06-054",
+      "title": "【未解読暗号】ゾディアックの手紙が示すもの",
+      "planning": {
+        "動画番号": "54",
+        "タイトル": "【未解読暗号】ゾディアックの手紙が示すもの",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "未解読暗号",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "055",
+      "video_id": "CH06-055",
+      "title": "【消えた町】ロアノーク植民地の失踪サイン",
+      "planning": {
+        "動画番号": "55",
+        "タイトル": "【消えた町】ロアノーク植民地の失踪サイン",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "未解決事件",
+        "悩みタグ_サブ": "目撃証言",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "植民地",
+        "ベネフィット一言": "事件の輪郭を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "056",
+      "video_id": "CH06-056",
+      "title": "【禁忌の電波塔】HAARPは空を操れるのか",
+      "planning": {
+        "動画番号": "56",
+        "タイトル": "【禁忌の電波塔】HAARPは空を操れるのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "政府陰謀",
+        "悩みタグ_サブ": "軍事",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "電波塔",
+        "ベネフィット一言": "真相に一歩近づく考察",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "057",
+      "video_id": "CH06-057",
+      "title": "【沈黙の監視網】エシュロンは何を聞いていた",
+      "planning": {
+        "動画番号": "57",
+        "タイトル": "【沈黙の監視網】エシュロンは何を聞いていた",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "政府陰謀",
+        "悩みタグ_サブ": "軍事",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "盗聴",
+        "ベネフィット一言": "真相に一歩近づく考察",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "058",
+      "video_id": "CH06-058",
+      "title": "【封印された洞窟】死海文書の失われた巻物",
+      "planning": {
+        "動画番号": "58",
+        "タイトル": "【封印された洞窟】死海文書の失われた巻物",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "禁書",
+        "悩みタグ_サブ": "宗教儀式",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "禁書",
+        "ベネフィット一言": "禁断の知識を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "059",
+      "video_id": "CH06-059",
+      "title": "【禁書の地図】中世海図に描かれた世界の端",
+      "planning": {
+        "動画番号": "59",
+        "タイトル": "【禁書の地図】中世海図に描かれた世界の端",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "禁書",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "古地図",
+        "ベネフィット一言": "禁断の知識を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "060",
+      "video_id": "CH06-060",
+      "title": "【黒塗りの通路】ナスカ地上絵は滑走路だったのか",
+      "planning": {
+        "動画番号": "60",
+        "タイトル": "【黒塗りの通路】ナスカ地上絵は滑走路だったのか",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "失われた文明",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "砂漠遺跡",
+        "キーコンセプト": "滑走路説",
+        "ベネフィット一言": "失われた歴史を俯瞰できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "061",
+      "video_id": "CH06-061",
+      "title": "【沈黙の深海音】ブロップは生物か兵器か",
+      "planning": {
+        "動画番号": "61",
+        "タイトル": "【沈黙の深海音】ブロップは生物か兵器か",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "都市伝説",
+        "悩みタグ_サブ": "科学考察",
+        "ライフシーン": "深夜のPC",
+        "キーコンセプト": "深海音",
+        "ベネフィット一言": "断片をつなぐ視点が手に入る",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "062",
+      "video_id": "CH06-062",
+      "title": "【封印された予言機】デルポイ神託の煙の正体",
+      "planning": {
+        "動画番号": "62",
+        "タイトル": "【封印された予言機】デルポイ神託の煙の正体",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "禁書",
+        "悩みタグ_サブ": "宗教儀式",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "神託",
+        "ベネフィット一言": "禁断の知識を整理できる",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "063",
+      "video_id": "CH06-063",
+      "title": "【消えたノート】テスラの研究はどこへ消えた",
+      "planning": {
+        "動画番号": "63",
+        "タイトル": "【消えたノート】テスラの研究はどこへ消えた",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.490530Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "政府陰謀",
+        "悩みタグ_サブ": "軍事",
+        "ライフシーン": "地下アーカイブ",
+        "キーコンセプト": "テスラ",
+        "ベネフィット一言": "真相に一歩近づく考察",
+        "内容（企画要約）": "",
+        "説明文_リード": "眠れない夜に、封印された噂の裏側を覗きませんか？"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "064",
+      "video_id": "CH06-064",
+      "title": "【黒塗りの月面写真】アポロ写真の「空白」が示すもの",
+      "planning": {
+        "動画番号": "64",
+        "タイトル": "【黒塗りの月面写真】アポロ写真の「空白」が示すもの",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "065",
+      "video_id": "CH06-065",
+      "title": "【地下都市計画】政府文書に残る「地下」構想",
+      "planning": {
+        "動画番号": "65",
+        "タイトル": "【地下都市計画】政府文書に残る「地下」構想",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "066",
+      "video_id": "CH06-066",
+      "title": "【消えた航海ログ】海で途絶えた黒塗り通信",
+      "planning": {
+        "動画番号": "66",
+        "タイトル": "【消えた航海ログ】海で途絶えた黒塗り通信",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "067",
+      "video_id": "CH06-067",
+      "title": "【人工オーロラ】空が光る実験と軍の特許番号",
+      "planning": {
+        "動画番号": "67",
+        "タイトル": "【人工オーロラ】空が光る実験と軍の特許番号",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "068",
+      "video_id": "CH06-068",
+      "title": "【数字放送】正体不明のラジオ局が残す暗号",
+      "planning": {
+        "動画番号": "68",
+        "タイトル": "【数字放送】正体不明のラジオ局が残す暗号",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "069",
+      "video_id": "CH06-069",
+      "title": "【禁断の共鳴装置】音で物体が動く極秘実験",
+      "planning": {
+        "動画番号": "69",
+        "タイトル": "【禁断の共鳴装置】音で物体が動く極秘実験",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "070",
+      "video_id": "CH06-070",
+      "title": "【消えた潜水艦】深海で途絶えた最後の信号",
+      "planning": {
+        "動画番号": "70",
+        "タイトル": "【消えた潜水艦】深海で途絶えた最後の信号",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "071",
+      "video_id": "CH06-071",
+      "title": "【地図にない施設】衛星画像から消された研究所",
+      "planning": {
+        "動画番号": "71",
+        "タイトル": "【地図にない施設】衛星画像から消された研究所",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "072",
+      "video_id": "CH06-072",
+      "title": "【月の謎の反射】地上レーザーが返された夜",
+      "planning": {
+        "動画番号": "72",
+        "タイトル": "【月の謎の反射】地上レーザーが返された夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "073",
+      "video_id": "CH06-073",
+      "title": "【沈黙の海底ケーブル】切られた回線と監視の影",
+      "planning": {
+        "動画番号": "73",
+        "タイトル": "【沈黙の海底ケーブル】切られた回線と監視の影",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "074",
+      "video_id": "CH06-074",
+      "title": "【古代の禁断金属】ありえない純度の出土品",
+      "planning": {
+        "動画番号": "74",
+        "タイトル": "【古代の禁断金属】ありえない純度の出土品",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "075",
+      "video_id": "CH06-075",
+      "title": "【消える証言テープ】UFO目撃の録音が残らない理由",
+      "planning": {
+        "動画番号": "75",
+        "タイトル": "【消える証言テープ】UFO目撃の録音が残らない理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "076",
+      "video_id": "CH06-076",
+      "title": "【雨雲のパターン】特許番号が示す「操作」の影",
+      "planning": {
+        "動画番号": "76",
+        "タイトル": "【雨雲のパターン】特許番号が示す「操作」の影",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "077",
+      "video_id": "CH06-077",
+      "title": "【電磁パルス】一瞬で止まる街の記録",
+      "planning": {
+        "動画番号": "77",
+        "タイトル": "【電磁パルス】一瞬で止まる街の記録",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "078",
+      "video_id": "CH06-078",
+      "title": "【黒塗りの洞窟壁画】削られた星図の痕跡",
+      "planning": {
+        "動画番号": "78",
+        "タイトル": "【黒塗りの洞窟壁画】削られた星図の痕跡",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "079",
+      "video_id": "CH06-079",
+      "title": "【落ちたデータ】空から降った謎の衛星信号",
+      "planning": {
+        "動画番号": "79",
+        "タイトル": "【落ちたデータ】空から降った謎の衛星信号",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "080",
+      "video_id": "CH06-080",
+      "title": "【禁断の音声合成】誰の声でも作れる古い資料",
+      "planning": {
+        "動画番号": "80",
+        "タイトル": "【禁断の音声合成】誰の声でも作れる古い資料",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "081",
+      "video_id": "CH06-081",
+      "title": "【謎の儀式記録】軍が残した「同じ符号」",
+      "planning": {
+        "動画番号": "81",
+        "タイトル": "【謎の儀式記録】軍が残した「同じ符号」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "082",
+      "video_id": "CH06-082",
+      "title": "【消えた天文台】観測所が閉鎖された夜の理由",
+      "planning": {
+        "動画番号": "82",
+        "タイトル": "【消えた天文台】観測所が閉鎖された夜の理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "083",
+      "video_id": "CH06-083",
+      "title": "【封印された古文書】翻訳の途中で止まったページ",
+      "planning": {
+        "動画番号": "83",
+        "タイトル": "【封印された古文書】翻訳の途中で止まったページ",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "084",
+      "video_id": "CH06-084",
+      "title": "【禁忌の座標】座標だけ残された「行き先」",
+      "planning": {
+        "動画番号": "84",
+        "タイトル": "【禁忌の座標】座標だけ残された「行き先」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "085",
+      "video_id": "CH06-085",
+      "title": "【通信衛星の同時墜落】同じ日に落ちた3つの機体",
+      "planning": {
+        "動画番号": "85",
+        "タイトル": "【通信衛星の同時墜落】同じ日に落ちた3つの機体",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "086",
+      "video_id": "CH06-086",
+      "title": "【消えた特許】発明家が残した謎の電源",
+      "planning": {
+        "動画番号": "86",
+        "タイトル": "【消えた特許】発明家が残した謎の電源",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "087",
+      "video_id": "CH06-087",
+      "title": "【消えた裁判記録】証拠が封印された事件",
+      "planning": {
+        "動画番号": "87",
+        "タイトル": "【消えた裁判記録】証拠が封印された事件",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "088",
+      "video_id": "CH06-088",
+      "title": "【光通信】空に描かれた「見えない線」",
+      "planning": {
+        "動画番号": "88",
+        "タイトル": "【光通信】空に描かれた「見えない線」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "089",
+      "video_id": "CH06-089",
+      "title": "【名が消された論文】影の科学者に共通する痕跡",
+      "planning": {
+        "動画番号": "89",
+        "タイトル": "【名が消された論文】影の科学者に共通する痕跡",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "090",
+      "video_id": "CH06-090",
+      "title": "【沈黙の列車事故】乗客が語らない夜",
+      "planning": {
+        "動画番号": "90",
+        "タイトル": "【沈黙の列車事故】乗客が語らない夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "091",
+      "video_id": "CH06-091",
+      "title": "【黒塗りの観測データ】太陽から来た異常値",
+      "planning": {
+        "動画番号": "91",
+        "タイトル": "【黒塗りの観測データ】太陽から来た異常値",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "092",
+      "video_id": "CH06-092",
+      "title": "【封印された通報網】同時多発の目撃報告が消える",
+      "planning": {
+        "動画番号": "92",
+        "タイトル": "【封印された通報網】同時多発の目撃報告が消える",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH06",
+      "video": "093",
+      "video_id": "CH06-093",
+      "title": "【黒塗りの海図端】海図の端に描かれた「境界」",
+      "planning": {
+        "動画番号": "93",
+        "タイトル": "【黒塗りの海図端】海図の端に描かれた「境界」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:54:14.507405Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
     }
   ]
 }

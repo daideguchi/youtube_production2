@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:19.594465Z",
+  "generated_at": "2026-01-12T03:44:45.395483Z",
   "channel": "CH05",
   "planning_csv": "workspaces/planning/channels/CH05.csv",
   "planning_count": 30,
@@ -14,8 +14,8 @@
       "planning": {
         "動画番号": "1",
         "タイトル": "【67歳の挑戦】亡き夫の「遺言」で始めたマッチングアプリ。「いいね」を押してくれたのは、40年前に別れた初恋の人でした。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:43:51.757154Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -30,12 +30,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/001/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:43:51.759986Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -49,8 +48,8 @@
       "planning": {
         "動画番号": "2",
         "タイトル": "【シニアの青春】70歳で入った市民大学。「隣の席の元教頭先生、私のこと、生徒みたいに叱るんです」それが恋の始まりだった。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:43:52.709877Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -65,12 +64,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/002/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:43:52.711150Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -84,8 +82,8 @@
       "planning": {
         "動画番号": "3",
         "タイトル": "【隣人トラブル】「毎晩うるさい！」隣室のバイオリンの音に怒鳴り込んだら、出てきたのは元オーケストラの指揮者だった。「君のために弾こう」と言われ…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:44.232657Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -100,12 +98,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/003/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:44.234554Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -119,8 +116,8 @@
       "planning": {
         "動画番号": "4",
         "タイトル": "【体験談】シルバー人材センターでペアを組んだのは、ライバル会社の元部長。「君のところのやり方は気に食わん！」と喧嘩ばかりだったのに…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:46.023373Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -135,12 +132,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/004/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:46.024469Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -154,8 +150,8 @@
       "planning": {
         "動画番号": "5",
         "タイトル": "【感動】孫の運動会、一人で応援に来ていた私。隣で同じく一人だった彼が「お孫さん、うちの孫と仲良しなんですよ」と声をかけてきた。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:47.426894Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -170,12 +166,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/005/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:47.428335Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -189,8 +184,8 @@
       "planning": {
         "動画番号": "6",
         "タイトル": "【朗読】深夜ラジオのDJに「40年前に別れた恋人へ」と手紙を送った。数日後、番組で私の手紙が読まれ、彼からのアンサーソングが流れた時、涙が止まらなかった。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:48.851078Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -205,12 +200,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/006/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:48.852449Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -224,8 +218,8 @@
       "planning": {
         "動画番号": "7",
         "タイトル": "【ミステリー】夫の遺品から出てきた、見知らぬ女性へのラブレター。「嫉妬」の二文字を胸に会いに行ったら、その女性は夫がずっと支援していた孤児だった。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:49.875979Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -240,12 +234,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/007/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:49.876881Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -259,8 +252,8 @@
       "planning": {
         "動画番号": "8",
         "タイトル": "【豪華客船の恋】72歳、人生初クルーズ。ダンスパーティーで誘われず壁の花だった私に「一曲、いかがです？」と手を差し伸べてくれたのは、船の機関士だった。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:51.072326Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -275,12 +268,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/008/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:51.073478Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -294,8 +286,8 @@
       "planning": {
         "動画番号": "9",
         "タイトル": "【禁断の恋？】息子の嫁の父親と、孫の誕生会で意気投合。「子供たちが結婚したんだ、我々も親戚だな」なんて笑っていたら、いつの間にか二人で会う仲に…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:52.185321Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -310,12 +302,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/009/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:52.186763Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -329,8 +320,8 @@
       "planning": {
         "動画番号": "10",
         "タイトル": "【危険な香り】エレベーターで出会った初老男性に、理性ごと奪われた日",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:53.201213Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -345,12 +336,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/010/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:53.202153Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -364,8 +354,8 @@
       "planning": {
         "動画番号": "11",
         "タイトル": "【シニアの健康】毎年受ける人間ドック。「来年もここで会いましょう」が合言葉だったのに、その日、彼が現れることはなかった…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:54.268346Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -380,12 +370,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/011/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:54.269765Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -399,8 +388,8 @@
       "planning": {
         "動画番号": "12",
         "タイトル": "【家庭菜園】きゅうりの育て方で大喧嘩した、隣の畑の頑固おやじ。「俺のやり方が絶対だ！」と言い張る彼が、こっそり私の畑に肥料をやるのを見てしまった。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:55.401132Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -415,12 +404,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/012/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:55.402608Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -434,8 +422,8 @@
       "planning": {
         "動画番号": "13",
         "タイトル": "【俳句の会】「老いらくの恋、恥ずかしき、蟬しぐれ」と詠んだ私。選者の先生が「素晴らしい句だ。…私のことですかな？」と、静かに微笑んだ。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:56.281002Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -450,12 +438,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/013/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:56.281910Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -469,8 +456,8 @@
       "planning": {
         "動画番号": "14",
         "タイトル": "【カラオケ】スナックでいつもデュエットする相手。「銀座の恋の物語」を歌う時だけ、彼は役者になる。でも、その夜「これは本気だよ」と手を握ってきた。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:57.295264Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -485,12 +472,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/014/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:57.297742Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -504,8 +490,8 @@
       "planning": {
         "動画番号": "15",
         "タイトル": "【ペットロス】愛犬を亡くし、悲しみに暮れる私。動物霊園でいつも会う彼も、愛猫を亡くしたばかりだった。「あの子たち、今頃虹の橋で友達になってるかな」",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:44:58.377120Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -520,12 +506,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/015/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:44:58.378736Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -539,8 +524,8 @@
       "planning": {
         "動画番号": "16",
         "タイトル": "【バスツアー】一人で参加した日帰りバスツアー。隣の席になった無口な彼が、サービスエリアで私のために「みたらし団子」を買ってきてくれた。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:07.639836Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -555,12 +540,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/016/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:07.640872Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -574,8 +558,8 @@
       "planning": {
         "動画番号": "17",
         "タイトル": "【秘密の共有】「この店、潰れちゃうんだって」行きつけの喫茶店のマスターにそう告げられた夜。同じく常連だった彼と「二人だけの秘密にしよう」と約束した。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:08.589498Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -590,12 +574,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/017/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:08.592513Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -609,8 +592,8 @@
       "planning": {
         "動画番号": "18",
         "タイトル": "【再就職】66歳、清掃のパートで再就職。指導係は、私より年下の62歳。「あなた、手際が悪いわね」と厳しい彼女に、なぜか惹かれてしまった。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:09.442363Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -625,12 +608,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/018/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:09.443624Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -644,8 +626,8 @@
       "planning": {
         "動画番号": "19",
         "タイトル": "【ボランティア】地域のゴミ拾いボランティア。「こんなことしても、街は綺麗にならんよ」と皮肉ばかり言う彼が、誰よりも熱心にゴミを拾っていた。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:10.472906Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -660,12 +642,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/019/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:10.474969Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -679,8 +660,8 @@
       "planning": {
         "動画番号": "20",
         "タイトル": "【図書館の奇跡】いつも同じ席で歴史小説を読んでいる彼。ある日、私が返却した本を、彼が借りていった。本の最終ページに、感想を書いたメモを挟んでみたら…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:11.394433Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -695,12 +676,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/020/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:11.396151Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -714,8 +694,8 @@
       "planning": {
         "動画番号": "21",
         "タイトル": "【料理教室】「味が濃すぎる！」と私の料理を酷評した料理研究家の先生。でも、教室の後「君の作る肉じゃが、オフクロの味に似てる」と照れながら言った。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:12.397715Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -730,12 +710,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/021/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:12.399961Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -749,8 +728,8 @@
       "planning": {
         "動画番号": "22",
         "タイトル": "【思い出の場所】閉園する遊園地。40年前に妻と来たメリーゴーランドの前で、一人涙ぐんでいると「あなたも、お別れを言いに？」と、同じく一人の女性に声をかけられた。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:13.449238Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -765,12 +744,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/022/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:13.451058Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -784,8 +762,8 @@
       "planning": {
         "動画番号": "23",
         "タイトル": "【カメラ】野鳥の撮影が趣味の私。最高のシャッターチャンスを狙っていたら、ファインダーの先に、いつも見かける彼が、鳥に餌をやっている姿が…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:14.556666Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -800,12 +778,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/023/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:14.557888Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -819,8 +796,8 @@
       "planning": {
         "動画番号": "24",
         "タイトル": "【朗読】69歳、詐欺に遭って全財産を失った。「もう死のう」と海に来たら、同じく、事業に失敗したという彼と出会った。「死ぬ前に、ラーメンでも食うか」",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:15.750325Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -835,12 +812,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/024/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:15.752544Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -854,8 +830,8 @@
       "planning": {
         "動画番号": "25",
         "タイトル": "【年の差】娘が再婚した相手は、私より2歳年下だった。「お義母さん、なんて呼ばないで。…由美子さん」と彼に呼ばれるたび、いけないと分かっているのに…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:16.733308Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -870,12 +846,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/025/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:16.734799Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -889,8 +864,8 @@
       "planning": {
         "動画番号": "26",
         "タイトル": "【お遍路】亡き夫の供養のため、一人で始めたお遍路の旅。雨宿りしたお堂で出会ったのは、同じく妻を亡くしたという彼だった。「あと八十七箇所、一緒に歩きませんか」",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:17.769591Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -905,12 +880,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/026/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:17.772016Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -924,8 +898,8 @@
       "planning": {
         "動画番号": "27",
         "タイトル": "【ドローン】孫へのプレゼントで買ったドローンに、私がハマってしまった。空撮仲間と集まる公園で、いつも的確なアドバイスをくれる師匠（74歳）を、いつしか目で追っていた。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:18.951855Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -940,12 +914,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/027/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:18.954972Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -959,8 +932,8 @@
       "planning": {
         "動画番号": "28",
         "タイトル": "【歴史】城跡巡りが趣味の私。石垣の前で熱く語り合えるのは、いつも会う彼だけだった。「この城で、落ち合いませんか」まるで戦国時代の密会のようで…。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:20.489370Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -975,12 +948,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/028/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:20.490389Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -994,8 +966,8 @@
       "planning": {
         "動画番号": "29",
         "タイトル": "【シェアハウス】子供も独立し、広い家を持て余した私が始めたシニア向けシェアハウス。最後の入居者は、20年前に離婚した元夫だった。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:21.602452Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -1010,12 +982,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/029/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:21.603558Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1029,8 +1000,8 @@
       "planning": {
         "動画番号": "30",
         "タイトル": "【夫婦の秘密】結婚45年目、夫の書斎で見つけた交換日記。そこには、私に言えなかった「愛してる」の言葉が、毎日綴られていた。",
-        "進捗": "script_validated",
-        "更新日時": "2025-10-29 21:44:52",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:22.446539Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "再婚",
         "悩みタグ_サブ": "家族の距離",
@@ -1045,12 +1016,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH05/030/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:22.447403Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }

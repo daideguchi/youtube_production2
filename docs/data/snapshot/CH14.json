@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:21.813496Z",
+  "generated_at": "2026-01-12T03:44:45.529307Z",
   "channel": "CH14",
   "planning_csv": "workspaces/planning/channels/CH14.csv",
   "planning_count": 30,
-  "scripts_count": 0,
+  "scripts_count": 30,
   "episodes": [
     {
       "channel": "CH14",
@@ -25,8 +25,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/001/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -47,8 +59,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/002/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -69,8 +93,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/003/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -91,8 +127,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/004/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -113,8 +161,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/005/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "processing",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -135,8 +195,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -157,8 +229,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/007/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -179,8 +263,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/008/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -201,8 +297,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/009/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -223,8 +331,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/010/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -245,8 +365,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/011/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -267,8 +399,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/012/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -289,8 +433,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/013/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -311,8 +467,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -333,8 +501,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/015/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -355,8 +535,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/016/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "processing",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -377,8 +569,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/017/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -399,8 +603,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/018/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -421,8 +637,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/019/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -443,8 +671,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/020/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -465,8 +705,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/021/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -487,8 +739,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/022/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -509,8 +773,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/023/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -531,8 +807,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/024/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -553,8 +841,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/025/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -575,8 +875,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/026/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -597,8 +909,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/027/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -619,8 +943,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/028/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -641,8 +977,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/029/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH14",
@@ -663,8 +1011,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH14/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH14/030/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     }
   ]
 }

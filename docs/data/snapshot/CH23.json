@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:24.012455Z",
+  "generated_at": "2026-01-12T03:44:45.593749Z",
   "channel": "CH23",
   "planning_csv": "workspaces/planning/channels/CH23.csv",
   "planning_count": 30,
@@ -14,8 +14,8 @@
       "planning": {
         "動画番号": "001",
         "タイトル": "退職した夫が家を占領｜家庭内別居の現実が始まった日",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T10:04:00.943717Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "夫婦",
         "悩みタグ_サブ": "家庭内別居",
@@ -29,15 +29,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/001/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T10:04:00.946044Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -49,8 +48,8 @@
       "planning": {
         "動画番号": "002",
         "タイトル": "たった一言で夫婦が冷えた｜家庭内別居の末路",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T10:04:01.965312Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "夫婦",
         "悩みタグ_サブ": "会話がない",
@@ -64,15 +63,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/002/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T10:04:01.967033Z",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -84,8 +82,8 @@
       "planning": {
         "動画番号": "003",
         "タイトル": "年金を握られた63歳｜私の老後が消える夜",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T10:04:02.764341Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "お金",
         "悩みタグ_サブ": "支配",
@@ -99,15 +97,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/003/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T10:04:02.766225Z",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -137,10 +134,9 @@
         "status": "script_completed",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -154,8 +150,8 @@
       "planning": {
         "動画番号": "005",
         "タイトル": "介護の負担が私だけに｜優しさが枯れた夫婦",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T10:04:06.563340Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "介護",
         "悩みタグ_サブ": "限界",
@@ -169,15 +165,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/005/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T10:04:06.566542Z",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -189,8 +184,8 @@
       "planning": {
         "動画番号": "006",
         "タイトル": "相続の話をした瞬間、家族が割れた｜お金で崩壊する夜",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T10:04:07.585653Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "家族",
         "悩みタグ_サブ": "相続",
@@ -204,15 +199,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/006/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T10:04:07.588298Z",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -224,8 +218,8 @@
       "planning": {
         "動画番号": "007",
         "タイトル": "夫の隠し借金が見つかった｜封筒の中が地獄だった",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T10:04:08.604474Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "お金",
         "悩みタグ_サブ": "不信",
@@ -239,15 +233,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/007/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T10:04:08.607049Z",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -277,10 +270,9 @@
         "status": "script_completed",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -312,10 +304,9 @@
         "status": "script_completed",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -344,14 +335,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/010/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -379,14 +369,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/011/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -414,14 +403,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/012/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -449,14 +437,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/013/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -484,14 +471,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/014/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -519,14 +505,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/015/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -554,14 +539,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/016/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -589,14 +573,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/017/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -624,14 +607,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/018/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -659,14 +641,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/019/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -697,10 +678,9 @@
         "status": "script_completed",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -732,10 +712,9 @@
         "status": "script_completed",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -767,10 +746,9 @@
         "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -799,14 +777,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/023/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -834,14 +811,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/024/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -869,14 +845,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/025/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -907,10 +882,9 @@
         "status": "script_completed",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
+          "script_outline": "completed",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -935,17 +909,16 @@
         "内容（企画要約）": "子ども世代に頼れない｜老後の孤独が増える夜",
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
-      "assembled_path": "workspaces/scripts/CH23/027/content/assembled.md",
+      "assembled_path": null,
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/027/status.json",
-        "status": "script_completed",
+        "status": "script_in_progress",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
-          "script_review": "completed",
-          "quality_check": "pending",
+          "script_review": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -970,17 +943,16 @@
         "内容（企画要約）": "孤独死が怖い夫婦｜恐れが攻撃になる",
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
-      "assembled_path": "workspaces/scripts/CH23/028/content/assembled.md",
+      "assembled_path": null,
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/028/status.json",
-        "status": "script_completed",
+        "status": "script_in_progress",
         "updated_at": "",
         "stages": {
-          "script_outline": "pending",
+          "script_outline": "processing",
           "script_draft": "pending",
-          "script_review": "completed",
-          "quality_check": "pending",
+          "script_review": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -1005,17 +977,16 @@
         "内容（企画要約）": "要介護の夫が放った最悪の一言｜心が冷える夜",
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
-      "assembled_path": "workspaces/scripts/CH23/029/content/assembled.md",
+      "assembled_path": null,
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/029/status.json",
-        "status": "script_completed",
+        "status": "script_in_progress",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
-          "script_review": "completed",
-          "quality_check": "pending",
+          "script_review": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -1040,17 +1011,16 @@
         "内容（企画要約）": "最後に残ったのは自由｜静かに始まる第二の人生",
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
-      "assembled_path": "workspaces/scripts/CH23/030/content/assembled.md",
+      "assembled_path": null,
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH23/030/status.json",
-        "status": "script_completed",
+        "status": "script_in_progress",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
-          "script_review": "completed",
-          "quality_check": "pending",
+          "script_review": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }

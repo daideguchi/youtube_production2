@@ -1,9 +1,9 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:20.325363Z",
+  "generated_at": "2026-01-12T03:44:45.431410Z",
   "channel": "CH08",
   "planning_csv": "workspaces/planning/channels/CH08.csv",
-  "planning_count": 30,
+  "planning_count": 90,
   "scripts_count": 30,
   "episodes": [
     {
@@ -14,8 +14,8 @@
       "planning": {
         "動画番号": "1",
         "タイトル": "【悪用厳禁】反応しない最強の力",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:37.790902Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "悪用厳禁",
         "悩みタグ_サブ": "",
@@ -30,12 +30,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/001/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:37.793198Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -49,8 +48,8 @@
       "planning": {
         "動画番号": "2",
         "タイトル": "「あなたの子供はカルマ」この言葉の真の意味",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:39.355302Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -65,12 +64,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/002/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:39.357371Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -84,8 +82,8 @@
       "planning": {
         "動画番号": "3",
         "タイトル": "子供の誕生日は偶然じゃない 衝撃のメッセージ",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:40.367390Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -100,12 +98,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/003/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:40.368728Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -119,8 +116,8 @@
       "planning": {
         "動画番号": "4",
         "タイトル": "霊的に目覚めた人が静かに社会から消える理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:41.352260Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -135,12 +132,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/004/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:41.353892Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -154,8 +150,8 @@
       "planning": {
         "動画番号": "5",
         "タイトル": "再生した瞬間人生が全自動で整う波動固定術",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:42.523537Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -170,12 +166,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/005/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:42.525583Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -189,8 +184,8 @@
       "planning": {
         "動画番号": "6",
         "タイトル": "宇宙と会話し実際に答えを受け取る5つの方法",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:43.768720Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -205,12 +200,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/006/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:43.770275Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -224,8 +218,8 @@
       "planning": {
         "動画番号": "7",
         "タイトル": "世界のエリートが使うエネルギー操作マニュアル",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:44.844269Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -240,12 +234,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/007/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:44.847942Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -259,8 +252,8 @@
       "planning": {
         "動画番号": "8",
         "タイトル": "【嘘だろ？】呼吸一つで現実が激変する秘密",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:46.355343Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "嘘だろ？",
         "悩みタグ_サブ": "",
@@ -275,12 +268,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/008/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:46.357951Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -294,8 +286,8 @@
       "planning": {
         "動画番号": "9",
         "タイトル": "頭の中の独り言をやめたら人生が根こそぎ変わった",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:47.421785Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -310,12 +302,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/009/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:47.425843Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -329,8 +320,8 @@
       "planning": {
         "動画番号": "10",
         "タイトル": "撤退の驚くべき力 あなたを消耗させる人間関係の罠",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:48.549872Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -345,12 +336,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/010/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:48.551541Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -364,8 +354,8 @@
       "planning": {
         "動画番号": "11",
         "タイトル": "心は誰に話しかけているのか？",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:49.368572Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -380,12 +370,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/011/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:49.370615Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -399,8 +388,8 @@
       "planning": {
         "動画番号": "12",
         "タイトル": "現実を無視するだけで金持ちに？ネヴィル・ゴダードの秘密",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:50.401120Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -415,12 +404,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/012/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:50.403306Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -434,8 +422,8 @@
       "planning": {
         "動画番号": "13",
         "タイトル": "最終テストに合格した人にだけ見えている景色",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:51.516129Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -450,12 +438,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/013/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:51.517972Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -469,8 +456,8 @@
       "planning": {
         "動画番号": "14",
         "タイトル": "誰も知らないエネルギーコントロールの裏技",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:52.386429Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -485,12 +472,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/014/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:52.387899Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -504,8 +490,8 @@
       "planning": {
         "動画番号": "15",
         "タイトル": "考えている時、あなたは実は聴いている",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:53.557545Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -520,12 +506,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/015/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:53.560044Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -539,8 +524,8 @@
       "planning": {
         "動画番号": "16",
         "タイトル": "1200年間隠された真実 人生はすべて自分で選んでいた",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:54.627460Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -555,12 +540,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/016/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:54.629280Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -574,8 +558,8 @@
       "planning": {
         "動画番号": "17",
         "タイトル": "もう二度と人間に生まれてこない魂の特徴",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:56.387060Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -590,12 +574,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/017/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:56.388435Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -609,8 +592,8 @@
       "planning": {
         "動画番号": "18",
         "タイトル": "人が恋に落ちる理由は外見でも性格でもない",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:57.702295Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -625,12 +608,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/018/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:57.706682Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -644,8 +626,8 @@
       "planning": {
         "動画番号": "19",
         "タイトル": "聴くだけで魂が目覚める誘導瞑想 超意識へのゲート",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:45:59.073806Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -660,12 +642,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/019/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:45:59.077323Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -679,8 +660,8 @@
       "planning": {
         "動画番号": "20",
         "タイトル": "人生は壮大な魂のドラマだった 生まれる前に決めた真実",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:00.147148Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -695,12 +676,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/020/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:00.150051Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -714,8 +694,8 @@
       "planning": {
         "動画番号": "21",
         "タイトル": "ブッダが語った「どうでもいい」という最強の真理",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:01.195471Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -730,12 +710,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/021/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:01.198201Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -749,8 +728,8 @@
       "planning": {
         "動画番号": "22",
         "タイトル": "この才能を持つ人は普通に生きられない 危険な知覚",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:02.238903Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -765,12 +744,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/022/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:02.240685Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -784,8 +762,8 @@
       "planning": {
         "動画番号": "23",
         "タイトル": "あなたがお母さんを選んだ本当の理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:03.106854Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -800,12 +778,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/023/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:03.110408Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -819,8 +796,8 @@
       "planning": {
         "動画番号": "24",
         "タイトル": "もしこれを経験したなら第5次元に入っている",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:03.975596Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -835,12 +812,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/024/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:03.977955Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -854,8 +830,8 @@
       "planning": {
         "動画番号": "25",
         "タイトル": "老化は作られた幻想 時間を巻き戻す意識の書き換え",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:05.429212Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -870,12 +846,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/025/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:05.431420Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -889,8 +864,8 @@
       "planning": {
         "動画番号": "26",
         "タイトル": "左手につけた瞬間運気が吸い取られる罠",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:06.554037Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -905,12 +880,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/026/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:06.556970Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -924,8 +898,8 @@
       "planning": {
         "動画番号": "27",
         "タイトル": "どんな嫌な人からも攻撃されなくなる最強の心理術",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:07.564401Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -940,12 +914,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/027/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:07.569445Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -959,8 +932,8 @@
       "planning": {
         "動画番号": "28",
         "タイトル": "選ばれし者が大勢の人と関われない理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:08.972449Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -975,12 +948,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/028/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:08.976250Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -994,8 +966,8 @@
       "planning": {
         "動画番号": "29",
         "タイトル": "寝る前に名前を逆さに21回唱える人生好転の秘術",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:10.217641Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -1010,12 +982,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/029/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:10.221274Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -1029,8 +1000,8 @@
       "planning": {
         "動画番号": "30",
         "タイトル": "もう一人のあなたから届く人生好転サイン",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T12:46:12.812053Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "",
         "悩みタグ_サブ": "",
@@ -1045,16 +1016,1335 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH08/030/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-07T12:46:12.813651Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
       }
+    },
+    {
+      "channel": "CH08",
+      "video": "031",
+      "video_id": "CH08-031",
+      "title": "【眠れない夜】頭の回転を止める静かな読書儀式",
+      "planning": {
+        "動画番号": "31",
+        "タイトル": "【眠れない夜】頭の回転を止める静かな読書儀式",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "032",
+      "video_id": "CH08-032",
+      "title": "【過覚醒】寝る前3分で心を緩める呼吸と灯り",
+      "planning": {
+        "動画番号": "32",
+        "タイトル": "【過覚醒】寝る前3分で心を緩める呼吸と灯り",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "033",
+      "video_id": "CH08-033",
+      "title": "【情報疲れ】夜に心を閉じる「一行日記」の方法",
+      "planning": {
+        "動画番号": "33",
+        "タイトル": "【情報疲れ】夜に心を閉じる「一行日記」の方法",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "情報疲れ",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "034",
+      "video_id": "CH08-034",
+      "title": "【不安】未来の心配を小さくする紙の箱メソッド",
+      "planning": {
+        "動画番号": "34",
+        "タイトル": "【不安】未来の心配を小さくする紙の箱メソッド",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "035",
+      "video_id": "CH08-035",
+      "title": "【孤独】一人の夜を安心に変える「静かな対話」",
+      "planning": {
+        "動画番号": "35",
+        "タイトル": "【孤独】一人の夜を安心に変える「静かな対話」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "孤独",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "036",
+      "video_id": "CH08-036",
+      "title": "【自己否定】自分を責める声を静める夜の言葉",
+      "planning": {
+        "動画番号": "36",
+        "タイトル": "【自己否定】自分を責める声を静める夜の言葉",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "037",
+      "video_id": "CH08-037",
+      "title": "【眠りの準備】考えを鎮める「ページのめくり方」",
+      "planning": {
+        "動画番号": "37",
+        "タイトル": "【眠りの準備】考えを鎮める「ページのめくり方」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "038",
+      "video_id": "CH08-038",
+      "title": "【心配癖】頭の中の会議を終わらせる小さな儀式",
+      "planning": {
+        "動画番号": "38",
+        "タイトル": "【心配癖】頭の中の会議を終わらせる小さな儀式",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "039",
+      "video_id": "CH08-039",
+      "title": "【疲れ】頑張りすぎた夜に戻る「体の感覚」",
+      "planning": {
+        "動画番号": "39",
+        "タイトル": "【疲れ】頑張りすぎた夜に戻る「体の感覚」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "040",
+      "video_id": "CH08-040",
+      "title": "【緊張】胸のざわつきをほどく「ゆっくり数える」",
+      "planning": {
+        "動画番号": "40",
+        "タイトル": "【緊張】胸のざわつきをほどく「ゆっくり数える」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "041",
+      "video_id": "CH08-041",
+      "title": "【安心感】不安が強い日に効く「音の小さなルール」",
+      "planning": {
+        "動画番号": "41",
+        "タイトル": "【安心感】不安が強い日に効く「音の小さなルール」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "042",
+      "video_id": "CH08-042",
+      "title": "【悪い夢】怖い夢が続く夜に試す寝る前のことば",
+      "planning": {
+        "動画番号": "42",
+        "タイトル": "【悪い夢】怖い夢が続く夜に試す寝る前のことば",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "043",
+      "video_id": "CH08-043",
+      "title": "【焦り】明日が怖い夜に、今日を閉じる方法",
+      "planning": {
+        "動画番号": "43",
+        "タイトル": "【焦り】明日が怖い夜に、今日を閉じる方法",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "044",
+      "video_id": "CH08-044",
+      "title": "【後悔】失言を思い出す夜を終える短い手紙",
+      "planning": {
+        "動画番号": "44",
+        "タイトル": "【後悔】失言を思い出す夜を終える短い手紙",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "045",
+      "video_id": "CH08-045",
+      "title": "【思考の渦】同じ考えが回るときの観察の距離",
+      "planning": {
+        "動画番号": "45",
+        "タイトル": "【思考の渦】同じ考えが回るときの観察の距離",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "046",
+      "video_id": "CH08-046",
+      "title": "【人間関係】会話で疲れた夜の「境界線の作り方」",
+      "planning": {
+        "動画番号": "46",
+        "タイトル": "【人間関係】会話で疲れた夜の「境界線の作り方」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "情報疲れ",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "047",
+      "video_id": "CH08-047",
+      "title": "【期待】褒め言葉が重い夜に、軽く受け取る練習",
+      "planning": {
+        "動画番号": "47",
+        "タイトル": "【期待】褒め言葉が重い夜に、軽く受け取る練習",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "カフェの隅",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "048",
+      "video_id": "CH08-048",
+      "title": "【感情】泣けない夜の「呼吸と水」の整え方",
+      "planning": {
+        "動画番号": "48",
+        "タイトル": "【感情】泣けない夜の「呼吸と水」の整え方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "049",
+      "video_id": "CH08-049",
+      "title": "【習慣】三日坊主でも自分を責めない夜の約束",
+      "planning": {
+        "動画番号": "49",
+        "タイトル": "【習慣】三日坊主でも自分を責めない夜の約束",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "050",
+      "video_id": "CH08-050",
+      "title": "【自己理解】心を整える静かな質問を3つだけ",
+      "planning": {
+        "動画番号": "50",
+        "タイトル": "【自己理解】心を整える静かな質問を3つだけ",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "情報疲れ",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "051",
+      "video_id": "CH08-051",
+      "title": "【眠れない夜】アカシックを比喩として使う安心",
+      "planning": {
+        "動画番号": "51",
+        "タイトル": "【眠れない夜】アカシックを比喩として使う安心",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "052",
+      "video_id": "CH08-052",
+      "title": "【睡眠不足】寝落ち前のスマホを手放す優しい方法",
+      "planning": {
+        "動画番号": "52",
+        "タイトル": "【睡眠不足】寝落ち前のスマホを手放す優しい方法",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "情報疲れ",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "053",
+      "video_id": "CH08-053",
+      "title": "【不安】将来を考えすぎる夜の「小さな現実」",
+      "planning": {
+        "動画番号": "53",
+        "タイトル": "【不安】将来を考えすぎる夜の「小さな現実」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "054",
+      "video_id": "CH08-054",
+      "title": "【静かな瞑想】目を閉じるのが怖い人の呼吸時間",
+      "planning": {
+        "動画番号": "54",
+        "タイトル": "【静かな瞑想】目を閉じるのが怖い人の呼吸時間",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "055",
+      "video_id": "CH08-055",
+      "title": "【安心】一人の部屋を守る「灯りの結界」",
+      "planning": {
+        "動画番号": "55",
+        "タイトル": "【安心】一人の部屋を守る「灯りの結界」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "056",
+      "video_id": "CH08-056",
+      "title": "【過覚醒】体をゆるめる「肩の重さ」に戻る",
+      "planning": {
+        "動画番号": "56",
+        "タイトル": "【過覚醒】体をゆるめる「肩の重さ」に戻る",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "過覚醒",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "呼吸",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "057",
+      "video_id": "CH08-057",
+      "title": "【孤独】誰にも言えない夜を支える一行の言葉",
+      "planning": {
+        "動画番号": "57",
+        "タイトル": "【孤独】誰にも言えない夜を支える一行の言葉",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "孤独",
+        "悩みタグ_サブ": "人間関係",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "058",
+      "video_id": "CH08-058",
+      "title": "【情報疲れ】耳を休める「静かな音」の選び方",
+      "planning": {
+        "動画番号": "58",
+        "タイトル": "【情報疲れ】耳を休める「静かな音」の選び方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "情報疲れ",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "059",
+      "video_id": "CH08-059",
+      "title": "【心配癖】眠りの前に「明日へ渡す」メモ術",
+      "planning": {
+        "動画番号": "59",
+        "タイトル": "【心配癖】眠りの前に「明日へ渡す」メモ術",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "将来不安",
+        "ライフシーン": "書斎",
+        "キーコンセプト": "静座",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "060",
+      "video_id": "CH08-060",
+      "title": "【不安】眠れない夜に、心をほどく読書療法",
+      "planning": {
+        "動画番号": "60",
+        "タイトル": "【不安】眠れない夜に、心をほどく読書療法",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-04T10:34:16.492938Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "不安",
+        "悩みタグ_サブ": "睡眠不足",
+        "ライフシーン": "夜の寝室",
+        "キーコンセプト": "読書",
+        "ベネフィット一言": "静かに眠りへ落ちる安心",
+        "内容（企画要約）": "",
+        "説明文_リード": "静かな夜に、心をほぐす読書の時間を。"
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "061",
+      "video_id": "CH08-061",
+      "title": "【寝つき】頭を静かに切り替える「合図」",
+      "planning": {
+        "動画番号": "61",
+        "タイトル": "【寝つき】頭を静かに切り替える「合図」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "062",
+      "video_id": "CH08-062",
+      "title": "【夜の反芻】考えが戻る時のやさしい止め方",
+      "planning": {
+        "動画番号": "62",
+        "タイトル": "【夜の反芻】考えが戻る時のやさしい止め方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "063",
+      "video_id": "CH08-063",
+      "title": "【不安】胸がざわつく夜に「感情の名前」を付ける",
+      "planning": {
+        "動画番号": "63",
+        "タイトル": "【不安】胸がざわつく夜に「感情の名前」を付ける",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "064",
+      "video_id": "CH08-064",
+      "title": "【スマホ】寝る前に手が伸びる理由と小さな工夫",
+      "planning": {
+        "動画番号": "64",
+        "タイトル": "【スマホ】寝る前に手が伸びる理由と小さな工夫",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "065",
+      "video_id": "CH08-065",
+      "title": "【音】眠りを邪魔しないBGMの選び方",
+      "planning": {
+        "動画番号": "65",
+        "タイトル": "【音】眠りを邪魔しないBGMの選び方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "066",
+      "video_id": "CH08-066",
+      "title": "【照明】光を変えるだけで心が落ち着く",
+      "planning": {
+        "動画番号": "66",
+        "タイトル": "【照明】光を変えるだけで心が落ち着く",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "067",
+      "video_id": "CH08-067",
+      "title": "【温度】眠りに入る体の温め方・冷まし方",
+      "planning": {
+        "動画番号": "67",
+        "タイトル": "【温度】眠りに入る体の温め方・冷まし方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "068",
+      "video_id": "CH08-068",
+      "title": "【一行メモ】明日の不安を紙に預ける",
+      "planning": {
+        "動画番号": "68",
+        "タイトル": "【一行メモ】明日の不安を紙に預ける",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "069",
+      "video_id": "CH08-069",
+      "title": "【優しい言葉】自分を責めない締めくくり",
+      "planning": {
+        "動画番号": "69",
+        "タイトル": "【優しい言葉】自分を責めない締めくくり",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "070",
+      "video_id": "CH08-070",
+      "title": "【孤独】一人の夜を安心に変える「居場所」",
+      "planning": {
+        "動画番号": "70",
+        "タイトル": "【孤独】一人の夜を安心に変える「居場所」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "071",
+      "video_id": "CH08-071",
+      "title": "【境界線】連絡を返さなくてもいい夜",
+      "planning": {
+        "動画番号": "71",
+        "タイトル": "【境界線】連絡を返さなくてもいい夜",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "072",
+      "video_id": "CH08-072",
+      "title": "【深呼吸】長く吐くと心が落ちる理由",
+      "planning": {
+        "動画番号": "72",
+        "タイトル": "【深呼吸】長く吐くと心が落ちる理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "073",
+      "video_id": "CH08-073",
+      "title": "【身体】肩の力を抜く「小さな伸び」",
+      "planning": {
+        "動画番号": "73",
+        "タイトル": "【身体】肩の力を抜く「小さな伸び」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "074",
+      "video_id": "CH08-074",
+      "title": "【安心のルーティン】毎晩同じ順番が効く",
+      "planning": {
+        "動画番号": "74",
+        "タイトル": "【安心のルーティン】毎晩同じ順番が効く",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "075",
+      "video_id": "CH08-075",
+      "title": "【感謝】寝る前に1つだけ「よかった」を拾う",
+      "planning": {
+        "動画番号": "75",
+        "タイトル": "【感謝】寝る前に1つだけ「よかった」を拾う",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "076",
+      "video_id": "CH08-076",
+      "title": "【夢】悪夢が続く時の心の守り方",
+      "planning": {
+        "動画番号": "76",
+        "タイトル": "【夢】悪夢が続く時の心の守り方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "077",
+      "video_id": "CH08-077",
+      "title": "【過覚醒】音や光に敏感な夜の対処",
+      "planning": {
+        "動画番号": "77",
+        "タイトル": "【過覚醒】音や光に敏感な夜の対処",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "078",
+      "video_id": "CH08-078",
+      "title": "【心配癖】考えすぎのスイッチを切る言葉",
+      "planning": {
+        "動画番号": "78",
+        "タイトル": "【心配癖】考えすぎのスイッチを切る言葉",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "079",
+      "video_id": "CH08-079",
+      "title": "【自己肯定】「できたこと」を小さく数える",
+      "planning": {
+        "動画番号": "79",
+        "タイトル": "【自己肯定】「できたこと」を小さく数える",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "080",
+      "video_id": "CH08-080",
+      "title": "【寂しさ】誰かを思い出す夜の静かな対話",
+      "planning": {
+        "動画番号": "80",
+        "タイトル": "【寂しさ】誰かを思い出す夜の静かな対話",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "081",
+      "video_id": "CH08-081",
+      "title": "【呼吸と視線】目を閉じなくても落ち着く方法",
+      "planning": {
+        "動画番号": "81",
+        "タイトル": "【呼吸と視線】目を閉じなくても落ち着く方法",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "082",
+      "video_id": "CH08-082",
+      "title": "【音の遮断】耳栓が苦手でも静かにする",
+      "planning": {
+        "動画番号": "82",
+        "タイトル": "【音の遮断】耳栓が苦手でも静かにする",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "083",
+      "video_id": "CH08-083",
+      "title": "【睡眠の罪悪感】寝ることを許すための考え方",
+      "planning": {
+        "動画番号": "83",
+        "タイトル": "【睡眠の罪悪感】寝ることを許すための考え方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "084",
+      "video_id": "CH08-084",
+      "title": "【仕事脳】明日のタスクが離れない時",
+      "planning": {
+        "動画番号": "84",
+        "タイトル": "【仕事脳】明日のタスクが離れない時",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "085",
+      "video_id": "CH08-085",
+      "title": "【SNS】比較で心がざわつく夜の手放し方",
+      "planning": {
+        "動画番号": "85",
+        "タイトル": "【SNS】比較で心がざわつく夜の手放し方",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "086",
+      "video_id": "CH08-086",
+      "title": "【呼吸と手】手を温めると落ち着く理由",
+      "planning": {
+        "動画番号": "86",
+        "タイトル": "【呼吸と手】手を温めると落ち着く理由",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "087",
+      "video_id": "CH08-087",
+      "title": "【寝落ち読書】読み聞かせのように読むコツ",
+      "planning": {
+        "動画番号": "87",
+        "タイトル": "【寝落ち読書】読み聞かせのように読むコツ",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "088",
+      "video_id": "CH08-088",
+      "title": "【足裏】足を温めると眠りやすくなる",
+      "planning": {
+        "動画番号": "88",
+        "タイトル": "【足裏】足を温めると眠りやすくなる",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "089",
+      "video_id": "CH08-089",
+      "title": "【香り】強すぎない香りで切り替える",
+      "planning": {
+        "動画番号": "89",
+        "タイトル": "【香り】強すぎない香りで切り替える",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
+    },
+    {
+      "channel": "CH08",
+      "video": "090",
+      "video_id": "CH08-090",
+      "title": "【終わりの一文】今日を閉じる「短い手紙」",
+      "planning": {
+        "動画番号": "90",
+        "タイトル": "【終わりの一文】今日を閉じる「短い手紙」",
+        "進捗": "topic_research: pending",
+        "更新日時": "2026-01-05T03:56:50.410770Z",
+        "作成フラグ": "3",
+        "悩みタグ_メイン": "",
+        "悩みタグ_サブ": "",
+        "ライフシーン": "",
+        "キーコンセプト": "",
+        "ベネフィット一言": "",
+        "内容（企画要約）": "",
+        "説明文_リード": ""
+      },
+      "assembled_path": null,
+      "script": null
     }
   ]
 }

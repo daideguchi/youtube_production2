@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:24.617110Z",
+  "generated_at": "2026-01-12T03:44:45.600145Z",
   "channel": "CH24",
   "planning_csv": "workspaces/planning/channels/CH24.csv",
   "planning_count": 30,
@@ -30,12 +30,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/001/status.json",
         "status": "script_validated",
-        "updated_at": "2025-12-27T10:34:39.816744Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -65,12 +64,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/002/status.json",
         "status": "script_completed",
-        "updated_at": "2025-12-27T10:34:41.879062Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -100,12 +98,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/003/status.json",
         "status": "script_completed",
-        "updated_at": "2025-12-27T10:34:43.663288Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -135,12 +132,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/004/status.json",
         "status": "script_completed",
-        "updated_at": "2025-12-27T10:34:45.098861Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -170,12 +166,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/005/status.json",
         "status": "script_completed",
-        "updated_at": "2025-12-27T10:34:46.888327Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -205,12 +200,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/006/status.json",
         "status": "script_completed",
-        "updated_at": "2025-12-27T10:34:49.187019Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -240,12 +234,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/007/status.json",
         "status": "script_completed",
-        "updated_at": "2025-12-27T10:34:52.733919Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -265,7 +258,7 @@
         "悩みタグ_メイン": "怒り",
         "悩みタグ_サブ": "期待",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "怒りの正体",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -280,7 +273,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -294,13 +286,13 @@
       "planning": {
         "動画番号": "009",
         "タイトル": "奪われたら勝てる生き方でいろ（奪わせない）【弘法大師の教え】",
-        "進捗": "作成済み",
-        "更新日時": "2025-12-25 15:55:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-04T08:16:05.429985Z",
         "作成フラグ": "1",
         "悩みタグ_メイン": "搾取",
         "悩みタグ_サブ": "境界線",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "奪われない生き方",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -315,7 +307,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -329,13 +320,13 @@
       "planning": {
         "動画番号": "010",
         "タイトル": "決断できないのは「鎖」につながれているから【弘法大師の教え】",
-        "進捗": "作成済み",
-        "更新日時": "2025-12-25 15:35:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-04T08:17:25.505044Z",
         "作成フラグ": "1",
         "悩みタグ_メイン": "決断",
         "悩みタグ_サブ": "執着",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "決断できない理由",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -350,7 +341,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -364,13 +354,13 @@
       "planning": {
         "動画番号": "011",
         "タイトル": "縁が切れるのは運が開く前兆（怖がらなくていい）【弘法大師の教え】",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-24 20:26:27",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-04T09:51:59.229275Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "縁",
         "悩みタグ_サブ": "運",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "縁が切れる意味",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -385,7 +375,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -399,13 +388,13 @@
       "planning": {
         "動画番号": "012",
         "タイトル": "握りしめている「幻」の正体（手放しの核心）【弘法大師の教え】",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-24 20:26:27",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-04T11:19:55.400539Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "執着",
         "悩みタグ_サブ": "幻",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "執着の正体",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -420,7 +409,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -434,13 +422,13 @@
       "planning": {
         "動画番号": "013",
         "タイトル": "友達が去ったら成功の合図（次の段階へ）【弘法大師の教え】",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-24 20:26:27",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-04T12:36:00.071414Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "友達",
         "悩みタグ_サブ": "成功",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "人が去るサイン",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -450,12 +438,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH24/013/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-04T12:36:00.074668Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -475,7 +462,7 @@
         "悩みタグ_メイン": "都合のいい人",
         "悩みタグ_サブ": "距離感",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "便利屋をやめる",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -490,7 +477,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -510,7 +496,7 @@
         "悩みタグ_メイン": "家族",
         "悩みタグ_サブ": "雑",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "心の回復",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -525,7 +511,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -545,7 +530,7 @@
         "悩みタグ_メイン": "境界線",
         "悩みタグ_サブ": "自己肯定感",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "大切にされない理由",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -560,7 +545,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -580,7 +564,7 @@
         "悩みタグ_メイン": "境界線",
         "悩みタグ_サブ": "信頼",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "線引きの効き目",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -595,7 +579,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -615,7 +598,7 @@
         "悩みタグ_メイン": "我慢",
         "悩みタグ_サブ": "強さ",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "我慢の誤解",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -630,7 +613,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -650,7 +632,7 @@
         "悩みタグ_メイン": "人生",
         "悩みタグ_サブ": "試練",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "あの3文字",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -665,7 +647,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -685,7 +666,7 @@
         "悩みタグ_メイン": "罪悪感",
         "悩みタグ_サブ": "手放し",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "罪悪感を捨てる",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -700,7 +681,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -720,7 +700,7 @@
         "悩みタグ_メイン": "復讐",
         "悩みタグ_サブ": "無視",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "最大の復讐",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -735,7 +715,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -755,7 +734,7 @@
         "悩みタグ_メイン": "口論",
         "悩みタグ_サブ": "損",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "言い返さない",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -770,7 +749,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -790,7 +768,7 @@
         "悩みタグ_メイン": "不安",
         "悩みタグ_サブ": "思考",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "不安の先回り",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -805,7 +783,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -825,7 +802,7 @@
         "悩みタグ_メイン": "人間関係",
         "悩みタグ_サブ": "自分軸",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "変えるのは置き方",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -840,7 +817,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -860,7 +836,7 @@
         "悩みタグ_メイン": "謝る",
         "悩みタグ_サブ": "損",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "謝り癖",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -875,7 +851,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -895,7 +870,7 @@
         "悩みタグ_メイン": "不眠",
         "悩みタグ_サブ": "不安",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "不眠の整え方",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -910,7 +885,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -930,7 +904,7 @@
         "悩みタグ_メイン": "老後",
         "悩みタグ_サブ": "不安",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "老後の土台",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -945,7 +919,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -965,7 +938,7 @@
         "悩みタグ_メイン": "貧乏",
         "悩みタグ_サブ": "口癖",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "貧乏の口ぐせ",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -980,7 +953,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -1000,7 +972,7 @@
         "悩みタグ_メイン": "運",
         "悩みタグ_サブ": "口癖",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "運が逃げる口",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -1015,7 +987,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }
@@ -1035,7 +1006,7 @@
         "悩みタグ_メイン": "静けさ",
         "悩みタグ_サブ": "心",
         "ライフシーン": "日常",
-        "キーコンセプト": "弘法大師の教え",
+        "キーコンセプト": "最後に残る静けさ",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "",
         "説明文_リード": "弘法大師（空海）の教えで、心を静かに整える時間。"
@@ -1050,7 +1021,6 @@
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
           "audio_synthesis": "pending"
         }

@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:23.709618Z",
+  "generated_at": "2026-01-12T03:44:45.575171Z",
   "channel": "CH22",
   "planning_csv": "workspaces/planning/channels/CH22.csv",
   "planning_count": 30,
-  "scripts_count": 29,
+  "scripts_count": 30,
   "episodes": [
     {
       "channel": "CH22",
@@ -14,8 +14,8 @@
       "planning": {
         "動画番号": "001",
         "タイトル": "私だけ誘われないランチ会｜60代の友情が静かに崩壊した日",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-30T09:31:44.907178Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "孤独",
         "悩みタグ_サブ": "疎外感",
@@ -26,7 +26,19 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
       "assembled_path": "workspaces/scripts/CH22/001/content/assembled.md",
-      "script": null
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH22/001/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH22",
@@ -36,8 +48,8 @@
       "planning": {
         "動画番号": "002",
         "タイトル": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-30T09:31:45.760758Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "不安",
         "悩みタグ_サブ": "居場所がない",
@@ -51,14 +63,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/002/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "completed"
         }
       }
@@ -71,8 +82,8 @@
       "planning": {
         "動画番号": "003",
         "タイトル": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-30T09:31:46.528508Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "疎外感",
         "悩みタグ_サブ": "仲間外れ",
@@ -86,15 +97,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/003/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -106,8 +116,8 @@
       "planning": {
         "動画番号": "004",
         "タイトル": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T09:48:00.446809Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "不安",
         "悩みタグ_サブ": "反すう",
@@ -121,15 +131,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/004/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-05T09:48:00.449721Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -141,8 +150,8 @@
       "planning": {
         "動画番号": "005",
         "タイトル": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T09:48:01.651739Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "疲れ",
         "悩みタグ_サブ": "都合のいい人",
@@ -156,15 +165,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/005/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "completed",
+        "updated_at": "2026-01-05T09:48:01.654459Z",
         "stages": {
-          "script_outline": "processing",
+          "script_outline": "pending",
           "script_draft": "pending",
-          "script_review": "pending",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -176,8 +184,8 @@
       "planning": {
         "動画番号": "006",
         "タイトル": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T09:48:02.796535Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "後悔",
         "悩みタグ_サブ": "お金の溝",
@@ -191,14 +199,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/006/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-05T09:48:02.800735Z",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "processing",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -211,8 +218,8 @@
       "planning": {
         "動画番号": "007",
         "タイトル": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:27.149958Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "虚しさ",
         "悩みタグ_サブ": "比較",
@@ -226,14 +233,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/007/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T07:56:27.154250Z",
         "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
+          "script_outline": "completed",
+          "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -246,8 +252,8 @@
       "planning": {
         "動画番号": "008",
         "タイトル": "友人宅に私の席がない｜『友達』じゃなかった現実",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:27.832270Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "孤独",
         "悩みタグ_サブ": "居場所",
@@ -261,15 +267,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/008/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T07:56:27.834305Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -281,8 +286,8 @@
       "planning": {
         "動画番号": "009",
         "タイトル": "贈り物の格差が見えた日｜静かに始まるマウント地獄",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:28.891309Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "嫉妬",
         "悩みタグ_サブ": "劣等感",
@@ -296,15 +301,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/009/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T07:56:28.894931Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -316,8 +320,8 @@
       "planning": {
         "動画番号": "010",
         "タイトル": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:30.035468Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "疎外感",
         "悩みタグ_サブ": "仲間",
@@ -331,15 +335,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/010/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T07:56:30.038806Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -351,8 +354,8 @@
       "planning": {
         "動画番号": "011",
         "タイトル": "孫の話ばかりで息が詰まる｜比べる会の地獄",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:30.999077Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "苦しさ",
         "悩みタグ_サブ": "比較",
@@ -366,15 +369,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/011/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T07:56:31.000404Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -386,8 +388,8 @@
       "planning": {
         "動画番号": "012",
         "タイトル": "友人の夫から一本の電話｜噂が広がる夜",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:31.874424Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "不安",
         "悩みタグ_サブ": "噂",
@@ -401,15 +403,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/012/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T07:56:31.877680Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -421,8 +422,8 @@
       "planning": {
         "動画番号": "013",
         "タイトル": "貸したお金が戻らない｜友情が終わる一線",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:32.940236Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "不信",
         "悩みタグ_サブ": "お金",
@@ -436,15 +437,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/013/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T07:56:32.943200Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -456,8 +456,8 @@
       "planning": {
         "動画番号": "014",
         "タイトル": "町内会の集金で突然敵に｜正しいのに孤立する現実",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T07:56:33.993313Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "孤立",
         "悩みタグ_サブ": "噂",
@@ -472,14 +472,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH22/014/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-06T07:56:33.997586Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -491,8 +490,8 @@
       "planning": {
         "動画番号": "015",
         "タイトル": "冗談のつもりが一言で崩壊｜友人関係の末路",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T08:52:06.372480Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "後悔",
         "悩みタグ_サブ": "言葉",
@@ -507,14 +506,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH22/015/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-06T08:52:06.376402Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -526,8 +524,8 @@
       "planning": {
         "動画番号": "016",
         "タイトル": "お悔やみの席で友情が終わった｜その一言はない",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T08:52:07.374436Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "悲しみ",
         "悩みタグ_サブ": "無神経",
@@ -537,19 +535,18 @@
         "内容（企画要約）": "お悔やみの席で友情が終わった｜その一言はない",
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
-      "assembled_path": null,
+      "assembled_path": "workspaces/scripts/CH22/016/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/016/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-06T08:52:07.376829Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "completed",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -561,8 +558,8 @@
       "planning": {
         "動画番号": "017",
         "タイトル": "録音に入ってた私の悪口｜静かに絶縁した夜",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-06T08:52:09.132323Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "ショック",
         "悩みタグ_サブ": "裏切り",
@@ -572,19 +569,18 @@
         "内容（企画要約）": "録音に入ってた私の悪口｜静かに絶縁した夜",
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
-      "assembled_path": null,
+      "assembled_path": "workspaces/scripts/CH22/017/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/017/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-06T08:52:09.133460Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "processing",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -596,8 +592,8 @@
       "planning": {
         "動画番号": "018",
         "タイトル": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T04:39:31.028569Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "疲れ",
         "悩みタグ_サブ": "対等でない",
@@ -611,15 +607,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/018/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-07T04:39:31.034023Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "processing",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -631,8 +626,8 @@
       "planning": {
         "動画番号": "019",
         "タイトル": "旅行の部屋割りで立場が決まった｜余り者の現実",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T04:39:32.264005Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "惨めさ",
         "悩みタグ_サブ": "格差",
@@ -646,15 +641,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/019/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-07T04:39:32.266554Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -666,8 +660,8 @@
       "planning": {
         "動画番号": "020",
         "タイトル": "優しさが怖い友人｜近づくほど奪われる関係",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T04:39:33.555176Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "不安",
         "悩みタグ_サブ": "支配",
@@ -681,15 +675,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/020/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-07T04:39:33.557122Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -701,8 +694,8 @@
       "planning": {
         "動画番号": "021",
         "タイトル": "謝罪の品を突き返された｜もう戻れない夜",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T04:39:34.782855Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "後悔",
         "悩みタグ_サブ": "終わり",
@@ -716,15 +709,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/021/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-07T04:39:34.801826Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -736,8 +728,8 @@
       "planning": {
         "動画番号": "022",
         "タイトル": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-07T04:39:36.699376Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "不安",
         "悩みタグ_サブ": "警戒",
@@ -751,15 +743,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/022/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-07T04:39:36.702076Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -771,8 +762,8 @@
       "planning": {
         "動画番号": "023",
         "タイトル": "最後に残った、たった一人の友｜孤独がほどける夜話",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-12T03:43:28.904119Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "孤独",
         "悩みタグ_サブ": "寂しさ",
@@ -786,15 +777,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/023/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T03:43:28.908159Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -806,8 +796,8 @@
       "planning": {
         "動画番号": "024",
         "タイトル": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-12T03:43:29.800935Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "虚しさ",
         "悩みタグ_サブ": "格差",
@@ -821,15 +811,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/024/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T03:43:29.803674Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -841,8 +830,8 @@
       "planning": {
         "動画番号": "025",
         "タイトル": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-23 18:20:28",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-12T03:43:30.713037Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "不信",
         "悩みタグ_サブ": "お金",
@@ -856,15 +845,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/025/status.json",
-        "status": "script_completed",
-        "updated_at": "",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T03:43:30.714582Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -891,15 +879,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/026/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -926,15 +913,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/027/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -961,15 +947,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/028/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -992,19 +977,18 @@
         "内容（企画要約）": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
-      "assembled_path": null,
+      "assembled_path": "workspaces/scripts/CH22/029/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/029/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -1031,15 +1015,14 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH22/030/status.json",
-        "status": "script_completed",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
         }
       }
     }

@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:21.808164Z",
+  "generated_at": "2026-01-12T03:44:45.512369Z",
   "channel": "CH13",
   "planning_csv": "workspaces/planning/channels/CH13.csv",
   "planning_count": 30,
-  "scripts_count": 0,
+  "scripts_count": 30,
   "episodes": [
     {
       "channel": "CH13",
@@ -14,8 +14,8 @@
       "planning": {
         "動画番号": "1",
         "タイトル": "【家族】家族に振り回される人へ｜最初にやめる一言",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-17 10:09:54",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T10:11:04.944653Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "家族",
         "悩みタグ_サブ": "",
@@ -25,8 +25,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/001/status.json",
+        "status": "script_completed",
+        "updated_at": "2026-01-05T10:11:04.946971Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -47,8 +59,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/002/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -69,8 +93,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/003/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -91,8 +127,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/004/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -113,8 +161,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/005/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -135,8 +195,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -157,8 +229,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/007/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -179,8 +263,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/008/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -190,7 +286,7 @@
       "planning": {
         "動画番号": "9",
         "タイトル": "【謝る癖】すぐ謝るほどナメられる｜丁寧に拒否する言葉",
-        "進捗": "topic_research: pending",
+        "進捗": "script_review: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "謝る癖",
@@ -201,8 +297,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/009/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "processing",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -223,8 +331,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/010/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -245,8 +365,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/011/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -267,8 +399,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/012/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -289,8 +433,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/013/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -300,7 +456,7 @@
       "planning": {
         "動画番号": "14",
         "タイトル": "【空気】空気を読むほど損する｜読まない勇気",
-        "進捗": "topic_research: pending",
+        "進捗": "script_validation: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "空気",
@@ -311,8 +467,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/014/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -333,8 +501,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -355,8 +535,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/016/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -366,7 +558,7 @@
       "planning": {
         "動画番号": "17",
         "タイトル": "【無視】雑に扱う人を近くに置くな｜距離が薬",
-        "進捗": "topic_research: pending",
+        "進捗": "script_validation: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "無視",
@@ -377,8 +569,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/017/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -399,8 +603,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -421,8 +637,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/019/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -432,7 +660,7 @@
       "planning": {
         "動画番号": "20",
         "タイトル": "【沈黙】言い返せないなら沈黙でいい｜沈黙は最強の返答",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "沈黙",
@@ -443,8 +671,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/020/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -454,7 +694,7 @@
       "planning": {
         "動画番号": "21",
         "タイトル": "【期待】期待するほど苦しい｜期待は愛じゃない",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "期待",
@@ -465,8 +705,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/021/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -476,7 +728,7 @@
       "planning": {
         "動画番号": "22",
         "タイトル": "【会話ゼロ】会話ゼロの関係｜放置が一番危険",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "会話ゼロ",
@@ -487,8 +739,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/022/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -498,7 +762,7 @@
       "planning": {
         "動画番号": "23",
         "タイトル": "【不公平】自分ばかり頑張ってる｜怒る前に決める線",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "不公平",
@@ -509,8 +773,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/023/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -520,7 +796,7 @@
       "planning": {
         "動画番号": "24",
         "タイトル": "【刺さる一言】冷たい一言が刺さる｜刺さる理由はここ",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "刺さる一言",
@@ -531,8 +807,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/024/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -542,7 +830,7 @@
       "planning": {
         "動画番号": "25",
         "タイトル": "【噂】噂話に巻き込まれる｜抜ける一手",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "噂",
@@ -553,8 +841,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/025/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -564,7 +864,7 @@
       "planning": {
         "動画番号": "26",
         "タイトル": "【刺さる記憶】昔の一言が今も刺さる｜抜くのは復讐じゃない",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "刺さる記憶",
@@ -575,8 +875,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/026/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -586,7 +898,7 @@
       "planning": {
         "動画番号": "27",
         "タイトル": "【友人】会うほど疲れる友人｜相性ではないサイン",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "友人",
@@ -597,8 +909,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/027/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -608,7 +932,7 @@
       "planning": {
         "動画番号": "28",
         "タイトル": "【境界線】境界線は冷たさではない｜慈悲の技術",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "境界線",
@@ -619,8 +943,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/028/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -630,7 +966,7 @@
       "planning": {
         "動画番号": "29",
         "タイトル": "【機嫌】相手の機嫌に振り回される｜反応をやめろ",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "機嫌",
@@ -641,8 +977,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/029/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH13",
@@ -652,7 +1000,7 @@
       "planning": {
         "動画番号": "30",
         "タイトル": "【人間関係】相手を変えずに楽になる｜一気に軽くなる見方",
-        "進捗": "topic_research: pending",
+        "進捗": "topic_research: processing",
         "更新日時": "2025-12-17 10:09:54",
         "作成フラグ": "",
         "悩みタグ_メイン": "人間関係",
@@ -663,8 +1011,20 @@
         "内容（企画要約）": "",
         "説明文_リード": ""
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH13/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH13/030/status.json",
+        "status": "script_in_progress",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:20.414732Z",
+  "generated_at": "2026-01-12T03:44:45.441797Z",
   "channel": "CH09",
   "planning_csv": "workspaces/planning/channels/CH09.csv",
   "planning_count": 31,
-  "scripts_count": 1,
+  "scripts_count": 30,
   "episodes": [
     {
       "channel": "CH09",
@@ -30,14 +30,13 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH09/001/status.json",
         "status": "script_completed",
-        "updated_at": "",
+        "updated_at": "2026-01-09T23:20:34Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
           "script_review": "completed",
-          "quality_check": "pending",
           "script_validation": "pending",
-          "audio_synthesis": "pending"
+          "audio_synthesis": "completed"
         }
       }
     },
@@ -60,8 +59,20 @@
         "内容（企画要約）": "【縁切り警告】今すぐ距離を置く危険人物10選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "今すぐ距離を置く危険人物10選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/002/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -82,8 +93,20 @@
         "内容（企画要約）": "【人生を狂わせる相手】性根が腐った人の特徴8選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "性根が腐った人の特徴8選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/003/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -104,8 +127,20 @@
         "内容（企画要約）": "友達がいないのは賢すぎるから｜孤独を選ぶ理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "友達がいないのは賢すぎるから｜孤独を選ぶ理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/004/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -126,8 +161,20 @@
         "内容（企画要約）": "【人間関係の真実】あなたを嫌っている人の特徴8選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "あなたを嫌っている人の特徴8選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/005/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -148,8 +195,20 @@
         "内容（企画要約）": "賢い人ほど他人に無関心な7つの理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "賢い人ほど他人に無関心な7つの理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -170,8 +229,20 @@
         "内容（企画要約）": "【もう一度信じたら終わり】裏切った人を許すな10の理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "裏切った人を許すな10の理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/007/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -192,8 +263,20 @@
         "内容（企画要約）": "【人になめられる人】危険な特徴5選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "危険な特徴5選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/008/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -214,8 +297,20 @@
         "内容（企画要約）": "【舐められたときこそチャンス】逆境を力に変える5つの言葉 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "逆境を力に変える5つの言葉で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/009/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -236,8 +331,20 @@
         "内容（企画要約）": "幸せな人が必ずしてる8つの習慣 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "幸せな人が必ずしてる8つの習慣で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/010/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -258,8 +365,20 @@
         "内容（企画要約）": "【本当の強さは語らない】静かに強い人の7つの秘密 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "静かに強い人の7つの秘密で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/011/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -280,8 +399,20 @@
         "内容（企画要約）": "関わると危険！幼稚な大人の特徴10選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "関わると危険！幼稚な大人の特徴10選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/012/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -302,8 +433,20 @@
         "内容（企画要約）": "夫にすると不幸になる男の特徴5選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "夫にすると不幸になる男の特徴5選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/013/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -324,8 +467,20 @@
         "内容（企画要約）": "【絶対離すな】女性が一生離したくない良い男の特徴9選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "女性が一生離したくない良い男の特徴9選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -346,8 +501,20 @@
         "内容（企画要約）": "絶対に敵に回すな 器が違う人の7つの力 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "絶対に敵に回すな 器が違う人の7つの力で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -368,8 +535,20 @@
         "内容（企画要約）": "【絶対行くな】貧乏になる場所7選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "貧乏になる場所7選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -390,8 +569,20 @@
         "内容（企画要約）": "【絶対に関わってはいけない人の口癖】5選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "5選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/017/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -412,8 +603,20 @@
         "内容（企画要約）": "お金持ちが絶対に関わらない危険人物6選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "お金持ちが絶対に関わらない危険人物6選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -434,8 +637,20 @@
         "内容（企画要約）": "【人生を壊す】今すぐやめる無駄習慣8つ をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "今すぐやめる無駄習慣8つで迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/019/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -456,8 +671,20 @@
         "内容（企画要約）": "松下幸之助が晩年にやめたこと5選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "松下幸之助が晩年にやめたこと5選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/020/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -478,8 +705,20 @@
         "内容（企画要約）": "“いい人”ほど運に見放される理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "“いい人”ほど運に見放される理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/021/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -500,8 +739,20 @@
         "内容（企画要約）": "老後に泣きを見る！今すぐ捨てるべき5つのもの をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "老後に泣きを見る！今すぐ捨てるべき5つのもので迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/022/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -522,8 +773,20 @@
         "内容（企画要約）": "トイレでこれをすると一生貧乏になる をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "トイレでこれをすると一生貧乏になるで迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/023/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -544,8 +807,20 @@
         "内容（企画要約）": "玄関からこれが見えると貧乏神が寄る をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "玄関からこれが見えると貧乏神が寄るで迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/024/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -566,8 +841,20 @@
         "内容（企画要約）": "60歳からの幸せルール 言わない・やらない・付き合わない をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "60歳からの幸せルール 言わない・やらない・付き合わないで迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/025/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -588,8 +875,20 @@
         "内容（企画要約）": "苦労を乗り越えた人だけが持つ8つの特徴 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "苦労を乗り越えた人だけが持つ8つの特徴で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/026/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -610,8 +909,20 @@
         "内容（企画要約）": "【関わるな】絶対に助けてはいけない人の特徴7選 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "絶対に助けてはいけない人の特徴7選で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/027/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -632,8 +943,20 @@
         "内容（企画要約）": "【もうやめよう】人に尽くしてはいけない7つの理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "人に尽くしてはいけない7つの理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/028/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -654,8 +977,20 @@
         "内容（企画要約）": "50歳から絶対やってはいけない7つのこと をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "50歳から絶対やってはいけない7つのことで迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/029/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",
@@ -676,8 +1011,20 @@
         "内容（企画要約）": "ありがとうをよく言う人に起こる7つの奇跡 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "ありがとうをよく言う人に起こる7つの奇跡で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH09/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH09/030/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH09",

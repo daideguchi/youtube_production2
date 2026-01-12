@@ -1,20 +1,20 @@
 {
   "schema": "ytm.pages.snapshot.index.v1",
-  "generated_at": "2025-12-28T10:35:25.257063Z",
+  "generated_at": "2026-01-12T03:44:45.626647Z",
   "generated_by": "scripts/ops/pages_snapshot_export.py",
   "channels": [
     {
       "channel": "CH01",
       "planning_csv": "workspaces/planning/channels/CH01.csv",
-      "planning_count": 250,
-      "scripts_count": 250,
+      "planning_count": 290,
+      "scripts_count": 290,
       "data_path": "data/snapshot/CH01.json"
     },
     {
       "channel": "CH02",
       "planning_csv": "workspaces/planning/channels/CH02.csv",
-      "planning_count": 82,
-      "scripts_count": 82,
+      "planning_count": 112,
+      "scripts_count": 112,
       "data_path": "data/snapshot/CH02.json"
     },
     {
@@ -27,7 +27,7 @@
     {
       "channel": "CH04",
       "planning_csv": "workspaces/planning/channels/CH04.csv",
-      "planning_count": 30,
+      "planning_count": 90,
       "scripts_count": 30,
       "data_path": "data/snapshot/CH04.json"
     },
@@ -41,8 +41,8 @@
     {
       "channel": "CH06",
       "planning_csv": "workspaces/planning/channels/CH06.csv",
-      "planning_count": 33,
-      "scripts_count": 33,
+      "planning_count": 93,
+      "scripts_count": 40,
       "data_path": "data/snapshot/CH06.json"
     },
     {
@@ -55,7 +55,7 @@
     {
       "channel": "CH08",
       "planning_csv": "workspaces/planning/channels/CH08.csv",
-      "planning_count": 30,
+      "planning_count": 90,
       "scripts_count": 30,
       "data_path": "data/snapshot/CH08.json"
     },
@@ -63,14 +63,14 @@
       "channel": "CH09",
       "planning_csv": "workspaces/planning/channels/CH09.csv",
       "planning_count": 31,
-      "scripts_count": 1,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH09.json"
     },
     {
       "channel": "CH10",
       "planning_csv": "workspaces/planning/channels/CH10.csv",
       "planning_count": 30,
-      "scripts_count": 10,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH10.json"
     },
     {
@@ -91,28 +91,28 @@
       "channel": "CH13",
       "planning_csv": "workspaces/planning/channels/CH13.csv",
       "planning_count": 30,
-      "scripts_count": 0,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH13.json"
     },
     {
       "channel": "CH14",
       "planning_csv": "workspaces/planning/channels/CH14.csv",
       "planning_count": 30,
-      "scripts_count": 0,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH14.json"
     },
     {
       "channel": "CH15",
       "planning_csv": "workspaces/planning/channels/CH15.csv",
       "planning_count": 30,
-      "scripts_count": 0,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH15.json"
     },
     {
       "channel": "CH16",
       "planning_csv": "workspaces/planning/channels/CH16.csv",
       "planning_count": 30,
-      "scripts_count": 0,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH16.json"
     },
     {
@@ -154,7 +154,7 @@
       "channel": "CH22",
       "planning_csv": "workspaces/planning/channels/CH22.csv",
       "planning_count": 30,
-      "scripts_count": 29,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH22.json"
     },
     {
@@ -182,8 +182,43 @@
       "channel": "CH26",
       "planning_csv": "workspaces/planning/channels/CH26.csv",
       "planning_count": 30,
-      "scripts_count": 0,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH26.json"
+    },
+    {
+      "channel": "CH27",
+      "planning_csv": "workspaces/planning/channels/CH27.csv",
+      "planning_count": 30,
+      "scripts_count": 0,
+      "data_path": "data/snapshot/CH27.json"
+    },
+    {
+      "channel": "CH28",
+      "planning_csv": "workspaces/planning/channels/CH28.csv",
+      "planning_count": 30,
+      "scripts_count": 0,
+      "data_path": "data/snapshot/CH28.json"
+    },
+    {
+      "channel": "CH29",
+      "planning_csv": "workspaces/planning/channels/CH29.csv",
+      "planning_count": 30,
+      "scripts_count": 0,
+      "data_path": "data/snapshot/CH29.json"
+    },
+    {
+      "channel": "CH30",
+      "planning_csv": "workspaces/planning/channels/CH30.csv",
+      "planning_count": 30,
+      "scripts_count": 0,
+      "data_path": "data/snapshot/CH30.json"
+    },
+    {
+      "channel": "CH31",
+      "planning_csv": "workspaces/planning/channels/CH31.csv",
+      "planning_count": 30,
+      "scripts_count": 0,
+      "data_path": "data/snapshot/CH31.json"
     }
   ]
 }

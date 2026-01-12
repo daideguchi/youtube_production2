@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:19.380956Z",
+  "generated_at": "2026-01-12T03:44:45.375370Z",
   "channel": "CH03",
   "planning_csv": "workspaces/planning/channels/CH03.csv",
   "planning_count": 62,
@@ -35,7 +35,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -70,7 +69,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -105,7 +103,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -140,7 +137,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -175,7 +171,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -210,7 +205,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -245,7 +239,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -280,7 +273,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -315,7 +307,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -350,7 +341,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -385,7 +375,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -420,7 +409,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -455,7 +443,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -490,7 +477,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -525,7 +511,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -560,7 +545,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -595,7 +579,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -630,7 +613,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -665,7 +647,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -700,7 +681,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -735,7 +715,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -770,7 +749,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -805,7 +783,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -840,7 +817,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -875,7 +851,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -910,7 +885,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -945,7 +919,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -980,7 +953,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1015,7 +987,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1050,7 +1021,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1085,7 +1055,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1120,7 +1089,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1155,7 +1123,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1190,7 +1157,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1225,7 +1191,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1260,7 +1225,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1295,7 +1259,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1330,7 +1293,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1365,7 +1327,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1400,7 +1361,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1435,7 +1395,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1470,7 +1429,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1505,7 +1463,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1540,7 +1497,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1575,7 +1531,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1610,7 +1565,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1645,7 +1599,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1680,7 +1633,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1715,7 +1667,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1750,7 +1701,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1785,7 +1735,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1820,7 +1769,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1855,7 +1803,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1890,7 +1837,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1925,7 +1871,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1960,7 +1905,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -1995,7 +1939,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -2030,7 +1973,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -2065,7 +2007,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -2100,7 +2041,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -2135,7 +2075,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }

@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:25.256497Z",
+  "generated_at": "2026-01-12T03:44:45.617116Z",
   "channel": "CH26",
   "planning_csv": "workspaces/planning/channels/CH26.csv",
   "planning_count": 30,
-  "scripts_count": 0,
+  "scripts_count": 30,
   "episodes": [
     {
       "channel": "CH26",
@@ -25,8 +25,20 @@
         "内容（企画要約）": "【ノイマン式】結論、成果は設計で決まる",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/001/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/001/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-09T23:19:50Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -47,8 +59,20 @@
         "内容（企画要約）": "【岡潔流】本当に賢い人は情報を減らす",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/002/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/002/status.json",
+        "status": "script_in_progress",
+        "updated_at": "2026-01-09T23:19:50Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "pending",
+          "script_review": "pending",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -69,8 +93,20 @@
         "内容（企画要約）": "【チューリング式】結論、手順を外に出すと進む",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/003/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/003/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-09T23:19:50Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -91,8 +127,20 @@
         "内容（企画要約）": "【シャノン式】重要な変数だけ残せ：全部は無理だ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/004/status.json",
+        "status": "script_completed",
+        "updated_at": "2026-01-09T23:19:50Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -113,8 +161,20 @@
         "内容（企画要約）": "【ゲーム理論】期待値で選べ：一回で揺れるな",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/005/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -135,8 +195,20 @@
         "内容（企画要約）": "【サイモン式】最適解を捨てると成果が増える",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/006/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -157,8 +229,20 @@
         "内容（企画要約）": "【ドラッカー流】結論、成果の定義が先だ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/007/status.json",
+        "status": "script_completed",
+        "updated_at": "2026-01-09T23:19:50Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -179,8 +263,20 @@
         "内容（企画要約）": "【孫子の型】最悪を先に固定すると迷いが消える",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/008/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -201,8 +297,20 @@
         "内容（企画要約）": "【マキャヴェリ式】結論、判断は感情から切り離せ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/009/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -223,8 +331,20 @@
         "内容（企画要約）": "【デカルト式】複雑ほど先に骨格を置け",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/010/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -245,8 +365,20 @@
         "内容（企画要約）": "【カント流】結論、ルールが先だ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/011/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -267,8 +399,20 @@
         "内容（企画要約）": "【ニーチェ式】成果は“強さ”ではなく“整い”だ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/012/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -289,8 +433,20 @@
         "内容（企画要約）": "【ユング的】最悪を言葉にすると動ける",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/013/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -311,8 +467,20 @@
         "内容（企画要約）": "【フロイト流】進めない原因は能力じゃない",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/014/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -333,8 +501,20 @@
         "内容（企画要約）": "【スミス式】期待値で選べ：損を減らせ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/015/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -355,8 +535,20 @@
         "内容（企画要約）": "【ケインズ式】一回の上下で判断を変えるな",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/016/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -377,8 +569,20 @@
         "内容（企画要約）": "【ダ・ヴィンチ式】仮を早く置け：更新で仕上げろ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/017/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -399,8 +603,20 @@
         "内容（企画要約）": "【キュリー式】結論、測定が更新を速くする",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/018/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "processing",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -421,8 +637,20 @@
         "内容（企画要約）": "【ファラデー流】成果は仕組みで積み上がる",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/019/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -443,8 +671,20 @@
         "内容（企画要約）": "【ダーウィン式】結論、更新の反復が成果を作る",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/020/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "processing",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -465,8 +705,20 @@
         "内容（企画要約）": "【エジソン式】結論、更新回数が成果を決める",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/021/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -487,8 +739,20 @@
         "内容（企画要約）": "【ジョブズ流】重要な2つだけ残せ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/022/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -509,8 +773,20 @@
         "内容（企画要約）": "【マスク式】結論、順序を整えると止まらない",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/023/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -531,8 +807,20 @@
         "内容（企画要約）": "【ポーター式】目的関数を決めよ：全部は捨てろ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/024/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -553,8 +841,20 @@
         "内容（企画要約）": "【ベゾス流】結論、基準がないから止まる",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/025/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -575,8 +875,20 @@
         "内容（企画要約）": "【ダリオ式】手順を外に出せ：再現性を作れ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/026/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -597,8 +909,20 @@
         "内容（企画要約）": "【デミング式】結論、平均を上げるのが最強",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/027/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -619,8 +943,20 @@
         "内容（企画要約）": "【TPSの型】冗長性で崩れない仕組みを作れ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/028/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -641,8 +977,20 @@
         "内容（企画要約）": "【コヴィー流】重要な2つだけ残せ",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/029/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH26",
@@ -663,8 +1011,20 @@
         "内容（企画要約）": "【セネカ式】結論、基準がないから焦る",
         "説明文_リード": "眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH26/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH26/030/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "completed"
+        }
+      }
     }
   ]
 }

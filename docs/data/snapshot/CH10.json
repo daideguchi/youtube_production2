@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2025-12-28T10:35:20.689916Z",
+  "generated_at": "2026-01-12T03:44:45.468008Z",
   "channel": "CH10",
   "planning_csv": "workspaces/planning/channels/CH10.csv",
   "planning_count": 30,
-  "scripts_count": 10,
+  "scripts_count": 30,
   "episodes": [
     {
       "channel": "CH10",
@@ -29,14 +29,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH10/001/status.json",
-        "status": "script_in_progress",
+        "status": "script_validated",
         "updated_at": "",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
-          "script_validation": "processing",
+          "script_validation": "completed",
           "audio_synthesis": "pending"
         }
       }
@@ -66,7 +65,13 @@
         "status_path": "workspaces/scripts/CH10/002/status.json",
         "status": "script_validated",
         "updated_at": "",
-        "stages": {}
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
       }
     },
     {
@@ -94,7 +99,13 @@
         "status_path": "workspaces/scripts/CH10/003/status.json",
         "status": "script_validated",
         "updated_at": "",
-        "stages": {}
+        "stages": {
+          "script_outline": "pending",
+          "script_draft": "pending",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
       }
     },
     {
@@ -121,12 +132,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH10/004/status.json",
         "status": "script_validated",
-        "updated_at": "2025-12-28T08:31:09.539502Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -156,12 +166,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH10/005/status.json",
         "status": "script_validated",
-        "updated_at": "2025-12-28T08:32:17.411686Z",
+        "updated_at": "",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -175,13 +184,13 @@
       "planning": {
         "動画番号": "6",
         "タイトル": "【ニコラ・テスラ流】少ない行動で結果を出す思考術",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T07:13:15.465880Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "最小行動",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】少ない行動で結果を出す思考術 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "少ない行動で結果を出す思考術で迷うときに。考え方と、今日からできる一歩を整理します。"
@@ -190,14 +199,13 @@
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH10/006/status.json",
-        "status": "script_validated",
-        "updated_at": "",
+        "status": "script_completed",
+        "updated_at": "2026-01-05T07:13:15.469788Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
-          "script_validation": "completed",
+          "script_validation": "pending",
           "audio_synthesis": "pending"
         }
       }
@@ -210,13 +218,13 @@
       "planning": {
         "動画番号": "7",
         "タイトル": "【ニコラ・テスラ流】常識を超えて考える力",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T07:13:16.467770Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "常識外思考",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】常識を超えて考える力 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "常識を超えて考える力で迷うときに。考え方と、今日からできる一歩を整理します。"
@@ -226,12 +234,11 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH10/007/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-05T07:13:16.469334Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -245,13 +252,13 @@
       "planning": {
         "動画番号": "8",
         "タイトル": "【岡潔流】考える量と賢さは無関係である理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-29T11:49:11.559731Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "岡潔流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "岡潔流",
+        "キーコンセプト": "質の思考",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【岡潔流】考える量と賢さは無関係である理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "考える量と賢さは無関係である理由で迷うときに。考え方と、今日からできる一歩を整理します。"
@@ -266,7 +273,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -280,8 +286,8 @@
       "planning": {
         "動画番号": "9",
         "タイトル": "【周波数は嘘をつかない】現実を作る意識の法則（ホーキンズ）",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-30T00:32:30.855259Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "周波数は嘘をつかない",
         "悩みタグ_サブ": "",
@@ -301,7 +307,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -315,13 +320,13 @@
       "planning": {
         "動画番号": "10",
         "タイトル": "【岡潔流】賢さの本質は『感じながら考える』にある",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2025-12-30T00:32:31.888794Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "岡潔流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "岡潔流",
+        "キーコンセプト": "感じる思考",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【岡潔流】賢さの本質は『感じながら考える』にある をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "賢さの本質は『感じながら考える』にあるで迷うときに。考え方と、今日からできる一歩を整理します。"
@@ -336,7 +341,6 @@
           "script_outline": "completed",
           "script_draft": "completed",
           "script_review": "completed",
-          "quality_check": "completed",
           "script_validation": "completed",
           "audio_synthesis": "pending"
         }
@@ -350,19 +354,31 @@
       "planning": {
         "動画番号": "11",
         "タイトル": "【ショーペンハウアー流】年齢を重ねて気づいた幸福の本質",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T07:13:17.857776Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "ショーペンハウアー流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ショーペンハウアー流",
+        "キーコンセプト": "幸福の本質",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ショーペンハウアー流】年齢を重ねて気づいた幸福の本質 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "年齢を重ねて気づいた幸福の本質で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/011/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-05T07:13:17.861963Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -372,8 +388,8 @@
       "planning": {
         "動画番号": "12",
         "タイトル": "【ニコラ・テスラ流】考えない時間が成果を生む",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T07:13:18.675992Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "時間の足りなさ",
         "悩みタグ_サブ": "タスク過多",
@@ -383,8 +399,20 @@
         "内容（企画要約）": "【ニコラ・テスラ流】行動を減らして結果を増やす思考術 をテーマに、一点集中をわかりやすく解説し、今日からの一歩を提案する回。",
         "説明文_リード": "眠れない夜に そっと開く 本のように。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/012/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-05T07:13:18.678360Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -394,8 +422,8 @@
       "planning": {
         "動画番号": "13",
         "タイトル": "【岡本太郎流】凡人が天才に勝てるたった一つの理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-05T08:17:41.443349Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "岡本太郎流",
         "悩みタグ_サブ": "",
@@ -405,8 +433,20 @@
         "内容（企画要約）": "【岡本太郎流】凡人が天才に勝てるたった一つの理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "凡人が天才に勝てるたった一つの理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/013/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-05T08:17:41.449739Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -416,19 +456,31 @@
       "planning": {
         "動画番号": "14",
         "タイトル": "【ニコラ・テスラ流】知識を増やすほど思考が鈍くなる理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-08T10:07:11.665469Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "知識の罠",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】知識を増やすほど思考が鈍くなる理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "知識を増やすほど思考が鈍くなる理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/014/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-08T10:07:11.684831Z",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -449,8 +501,20 @@
         "内容（企画要約）": "【岡本太郎流】嫌われる勇気より見せる勇気 をテーマに、自己表現をわかりやすく解説し、今日からの一歩を提案する回。",
         "説明文_リード": "眠れない夜に そっと開く 本のように。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -471,8 +535,20 @@
         "内容（企画要約）": "【宮沢賢治流】力を抜いた人が最後に勝つ理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "力を抜いた人が最後に勝つ理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -488,13 +564,25 @@
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "意識の連続",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】心臓が止まっても君が消えない理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "心臓が止まっても君が消えない理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/017/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -510,13 +598,25 @@
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "単純化",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】複雑な問題を単純化する思考術 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "複雑な問題を単純化する思考術で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -537,8 +637,20 @@
         "内容（企画要約）": "【岡本太郎流】削ることが人生の本質である理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "削ることが人生の本質である理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/019/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -559,8 +671,20 @@
         "内容（企画要約）": "【ラッセル流】忙しさの中で自分の軸を整える方法 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "忙しさの中で自分の軸を整える方法で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/020/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -581,8 +705,20 @@
         "内容（企画要約）": "【岡本太郎流】人に好かれても良いことなんてない理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "人に好かれても良いことなんてない理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/021/status.json",
+        "status": "script_completed",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "pending",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -603,8 +739,20 @@
         "内容（企画要約）": "成果は速度ではなく深度で決まる｜ニコラ・テスラ をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "成果は速度ではなく深度で決まる｜ニコラ・テスラで迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/022/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -620,13 +768,25 @@
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "少動多果",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】行動を減らして結果を出す思考術 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "行動を減らして結果を出す思考術で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/023/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -647,8 +807,20 @@
         "内容（企画要約）": "【セネカ流】人生の短さについて 悔いなく生きる考え方 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "人生の短さについて 悔いなく生きる考え方で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/024/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -664,13 +836,25 @@
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "思考停止の前兆",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】思考停止に入る直前の変化を見抜く方法 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "思考停止に入る直前の変化を見抜く方法で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/025/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -691,8 +875,20 @@
         "内容（企画要約）": "【岡本太郎流】嫌われる勇気より『見せる勇気』が人生を変える理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "嫌われる勇気より『見せる勇気』が人生を変える理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/026/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -708,13 +904,25 @@
         "悩みタグ_メイン": "岡潔流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "岡潔流",
+        "キーコンセプト": "心の使い方",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【岡潔流】悩みが消えない本当の理由は心の使い方にある をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "悩みが消えない本当の理由は心の使い方にあるで迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/027/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -735,8 +943,20 @@
         "内容（企画要約）": "【アドラー心理学】考えすぎをリセットする方法 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "考えすぎをリセットする方法で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/028/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -757,8 +977,20 @@
         "内容（企画要約）": "【エミール・シオラン流】人生は無意味 それでも続ける理由 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "人生は無意味 それでも続ける理由で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/029/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     },
     {
       "channel": "CH10",
@@ -774,13 +1006,25 @@
         "悩みタグ_メイン": "ニコラ・テスラ流",
         "悩みタグ_サブ": "",
         "ライフシーン": "",
-        "キーコンセプト": "ニコラ・テスラ流",
+        "キーコンセプト": "問いの力",
         "ベネフィット一言": "明日ひとつだけ試せる一歩が分かる",
         "内容（企画要約）": "【ニコラ・テスラ流】一つの問いで現実を動かす思考術 をテーマに、企画意図と構成案に沿ってわかりやすく解説する回。",
         "説明文_リード": "一つの問いで現実を動かす思考術で迷うときに。考え方と、今日からできる一歩を整理します。"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH10/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH10/030/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {
+          "script_outline": "completed",
+          "script_draft": "completed",
+          "script_review": "completed",
+          "script_validation": "completed",
+          "audio_synthesis": "pending"
+        }
+      }
     }
   ]
 }
