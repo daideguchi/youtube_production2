@@ -7,6 +7,7 @@ on:
     paths:
       - "docs/**"
       - "scripts/ops/pages_script_viewer_index.py"
+      - "scripts/ops/pages_episode_routes.py"
       - "workspaces/scripts/**"
       - "workspaces/planning/channels/**"
 
@@ -38,6 +39,11 @@ jobs:
         run: |
           set -e
           python3 scripts/ops/pages_script_viewer_index.py --write
+
+      - name: Generate clean episode routes
+        run: |
+          set -e
+          python3 scripts/ops/pages_episode_routes.py --write --clean
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

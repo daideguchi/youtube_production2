@@ -29,12 +29,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import os
 import re
 import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from _bootstrap import bootstrap
 
@@ -107,6 +109,46 @@ def _load_planning_titles(repo_root: Path) -> dict[tuple[str, int], str]:
     return out
 
 
+def _load_channels_info(repo_root: Path) -> dict[str, dict[str, Any]]:
+    """Map channel_id -> metadata (from packages/script_pipeline/channels/channels_info.json)."""
+    path = repo_root / "packages" / "script_pipeline" / "channels" / "channels_info.json"
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if not isinstance(raw, list):
+        return {}
+    out: dict[str, dict[str, Any]] = {}
+    for ent in raw:
+        if not isinstance(ent, dict):
+            continue
+        ch = str(ent.get("channel_id") or "").strip().upper()
+        if not CHANNEL_RE.match(ch):
+            continue
+        out[ch] = ent
+    return out
+
+
+def _channel_display_name(meta: dict[str, Any] | None, channel_id: str) -> str:
+    if not meta:
+        return channel_id
+    yt = meta.get("youtube") if isinstance(meta, dict) else None
+    yt = yt if isinstance(yt, dict) else {}
+    name = str(yt.get("title") or meta.get("name") or "").strip()
+    return name or channel_id
+
+
+def _channel_avatar_url(meta: dict[str, Any] | None) -> str:
+    if not meta:
+        return ""
+    branding = meta.get("branding") if isinstance(meta, dict) else None
+    branding = branding if isinstance(branding, dict) else {}
+    url = str(branding.get("avatar_url") or "").strip()
+    return url if url.startswith("http://") or url.startswith("https://") else ""
+
+
 def _escape_html(text: str) -> str:
     s = str(text or "")
     return (
@@ -160,8 +202,22 @@ code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
 .card .meta{padding:10px 12px 12px}
 .card .id{font-weight:800;font-size:13px}
 .card .desc{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.35}
+.card .sub{margin-top:8px;font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .frame{width:100%;height:min(84vh,980px);border:0;background:#000;border-radius:12px}
 input,select{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--fg)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);font-size:12px;white-space:nowrap}
+.badge--ok{border-color:rgba(110,168,255,.55)}
+.badge--warn{border-color:rgba(255,199,92,.55)}
+.badge--off{opacity:.75}
+.channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:12px}
+.channel-card{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--card)}
+.channel-card:hover{border-color:rgba(255,255,255,.22)}
+.channel-card__avatar{width:56px;height:56px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(233,238,255,.85)}
+.channel-card__avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.channel-card__meta{min-width:0}
+.channel-card__name{font-weight:900}
+.channel-card__name span{font-weight:700;color:var(--muted)}
+.channel-card__counts{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
 """
 
 
@@ -255,45 +311,106 @@ class EpisodeItem:
     video: str  # 3-digit
     video_int: int
     title: str | None
-    assembled_rel: str
+    assembled_rel: str | None
 
     @property
     def video_id(self) -> str:
         return f"{self.channel}-{self.video}"
 
+    @property
+    def has_script(self) -> bool:
+        return bool(self.assembled_rel)
+
 
 def _collect_episodes(repo_root: Path) -> list[EpisodeItem]:
-    scripts_root = fpaths.script_data_root()
+    """
+    Collect episodes for /ep pages.
+
+    Policy:
+    - Prefer snapshot (planning-first) so /ep includes planning-only channels too.
+    - Determine script presence by checking for assembled.md under workspaces/scripts.
+    """
     titles = _load_planning_titles(repo_root)
+    docs_root = repo_root / "docs"
+    snapshot_channels_path = docs_root / "data" / "snapshot" / "channels.json"
+    scripts_root = fpaths.script_data_root()
     items: list[EpisodeItem] = []
 
-    if not scripts_root.exists():
-        return items
+    def add_episode(*, channel: str, video_int: int, title: str | None) -> None:
+        video = f"{int(video_int):03d}"
+        assembled_rel: str | None = None
+        episode_dir = scripts_root / channel / video
+        assembled = _discover_assembled_path(episode_dir) if episode_dir.exists() else None
+        if assembled:
+            try:
+                assembled_rel = assembled.relative_to(repo_root).as_posix()
+            except Exception:
+                assembled_rel = None
+        items.append(
+            EpisodeItem(
+                channel=channel,
+                video=video,
+                video_int=int(video_int),
+                title=title,
+                assembled_rel=assembled_rel,
+            )
+        )
 
-    for channel_dir in sorted([p for p in scripts_root.iterdir() if p.is_dir()], key=lambda p: _channel_sort_key(p.name)):
-        channel = channel_dir.name
-        if not CHANNEL_RE.match(channel):
-            continue
-        for episode_dir in sorted([p for p in channel_dir.iterdir() if p.is_dir()], key=lambda p: p.name):
-            video_raw = episode_dir.name
-            if not VIDEO_DIR_RE.match(video_raw):
+    if snapshot_channels_path.exists():
+        try:
+            snap = json.loads(snapshot_channels_path.read_text(encoding="utf-8"))
+            channels = snap.get("channels") if isinstance(snap, dict) else None
+            channels_list = channels if isinstance(channels, list) else []
+        except Exception:
+            channels_list = []
+
+        for ent in channels_list:
+            if not isinstance(ent, dict):
+                continue
+            channel = str(ent.get("channel") or "").strip()
+            if not CHANNEL_RE.match(channel):
+                continue
+            data_path = str(ent.get("data_path") or "").strip()
+            if not data_path:
+                continue
+            ch_json_path = docs_root / str(data_path).lstrip("/").replace("\\", "/")
+            if not ch_json_path.exists():
                 continue
             try:
-                video_int = int(video_raw)
+                ch_obj = json.loads(ch_json_path.read_text(encoding="utf-8"))
             except Exception:
                 continue
-            assembled = _discover_assembled_path(episode_dir)
-            if not assembled:
+            eps = ch_obj.get("episodes") if isinstance(ch_obj, dict) else None
+            eps_list = eps if isinstance(eps, list) else []
+            for ep in eps_list:
+                if not isinstance(ep, dict):
+                    continue
+                try:
+                    video_int = int(str(ep.get("video") or "").strip())
+                except Exception:
+                    continue
+                title = str(ep.get("title") or "").strip() or titles.get((channel, video_int))
+                add_episode(channel=channel, video_int=video_int, title=title)
+
+        items.sort(key=lambda it: (_channel_sort_key(it.channel), it.video_int))
+        return items
+
+    # Fallback (no snapshot): scripts-only.
+    if scripts_root.exists():
+        for channel_dir in sorted([p for p in scripts_root.iterdir() if p.is_dir()], key=lambda p: _channel_sort_key(p.name)):
+            channel = channel_dir.name
+            if not CHANNEL_RE.match(channel):
                 continue
-            items.append(
-                EpisodeItem(
-                    channel=channel,
-                    video=str(video_int).zfill(3),
-                    video_int=video_int,
-                    title=titles.get((channel, video_int)),
-                    assembled_rel=assembled.relative_to(repo_root).as_posix(),
-                )
-            )
+            for episode_dir in sorted([p for p in channel_dir.iterdir() if p.is_dir()], key=lambda p: p.name):
+                video_raw = episode_dir.name
+                if not VIDEO_DIR_RE.match(video_raw):
+                    continue
+                try:
+                    video_int = int(video_raw)
+                except Exception:
+                    continue
+                title = titles.get((channel, video_int))
+                add_episode(channel=channel, video_int=video_int, title=title)
 
     items.sort(key=lambda it: (_channel_sort_key(it.channel), it.video_int))
     return items
@@ -345,13 +462,40 @@ def _ep_index_html(
     docs_root: Path,
     ep_root: Path,
     channels: list[str],
-    counts: dict[str, int],
+    channel_meta: dict[str, dict[str, Any]],
+    stats: dict[str, tuple[int, int]],
     updated_at: str,
 ) -> str:
-    chips = [
-        f'<a class="btn" href="./{_escape_html(ch)}/">{_escape_html(ch)}<span class="muted"> ({counts.get(ch,0)})</span></a>'
-        for ch in channels
-    ]
+    cards: list[str] = []
+    for ch in channels:
+        meta = channel_meta.get(ch)
+        name = _channel_display_name(meta, ch)
+        avatar = _channel_avatar_url(meta)
+        scripts_n, plan_n = stats.get(ch, (0, 0))
+        href = f"./{_escape_html(ch)}/"
+        if avatar:
+            av_html = (
+                f'<div class="channel-card__avatar"><img loading="lazy" src="{_escape_html(avatar)}"'
+                f' alt="{_escape_html(ch)} avatar" /></div>'
+            )
+        else:
+            av_html = f'<div class="channel-card__avatar">{_escape_html(ch.replace("CH", ""))}</div>'
+        counts_html = (
+            f'<div class="channel-card__counts">'
+            f'<span class="badge badge--ok">script {scripts_n}</span>'
+            f'<span class="badge badge--off">plan {plan_n}</span>'
+            f"</div>"
+        )
+        cards.append(
+            f'<a class="channel-card" href="{href}">'
+            f"{av_html}"
+            f'<div class="channel-card__meta">'
+            f'<div class="channel-card__name">{_escape_html(name)} <span>({ch})</span></div>'
+            f"{counts_html}"
+            f"</div>"
+            f"</a>"
+        )
+    cards_block = '<div class="channel-grid">' + "".join(cards) + "</div>" if cards else '<span class="muted">no channels</span>'
 
     links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=None)
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
@@ -380,14 +524,14 @@ def _ep_index_html(
         "  </div>\n\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\"><div><strong>Channels</strong></div><div class=\"muted\">/ep/CHxx/</div></div>\n"
-        f"    <div class=\"panel__body\" style=\"display:flex;gap:10px;flex-wrap:wrap\">{' '.join(chips) if chips else '<span class=\"muted\">no channels</span>'}</div>\n"
+        f"    <div class=\"panel__body\">{cards_block}</div>\n"
         "  </div>\n"
         "</main>\n"
     )
 
     return _page_shell(
         title="ep — clean URLs",
-        subtitle="query を隠して共有できる wrapper（iframe で Script Viewer を表示）",
+        subtitle="モバイルで迷わない: /ep/CHxx/NNN/（台本・サムネ・画像の入口）",
         styles_href=styles_href,
         script_href=script_href,
         links_html=links_html,
@@ -402,13 +546,32 @@ def _channel_index_html(
     ep_root: Path,
     channel: str,
     episodes: list[EpisodeItem],
+    channel_meta: dict[str, Any] | None,
+    video_images_count_by_video_id: dict[str, int],
     updated_at: str,
     variants: dict[str, set[str]],
 ) -> str:
-    cards = [
-        f'<a class="card" href="./{_escape_html(it.video)}/"><div class="meta"><div class="id">{_escape_html(it.video_id)}</div><div class="desc">{_escape_html(it.title or "")}</div></div></a>'
-        for it in episodes
-    ]
+    cards: list[str] = []
+    for it in episodes:
+        thumb_path = docs_root / "media" / "thumbs" / it.channel / f"{it.video}.jpg"
+        thumb_href = _rel_href(page_dir, thumb_path, is_dir=False)
+        img_count = int(video_images_count_by_video_id.get(it.video_id, 0) or 0)
+        script_badge = (
+            '<span class="badge badge--ok">script ✓</span>' if it.has_script else '<span class="badge badge--off">script —</span>'
+        )
+        images_badge = (
+            f'<span class="badge badge--ok">画像 {img_count}</span>'
+            if img_count > 0
+            else '<span class="badge badge--off">画像 —</span>'
+        )
+        cards.append(
+            f'<a class="card" href="./{_escape_html(it.video)}/">'
+            f'<img loading="lazy" src="{_escape_html(thumb_href)}" alt="{_escape_html(it.video_id)} thumb" />'
+            f'<div class="meta"><div class="id">{_escape_html(it.video_id)}</div>'
+            f'<div class="desc">{_escape_html(it.title or "")}</div>'
+            f'<div class="sub">{script_badge}{images_badge}</div>'
+            f"</div></a>"
+        )
     variant_links = [
         f'<a class="btn" href="./thumb/{_escape_html(v)}/">thumb_alt:{_escape_html(v)}</a>'
         for v in sorted(variants.keys())
@@ -421,12 +584,22 @@ def _channel_index_html(
 
     links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=None)
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
+    display = _channel_display_name(channel_meta, channel)
+    avatar = _channel_avatar_url(channel_meta)
+    header_line = f"{_escape_html(display)} ({_escape_html(channel)})" if display and display != channel else _escape_html(channel)
+    avatar_html = (
+        f'<div class="channel-card__avatar"><img loading="lazy" src="{_escape_html(avatar)}" alt="{_escape_html(channel)} avatar" /></div>'
+        if avatar
+        else ""
+    )
+    script_n = sum(1 for it in episodes if it.has_script)
+    plan_n = len(episodes)
 
     body = (
         "<main>\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
-        f"      <div><strong>{_escape_html(channel)}</strong> <span class=\"muted\">episodes={len(episodes)}</span></div>\n"
+        f"      <div style=\"display:flex;gap:10px;align-items:center\">{avatar_html}<div><strong>{header_line}</strong> <span class=\"muted\">script {script_n}/{plan_n}</span></div></div>\n"
         f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
         "    </div>\n"
         "    <div class=\"panel__body\">\n"
@@ -440,7 +613,7 @@ def _channel_index_html(
 
     return _page_shell(
         title=f"{channel} — ep",
-        subtitle="episode一覧（綺麗なURL）",
+        subtitle="episode一覧（サムネ付き / 綺麗なURL）",
         styles_href=styles_href,
         script_href=None,
         links_html=links_html,
@@ -510,6 +683,151 @@ def _episode_viewer_page_html(
 
     return _page_shell(
         title=f"{vid} — {view}",
+        subtitle=str(title or "—"),
+        styles_href=styles_href,
+        script_href=None,
+        links_html=links_html,
+        body_html=body,
+    )
+
+
+def _episode_thumb_page_html(
+    *,
+    page_dir: Path,
+    docs_root: Path,
+    ep_root: Path,
+    channel_dir: Path,
+    ep_base_dir: Path,
+    channel: str,
+    video: str,
+    title: str | None,
+    updated_at: str,
+    variants: list[str],
+) -> str:
+    vid = f"{channel}-{video}"
+
+    links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=channel_dir)
+    styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
+    tabs = _episode_tabs_html(page_dir=page_dir, ep_base_dir=ep_base_dir, active_key="thumb", variants=variants)
+
+    img_path = docs_root / "media" / "thumbs" / channel / f"{video}.jpg"
+    img_href = _rel_href(page_dir, img_path, is_dir=False)
+
+    viewer_href = _rel_href(page_dir, docs_root, is_dir=True) + f"?id={vid}&view=thumb"
+
+    body = (
+        "<main>\n"
+        f"  {tabs}\n"
+        "  <div class=\"panel\">\n"
+        "    <div class=\"panel__head\">\n"
+        f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">thumb</span></div>\n"
+        f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
+        "    </div>\n"
+        "    <div class=\"panel__body\">\n"
+        f"      <a href=\"{_escape_html(img_href)}\" target=\"_blank\" rel=\"noreferrer\">\n"
+        f"        <img loading=\"lazy\" src=\"{_escape_html(img_href)}\" alt=\"{_escape_html(vid)} thumb\" style=\"width:100%;height:auto;border-radius:12px;border:1px solid var(--border);background:#000\" />\n"
+        "      </a>\n"
+        "      <div style=\"margin-top:10px;display:flex;gap:10px;flex-wrap:wrap\">\n"
+        f"        <a class=\"btn btn--accent\" href=\"{_escape_html(img_href)}\" target=\"_blank\" rel=\"noreferrer\">Download</a>\n"
+        f"        <a class=\"btn\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Open Script Viewer</a>\n"
+        "      </div>\n"
+        "    </div>\n"
+        "  </div>\n"
+        "</main>\n"
+    )
+
+    return _page_shell(
+        title=f"{vid} — thumb",
+        subtitle=str(title or "—"),
+        styles_href=styles_href,
+        script_href=None,
+        links_html=links_html,
+        body_html=body,
+    )
+
+
+def _episode_images_page_html(
+    *,
+    page_dir: Path,
+    docs_root: Path,
+    ep_root: Path,
+    channel_dir: Path,
+    ep_base_dir: Path,
+    channel: str,
+    video: str,
+    title: str | None,
+    updated_at: str,
+    variants: list[str],
+    video_images_entry: dict[str, Any] | None,
+) -> str:
+    vid = f"{channel}-{video}"
+
+    links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=channel_dir)
+    styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
+    tabs = _episode_tabs_html(page_dir=page_dir, ep_base_dir=ep_base_dir, active_key="images", variants=variants)
+
+    viewer_href = _rel_href(page_dir, docs_root, is_dir=True) + f"?id={vid}&view=images"
+
+    files = video_images_entry.get("files") if isinstance(video_images_entry, dict) else None
+    files_list = files if isinstance(files, list) else []
+    run_id = str(video_images_entry.get("run_id") or "").strip() if isinstance(video_images_entry, dict) else ""
+
+    if files_list:
+        cards: list[str] = []
+        for f in files_list:
+            if not isinstance(f, dict):
+                continue
+            rel = str(f.get("rel") or "").strip()
+            if not rel:
+                continue
+            img_path = docs_root / rel
+            img_href = _rel_href(page_dir, img_path, is_dir=False)
+            summary = str(f.get("summary") or "").strip()
+            sub = f'<div class="desc">{_escape_html(summary)}</div>' if summary else ""
+            cards.append(
+                f'<a class="card" href="{_escape_html(img_href)}" target="_blank" rel="noreferrer">'
+                f'<img loading="lazy" src="{_escape_html(img_href)}" alt="{_escape_html(vid)} image" />'
+                f'<div class="meta"><div class="id">{_escape_html(vid)}</div>{sub}</div></a>'
+            )
+        fallback = '<span class="muted">no images</span>'
+        grid_inner = " ".join(cards) if cards else fallback
+        grid_html = f'<div class="grid">{grid_inner}</div>'
+        hint = (
+            f'<div class="muted">run_id: <code>{_escape_html(run_id or "-")}</code></div>'
+            if run_id
+            else '<div class="muted">run_id: —</div>'
+        )
+        body_inner = (
+            "  <div class=\"panel\">\n"
+            "    <div class=\"panel__head\">\n"
+            f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">images</span></div>\n"
+            f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
+            "    </div>\n"
+            f"    <div class=\"panel__body\">{hint}</div>\n"
+            "  </div>\n"
+            f"  {grid_html}\n"
+        )
+    else:
+        body_inner = (
+            "  <div class=\"panel\">\n"
+            "    <div class=\"panel__head\">\n"
+            f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">images</span></div>\n"
+            f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
+            "    </div>\n"
+            "    <div class=\"panel__body\">\n"
+            "      <div class=\"muted\">動画内画像プレビューは未生成（またはrunが未作成）です。</div>\n"
+            f"      <div class=\"muted\" style=\"margin-top:10px\">次: <code>python3 scripts/ops/pages_video_images_previews.py --channel {channel} --video {video} --write</code></div>\n"
+            "      <div style=\"margin-top:10px;display:flex;gap:10px;flex-wrap:wrap\">\n"
+            f"        <a class=\"btn\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Open Script Viewer</a>\n"
+            "      </div>\n"
+            "    </div>\n"
+            "  </div>\n"
+        )
+
+    body = "<main>\n" + f"  {tabs}\n" + body_inner + "</main>\n"
+
+    return _page_shell(
+        title=f"{vid} — images",
         subtitle=str(title or "—"),
         styles_href=styles_href,
         script_href=None,
@@ -641,6 +959,29 @@ def main() -> int:
         print("[pages_episode_routes] no episodes found.")
         return 0
 
+    channel_meta_by_id = _load_channels_info(repo_root)
+
+    video_images_by_video_id: dict[str, dict[str, Any]] = {}
+    video_images_count_by_video_id: dict[str, int] = {}
+    video_images_index_path = docs_root / "data" / "video_images_index.json"
+    if video_images_index_path.exists():
+        try:
+            vi = json.loads(video_images_index_path.read_text(encoding="utf-8"))
+            vi_items = vi.get("items") if isinstance(vi, dict) else None
+            vi_list = vi_items if isinstance(vi_items, list) else []
+            for ent in vi_list:
+                if not isinstance(ent, dict):
+                    continue
+                vid = str(ent.get("video_id") or "").strip()
+                if not vid:
+                    continue
+                video_images_by_video_id[vid] = ent
+                files = ent.get("files") if isinstance(ent.get("files"), list) else []
+                video_images_count_by_video_id[vid] = len(files)
+        except Exception:
+            video_images_by_video_id = {}
+            video_images_count_by_video_id = {}
+
     by_channel: dict[str, list[EpisodeItem]] = {}
     titles_by_channel_video: dict[str, dict[str, str]] = {}
     for it in episodes:
@@ -648,7 +989,7 @@ def main() -> int:
         titles_by_channel_video.setdefault(it.channel, {})[it.video] = str(it.title or "")
 
     channels = sorted(by_channel.keys(), key=_channel_sort_key)
-    counts = {ch: len(by_channel.get(ch, [])) for ch in channels}
+    stats = {ch: (sum(1 for it in (by_channel.get(ch) or []) if it.has_script), len(by_channel.get(ch, []) or [])) for ch in channels}
     alt_variants = _discover_thumb_alt_variants(repo_root)
 
     if not args.write:
@@ -672,7 +1013,8 @@ def main() -> int:
             docs_root=docs_root,
             ep_root=ep_root,
             channels=channels,
-            counts=counts,
+            channel_meta=channel_meta_by_id,
+            stats=stats,
             updated_at=updated_at,
         ),
     )
@@ -691,6 +1033,8 @@ def main() -> int:
                 ep_root=ep_root,
                 channel=ch,
                 episodes=ch_eps,
+                channel_meta=channel_meta_by_id.get(ch),
+                video_images_count_by_video_id=video_images_count_by_video_id,
                 updated_at=updated_at,
                 variants=alt_variants.get(ch, {}),
             ),
@@ -721,7 +1065,7 @@ def main() -> int:
 
             episode_variants = [v for v, vids in sorted((alt_variants.get(ch) or {}).items()) if it.video in vids]
 
-            # 4 views
+            # script: iframe (copy-friendly)
             _write_text_atomic(
                 ep_base_dir / "index.html",
                 _episode_viewer_page_html(
@@ -738,24 +1082,60 @@ def main() -> int:
                     variants=episode_variants,
                 ),
             )
-            for view in ("audio", "thumb", "images"):
-                page_dir = ep_base_dir / view
-                _write_text_atomic(
-                    page_dir / "index.html",
-                    _episode_viewer_page_html(
-                        page_dir=page_dir,
-                        docs_root=docs_root,
-                        ep_root=ep_root,
-                        channel_dir=ch_dir,
-                        ep_base_dir=ep_base_dir,
-                        channel=it.channel,
-                        video=it.video,
-                        title=it.title,
-                        view=view,
-                        updated_at=updated_at,
-                        variants=episode_variants,
-                    ),
-                )
+
+            # audio: keep iframe (text artifacts live in Script Viewer)
+            audio_dir = ep_base_dir / "audio"
+            _write_text_atomic(
+                audio_dir / "index.html",
+                _episode_viewer_page_html(
+                    page_dir=audio_dir,
+                    docs_root=docs_root,
+                    ep_root=ep_root,
+                    channel_dir=ch_dir,
+                    ep_base_dir=ep_base_dir,
+                    channel=it.channel,
+                    video=it.video,
+                    title=it.title,
+                    view="audio",
+                    updated_at=updated_at,
+                    variants=episode_variants,
+                ),
+            )
+
+            # thumb/images: direct assets (downloadable)
+            thumb_dir = ep_base_dir / "thumb"
+            _write_text_atomic(
+                thumb_dir / "index.html",
+                _episode_thumb_page_html(
+                    page_dir=thumb_dir,
+                    docs_root=docs_root,
+                    ep_root=ep_root,
+                    channel_dir=ch_dir,
+                    ep_base_dir=ep_base_dir,
+                    channel=it.channel,
+                    video=it.video,
+                    title=it.title,
+                    updated_at=updated_at,
+                    variants=episode_variants,
+                ),
+            )
+            images_dir = ep_base_dir / "images"
+            _write_text_atomic(
+                images_dir / "index.html",
+                _episode_images_page_html(
+                    page_dir=images_dir,
+                    docs_root=docs_root,
+                    ep_root=ep_root,
+                    channel_dir=ch_dir,
+                    ep_base_dir=ep_base_dir,
+                    channel=it.channel,
+                    video=it.video,
+                    title=it.title,
+                    updated_at=updated_at,
+                    variants=episode_variants,
+                    video_images_entry=video_images_by_video_id.get(it.video_id),
+                ),
+            )
 
             # thumb variants (alt)
             for variant in episode_variants:
