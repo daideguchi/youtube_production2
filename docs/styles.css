@@ -419,6 +419,12 @@ body {
   font-weight: 600;
 }
 
+.meta__sub {
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
 .hero-media {
   display: grid;
   grid-template-columns: minmax(160px, 240px) 1fr;

@@ -9,7 +9,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_26";
+const SITE_ASSET_VERSION = "20260112_27";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -575,11 +575,14 @@ const browseDetails = $("browseDetails");
 const browseSummary = $("browseSummary");
 const reloadIndexButton = $("reloadIndex");
 const metaTitle = $("metaTitle");
+const metaSub = $("metaSub");
 const metaPath = $("metaPath");
 const heroMedia = $("heroMedia");
 const heroThumbButton = $("heroThumbButton");
 const heroThumbImg = $("heroThumbImg");
 const heroThumbFallback = $("heroThumbFallback");
+const heroOpenThumb = $("heroOpenThumb");
+const heroOpenThumbFallback = $("heroOpenThumbFallback");
 const heroToThumb = $("heroToThumb");
 const heroToImages = $("heroToImages");
 const openRaw = $("openRaw");
@@ -616,6 +619,10 @@ const copyAudioPrepMeta = $("copyAudioPrepMeta");
 const thumbBody = $("thumbBody");
 const videoImagesBody = $("videoImagesBody");
 const youtubeMetaDetails = $("youtubeMetaDetails");
+const ytChannelInfoPre = $("ytChannelInfoPre");
+const openYtChannel = $("openYtChannel");
+const openVoiceConfig = $("openVoiceConfig");
+const openChannelPrompt = $("openChannelPrompt");
 const ytTitlePre = $("ytTitlePre");
 const ytTagsPre = $("ytTagsPre");
 const ytEpisodeDescPre = $("ytEpisodeDescPre");
@@ -676,7 +683,8 @@ function updateHeroMedia(it) {
   heroMedia.hidden = false;
   heroThumbImg.hidden = true;
   heroThumbFallback.hidden = false;
-  heroThumbFallback.textContent = "サムネ読み込み中…";
+  const hasAlt = Boolean(preferredThumbAltVariant(it));
+  heroThumbFallback.textContent = hasAlt ? "イラスト読み込み中…" : "サムネ読み込み中…";
 
   const { primaryUrl, fallbackUrl } = pickThumbUrls(it);
   const currentId = videoId;
@@ -685,7 +693,24 @@ function updateHeroMedia(it) {
     heroThumbImg.hidden = true;
     heroThumbFallback.hidden = false;
     heroThumbFallback.textContent = "サムネ未（プレビューなし）";
+    heroOpenThumb.hidden = true;
+    heroOpenThumb.removeAttribute("href");
+    heroOpenThumbFallback.hidden = true;
+    heroOpenThumbFallback.removeAttribute("href");
     return;
+  }
+
+  heroOpenThumb.hidden = false;
+  heroOpenThumb.href = primaryUrl;
+  heroOpenThumb.textContent = hasAlt ? "イラストを開く" : "サムネを開く";
+
+  if (fallbackUrl) {
+    heroOpenThumbFallback.hidden = false;
+    heroOpenThumbFallback.href = fallbackUrl;
+    heroOpenThumbFallback.textContent = "通常サムネ";
+  } else {
+    heroOpenThumbFallback.hidden = true;
+    heroOpenThumbFallback.removeAttribute("href");
   }
 
   heroThumbImg.onload = () => {
@@ -740,6 +765,45 @@ function updateSnapshotLink() {
   url.searchParams.set("channel", ch);
   if (v) url.searchParams.set("q", `${ch}-${v}`);
   openSnapshot.href = url.toString();
+}
+
+function sharePathForCurrentView(it) {
+  const ch = normalizeChannelParam(it?.channel || "");
+  const v = normalizeVideoParam(it?.video || "");
+  if (!ch || !v) return "";
+  const view = normalizeView(currentView);
+  let path = `/ep/${ch}/${v}/`;
+  if (view && view !== "script") path += `${view}/`;
+  return path;
+}
+
+function updateMetaSub(it) {
+  const ch = normalizeChannelParam(it?.channel || "");
+  const v = normalizeVideoParam(it?.video || "");
+  if (!ch || !v) {
+    metaSub.textContent = "—";
+    return;
+  }
+
+  const parts = [];
+
+  const planning = effectivePlanning(it);
+  const status = cleanText(planning?.status || planning?.["ステータス"] || planning?.state);
+  if (status) parts.push(`企画:${status}`);
+
+  const snap = snapshotByChannel.get(ch) || null;
+  const planN = Number(snap?.planning_count) || 0;
+  const snapScripts = Number(snap?.scripts_count);
+  const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : 0;
+  if (planN) parts.push(`進捗:台本 ${scriptsN}/${planN}`);
+
+  const altVariants = thumbAltVariantsForEpisode(it);
+  if (altVariants.length) parts.push(`イラスト:${altVariants.join(",")}`);
+
+  const share = sharePathForCurrentView(it);
+  if (share) parts.push(`共有:${share}`);
+
+  metaSub.textContent = parts.join(" · ") || "—";
 }
 
 function cleanText(raw) {
@@ -813,6 +877,42 @@ function renderYoutubeMeta(it) {
   const tags = buildYtTags(it);
   const episodeDesc = buildEpisodeDescription(it);
   const channelDesc = buildChannelDescription(it?.channel);
+
+  const ch = normalizeChannelParam(it?.channel || "");
+  const meta = ch ? channelMetaById.get(ch) || {} : {};
+  const yt = meta?.youtube || {};
+  const branding = meta?.branding || {};
+
+  function setLink(el, url) {
+    const u = String(url || "").trim();
+    if (!u) {
+      el.hidden = true;
+      el.removeAttribute("href");
+      return;
+    }
+    el.hidden = false;
+    el.href = u;
+  }
+
+  const channelName = pickChannelDisplayName(meta) || String(meta?.name || "").trim() || ch;
+  const handle = cleanText(yt?.handle || branding?.handle || "");
+  const youtubeChannelId = cleanText(yt?.channel_id || "");
+  const youtubeUrl = cleanText(yt?.url || branding?.url || (handle ? `https://www.youtube.com/${handle.replace(/^@?/, "@")}` : ""));
+  const voiceConfigPath = cleanText(meta?.production_sources?.voice_config_path);
+  const promptPath = cleanText(meta?.template_path);
+  const voiceConfigUrl = voiceConfigPath ? (gitTreeBase ? `${gitTreeBase}${voiceConfigPath}` : joinUrl(rawBase, voiceConfigPath)) : "";
+  const promptUrl = promptPath ? (gitTreeBase ? `${gitTreeBase}${promptPath}` : joinUrl(rawBase, promptPath)) : "";
+
+  ytChannelInfoPre.textContent =
+    (channelName ? `${channelName}${ch ? ` (${ch})` : ""}` : ch) +
+    (handle ? `\nhandle: ${handle}` : "") +
+    (youtubeChannelId ? `\nyoutube_channel_id: ${youtubeChannelId}` : "") +
+    (voiceConfigPath ? `\nvoice_config: ${voiceConfigPath}` : "") +
+    (promptPath ? `\nscript_prompt: ${promptPath}` : "") ||
+    "—";
+  setLink(openYtChannel, youtubeUrl);
+  setLink(openVoiceConfig, encodeURI(voiceConfigUrl));
+  setLink(openChannelPrompt, encodeURI(promptUrl));
 
   ytTitlePre.textContent = title || "—";
   ytTagsPre.textContent = tags.length ? tags.join(", ") : "—";
@@ -1007,6 +1107,9 @@ function setActiveView(view) {
   }
 
   persistUiState();
+  if (selected && String(selected?.channel || "").trim() && String(selected?.video || "").trim()) {
+    updateMetaSub(selected);
+  }
 }
 
 function scrollToEl(el) {
@@ -1893,6 +1996,7 @@ function clearSelectionForChannel(channel) {
   const snapScripts = Number(snap?.scripts_count);
   const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : (grouped.get(ch) || []).length;
   metaTitle.textContent = ch ? (plan > 0 ? `${channelLabel(ch)}（台本 ${scriptsN}/${plan}）` : `${channelLabel(ch)}（台本なし）`) : "—";
+  metaSub.textContent = ch && plan > 0 ? `進捗:台本 ${scriptsN}/${plan}` : "—";
   metaPath.textContent = "—";
   renderYoutubeMeta({ channel: ch });
   openRaw.removeAttribute("href");
@@ -2317,6 +2421,7 @@ async function loadScript(it) {
   metaTitle.textContent = it.title ? `${chLabel} · ${it.video} · ${it.title}` : `${chLabel} · ${it.video}`;
   const assembledPath = String(it?.assembled_path || "").trim();
   metaPath.textContent = assembledPath || "（台本未生成/未公開）";
+  updateMetaSub(it);
   renderYoutubeMeta(it);
   void (async () => {
     const currentId = String(it?.video_id || "").trim();
@@ -2326,7 +2431,9 @@ async function loadScript(it) {
     if (String(selected?.video_id || "").trim() !== currentId) return;
     const ep = snapshotEpisodeByVideoId.get(currentId);
     if (!ep) return;
-    renderYoutubeMeta({ ...it, title: cleanText(it?.title) || cleanText(ep?.title), planning: ep?.planning || it?.planning });
+    const hydrated = { ...it, title: cleanText(it?.title) || cleanText(ep?.title), planning: ep?.planning || it?.planning };
+    renderYoutubeMeta(hydrated);
+    updateMetaSub(hydrated);
   })();
 
   if (!assembledPath) {

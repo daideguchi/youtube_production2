@@ -536,6 +536,7 @@ def _ep_index_html(
         "        <button class=\"btn btn--accent\" type=\"submit\">Go</button>\n"
         "      </form>\n"
         "      <div class=\"muted\" style=\"margin-top:10px\">URLルール: <code>/ep/CH27/001/</code> / <code>/ep/CH27/001/thumb/</code> など</div>\n"
+        "      <div class=\"muted\" style=\"margin-top:10px\">※ /ep は共有用（綺麗URL）。制作作業（台本/概要欄コピー・チャンネル情報確認・企画/進捗）は Script Viewer を使ってください。</div>\n"
         "    </div>\n"
         "  </div>\n\n"
         "  <div class=\"panel\">\n"
