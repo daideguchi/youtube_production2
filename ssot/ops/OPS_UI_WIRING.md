@@ -29,7 +29,8 @@
 - 例外（静的）: **Script Viewer（Pages）** は backend を使わない（APIなし）。
   - 静的ページ: `docs/`
   - 索引生成: `python3 scripts/ops/pages_script_viewer_index.py --write`
-  - 台本本文の参照: `workspaces/scripts/**/assembled.md` を GitHub raw から読む（複製しない）。
+  - 台本本文の参照: `workspaces/scripts/**/assembled*.md` を GitHub raw から読む（複製しない）。
+  - 重要: Pages で開けるのは **git追跡されているファイルだけ**。索引は Planning CSV と git追跡の台本を統合し、未生成（未追跡）の回も「企画/概要欄/タグ」までは表示する。
 
 ---
 
