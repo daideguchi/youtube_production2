@@ -72,34 +72,37 @@
   - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`
   - 互換（同等）: `python -m script_pipeline.cli audio --channel CHxx --video NNN`
   - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
+  - 未投稿×既存音声の再監査（NO LLM / aggregated）:
+    - `./scripts/with_ytm_env.sh python3 scripts/ops/tts_unposted_audio_audit.py --write-latest`
+    - SoT: `ssot/ops/OPS_TTS_UNPOSTED_AUDIO_AUDIT.md`
 - 動画（SRT→画像→CapCut）:
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run ...`
-    - 任意（飽き防止B-roll）:
+    - オプション（飽き防止B-roll; 既定=OFF）:
       - デフォルト: OFF（`configs/sources.yaml: channels.CHxx.video_broll.enabled=false`）
       - ON時の既定: provider=`pexels` / ratio=`0.2`（= 画像:フリー素材 8:2）
       - CLI上書き: `--broll-provider {none|pixel|pexels|pixabay|coverr} --broll-ratio 0.2`（要env: `PEXELS_API_KEY` / `PIXABAY_API_KEY` / `COVERR_API_KEY`）
-      - 容量対策（推奨デフォルト）:
+      - 容量対策（既定）:
         - mp4は共有キャッシュ + hardlink 再利用（重複DL/重複保存を抑制）: `YTM_BROLL_FILE_CACHE=1`
         - 解像度上限（既定=720p）: `YTM_BROLL_MAX_W=1280`, `YTM_BROLL_MAX_H=720`
     - CH02（既定mix）: gemini:schnell:フリー動画 = `4:3:3`
       - SoT: `configs/sources.yaml: channels.CH02.image_source_mix`
-      - 適用（dry-run推奨）:
+      - 適用（dry-run→apply）:
         - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels --dry-run`
         - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels`
-      - 画像を埋めた/直した後のドラフト再構築（推奨）:
+      - 画像を埋めた/直した後のドラフト再構築（反映の固定手順）:
         - `./ops resume video -- --llm think --channel CHxx --video NNN`
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
   - 正本入口（事故防止: ローカルも投稿済みロック同期）: `./ops publish -- --max-rows 1 --run --also-lock-local`
   - 互換（uploadのみ）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
   - 互換（also-lock-local）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run --also-lock-local`
-    - 任意（一時DL先を固定）: `--download-dir workspaces/tmp/publish` / 成功後も残す: `--keep-download`
+    - オプション（一時DL先を固定）: `--download-dir workspaces/tmp/publish` / 成功後も残す: `--keep-download`
 
 ---
 
 ## 2. UI（運用の入口）
 
-- 起動（推奨）: `bash scripts/start_all.sh start`
+- 起動（正本入口）: `bash scripts/start_all.sh start`
   - 内部で `apps/ui-backend/tools/start_manager.py` を呼び出し、必要な同期/ヘルスチェックも実施する。
 - ヘルスチェック（ガード込み）: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
 - FastAPI backend: `apps/ui-backend/backend/main.py`
@@ -125,6 +128,14 @@
   - API base URL（GitHub Pages / 別origin向け）: `apps/ui-frontend/src/api/baseUrl.ts`（`REACT_APP_API_BASE_URL`）
 - Script Viewer（GitHub Pages / 静的）: `docs/`
   - 索引生成（台本一覧・パス）: `python3 scripts/ops/pages_script_viewer_index.py --write`
+  - サムネ（選択サムネのPages用プレビュー）:
+    - 全件: `python3 scripts/ops/pages_thumb_previews.py --all --write`
+    - 欠け埋め（placeholder; すべての回が必ず表示される状態にする）: `python3 scripts/ops/pages_thumb_placeholders.py --write`
+  - 動画内画像（Pages用プレビュー）:
+    - 全件（runs配下から抽出）: `python3 scripts/ops/pages_video_images_previews.py --all --write`
+  - 編集ソフト非依存の「素材束」（Git追跡 / 人がダウンロードして編集に使う）:
+    - 生成（run_dir→素材束）: `python3 scripts/ops/video_assets_pack.py export --channel CHxx --video NNN --write`
+    - 外部編集画像の取り込み（Vrew等で作った画像→素材束）: `python3 scripts/ops/video_assets_pack.py ingest-images --channel CHxx --video NNN --src /path/to/dir --write`
   - Deploy: `.github/workflows/pages_script_viewer.yml`（GitHub Actions → Pages。公開ブランチは `main`）
 
 ---
@@ -205,7 +216,7 @@
 - Aテキスト補助（既存台本の修復・短尺補正）:
   - sanitize（脚注/URLなどのメタ混入除去）:
     - `python3 scripts/sanitize_a_text.py --channel CHxx --videos NNN --mode run`
-  - expand（短すぎる台本の増補。長尺はMarathon推奨）:
+  - expand（短すぎる台本の増補。2〜3時間級はMarathon）:
     - `python3 scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
 
 ### 3.2 Audio/TTS
@@ -226,7 +237,7 @@
 - `packages/video_pipeline/tools/regenerate_images_from_cues.py`（既存 run_dir の `image_cues.json` から `images/*.png` を実生成で再作成して置換）
 - `packages/video_pipeline/tools/refresh_run_prompts.py`（既存 run_dir の `image_cues.json` を更新して prompt だけ最新化。LLM/画像生成なし）
 - `packages/video_pipeline/tools/generate_image_variants.py`（既存 run_dir の `image_cues.json` から画像バリアントを生成。UI の Quick Job からも実行）
-- `packages/video_pipeline/tools/audit_fix_drafts.py`（placeholder/欠損/近似重複の修復→再生成→CapCut assets同期。プロンプト推論は `--refine-prompts` + THINK MODE を推奨）
+- `packages/video_pipeline/tools/audit_fix_drafts.py`（placeholder/欠損/近似重複の修復→再生成→CapCut assets同期。プロンプト推論は `--refine-prompts` + THINK MODE で実行する）
 - `packages/video_pipeline/tools/sync_*`（同期/保守）
 
 ### 3.4 Agent/THINK MODE（複数AIエージェント運用）
@@ -255,27 +266,27 @@
 	    - `POST /api/agent-org/board/status`（status更新）
 	    - `POST /api/agent-org/board/note`（note投稿/返信）
 	    - `POST /api/agent-org/board/area`（ownership更新）
-- Slack通知/返信（任意）:
-  - 設定: `ssot/ops/OPS_ENV_VARS.md` の「Slack通知（任意）」参照（Webhook/Bot両対応）
+- Slack通知/返信（オプション）:
+  - 設定: `ssot/ops/OPS_ENV_VARS.md` の「Slack通知」参照（Webhook/Bot両対応）
   - 報告送信: `python3 scripts/ops/slack_notify.py --text "..."`
   - Slack返信の取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
   - チャンネル履歴の棚卸（エラー抽出）: `python3 scripts/ops/slack_notify.py --history --history-grep '(error|failed|traceback)' --history-limit 200`
   - PM Inbox（git書庫; 要約のみ）: `python3 scripts/ops/slack_inbox_sync.py sync`（SSOT: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`）
-    - 取り込み要約をSlackへ返す（任意）: `python3 scripts/ops/slack_inbox_sync.py sync --post-digest`
-    - PMループ（推奨: 1コマンド）:
+    - 取り込み要約をSlackへ返す（オプション）: `python3 scripts/ops/slack_inbox_sync.py sync --post-digest`
+    - PMループ（正本入口: 1コマンド）:
       - `./ops slack pm-loop -- --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
-        - 任意（安全な自動push）: `--git-push-if-clean`（PM Inbox以外の変更が無い時だけ `git add/commit/push`）
+        - オプション（安全な自動push）: `--git-push-if-clean`（PM Inbox以外の変更が無い時だけ `git add/commit/push`）
       - （互換）`python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
     - 自動運用（macOS / launchd; ローカル専用）:
       - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <C...> --thread-ts <...> --dd-user <U...> --interval-sec 1800 --post-digest --process --errors --triage-ops-errors --flush-outbox`
-        - 任意: `--git-push-if-clean`
+        - オプション: `--git-push-if-clean`
   - PID稼働状況（「いつから/何をしているか」）:
     - まとめ（自動検出→Slack）: `python3 scripts/ops/process_report.py --auto --slack --channel <C...> --thread-ts <thread_ts>`
     - 詳細（目的/コマンド含む）: `python3 scripts/ops/process_report.py --auto --include-command --slack --channel <C...> --thread-ts <thread_ts>`
     - 明示PID: `python3 scripts/ops/process_report.py --pid 123 --pid 456`
     - 停止（安全: 明示PIDのみ / dry-runがデフォルト）: `python3 scripts/ops/process_report.py --pid 123 --kill --yes`
-    - （任意）停止候補の提示（stale）: `python3 scripts/ops/process_report.py --auto --stale-min 180 --suggest-kill-stale`
-    - （任意）停止（staleを一括; 安全: --stale-min必須 / dry-runがデフォルト）:
+    - 停止候補の提示（stale）: `python3 scripts/ops/process_report.py --auto --stale-min 180 --suggest-kill-stale`
+    - 停止（staleを一括; 安全: --stale-min必須 / dry-runがデフォルト）:
       - `python3 scripts/ops/process_report.py --auto --stale-min 180 --kill-stale --yes`
   - Ops失敗トリアージ（Slackエラー洪水を episode 別に要約）:
     - Inboxから集約→Slack: `python3 scripts/ops/ops_error_triage.py --inbox-md ssot/history/HISTORY_slack_pm_inbox.md --slack --channel <C...> --thread-ts <thread_ts>`
@@ -293,7 +304,7 @@
 
 ### 3.6 Vision（スクショ/サムネ読み取り補助）
 - SSOT: `ssot/ops/OPS_VISION_PACK.md`
-- 統一CLI（推奨）: `./ops vision --help`
+- 統一CLI（正本入口）: `./ops vision --help`
   - スクショ: `./ops vision screenshot /path/to/screenshot.png`
   - サムネ: `./ops vision thumbnail /path/to/thumb.png`
 - 直叩き（互換）: `./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py --help`
@@ -314,7 +325,7 @@
   - 運用SoT: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 
 ### 3.9 Remotion（実験ライン / 再レンダ）
-- UI（推奨 / 3100起動）: `/video-remotion` → 「Studio (3100) 起動」ボタン（`POST /api/remotion/restart_preview`）
+- UI（補助 / 3100起動）: `/video-remotion` → 「Studio (3100) 起動」ボタン（`POST /api/remotion/restart_preview`）
   - deps未導入なら: `(cd apps/remotion && npm ci)`
 - 直接レンダ（1本）: `node apps/remotion/scripts/render.js --help`
 - バッチレンダ（容量節約・lock尊重・report出力）: `python3 scripts/ops/render_remotion_batch.py --help`
@@ -329,7 +340,7 @@
 - 大容量アーカイブ（GitHub Releases assets）:
   - SSOT: `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md`
   - CLI: `python3 scripts/ops/release_archive.py --help`
-- 統合 cleanup（推奨）:
+- 統合 cleanup（正本入口）:
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs: `python -m scripts.cleanup_workspace --video-runs --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs（unscoped/legacyも整理）: `python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440` → OKなら `--run --yes`
@@ -350,7 +361,7 @@
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `workspaces/logs/regression/broken_symlinks/`）
 - `scripts/ops/cleanup_remotion_artifacts.py --run`（Remotion 生成物 `apps/remotion/out` と `apps/remotion/public/_bgm/_auto` を keep-days でローテ。report: `workspaces/logs/regression/remotion_cleanup/`）
 - `scripts/ops/prune_video_run_legacy_files.py --run`（`workspaces/video/runs/**` の `*.legacy.*` を archive-first で prune。report: `workspaces/logs/regression/video_runs_legacy_prune/`）
-- `scripts/ops/archive_published_episodes.py --dry-run --channel CHxx`（Planningの `進捗=投稿済み` を根拠に、audio/thumbnails/video input/runs を横断で `_archive/` へ移動。`--run --yes` で実行。report: `workspaces/logs/regression/archive_published_episodes/`）
+- `scripts/ops/archive_published_episodes.py --dry-run --channel CHxx --delete --audio --video-input --video-runs`（Planningの `進捗=投稿済み` を根拠に、音声/CapCutデータを削除して容量を確保。`--run --yes` で実行。`--delete` なしはアーカイブ移動。report: `workspaces/logs/regression/archive_published_episodes/`）
 - `scripts/ops/archive_capcut_local_drafts.py --run`（`workspaces/video/_capcut_drafts` のローカル退避ドラフトを `_archive/<timestamp>/` へ移動して探索ノイズ/重複を削減。report: `workspaces/logs/regression/capcut_local_drafts_archive/`）
 - `scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（`workspaces/thumbnails/CHxx_*|CHxx-*` の旧ディレクトリを `_archive/<timestamp>/` へ退避して探索ノイズを削減。report: `workspaces/logs/regression/thumbnails_legacy_archive/`）
 - `scripts/ops/purge_legacy_agent_task_queues.py --run`（旧 `workspaces/logs/agent_tasks_*`（実験残骸）を archive-first で削除。report: `workspaces/logs/regression/agent_tasks_legacy_purge/`）

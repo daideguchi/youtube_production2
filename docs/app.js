@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_10";
+const SITE_ASSET_VERSION = "20260112_11";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -460,6 +460,8 @@ const heroToImages = $("heroToImages");
 const openRaw = $("openRaw");
 const openAssetPack = $("openAssetPack");
 const openSnapshot = $("openSnapshot");
+const openFixedLogic = $("openFixedLogic");
+const openContactBox = $("openContactBox");
 const contentPre = $("contentPre");
 const copyStatus = $("copyStatus");
 const copyNoSepChunks = $("copyNoSepChunks");
@@ -529,6 +531,19 @@ function updateBrowseSummary() {
   const id = ch && v ? `${ch}-${v}` : "";
   browseSummary.textContent = id ? `Browse（${id}）` : "Browse（Channel/Videoで選ぶ）";
   updateSnapshotLink();
+}
+
+function updateStaticLinks() {
+  const fixedLogicPath = "ssot/reference/【消さないで！人間用】確定ロジック.md";
+  const contactBoxPath = "ssot/reference/CONTACT_BOX.md";
+  if (gitTreeBase) {
+    const blobBase = gitTreeBase.replace("/tree/", "/blob/");
+    openFixedLogic.href = encodeURI(`${blobBase}${fixedLogicPath}`);
+    openContactBox.href = encodeURI(`${blobBase}${contactBoxPath}`);
+  } else {
+    openFixedLogic.href = joinUrl(rawBase, fixedLogicPath);
+    openContactBox.href = joinUrl(rawBase, contactBoxPath);
+  }
 }
 
 function updateSnapshotLink() {
@@ -1915,6 +1930,7 @@ try {
 } catch (_err) {
   // ignore
 }
+updateStaticLinks();
 updateBrowseSummary();
 setActiveView(currentView);
 updateBadges();

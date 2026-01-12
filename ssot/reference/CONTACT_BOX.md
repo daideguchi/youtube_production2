@@ -48,3 +48,17 @@
   - Pages: `https://daideguchi.github.io/youtube_production2/?id=CH01-251`
   - Snapshot: `https://daideguchi.github.io/youtube_production2/snapshot/?channel=CH01&q=CH01-251`
   - Slack outbox: `workspaces/logs/ops/slack_outbox/outbox__20260112T050053Z__482882fd68.json`
+
+### 2026-01-12 15:20 (JST) / from: agent / to: dd
+- 受領した内容: 「モバイルが使いにくい / サムネが見れない / 資産はGitに載せたい」
+- 現状:
+  - Pages Script Viewer: 選択中エピソードのサムネを“台本ビュー”でも即表示（Hero）+ ワンタップで「サムネ/画像」へ移動
+  - モバイル: Channel chips を非表示（横スクロール/重複導線を削ってシンプル化）
+  - 動画内画像: raw URL一覧コピーを追加（外部編集ソフトでまとめてDLしやすい）
+  - サムネ: `pages_thumb_placeholders.py --write` を実行して欠け174件を埋め、Script Viewer掲載の全回で「必ず何か表示」される状態にした
+- 次アクション:
+  - placeholder を実サムネへ置換する場合: `pages_thumb_previews.py --all --write`（上書きは `--overwrite`）
+  - 動画内画像が未生成の回: `pages_video_images_previews.py --channel CHxx --video NNN --write`
+- 反映済み:
+  - commit: `8e3cf916`
+  - Pages: `https://daideguchi.github.io/youtube_production2/?id=CH01-251`
