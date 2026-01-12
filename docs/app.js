@@ -8,7 +8,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_18";
+const SITE_ASSET_VERSION = "20260112_20";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -525,6 +525,15 @@ const copyAudioPrepScript = $("copyAudioPrepScript");
 const copyAudioPrepMeta = $("copyAudioPrepMeta");
 const thumbBody = $("thumbBody");
 const videoImagesBody = $("videoImagesBody");
+const youtubeMetaDetails = $("youtubeMetaDetails");
+const ytTitlePre = $("ytTitlePre");
+const ytTagsPre = $("ytTagsPre");
+const ytEpisodeDescPre = $("ytEpisodeDescPre");
+const ytChannelDescPre = $("ytChannelDescPre");
+const copyYtTitle = $("copyYtTitle");
+const copyYtTags = $("copyYtTags");
+const copyYtEpisodeDesc = $("copyYtEpisodeDesc");
+const copyYtChannelDesc = $("copyYtChannelDesc");
 
 function setLoading(on) {
   loading.hidden = !on;
@@ -594,6 +603,71 @@ function updateSnapshotLink() {
   url.searchParams.set("channel", ch);
   if (v) url.searchParams.set("q", `${ch}-${v}`);
   openSnapshot.href = url.toString();
+}
+
+function cleanText(raw) {
+  return normalizeNewlines(String(raw || "")).trim();
+}
+
+function buildEpisodeDescription(it) {
+  const planning = it?.planning || {};
+  const lead = cleanText(planning?.description_lead);
+  const body = cleanText(planning?.description_body);
+  return [lead, body].filter(Boolean).join("\n");
+}
+
+function buildChannelDescription(channelId) {
+  const ch = String(channelId || "").trim();
+  if (!ch) return "";
+  const meta = channelMetaById.get(ch) || {};
+  return cleanText(meta?.youtube_description || meta?.description || "");
+}
+
+function uniquePush(list, raw) {
+  const s = cleanText(raw);
+  if (!s) return;
+  if (!list.includes(s)) list.push(s);
+}
+
+function buildYtTags(it) {
+  const out = [];
+
+  const planning = it?.planning || {};
+  const tagsRaw = Array.isArray(planning?.tags) ? planning.tags : [];
+  if (tagsRaw.length) {
+    for (const t of tagsRaw) uniquePush(out, t);
+  } else {
+    uniquePush(out, planning?.main_tag);
+    uniquePush(out, planning?.sub_tag);
+  }
+
+  const ch = String(it?.channel || "").trim();
+  const meta = channelMetaById.get(ch) || {};
+  const defaultsRaw = Array.isArray(meta?.default_tags) ? meta.default_tags : meta?.default_tags ? [meta.default_tags] : [];
+  for (const t of defaultsRaw) uniquePush(out, t);
+
+  return out;
+}
+
+function renderYoutubeMeta(it) {
+  const title = cleanText(it?.title);
+  const tags = buildYtTags(it);
+  const episodeDesc = buildEpisodeDescription(it);
+  const channelDesc = buildChannelDescription(it?.channel);
+
+  ytTitlePre.textContent = title || "—";
+  ytTagsPre.textContent = tags.length ? tags.join(", ") : "—";
+  ytEpisodeDescPre.textContent = episodeDesc || "—";
+  ytChannelDescPre.textContent = channelDesc || "—";
+
+  copyYtTitle.disabled = !title;
+  copyYtTags.disabled = !tags.length;
+  copyYtEpisodeDesc.disabled = !episodeDesc;
+  copyYtChannelDesc.disabled = !channelDesc;
+}
+
+function clearYoutubeMeta() {
+  renderYoutubeMeta(null);
 }
 
 function setControlsDisabled(on) {
@@ -1528,6 +1602,7 @@ function clearSelectionForChannel(channel) {
   const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : (grouped.get(ch) || []).length;
   metaTitle.textContent = ch ? (plan > 0 ? `${channelLabel(ch)}（台本 ${scriptsN}/${plan}）` : `${channelLabel(ch)}（台本なし）`) : "—";
   metaPath.textContent = "—";
+  renderYoutubeMeta({ channel: ch });
   openRaw.removeAttribute("href");
   openAssetPack.removeAttribute("href");
   contentPre.textContent =
@@ -1876,6 +1951,7 @@ async function loadScript(it) {
   const chLabel = channelLabel(it.channel);
   metaTitle.textContent = it.title ? `${chLabel} · ${it.video} · ${it.title}` : `${chLabel} · ${it.video}`;
   metaPath.textContent = it.assembled_path;
+  renderYoutubeMeta(it);
 
   const url = joinUrl(rawBase, it.assembled_path);
   openRaw.href = url;
@@ -1972,6 +2048,7 @@ async function reloadIndex() {
 
         metaTitle.textContent = `指定された台本が見つかりません: ${reqId}`;
         metaPath.textContent = "—";
+        renderYoutubeMeta({ channel: reqCh });
         openRaw.removeAttribute("href");
         openAssetPack.removeAttribute("href");
         contentPre.textContent = [
@@ -2000,6 +2077,7 @@ async function reloadIndex() {
     if (!preferredChannel) {
       metaTitle.textContent = "index.json が空です";
       metaPath.textContent = "—";
+      clearYoutubeMeta();
       contentPre.textContent = "";
       footerMeta.textContent = `generated: ${indexData?.generated_at || "—"}`;
       hideSearchResults();
@@ -2032,6 +2110,7 @@ async function reloadIndex() {
     console.error(err);
     metaTitle.textContent = "index.json の読み込みに失敗しました";
     metaPath.textContent = "—";
+    clearYoutubeMeta();
     contentPre.textContent = String(err);
     footerMeta.textContent = "—";
   } finally {
@@ -2176,6 +2255,34 @@ function setupEvents() {
     scrollToEl(browseDetails);
   });
 
+  copyYtTitle.addEventListener("click", async () => {
+    const text = cleanText(selected?.title);
+    if (!text) return;
+    const ok = await copyText(text);
+    setCopyStatus(ok ? "タイトルをコピーしました" : "コピーに失敗しました", !ok);
+  });
+
+  copyYtTags.addEventListener("click", async () => {
+    const tags = buildYtTags(selected);
+    if (!tags.length) return;
+    const ok = await copyText(tags.join(", "));
+    setCopyStatus(ok ? "タグをコピーしました" : "コピーに失敗しました", !ok);
+  });
+
+  copyYtEpisodeDesc.addEventListener("click", async () => {
+    const text = buildEpisodeDescription(selected);
+    if (!text) return;
+    const ok = await copyText(text);
+    setCopyStatus(ok ? "概要欄（この動画）をコピーしました" : "コピーに失敗しました", !ok);
+  });
+
+  copyYtChannelDesc.addEventListener("click", async () => {
+    const text = buildChannelDescription(selected?.channel);
+    if (!text) return;
+    const ok = await copyText(text);
+    setCopyStatus(ok ? "概要欄（チャンネル定型）をコピーしました" : "コピーに失敗しました", !ok);
+  });
+
   $("copyPath").addEventListener("click", async () => {
     const text = selected?.assembled_path || "";
     if (!text) return;
@@ -2251,4 +2358,5 @@ updateStaticLinks();
 updateBrowseSummary();
 setActiveView(currentView);
 updateBadges();
+clearYoutubeMeta();
 void reloadIndex();

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260112_19" />
-    <script defer src="./app.js?v=20260112_19"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260112_20" />
+    <script defer src="./app.js?v=20260112_20"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -114,6 +114,50 @@
       </nav>
 
       <section class="assets" aria-label="音声/サムネ">
+        <details id="youtubeMetaDetails" class="details" open>
+          <summary>YouTube（タイトル/概要欄/タグ）</summary>
+          <div class="details__body">
+            <div class="assets__grid">
+              <div class="asset-card">
+                <div class="asset-card__head">
+                  <div class="asset-card__title">タイトル</div>
+                  <div class="asset-card__actions">
+                    <button id="copyYtTitle" class="btn btn--ghost" type="button">コピー</button>
+                  </div>
+                </div>
+                <pre id="ytTitlePre" class="pre pre--small muted"></pre>
+              </div>
+              <div class="asset-card">
+                <div class="asset-card__head">
+                  <div class="asset-card__title">タグ（候補）</div>
+                  <div class="asset-card__actions">
+                    <button id="copyYtTags" class="btn btn--ghost" type="button">コピー</button>
+                  </div>
+                </div>
+                <pre id="ytTagsPre" class="pre pre--small muted"></pre>
+              </div>
+              <div class="asset-card" style="grid-column: 1 / -1">
+                <div class="asset-card__head">
+                  <div class="asset-card__title">概要欄（この動画）</div>
+                  <div class="asset-card__actions">
+                    <button id="copyYtEpisodeDesc" class="btn btn--ghost" type="button">コピー</button>
+                  </div>
+                </div>
+                <pre id="ytEpisodeDescPre" class="pre pre--small muted"></pre>
+              </div>
+              <div class="asset-card" style="grid-column: 1 / -1">
+                <div class="asset-card__head">
+                  <div class="asset-card__title">概要欄（チャンネル定型）</div>
+                  <div class="asset-card__actions">
+                    <button id="copyYtChannelDesc" class="btn btn--ghost" type="button">コピー</button>
+                  </div>
+                </div>
+                <pre id="ytChannelDescPre" class="pre pre--small muted"></pre>
+              </div>
+            </div>
+          </div>
+        </details>
+
         <details id="audioPrepDetails" class="details" open>
           <summary>音声（TTS用テキスト）</summary>
           <div class="details__body">
