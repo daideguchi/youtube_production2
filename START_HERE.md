@@ -1,8 +1,9 @@
 # START_HERE — 迷わないための入口
 
-- 推奨の統一入口（P0ランチャー）: `./ops list`
+- 統一入口（正本/P0ランチャー）: `./ops list`
   - 事前点検: `./ops doctor`
   - 外部LLM APIコストを使わない（サブスク/手動で埋める）: `./ops ... --llm think ...`
+  - 引数転送（重要）: `./ops` の一部サブコマンドで `--channel` などのフラグを渡すときは `--` で区切る（例: `./ops audio -- --channel CHxx --video NNN`）
   - 迷わない用の短縮（強制）:
     - `./ops think <cmd> ...`（常に THINK MODE）
     - `./ops api <cmd> ...`（常に API）

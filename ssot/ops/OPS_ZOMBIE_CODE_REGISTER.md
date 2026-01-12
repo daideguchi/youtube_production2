@@ -1,5 +1,8 @@
 # OPS_ZOMBIE_CODE_REGISTER — ゾンビコード候補台帳（未確定）
 
+DocType: Register（台帳 / 未確定）
+注意: ここにある項目は「削除OK」の根拠ではない（削除は `ssot/plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の基準＋archive-firstが前提）。
+
 この台帳は「**SSOT主線に不要そう**だが、現時点では削除判断できない」候補を、**根拠付き**で列挙する。
 目的は **迷子/誤実行/ゾンビ増殖を止める** ことであり、ここに載っているだけでは削除しない。
 

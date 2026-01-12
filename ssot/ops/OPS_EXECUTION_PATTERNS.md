@@ -36,16 +36,16 @@ LLMコスト制御（最重要）:
 | --- | --- | --- | --- |
 | `PAT-OPS-THINK-001` | OPS | 外部LLMを使わず進めたい | `./ops think ...` / `./ops agent ...` |
 | `PAT-OPS-RECOVER-001` | OPS | 落ちた/迷子/最新不明 | `./ops progress` → `./ops reconcile` → `./ops resume ...` |
-| `PAT-AUDIO-TTS-001` | AUDIO | 音声+SRTを作る/復帰 | `./ops audio --channel CHxx --video NNN` |
+| `PAT-AUDIO-TTS-001` | AUDIO | 音声+SRTを作る/復帰 | `./ops audio --llm think -- --channel CHxx --video NNN` |
 | `PAT-VIDEO-DRAFT-001` | VIDEO | SRT→画像→CapCutドラフト | `./ops video auto-capcut -- ...` |
 | `PAT-VIDEO-REGEN-001` | VIDEO | 画像が欠損/失敗/差し替え | `./ops video regen-images -- ...` |
 | `PAT-VIDEO-AUDIT-FIX-DRAFTS-001` | VIDEO | placeholder/重複/プロンプト事故の修復 | `./ops video audit-fix-drafts -- ...` |
 | `PAT-VIDEO-VARIANTS-001` | VIDEO | 画像バリエーション生成 | `./ops video variants -- ...` |
 | `PAT-VIDEO-REFRESH-PROMPTS-001` | VIDEO | プロンプトだけ最新化 | `./ops video refresh-prompts -- ...` |
 | `PAT-VIDEO-SOURCE-MIX-CH02-001` | VIDEO | CH02の画像ソースmix適用 | `./ops video apply-source-mix -- ...` |
-| `PAT-THUMB-BUILD-001` | THUMB | サムネ量産（指定動画） | `./ops thumbnails build --channel CHxx --videos ...` |
-| `PAT-THUMB-RETAKE-001` | THUMB | in_progress再ビルド | `./ops thumbnails retake --channel CHxx` |
-| `PAT-THUMB-QC-001` | THUMB | QC（in_progress確認） | `./ops thumbnails qc --channel CHxx --videos ...` |
+| `PAT-THUMB-BUILD-001` | THUMB | サムネ量産（指定動画） | `./ops thumbnails build -- --channel CHxx --videos ...` |
+| `PAT-THUMB-RETAKE-001` | THUMB | in_progress再ビルド | `./ops thumbnails retake -- --channel CHxx` |
+| `PAT-THUMB-QC-001` | THUMB | QC（in_progress確認） | `./ops thumbnails qc -- --channel CHxx --videos ...` |
 | `PAT-OPS-SLACK-001` | OPS | 完了通知（Slack） | `./ops doctor` + `YTM_SLACK_*` |
 
 ---
@@ -81,7 +81,7 @@ LLMコスト制御（最重要）:
 - `./ops history --tail 50 --channel CHxx --video NNN --failed-only`
 
 復帰（固定）:
-- `./ops resume <target> ...`
+- `./ops resume <target> -- <args...>`
 - `./ops reconcile --channel CHxx --video NNN`（dry-run→`--run`）
 
 注意:
@@ -106,7 +106,7 @@ LLMコスト制御（最重要）:
 
 典型手順:
 1) まずTHINKで走らせる（例）:
-   - `./ops think audio --channel CHxx --video NNN`
+   - `./ops think audio -- --channel CHxx --video NNN`
    - `./ops think video auto-capcut -- --channel CHxx --video NNN`
 2) pending が出たら、キューを見る:
    - `./ops agent list`
@@ -139,10 +139,10 @@ LLMコスト制御（最重要）:
 3) 実行する（ここでllmモードを明示。通常は THINK 推奨）:
    - `./ops think reconcile --channel CHxx --video NNN --run`
 4) まだ直らない場合は、固定の復帰コマンドを直接叩く:
-   - `./ops resume episode --channel CHxx --video NNN`
-   - `./ops resume script --llm api --channel CHxx --video NNN`（台本はAPI固定）
-   - `./ops resume audio  --llm think --channel CHxx --video NNN`
-   - `./ops resume video  --llm think --channel CHxx --video NNN`
+   - `./ops resume episode -- --channel CHxx --video NNN`
+   - `./ops resume script -- --llm api --channel CHxx --video NNN`（台本はAPI固定）
+   - `./ops resume audio -- --llm think --channel CHxx --video NNN`
+   - `./ops resume video -- --llm think --channel CHxx --video NNN`
 
 検証:
 - `./ops history --tail 50 --channel CHxx --video NNN --failed-only`
@@ -187,13 +187,13 @@ LLMコスト制御（最重要）:
 - `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` を揃える。
 
 入口（固定）:
-- `./ops audio --channel CHxx --video NNN`
+- `./ops audio --llm think -- --channel CHxx --video NNN`
 
 推奨（外部LLM APIコストを使わない）:
-- `./ops think audio --channel CHxx --video NNN`
+- `./ops think audio -- --channel CHxx --video NNN`
 
 失敗/途中落ちの復帰（固定）:
-- `./ops resume audio --llm think --channel CHxx --video NNN`
+- `./ops resume audio -- --llm think --channel CHxx --video NNN`
 
 検証:
 - `./ops progress --channel CHxx --videos NNN --format summary`
@@ -212,20 +212,20 @@ LLMコスト制御（最重要）:
 - narration最終SRT（audio final）を入力に、run_dir を作り、画像を生成し、CapCutドラフトを組む。
 
 入口（固定; episode向け）:
-- `./ops resume video --llm think --channel CHxx --video NNN`
+- `./ops resume video -- --llm think --channel CHxx --video NNN`
 
 推奨（付け忘れ防止）:
-- `./ops think resume video --channel CHxx --video NNN`
+- `./ops think resume video -- --channel CHxx --video NNN`
 
 補足（SRTを明示したい場合）:
 - `./ops video factory -- <channel> </path/to/input.srt> draft`
 - `./ops video auto-capcut -- --channel CHxx --srt </path/to/input.srt> ...`（詳細: `python3 -m video_pipeline.tools.auto_capcut_run --help`）
 
 途中で落ちた/ドラフトが壊れた（固定復帰）:
-- `./ops resume video --llm think --channel CHxx --video NNN`
+- `./ops resume video -- --llm think --channel CHxx --video NNN`
 
 検証:
-- `./ops episode ensure --channel CHxx --video NNN`
+- `./ops episode ensure -- --channel CHxx --video NNN`
 - `./ops history --tail 50 --channel CHxx --video NNN --failed-only`
 
 注意（品質）:
@@ -253,7 +253,7 @@ LLMコスト制御（最重要）:
   - `./ops think video regen-images -- --run <run_dir> --indices 43-82 --overwrite`
 
 次にやる（ドラフトへ反映）:
-- `./ops resume video --llm think --channel CHxx --video NNN`
+- `./ops resume video -- --llm think --channel CHxx --video NNN`
 
 関連SSOT:
 - `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`
@@ -279,7 +279,7 @@ LLMコスト制御（最重要）:
 
 検証:
 - `./ops history --tail 50 --channel CHxx --failed-only`
-- 画像を再生成したら `./ops resume video --llm think --channel CHxx --video NNN` でドラフトを再構築する。
+- 画像を再生成したら `./ops resume video -- --llm think --channel CHxx --video NNN` でドラフトを再構築する。
 
 注意:
 - `refresh-prompts` は “テンプレ最新化” 用（LLM無し）。多様性を増やしたい場合は `audit-fix-drafts --refine-prompts` を使う。
@@ -311,7 +311,7 @@ LLMコスト制御（最重要）:
 - `./ops video refresh-prompts -- --run <run_dir>`
 
 次にやる:
-- 必要なら `./ops think video regen-images -- --run <run_dir> --only-missing` → `./ops resume video --llm think --channel CHxx --video NNN`
+- 必要なら `./ops think video regen-images -- --run <run_dir> --only-missing` → `./ops resume video -- --llm think --channel CHxx --video NNN`
 
 ## PAT-VIDEO-SOURCE-MIX-CH02-001 — CH02 画像ソースmix適用（apply-source-mix）
 
@@ -338,13 +338,13 @@ LLMコスト制御（最重要）:
 ## PAT-THUMB-BUILD-001 — サムネ量産（指定動画）
 
 入口（固定）:
-- `./ops thumbnails build --channel CHxx --videos 001 002 ...`
+- `./ops thumbnails build -- --channel CHxx --videos 001 002 ...`
 
 推奨（外部LLM APIコストを使わない）:
-- `./ops think thumbnails build --channel CHxx --videos 001 002 ...`
+- `./ops think thumbnails build -- --channel CHxx --videos 001 002 ...`
 
 検証:
-- `./ops thumbnails qc --channel CHxx --videos 001 002 ...`
+- `./ops thumbnails qc -- --channel CHxx --videos 001 002 ...`
 
 関連SSOT:
 - `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
@@ -355,15 +355,15 @@ LLMコスト制御（最重要）:
 - 途中で落ちた/止まったサムネを、in_progress の対象だけ再ビルドして done に寄せる。
 
 入口（固定）:
-- `./ops thumbnails retake --channel CHxx`
+- `./ops thumbnails retake -- --channel CHxx`
 
 復帰（固定）:
-- `./ops resume thumbnails --llm think --channel CHxx`
+- `./ops resume thumbnails -- --llm think --channel CHxx`
 
 ## PAT-THUMB-QC-001 — QC（in_progress確認）
 
 入口（固定）:
-- `./ops thumbnails qc --channel CHxx --videos 001 002 ...`
+- `./ops thumbnails qc -- --channel CHxx --videos 001 002 ...`
 
 ## PAT-THUMB-SYNC-001 — Inventory同期（sync-inventory）
 
@@ -371,7 +371,7 @@ LLMコスト制御（最重要）:
 - サムネ在庫（inventory）を最新に同期し、探索ノイズを減らす。
 
 入口（固定）:
-- `./ops thumbnails sync-inventory --channel CHxx`
+- `./ops thumbnails sync-inventory -- --channel CHxx`
 
 ---
 

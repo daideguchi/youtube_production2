@@ -18,7 +18,7 @@
 - 事故防止の固定ルール（最重要）:
   - **台本（`script_*`）は LLM API（Fireworks/DeepSeek）固定**。**Codex/THINK/AGENT に流さない**（失敗時も停止して原因を直す）。
   - **TTS（`tts_*`）は AIエージェント（Codex）主担当**（THINK/AGENT の pending 運用で止めて直す）。
-    - 推奨: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+    - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`（互換: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`）
     - 注: ここで言う「Codex」は **codex exec（非対話CLI）ではない**（別物）。TTSは codex exec へ寄せない。
     - 読み修正の辞書運用は **D-014** に従う（ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正）。
   - **勝手なモデル/プロバイダ切替や自動ローテは禁止**（切替はコード/スロットで明示）。
@@ -26,6 +26,7 @@
   - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
   - 証跡/ログ: `ssot/ops/OPS_LOGGING_MAP.md`
   - “今の正解”: `ssot/DECISIONS.md`
+  - SSOTがカオスに見えたら: `ssot/SSOT_COMPASS.md`
 
 最重要リンク（迷ったらここから）
 - 入口: `START_HERE.md`

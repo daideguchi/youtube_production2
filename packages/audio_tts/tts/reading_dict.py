@@ -29,6 +29,8 @@ AMBIGUOUS_SURFACES = {
     "十分",
     "一行",
     "行ったり",
+    "辛い",
+    "怒り",
 }
 
 KANJI_RE = re.compile(r"[\u4E00-\u9FFF]")

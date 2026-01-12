@@ -9,12 +9,18 @@
 基本（CH01/CH06 など）:
 1. `prompts/antigravity_gemini/MASTER_PROMPT.md` を Gemini に貼る
 2. 対象動画の個別プロンプト（例: `prompts/antigravity_gemini/CH06/CH06_040_PROMPT.md`）を続けて貼る
-3. Gemini の出力が本文のみになっていることを確認し、台本に反映する
+3. Gemini の出力が本文のみになっていることを確認し、`workspaces/scripts/CHxx/NNN/content/assembled.md` に保存される前提で運用する（`assembled_human.md` がある場合はそれが正本）
 
 CH27〜CH31（チャンネル別マスターを使う）:
 1. 対象チャンネルの `prompts/antigravity_gemini/CH27/MASTER_PROMPT.md`（など）を貼る
 2. 対象動画の個別プロンプト（例: `prompts/antigravity_gemini/CH27/CH27_001_PROMPT.md`）を続けて貼る
-3. Gemini の出力が本文のみになっていることを確認し、台本に反映する
+3. Gemini の出力が本文のみになっていることを確認し、`workspaces/scripts/CHxx/NNN/content/assembled.md` に保存される前提で運用する（`assembled_human.md` がある場合はそれが正本）
+
+CH27〜CH31 を連続で書かせる運用（完了済みスキップ + 文字稼ぎ封じ）:
+- `prompts/antigravity_gemini/RUNBOOK_CONTINUOUS_CH27_31.md`
+
+CH27〜CH31 autopilot（進捗JSONで自動再開 / 最大5本で停止）:
+- `prompts/antigravity_gemini/RUNBOOK_AUTOPILOT_CH27_31.md`
 
 Batch運用（Gemini Developer API Batch）:
 - 個別/Full プロンプト生成: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_script_prompts.py build --channel CHxx --videos NNN-NNN`

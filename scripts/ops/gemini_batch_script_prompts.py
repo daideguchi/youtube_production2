@@ -215,6 +215,18 @@ def _extract_str(row: Dict[str, str], key: str) -> str:
     return str(row.get(key) or "").strip()
 
 
+def _sanitize_prompt_input_text(value: str) -> str:
+    """
+    Planning CSV values can contain bullets or question marks that we never want
+    to accidentally echo into A-text. This sanitizer is for *prompt inputs only*.
+    """
+    raw = str(value or "")
+    raw = raw.replace("\r\n", "\n").replace("\r", "\n")
+    # Avoid accidental echo of question marks into A-text (A-text forbids ?/？).
+    raw = raw.replace("？", "").replace("?", "")
+    return raw.strip()
+
+
 def _join_nonempty(lines: Iterable[str]) -> str:
     return "\n".join([x for x in [str(s) for s in lines] if x.strip()]).rstrip() + "\n"
 
@@ -350,6 +362,11 @@ def build_prompts(
         prompt_lines.append("## 1) CHANNEL PROMPT（チャンネル固有; 抜粋）")
         prompt_lines.append(channel_prompt.strip())
         prompt_lines.append("")
+        if ch == "CH06":
+            prompt_lines.append("### CH06 Aテキスト安全ルール（Gemini向け追加）")
+            prompt_lines.append("- 本文で ? と ？ を使わない（締めだけでなく全文で禁止）")
+            prompt_lines.append("- 用語強調の「」や『』は禁止。引用符は対話以外に使わない")
+            prompt_lines.append("")
         if persona_one.strip():
             prompt_lines.append("## 2) PERSONA（固定一文）")
             prompt_lines.append(persona_one.strip())
@@ -392,17 +409,24 @@ def build_prompts(
 
         prompt_lines.append("## 5) INPUT（企画; Planning CSV）")
         # Keep the minimum set visible (even when empty) so Gemini can return [NEEDS_INPUT] safely.
-        target = _extract_str(row, "ターゲット層") or persona_one.strip()
+        target = _sanitize_prompt_input_text(_extract_str(row, "ターゲット層")) or persona_one.strip()
         minimal_fields: List[Tuple[str, str]] = [
-            ("企画意図", _extract_str(row, "企画意図")),
+            ("企画意図", _sanitize_prompt_input_text(_extract_str(row, "企画意図"))),
             ("ターゲット層", target),
-            ("具体的な内容（話の構成案）", _extract_str(row, "具体的な内容（話の構成案）")),
-            ("史実エピソード候補", _extract_str(row, "史実エピソード候補")),
-            ("避けたい話題/表現", _extract_str(row, "避けたい話題/表現")),
+            ("具体的な内容（話の構成案）", _sanitize_prompt_input_text(_extract_str(row, "具体的な内容（話の構成案）"))),
+            ("避けたい話題/表現", _sanitize_prompt_input_text(_extract_str(row, "避けたい話題/表現"))),
         ]
         for k, v in minimal_fields:
             prompt_lines.append(f"- {k}:")
             prompt_lines.append(v if v else "（未入力）")
+            prompt_lines.append("")
+
+        # Optional but often useful. Keep it visible when present, but do not
+        # block writing when absent.
+        factual_candidates = _sanitize_prompt_input_text(_extract_str(row, "史実エピソード候補"))
+        if factual_candidates:
+            prompt_lines.append("- 史実エピソード候補:")
+            prompt_lines.append(factual_candidates)
             prompt_lines.append("")
 
         optional_keys = [
@@ -416,7 +440,7 @@ def build_prompts(
             "説明文_この動画でわかること",
         ]
         for k in optional_keys:
-            val = _extract_str(row, k)
+            val = _sanitize_prompt_input_text(_extract_str(row, k))
             if not val:
                 continue
             prompt_lines.append(f"- {k}:")
@@ -424,7 +448,7 @@ def build_prompts(
             prompt_lines.append("")
 
         prompt_lines.append("### INPUT CHECK（不足なら [NEEDS_INPUT]）")
-        prompt_lines.append("- 企画意図 / 具体的な内容（話の構成案） / 史実エピソード候補 が未入力のままなら本文を書かない")
+        prompt_lines.append("- 企画意図 / 具体的な内容（話の構成案） が未入力のままなら本文を書かない")
         prompt_lines.append("- 必須が埋まらない場合は、不足項目だけを列挙して終了する（本文は出さない）")
         prompt_lines.append("")
 

@@ -128,13 +128,18 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--channel", help="Channel to sync (e.g. CH05)")
     ap.add_argument("--all", action="store_true", help="Sync all reading_dict/*.yaml (conflicts skipped)")
+    ap.add_argument(
+        "--global-only",
+        action="store_true",
+        help="Sync only curated global_knowledge_base.json (recommended default for official user-dict)",
+    )
     ap.add_argument("--base-url", help="VOICEVOX engine URL (default from routing.json)")
     ap.add_argument("--overwrite", action="store_true", help="Update existing entries when different")
     ap.add_argument("--dry-run", action="store_true", help="Do not modify engine; print actions")
     args = ap.parse_args()
 
-    if not args.channel and not args.all:
-        ap.error("Specify --channel or --all")
+    if not args.global_only and not args.channel and not args.all:
+        ap.error("Specify --channel or --all (or --global-only)")
 
     cfg = load_routing_config()
     base_url = args.base_url or cfg.voicevox_url
@@ -149,13 +154,14 @@ def main() -> None:
         if isinstance(surface, str) and surface:
             existing_by_surface[_norm_surface(surface)] = uuid
 
-    channels = [args.channel] if args.channel else _discover_channels()
+    channels = [] if args.global_only else ([args.channel] if args.channel else _discover_channels())
 
     # Collect candidate entries with conflict detection across channels.
     entries: List[Tuple[str, str, str, Dict[str, object]]] = []
 
     # Global curated dict (repo SoT) — always included.
-    for surface, pronunciation in _load_global_kb_words().items():
+    global_words = _load_global_kb_words()
+    for surface, pronunciation in global_words.items():
         entries.append(("GLOBAL", surface, pronunciation, {"source": "global_knowledge_base"}))
 
     for ch in channels:
@@ -208,7 +214,7 @@ def main() -> None:
 
     print(f"[VOICEVOX_USER_DICT] base_url={base_url}")
     print(f"[VOICEVOX_USER_DICT] channels={channels}")
-    print(f"[VOICEVOX_USER_DICT] global_kb_entries={len(_load_global_kb_words())}")
+    print(f"[VOICEVOX_USER_DICT] global_kb_entries={len(global_words)}")
     print(f"[VOICEVOX_USER_DICT] added={added} updated={updated} skipped={skipped}")
     if conflicts:
         print(f"[VOICEVOX_USER_DICT] conflicts_skipped={len(conflicts)}")

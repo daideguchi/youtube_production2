@@ -41,14 +41,14 @@ Reconcile は下記以外の修復は行わない（“勝手な修正”を禁�
 - issues: `capcut_draft_missing` / `capcut_draft_broken`
 - 実行（固定）:
   1) audio final が無い場合（`audio_ready=false`）:
-     - `./ops resume audio --llm <MODE> --channel CHxx --video NNN`
+     - `./ops resume audio -- --llm <MODE> --channel CHxx --video NNN`
   2) ドラフト再生成:
-     - `./ops resume video --llm <MODE> --channel CHxx --video NNN`
+     - `./ops resume video -- --llm <MODE> --channel CHxx --video NNN`
 
 ### 3.2 run未選択/選択runが消えている
 - issues: `video_run_unselected` / `video_run_missing`
 - 実行（固定）:
-  - `./ops resume episode --channel CHxx --video NNN`
+  - `./ops resume episode -- --channel CHxx --video NNN`
 
 ### 3.3 記帳/CSV系（自動では直さない）
 - issues: `planning_stale_vs_status`, `planning_duplicate_video_rows`, `status_json_missing`

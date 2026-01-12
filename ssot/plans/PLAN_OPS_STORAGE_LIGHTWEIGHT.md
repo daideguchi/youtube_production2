@@ -63,7 +63,7 @@ python -m scripts.cleanup_workspace --video-runs --run --all --yes
 ## 5. 計測（肥大化の可視化）
 ```bash
 # まずこれ（統一スナップショット。report も残す）
-./ops snapshot workspace --write-report
+./ops snapshot workspace -- --write-report
 # (= python3 scripts/ops/workspace_snapshot.py --write-report)
 
 python3 scripts/ops/logs_snapshot.py
@@ -81,7 +81,7 @@ du -sh workspaces/audio workspaces/video workspaces/scripts workspaces/logs 2>/d
 - `workspaces/tmp`: 約 44M
 
 注:
-- `./ops snapshot workspace --write-report` の出力に `report=...json` が出るので、数値は常にその時点の観測を正とする。
+- `./ops snapshot workspace -- --write-report` の出力に `report=...json` が出るので、数値は常にその時点の観測を正とする。
 - 環境によっては `workspaces/video` / `workspaces/scripts` が 0B のこともある（別worktree/別ディスクを使っている等）。
 
 優先順位（迷わない順）:

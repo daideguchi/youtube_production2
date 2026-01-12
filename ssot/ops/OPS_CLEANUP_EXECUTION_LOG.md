@@ -1,5 +1,8 @@
 # OPS_CLEANUP_EXECUTION_LOG — 実行した片付け（復元/再現可能な記録）
 
+DocType: Register（台帳 / 実行ログ）
+注意: 追記が基本（過去の記録は“当時の履歴”として残す）。削除基準は `ssot/plans/PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` を正とする。
+
 このログは「実際に実行した削除/移動/退避」を、後から追跡できるように記録する。  
 大原則: 破壊的操作は **バックアップ→削除/移動→SSOT更新** の順で行う。
 
@@ -2424,3 +2427,22 @@ archive-first（repo, tracked）:
 
 備考:
 - `完成★...`（投稿済み想定）のドラフトは保持（例: `CH12-008` は `prefixed_completed_keep`）。
+
+---
+
+## 2026-01-12
+
+### 1) CH12-016 旧CapCutドラフトの退避（Trashへ移動）
+
+背景:
+- `CH12-016` の CapCut ドラフトで「尺が短い（画像が途中で終わる）」の報告があり、新ドラフト `__v3` を作成した。
+- 誤って旧ドラフトを開いてしまう混乱を避けるため、旧ドラフトを退避した。
+
+実行（ローカル / CapCut）:
+- 移動元: `/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ`
+- 移動先: `/Users/dd/.Trash/capcut_old_20260112T0927Z/★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ`
+- 方式: `mv`（復元可能）
+
+関連:
+- 新ドラフト: `/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ__v3`
+- run_dir: `workspaces/video/runs/CH12-016_capcut_v3/`

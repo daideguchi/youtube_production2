@@ -855,23 +855,23 @@ def _print_list() -> None:
     print("    tip: export YTM_OPS_DEFAULT_LLM=think  # make THINK the default when --llm is omitted")
     print("")
     print("  Planning (CSV):")
-    print("    ./ops planning lint --channel CHxx --write-latest")
-    print("    ./ops planning sanitize --channel CHxx --write-latest   # dry-run")
-    print("    ./ops planning sanitize --channel CHxx --apply --write-latest")
+    print("    ./ops planning lint -- --channel CHxx --write-latest")
+    print("    ./ops planning sanitize -- --channel CHxx --write-latest   # dry-run")
+    print("    ./ops planning sanitize -- --channel CHxx --apply --write-latest")
     print("")
     print("  Idea cards (pre-planning):")
     print("    ./ops idea help")
     print("")
     print("  Slack / PM (取りこぼし防止):")
-    print("    ./ops slack pm-loop --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors")
+    print("    ./ops slack pm-loop -- --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors")
     print("")
     print("  Script (runbook):")
-    print("    ./ops script <MODE> --channel CHxx --video NNN")
-    print("    ./ops api script <MODE> --channel CHxx --video NNN   # 台本はAPI固定（THINK/CODEX禁止）")
+    print("    ./ops script <MODE> -- --channel CHxx --video NNN")
+    print("    ./ops api script <MODE> -- --channel CHxx --video NNN   # 台本はAPI固定（THINK/CODEX禁止）")
     print("")
     print("  Audio/TTS:")
-    print("    ./ops audio --channel CHxx --video NNN")
-    print("    ./ops audio --llm think --channel CHxx --video NNN")
+    print("    ./ops audio -- --channel CHxx --video NNN")
+    print("    ./ops audio --llm think -- --channel CHxx --video NNN")
     print("")
     print("  Video / CapCut (SRT→画像→Draft):")
     print("    ./ops video factory -- <args for -m video_pipeline.tools.factory>")
@@ -885,10 +885,10 @@ def _print_list() -> None:
     print("")
     print("  Thumbnails:")
     print("    ./ops thumbnails help")
-    print("    ./ops thumbnails build --channel CHxx --videos 001 002 ...")
-    print("    ./ops thumbnails retake --channel CHxx")
-    print("    ./ops thumbnails qc --channel CHxx --videos 001 002 ...")
-    print("    ./ops thumbnails sync-inventory --channel CHxx")
+    print("    ./ops thumbnails build -- --channel CHxx --videos 001 002 ...")
+    print("    ./ops thumbnails retake -- --channel CHxx")
+    print("    ./ops thumbnails qc -- --channel CHxx --videos 001 002 ...")
+    print("    ./ops thumbnails sync-inventory -- --channel CHxx")
     print("    ./ops thumbnails analyze --all --apply   # benchmark (P1)")
     print("")
     print("  Vision (optional; screenshot/thumb preprocessing):")
@@ -899,7 +899,7 @@ def _print_list() -> None:
     print("    ./ops ui start|stop|status")
     print("")
     print("  Publish:")
-    print("    ./ops publish --max-rows 1 --run --also-lock-local")
+    print("    ./ops publish -- --max-rows 1 --run --also-lock-local")
     print("")
     print("  Progress / latest view:")
     print("    ./ops progress --channel CHxx --format summary")
@@ -907,12 +907,12 @@ def _print_list() -> None:
     print("    ./ops latest --only-cmd video")
     print("")
     print("  Recovery (fixed commands):")
-    print("    ./ops resume episode --channel CHxx --video NNN")
-    print("    ./ops resume script --llm api --channel CHxx --video NNN   # 台本はAPI固定")
-    print("    ./ops resume audio --llm think --channel CHxx --video NNN")
-    print("    ./ops resume video --llm think --channel CHxx --video NNN")
-    print("    ./ops resume thumbnails --llm think --channel CHxx")
-    print("    ./ops episode ensure --channel CHxx --video NNN   # same as resume episode (explicit)")
+    print("    ./ops resume episode -- --channel CHxx --video NNN")
+    print("    ./ops resume script -- --llm api --channel CHxx --video NNN   # 台本はAPI固定")
+    print("    ./ops resume audio -- --llm think --channel CHxx --video NNN")
+    print("    ./ops resume video -- --llm think --channel CHxx --video NNN")
+    print("    ./ops resume thumbnails -- --llm think --channel CHxx")
+    print("    ./ops episode ensure -- --channel CHxx --video NNN   # same as resume episode (explicit)")
     print("")
     print("  Reconcile (stable; dry-run by default):")
     print("    ./ops reconcile --channel CHxx --video NNN")
@@ -920,13 +920,13 @@ def _print_list() -> None:
     print("")
     print("  SSOT (latest logic):")
     print("    ./ops ssot status")
-    print("    ./ops ssot audit --strict")
+    print("    ./ops ssot audit -- --strict")
     print("")
     print("  Cleanup:")
-    print("    ./ops cleanup workspace --dry-run ...")
-    print("    ./ops cleanup logs --run")
+    print("    ./ops cleanup workspace -- --dry-run ...")
+    print("    ./ops cleanup logs -- --run")
     print("    ./ops cleanup caches")
-    print("    ./ops snapshot workspace --write-report")
+    print("    ./ops snapshot workspace -- --write-report")
     print("    ./ops snapshot logs")
     print("")
     print("  Agent queue helpers:")
@@ -1052,7 +1052,7 @@ def cmd_mode(args: argparse.Namespace) -> int:
     if not forwarded:
         print(f"usage: ./ops {mode} <cmd> ...", file=sys.stderr)
         print("example:", file=sys.stderr)
-        print(f"  ./ops {mode} audio --channel CHxx --video NNN", file=sys.stderr)
+        print(f"  ./ops {mode} audio -- --channel CHxx --video NNN", file=sys.stderr)
         return 2
 
     env = dict(os.environ)
@@ -1106,17 +1106,20 @@ def cmd_script(args: argparse.Namespace) -> int:
     # Policy: never run the script pipeline with an ops-level exec-slot override.
     if _ops_force_exec_slot() not in (None, 0):
         print("[ops] NOTE: ignoring --exec-slot for script pipeline (API-only; exec_slot forced to 0).", file=sys.stderr)
-    inner = ["python3", "scripts/ops/script_runbook.py", args.mode, *args.args]
+    forwarded = _strip_leading_double_dash(list(args.args))
+    inner = ["python3", "scripts/ops/script_runbook.py", args.mode, *forwarded]
     return _run(inner, env=_env_with_llm_exec_slot(0))
 
 
 def cmd_audio(args: argparse.Namespace) -> int:
-    inner = ["python3", "-m", "script_pipeline.cli", "audio", *args.args]
+    forwarded = _strip_leading_double_dash(list(args.args))
+    inner = ["python3", "-m", "script_pipeline.cli", "audio", *forwarded]
     return _run_with_llm_mode(args.llm, inner)
 
 
 def cmd_publish(args: argparse.Namespace) -> int:
-    inner = ["python3", "scripts/youtube_publisher/publish_from_sheet.py", *args.args]
+    forwarded = _strip_leading_double_dash(list(args.args))
+    inner = ["python3", "scripts/youtube_publisher/publish_from_sheet.py", *forwarded]
     return _run_with_llm_mode(args.llm, inner)
 
 
@@ -1126,7 +1129,8 @@ def cmd_ui(args: argparse.Namespace) -> int:
 
 
 def cmd_agent(args: argparse.Namespace) -> int:
-    inner = ["python3", "scripts/agent_runner.py", *args.args]
+    forwarded = _strip_leading_double_dash(list(args.args))
+    inner = ["python3", "scripts/agent_runner.py", *forwarded]
     return _run(inner)
 
 
@@ -1960,15 +1964,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_doctor)
 
     sp = sub.add_parser("think", help="force THINK MODE for the nested ops command")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="nested ops command (e.g. script new --channel CHxx --video NNN)")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="nested ops command (use '--' before flags; e.g. audio -- --channel CHxx --video NNN)")
     sp.set_defaults(func=cmd_mode, mode="think")
 
     sp = sub.add_parser("api", help="force API mode for the nested ops command")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="nested ops command (e.g. script new --channel CHxx --video NNN)")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="nested ops command (use '--' before flags; e.g. audio -- --channel CHxx --video NNN)")
     sp.set_defaults(func=cmd_mode, mode="api")
 
     sp = sub.add_parser("codex", help="force Codex exec mode for the nested ops command (explicit)")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="nested ops command (e.g. script new --channel CHxx --video NNN)")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="nested ops command (use '--' before flags; e.g. audio -- --channel CHxx --video NNN)")
     sp.set_defaults(func=cmd_mode, mode="codex")
 
     sp = sub.add_parser("cmd", help="run an arbitrary command with selected LLM mode")
@@ -1979,29 +1983,29 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("script", help="script pipeline runbook wrapper")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
     sp.add_argument("mode", help="runbook mode (new/redo-full/resume/rewrite/seed-expand)")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/script_runbook.py")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/script_runbook.py (use '--' before flags)")
     sp.set_defaults(func=cmd_script)
 
     sp = sub.add_parser("audio", help="audio/TTS wrapper (script_pipeline.cli audio)")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to python -m script_pipeline.cli audio")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to python -m script_pipeline.cli audio (use '--' before flags)")
     sp.set_defaults(func=cmd_audio)
 
     sp = sub.add_parser("publish", help="publish wrapper (publish_from_sheet.py)")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to publish_from_sheet.py")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to publish_from_sheet.py (use '--' before flags)")
     sp.set_defaults(func=cmd_publish)
 
     sp = sub.add_parser("planning", help="planning helpers (lint/sanitize)")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
     sp.add_argument("action", choices=["lint", "sanitize"], help="planning operation")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying planning tool")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying planning tool (use '--' before flags)")
     sp.set_defaults(func=cmd_planning)
 
     sp = sub.add_parser("idea", help="idea cards manager (scripts/ops/idea.py)")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
     sp.add_argument("action", help="idea subcommand (use 'help' for full list)")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/idea.py")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/idea.py (use '--' before flags)")
     sp.set_defaults(func=cmd_idea)
 
     sp = sub.add_parser("video", help="video/capcut helpers")
@@ -2021,18 +2025,18 @@ def build_parser() -> argparse.ArgumentParser:
         ],
         help="video operation",
     )
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying video tool")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying video tool (use '--' before flags)")
     sp.set_defaults(func=cmd_video)
 
     sp = sub.add_parser("thumbnails", help="thumbnail operations")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
     sp.add_argument("action", choices=["build", "retake", "qc", "sync-inventory", "analyze", "help"])
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying thumbnail tool")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying thumbnail tool (use '--' before flags)")
     sp.set_defaults(func=cmd_thumbnails)
 
     sp = sub.add_parser("vision", help="vision pack (screenshot/thumbnail preprocess)")
     sp.add_argument("action", choices=["screenshot", "thumbnail", "help"])
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/vision/vision_pack.py")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/vision/vision_pack.py (use '--' before flags)")
     sp.set_defaults(func=cmd_vision)
 
     sp = sub.add_parser("ui", help="start/stop/status UI stack")
@@ -2040,12 +2044,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_ui)
 
     sp = sub.add_parser("agent", help="agent queue helper (agent_runner.py passthrough)")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/agent_runner.py")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/agent_runner.py (use '--' before flags)")
     sp.set_defaults(func=cmd_agent)
 
     sp = sub.add_parser("slack", help="slack helpers (PM loop / inbox triage)")
     sp.add_argument("action", choices=["pm-loop"], help="slack operation")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/slack_pm_loop.py run")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/slack_pm_loop.py run (use '--' before flags)")
     sp.set_defaults(func=cmd_slack)
 
     sp = sub.add_parser("progress", help="derived episode progress view (read-only)")
@@ -2074,12 +2078,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("cleanup", help="cleanup helpers (safe by default)")
     sp.add_argument("action", choices=["workspace", "logs", "caches"], help="cleanup operation")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying cleanup tool")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying cleanup tool (use '--' before flags)")
     sp.set_defaults(func=cmd_cleanup)
 
     sp = sub.add_parser("snapshot", help="snapshot helpers (safe; read-only)")
     sp.add_argument("action", choices=["workspace", "logs"], help="snapshot operation")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying snapshot tool")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying snapshot tool (use '--' before flags)")
     sp.set_defaults(func=cmd_snapshot)
 
     sp = sub.add_parser("history", help="show recent ops runs (ops ledger)")
@@ -2112,7 +2116,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("ssot", help="SSOT helpers (latest logic / audits)")
     sp.add_argument("action", choices=["status", "audit", "check"])
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying ssot tool")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying ssot tool (use '--' before flags)")
     sp.set_defaults(func=cmd_ssot)
 
     sp = sub.add_parser("episode", help="episode SSOT resolver (scripts/episode_ssot.py)")
@@ -2121,12 +2125,12 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["show", "confirm-a", "auto-select-run", "set-run", "archive-runs", "materialize", "ensure", "help"],
         help="episode SSOT operation",
     )
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/episode_ssot.py")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/episode_ssot.py (use '--' before flags)")
     sp.set_defaults(func=cmd_episode)
 
     sp = sub.add_parser("resume", help="fixed recovery commands (stable)")
     sp.add_argument("target", choices=["episode", "script", "audio", "video", "thumbnails"])
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying tool (include --llm here)")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying tool (use '--' before flags; include --llm here)")
     sp.set_defaults(func=cmd_resume)
 
     return p

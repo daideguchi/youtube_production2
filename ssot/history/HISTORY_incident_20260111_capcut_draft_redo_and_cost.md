@@ -81,6 +81,28 @@
   - `packages/video_pipeline/tools/capcut_bulk_insert.py` にて `layout_cfg` が `args.belt_config` ブロック内でのみ定義され、後段で参照されるため、`--belt-config` 未指定時に例外で落ちうる（`capcut_bulk_insert.py:3619` 付近）。
   - 回避として `--belt-mode existing` を通すために最小の `belt_config.json` を作成した。
 
+### 2.6 CH12-016: 尺ズレ（画像が途中で終わる）の修復（画像再生成なし）
+
+- 背景（事実）:
+  - ユーザー報告: `CH12-016` の CapCut ドラフトが「尺が短い（途中で画像が終わる）」。
+- 実施（事実）:
+  - run_dir を新規作成: `workspaces/video/runs/CH12-016_capcut_v3/`
+    - `image_cues.json` は 32 cues / end_sec 1312.279
+    - `images/` は画像生成を行わず、既存画像をコピーして 32枚を配置（`0001.png..0032.png`）
+    - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.align_run_dir_to_tts_final --run workspaces/video/runs/CH12-016_capcut_v3` を実行し `timeline_manifest.json` を生成（retime via text / no LLM）
+  - CapCut ドラフトを新規作成: `/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ__v3`
+    - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.capcut_bulk_insert --run workspaces/video/runs/CH12-016_capcut_v3 --channel CH12 --new "★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ__v3" --srt-file workspaces/audio/final/CH12/016/CH12-016.srt --voice-file workspaces/audio/final/CH12/016/CH12-016.wav --skip-title`
+    - 生成物（例）:
+      - `draft_content.json` / `draft_info.json` / `draft_meta_info.json`
+      - `assets/image/*.png`（32枚）
+      - `materials/audio/*`（音声ローカライズ）
+  - エイリアス更新（repo 内）:
+    - `workspaces/video/runs/CH12-016` → `CH12-016_capcut_v3` へ付け替え
+    - `python3 scripts/episode_ssot.py materialize --channel CH12 --video 016` を実行し `workspaces/episodes/CH12/016/episode_manifest.json` を更新
+  - 旧ドラフト（CapCut ローカル）を退避:
+    - `/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ` を macOS Trash へ移動
+    - 移動先: `/Users/dd/.Trash/capcut_old_20260112T0927Z/★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ`
+
 ---
 
 ## 3) ユーザー観測（事実）
@@ -93,5 +115,4 @@
 ## 4) 次アクション（要合意）
 
 - 無許可で追加/変更した作業ツリー（tracked/untracked）を **取り消す（revert）**か、別途レビューの上で採用するかをユーザー/Orchestratorと合意する。
-- CH22 の `belt_config.json` 付与の根治として、`capcut_bulk_insert.py` の `layout_cfg` 初期化バグを修正し、`belt_config` に依存せず走る状態へ戻す（採用する場合）。
-
+- （対応済み）CH22 の `belt_config.json` 付与の根治として、`packages/video_pipeline/tools/capcut_bulk_insert.py` の `layout_cfg` 初期化バグを修正し、`--belt-config` 無しでも走るようにした。

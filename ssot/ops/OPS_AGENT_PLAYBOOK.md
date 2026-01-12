@@ -222,8 +222,8 @@ SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI�
 ### 4.1 台本→音声→動画（主線）
 入口は `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` を正とする。
 
-- 台本（入口固定）: `./ops api script <MODE> --channel CHxx --video NNN`（台本はAPI固定）
-- 音声: `./ops audio --channel CHxx --video NNN`
+- 台本（入口固定）: `./ops api script <MODE> -- --channel CHxx --video NNN`（台本はAPI固定）
+- 音声: `./ops audio --llm think -- --channel CHxx --video NNN`
 - 動画/CapCut: `./ops video auto-capcut -- --channel CHxx --video NNN`
 - 迷ったら:
   - `./ops patterns list`（パターン索引）
@@ -231,7 +231,7 @@ SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI�
 
 ### 4.2 THINK MODE（APIなしで止めて続行）
 ```bash
-./ops think audio --channel CH06 --video 033
+./ops think audio -- --channel CH06 --video 033
 ./ops agent list
 ./ops agent prompt <TASK_ID>
 # 生成 → ./ops agent complete <TASK_ID> --content-file /path/to/content.txt

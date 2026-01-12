@@ -180,11 +180,11 @@ SoT（正本）:
 - `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY` を恒久セットしない（ロックダウンで停止）。
 
 許可（incident/debug のみ・その実行だけ）:
-- `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 ./ops thumbnails build ...`
+- `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 ./ops thumbnails build -- --channel CHxx --videos 001 002 ...`
 
 備考:
 - **許可（サムネ）**: サムネ背景生成（`thumbnail_image_gen`）に限り Gemini 3 系の画像モデルは **使っても良い**（必要時のみ明示して使う）。
-  - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ./ops thumbnails build ...`
+  - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ./ops thumbnails build -- --channel CHxx --videos 001 002 ...`
 
 ---
 
@@ -197,8 +197,9 @@ SoT（正本）:
   - `visual_prompt_refine`（画像プロンプト整形）
   - `visual_thumbnail_caption`（サムネ要約）
 - `tts_segment`（TTS分割）
-- TTS（`tts_*`）は **AIエージェント（Codex）主担当**（pending運用）を推奨:
-  - `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+- TTS（`tts_*`）は **AIエージェント（Codex）主担当**（pending運用; D-013）:
+  - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`
+  - 互換: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
   - 注: ここで言う「Codex」は **codex exec（`@x1`）ではない**（別物）。TTSは codex exec へ寄せない。
 - これらは `configs/llm_router.yaml` の `tasks.<task>.tier` で tier が決まり、
   **tier は `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）でモデルコードに解決**される。

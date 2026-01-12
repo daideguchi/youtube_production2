@@ -1,5 +1,8 @@
 # 画像APIリファクタ進捗メモ
 
+DocType: Register（進捗メモ / 未整理）
+注意: 実運用の正本は `ssot/ops/OPS_THUMBNAILS_PIPELINE.md` / `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md` / `configs/image_models.yaml`（等）に寄せる。
+
 ## 成果
 - `ImageClient` を追加し、タスク名→tier→モデルの解決と capability ベースのオプション正規化を行うルートを用意した。tier は round-robin の開始点を持ち、成功したモデルの次から呼び出す（“固定1モデル”になりにくい）。
 - アダプタを整備:

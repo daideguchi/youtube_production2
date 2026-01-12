@@ -58,11 +58,6 @@ NG:
   reading_hira: ナカニ
   reading_kana: ナカニ
   source: manual
-怒り:
-  accent_moras: null
-  reading_hira: イカリ
-  reading_kana: イカリ
-  source: manual
 爽快感:
   accent_moras: null
   reading_hira: ソウカイカン

@@ -4,6 +4,7 @@
 
 - 方針: **決まったら SSOT → 実装 の順で固定**し、`ops/OPS_GAPS_REGISTER.md` / 関連SSOTを更新していきます。
 - 目的: 人間/AIの認識ズレ（=事故とコスト）をゼロにする。
+- 重要: **`状態=Done` のみが「運用ルールとして確定」**。`Proposed` は未確定（議論用）なので、矛盾していても運用の正として扱わない。
 
 ---
 
@@ -121,7 +122,7 @@
 
 ### Recommended（推奨）
 1) TTSは THINK MODE を入口にする（pendingを作って止める）
-   - 例: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+   - 例: `./ops audio --llm think -- --channel CHxx --video NNN`（互換: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`）
 2) pending は Codex（AIエージェント）が runbook に沿って output を作って `complete` → rerun
 3) **用語固定**:
    - 「Codex（AIエージェント）」= pending の output を作る担当
@@ -149,19 +150,22 @@
 
 ### Recommended（推奨）
 1) 3階層で固定する（どれを触るか迷わない）
-   - A) グローバル（全チャンネル共通）: `packages/audio_tts/configs/learning_dict.json`
-     - 追加条件: **ユニーク誤読のみ**（例: 「午前」など、読みが一意）
+   - A) グローバル（全チャンネル共通・確定語）: `packages/audio_tts/data/global_knowledge_base.json`
+     - 追加条件: **ユニーク誤読のみ**（どの文脈でも読みが一意。公式ユーザー辞書へ同期してOK）
    - B) チャンネル辞書（そのCHだけ）: `packages/audio_tts/data/reading_dict/CHxx.yaml`
      - 追加条件: **そのチャンネルの運用上 “読みが一意”** であること
    - C) 動画ローカル（その回だけ）: `workspaces/scripts/{CH}/{VID}/audio_prep/`
      - **原則**: Bテキスト（TTS入力）をカナ表記にして個別対応する（最も分かりやすい）
      - 文脈で読みが割れる/同一台本内で読みを変えたい: `local_token_overrides.json`（位置指定）で対応する
      - `local_reading_dict.json`（surface→readingの一括置換）は **原則使わない**（台本内で一意に固定できる語だけに限定）
+   - 補助（自動学習/前処理）: `packages/audio_tts/configs/learning_dict.json`
+     - strict B生成には使うが、公式ユーザー辞書へは **自動同期しない**（量/事故リスクのため）
 2) 「曖昧語」は辞書に入れない（例）
    - 例: 「人」「辛い」「行った」「怒り」など（文脈で読みが変わり得る/誤登録の影響が大きい）
 3) VOICEPEAK/VOICEVOX の“公式辞書（ユーザー辞書）”は、上記SoTから **同期**して使う（運用の利便性のため）
    - VOICEPEAK: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（`run_tts` 開始時にもbest-effortで追記同期される）
-   - VOICEVOX: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx`（必要時に手動実行）
+   - VOICEVOX（推奨: グローバルのみ）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
+   - VOICEVOX（必要時: CH語も同期）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx --overwrite`
 
 ### Rationale（根拠）
 - 辞書（特にグローバル）は影響範囲が大きく、曖昧語の登録は **静かに全動画へ事故を拡散**する。

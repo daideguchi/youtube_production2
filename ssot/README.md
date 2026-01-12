@@ -22,8 +22,8 @@
 
 - 新規ドキュメントを追加/改名/移動したら `DOCS_INDEX.md` を必ず更新する（READMEに一覧は持たない）。
 - Closed（完了）になった計画書は `ssot/completed/` に移動する。
-- 索引整合は `python3 scripts/ops/ssot_audit.py` で確認する。
-- push前の最終整合チェックは `python3 scripts/ops/pre_push_final_check.py` を通す（SSOT↔実装の逸脱を防ぐ）。
+- 索引整合（正本入口）は `./ops ssot audit -- --strict`（互換: `python3 scripts/ops/ssot_audit.py --path-audit --link-audit --strict`）。
+- push前の最終整合チェック（正本入口）は `./ops ssot check`（= `python3 scripts/ops/pre_push_final_check.py`）。
 
 ## 「いまの最新ロジック」はどれか（盤石化）
 
@@ -31,9 +31,9 @@
 - **最新ロジック = このリポジトリの現在のチェックアウト（git HEAD + ローカル差分）**。
 - SSOTの入口は `START_HERE.md` と `DOCS_INDEX.md`（この2つから辿れるものを正本として扱う）。
 
-確認コマンド（推奨）:
+確認コマンド（正本）:
 - いまのロジック/索引の状態: `./ops ssot status`
-- SSOT索引整合（必須）: `./ops ssot audit --strict`
+- SSOT索引整合（必須）: `./ops ssot audit -- --strict`
 - 実装↔SSOTの最終チェック（push前）: `./ops ssot check`（= `scripts/ops/pre_push_final_check.py`）
 
 運用ログ:

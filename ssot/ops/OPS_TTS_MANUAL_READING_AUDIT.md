@@ -228,18 +228,24 @@ PY
   - `スティーブン・R・コヴィー` のように `・` が token として残る場合、キーも **`スティーブン・R・`** のように token を含めて作る（1文字英字 `R` 単体はキー禁止）。
 - 1文字 surface は禁止のため、英字/漢字1文字は **隣接トークン込みでフレーズ化**する（例: `Aから` / `Bに` / `暇や` / `暇も`）。
 
-**(1) ユニーク誤読（正解読みが1つ） → チャンネル辞書へ（固定ルール）**
+**(1) ユニーク誤読（正解読みが1つ） → repo辞書へ昇格（固定ルール）**
 - どの文脈でも読みが一意で事故らない語のみ（= D-014）。
-- 追記先: `packages/audio_tts/data/reading_dict/{CH}.yaml`（例: `packages/audio_tts/data/reading_dict/CH26.yaml`）
+- 追記先:
+  - 全CH共通で一意 → `packages/audio_tts/data/global_knowledge_base.json`
+  - そのCH内だけ一意 → `packages/audio_tts/data/reading_dict/{CH}.yaml`（例: `packages/audio_tts/data/reading_dict/CH26.yaml`）
 - 反映（VOICEVOX公式ユーザー辞書に同期したい場合）:
   ```bash
+  # 推奨: グローバル確定語だけ同期（事故りにくい）
+  PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite
+
+  # 必要時: そのCHの語も同期
   PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel {CH} --overwrite
   ```
 
 **(2) 曖昧語/文脈依存 → 動画ローカルで個別対応（辞書に入れない）**
 - 例: 同じ表記でも文脈で読みが変わる・迷いがある語（例: 「人」「辛い」「行った」「怒り」など）。
-- 追記先（推奨）: `workspaces/scripts/{CH}/{VID}/audio_prep/local_reading_dict.json`（surface→読み; 2文字以上のフレーズで安全に）
-- 追記先（ピンポイントが必要な場合）: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`
+- 追記先（推奨）: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`（位置指定。曖昧語の最終手段）
+- 追記先（フレーズが一意で安全な場合のみ）: `workspaces/scripts/{CH}/{VID}/audio_prep/local_reading_dict.json`（surface→読み; 2文字以上のフレーズ限定）
 - 形式:
   ```json
   [

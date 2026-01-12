@@ -9,7 +9,7 @@
 
 ---
 
-## 0. 統一入口（迷わないための推奨）
+## 0. 統一入口（迷わないための正本）
 
 - 一覧: `./ops list`
 - 実体（P0 launcher）: `python3 scripts/ops/ops_cli.py --help`（`./ops` が呼ぶ）
@@ -18,13 +18,13 @@
   - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
   - “最新の実行” ポインタ（keep-latest）: `./ops latest --channel CHxx --video NNN`
   - 実行タイムライン（opsレジャー）: `./ops history --tail 50 --channel CHxx --video NNN`
-  - 復帰（固定）: `./ops resume <episode|script|audio|video|thumbnails> ...`（正本: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`）
+  - 復帰（固定）: `./ops resume <episode|script|audio|video|thumbnails> -- <args...>`（正本: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`）
 - Reconcile（fixed recoveryの配線）:
   - `./ops reconcile --channel CHxx --video NNN`（dry-run）
   - `./ops reconcile --channel CHxx --video NNN --llm think --run`
 - SSOT（最新ロジック確認）:
   - `./ops ssot status`
-  - `./ops ssot audit --strict`
+  - `./ops ssot audit -- --strict`
   - SSOT catalog生成（コード由来）: `python3 scripts/ops/build_ssot_catalog.py --write`（検査のみ: `--check`）
   - LLMルーティングlint（CI同等）: `python3 scripts/ops/lint_llm_config.py --strict`
     - 直叩き（同等）: `python3 scripts/ops/lint_llm_router_config.py --strict`
@@ -35,9 +35,9 @@
   - `./ops patterns show PAT-VIDEO-DRAFT-001`
   - 正本: `ssot/ops/OPS_EXECUTION_PATTERNS.md`
 - 代表例（P0ラッパー）:
-  - Script: `./ops api script <MODE> --channel CHxx --video NNN`（台本はAPI固定）
-  - Audio: `./ops audio --channel CHxx --video NNN`
-  - Publish: `./ops publish ...`
+  - Script: `./ops api script <MODE> -- --channel CHxx --video NNN`（台本はAPI固定）
+  - Audio: `./ops audio --llm think -- --channel CHxx --video NNN`
+  - Publish: `./ops publish -- --max-rows 1 --run --also-lock-local`
 - LLM実行の明示（重要）:
   - `--llm think`: **外部LLM APIコストを使わない**（agent queue に pending を作る → `./ops agent ...` で埋める）
   - `--llm api`: 外部LLM API（通常）
@@ -54,9 +54,11 @@
 - 企画（Planning SoT）: `workspaces/planning/channels/CHxx.csv`
   - 注（2026-01-09）: 台本型（kata1/2/3）運用は廃止。既存CSVに列が残っていても台本生成は参照しない。
 - 企画カード在庫（pre-planning SoT）: `workspaces/planning/ideas/CHxx.jsonl`
-  - CLI: `python3 scripts/ops/idea.py --help`
+  - CLI（正本入口）: `./ops idea help`
   - 運用SSOT: `ssot/ops/OPS_IDEA_CARDS.md`
-- 台本（Script / 入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
+- 台本（Script / 入口固定）:
+  - 正本入口: `./ops api script <MODE> -- --channel CHxx --video NNN`
+  - 実体: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
   - 運用モード正本（new/redo-full/resume/rewrite/seed-expand）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
   - カオス復旧（複数エージェント競合の止血）: `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`
   - 低レベルCLI（内部/詳細制御。通常運用では使わない）: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli ...`（`packages/script_pipeline/cli.py`）
@@ -67,7 +69,8 @@
   - Batch submit: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py submit --channel CHxx --videos NNN-NNN`
   - Batch fetch（assembled反映）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
 - 音声（Audio/TTS）:
-  - 推奨: `python -m script_pipeline.cli audio --channel CHxx --video NNN`（wrapper）
+  - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`
+  - 互換（同等）: `python -m script_pipeline.cli audio --channel CHxx --video NNN`
   - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
 - 動画（SRT→画像→CapCut）:
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run ...`
@@ -84,11 +87,12 @@
         - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels --dry-run`
         - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels`
       - 画像を埋めた/直した後のドラフト再構築（推奨）:
-        - `./ops resume video --llm think --channel CHxx --video NNN`
+        - `./ops resume video -- --llm think --channel CHxx --video NNN`
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
-  - 最小（uploadのみ）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
-  - 推奨（事故防止: ローカルも投稿済みロック同期）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run --also-lock-local`
+  - 正本入口（事故防止: ローカルも投稿済みロック同期）: `./ops publish -- --max-rows 1 --run --also-lock-local`
+  - 互換（uploadのみ）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
+  - 互換（also-lock-local）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run --also-lock-local`
     - 任意（一時DL先を固定）: `--download-dir workspaces/tmp/publish` / 成功後も残す: `--keep-download`
 
 ---
@@ -259,7 +263,7 @@
   - PM Inbox（git書庫; 要約のみ）: `python3 scripts/ops/slack_inbox_sync.py sync`（SSOT: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`）
     - 取り込み要約をSlackへ返す（任意）: `python3 scripts/ops/slack_inbox_sync.py sync --post-digest`
     - PMループ（推奨: 1コマンド）:
-      - `./ops slack pm-loop --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
+      - `./ops slack pm-loop -- --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
         - 任意（安全な自動push）: `--git-push-if-clean`（PM Inbox以外の変更が無い時だけ `git add/commit/push`）
       - （互換）`python3 scripts/ops/slack_pm_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --post-digest --process --errors`
     - 自動運用（macOS / launchd; ローカル専用）:
@@ -280,10 +284,11 @@
 ### 3.5 Thumbnails（サムネ量産/修正）
 - SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`
 - UI（モデル指定）: `/image-model-routing`（チャンネル別に サムネ/動画内画像 の画像モデルを指定）
-- 統一CLI（量産/リテイク/QC）: `python scripts/thumbnails/build.py --help`
-  - 量産: `python scripts/thumbnails/build.py build --channel CHxx --videos 001 002 ...`
-  - リテイク: `python scripts/thumbnails/build.py retake --channel CHxx`（`projects.json: status=in_progress` を対象）
-  - QC: `python scripts/thumbnails/build.py qc --channel CHxx --status in_progress`
+- 統一CLI（量産/リテイク/QC）: `./ops thumbnails help`
+  - 量産: `./ops thumbnails build -- --channel CHxx --videos 001 002 ...`
+  - リテイク: `./ops thumbnails retake -- --channel CHxx`（`projects.json: status=in_progress` を対象）
+  - QC: `./ops thumbnails qc -- --channel CHxx --status in_progress`
+  - （互換）`python scripts/thumbnails/build.py --help`
 - 競合サムネの特徴抽出→テンプレ雛形: `python3 scripts/ops/thumbnail_styleguide.py --help`（詳細: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`）
 
 ### 3.6 Vision（スクショ/サムネ読み取り補助）
@@ -297,7 +302,7 @@
 - `scripts/episode_ssot.py`（video_run_id の自動選択/episodeリンク集の生成）
 - 進捗の統一ビュー（派生 / read-only）:
   - SSOT: `ssot/ops/OPS_EPISODE_PROGRESS_VIEW.md`
-  - CLI: `python3 scripts/ops/episode_progress.py --channel CHxx`
+  - CLI: `./ops progress --channel CHxx`
   - API: `GET /api/channels/{ch}/episode-progress`（UI `/planning` が参照）
 
 ### 3.8 Alignment（Planning↔Script 整合スタンプ）
@@ -339,7 +344,7 @@
 - `scripts/purge_audio_final_chunks.py`（final/chunks削除）
 - `scripts/cleanup_data.py --run`（workspaces/scripts の古い中間生成物/ログを削除。`audio_prep/` は final 音声が揃っている動画のみ対象）
 - `scripts/ops/cleanup_logs.py --run`（workspaces/logs 直下の L3 ログを日数ローテで削除。report: `workspaces/logs/regression/logs_cleanup/`）
-- `./ops snapshot workspace --write-report`（= `python3 scripts/ops/workspace_snapshot.py --write-report`。workspaces 全体の容量スナップショット（観測用）。report: `workspaces/logs/regression/workspace_snapshot/`）
+- `./ops snapshot workspace -- --write-report`（= `python3 scripts/ops/workspace_snapshot.py --write-report`。workspaces 全体の容量スナップショット（観測用）。report: `workspaces/logs/regression/workspace_snapshot/`）
 - `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `workspaces/logs/regression/broken_symlinks/`）

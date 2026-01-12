@@ -29,6 +29,7 @@ LLMコスト制御（重要）:
   - env/前提の点検（失敗したら、先に直す）
 
 > `./ops resume ...` は既定で `doctor` を先に実行する（不要なら `--skip-doctor`）。
+> 注: `--skip-doctor` は `./ops resume <target> -- --skip-doctor ...` のように `--` の後ろ（転送引数側）で渡す。
 
 ---
 
@@ -39,12 +40,12 @@ LLMコスト制御（重要）:
 - 「どの run_dir が最新か」がわからない
 
 復帰コマンド（固定）:
-- `./ops resume episode --channel CHxx --video NNN`
+- `./ops resume episode -- --channel CHxx --video NNN`
   - 内部: `scripts/episode_ssot.py ensure`
   - 正本は増やさず、`status.json` の `metadata.video_run_id` を更新し、`workspaces/episodes/...` のリンク集を再生成する
 
 同義（明示したい場合）:
-- `./ops episode ensure --channel CHxx --video NNN`
+- `./ops episode ensure -- --channel CHxx --video NNN`
 
 注意（WARN扱い）:
 - `scripts/episode_ssot.py ensure/materialize` は `episode_manifest.json` に warnings があると `exit=2` を返す（例: audio未生成）。
@@ -59,11 +60,11 @@ LLMコスト制御（重要）:
 - status.json の stages が pending/failed/processing のまま
 
 復帰コマンド（固定）:
-- `./ops resume script --llm api --channel CHxx --video NNN`
+- `./ops resume script -- --llm api --channel CHxx --video NNN`
 
 注意（固定ルール）:
 - 台本（`script_*`）は **LLM API（Fireworks）固定**。THINK/AGENT（pending代行）で台本を書かない。
-  - `./ops think script ...` / `./ops resume script --llm think ...` は policy で停止する（誤運用防止）。
+  - `./ops think script ...` / `./ops resume script -- --llm think ...` は policy で停止する（誤運用防止）。
 
 ---
 
@@ -74,8 +75,8 @@ LLMコスト制御（重要）:
 - TTS が途中で落ちた
 
 復帰コマンド（固定）:
-- `./ops resume audio --llm think --channel CHxx --video NNN`
-- `./ops resume audio --llm api --channel CHxx --video NNN`
+- `./ops resume audio -- --llm think --channel CHxx --video NNN`
+- `./ops resume audio -- --llm api --channel CHxx --video NNN`
 
 ---
 
@@ -86,16 +87,16 @@ LLMコスト制御（重要）:
 - run_dir はあるがドラフトが壊れている/未生成
 
 復帰コマンド（固定）:
-- `./ops resume video --llm think --channel CHxx --video NNN`
-- `./ops resume video --llm api --channel CHxx --video NNN`
+- `./ops resume video -- --llm think --channel CHxx --video NNN`
+- `./ops resume video -- --llm api --channel CHxx --video NNN`
 
 仕様（固定）:
 - 入力SRTは **audio final の SoT**（`workspaces/audio/final/.../*.srt`）を自動で選ぶ
 - `video_pipeline.tools.factory ... draft` でドラフト再生成（最新run_dirを自動選択）
-- 実行後に `./ops episode ensure ...` を自動で走らせ、run選択/リンク集を確定させる
+- 実行後に `./ops episode ensure -- --channel CHxx --video NNN` を自動で走らせ、run選択/リンク集を確定させる
 
 注意:
-- audio final が無いと復帰できない → 先に `./ops resume audio ...`
+- audio final が無いと復帰できない → 先に `./ops resume audio -- --llm <MODE> --channel CHxx --video NNN`
 
 ---
 
@@ -105,8 +106,8 @@ LLMコスト制御（重要）:
 - サムネ生成が途中で落ちた（`projects.json` が `in_progress` のまま）
 
 復帰コマンド（固定）:
-- `./ops resume thumbnails --llm think --channel CHxx`
-- `./ops resume thumbnails --llm api --channel CHxx`
+- `./ops resume thumbnails -- --llm think --channel CHxx`
+- `./ops resume thumbnails -- --llm api --channel CHxx`
 
 備考:
 - 内部は `scripts/thumbnails/build.py retake`（in_progress のものを再ビルドして done に寄せる）

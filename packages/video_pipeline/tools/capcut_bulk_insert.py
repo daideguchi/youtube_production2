@@ -3542,6 +3542,10 @@ def main():
     # 🎯 帯ポストプロセッシング（チャンネル共通）
     #    CH01固定のスタイルは排除し、belt_config + layout_configのみで適用
     # ========================================
+    # NOTE: layout_cfg is also used by the final subtitle-style normalization step.
+    # It must be defined even when --belt-config is not provided.
+    layout_cfg = preset.config_model.layout if preset and preset.config_model else None
+
     if args.belt_config:
         try:
             import json as _json
@@ -3553,7 +3557,6 @@ def main():
 
                 # ステップ1: 帯レイヤーを上書き・最上位に移動
                 logger.info("📝 帯レイヤーを上書き・最上位に移動...")
-                layout_cfg = preset.config_model.layout if preset and preset.config_model else None
                 apply_belt_config(
                     belt_data,
                     args.opening_offset,

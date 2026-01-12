@@ -1,5 +1,8 @@
 # OPS_GLOBAL_TODO — 全体TODO（SSOT）
 
+DocType: Register（台帳 / タスク管理）
+注意: パイプライン仕様の正本ではない（仕様の正: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md` / 読み方: `ssot/SSOT_COMPASS.md`）。
+
 目的:
 - 「次に何をやるか」「誰が何を担当しているか」「どこを触るか」を **1枚で迷わない** 状態にする。
 - 日々のやり取りは board の thread に寄せ、SSOTは **タスクの正本**として固定する（ログで散らからない）。
@@ -126,6 +129,15 @@
   - scope: `scripts/ops/slack_pm_loop.py`, `scripts/ops/slack_inbox_sync.py`, `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`
   - thread: `note__20251222T145419Z__c13676e2`
   - DoD: “Mac稼働中のみ” で `slack_pm_loop` が定期実行され、SSOT inbox 更新＋（任意）digest返信までが事故なく回る（secretsはgitに固定しない）
+
+### 4.6 SSOT（CLI-only/曖昧排除）
+- [ ] `TODO-SSOT-002` SSOTの曖昧表現を排除し、全導線をCLIで完結させる（P1, todo）
+  - scope: `ssot/**`, `scripts/ops/ops_cli.py`, `scripts/ops/ssot_audit.py`
+  - thread: `note__20251222T145431Z__c67da380`
+  - DoD:
+    - SoT/Guide内の「推奨/任意」等が「正本/互換/禁止」に置換され、判断の余地が残らない
+    - SSOTの入口が `./ops` に統一され、引数転送の `--` ルールが全SSOTで一致している
+    - `./ops ssot audit -- --strict` と `./ops ssot check` が常にOK
 
 ---
 

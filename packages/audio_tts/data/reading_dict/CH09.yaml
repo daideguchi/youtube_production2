@@ -133,11 +133,6 @@ through:
   reading_hira: ニブラセ
   reading_kana: ニブラセ
   source: manual
-怒り:
-  accent_moras: null
-  reading_hira: イカリ
-  reading_kana: イカリ
-  source: manual
 三方よし:
   accent_moras: null
   reading_hira: サンポウヨシ
