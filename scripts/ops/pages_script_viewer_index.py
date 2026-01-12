@@ -20,6 +20,7 @@ import argparse
 import csv
 import json
 import re
+import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,6 +56,62 @@ def _discover_assembled_path(episode_dir: Path) -> Path | None:
     if legacy.exists():
         return legacy
     return None
+
+
+def _git_ls_files(repo_root: Path, path: str) -> set[str]:
+    try:
+        p = subprocess.run(
+            ["git", "-C", str(repo_root), "ls-files", "--", str(path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except Exception:
+        return set()
+    if p.returncode != 0:
+        return set()
+    return {line.strip() for line in p.stdout.splitlines() if line.strip()}
+
+
+def _best_tracked_assembled_by_key(tracked_paths: set[str]) -> dict[tuple[str, int], str]:
+    """
+    Map (channel, video_int) -> best assembled path, using tracked files only.
+
+    Priority:
+      1) content/assembled_human.md
+      2) content/assembled.md
+      3) assembled.md (legacy)
+    """
+    best: dict[tuple[str, int], tuple[int, str]] = {}
+    for path in tracked_paths:
+        if not path.startswith("workspaces/scripts/"):
+            continue
+
+        m = re.match(r"^workspaces/scripts/(CH\\d+)/(\\d+)/", path)
+        if not m:
+            continue
+        channel = m.group(1)
+        try:
+            video_int = int(m.group(2))
+        except Exception:
+            continue
+
+        prio: int | None = None
+        if path.endswith("/content/assembled_human.md"):
+            prio = 0
+        elif path.endswith("/content/assembled.md"):
+            prio = 1
+        elif path.endswith("/assembled.md"):
+            prio = 2
+        else:
+            continue
+
+        key = (channel, video_int)
+        cur = best.get(key)
+        if cur is None or prio < cur[0]:
+            best[key] = (prio, path)
+
+    return {k: v for k, (_prio, v) in best.items()}
 
 
 @dataclass(frozen=True)
@@ -147,48 +204,41 @@ class ScriptIndexItem:
     video_int: int
     title: str | None
     planning: PlanningMeta | None
-    assembled_path: str
+    assembled_path: str | None
 
 
 def build_index(repo_root: Path) -> dict:
-    scripts_root = repo_root / "workspaces" / "scripts"
     planning = _load_planning_meta(repo_root)
     items: list[ScriptIndexItem] = []
 
-    if scripts_root.exists():
-        for channel_dir in sorted([p for p in scripts_root.iterdir() if p.is_dir()], key=lambda p: _channel_sort_key(p.name)):
-            channel = channel_dir.name
-            if not CHANNEL_RE.match(channel):
-                continue
-            for episode_dir in sorted([p for p in channel_dir.iterdir() if p.is_dir()], key=lambda p: p.name):
-                video = episode_dir.name
-                if not VIDEO_DIR_RE.match(video):
-                    continue
-                try:
-                    video_int = int(video)
-                except Exception:
-                    continue
-                assembled = _discover_assembled_path(episode_dir)
-                if not assembled:
-                    continue
-                meta = planning.get((channel, video_int))
-                title = meta.title if meta else None
-                items.append(
-                    ScriptIndexItem(
-                        channel=channel,
-                        video=video.zfill(3),
-                        video_int=video_int,
-                        title=title or None,
-                        planning=meta,
-                        assembled_path=assembled.relative_to(repo_root).as_posix(),
-                    )
-                )
+    tracked = _git_ls_files(repo_root, "workspaces/scripts")
+    assembled_by_key = _best_tracked_assembled_by_key(tracked)
 
-    items = sorted(items, key=lambda it: (_channel_sort_key(it.channel), it.video_int))
+    all_keys = set(planning.keys()) | set(assembled_by_key.keys())
+    for (channel, video_int) in sorted(all_keys, key=lambda k: (_channel_sort_key(k[0]), k[1])):
+        if not CHANNEL_RE.match(channel):
+            continue
+        video = f"{int(video_int):03d}"
+        if not VIDEO_DIR_RE.match(video):
+            continue
+        meta = planning.get((channel, video_int))
+        title = meta.title if meta else None
+        assembled_path = assembled_by_key.get((channel, video_int))
+        items.append(
+            ScriptIndexItem(
+                channel=channel,
+                video=video,
+                video_int=video_int,
+                title=title or None,
+                planning=meta,
+                assembled_path=assembled_path,
+            )
+        )
+
     payload = {
         "generated_at": _now_iso_utc(),
         "generated_by": "scripts/ops/pages_script_viewer_index.py",
-        "source": "workspaces/scripts/**/(content/assembled_human.md|content/assembled.md|assembled.md)",
+        "source": "Planning CSV (workspaces/planning/channels/*.csv) + git-tracked workspaces/scripts/**/(content/assembled_human.md|content/assembled.md|assembled.md)",
         "count": len(items),
         "items": [
             {

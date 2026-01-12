@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T07:32:10.021641Z",
+  "generated_at": "2026-01-12T10:58:43.552094Z",
   "channel": "CH27",
   "planning_csv": "workspaces/planning/channels/CH27.csv",
   "planning_count": 30,
-  "scripts_count": 30,
+  "scripts_count": 3,
   "episodes": [
     {
       "channel": "CH27",
@@ -23,15 +23,18 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "親友の「冗談」が刺さった夜…私は笑えなかった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
       "assembled_path": "workspaces/scripts/CH27/001/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH27/001/status.json",
         "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
       }
     },
     {
@@ -51,15 +54,18 @@
         "キーコンセプト": "断る",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "旅行の部屋割りで全部わかった…私の立ち位置",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
       "assembled_path": "workspaces/scripts/CH27/002/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH27/002/status.json",
         "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
       }
     },
     {
@@ -79,14 +85,15 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "私だけ誘われない…写真の一言で心が折れた",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
       "assembled_path": "workspaces/scripts/CH27/003/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH27/003/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:54:34Z",
         "stages": {}
       }
     },
@@ -107,16 +114,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "割り勘で揉めたのはお金じゃない…“言い方”だった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/004/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/004/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -135,16 +137,11 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "手土産の値段で笑われた…私は静かに帰った",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/005/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/005/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -163,16 +160,11 @@
         "キーコンセプト": "確認する",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "LINEグループが静かに消えた日…原因は“私の一言”",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/006/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/006/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -191,16 +183,11 @@
         "キーコンセプト": "確認する",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "「あなたのため」が一番危険だった…親友が離れた理由",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/007/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/007/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -219,16 +206,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "同窓会で私だけ浮いた…あの日の空気は忘れない",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/008/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/008/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -247,16 +229,11 @@
         "キーコンセプト": "比べない",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "親友が“孫の自慢”を止めない…私の話は消えていった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/009/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/009/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -275,16 +252,11 @@
         "キーコンセプト": "断る",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "遅刻の理由が“私より大事”だった…胸が冷めた瞬間",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/010/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/010/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -303,16 +275,11 @@
         "キーコンセプト": "確認する",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "相談したのに“噂”になって戻ってきた",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/011/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/011/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -331,16 +298,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "親友の家で“私の席”だけ無かった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/012/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/012/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -359,16 +321,11 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "写真を勝手に上げられた…“老い”を晒された気がした",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/013/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/013/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -387,16 +344,11 @@
         "キーコンセプト": "断る",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "「紹介がある」…行ったら“勧誘”だった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/014/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/014/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -415,16 +367,11 @@
         "キーコンセプト": "比べない",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "笑顔の下で比べられていた…30年の“優しさ”の正体",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/015/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/015/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -443,16 +390,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "「あなたって真面目すぎ」…その言葉で終わった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/016/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/016/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -471,16 +413,11 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "私の体力を笑った…旅行仲間として“もう無理”",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/017/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/017/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -499,16 +436,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "仲直りの食事で分かった…謝るのはいつも私だけ",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/018/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/018/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -527,16 +459,11 @@
         "キーコンセプト": "確認する",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "“優しすぎる人”ほど怖かった…奪う笑顔の正体",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/019/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/019/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -555,16 +482,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "貸したお金より重かったのは“感謝ゼロ”の返事",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/020/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/020/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -583,16 +505,11 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "「うちの夫が言ってたけど」…その一本の電話",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/021/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/021/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -611,16 +528,11 @@
         "キーコンセプト": "断る",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "良かれと思った助言が“最後の一撃”になった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/022/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/022/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -639,16 +551,11 @@
         "キーコンセプト": "確認する",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "お悔やみの席で言われた一言…私は二度と会わない",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/023/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/023/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -667,16 +574,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "録音に入ってた“私の悪口”…涙も出なかった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/024/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/024/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -695,16 +597,11 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "「ありがとう」が言えない旅…帰りの沈黙が全てだった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/025/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/025/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -723,16 +620,11 @@
         "キーコンセプト": "断る",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "久々の再会で知った…私たちは“もう別の人”だった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/026/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/026/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -751,16 +643,11 @@
         "キーコンセプト": "確認する",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "「あなたって空気読めない」…笑い声が痛かった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/027/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/027/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -779,16 +666,11 @@
         "キーコンセプト": "距離感",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "“仲良し4人組”が3人になった日…私の居場所はどこ",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/028/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/028/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -807,16 +689,11 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "最後に残ったのは“たった一人”の静かな友だった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/029/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/029/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     },
     {
       "channel": "CH27",
@@ -835,16 +712,11 @@
         "キーコンセプト": "断る",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "友達を減らしたら、心が軽くなった…罪悪感の終わり",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": "workspaces/scripts/CH27/030/content/assembled.md",
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH27/030/status.json",
-        "status": "script_validated",
-        "updated_at": "",
-        "stages": {}
-      }
+      "assembled_path": null,
+      "script": null
     }
   ]
 }

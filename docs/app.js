@@ -8,7 +8,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_20";
+const SITE_ASSET_VERSION = "20260112_21";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -469,7 +469,7 @@ const initialUrlHasSelection = urlHasExplicitVideoSelection();
 let initialChannelWanted = initialUiState.channel || "";
 let initialVideoWanted = initialUiState.video || "";
 let currentView = initialUiState.view || "script";
-let scriptState = "idle"; // idle | loading | ok | error
+let scriptState = "idle"; // idle | loading | ok | missing | error
 let audioState = "idle"; // idle | loading | ok | partial | missing | error
 let thumbState = "idle"; // idle | loading | ok | partial | missing | error
 let videoImagesState = "idle"; // idle | loading | ok | partial | missing | error
@@ -722,6 +722,8 @@ function makeMiniBadge(text, kind) {
 function updateBadges() {
   if (scriptState === "loading") {
     setBadge(badgeScript, "…", "neutral");
+  } else if (scriptState === "missing") {
+    setBadge(badgeScript, "未", "neutral");
   } else if (scriptState === "error") {
     setBadge(badgeScript, "ERR", "error");
   } else if (scriptState === "ok") {
@@ -1742,6 +1744,9 @@ function renderVideoList(channel, activeVideo) {
       badges.className = "mini-badges";
       const vid = String(it?.video_id || "").trim();
 
+      const hasScript = Boolean(String(it?.assembled_path || "").trim());
+      badges.appendChild(makeMiniBadge(hasScript ? "台本✓" : "台本未", hasScript ? "ok" : "neutral"));
+
       const thumbIdx = vid ? thumbIndexByVideoId.get(vid) : null;
       if (thumbIdx && thumbIdx.preview_exists === true) {
         badges.appendChild(makeMiniBadge("サムネ✓", "ok"));
@@ -1950,10 +1955,25 @@ async function loadScript(it) {
 
   const chLabel = channelLabel(it.channel);
   metaTitle.textContent = it.title ? `${chLabel} · ${it.video} · ${it.title}` : `${chLabel} · ${it.video}`;
-  metaPath.textContent = it.assembled_path;
+  const assembledPath = String(it?.assembled_path || "").trim();
+  metaPath.textContent = assembledPath || "（台本未生成/未公開）";
   renderYoutubeMeta(it);
 
-  const url = joinUrl(rawBase, it.assembled_path);
+  if (!assembledPath) {
+    openRaw.removeAttribute("href");
+    updateAssetPackLink(it);
+    contentPre.textContent = [
+      "台本本文はまだありません（assembled.md が git にありません）。",
+      "- 企画（タイトル/概要欄/タグ）は表示できます。",
+      "- 台本を公開したら「索引を再読み込み」してください。",
+    ].join("\n");
+    scriptState = "missing";
+    updateBadges();
+    footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")} · selected: ${it.video_id}`;
+    return;
+  }
+
+  const url = joinUrl(rawBase, assembledPath);
   openRaw.href = url;
   updateAssetPackLink(it);
 

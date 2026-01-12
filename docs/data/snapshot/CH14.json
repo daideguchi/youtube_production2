@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T07:32:09.943816Z",
+  "generated_at": "2026-01-12T10:58:43.276687Z",
   "channel": "CH14",
   "planning_csv": "workspaces/planning/channels/CH14.csv",
   "planning_count": 30,
@@ -23,7 +23,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "ほどける",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/001/content/assembled.md",
       "script": {
@@ -57,7 +58,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "楽になる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/002/content/assembled.md",
       "script": {
@@ -91,7 +93,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "切れる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/003/content/assembled.md",
       "script": {
@@ -125,7 +128,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "終わる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/004/content/assembled.md",
       "script": {
@@ -159,7 +163,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/005/content/assembled.md",
       "script": {
@@ -193,7 +198,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "終わる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/006/content/assembled.md",
       "script": {
@@ -227,7 +233,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/007/content/assembled.md",
       "script": {
@@ -261,7 +268,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "抱ける",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/008/content/assembled.md",
       "script": {
@@ -295,7 +303,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "手放せる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/009/content/assembled.md",
       "script": {
@@ -329,7 +338,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "薄まる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/010/content/assembled.md",
       "script": {
@@ -363,7 +373,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/011/content/assembled.md",
       "script": {
@@ -397,7 +408,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "整う",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/012/content/assembled.md",
       "script": {
@@ -431,7 +443,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "終わる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/013/content/assembled.md",
       "script": {
@@ -465,7 +478,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "薄まる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/014/content/assembled.md",
       "script": {
@@ -499,7 +513,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "ほどける",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/015/content/assembled.md",
       "script": {
@@ -533,7 +548,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/016/content/assembled.md",
       "script": {
@@ -567,7 +583,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "切れる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/017/content/assembled.md",
       "script": {
@@ -601,7 +618,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "楽になる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/018/content/assembled.md",
       "script": {
@@ -635,7 +653,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/019/content/assembled.md",
       "script": {
@@ -669,7 +688,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "慈悲です",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/020/content/assembled.md",
       "script": {
@@ -703,7 +723,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/021/content/assembled.md",
       "script": {
@@ -737,7 +758,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "抜ける",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/022/content/assembled.md",
       "script": {
@@ -771,7 +793,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/023/content/assembled.md",
       "script": {
@@ -805,7 +828,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "壊れる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/024/content/assembled.md",
       "script": {
@@ -839,7 +863,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/025/content/assembled.md",
       "script": {
@@ -873,7 +898,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "楽になる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/026/content/assembled.md",
       "script": {
@@ -907,7 +933,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "切れる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/027/content/assembled.md",
       "script": {
@@ -941,7 +968,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/028/content/assembled.md",
       "script": {
@@ -975,7 +1003,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "楽になる",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/029/content/assembled.md",
       "script": {
@@ -1009,7 +1038,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "ほどける",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH14/030/content/assembled.md",
       "script": {

@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T07:32:09.834227Z",
+  "generated_at": "2026-01-12T10:58:43.026046Z",
   "channel": "CH05",
   "planning_csv": "workspaces/planning/channels/CH05.csv",
   "planning_count": 30,
@@ -23,7 +23,8 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
       "assembled_path": "workspaces/scripts/CH05/001/content/assembled.md",
       "script": {
@@ -57,7 +58,8 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
       "assembled_path": "workspaces/scripts/CH05/002/content/assembled.md",
       "script": {
@@ -91,9 +93,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/003/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/003/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/003/status.json",
@@ -125,9 +128,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/004/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/004/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/004/status.json",
@@ -159,9 +163,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/005/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/005/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/005/status.json",
@@ -193,9 +198,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/006/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/006/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/006/status.json",
@@ -227,9 +233,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/007/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/007/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/007/status.json",
@@ -261,9 +268,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/008/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/008/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/008/status.json",
@@ -295,9 +303,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/009/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/009/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/009/status.json",
@@ -329,9 +338,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/010/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/010/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/010/status.json",
@@ -363,9 +373,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/011/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/011/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/011/status.json",
@@ -397,9 +408,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/012/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/012/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/012/status.json",
@@ -431,9 +443,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/013/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/013/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/013/status.json",
@@ -465,9 +478,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/014/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/014/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/014/status.json",
@@ -499,9 +513,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/015/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/015/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/015/status.json",
@@ -533,9 +548,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/016/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/016/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/016/status.json",
@@ -567,9 +583,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/017/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/017/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/017/status.json",
@@ -601,9 +618,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/018/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/018/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/018/status.json",
@@ -635,9 +653,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/019/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/019/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/019/status.json",
@@ -669,9 +688,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/020/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/020/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/020/status.json",
@@ -703,9 +723,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/021/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/021/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/021/status.json",
@@ -737,9 +758,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/022/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/022/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/022/status.json",
@@ -771,9 +793,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/023/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/023/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/023/status.json",
@@ -805,9 +828,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/024/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/024/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/024/status.json",
@@ -839,9 +863,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/025/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/025/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/025/status.json",
@@ -873,9 +898,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/026/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/026/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/026/status.json",
@@ -907,9 +933,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/027/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/027/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/027/status.json",
@@ -941,9 +968,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/028/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/028/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/028/status.json",
@@ -975,9 +1003,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/029/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/029/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/029/status.json",
@@ -1009,9 +1038,10 @@
         "キーコンセプト": "アタッチメント",
         "ベネフィット一言": "第二の恋に踏み出す勇気が出る",
         "内容（企画要約）": "",
-        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。"
+        "説明文_リード": "大人の恋をもう一度楽しむための小さな勇気を届けます。",
+        "説明文_この動画でわかること": "・第二の恋に踏み出すステップ・家族へ伝える言葉"
       },
-      "assembled_path": "workspaces/scripts/CH05/030/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH05/030/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH05/030/status.json",

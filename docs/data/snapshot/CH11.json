@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T07:32:09.906151Z",
+  "generated_at": "2026-01-12T10:58:43.190805Z",
   "channel": "CH11",
   "planning_csv": "workspaces/planning/channels/CH11.csv",
   "planning_count": 46,
@@ -23,7 +23,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/001/content/assembled.md",
       "script": {
@@ -57,7 +58,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/002/content/assembled.md",
       "script": {
@@ -91,7 +93,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/003/content/assembled.md",
       "script": {
@@ -125,7 +128,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/004/content/assembled.md",
       "script": {
@@ -159,7 +163,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/005/content/assembled.md",
       "script": {
@@ -193,7 +198,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/006/content/assembled.md",
       "script": {
@@ -227,7 +233,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/007/content/assembled.md",
       "script": {
@@ -261,7 +268,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/008/content/assembled.md",
       "script": {
@@ -295,7 +303,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/009/content/assembled.md",
       "script": {
@@ -329,7 +338,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/010/content/assembled.md",
       "script": {
@@ -363,7 +373,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/011/content/assembled.md",
       "script": {
@@ -397,7 +408,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/012/content/assembled.md",
       "script": {
@@ -431,7 +443,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/013/content/assembled.md",
       "script": {
@@ -465,7 +478,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/014/content/assembled.md",
       "script": {
@@ -499,7 +513,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/015/content/assembled.md",
       "script": {
@@ -533,7 +548,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/016/content/assembled.md",
       "script": {
@@ -567,7 +583,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/017/content/assembled.md",
       "script": {
@@ -601,7 +618,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/018/content/assembled.md",
       "script": {
@@ -635,7 +653,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/019/content/assembled.md",
       "script": {
@@ -669,7 +688,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/020/content/assembled.md",
       "script": {
@@ -703,7 +723,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/021/content/assembled.md",
       "script": {
@@ -737,7 +758,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/022/content/assembled.md",
       "script": {
@@ -771,7 +793,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/023/content/assembled.md",
       "script": {
@@ -805,7 +828,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/024/content/assembled.md",
       "script": {
@@ -839,7 +863,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/025/content/assembled.md",
       "script": {
@@ -873,7 +898,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/026/content/assembled.md",
       "script": {
@@ -907,7 +933,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/027/content/assembled.md",
       "script": {
@@ -941,7 +968,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/028/content/assembled.md",
       "script": {
@@ -975,7 +1003,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/029/content/assembled.md",
       "script": {
@@ -1009,7 +1038,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/030/content/assembled.md",
       "script": {
@@ -1043,7 +1073,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/031/content/assembled.md",
       "script": {
@@ -1077,7 +1108,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/032/content/assembled.md",
       "script": {
@@ -1111,7 +1143,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/033/content/assembled.md",
       "script": {
@@ -1145,7 +1178,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/034/content/assembled.md",
       "script": {
@@ -1179,7 +1213,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/035/content/assembled.md",
       "script": {
@@ -1213,7 +1248,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/036/content/assembled.md",
       "script": {
@@ -1247,7 +1283,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/037/content/assembled.md",
       "script": {
@@ -1281,7 +1318,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/038/content/assembled.md",
       "script": {
@@ -1315,7 +1353,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/039/content/assembled.md",
       "script": {
@@ -1349,7 +1388,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/040/content/assembled.md",
       "script": {
@@ -1383,7 +1423,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/041/content/assembled.md",
       "script": {
@@ -1417,7 +1458,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/042/content/assembled.md",
       "script": {
@@ -1451,7 +1493,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/043/content/assembled.md",
       "script": {
@@ -1485,7 +1528,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/044/content/assembled.md",
       "script": {
@@ -1519,7 +1563,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/045/content/assembled.md",
       "script": {
@@ -1553,7 +1598,8 @@
         "キーコンセプト": "",
         "ベネフィット一言": "",
         "内容（企画要約）": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH11/046/content/assembled.md",
       "script": {

@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T07:32:10.025362Z",
+  "generated_at": "2026-01-12T10:58:43.572924Z",
   "channel": "CH28",
   "planning_csv": "workspaces/planning/channels/CH28.csv",
   "planning_count": 30,
@@ -23,7 +23,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "誰にも呼ばれない冬…公園の一言で救われた",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/001/content/assembled.md",
       "script": {
@@ -51,7 +52,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "夫を見送った夜…“空の食卓”が私を壊しそうだった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/002/content/assembled.md",
       "script": {
@@ -79,7 +81,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "朝の電話が鳴らない…それでも私は生きていく",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/003/content/assembled.md",
       "script": {
@@ -107,7 +110,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "スーパーで倒れそうになった日…助けてくれたのは“知らない人”",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/004/content/assembled.md",
       "script": {
@@ -135,7 +139,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "「迷惑かけたくない」…その気持ちが孤独を作っていた",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/005/content/assembled.md",
       "script": {
@@ -163,7 +168,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "一人の誕生日…ケーキより温かかった“言葉”",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/006/content/assembled.md",
       "script": {
@@ -191,7 +197,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "喪服をしまった日…“終わり”じゃなく“始まり”だった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/007/content/assembled.md",
       "script": {
@@ -219,7 +226,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "家にいるほど苦しい…外に出たら見えた世界",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/008/content/assembled.md",
       "script": {
@@ -247,7 +255,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "「私は必要ない」…思い込みを壊した一冊の本",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/009/content/assembled.md",
       "script": {
@@ -275,7 +284,8 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "涙が出ない夜…“泣けない自分”を許した",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/010/content/assembled.md",
       "script": {
@@ -303,16 +313,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "誰にも言えない不安…“聞くだけ”の人に出会った",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/011/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T04:43:06.455058Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/011/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -332,16 +342,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "孤独が怖い…だから“予定”を一つだけ作った",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/012/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T04:45:29.275540Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/012/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -361,16 +371,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "鏡の中の自分が嫌いだった…でも今日だけは違った",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/013/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T04:54:03.677764Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/013/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -390,16 +400,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "町の噂が怖い…それでも“居場所”は作れる",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/014/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T05:01:42.442448Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/014/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -419,16 +429,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "「友達がいない」…その言葉を言えた日から楽になった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/015/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T05:05:10.372902Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/015/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -448,16 +458,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "一人で病院へ…受付の一言で泣きそうになった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/016/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:30:03.563987Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/016/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -477,16 +487,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "空回りの優しさをやめたら、人が寄ってきた",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/017/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:31:55.653854Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/017/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -506,16 +516,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "夜の静けさが怖い…ラジオじゃなく“声”が欲しかった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/018/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:09:44.507430Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/018/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -535,16 +545,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "守れる",
         "内容（企画要約）": "「もう遅い」って言いかけた…その瞬間に来た電話",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/019/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:09:46.569504Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/019/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -564,16 +574,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "孤独を隠すのをやめた…私は私でいい",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/020/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:11:07.243216Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/020/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -593,16 +603,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "“ひとり飯”が寂しい…でも工夫で変わった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/021/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:14:06.418138Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/021/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -622,16 +632,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "手紙を書いた…送らない手紙が私を救った",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/022/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:14:08.476382Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/022/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -651,16 +661,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "“何もできない日”があってもいい",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/023/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:16:19.930996Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/023/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -680,16 +690,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "誰にも会わない日…それでも心は回復する",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/024/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:17:12.884320Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/024/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -709,16 +719,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "小さな習慣が“未来”を連れてきた",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/025/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:17:14.948892Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/025/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -738,16 +748,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "軽くなる",
         "内容（企画要約）": "“聞く”だけで世界が変わった…私の口が一つの理由",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/026/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:18:49.385217Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/026/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -767,16 +777,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "一人が怖い…でも“二人分の役割”は捨てていい",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/027/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:20:47.518423Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/027/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -796,16 +806,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "落ち着く",
         "内容（企画要約）": "春になった…私は“新しい名前”で呼ばれた",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/028/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:20:49.629217Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/028/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -825,16 +835,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "静まる",
         "内容（企画要約）": "孤独は終わらない…でも“孤立”は終わらせられる",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/029/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:22:36.216498Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/029/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     },
     {
@@ -854,16 +864,16 @@
         "キーコンセプト": "受け止める",
         "ベネフィット一言": "心が軽くなる",
         "内容（企画要約）": "最後に残ったのは“温かい一杯”だった",
-        "説明文_リード": "※本チャンネルの物語はフィクションです。"
+        "説明文_リード": "※本チャンネルの物語はフィクションです。",
+        "説明文_この動画でわかること": "・心が折れそうな夜の整え方<br>・今日できる一歩"
       },
       "assembled_path": "workspaces/scripts/CH28/030/content/assembled.md",
       "script": {
         "exists": true,
-        "status_path": null,
-        "status": "completed",
-        "updated_at": "2026-01-12T07:22:38.242223Z",
-        "stages": {},
-        "note": "status.json missing (assembled.md exists)"
+        "status_path": "workspaces/scripts/CH28/030/status.json",
+        "status": "script_validated",
+        "updated_at": "",
+        "stages": {}
       }
     }
   ]

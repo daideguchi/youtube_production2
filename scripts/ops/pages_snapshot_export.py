@@ -20,6 +20,7 @@ import argparse
 import csv
 import json
 import re
+import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -49,6 +50,7 @@ PLANNING_KEYS_WHITELIST = [
     "ベネフィット一言",
     "内容（企画要約）",
     "説明文_リード",
+    "説明文_この動画でわかること",
 ]
 
 SCRIPT_STAGE_KEYS = [
@@ -96,33 +98,65 @@ def _read_csv_rows(csv_path: Path) -> list[dict[str, str]]:
     return out
 
 
-def _discover_assembled_path(episode_dir: Path) -> str | None:
+def _git_ls_files(root: Path, path: str) -> set[str]:
+    try:
+        p = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--", str(path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except Exception:
+        return set()
+    if p.returncode != 0:
+        return set()
+    return {line.strip() for line in p.stdout.splitlines() if line.strip()}
+
+
+def _discover_tracked_assembled_path(episode_dir: Path, *, tracked_paths: set[str]) -> str | None:
     """
-    Prefer new SoT path `content/assembled.md`, fallback to legacy `assembled.md`.
-    Return repo-relative POSIX path.
+    Prefer canonical A-text `content/assembled_human.md`, then `content/assembled.md`,
+    fallback to legacy `assembled.md`.
+
+    IMPORTANT: Only return paths that are git-tracked (Pages/RAWで開けるものだけ)。
     """
     root = repo_root()
-    candidate = episode_dir / "content" / "assembled.md"
-    if candidate.exists():
-        return candidate.relative_to(root).as_posix()
-    legacy = episode_dir / "assembled.md"
-    if legacy.exists():
-        return legacy.relative_to(root).as_posix()
+    candidates = [
+        episode_dir / "content" / "assembled_human.md",
+        episode_dir / "content" / "assembled.md",
+        episode_dir / "assembled.md",
+    ]
+    for p in candidates:
+        if not p.exists():
+            continue
+        rel = p.relative_to(root).as_posix()
+        if rel in tracked_paths:
+            return rel
     return None
 
 
-def _discover_assembled_file(episode_dir: Path) -> Path | None:
-    """
-    Return the actual assembled file path if it exists.
-    Prefer `content/assembled.md`, fallback to legacy `assembled.md`.
-    """
-    candidate = episode_dir / "content" / "assembled.md"
-    if candidate.exists():
-        return candidate
-    legacy = episode_dir / "assembled.md"
-    if legacy.exists():
-        return legacy
+def _discover_tracked_assembled_file(episode_dir: Path, *, tracked_paths: set[str]) -> Path | None:
+    candidates = [
+        episode_dir / "content" / "assembled_human.md",
+        episode_dir / "content" / "assembled.md",
+        episode_dir / "assembled.md",
+    ]
+    for p in candidates:
+        if not p.exists():
+            continue
+        rel = p.relative_to(repo_root()).as_posix()
+        if rel in tracked_paths:
+            return p
     return None
+
+
+def _discover_assembled_path(episode_dir: Path) -> str | None:
+    """
+    Compatibility shim (legacy signature).
+    NOTE: Prefer calling `_discover_tracked_assembled_path(..., tracked_paths=...)`.
+    """
+    tracked = _git_ls_files(repo_root(), "workspaces/scripts")
+    return _discover_tracked_assembled_path(episode_dir, tracked_paths=tracked)
 
 
 def _mtime_iso_utc(path: Path) -> str:
@@ -194,6 +228,7 @@ class ChannelSnapshot:
 
 def _build_channel_payload(channel: str) -> dict[str, Any]:
     root = repo_root()
+    tracked = _git_ls_files(root, "workspaces/scripts")
     ch = _norm_channel(channel)
     planning_csv = channels_csv_path(ch)
     planning_rows = _read_csv_rows(planning_csv)
@@ -227,8 +262,8 @@ def _build_channel_payload(channel: str) -> dict[str, Any]:
     scripts_count = 0
     for video in all_videos:
         episode_dir = scripts_root / video
-        assembled_path = _discover_assembled_path(episode_dir) if episode_dir.exists() else None
-        assembled_file = _discover_assembled_file(episode_dir) if episode_dir.exists() else None
+        assembled_path = _discover_tracked_assembled_path(episode_dir, tracked_paths=tracked) if episode_dir.exists() else None
+        assembled_file = _discover_tracked_assembled_file(episode_dir, tracked_paths=tracked) if episode_dir.exists() else None
         script = _script_summary(episode_dir, assembled_file=assembled_file) if episode_dir.exists() else None
         if assembled_path:
             scripts_count += 1

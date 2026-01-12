@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T07:32:09.766256Z",
+  "generated_at": "2026-01-12T10:58:42.891823Z",
   "channel": "CH01",
   "planning_csv": "workspaces/planning/channels/CH01.csv",
   "planning_count": 290,
@@ -22,7 +22,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/001/content/assembled.md",
       "script": {
@@ -55,7 +56,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/002/content/assembled.md",
       "script": {
@@ -88,7 +90,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/003/content/assembled.md",
       "script": {
@@ -121,7 +124,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/004/content/assembled.md",
       "script": {
@@ -154,7 +158,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/005/content/assembled.md",
       "script": {
@@ -187,7 +192,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/006/content/assembled.md",
       "script": {
@@ -220,7 +226,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/007/content/assembled.md",
       "script": {
@@ -253,7 +260,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/008/content/assembled.md",
       "script": {
@@ -286,7 +294,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/009/content/assembled.md",
       "script": {
@@ -319,7 +328,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/010/content/assembled.md",
       "script": {
@@ -352,7 +362,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/011/content/assembled.md",
       "script": {
@@ -385,7 +396,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/012/content/assembled.md",
       "script": {
@@ -418,7 +430,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/013/content/assembled.md",
       "script": {
@@ -451,7 +464,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/014/content/assembled.md",
       "script": {
@@ -484,7 +498,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/015/content/assembled.md",
       "script": {
@@ -517,7 +532,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/016/content/assembled.md",
       "script": {
@@ -550,7 +566,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/017/content/assembled.md",
       "script": {
@@ -583,7 +600,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/018/content/assembled.md",
       "script": {
@@ -616,7 +634,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/019/content/assembled.md",
       "script": {
@@ -649,7 +668,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/020/content/assembled.md",
       "script": {
@@ -682,7 +702,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/021/content/assembled.md",
       "script": {
@@ -715,7 +736,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/022/content/assembled.md",
       "script": {
@@ -748,7 +770,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/023/content/assembled.md",
       "script": {
@@ -781,7 +804,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/024/content/assembled.md",
       "script": {
@@ -814,7 +838,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/025/content/assembled.md",
       "script": {
@@ -847,7 +872,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/026/content/assembled.md",
       "script": {
@@ -880,7 +906,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/027/content/assembled.md",
       "script": {
@@ -913,7 +940,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/028/content/assembled.md",
       "script": {
@@ -946,7 +974,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/029/content/assembled.md",
       "script": {
@@ -979,7 +1008,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/030/content/assembled.md",
       "script": {
@@ -1012,7 +1042,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/031/content/assembled.md",
       "script": {
@@ -1045,7 +1076,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/032/content/assembled.md",
       "script": {
@@ -1078,7 +1110,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/033/content/assembled.md",
       "script": {
@@ -1111,7 +1144,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/034/content/assembled.md",
       "script": {
@@ -1144,7 +1178,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/035/content/assembled.md",
       "script": {
@@ -1177,7 +1212,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/036/content/assembled.md",
       "script": {
@@ -1210,7 +1246,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/037/content/assembled.md",
       "script": {
@@ -1243,7 +1280,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/038/content/assembled.md",
       "script": {
@@ -1276,7 +1314,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/039/content/assembled.md",
       "script": {
@@ -1309,7 +1348,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/040/content/assembled.md",
       "script": {
@@ -1342,7 +1382,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/041/content/assembled.md",
       "script": {
@@ -1375,7 +1416,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/042/content/assembled.md",
       "script": {
@@ -1408,7 +1450,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/043/content/assembled.md",
       "script": {
@@ -1441,7 +1484,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/044/content/assembled.md",
       "script": {
@@ -1474,7 +1518,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/045/content/assembled.md",
       "script": {
@@ -1507,7 +1552,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/046/content/assembled.md",
       "script": {
@@ -1540,7 +1586,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/047/content/assembled.md",
       "script": {
@@ -1573,7 +1620,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/048/content/assembled.md",
       "script": {
@@ -1606,7 +1654,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/049/content/assembled.md",
       "script": {
@@ -1639,7 +1688,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/050/content/assembled.md",
       "script": {
@@ -1672,7 +1722,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/051/content/assembled.md",
       "script": {
@@ -1705,7 +1756,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/052/content/assembled.md",
       "script": {
@@ -1738,7 +1790,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/053/content/assembled.md",
       "script": {
@@ -1771,7 +1824,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/054/content/assembled.md",
       "script": {
@@ -1804,7 +1858,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/055/content/assembled.md",
       "script": {
@@ -1837,7 +1892,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/056/content/assembled.md",
       "script": {
@@ -1870,7 +1926,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/057/content/assembled.md",
       "script": {
@@ -1903,7 +1960,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/058/content/assembled.md",
       "script": {
@@ -1936,7 +1994,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/059/content/assembled.md",
       "script": {
@@ -1969,7 +2028,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/060/content/assembled.md",
       "script": {
@@ -2002,7 +2062,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/061/content/assembled.md",
       "script": {
@@ -2035,7 +2096,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/062/content/assembled.md",
       "script": {
@@ -2068,7 +2130,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/063/content/assembled.md",
       "script": {
@@ -2101,7 +2164,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/064/content/assembled.md",
       "script": {
@@ -2134,7 +2198,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/065/content/assembled.md",
       "script": {
@@ -2167,7 +2232,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/066/content/assembled.md",
       "script": {
@@ -2200,7 +2266,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/067/content/assembled.md",
       "script": {
@@ -2233,7 +2300,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/068/content/assembled.md",
       "script": {
@@ -2266,7 +2334,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/069/content/assembled.md",
       "script": {
@@ -2299,7 +2368,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/070/content/assembled.md",
       "script": {
@@ -2332,7 +2402,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/071/content/assembled.md",
       "script": {
@@ -2365,7 +2436,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/072/content/assembled.md",
       "script": {
@@ -2398,7 +2470,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/073/content/assembled.md",
       "script": {
@@ -2431,7 +2504,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/074/content/assembled.md",
       "script": {
@@ -2464,7 +2538,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/075/content/assembled.md",
       "script": {
@@ -2497,7 +2572,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/076/content/assembled.md",
       "script": {
@@ -2530,7 +2606,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/077/content/assembled.md",
       "script": {
@@ -2563,7 +2640,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/078/content/assembled.md",
       "script": {
@@ -2596,7 +2674,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/079/content/assembled.md",
       "script": {
@@ -2629,7 +2708,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/080/content/assembled.md",
       "script": {
@@ -2662,7 +2742,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/081/content/assembled.md",
       "script": {
@@ -2695,7 +2776,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/082/content/assembled.md",
       "script": {
@@ -2728,7 +2810,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/083/content/assembled.md",
       "script": {
@@ -2761,7 +2844,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/084/content/assembled.md",
       "script": {
@@ -2794,7 +2878,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/085/content/assembled.md",
       "script": {
@@ -2827,7 +2912,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/086/content/assembled.md",
       "script": {
@@ -2860,7 +2946,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/087/content/assembled.md",
       "script": {
@@ -2893,7 +2980,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/088/content/assembled.md",
       "script": {
@@ -2926,7 +3014,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/089/content/assembled.md",
       "script": {
@@ -2959,7 +3048,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/090/content/assembled.md",
       "script": {
@@ -2992,7 +3082,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/091/content/assembled.md",
       "script": {
@@ -3025,7 +3116,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/092/content/assembled.md",
       "script": {
@@ -3058,7 +3150,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/093/content/assembled.md",
       "script": {
@@ -3091,7 +3184,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/094/content/assembled.md",
       "script": {
@@ -3124,7 +3218,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/095/content/assembled.md",
       "script": {
@@ -3157,7 +3252,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/096/content/assembled.md",
       "script": {
@@ -3190,7 +3286,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/097/content/assembled.md",
       "script": {
@@ -3223,7 +3320,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/098/content/assembled.md",
       "script": {
@@ -3256,7 +3354,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/099/content/assembled.md",
       "script": {
@@ -3289,7 +3388,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/100/content/assembled.md",
       "script": {
@@ -3322,7 +3422,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/101/content/assembled.md",
       "script": {
@@ -3355,7 +3456,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/102/content/assembled.md",
       "script": {
@@ -3388,7 +3490,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/103/content/assembled.md",
       "script": {
@@ -3421,7 +3524,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/104/content/assembled.md",
       "script": {
@@ -3454,7 +3558,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/105/content/assembled.md",
       "script": {
@@ -3487,7 +3592,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/106/content/assembled.md",
       "script": {
@@ -3520,7 +3626,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/107/content/assembled.md",
       "script": {
@@ -3553,7 +3660,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/108/content/assembled.md",
       "script": {
@@ -3586,7 +3694,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/109/content/assembled.md",
       "script": {
@@ -3619,7 +3728,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/110/content/assembled.md",
       "script": {
@@ -3652,7 +3762,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/111/content/assembled.md",
       "script": {
@@ -3685,7 +3796,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/112/content/assembled.md",
       "script": {
@@ -3718,7 +3830,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/113/content/assembled.md",
       "script": {
@@ -3751,7 +3864,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/114/content/assembled.md",
       "script": {
@@ -3784,7 +3898,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/115/content/assembled.md",
       "script": {
@@ -3817,7 +3932,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/116/content/assembled.md",
       "script": {
@@ -3850,7 +3966,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/117/content/assembled.md",
       "script": {
@@ -3883,7 +4000,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/118/content/assembled.md",
       "script": {
@@ -3916,7 +4034,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/119/content/assembled.md",
       "script": {
@@ -3949,7 +4068,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/120/content/assembled.md",
       "script": {
@@ -3982,7 +4102,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/121/content/assembled.md",
       "script": {
@@ -4015,7 +4136,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/122/content/assembled.md",
       "script": {
@@ -4048,7 +4170,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/123/content/assembled.md",
       "script": {
@@ -4081,7 +4204,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/124/content/assembled.md",
       "script": {
@@ -4114,7 +4238,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/125/content/assembled.md",
       "script": {
@@ -4147,7 +4272,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/126/content/assembled.md",
       "script": {
@@ -4180,7 +4306,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/127/content/assembled.md",
       "script": {
@@ -4213,7 +4340,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/128/content/assembled.md",
       "script": {
@@ -4246,7 +4374,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/129/content/assembled.md",
       "script": {
@@ -4279,7 +4408,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/130/content/assembled.md",
       "script": {
@@ -4312,7 +4442,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/131/content/assembled.md",
       "script": {
@@ -4345,7 +4476,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/132/content/assembled.md",
       "script": {
@@ -4378,7 +4510,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/133/content/assembled.md",
       "script": {
@@ -4411,7 +4544,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/134/content/assembled.md",
       "script": {
@@ -4444,7 +4578,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/135/content/assembled.md",
       "script": {
@@ -4477,7 +4612,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/136/content/assembled.md",
       "script": {
@@ -4510,7 +4646,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/137/content/assembled.md",
       "script": {
@@ -4543,7 +4680,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/138/content/assembled.md",
       "script": {
@@ -4576,7 +4714,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/139/content/assembled.md",
       "script": {
@@ -4609,7 +4748,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/140/content/assembled.md",
       "script": {
@@ -4642,7 +4782,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/141/content/assembled.md",
       "script": {
@@ -4675,7 +4816,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/142/content/assembled.md",
       "script": {
@@ -4708,7 +4850,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/143/content/assembled.md",
       "script": {
@@ -4741,7 +4884,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/144/content/assembled.md",
       "script": {
@@ -4774,7 +4918,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/145/content/assembled.md",
       "script": {
@@ -4807,7 +4952,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/146/content/assembled.md",
       "script": {
@@ -4840,7 +4986,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/147/content/assembled.md",
       "script": {
@@ -4873,7 +5020,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/148/content/assembled.md",
       "script": {
@@ -4906,7 +5054,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/149/content/assembled.md",
       "script": {
@@ -4939,7 +5088,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/150/content/assembled.md",
       "script": {
@@ -4972,7 +5122,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/151/content/assembled.md",
       "script": {
@@ -5005,7 +5156,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/152/content/assembled.md",
       "script": {
@@ -5038,7 +5190,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/153/content/assembled.md",
       "script": {
@@ -5071,7 +5224,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/154/content/assembled.md",
       "script": {
@@ -5104,7 +5258,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/155/content/assembled.md",
       "script": {
@@ -5137,7 +5292,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/156/content/assembled.md",
       "script": {
@@ -5170,7 +5326,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/157/content/assembled.md",
       "script": {
@@ -5203,7 +5360,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/158/content/assembled.md",
       "script": {
@@ -5236,7 +5394,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/159/content/assembled.md",
       "script": {
@@ -5269,7 +5428,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/160/content/assembled.md",
       "script": {
@@ -5302,7 +5462,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/161/content/assembled.md",
       "script": {
@@ -5335,7 +5496,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/162/content/assembled.md",
       "script": {
@@ -5368,7 +5530,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/163/content/assembled.md",
       "script": {
@@ -5401,7 +5564,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/164/content/assembled.md",
       "script": {
@@ -5434,7 +5598,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/165/content/assembled.md",
       "script": {
@@ -5467,7 +5632,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/166/content/assembled.md",
       "script": {
@@ -5500,7 +5666,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/167/content/assembled.md",
       "script": {
@@ -5533,7 +5700,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/168/content/assembled.md",
       "script": {
@@ -5566,7 +5734,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/169/content/assembled.md",
       "script": {
@@ -5599,7 +5768,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/170/content/assembled.md",
       "script": {
@@ -5632,7 +5802,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/171/content/assembled.md",
       "script": {
@@ -5665,7 +5836,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/172/content/assembled.md",
       "script": {
@@ -5698,7 +5870,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/173/content/assembled.md",
       "script": {
@@ -5731,7 +5904,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/174/content/assembled.md",
       "script": {
@@ -5764,7 +5938,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/175/content/assembled.md",
       "script": {
@@ -5797,7 +5972,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/176/content/assembled.md",
       "script": {
@@ -5830,7 +6006,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/177/content/assembled.md",
       "script": {
@@ -5863,7 +6040,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/178/content/assembled.md",
       "script": {
@@ -5896,7 +6074,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/179/content/assembled.md",
       "script": {
@@ -5929,7 +6108,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/180/content/assembled.md",
       "script": {
@@ -5962,7 +6142,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/181/content/assembled.md",
       "script": {
@@ -5995,7 +6176,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/182/content/assembled.md",
       "script": {
@@ -6028,7 +6210,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/183/content/assembled.md",
       "script": {
@@ -6061,7 +6244,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/184/content/assembled.md",
       "script": {
@@ -6094,7 +6278,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/185/content/assembled.md",
       "script": {
@@ -6127,7 +6312,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/186/content/assembled.md",
       "script": {
@@ -6160,7 +6346,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/187/content/assembled.md",
       "script": {
@@ -6193,7 +6380,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/188/content/assembled.md",
       "script": {
@@ -6226,7 +6414,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/189/content/assembled.md",
       "script": {
@@ -6259,7 +6448,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/190/content/assembled.md",
       "script": {
@@ -6292,7 +6482,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/191/content/assembled.md",
       "script": {
@@ -6325,7 +6516,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/192/content/assembled.md",
       "script": {
@@ -6358,7 +6550,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/193/content/assembled.md",
       "script": {
@@ -6391,7 +6584,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/194/content/assembled.md",
       "script": {
@@ -6424,7 +6618,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/195/content/assembled.md",
       "script": {
@@ -6457,7 +6652,8 @@
         "ライフシーン": "SNS",
         "キーコンセプト": "四苦八苦",
         "ベネフィット一言": "嫉妬という苦しみから解放し、自分の幸せに気づかせる。",
-        "説明文_リード": "【嫉妬】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【嫉妬】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・四苦八苦の捉え方・嫉妬という苦しみから解放し 自分の幸せに気づかせの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/196/content/assembled.md",
       "script": {
@@ -6490,7 +6686,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "ありのまま",
         "ベネフィット一言": "「許さなければならない」という道徳観に苦しむ人を解放する。",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・ありのままの捉え方・「許さなければならない」という道徳観に苦しむ人をの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/197/content/assembled.md",
       "script": {
@@ -6523,7 +6720,8 @@
         "ライフシーン": "老後",
         "キーコンセプト": "金運",
         "ベネフィット一言": "『お金』テーマは再生数が安定しやすい。ただし、単なる「稼ぐ方",
-        "説明文_リード": "【お金】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【お金】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・金運の捉え方・『お金』テーマは再生数が安定しやすいただし 単なの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/198/content/assembled.md",
       "script": {
@@ -6556,7 +6754,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "自利利他",
         "ベネフィット一言": "都合のいい人になってしまっている人に、自分軸を持つことの大切",
-        "説明文_リード": "【自己犠牲】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【自己犠牲】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・自利利他の捉え方・都合のいい人になってしまっている人に 自分軸を持の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/199/content/assembled.md",
       "script": {
@@ -6589,7 +6788,8 @@
         "ライフシーン": "定年後",
         "キーコンセプト": "すること",
         "ベネフィット一言": "生産性や役割から解放され、ただ存在することの尊さを伝える。",
-        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・することの捉え方・生産性や役割から解放され ただ存在することの尊さの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/200/content/assembled.md",
       "script": {
@@ -6622,7 +6822,8 @@
         "ライフシーン": "50代",
         "キーコンセプト": "渇愛",
         "ベネフィット一言": "モノや人間関係、過去への執着を手放すことで、新しい運気が入っ",
-        "説明文_リード": "【運気】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【運気】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・渇愛の捉え方・モノや人間関係 過去への執着を手放すことで 新しの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/201/content/assembled.md",
       "script": {
@@ -6655,7 +6856,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "無視",
         "ベネフィット一言": "攻撃してくる人への対処法として、反応しないことの有効性を説く",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・無視の捉え方・攻撃してくる人への対処法として 反応しないことのの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/202/content/assembled.md",
       "script": {
@@ -6688,7 +6890,8 @@
         "ライフシーン": "夜",
         "キーコンセプト": "一切皆苦",
         "ベネフィット一言": "人生に絶望しかけている人に、寄り添いと救いの言葉を届ける。",
-        "説明文_リード": "【メンタル】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【メンタル】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・一切皆苦の捉え方・人生に絶望しかけている人に 寄り添いと救いの言葉の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/203/content/assembled.md",
       "script": {
@@ -6721,7 +6924,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "愚痴、嫉妬、怠惰",
         "ベネフィット一言": "悪縁を断ち切る勇気を与え、環境を変えることの重要性を説く。",
-        "説明文_リード": "【嫉妬】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【嫉妬】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・愚痴、嫉妬、怠惰の捉え方・悪縁を断ち切る勇気を与え 環境を変えることの重要の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/204/content/assembled.md",
       "script": {
@@ -6754,7 +6958,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "知足",
         "ベネフィット一言": "金運と心の持ちようの関連性を説き、感謝の実践を勧める。",
-        "説明文_リード": "【お金】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【お金】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・知足の捉え方・金運と心の持ちようの関連性を説き 感謝の実践を勧の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/205/content/assembled.md",
       "script": {
@@ -6787,7 +6992,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "病は気から",
         "ベネフィット一言": "心身一如の考え方に基づき、心の健康が体の健康に繋がることを説",
-        "説明文_リード": "【病は気から】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【病は気から】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・病は気からの捉え方・心身一如の考え方に基づき 心の健康が体の健康に繋の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/206/content/assembled.md",
       "script": {
@@ -6820,9 +7026,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/207/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/207/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/207/status.json",
@@ -6853,7 +7060,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "見下してくる人へ",
         "ベネフィット一言": "マウントを取ってくる人への心理的優位性を保つ方法。",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・見下してくる人への捉え方・マウントを取ってくる人への心理的優位性を保つ方法の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/208/content/assembled.md",
       "script": {
@@ -6886,7 +7094,8 @@
         "ライフシーン": "老後",
         "キーコンセプト": "無為",
         "ベネフィット一言": "将来への漠然とした不安を取り除き、現在に集中させる。",
-        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・無為の捉え方・将来への漠然とした不安を取り除き 現在に集中させの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/209/content/assembled.md",
       "script": {
@@ -6919,7 +7128,8 @@
         "ライフシーン": "家庭",
         "キーコンセプト": "共依存",
         "ベネフィット一言": "家族だからという理由で犠牲になっている人を救う。適切な距離感",
-        "説明文_リード": "【家族でも距離を置け】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【家族でも距離を置け】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・共依存の捉え方・家族だからという理由で犠牲になっている人を救う適の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/210/content/assembled.md",
       "script": {
@@ -6952,9 +7162,10 @@
         "ライフシーン": "日常",
         "キーコンセプト": "流れを整える",
         "ベネフィット一言": "情に流されず、悪縁を断ち切る勇気を持たせる。",
-        "説明文_リード": "【運気】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【運気】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・流れを整えるの捉え方・情に流されず 悪縁を断ち切る勇気を持たせるの実践"
       },
-      "assembled_path": "workspaces/scripts/CH01/211/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/211/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/211/status.json",
@@ -6985,7 +7196,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "賢者の沈黙",
         "ベネフィット一言": "議論や争いの無意味さを説き、スルーする力を養う。",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・賢者の沈黙の捉え方・議論や争いの無意味さを説き スルーする力を養うの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/212/content/assembled.md",
       "script": {
@@ -7018,7 +7230,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "孤独の正体",
         "ベネフィット一言": "孤独への恐怖を払拭し、個としての強さを肯定する。",
-        "説明文_リード": "【孤独の正体】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【孤独の正体】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・孤独の正体の捉え方・孤独への恐怖を払拭し 個としての強さを肯定するの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/213/content/assembled.md",
       "script": {
@@ -7051,7 +7264,8 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
       "assembled_path": "workspaces/scripts/CH01/214/content/assembled.md",
       "script": {
@@ -7084,9 +7298,10 @@
         "ライフシーン": "日常",
         "キーコンセプト": "期待しない生き方",
         "ベネフィット一言": "他者への期待が苦しみの根源であることを理解させる。",
-        "説明文_リード": "【メンタル】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【メンタル】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・期待しない生き方の捉え方・他者への期待が苦しみの根源であることを理解させるの実践"
       },
-      "assembled_path": "workspaces/scripts/CH01/215/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/215/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/215/status.json",
@@ -7117,9 +7332,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/216/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/216/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/216/status.json",
@@ -7150,9 +7366,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/217/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/217/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/217/status.json",
@@ -7183,7 +7400,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "因果応報",
         "ベネフィット一言": "悪行は必ず自分に返ってくるという因果の理を説き、溜飲を下げる",
-        "説明文_リード": "【因果応報】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【因果応報】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・因果応報の捉え方・悪行は必ず自分に返ってくるという因果の理を説き の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/218/content/assembled.md",
       "script": {
@@ -7216,7 +7434,8 @@
         "ライフシーン": "老後",
         "キーコンセプト": "無為",
         "ベネフィット一言": "安定志向への警鐘と、挑戦する人生の尊さを説く。",
-        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・無為の捉え方・安定志向への警鐘と 挑戦する人生の尊さを説くの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/219/content/assembled.md",
       "script": {
@@ -7249,9 +7468,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/220/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/220/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/220/status.json",
@@ -7282,7 +7502,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "比較をやめる",
         "ベネフィット一言": "攻撃してくる人の心理を暴き、優越感を持たせる。",
-        "説明文_リード": "【嫉妬】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【嫉妬】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・比較をやめるの捉え方・攻撃してくる人の心理を暴き 優越感を持たせるの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/221/content/assembled.md",
       "script": {
@@ -7315,7 +7536,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "逃げる勇気",
         "ベネフィット一言": "「逃げる＝負け」という価値観を否定し、生存戦略としての逃走を",
-        "説明文_リード": "【逃げる勇気】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【逃げる勇気】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・逃げる勇気の捉え方・「逃げる＝負け」という価値観を否定し 生存戦略との実践"
       },
       "assembled_path": "workspaces/scripts/CH01/222/content/assembled.md",
       "script": {
@@ -7348,7 +7570,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "お布施",
         "ベネフィット一言": "お金に対する綺麗事を排除し、現実的な豊かさの重要性を説く。",
-        "説明文_リード": "【お金】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【お金】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・お布施の捉え方・お金に対する綺麗事を排除し 現実的な豊かさの重要の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/223/content/assembled.md",
       "script": {
@@ -7381,7 +7604,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "偽善者の特徴",
         "ベネフィット一言": "表面的な優しさに騙されないための洞察力を養う。",
-        "説明文_リード": "【自己犠牲】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【自己犠牲】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・偽善者の特徴の捉え方・表面的な優しさに騙されないための洞察力を養うの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/224/content/assembled.md",
       "script": {
@@ -7414,7 +7638,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "親不孝のすすめ",
         "ベネフィット一言": "親からの精神的自立（親殺し）を促す。",
-        "説明文_リード": "【親不孝のすすめ】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【親不孝のすすめ】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・親不孝のすすめの捉え方・親からの精神的自立（親殺し）を促すの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/225/content/assembled.md",
       "script": {
@@ -7447,7 +7672,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "りょく",
         "ベネフィット一言": "繊細すぎる人に、鈍感であることの強さと処世術を説く。",
-        "説明文_リード": "【鈍感力】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【鈍感力】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・りょくの捉え方・繊細すぎる人に 鈍感であることの強さと処世術を説の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/226/content/assembled.md",
       "script": {
@@ -7480,7 +7706,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "断る力",
         "ベネフィット一言": "断ることへの罪悪感を消し、自分の時間を守る重要性を説く。",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・断る力の捉え方・断ることへの罪悪感を消し 自分の時間を守る重要性の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/227/content/assembled.md",
       "script": {
@@ -7513,7 +7740,8 @@
         "ライフシーン": "SNS",
         "キーコンセプト": "見栄を張るな",
         "ベネフィット一言": "等身大の自分を受け入れ、虚勢を張る無意味さを説く。",
-        "説明文_リード": "【見栄を張るな】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【見栄を張るな】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・見栄を張るなの捉え方・等身大の自分を受け入れ 虚勢を張る無意味さを説くの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/228/content/assembled.md",
       "script": {
@@ -7546,7 +7774,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "努力の罠",
         "ベネフィット一言": "盲目的な努力を否定し、戦略的な努力の重要性を説く。",
-        "説明文_リード": "【努力の罠】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【努力の罠】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・努力の罠の捉え方・盲目的な努力を否定し 戦略的な努力の重要性を説くの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/229/content/assembled.md",
       "script": {
@@ -7579,7 +7808,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "執着",
         "ベネフィット一言": "過去への執着が成長を止めることを説き、アップデートを促す。",
-        "説明文_リード": "【執着の断捨離】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【執着の断捨離】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・執着の捉え方・過去への執着が成長を止めることを説き アップデーの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/230/content/assembled.md",
       "script": {
@@ -7612,9 +7842,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/231/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/231/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/231/status.json",
@@ -7645,7 +7876,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "嘘の効用",
         "ベネフィット一言": "嘘＝悪という固定観念を壊し、自分と他人を守るための嘘を肯定す",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・嘘の効用の捉え方・嘘＝悪という固定観念を壊し 自分と他人を守るための実践"
       },
       "assembled_path": "workspaces/scripts/CH01/232/content/assembled.md",
       "script": {
@@ -7678,9 +7910,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/233/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/233/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/233/status.json",
@@ -7711,7 +7944,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "死の受容",
         "ベネフィット一言": "死を突きつけることで、生の密度を高める。",
-        "説明文_リード": "【死の受容】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【死の受容】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・死の受容の捉え方・死を突きつけることで 生の密度を高めるの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/234/content/assembled.md",
       "script": {
@@ -7744,9 +7978,10 @@
         "ライフシーン": "日常",
         "キーコンセプト": "支配からの脱却",
         "ベネフィット一言": "マインドコントロールや洗脳（ガスライティング）の手口を暴く。",
-        "説明文_リード": "【支配からの脱却】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【支配からの脱却】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・支配からの脱却の捉え方・マインドコントロールや洗脳（ガスライティング）のの実践"
       },
-      "assembled_path": "workspaces/scripts/CH01/235/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/235/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/235/status.json",
@@ -7777,7 +8012,8 @@
         "ライフシーン": "老後",
         "キーコンセプト": "孤独死の真実",
         "ベネフィット一言": "孤独死への過度な恐怖を和らげ、死に様より生き様の重要性を説く",
-        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・孤独死の真実の捉え方・孤独死への過度な恐怖を和らげ 死に様より生き様のの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/236/content/assembled.md",
       "script": {
@@ -7810,9 +8046,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/237/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/237/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/237/status.json",
@@ -7843,7 +8080,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "怒りの活用法",
         "ベネフィット一言": "怒りを否定せず、行動の原動力（ガソリン）として利用する。",
-        "説明文_リード": "【怒りの活用法】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【怒りの活用法】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・怒りの活用法の捉え方・怒りを否定せず 行動の原動力（ガソリン）として利の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/238/content/assembled.md",
       "script": {
@@ -7876,9 +8114,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/239/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/239/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/239/status.json",
@@ -7909,9 +8148,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/240/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/240/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/240/status.json",
@@ -7942,7 +8182,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "媚びない生き方",
         "ベネフィット一言": "八方美人のリスクを説き、自分軸を持つ重要性を伝える。",
-        "説明文_リード": "【媚びない生き方】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【媚びない生き方】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・媚びない生き方の捉え方・八方美人のリスクを説き 自分軸を持つ重要性を伝えの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/241/content/assembled.md",
       "script": {
@@ -7975,7 +8216,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "スキ",
         "ベネフィット一言": "強がることをやめ、弱さを見せることで愛される逆説を説く。",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・スキの捉え方・強がることをやめ 弱さを見せることで愛される逆説の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/242/content/assembled.md",
       "script": {
@@ -8008,7 +8250,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "執着",
         "ベネフィット一言": "若さへの執着を捨て、老いを成熟として肯定する。",
-        "説明文_リード": "【老いの受容】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【老いの受容】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・執着の捉え方・若さへの執着を捨て 老いを成熟として肯定するの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/243/content/assembled.md",
       "script": {
@@ -8041,9 +8284,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/244/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/244/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/244/status.json",
@@ -8074,7 +8318,8 @@
         "ライフシーン": "SNS",
         "キーコンセプト": "比較の罠",
         "ベネフィット一言": "他人との比較が無意味であることを、皮肉を交えて説く。",
-        "説明文_リード": "【比較の罠】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【比較の罠】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・比較の罠の捉え方・他人との比較が無意味であることを 皮肉を交えて説の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/245/content/assembled.md",
       "script": {
@@ -8107,7 +8352,8 @@
         "ライフシーン": "職場",
         "キーコンセプト": "逃げ場所の確保",
         "ベネフィット一言": "家庭と職場以外の居場所を持つ重要性を説く。",
-        "説明文_リード": "【逃げ場所の確保】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【逃げ場所の確保】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・逃げ場所の確保の捉え方・家庭と職場以外の居場所を持つ重要性を説くの実践"
       },
       "assembled_path": "workspaces/scripts/CH01/246/content/assembled.md",
       "script": {
@@ -8140,9 +8386,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/247/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/247/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/247/status.json",
@@ -8173,7 +8420,8 @@
         "ライフシーン": "日常",
         "キーコンセプト": "正論",
         "ベネフィット一言": "正論ハラスメントを戒め、相手の感情に寄り添う大切さを説く。",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──ブッダの視点で心を整える話。",
+        "説明文_この動画でわかること": "・正論の捉え方・正論ハラスメントを戒め 相手の感情に寄り添う大切の実践"
       },
       "assembled_path": "workspaces/scripts/CH01/248/content/assembled.md",
       "script": {
@@ -8206,9 +8454,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/249/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/249/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/249/status.json",
@@ -8239,9 +8488,10 @@
         "ライフシーン": "",
         "キーコンセプト": "",
         "ベネフィット一言": "",
-        "説明文_リード": ""
+        "説明文_リード": "",
+        "説明文_この動画でわかること": ""
       },
-      "assembled_path": "workspaces/scripts/CH01/250/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/250/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/250/status.json",
@@ -8272,9 +8522,10 @@
         "ライフシーン": "家庭 / 職場",
         "キーコンセプト": "口業",
         "ベネフィット一言": "失言が減り、人間関係が壊れにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──言葉で傷つけず、尊厳を守る話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──言葉で傷つけず、尊厳を守る話。",
+        "説明文_この動画でわかること": "・人間関係が壊れる禁句7つ・禁句の言い換えフレーズ"
       },
-      "assembled_path": "workspaces/scripts/CH01/251/content/assembled.md",
+      "assembled_path": "workspaces/scripts/CH01/251/content/assembled_human.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/251/status.json",
@@ -8305,14 +8556,15 @@
         "ライフシーン": "地域サークル / 友人",
         "キーコンセプト": "悪知識",
         "ベネフィット一言": "会うと疲れる相手から自分を守れる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──“吸われる相手”から離れる知恵。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──“吸われる相手”から離れる知恵。",
+        "説明文_この動画でわかること": "・エネルギー泥棒5タイプ・距離の取り方（心と現実）"
       },
       "assembled_path": "workspaces/scripts/CH01/252/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/252/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8338,14 +8590,15 @@
         "ライフシーン": "ひとりの夜",
         "キーコンセプト": "無我",
         "ベネフィット一言": "孤独への恐怖が薄れ、心が安定する",
-        "説明文_リード": "【孤独】で苦しいあなたへ──一人を強みに変える話。"
+        "説明文_リード": "【孤独】で苦しいあなたへ──一人を強みに変える話。",
+        "説明文_この動画でわかること": "・まともな人ほど孤独になる理由・孤独を味方にする習慣"
       },
       "assembled_path": "workspaces/scripts/CH01/253/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/253/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8371,14 +8624,15 @@
         "ライフシーン": "職場 / 家庭",
         "キーコンセプト": "忍辱",
         "ベネフィット一言": "悪口で揺れず、眠れるようになる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──悪口に心を奪われない話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──悪口に心を奪われない話。",
+        "説明文_この動画でわかること": "・受け流し3呼吸のやり方・返し言葉の作り方"
       },
       "assembled_path": "workspaces/scripts/CH01/254/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/254/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8404,14 +8658,15 @@
         "ライフシーン": "家庭",
         "キーコンセプト": "慈悲",
         "ベネフィット一言": "尽くしすぎを止め、自分を守れる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──尽くし癖をほどく話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──尽くし癖をほどく話。",
+        "説明文_この動画でわかること": "・尽くすほど雑に扱われる理由・境界線の作り方"
       },
       "assembled_path": "workspaces/scripts/CH01/255/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/255/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8437,14 +8692,15 @@
         "ライフシーン": "退職後 / 地域",
         "キーコンセプト": "縁起",
         "ベネフィット一言": "友人関係の不安が減り、楽になる",
-        "説明文_リード": "【老後】で苦しいあなたへ──友達を減らして心を守る話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──友達を減らして心を守る話。",
+        "説明文_この動画でわかること": "・60代から友達を減らす理由・残す縁の基準"
       },
       "assembled_path": "workspaces/scripts/CH01/256/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/256/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8470,14 +8726,15 @@
         "ライフシーン": "家庭",
         "キーコンセプト": "親の期待",
         "ベネフィット一言": "親の期待に振り回されなくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──親の期待から自由になる話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──親の期待から自由になる話。",
+        "説明文_この動画でわかること": "・「いい子」の呪いの正体・罪悪感を減らす距離感"
       },
       "assembled_path": "workspaces/scripts/CH01/257/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/257/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8503,14 +8760,15 @@
         "ライフシーン": "職場 / 地域",
         "キーコンセプト": "慢",
         "ベネフィット一言": "マウンティングに消耗しなくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──マウンティングから身を守る話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──マウンティングから身を守る話。",
+        "説明文_この動画でわかること": "・自慢が止まらない心理・巻き込まれない返し方"
       },
       "assembled_path": "workspaces/scripts/CH01/258/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/258/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8536,14 +8794,15 @@
         "ライフシーン": "職場",
         "キーコンセプト": "忍辱",
         "ベネフィット一言": "失礼な人に飲まれなくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──尊厳を守る返し方。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──尊厳を守る返し方。",
+        "説明文_この動画でわかること": "・返しの一言3パターン・場を荒らさず線を引く方法"
       },
       "assembled_path": "workspaces/scripts/CH01/259/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/259/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "processing",
@@ -8569,14 +8828,15 @@
         "ライフシーン": "ひとりの夜",
         "キーコンセプト": "中道",
         "ベネフィット一言": "自分責めが減り、心が軽くなる",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──完璧を手放す話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──完璧を手放す話。",
+        "説明文_この動画でわかること": "・完璧主義の正体・力を抜く3ルール"
       },
       "assembled_path": "workspaces/scripts/CH01/260/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/260/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8602,14 +8862,15 @@
         "ライフシーン": "朝 / 夜",
         "キーコンセプト": "感謝習慣",
         "ベネフィット一言": "心が落ち着き、満たされやすくなる",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──感謝を習慣にする話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──感謝を習慣にする話。",
+        "説明文_この動画でわかること": "・感謝で脳が変わる理由・今日からできる習慣"
       },
       "assembled_path": "workspaces/scripts/CH01/261/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/261/status.json",
         "status": "script_validated",
-        "updated_at": "2026-01-11T08:58:24.311837Z",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8635,14 +8896,15 @@
         "ライフシーン": "職場 / 友人",
         "キーコンセプト": "無我",
         "ベネフィット一言": "妬みを恐れず前に進める",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──嫉妬に足を引っ張られない話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──嫉妬に足を引っ張られない話。",
+        "説明文_この動画でわかること": "・嫉妬された時のNG3つ・淡々と続ける強さ"
       },
       "assembled_path": "workspaces/scripts/CH01/262/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/262/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8668,14 +8930,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "無常",
         "ベネフィット一言": "時間を守り、心が消耗しにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──時間を守る話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──時間を守る話。",
+        "説明文_この動画でわかること": "・時間泥棒の特徴7つ・線の引き方"
       },
       "assembled_path": "workspaces/scripts/CH01/263/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/263/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8701,14 +8964,15 @@
         "ライフシーン": "退職後",
         "キーコンセプト": "老後のお金不安",
         "ベネフィット一言": "お金不安が和らぎ、心が安定する",
-        "説明文_リード": "【お金】で苦しいあなたへ──老後不安を静める話。"
+        "説明文_リード": "【お金】で苦しいあなたへ──老後不安を静める話。",
+        "説明文_この動画でわかること": "・老後の不安が荒みになる理由・足る基準の作り方"
       },
       "assembled_path": "workspaces/scripts/CH01/264/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/264/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8734,14 +8998,15 @@
         "ライフシーン": "ひとりの夜",
         "キーコンセプト": "後悔",
         "ベネフィット一言": "死の不安が薄れ、今日を大切にできる",
-        "説明文_リード": "【老後】で苦しいあなたへ──後悔を減らす話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──後悔を減らす話。",
+        "説明文_この動画でわかること": "・孤独死より怖いもの・後悔を減らす3つの行動"
       },
       "assembled_path": "workspaces/scripts/CH01/265/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/265/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8767,14 +9032,15 @@
         "ライフシーン": "家庭 / 職場",
         "キーコンセプト": "苦",
         "ベネフィット一言": "怒りが鎮まり、関係が壊れにくくなる",
-        "説明文_リード": "【怒り】で苦しいあなたへ──怒りの正体を見抜く話。"
+        "説明文_リード": "【怒り】で苦しいあなたへ──怒りの正体を見抜く話。",
+        "説明文_この動画でわかること": "・怒りの下にある感情・今日からできる鎮め方"
       },
       "assembled_path": "workspaces/scripts/CH01/266/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/266/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8800,14 +9066,15 @@
         "ライフシーン": "職場 / 家庭",
         "キーコンセプト": "慈悲",
         "ベネフィット一言": "罪悪感なく断れるようになる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──断る言葉を持つ話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──断る言葉を持つ話。",
+        "説明文_この動画でわかること": "・断る言い換え7選・罪悪感を減らす考え方"
       },
       "assembled_path": "workspaces/scripts/CH01/267/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/267/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8833,14 +9100,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "慈悲",
         "ベネフィット一言": "優しさを守り、消耗しにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──境界線を持つ話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──境界線を持つ話。",
+        "説明文_この動画でわかること": "・境界線がない人が壊れる理由・今日からできる線引き"
       },
       "assembled_path": "workspaces/scripts/CH01/268/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/268/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8866,14 +9134,15 @@
         "ライフシーン": "地域サークル",
         "キーコンセプト": "因果",
         "ベネフィット一言": "噂話に巻き込まれず心が汚れにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──噂話から降りる話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──噂話から降りる話。",
+        "説明文_この動画でわかること": "・陰口が止まらない心理・噂の輪から降りる方法"
       },
       "assembled_path": "workspaces/scripts/CH01/269/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/269/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8899,14 +9168,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "縁起",
         "ベネフィット一言": "不運で折れず、前に進める",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──運を味方にする話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──運を味方にする話。",
+        "説明文_この動画でわかること": "・運がいい人の共通点・不運を味方にする習慣"
       },
       "assembled_path": "workspaces/scripts/CH01/270/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/270/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -8932,14 +9202,15 @@
         "ライフシーン": "職場 / 家庭",
         "キーコンセプト": "正語",
         "ベネフィット一言": "会話で消耗しにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──会話で心を守る話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──会話で心を守る話。",
+        "説明文_この動画でわかること": "・会話泥棒の心理・対処の型3つ"
       },
       "assembled_path": "workspaces/scripts/CH01/271/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/271/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -8965,14 +9236,15 @@
         "ライフシーン": "ひとりの夜",
         "キーコンセプト": "放下着",
         "ベネフィット一言": "比較が減り、心が軽くなる",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──比較から降りる話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──比較から降りる話。",
+        "説明文_この動画でわかること": "・SNS疲れの正体・無関心の技術"
       },
       "assembled_path": "workspaces/scripts/CH01/272/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/272/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -8998,14 +9270,15 @@
         "ライフシーン": "ひとりの夜",
         "キーコンセプト": "放下着",
         "ベネフィット一言": "後悔に引きずられにくくなる",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──過去を手放す話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──過去を手放す話。",
+        "説明文_この動画でわかること": "・後悔と恨みを手放す手順・放下着ルーティン"
       },
       "assembled_path": "workspaces/scripts/CH01/273/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/273/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9031,14 +9304,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "縁起",
         "ベネフィット一言": "人間関係の喪失で折れにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──追わない勇気の話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──追わない勇気の話。",
+        "説明文_この動画でわかること": "・去る人を追うほど苦しい理由・追わないための3ルール"
       },
       "assembled_path": "workspaces/scripts/CH01/274/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/274/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -9064,14 +9338,15 @@
         "ライフシーン": "職場",
         "キーコンセプト": "慢",
         "ベネフィット一言": "関係修復が早くなり心が軽くなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──謝れない苦しさをほどく話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──謝れない苦しさをほどく話。",
+        "説明文_この動画でわかること": "・謝れない人の心理・謝る型3つ"
       },
       "assembled_path": "workspaces/scripts/CH01/275/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/275/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -9097,14 +9372,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "忍辱",
         "ベネフィット一言": "嫌味に心を奪われにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──嫌味に効く返し方。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──嫌味に効く返し方。",
+        "説明文_この動画でわかること": "・嫌味に効く返し3つ・怒らず尊厳を守るコツ"
       },
       "assembled_path": "workspaces/scripts/CH01/276/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/276/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9130,14 +9406,15 @@
         "ライフシーン": "友人 / 家族",
         "キーコンセプト": "口業",
         "ベネフィット一言": "信用を守り、人間関係が安定する",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──信用を守る話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──信用を守る話。",
+        "説明文_この動画でわかること": "・話してはいけない5つ・秘密を守る習慣"
       },
       "assembled_path": "workspaces/scripts/CH01/277/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/277/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9163,14 +9440,15 @@
         "ライフシーン": "職場",
         "キーコンセプト": "正語",
         "ベネフィット一言": "会話が楽になり信頼が増える",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──賢い会話の話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──賢い会話の話。",
+        "説明文_この動画でわかること": "・賢い人がしない会話の癖・信頼が増える話し方"
       },
       "assembled_path": "workspaces/scripts/CH01/278/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/278/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9196,14 +9474,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "境界線",
         "ベネフィット一言": "人付き合いで消耗しにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──疲れる相手から離れる話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──疲れる相手から離れる話。",
+        "説明文_この動画でわかること": "・会うと疲れる人の特徴・距離の取り方"
       },
       "assembled_path": "workspaces/scripts/CH01/279/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/279/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9229,14 +9508,15 @@
         "ライフシーン": "家庭 / 職場",
         "キーコンセプト": "期待と怒り",
         "ベネフィット一言": "怒りが減り、心が穏やかになる",
-        "説明文_リード": "【怒り】で苦しいあなたへ──期待を手放す話。"
+        "説明文_リード": "【怒り】で苦しいあなたへ──期待を手放す話。",
+        "説明文_この動画でわかること": "・怒りの根にある期待・手放す3つの方法"
       },
       "assembled_path": "workspaces/scripts/CH01/280/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/280/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9262,14 +9542,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "知足",
         "ベネフィット一言": "足りないという焦りが消える",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──引き算の美しさの話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──引き算の美しさの話。",
+        "説明文_この動画でわかること": "・侘び寂びの本質・執着を手放す習慣"
       },
       "assembled_path": "workspaces/scripts/CH01/281/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/281/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9295,14 +9576,15 @@
         "ライフシーン": "職場",
         "キーコンセプト": "随喜",
         "ベネフィット一言": "嫉妬で心が荒れにくくなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──嫉妬を手放す話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──嫉妬を手放す話。",
+        "説明文_この動画でわかること": "・嫉妬が自分を傷つける理由・他人の成功を喜ぶ練習"
       },
       "assembled_path": "workspaces/scripts/CH01/282/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/282/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9328,14 +9610,15 @@
         "ライフシーン": "ひとりの夜",
         "キーコンセプト": "独坐",
         "ベネフィット一言": "孤独への恐怖が和らぐ",
-        "説明文_リード": "【孤独】で苦しいあなたへ──一人を楽しむ話。"
+        "説明文_リード": "【孤独】で苦しいあなたへ──一人を楽しむ話。",
+        "説明文_この動画でわかること": "・孤独が怖くなくなる考え方・一人時間の活かし方"
       },
       "assembled_path": "workspaces/scripts/CH01/283/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/283/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9361,14 +9644,15 @@
         "ライフシーン": "家庭 / 職場",
         "キーコンセプト": "忍辱",
         "ベネフィット一言": "怒りで後悔しにくくなる",
-        "説明文_リード": "【怒り】で苦しいあなたへ──冷静さを取り戻す話。"
+        "説明文_リード": "【怒り】で苦しいあなたへ──冷静さを取り戻す話。",
+        "説明文_この動画でわかること": "・怒りの正体・冷静さを保つ3つの方法"
       },
       "assembled_path": "workspaces/scripts/CH01/284/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/284/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9394,14 +9678,15 @@
         "ライフシーン": "退職後",
         "キーコンセプト": "諸行無常",
         "ベネフィット一言": "老いへの恐怖が和らぐ",
-        "説明文_リード": "【老後】で苦しいあなたへ──老いを味方にする話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──老いを味方にする話。",
+        "説明文_この動画でわかること": "・老いを受け入れる考え方・年を取るほど良くなる秘訣"
       },
       "assembled_path": "workspaces/scripts/CH01/285/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/285/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9427,14 +9712,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "七転八起",
         "ベネフィット一言": "失敗で折れにくくなる",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──失敗から立ち直る話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──失敗から立ち直る話。",
+        "説明文_この動画でわかること": "・失敗の捉え方・立ち直る3ステップ"
       },
       "assembled_path": "workspaces/scripts/CH01/286/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/286/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9460,14 +9746,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "放下着",
         "ベネフィット一言": "執着から解放され心が軽くなる",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──執着を手放す話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──執着を手放す話。",
+        "説明文_この動画でわかること": "・執着が苦しみを生む理由・手放す3つの方法"
       },
       "assembled_path": "workspaces/scripts/CH01/287/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/287/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9493,14 +9780,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "無我",
         "ベネフィット一言": "他人の評価に振り回されにくくなる",
-        "説明文_リード": "【自己肯定感】で苦しいあなたへ──他人の評価から自由になる話。"
+        "説明文_リード": "【自己肯定感】で苦しいあなたへ──他人の評価から自由になる話。",
+        "説明文_この動画でわかること": "・評価が気になる心理・自分軸を持つ3つの習慣"
       },
       "assembled_path": "workspaces/scripts/CH01/288/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/288/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9526,14 +9814,15 @@
         "ライフシーン": "日常",
         "キーコンセプト": "慈悲",
         "ベネフィット一言": "恨みから解放され心が軽くなる",
-        "説明文_リード": "【人間関係】で苦しいあなたへ──許しで自由になる話。"
+        "説明文_リード": "【人間関係】で苦しいあなたへ──許しで自由になる話。",
+        "説明文_この動画でわかること": "・許せない人がいる苦しみ・許すための3ステップ"
       },
       "assembled_path": "workspaces/scripts/CH01/289/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/289/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
@@ -9559,14 +9848,15 @@
         "ライフシーン": "ひとりの夜",
         "キーコンセプト": "生死一如",
         "ベネフィット一言": "死への恐怖が和らぐ",
-        "説明文_リード": "【老後】で苦しいあなたへ──死の恐怖を和らげる話。"
+        "説明文_リード": "【老後】で苦しいあなたへ──死の恐怖を和らげる話。",
+        "説明文_この動画でわかること": "・死が怖い理由・恐怖を和らげる考え方"
       },
       "assembled_path": "workspaces/scripts/CH01/290/content/assembled.md",
       "script": {
         "exists": true,
         "status_path": "workspaces/scripts/CH01/290/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T08:43:02Z",
         "stages": {
           "script_outline": "pending",
           "script_draft": "pending",
