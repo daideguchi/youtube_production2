@@ -90,6 +90,32 @@ def _preview_path(repo_root: Path, channel: str, video: str, filename: str) -> P
     return _output_root(repo_root) / channel / video / filename
 
 
+def _script_index_channels(repo_root: Path) -> set[str]:
+    """
+    Best-effort: derive channels from GitHub Pages Script Viewer index.
+    This avoids generating previews for channels that don't have scripts on Pages.
+    """
+
+    path = repo_root / "docs" / "data" / "index.json"
+    if not path.exists():
+        return set()
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8"))
+        items = obj.get("items") if isinstance(obj, dict) else None
+        if not isinstance(items, list):
+            return set()
+        out: set[str] = set()
+        for it in items:
+            if not isinstance(it, dict):
+                continue
+            ch = _normalize_channel(str(it.get("channel") or ""))
+            if CHANNEL_RE.match(ch):
+                out.add(ch)
+        return out
+    except Exception:
+        return set()
+
+
 def _index_path(repo_root: Path) -> Path:
     return repo_root / "docs" / "data" / "video_images_index.json"
 
@@ -239,7 +265,7 @@ def _iter_targets(
     root = _runs_root(repo_root)
     if all_items:
         for p in sorted([x for x in root.iterdir() if x.is_dir()]):
-            m = re.match(r"^(CH\d{2})-(\d{3})\b", p.name)
+            m = re.match(r"^(CH\d{2})-(\d{3})(?:$|\D)", p.name)
             if not m:
                 continue
             ch = _normalize_channel(m.group(1))
@@ -267,7 +293,7 @@ def _iter_targets(
 
         # channel-only: include any run dirs for that channel.
         for p in sorted([x for x in root.glob(f"{ch}-*") if x.is_dir()]):
-            m = re.match(rf"^{re.escape(ch)}-(\d{{3}})\b", p.name)
+            m = re.match(rf"^{re.escape(ch)}-(\d{{3}})(?:$|\D)", p.name)
             if not m:
                 continue
             vv = _normalize_video(m.group(1))
@@ -290,10 +316,11 @@ def build_video_images_index(
             continue
         seen_vid.add(vid)
 
-        images = _iter_images(run_dir)
+        run_dir_latest = _resolve_run_dir(repo_root, ch, vv) or run_dir
+        images = _iter_images(run_dir_latest)
         if not images:
             continue
-        summaries = _load_image_cues_summary(run_dir)
+        summaries = _load_image_cues_summary(run_dir_latest)
 
         files: list[dict[str, str]] = []
         for idx, _src in images:
@@ -311,7 +338,7 @@ def build_video_images_index(
                 video_id=vid,
                 channel=ch,
                 video=vv,
-                run_id=str(run_dir.name),
+                run_id=str(run_dir_latest.name),
                 count=len(files),
                 files=files,
             )
@@ -322,6 +349,11 @@ def build_video_images_index(
 def main() -> int:
     ap = argparse.ArgumentParser(description="Generate publishable in-video image previews for GitHub Pages.")
     ap.add_argument("--all", action="store_true", help="Process all run dirs under workspaces/video/runs (can be large)")
+    ap.add_argument(
+        "--channels-from-script-index",
+        action="store_true",
+        help="Use channels from docs/data/index.json (Script Viewer). Good default for Pages.",
+    )
     ap.add_argument("--channel", action="append", default=[], help="Channel code (repeatable). e.g. CH12")
     ap.add_argument("--video", action="append", default=[], help="Video number (repeatable). e.g. 016")
     ap.add_argument("--width", type=int, default=640, help="Preview max width (default: 640)")
@@ -332,9 +364,20 @@ def main() -> int:
 
     repo_root = Path(bootstrap(load_env=False))
 
-    channels = {_normalize_channel(x) for x in (args.channel or []) if str(x or "").strip()}
-    videos = {_normalize_video(x) for x in (args.video or []) if str(x or "").strip()}
     all_items = bool(args.all)
+    if bool(args.channels_from_script_index):
+        if all_items:
+            ap.error("Do not combine --all with --channels-from-script-index.")
+        if args.channel or args.video:
+            ap.error("Do not combine --channels-from-script-index with --channel/--video.")
+        channels = _script_index_channels(repo_root)
+        videos: set[str] = set()
+        if not channels:
+            ap.error("docs/data/index.json is missing or empty; cannot derive channels.")
+    else:
+        channels = {_normalize_channel(x) for x in (args.channel or []) if str(x or "").strip()}
+        videos = {_normalize_video(x) for x in (args.video or []) if str(x or "").strip()}
+
     if not all_items and not (channels or videos):
         ap.error("Specify --all OR at least one of --channel/--video.")
 
