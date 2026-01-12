@@ -767,7 +767,7 @@ body {
   }
 
   .controls__browseGrid {
-    grid-template-columns: 1fr;
+    display: none;
   }
 
   .channel-chip {
