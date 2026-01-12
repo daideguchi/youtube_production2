@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": "2026-01-12T07:41:20.484028Z",
-  "count": 83,
+  "updated_at": "2026-01-12T13:30:01.289188Z",
+  "count": 86,
   "items": [
     {
       "video_id": "CH01-251",
@@ -3179,7 +3179,7 @@
         {
           "file": "0047.jpg",
           "rel": "media/video_images/CH02/042/0047.jpg",
-          "summary": "静けさと刺激のバランス／淀みの状態の観察"
+          "summary": ""
         }
       ]
     },
@@ -3413,7 +3413,7 @@
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/043/0045.jpg",
-          "summary": "静けさと時間の満ち足り／時間の視点を変える"
+          "summary": ""
         }
       ]
     },
@@ -3642,7 +3642,7 @@
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/044/0044.jpg",
-          "summary": "五分・一晩"
+          "summary": ""
         }
       ]
     },
@@ -3650,233 +3650,228 @@
       "video_id": "CH02-045",
       "channel": "CH02",
       "video": "045",
-      "run_id": "CH02-045_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-045_regen_20260105_175742",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/045/0001.jpg",
-          "summary": "情報の飲み過ぎ／情報のバランス"
+          "summary": "情報・朝起"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/045/0002.jpg",
-          "summary": "情報の消化不良／判断力の枯渇"
+          "summary": "判断・情報"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/045/0003.jpg",
-          "summary": "感情を揺さぶる情報／浅い理解"
+          "summary": "情報・動機"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/045/0004.jpg",
-          "summary": "動機の曖昧さ／信頼基準の欠如"
+          "summary": "情報・基準"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/045/0005.jpg",
-          "summary": "フィルターバブル／異なる水温"
+          "summary": "情報・場所"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/045/0006.jpg",
-          "summary": "時間帯の設定"
+          "summary": "回数・メール"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/045/0007.jpg",
-          "summary": "通知の切り刻み／注意の守り方"
+          "summary": "情報・フィルター"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/045/0008.jpg",
-          "summary": "問いのフィルター／複数視点の比較"
+          "summary": "情報・断片"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/045/0009.jpg",
-          "summary": "一次情報の重さ"
+          "summary": "情報・消化"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/045/0010.jpg",
-          "summary": "情報の咀嚼"
+          "summary": "入口・必要"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/045/0011.jpg",
-          "summary": "情報の棚卸し"
+          "summary": "情報・温度"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/045/0012.jpg",
-          "summary": "情報入口の絞り込み"
+          "summary": "感覚・半日"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/045/0013.jpg",
-          "summary": "情報の温度"
+          "summary": "情報・場所"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/045/0014.jpg",
-          "summary": "情報断食"
+          "summary": "情報・記事"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/045/0015.jpg",
-          "summary": "知らないことを許容／情報の置き場所"
+          "summary": "情報・時間"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/045/0016.jpg",
-          "summary": "情報の比較"
+          "summary": "情報・確認"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/045/0017.jpg",
-          "summary": "体の状態と情報"
+          "summary": "感情・情報"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/045/0018.jpg",
-          "summary": "時間の枠／呼吸で区切る／情報の出所を疑う"
+          "summary": "情報・距離"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/045/0019.jpg",
-          "summary": "行動に落とす"
+          "summary": "情報・儀式"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/045/0020.jpg",
-          "summary": "情報経済の仕組み"
+          "summary": "情報・状態"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/045/0021.jpg",
-          "summary": "情報の断捨離／情報の儀式化"
+          "summary": "確認・摩擦"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/045/0022.jpg",
-          "summary": "情報のない時間"
+          "summary": "情報・関係"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/045/0023.jpg",
-          "summary": "情報の癖"
+          "summary": "情報・仕事"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/045/0024.jpg",
-          "summary": "情報の確認／「今日の問い」"
+          "summary": "情報・記憶"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/045/0025.jpg",
-          "summary": "デジタル環境の整理／情報の枠分け"
+          "summary": "情報・余白"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/045/0026.jpg",
-          "summary": "書き写す効果／余白の重要性／情報の確認"
+          "summary": "情報・サイン"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/045/0027.jpg",
-          "summary": "体のサイン／情報のシェア"
+          "summary": "情報・循環"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/045/0028.jpg",
-          "summary": "哲学者の教え／静けさの価値"
+          "summary": "情報・意識"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/045/0029.jpg",
-          "summary": "脳の作業スペース"
+          "summary": "情報・無意識"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/045/0030.jpg",
-          "summary": "摩擦の追加／情報の三つの箱"
+          "summary": "情報・刺激"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/045/0031.jpg",
-          "summary": "寝る前の情報"
+          "summary": "時間・好奇心"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/045/0032.jpg",
-          "summary": "情報の育て方／好奇心の向き先"
+          "summary": "言葉・見送"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/045/0033.jpg",
-          "summary": "知らないことを認める"
+          "summary": "情報・会話"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/045/0034.jpg",
-          "summary": "信頼できる情報源／深い会話"
+          "summary": "時間・秩序"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/045/0035.jpg",
-          "summary": "客人としての情報選択／情報日記の効果／ドゥームスクロールの…"
+          "summary": "情報・場所"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/045/0036.jpg",
-          "summary": "情報の場所分け／静置時間"
+          "summary": "情報・時間"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/045/0037.jpg",
-          "summary": "完全な空白時間"
+          "summary": "感覚・情報"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/045/0038.jpg",
-          "summary": "感覚の回復／情報との距離／情報の軸"
+          "summary": "世界・情報"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/045/0039.jpg",
-          "summary": "体の休息"
+          "summary": "情報・栄養"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/045/0040.jpg",
-          "summary": "静けさと好奇心／情報の道具化"
+          "summary": "道具・必要"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/045/0041.jpg",
-          "summary": "井戸を掘る"
+          "summary": "井戸・情報"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/045/0042.jpg",
-          "summary": "未来の自分へ"
+          "summary": "未来・選択"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/045/0043.jpg",
-          "summary": "小さな空白"
+          "summary": "情報・世界"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/045/0044.jpg",
-          "summary": "世界を見る準備／情報の必要性"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/045/0045.jpg",
-          "summary": "情報の血肉化／情報の循環"
+          "summary": ""
         }
       ]
     },
@@ -3884,233 +3879,228 @@
       "video_id": "CH02-046",
       "channel": "CH02",
       "video": "046",
-      "run_id": "CH02-046_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-046_regen_20260105_175743",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/046/0001.jpg",
-          "summary": "鏡の前の疲れ／成長至上主義の問題"
+          "summary": "成長・言葉"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/046/0002.jpg",
-          "summary": "息継ぎの必要性／達成と疲労の関係"
+          "summary": "成長・息継"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/046/0003.jpg",
-          "summary": "SNSの影響／成長の防御機能"
+          "summary": "成長・努力"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/046/0004.jpg",
-          "summary": "成長の季節"
+          "summary": "時期・季節"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/046/0005.jpg",
-          "summary": "日常のプレッシャー／足場の探し方"
+          "summary": "足場・資格"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/046/0006.jpg",
-          "summary": "自己啓発の罠／脳の学習メカニズム／体のリズム"
+          "summary": "興奮・光"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/046/0007.jpg",
-          "summary": "心の波と体の関係／恐怖の正体"
+          "summary": "恐怖・成長"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/046/0008.jpg",
-          "summary": "リカバリー体験／マラソンの比喩／学びの強弱"
+          "summary": "リカバリー・仕事"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/046/0009.jpg",
-          "summary": "睡眠の重要性／睡眠の質"
+          "summary": "翌日・高強度"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/046/0010.jpg",
-          "summary": "休みの予定／最善の定義／過剰な要求の緩和"
+          "summary": "予定・時間"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/046/0011.jpg",
-          "summary": "焦りの対処法／小さな一歩"
+          "summary": "感覚・要求"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/046/0012.jpg",
-          "summary": "成長の共有／休みの正当化"
+          "summary": "成長・実感"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/046/0013.jpg",
-          "summary": "やる気の消失／補給リスト／学びの出力"
+          "summary": "補給・燃料切"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/046/0014.jpg",
-          "summary": "体のメンテナンス／体との関係"
+          "summary": "相棒・メンテナンス"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/046/0015.jpg",
-          "summary": "環境の整備／静かな環境"
+          "summary": "成長・原点"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/046/0016.jpg",
-          "summary": "原点の確認／疲労と原点の対比"
+          "summary": "内側・大事"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/046/0017.jpg",
-          "summary": "比較の軸／内側の軸"
+          "summary": "手応・燃料"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/046/0018.jpg",
-          "summary": "小さな達成の味わい／足りなさの分析／不足感の具体化"
+          "summary": "成長・螺旋"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/046/0019.jpg",
-          "summary": "螺旋の成長／停滞の意味／軸の確立"
+          "summary": "質問・変化"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/046/0020.jpg",
-          "summary": "内側の軸の確認／変化の質問"
+          "summary": "プロセス・目標"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/046/0021.jpg",
-          "summary": "プロセス目標／成長の習慣化／遊びの効果"
+          "summary": "緊張・創造性"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/046/0022.jpg",
-          "summary": "楽しさの重要性／遊びの創造性"
+          "summary": "目標・プロセス"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/046/0023.jpg",
-          "summary": "プロセスと結果／義務の成長／期待の分離"
+          "summary": "距離・スペース"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/046/0024.jpg",
-          "summary": "自分の声の確認／疲労の防止"
+          "summary": "成長・明日"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/046/0025.jpg",
-          "summary": "休みの正当化／休みの重み／借金の比喩"
+          "summary": "借金・利息"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/046/0026.jpg",
-          "summary": "疲労の軽減／振り返りのパターン／疲労の連鎖／終了の儀式"
+          "summary": "モード・儀式"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/046/0027.jpg",
-          "summary": "体の警告／休みの必要性／成長の終わり／終わりのないマラソン"
+          "summary": "メンテナンス・成長"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/046/0028.jpg",
-          "summary": "十分のリスト／リセットの重要性"
+          "summary": "十分・リセット"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/046/0029.jpg",
-          "summary": "速度の違い／自分の速度"
+          "summary": "速度・年齢"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/046/0030.jpg",
-          "summary": "休んだ日の意味／止まることの価値"
+          "summary": "習慣・成長"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/046/0031.jpg",
-          "summary": "幸福の習慣／静かな習慣"
+          "summary": "時間・心"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/046/0032.jpg",
-          "summary": "十分の宣言／回復の時間"
+          "summary": "邪魔・失敗"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/046/0033.jpg",
-          "summary": "失敗の扱い／邪魔の特定"
+          "summary": "分散・成果"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/046/0034.jpg",
-          "summary": "失敗の共有／重さの分散／成果のない時間"
+          "summary": "記録・螺旋"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/046/0035.jpg",
-          "summary": "遊び場の効果／記録の重要性／螺旋の可視化／分かち合いの効果…"
+          "summary": "目標・孤独"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/046/0036.jpg",
-          "summary": "足るの重要性／足るの認識"
+          "summary": "時間・筋肉"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/046/0037.jpg",
-          "summary": "安息時間／心の筋肉／休む人の遠征／時間の尺度"
+          "summary": "時間・整備"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/046/0038.jpg",
-          "summary": "進歩の確認／助走路の比喩"
+          "summary": "成長・呼吸"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/046/0039.jpg",
-          "summary": "助走の価値／助言の選択"
+          "summary": "心・部分"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/046/0040.jpg",
-          "summary": "心を温める習慣／睡眠の効果／優しさの重要性"
+          "summary": "道・途中"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/046/0041.jpg",
-          "summary": "恐怖の薄め方／静かな季節の価値／内側からの問い"
+          "summary": "季節・内側"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/046/0042.jpg",
-          "summary": "歩幅の変化"
+          "summary": "歩幅・工夫"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/046/0043.jpg",
-          "summary": "成長の問い"
+          "summary": "瞬間・心"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/046/0044.jpg",
-          "summary": "小さな喜び"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/046/0045.jpg",
-          "summary": "自己肯定"
+          "summary": "心・最後"
         }
       ]
     },
@@ -4546,238 +4536,233 @@
       "video_id": "CH02-049",
       "channel": "CH02",
       "video": "049",
-      "run_id": "CH02-049_mix433_20260106",
-      "count": 46,
+      "run_id": "CH02-049_regen_20260105_175746",
+      "count": 45,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/049/0001.jpg",
-          "summary": "残高のショック／準備の矛盾／動ける方法"
+          "summary": "準備・計画"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/049/0002.jpg",
-          "summary": "変数の多さ／コントロールの限界"
+          "summary": "不安・変数"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/049/0003.jpg",
-          "summary": "予測の過剰と毒性／未来と今の分離／動ける場所の発見"
+          "summary": "予測・過剰"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/049/0004.jpg",
-          "summary": "準備と行動の切り分け"
+          "summary": "準備・今日手"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/049/0005.jpg",
-          "summary": "選択の不完全性／小さな一歩の積み重ね"
+          "summary": "準備・行動"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/049/0006.jpg",
-          "summary": "未来の三つのシナリオ"
+          "summary": "選択・完璧"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/049/0007.jpg",
-          "summary": "小さな橋"
+          "summary": "未来・感情"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/049/0008.jpg",
-          "summary": "待ちの可視化"
+          "summary": "不安・可視化"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/049/0009.jpg",
-          "summary": "体で不安を下げる"
+          "summary": "情報・思考"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/049/0010.jpg",
-          "summary": "情報の線引き"
+          "summary": "可能性・不安"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/049/0011.jpg",
-          "summary": "ハイデガーの言葉"
+          "summary": "準備・評価"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/049/0012.jpg",
-          "summary": "自己評価の罠"
+          "summary": "後悔・納得"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/049/0013.jpg",
-          "summary": "後悔の先取り"
+          "summary": "不安・時間"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/049/0014.jpg",
-          "summary": "夜と朝の役割分担／時間の単位縮小"
+          "summary": "不条理・反逆"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/049/0015.jpg",
-          "summary": "未来レターと最悪の未来"
+          "summary": "未来・不安"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/049/0016.jpg",
-          "summary": "余白の重要性"
+          "summary": "余白・想像"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/049/0017.jpg",
-          "summary": "情報断食／身体と心のバランス／日常のリズム"
+          "summary": "情報・情報断食"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/049/0018.jpg",
-          "summary": "三拍子のリズム"
+          "summary": "準備・未来"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/049/0019.jpg",
-          "summary": "週の棚卸し"
+          "summary": "三拍子・未来"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/049/0020.jpg",
-          "summary": "緊急と重要の分け方"
+          "summary": "緊急・重要"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/049/0021.jpg",
-          "summary": "安全弁の設定"
+          "summary": "安全弁・不安"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/049/0022.jpg",
-          "summary": "道具の役割分担"
+          "summary": "タスク・管理"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/049/0023.jpg",
-          "summary": "一日の流れ"
+          "summary": "時間・バトン"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/049/0024.jpg",
-          "summary": "リスクの階層"
+          "summary": "自由・致命的"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/049/0025.jpg",
-          "summary": "自由の重さ／協力者の作り方"
+          "summary": "自由・宣言"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/049/0026.jpg",
-          "summary": "十分を目指す"
+          "summary": "十分・安心"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/049/0027.jpg",
-          "summary": "三層のクッション"
+          "summary": "クッション・現実的"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/049/0028.jpg",
-          "summary": "小さな実験"
+          "summary": "耐性・実験"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/049/0029.jpg",
-          "summary": "演習の効果"
+          "summary": "問題・事実"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/049/0030.jpg",
-          "summary": "情報のリセット法"
+          "summary": "具体・馴染"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/049/0031.jpg",
-          "summary": "三日・三週・三か月ルール"
+          "summary": "実験・一年"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/049/0032.jpg",
-          "summary": "セネカの教え"
+          "summary": "時間・行動"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/049/0033.jpg",
-          "summary": "具体例の紹介／柱の具体例"
+          "summary": "感覚・未来"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/049/0034.jpg",
-          "summary": "やらない決断"
+          "summary": "相談・不安"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/049/0035.jpg",
-          "summary": "相談先リスト"
+          "summary": "準備・黄色"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/049/0036.jpg",
-          "summary": "感情の信号"
+          "summary": "土台・安定"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/049/0037.jpg",
-          "summary": "健康の準備"
+          "summary": "不安・分散"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/049/0038.jpg",
-          "summary": "ポートフォリオ生活"
+          "summary": "未来・チェックイン"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/049/0039.jpg",
-          "summary": "借り物の不安"
+          "summary": "不安・行動"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/049/0040.jpg",
-          "summary": "未来のチェックイン／未来の言葉"
+          "summary": "未来・軌跡"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/049/0041.jpg",
-          "summary": "不安の使い方"
+          "summary": "未来・本棚"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/049/0042.jpg",
-          "summary": "未来のための日記"
+          "summary": "五分・呼吸"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/049/0043.jpg",
-          "summary": "未来の棚"
+          "summary": "十分・未来"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/049/0044.jpg",
-          "summary": "静寂の準備／小さな行動の力／鎖の比喩"
+          "summary": "確率・未来"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/049/0045.jpg",
-          "summary": "確率の傾き"
-        },
-        {
-          "file": "0046.jpg",
-          "rel": "media/video_images/CH02/049/0046.jpg",
-          "summary": "締めくくり／動く手の力"
+          "summary": "未来・最後"
         }
       ]
     },
@@ -4785,228 +4770,223 @@
       "video_id": "CH02-050",
       "channel": "CH02",
       "video": "050",
-      "run_id": "CH02-050_mix433_20260106",
-      "count": 44,
+      "run_id": "CH02-050_regen_20260105_175747",
+      "count": 43,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/050/0001.jpg",
-          "summary": "朝の不安／期待の重さ／期待の糸の比喩／糸を整理する"
+          "summary": "期待・スマホ"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/050/0002.jpg",
-          "summary": "期待の条件"
+          "summary": "期待・方法"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/050/0003.jpg",
-          "summary": "混ざる期待／確認の必要性"
+          "summary": "条件・期待"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/050/0004.jpg",
-          "summary": "選ぶ基準／断る勇気／短い断り方／筋トレの比喩"
+          "summary": "期待・本当"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/050/0005.jpg",
-          "summary": "範囲の決め方／内側の期待／期待の分割"
+          "summary": "体力・期待"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/050/0006.jpg",
-          "summary": "円の分類"
+          "summary": "範囲・相手"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/050/0007.jpg",
-          "summary": "時間の箱"
+          "summary": "期待・分割"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/050/0008.jpg",
-          "summary": "体の緩め方"
+          "summary": "期待・外側"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/050/0009.jpg",
-          "summary": "役割ごとの言葉"
+          "summary": "期待・身体"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/050/0010.jpg",
-          "summary": "感謝と期待"
+          "summary": "期待・感謝"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/050/0011.jpg",
-          "summary": "頼られる喜び／役割を脱ぐ"
+          "summary": "役割・時間"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/050/0012.jpg",
-          "summary": "与える期待／最悪と最善"
+          "summary": "期待・最悪"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/050/0013.jpg",
-          "summary": "期待の分類"
+          "summary": "期待・短期"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/050/0014.jpg",
-          "summary": "目的の確認／代替案の提案"
+          "summary": "目的・期待"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/050/0015.jpg",
-          "summary": "約束の更新"
+          "summary": "期待・更新"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/050/0016.jpg",
-          "summary": "希望の優先"
+          "summary": "期待・希望"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/050/0017.jpg",
-          "summary": "役割の手放し"
+          "summary": "期待・物語"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/050/0018.jpg",
-          "summary": "小さな物語"
+          "summary": "期待・以来"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/050/0019.jpg",
-          "summary": "一日の流れ"
+          "summary": "期待・明日"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/050/0020.jpg",
-          "summary": "デトックスの日"
+          "summary": "連絡・期待"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/050/0021.jpg",
-          "summary": "相談先リスト"
+          "summary": "信号・黄色"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/050/0022.jpg",
-          "summary": "感情の信号"
+          "summary": "期待・言葉"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/050/0023.jpg",
-          "summary": "健康の準備"
+          "summary": "期待・希望"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/050/0024.jpg",
-          "summary": "言葉の整え方／未来の言葉"
+          "summary": "期待・希望"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/050/0025.jpg",
-          "summary": "希望の予定"
+          "summary": "期待・十五分"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/050/0026.jpg",
-          "summary": "三つのバランス"
+          "summary": "要求・毎晩"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/050/0027.jpg",
-          "summary": "期待のバランス／糸を操る比喩"
+          "summary": "有限・責任"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/050/0028.jpg",
-          "summary": "期待の棚卸し／期待日記の記録"
+          "summary": "基準・意識"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/050/0029.jpg",
-          "summary": "レヴィナスの哲学"
+          "summary": "期待・評価"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/050/0030.jpg",
-          "summary": "守りたい三つの基準"
+          "summary": "期待・必要"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/050/0031.jpg",
-          "summary": "三色の線"
+          "summary": "期待・範囲"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/050/0032.jpg",
-          "summary": "不安と期待"
+          "summary": "期待・希望"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/050/0033.jpg",
-          "summary": "期待の手放し／身体のリセット／言葉の型"
+          "summary": "自動化・分担"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/050/0034.jpg",
-          "summary": "共有タイム／希望チャージ"
+          "summary": "期待・明日"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/050/0035.jpg",
-          "summary": "緊急避難の準備／期待の分散方法"
+          "summary": "期待・最後"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/050/0036.jpg",
-          "summary": "小さな期待"
+          "summary": "希望・期待"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/050/0037.jpg",
-          "summary": "期待の波／足場の作り方"
+          "summary": "期待・自由"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/050/0038.jpg",
-          "summary": "親子の期待"
+          "summary": "沈黙・期待"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/050/0039.jpg",
-          "summary": "沈黙の期待"
+          "summary": "役割・期待"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/050/0040.jpg",
-          "summary": "職場の役割"
+          "summary": "期待・明言"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/050/0041.jpg",
-          "summary": "文化の影響"
+          "summary": "約束・期待"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/050/0042.jpg",
-          "summary": "夜の儀式"
+          "summary": "希望・期待"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/050/0043.jpg",
-          "summary": "約束の循環"
-        },
-        {
-          "file": "0044.jpg",
-          "rel": "media/video_images/CH02/050/0044.jpg",
-          "summary": "小さな行為のリスト／期待と希望のバランス／希望の音を聴く"
+          "summary": "期待・足場"
         }
       ]
     },
@@ -5014,223 +4994,218 @@
       "video_id": "CH02-051",
       "channel": "CH02",
       "video": "051",
-      "run_id": "CH02-051_mix433_20260106",
-      "count": 43,
+      "run_id": "CH02-051_regen_20260105_175748",
+      "count": 42,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/051/0001.jpg",
-          "summary": "不安が頭を離れない／スマホで検索する手／誤作動するセンサー"
+          "summary": "不安・心"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/051/0002.jpg",
-          "summary": "曖昧さの影響／言葉の力"
+          "summary": "曖昧・誤作動"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/051/0003.jpg",
-          "summary": "対処の区別／時間の区切り"
+          "summary": "返信・不安"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/051/0004.jpg",
-          "summary": "体のリラックス／夜の不安の特性／夜のルール"
+          "summary": "不安・手放"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/051/0005.jpg",
-          "summary": "検索の落とし穴／情報の制限"
+          "summary": "不安・検索"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/051/0006.jpg",
-          "summary": "不安の塊"
+          "summary": "不安・処理"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/051/0007.jpg",
-          "summary": "体の動き／紙への移し替え"
+          "summary": "不安・思考"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/051/0008.jpg",
-          "summary": "呼吸のリズム／不安の観察"
+          "summary": "不安・行動"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/051/0009.jpg",
-          "summary": "短い行動"
+          "summary": "不安・予行演習"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/051/0010.jpg",
-          "summary": "不安の分類／呼吸の変化"
+          "summary": "過去・記憶"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/051/0011.jpg",
-          "summary": "不安の予行演習／過去の記憶との分離"
+          "summary": "不安・メモ"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/051/0012.jpg",
-          "summary": "視線の変化による思考の解放"
+          "summary": "不安・基本"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/051/0013.jpg",
-          "summary": "不安と安心のメモ"
+          "summary": "不安・行動"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/051/0014.jpg",
-          "summary": "体調の影響／基本の整え／感覚の使い"
+          "summary": "不安・時間帯"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/051/0015.jpg",
-          "summary": "共有の効果／不安のエネルギー／行動への変換"
+          "summary": "光・酸素"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/051/0016.jpg",
-          "summary": "不安の波のリズム"
+          "summary": "不安・カフェイン"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/051/0017.jpg",
-          "summary": "姿勢と酸素の関係／光の影響"
+          "summary": "情報・一次情報"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/051/0018.jpg",
-          "summary": "カフェインとアルコール／調整の重要性"
+          "summary": "不安・大切"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/051/0019.jpg",
-          "summary": "情報の取り方／一次情報の確認"
+          "summary": "不安・メール"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/051/0020.jpg",
-          "summary": "相談の相手／大切なもの／価値の書き出し"
+          "summary": "儀式・部屋"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/051/0021.jpg",
-          "summary": "不安の飛び火／決断のタイミング"
+          "summary": "整理・予定"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/051/0022.jpg",
-          "summary": "夜の儀式／不安の整理"
+          "summary": "不安・体調"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/051/0023.jpg",
-          "summary": "明日の予定／空気の変化"
+          "summary": "不安・ログ"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/051/0024.jpg",
-          "summary": "食事の影響／不安のログ"
+          "summary": "境界・情報"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/051/0025.jpg",
-          "summary": "境界線の設定"
+          "summary": "感情・事実"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/051/0026.jpg",
-          "summary": "体の温め／不安の分解"
+          "summary": "不安・行動"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/051/0027.jpg",
-          "summary": "不安の繰り返し"
+          "summary": "不安・情報"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/051/0028.jpg",
-          "summary": "不安の役割"
+          "summary": "不安・距離"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/051/0029.jpg",
-          "summary": "情報の整理"
+          "summary": "不安・トリガー"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/051/0030.jpg",
-          "summary": "匿名の日記／自然のリズム"
+          "summary": "保留・結論"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/051/0031.jpg",
-          "summary": "もしの膨らみ／トリガーの探し／代わりの行動"
+          "summary": "不安・未来"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/051/0032.jpg",
-          "summary": "結論の急がず／体に触れる／今への戻り／食事の変化"
+          "summary": "不安・音楽"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/051/0033.jpg",
-          "summary": "音の影響／共同体の力／未来の分割"
+          "summary": "不安・未来"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/051/0034.jpg",
-          "summary": "寝室の環境"
+          "summary": "不安・寝室"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/051/0035.jpg",
-          "summary": "孤独感の軽減"
+          "summary": "不安・効率"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/051/0036.jpg",
-          "summary": "不安と行動"
+          "summary": "情報・不安"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/051/0037.jpg",
-          "summary": "充足の入れ／情報の時間帯"
+          "summary": "不安・集中"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/051/0038.jpg",
-          "summary": "五感の集中"
+          "summary": "言葉・不安"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/051/0039.jpg",
-          "summary": "不安との距離／眠りの守り方／体の緊張を解く"
+          "summary": "不安・余白"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/051/0040.jpg",
-          "summary": "予定の余白"
+          "summary": "事実・ダメ"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/051/0041.jpg",
-          "summary": "自己否定の止め／寝る前の儀式／不安の脇置き"
+          "summary": "不安・心"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/051/0042.jpg",
-          "summary": "明日の自分へ"
-        },
-        {
-          "file": "0043.jpg",
-          "rel": "media/video_images/CH02/051/0043.jpg",
-          "summary": "一行の書き出し／静かな夜"
+          "summary": "不安・一行"
         }
       ]
     },
@@ -5238,243 +5213,238 @@
       "video_id": "CH02-052",
       "channel": "CH02",
       "video": "052",
-      "run_id": "CH02-052_mix433_20260106",
-      "count": 47,
+      "run_id": "CH02-052_regen_20260105_175749",
+      "count": 46,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/052/0001.jpg",
-          "summary": "会議や食事での沈黙／意見を言う怖さのテーマ"
+          "summary": "意見・会議"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/052/0002.jpg",
-          "summary": "否定される恐怖"
+          "summary": "未来・意見"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/052/0003.jpg",
-          "summary": "意見は試作品"
+          "summary": "意見・批判"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/052/0004.jpg",
-          "summary": "批判を受け止める"
+          "summary": "データ・人格"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/052/0005.jpg",
-          "summary": "発言の場所を選ぶ／短く具体的に伝える"
+          "summary": "要点・前置"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/052/0006.jpg",
-          "summary": "柔らかい前置きの使い方"
+          "summary": "完璧・修正"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/052/0007.jpg",
-          "summary": "完璧を目指さない"
+          "summary": "安定・相手"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/052/0008.jpg",
-          "summary": "体の緊張をほぐす"
+          "summary": "確認・相手"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/052/0009.jpg",
-          "summary": "相手を敵と見ない／後悔の想像を確認する"
+          "summary": "緊張・姿勢"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/052/0010.jpg",
-          "summary": "聞く力を高める"
+          "summary": "言葉・完璧"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/052/0011.jpg",
-          "summary": "公共性の誕生／支配の弱め方"
+          "summary": "方向・声量"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/052/0012.jpg",
-          "summary": "声の方向を意識する"
+          "summary": "一文・成功体験"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/052/0013.jpg",
-          "summary": "書くことの練習"
+          "summary": "意見・関係"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/052/0014.jpg",
-          "summary": "小さな成功体験の積み重ね"
+          "summary": "恐怖・機会"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/052/0015.jpg",
-          "summary": "感情を整理する"
+          "summary": "質問・提案"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/052/0016.jpg",
-          "summary": "関係のメンテナンス"
+          "summary": "本音・潤滑油"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/052/0017.jpg",
-          "summary": "意見が通らないときの受け止め"
+          "summary": "時間・テーマ"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/052/0018.jpg",
-          "summary": "怖さとの付き合い方"
+          "summary": "焦点・部分"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/052/0019.jpg",
-          "summary": "会議での提案準備／笑いと本音のバランス"
+          "summary": "道具・意見"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/052/0020.jpg",
-          "summary": "家族の場での役割"
+          "summary": "沈黙・意見"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/052/0021.jpg",
-          "summary": "オンラインでの焦点の使い方"
+          "summary": "沈黙・目的"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/052/0022.jpg",
-          "summary": "哲学的な意見の視点"
+          "summary": "意見・相手"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/052/0023.jpg",
-          "summary": "暴露の方法／沈黙の種類／沈黙を意図に変える"
+          "summary": "相手・記憶"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/052/0024.jpg",
-          "summary": "発言の目的を決める"
+          "summary": "自己像・場面"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/052/0025.jpg",
-          "summary": "体調と声の関係"
+          "summary": "見方・摩擦"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/052/0026.jpg",
-          "summary": "意見の強さと優しさ"
+          "summary": "反応・不安"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/052/0027.jpg",
-          "summary": "過去の記憶の上書き"
+          "summary": "調整・精度"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/052/0028.jpg",
-          "summary": "自己像の柔軟性"
+          "summary": "意見・対話"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/052/0029.jpg",
-          "summary": "対話の摩擦の価値"
+          "summary": "意見・余白"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/052/0030.jpg",
-          "summary": "話す速度の調整"
+          "summary": "空気・最後"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/052/0031.jpg",
-          "summary": "反応の薄さへの対応"
+          "summary": "失敗・解剖"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/052/0032.jpg",
-          "summary": "考えの精度向上"
+          "summary": "権力差・相手"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/052/0033.jpg",
-          "summary": "文化的背景の影響"
+          "summary": "実名・匿名"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/052/0034.jpg",
-          "summary": "無知を認める勇気／意見と変化の関係／動くことで変わる"
+          "summary": "即答・余白"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/052/0035.jpg",
-          "summary": "小さな声の力／声の筋肉／失敗の解剖"
+          "summary": "過去・役割"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/052/0036.jpg",
-          "summary": "権力差の扉"
+          "summary": "痕跡・タイミング"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/052/0037.jpg",
-          "summary": "時間差コミュニケーション"
+          "summary": "一文・記憶"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/052/0038.jpg",
-          "summary": "子どもの頃の声の影響／タイミングの重要性"
+          "summary": "ユーモア・本題"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/052/0039.jpg",
-          "summary": "哲学的な痕跡の意義／豊かさと怖さのトレードオフ"
+          "summary": "言葉・否定"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/052/0040.jpg",
-          "summary": "怖さの測り直し／ユーモアの使い方"
+          "summary": "対話・共通"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/052/0041.jpg",
-          "summary": "内側の独り言の書き換え"
+          "summary": "修正・共同作業"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/052/0042.jpg",
-          "summary": "リスクの管理"
+          "summary": "一度・発言"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/052/0043.jpg",
-          "summary": "共通の関心の確認"
+          "summary": "合図・孤立感"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/052/0044.jpg",
-          "summary": "実験の提案"
+          "summary": "記録・自己対話"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/052/0045.jpg",
-          "summary": "フォローの方法／味方の作り方"
+          "summary": "窓・安全"
         },
         {
           "file": "0046.jpg",
           "rel": "media/video_images/CH02/052/0046.jpg",
-          "summary": "観察の技術／自己対話の記録／声の窓の比喩／記録の重要性"
-        },
-        {
-          "file": "0047.jpg",
-          "rel": "media/video_images/CH02/052/0047.jpg",
-          "summary": "窓の喩え／風を感じる／世界への声"
+          "summary": "観察・調整"
         }
       ]
     },
@@ -5482,233 +5452,228 @@
       "video_id": "CH02-053",
       "channel": "CH02",
       "video": "053",
-      "run_id": "CH02-053_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-053_regen_20260105_175750",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/053/0001.jpg",
-          "summary": "選択肢の多さ／選択疲労のメカニズム／期待と落差の関係／後悔…"
+          "summary": "選択肢・動画"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/053/0002.jpg",
-          "summary": "選択のパラドックス／自由の整理／時間の損失"
+          "summary": "選択肢・同時"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/053/0003.jpg",
-          "summary": "目的を明確にする重要性／基準を絞る効果"
+          "summary": "期待・後悔"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/053/0004.jpg",
-          "summary": "時間枠の効果／決定疲労の蓄積"
+          "summary": "自由・時間"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/053/0005.jpg",
-          "summary": "期待の調整／十分を許す重要性"
+          "summary": "時間・選択肢"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/053/0006.jpg",
-          "summary": "比較の数を減らす／落とす基準の設定"
+          "summary": "基準・目的"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/053/0007.jpg",
-          "summary": "決定の理由を記録／情報収集の時間制限"
+          "summary": "期待・時間"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/053/0008.jpg",
-          "summary": "正解の幻想と現実／整える力の重要性"
+          "summary": "十分・比較"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/053/0009.jpg",
-          "summary": "選択が自己の輪郭を描く／疲労時の選択／選択のタイミング"
+          "summary": "情報・時間"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/053/0010.jpg",
-          "summary": "損失回避の本能"
+          "summary": "正解・時間"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/053/0011.jpg",
-          "summary": "小さく試す方法"
+          "summary": "選択・決断"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/053/0012.jpg",
-          "summary": "他人の評価と自分の目的"
+          "summary": "選択・時間"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/053/0013.jpg",
-          "summary": "選択の順番工夫／直感の活用"
+          "summary": "目的・他人"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/053/0014.jpg",
-          "summary": "豊かさと迷いの関係／過剰な自由を扱う四つの方法／決定疲労の…"
+          "summary": "直感・除外"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/053/0015.jpg",
-          "summary": "習慣の自動化／選択の分離／サンクコストの罠"
+          "summary": "自由・休息"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/053/0016.jpg",
-          "summary": "他人の選択の幻想／自分の基準の重要性"
+          "summary": "選択・体力"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/053/0017.jpg",
-          "summary": "情報源の絞り込み"
+          "summary": "時間・自動化"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/053/0018.jpg",
-          "summary": "先送りの負債"
+          "summary": "選択・追加"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/053/0019.jpg",
-          "summary": "選び直す権利／動いてから調整／適応力の重要性"
+          "summary": "基準・情報"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/053/0020.jpg",
-          "summary": "責任の分散／選ばなかった道の哀惜"
+          "summary": "負債・明言"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/053/0021.jpg",
-          "summary": "情報の質の選択"
+          "summary": "未来・仮決"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/053/0022.jpg",
-          "summary": "選択の連鎖"
+          "summary": "責任・不確実"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/053/0023.jpg",
-          "summary": "感情と選択"
+          "summary": "気持・選択肢"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/053/0024.jpg",
-          "summary": "文化と周囲の期待"
+          "summary": "情報・選択"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/053/0025.jpg",
-          "summary": "短期集中の効果"
+          "summary": "感情・選択"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/053/0026.jpg",
-          "summary": "物理的な整理"
+          "summary": "選択・周囲"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/053/0027.jpg",
-          "summary": "やめる選択の重要性"
+          "summary": "選択・整理"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/053/0028.jpg",
-          "summary": "選択を実験と捉える"
+          "summary": "選択・実験"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/053/0029.jpg",
-          "summary": "未来の自分との対話"
+          "summary": "選択・未来"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/053/0030.jpg",
-          "summary": "選択のプロセス"
+          "summary": "時間・選択"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/053/0031.jpg",
-          "summary": "情報の流れの制限"
+          "summary": "選択・時間"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/053/0032.jpg",
-          "summary": "人間関係の選択"
+          "summary": "季節・情報"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/053/0033.jpg",
-          "summary": "季節のテーマ／体の反応を試す／選択の偏り"
+          "summary": "選択・後悔"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/053/0034.jpg",
-          "summary": "選択の感覚の鈍り／言葉を磨く力"
+          "summary": "境界・選択"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/053/0035.jpg",
-          "summary": "興味を基準に"
+          "summary": "興味・持続"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/053/0036.jpg",
-          "summary": "選択の基本動作／選択の物語性"
+          "summary": "選択・物語"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/053/0037.jpg",
-          "summary": "自由の変容"
+          "summary": "材料・自由"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/053/0038.jpg",
-          "summary": "選択の連鎖"
+          "summary": "呼吸・意図"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/053/0039.jpg",
-          "summary": "戦略的な保留"
+          "summary": "目的・リズム"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/053/0040.jpg",
-          "summary": "旅行先の選び方"
+          "summary": "機能・判断"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/053/0041.jpg",
-          "summary": "ツールの選び方"
+          "summary": "未来・調整"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/053/0042.jpg",
-          "summary": "人生の大きな選択"
+          "summary": "情報・正体"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/053/0043.jpg",
-          "summary": "紙に書く効果"
+          "summary": "理由・選択"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/053/0044.jpg",
-          "summary": "迷いの正体の見分け／選択の哲学"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/053/0045.jpg",
-          "summary": "小さな選択のトレーニング／選ぶ力の重要性"
+          "summary": "選択・筋肉"
         }
       ]
     },
@@ -5945,233 +5910,228 @@
       "video_id": "CH02-055",
       "channel": "CH02",
       "video": "055",
-      "run_id": "CH02-055_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-055_regen_20260105_175752",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/055/0001.jpg",
-          "summary": "静けさと不安／孤独のテーマ"
+          "summary": "孤独・スマホ"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/055/0002.jpg",
-          "summary": "生存本能と孤独／過剰な警告"
+          "summary": "通知・異物"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/055/0003.jpg",
-          "summary": "オンラインの速度と静けさ"
+          "summary": "孤独・理解"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/055/0004.jpg",
-          "summary": "孤独の二種類／静けさの二面性"
+          "summary": "孤独・シグナル"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/055/0005.jpg",
-          "summary": "孤独を情報と見る"
+          "summary": "予定・孤独"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/055/0006.jpg",
-          "summary": "予定の鎧"
+          "summary": "時間・理由"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/055/0007.jpg",
-          "summary": "心の雑音／雑音の形にする"
+          "summary": "部屋・筋肉"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/055/0008.jpg",
-          "summary": "静けさの練習"
+          "summary": "時間・スマホ"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/055/0009.jpg",
-          "summary": "環境の調整"
+          "summary": "孤独・学習"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/055/0010.jpg",
-          "summary": "一人時間の延長／孤独と孤立の違い／つながりの可視化"
+          "summary": "孤独・リズム"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/055/0011.jpg",
-          "summary": "孤独のリズム／静けさの混ぜ方"
+          "summary": "孤独・安心"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/055/0012.jpg",
-          "summary": "表面的な会話／橋渡しの言葉／静けさの変化"
+          "summary": "時間・意味"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/055/0013.jpg",
-          "summary": "体の冷えと温め方／集中の心地よさ"
+          "summary": "心・孤独"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/055/0014.jpg",
-          "summary": "創造のための孤独"
+          "summary": "孤独・集中"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/055/0015.jpg",
-          "summary": "記憶の分離／孤独の共有／時間の刻み方"
+          "summary": "孤独・部屋"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/055/0016.jpg",
-          "summary": "感情の受け止め"
+          "summary": "記憶・孤独"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/055/0017.jpg",
-          "summary": "自己否定の声／不安の膨張を防ぐ"
+          "summary": "時間・行為"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/055/0018.jpg",
-          "summary": "孤独を外側に開く"
+          "summary": "感情・反応"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/055/0019.jpg",
-          "summary": "日々の儀式"
+          "summary": "孤独・事実"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/055/0020.jpg",
-          "summary": "静けさの充実"
+          "summary": "時間・未来"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/055/0021.jpg",
-          "summary": "役割からの離脱"
+          "summary": "孤独・内側"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/055/0022.jpg",
-          "summary": "時間の流れ"
+          "summary": "役割・リスト"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/055/0023.jpg",
-          "summary": "小さな試み／孤独の警報／余白の時間"
+          "summary": "時間・役割"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/055/0024.jpg",
-          "summary": "孤独と内省／孤独の成果"
+          "summary": "孤独・警報"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/055/0025.jpg",
-          "summary": "儀式の終わり"
+          "summary": "孤独・余白"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/055/0026.jpg",
-          "summary": "視線の変化"
+          "summary": "時間・孤独"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/055/0027.jpg",
-          "summary": "存在の意味"
+          "summary": "孤独・分散"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/055/0028.jpg",
-          "summary": "細部の気づき"
+          "summary": "輪郭・細部"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/055/0029.jpg",
-          "summary": "依存の見つけ方"
+          "summary": "孤独・依存"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/055/0030.jpg",
-          "summary": "孤独の小分け"
+          "summary": "孤独・価値観"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/055/0031.jpg",
-          "summary": "価値観の確認"
+          "summary": "選別・孤独"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/055/0032.jpg",
-          "summary": "評価の選別"
+          "summary": "孤独・季節"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/055/0033.jpg",
-          "summary": "他人の理解"
+          "summary": "孤独・準備"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/055/0034.jpg",
-          "summary": "孤独の季節／孤独の楽しみ"
+          "summary": "孤独・見方"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/055/0035.jpg",
-          "summary": "孤独の贈り物"
+          "summary": "接点・記憶"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/055/0036.jpg",
-          "summary": "自己嫌悪の罠／小さな接点"
+          "summary": "孤独・退屈"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/055/0037.jpg",
-          "summary": "記憶の色塗り"
+          "summary": "孤独・時間"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/055/0038.jpg",
-          "summary": "孤独と退屈の違い"
+          "summary": "自由・孤独"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/055/0039.jpg",
-          "summary": "内部対話の調整"
+          "summary": "共有・孤独"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/055/0040.jpg",
-          "summary": "時間の歪み／自由な時間の使い方"
+          "summary": "孤独・物差"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/055/0041.jpg",
-          "summary": "感情の形にする／眠りの準備"
+          "summary": "孤独・時間"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/055/0042.jpg",
-          "summary": "人間関係の物差し"
+          "summary": "孤独・矛盾"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/055/0043.jpg",
-          "summary": "演じる自分と本音"
+          "summary": "方法・孤独"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/055/0044.jpg",
-          "summary": "五感で時間を立体化／孤独の矛盾を認める／未来設計のプロセス"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/055/0045.jpg",
-          "summary": "孤独の持ち方を変える"
+          "summary": "孤独・最後"
         }
       ]
     },
@@ -6418,198 +6378,193 @@
       "video_id": "CH02-057",
       "channel": "CH02",
       "video": "057",
-      "run_id": "CH02-057_mix433_20260106",
-      "count": 38,
+      "run_id": "CH02-057_regen_20260105_175754",
+      "count": 37,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/057/0001.jpg",
-          "summary": "習慣の挫折／習慣の本質"
+          "summary": "仕組・習慣"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/057/0002.jpg",
-          "summary": "意志と設計／設計の要素"
+          "summary": "目的・燃料"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/057/0003.jpg",
-          "summary": "目的の重要性／目的の可視化"
+          "summary": "目標・毎日"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/057/0004.jpg",
-          "summary": "目標の小さくする／最小単位の習慣／積み重ねの効果"
+          "summary": "システム・場所"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/057/0005.jpg",
-          "summary": "時間の枠組み／習慣のシステム化"
+          "summary": "性格・開始"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/057/0006.jpg",
-          "summary": "環境の調整／ハードルの下げ方"
+          "summary": "完璧・目指"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/057/0007.jpg",
-          "summary": "習慣の循環／摩擦との付き合い"
+          "summary": "最低・ライン"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/057/0008.jpg",
-          "summary": "習慣の完璧主義"
+          "summary": "途絶・報酬"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/057/0009.jpg",
-          "summary": "習慣の波を描く／最低ラインの象徴"
+          "summary": "印象・抽象度"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/057/0010.jpg",
-          "summary": "記録の重要性／記録の効果／流れの維持"
+          "summary": "共有・翻訳"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/057/0011.jpg",
-          "summary": "報酬の設計"
+          "summary": "習慣・変化"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/057/0012.jpg",
-          "summary": "目標の具体化／翻訳の効果"
+          "summary": "彫刻・習慣"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/057/0013.jpg",
-          "summary": "共有の効果／共有の範囲"
+          "summary": "データ・意志"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/057/0014.jpg",
-          "summary": "飽きの克服／変化の導入／習慣の哲学／彫刻の比喩／意味の理解…"
+          "summary": "習慣・体調"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/057/0015.jpg",
-          "summary": "失敗のデータ化／設計の修正／データの精度"
+          "summary": "必要・方向"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/057/0016.jpg",
-          "summary": "体調の重要性／土台の重要性"
+          "summary": "習慣・反応"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/057/0017.jpg",
-          "summary": "目的の再確認／方向の調整／柔軟性の重要性"
+          "summary": "再開・設計"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/057/0018.jpg",
-          "summary": "比較の危険／最適量の探求"
+          "summary": "一歩・習慣"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/057/0019.jpg",
-          "summary": "やめ方の決め方／終わりの効果／再開の儀式"
+          "summary": "材料・仕組"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/057/0020.jpg",
-          "summary": "習慣の自動化／習慣の基盤"
+          "summary": "視点・記録"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/057/0021.jpg",
-          "summary": "最初の一歩／小さな積み重ね／過去の活用"
+          "summary": "長持・ハードル"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/057/0022.jpg",
-          "summary": "停滞期の意味／視点を変える効果"
+          "summary": "時間・集中"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/057/0023.jpg",
-          "summary": "休息の重要性"
+          "summary": "トレ・負荷"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/057/0024.jpg",
-          "summary": "終了のハードル／再開率の向上"
+          "summary": "パターン・記録"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/057/0025.jpg",
-          "summary": "時間と質の関係／手応えの記録"
+          "summary": "習慣・自己像"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/057/0026.jpg",
-          "summary": "意志の筋トレ／負荷の調整／修正の重要性／振り返りの時間／設…"
+          "summary": "刺激・退屈"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/057/0027.jpg",
-          "summary": "習慣の手放し／時間の再配分／刺激の調整／刺激の注意"
+          "summary": "期待・再起動"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/057/0028.jpg",
-          "summary": "再起動の方法／再起動の効果"
+          "summary": "未来・一歩"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/057/0029.jpg",
-          "summary": "期待の調整"
+          "summary": "罪悪感・行動"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/057/0030.jpg",
-          "summary": "習慣の投資／一歩の価値"
+          "summary": "習慣・新鮮"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/057/0031.jpg",
-          "summary": "罪悪感の克服／感情のコントロール／行動の優先"
+          "summary": "ノイズ・環境"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/057/0032.jpg",
-          "summary": "変化の計画／習慣のバランス"
+          "summary": "手紙・成果"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/057/0033.jpg",
-          "summary": "ノイズの排除"
+          "summary": "優先順位・時期"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/057/0034.jpg",
-          "summary": "未来への手紙"
+          "summary": "目的・動機"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/057/0035.jpg",
-          "summary": "成果の可視化／優先順位の調整"
+          "summary": "道・習慣"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/057/0036.jpg",
-          "summary": "周囲の声の選別／動機の再確認"
+          "summary": "未来・一歩"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/057/0037.jpg",
-          "summary": "宣言の効果／習慣の生き延び"
-        },
-        {
-          "file": "0038.jpg",
-          "rel": "media/video_images/CH02/057/0038.jpg",
-          "summary": "道のりの曲がり角／未来への投資／証拠の積み重ね"
+          "summary": "三日坊主・証拠"
         }
       ]
     },
@@ -7513,233 +7468,228 @@
       "video_id": "CH02-062",
       "channel": "CH02",
       "video": "062",
-      "run_id": "CH02-062_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-062_regen_20260105_175759",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/062/0001.jpg",
-          "summary": "SNSの反応への過剰反応／テーマの紹介"
+          "summary": "承認欲求・投稿"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/062/0002.jpg",
-          "summary": "承認欲求の進化的背景／現代の過剰な反応／評価の基準の問題"
+          "summary": "他人・安全"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/062/0003.jpg",
-          "summary": "スキナーの変動報酬説／通知と砂糖の比喩／目的を基準にする"
+          "summary": "通知・目盛"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/062/0004.jpg",
-          "summary": "SNSの「いいね」の問題／反応チェックの時間管理／自己基準…"
+          "summary": "基準・曖昧"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/062/0005.jpg",
-          "summary": "承認欲求と不安の関係／不一致の許容練習"
+          "summary": "時間・指標"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/062/0006.jpg",
-          "summary": "過去の渇きの影響／自己労いの重要性"
+          "summary": "不安・拒絶"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/062/0007.jpg",
-          "summary": "承認の向きを変える／貢献の手触り／視線の強度調整"
+          "summary": "過去・承認"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/062/0008.jpg",
-          "summary": "内的動機の育成"
+          "summary": "貢献・手触"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/062/0009.jpg",
-          "summary": "体の安定化"
+          "summary": "視線・外的動機"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/062/0010.jpg",
-          "summary": "承認の適切な扱い／価値の分離"
+          "summary": "評価・安定"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/062/0011.jpg",
-          "summary": "見せない時間の作成"
+          "summary": "部分・承認"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/062/0012.jpg",
-          "summary": "評価の場の分散"
+          "summary": "反応・分散"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/062/0013.jpg",
-          "summary": "他人の評価の厳しさ"
+          "summary": "他人・苛立"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/062/0014.jpg",
-          "summary": "波の観察"
+          "summary": "科学的・距離"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/062/0015.jpg",
-          "summary": "完璧な演技／失敗の共有／望みと行動のずれ"
+          "summary": "空虚・承認"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/062/0016.jpg",
-          "summary": "時間軸の揺れ／価値の確認"
+          "summary": "価値・長期"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/062/0017.jpg",
-          "summary": "情報摂取の減少／承認の扱い方の変化"
+          "summary": "承認・情報"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/062/0018.jpg",
-          "summary": "生活リズムの乱れ"
+          "summary": "承認・疲労"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/062/0019.jpg",
-          "summary": "比較の軸／言葉の盛り方／機嫌と価値"
+          "summary": "承認・リズム"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/062/0020.jpg",
-          "summary": "充電時間の設計"
+          "summary": "機嫌・価値"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/062/0021.jpg",
-          "summary": "社会的文脈の影響／事実ベースの話し方"
+          "summary": "充電・外向"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/062/0022.jpg",
-          "summary": "承認の形の見直し"
+          "summary": "数字・承認"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/062/0023.jpg",
-          "summary": "罪悪感との向き合い"
+          "summary": "承認・言葉"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/062/0024.jpg",
-          "summary": "静かな時間の練習"
+          "summary": "時間・承認"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/062/0025.jpg",
-          "summary": "承認の方向の変化"
+          "summary": "承認・反応"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/062/0026.jpg",
-          "summary": "断られ体験の積み重ね／承認を与える"
+          "summary": "承認欲求・クッション"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/062/0027.jpg",
-          "summary": "時間の感覚が変わる／波から降りる日"
+          "summary": "承認・時間"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/062/0028.jpg",
-          "summary": "小さな共同体の育成"
+          "summary": "最初・感覚"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/062/0029.jpg",
-          "summary": "フィードバックの質／中毒の兆しへの対処"
+          "summary": "承認・フィードバック"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/062/0030.jpg",
-          "summary": "本来性の取り戻し／内的動機の確認"
+          "summary": "距離・物理的"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/062/0031.jpg",
-          "summary": "成長の可視化"
+          "summary": "ゼロ・動機"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/062/0032.jpg",
-          "summary": "手仕事への集中"
+          "summary": "評価・承認"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/062/0033.jpg",
-          "summary": "評価の選択的受け取り／承認の求め方"
+          "summary": "承認・丁寧"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/062/0034.jpg",
-          "summary": "境界の明確化"
+          "summary": "評価・承認"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/062/0035.jpg",
-          "summary": "体のケア／ステータスゲームの選択／信頼できる仲間の重要性"
+          "summary": "ゲーム・参加"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/062/0036.jpg",
-          "summary": "フィードバックの活用法／嫉妬の解釈／承認なしの行動"
+          "summary": "嫉妬・部分"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/062/0037.jpg",
-          "summary": "自己表彰の儀式／飾りの削減"
+          "summary": "表彰・承認"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/062/0038.jpg",
-          "summary": "不確実性の対処"
+          "summary": "承認・コスト"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/062/0039.jpg",
-          "summary": "熟練の満足／小さな承認の数え方"
+          "summary": "承認・熟練"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/062/0040.jpg",
-          "summary": "存在の認め方"
+          "summary": "価値・時間"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/062/0041.jpg",
-          "summary": "役割と自分の分離"
+          "summary": "役割・評価"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/062/0042.jpg",
-          "summary": "承認の対象の先送り／行動の目的の見直し"
+          "summary": "承認・目的"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/062/0043.jpg",
-          "summary": "他人の課題の奪い方"
+          "summary": "習慣・承認"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/062/0044.jpg",
-          "summary": "習慣の入れ替え"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/062/0045.jpg",
-          "summary": "試す行動の提案"
+          "summary": "評価・最後"
         }
       ]
     },
@@ -7976,248 +7926,243 @@
       "video_id": "CH02-064",
       "channel": "CH02",
       "video": "064",
-      "run_id": "CH02-064_mix433_20260106",
-      "count": 48,
+      "run_id": "CH02-064_regen_20260105_175801",
+      "count": 47,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/064/0001.jpg",
-          "summary": "頭の騒音／優しい解決策"
+          "summary": "情報・ノート"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/064/0002.jpg",
-          "summary": "危険回避の欲求／頭の中の循環／一文のゴール設定／枠の重要性"
+          "summary": "安全・失敗"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/064/0003.jpg",
-          "summary": "情報収集のリズム／シミュレーションの制限／数の力／十分の基準"
+          "summary": "一文・場所"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/064/0004.jpg",
-          "summary": "ハイデガーの不安論／体の動き"
+          "summary": "十分・目的"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/064/0005.jpg",
-          "summary": "選択肢の絞り込み／考えの外出し"
+          "summary": "不安・未来"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/064/0006.jpg",
-          "summary": "捨てる練習／言葉の力／考えと動きの分離／時間の枠"
+          "summary": "ブレーキ・選択肢"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/064/0007.jpg",
-          "summary": "失敗の解剖／責任の分担／思考と行動の往復"
+          "summary": "言葉・指示"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/064/0008.jpg",
-          "summary": "小さな行動のロープ／独り言の変化／後悔の余白"
+          "summary": "失敗・解剖"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/064/0009.jpg",
-          "summary": "期待の軽さ／読むと動くのセット／動かないリスク"
+          "summary": "行動・背負"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/064/0010.jpg",
-          "summary": "試しの小さな痛み／交互のバランス／視点の変化"
+          "summary": "修正・後悔"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/064/0011.jpg",
-          "summary": "先送りのコスト／音量の下げ方／自分軸への回帰"
+          "summary": "セット・五分"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/064/0012.jpg",
-          "summary": "動きながらの理解／読む量の分割／決めないことの決断"
+          "summary": "時間・視点"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/064/0013.jpg",
-          "summary": "体の緩み／他人の耳の力／月ごとのテーマ"
+          "summary": "コスト・音量"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/064/0014.jpg",
-          "summary": "進みの記録／荒いデモの力"
+          "summary": "修正・エネルギー"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/064/0015.jpg",
-          "summary": "時間のバッファ"
+          "summary": "思考・五分"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/064/0016.jpg",
-          "summary": "静寂の効果／言葉に出す力／中間の終わり"
+          "summary": "一行・月"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/064/0017.jpg",
-          "summary": "完成の定義／質と速度のバランス"
+          "summary": "空白・最後"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/064/0018.jpg",
-          "summary": "モノタスクの時間"
+          "summary": "言葉・中間"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/064/0019.jpg",
-          "summary": "公開締め切り"
+          "summary": "速度・序盤"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/064/0020.jpg",
-          "summary": "進捗の視覚化"
+          "summary": "十五分・作業"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/064/0021.jpg",
-          "summary": "エネルギーの設計"
+          "summary": "途中・視覚化"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/064/0022.jpg",
-          "summary": "インキュベーションの時間／代償行動の気づき"
+          "summary": "時間・作業"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/064/0023.jpg",
-          "summary": "小さな祝祭"
+          "summary": "片付・区切"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/064/0024.jpg",
-          "summary": "疲労と飽きの区別"
+          "summary": "仕掛・理由"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/064/0025.jpg",
-          "summary": "仕掛かりの減らし"
+          "summary": "回数・スプリント"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/064/0026.jpg",
-          "summary": "短いスプリント"
+          "summary": "段階・評価"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/064/0027.jpg",
-          "summary": "評価の距離"
+          "summary": "体力・必要"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/064/0028.jpg",
-          "summary": "マルチプロジェクト管理／終わりの切り上げ"
+          "summary": "信頼・前提"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/064/0029.jpg",
-          "summary": "未来の自分への信頼"
+          "summary": "改善・完成"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/064/0030.jpg",
-          "summary": "横滑りの技術"
+          "summary": "視界・環境"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/064/0031.jpg",
-          "summary": "完成と改善の分離"
+          "summary": "内部・外部"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/064/0032.jpg",
-          "summary": "罪悪感の活用／環境の見える化"
+          "summary": "安全・途中版"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/064/0033.jpg",
-          "summary": "終わりの祝福"
+          "summary": "途中・ペースメーカー"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/064/0034.jpg",
-          "summary": "締め切りの使い分け"
+          "summary": "一本・最後"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/064/0035.jpg",
-          "summary": "心理的安全／物理的な終わり"
+          "summary": "評価・場所"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/064/0036.jpg",
-          "summary": "週次振り返りの習慣／遊び心の重要性／小さな達成感の積み重ね…"
+          "summary": "致命的・理解"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/064/0037.jpg",
-          "summary": "決定ログの効果／二段階決断のメリット"
+          "summary": "場合・フェーズ"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/064/0038.jpg",
-          "summary": "成功の映像"
+          "summary": "迷宮・行動"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/064/0039.jpg",
-          "summary": "緊急停止ボタン"
+          "summary": "行動・リスト"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/064/0040.jpg",
-          "summary": "やらない決断"
+          "summary": "想像力・タイマー"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/064/0041.jpg",
-          "summary": "夜の出口"
+          "summary": "感触・明日"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/064/0042.jpg",
-          "summary": "想像力の活用"
+          "summary": "情報・地図"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/064/0043.jpg",
-          "summary": "形にする練習／進む力の育成"
+          "summary": "選択・決断疲"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/064/0044.jpg",
-          "summary": "ウィトゲンシュタインの言葉／動きの地図"
+          "summary": "速度・デフォルト"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/064/0045.jpg",
-          "summary": "情報の断食／選択の減らし"
+          "summary": "場所・リスト"
         },
         {
           "file": "0046.jpg",
           "rel": "media/video_images/CH02/064/0046.jpg",
-          "summary": "デフォルトの足場／速度と方向／できたことリスト"
+          "summary": "基準・完璧"
         },
         {
           "file": "0047.jpg",
           "rel": "media/video_images/CH02/064/0047.jpg",
-          "summary": "場所の切り替え／完璧な自分の棚置き／決める練習"
-        },
-        {
-          "file": "0048.jpg",
-          "rel": "media/video_images/CH02/064/0048.jpg",
-          "summary": "考えすぎの強み／六つの道具"
+          "summary": "武器・手入"
         }
       ]
     },
@@ -8225,233 +8170,228 @@
       "video_id": "CH02-065",
       "channel": "CH02",
       "video": "065",
-      "run_id": "CH02-065_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-065_regen_20260105_175802",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/065/0001.jpg",
-          "summary": "自己肯定感の揺れ／土台作りの話"
+          "summary": "失敗・ダメ"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/065/0002.jpg",
-          "summary": "自己肯定感の変化／土台作りの第一歩／ネガティブバイアスの影響"
+          "summary": "自己肯定感・固定"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/065/0003.jpg",
-          "summary": "器の成長／具体を聞く"
+          "summary": "バイアス・情報"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/065/0004.jpg",
-          "summary": "失敗の活用"
+          "summary": "参考・目標"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/065/0005.jpg",
-          "summary": "他人の断片と自分の全体"
+          "summary": "失敗・資源"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/065/0006.jpg",
-          "summary": "体の安定／小さな成功の積み重ね"
+          "summary": "感覚・寝不足"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/065/0007.jpg",
-          "summary": "環境の選択／日常の肯定／強みと弱みの両面"
+          "summary": "土台・言葉"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/065/0008.jpg",
-          "summary": "できて当たり前の認識／評価の要約"
+          "summary": "全体・土台"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/065/0009.jpg",
-          "summary": "情報の量の制御"
+          "summary": "評価・他人"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/065/0010.jpg",
-          "summary": "姿勢と心の関係／自己肯定のアンカー／自己と他者の価値"
+          "summary": "心・姿勢"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/065/0011.jpg",
-          "summary": "条件付きと条件なし"
+          "summary": "価値・他人"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/065/0012.jpg",
-          "summary": "頼る練習／褒め言葉の罪悪感"
+          "summary": "価値・馴染"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/065/0013.jpg",
-          "summary": "否定の過大予測／過去の成長／未来の自分への手紙"
+          "summary": "否定・部分"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/065/0014.jpg",
-          "summary": "基準の選択／習慣の土台"
+          "summary": "未来・基準"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/065/0015.jpg",
-          "summary": "自己嫌悪の認容"
+          "summary": "土台・習慣"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/065/0016.jpg",
-          "summary": "否定の声の切り離し／ゆっくりの高め方"
+          "summary": "時間・安定"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/065/0017.jpg",
-          "summary": "期待の想像と現実／強みの可視化"
+          "summary": "想像・期待"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/065/0018.jpg",
-          "summary": "価値観の評価／罪悪感の軽減"
+          "summary": "評価・価値観"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/065/0019.jpg",
-          "summary": "肯定と甘やかしの違い／言葉の置き換え／鏡の事実"
+          "summary": "言葉・肯定"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/065/0020.jpg",
-          "summary": "比較の軸／身体感覚の回復"
+          "summary": "比較・時間"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/065/0021.jpg",
-          "summary": "嫉妬の活用"
+          "summary": "嫉妬・サイン"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/065/0022.jpg",
-          "summary": "静かな土台"
+          "summary": "土台・景色"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/065/0023.jpg",
-          "summary": "否定の声の対処／基準の書き直し"
+          "summary": "基準・道"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/065/0024.jpg",
-          "summary": "成長の可視化／否定の独り言／約束の守り"
+          "summary": "約束・フレーズ"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/065/0025.jpg",
-          "summary": "他人の視点／未来への優しさ"
+          "summary": "光・時間"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/065/0026.jpg",
-          "summary": "薄い層の積み重ね"
+          "summary": "自己肯定感・一気"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/065/0027.jpg",
-          "summary": "朝から夜までの小さな習慣／比較からの脱出方法"
+          "summary": "具体的・一日"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/065/0028.jpg",
-          "summary": "インポスター感"
+          "summary": "用意・明日"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/065/0029.jpg",
-          "summary": "境界線の引き"
+          "summary": "行動・事実"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/065/0030.jpg",
-          "summary": "支え合いのリスト"
+          "summary": "境界線・土台"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/065/0031.jpg",
-          "summary": "夜の自己否定への対処法"
+          "summary": "自己否定・夜用"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/065/0032.jpg",
-          "summary": "身体を優しく扱う日／他人の成功を祝う効果"
+          "summary": "身体・大事"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/065/0033.jpg",
-          "summary": "ゼロの日を避ける"
+          "summary": "ゼロ・土台"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/065/0034.jpg",
-          "summary": "話すことで記憶の重さが分散／家庭内の言葉が柔らかくなる／自…"
+          "summary": "言葉・土台"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/065/0035.jpg",
-          "summary": "足元のタイル"
+          "summary": "足元・圧倒"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/065/0036.jpg",
-          "summary": "積み木の比喩／優しい言葉の力"
+          "summary": "五分・言葉"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/065/0037.jpg",
-          "summary": "共感の場／趣味の時間の価値／失敗を祝う習慣"
+          "summary": "時間・共感"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/065/0038.jpg",
-          "summary": "アファメーションの実践／速度を落とす工夫"
+          "summary": "挑戦・言葉"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/065/0039.jpg",
-          "summary": "日記の問いの効果"
+          "summary": "速度・言葉"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/065/0040.jpg",
-          "summary": "十分である感覚"
+          "summary": "十分・毎日拾"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/065/0041.jpg",
-          "summary": "呼吸と優しさ"
+          "summary": "大丈夫・心"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/065/0042.jpg",
-          "summary": "デジタル断食の効果"
+          "summary": "過去・手紙"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/065/0043.jpg",
-          "summary": "過去への感謝の手紙／アンカーの役割"
+          "summary": "分散・ポケット"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/065/0044.jpg",
-          "summary": "専門家のサポート"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/065/0045.jpg",
-          "summary": "土台作りの総括"
+          "summary": "土台・光"
         }
       ]
     },
@@ -8459,238 +8399,233 @@
       "video_id": "CH02-066",
       "channel": "CH02",
       "video": "066",
-      "run_id": "CH02-066_mix433_20260106",
-      "count": 46,
+      "run_id": "CH02-066_regen_20260105_175803",
+      "count": 45,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/066/0001.jpg",
-          "summary": "自分らしさの探求／テーマの提示／アプローチの説明／輪郭の比喩"
+          "summary": "言葉・期待"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/066/0002.jpg",
-          "summary": "内省の必要性／好きの重要性／嫌いの役割／実践的な方法"
+          "summary": "時間・輪郭"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/066/0003.jpg",
-          "summary": "自己要求の負担／仮の輪郭の概念／肩の力を抜く"
+          "summary": "完璧・大事"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/066/0004.jpg",
-          "summary": "本音の場の必要性／本音を出す方法／過去のヒント／夢中の記憶"
+          "summary": "本音・信頼"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/066/0005.jpg",
-          "summary": "過去の試し方／輪郭の濃さ／借りた価値観の整理／軸の見つけ方"
+          "summary": "夢中・輪郭"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/066/0006.jpg",
-          "summary": "流行への適応／小さな選択の練習／輪郭の回復"
+          "summary": "選択・手放"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/066/0007.jpg",
-          "summary": "哲学的な区別／両方の統合／静かな部分への触れる"
+          "summary": "本来的・世俗的"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/066/0008.jpg",
-          "summary": "物語の書き方／物語の書き換え／他人の目線の影響／一人の時間…"
+          "summary": "目線・時間"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/066/0009.jpg",
-          "summary": "役割の危険性／価値の定義／価値の持ち運び"
+          "summary": "役割・価値"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/066/0010.jpg",
-          "summary": "複数の顔の許容／顔の共通点／核の見つけ方"
+          "summary": "偽物・共通点"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/066/0011.jpg",
-          "summary": "内側への傾聴／体の反応／体のサインの記録"
+          "summary": "指針・過去"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/066/0012.jpg",
-          "summary": "比較の対象／過去との比較"
+          "summary": "言葉・不安"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/066/0013.jpg",
-          "summary": "不安の感情／焦りの危険性／仮の形の試し方"
+          "summary": "矢印・輪郭"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/066/0014.jpg",
-          "summary": "言葉の荒さ／言葉の整え方"
+          "summary": "輪郭・メモ"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/066/0015.jpg",
-          "summary": "矢印の確認／矢印の増やし方／輪郭の変化／輪郭の描き直し／物…"
+          "summary": "視線・内側"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/066/0016.jpg",
-          "summary": "小さな実験／反応の記録／地図の作成"
+          "summary": "役割・価値"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/066/0017.jpg",
-          "summary": "呪いの解放／固定観念の剥がし／視線の外へ／内側の声／価値の…"
+          "summary": "本来的・他人"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/066/0018.jpg",
-          "summary": "影響の見える化／物語の選択"
+          "summary": "時間・輪郭"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/066/0019.jpg",
-          "summary": "呼びかけの習慣／体のサイン／体の反応の記録／合わせる技術／…"
+          "summary": "道・自信"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/066/0020.jpg",
-          "summary": "物語の章立て／章のまとめ／自信の源"
+          "summary": "反応・最後"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/066/0021.jpg",
-          "summary": "価値の保持／輪郭の守り／今の反応／輪郭の描き直し／力の始まり"
+          "summary": "心・温度"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/066/0022.jpg",
-          "summary": "朝のチェック／三つの温度／速度の調整"
+          "summary": "反射・選択"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/066/0023.jpg",
-          "summary": "反射の裏／本心の拾い方／選択の増加"
+          "summary": "カード・仕事"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/066/0024.jpg",
-          "summary": "役割のカード／価値の書き方／カードの共通点／核の見つけ方／…"
+          "summary": "基地・安心"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/066/0025.jpg",
-          "summary": "一人会議／決め事の記録／意志の染み込み／観察者の視点／感覚…"
+          "summary": "主人公・観察者"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/066/0026.jpg",
-          "summary": "声の録音／緊張のサイン／呼吸の技術"
+          "summary": "録音・他人"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/066/0027.jpg",
-          "summary": "未来への手紙／時間を挟んだ対話"
+          "summary": "未来・時間"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/066/0028.jpg",
-          "summary": "混じり合うもの／混ぜ方の工夫／混ぜる創作／小さな反逆"
+          "summary": "反逆・比率"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/066/0029.jpg",
-          "summary": "殻の柔らかし／振り返りの問い／癖の気づき／地図帳の作成"
+          "summary": "言葉・瞬間"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/066/0030.jpg",
-          "summary": "言葉の減らし／感覚の前に出す／反応の補強／休む時間／選択の…"
+          "summary": "時間・選択"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/066/0031.jpg",
-          "summary": "失敗の材料／価値の種／行動の増やし"
+          "summary": "鏡・行動"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/066/0032.jpg",
-          "summary": "鏡の必要性／鏡の役割／鏡の数"
+          "summary": "合図・スイッチ"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/066/0033.jpg",
-          "summary": "合図の作成／スイッチの役割"
+          "summary": "情報・輪郭"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/066/0034.jpg",
-          "summary": "付き合い続ける／静かな輪郭／形を変える力／情報の飲み込まれ…"
+          "summary": "名前・内側"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/066/0035.jpg",
-          "summary": "感情に名前をつける／手触りの重要性"
+          "summary": "同意・言葉"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/066/0036.jpg",
-          "summary": "体のケア／鮮やかさの燃料／評価の整理"
+          "summary": "タグ・時間"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/066/0037.jpg",
-          "summary": "仮のタグ／輪郭を整える時間／小さな未知の探求"
+          "summary": "反応・距離"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/066/0038.jpg",
-          "summary": "距離感の調整"
+          "summary": "題名・表紙"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/066/0039.jpg",
-          "summary": "一日をまとめる習慣"
+          "summary": "余白・目標"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/066/0040.jpg",
-          "summary": "小さな目標の積み重ね"
+          "summary": "時間・道具"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/066/0041.jpg",
-          "summary": "余白の重要性"
+          "summary": "場面・具体的"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/066/0042.jpg",
-          "summary": "道具の手入れ"
+          "summary": "ライブラリ・環境"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/066/0043.jpg",
-          "summary": "小さな明日の場面"
+          "summary": "境界線・方向"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/066/0044.jpg",
-          "summary": "声の変化を記録／動き方の変化"
+          "summary": "季節・自信"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/066/0045.jpg",
-          "summary": "境界線の記録"
-        },
-        {
-          "file": "0046.jpg",
-          "rel": "media/video_images/CH02/066/0046.jpg",
-          "summary": "揺れを楽しむ視点"
+          "summary": "一行・期待"
         }
       ]
     },
@@ -8698,233 +8633,228 @@
       "video_id": "CH02-067",
       "channel": "CH02",
       "video": "067",
-      "run_id": "CH02-067_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-067_regen_20260105_175804",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/067/0001.jpg",
-          "summary": "初対面の緊張／コミュニケーションの苦手さ／警戒心のメカニズ…"
+          "summary": "初対面・時間"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/067/0002.jpg",
-          "summary": "準備した言葉の効果"
+          "summary": "言葉・道"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/067/0003.jpg",
-          "summary": "日常の小さな発見"
+          "summary": "足裏・一度上"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/067/0004.jpg",
-          "summary": "聞くことの価値／沈黙の受け入れ／静けさの許容"
+          "summary": "言葉・鍵"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/067/0005.jpg",
-          "summary": "自己紹介の定型化／相手の反応への過剰反応／事実と解釈の分離…"
+          "summary": "話題・日常"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/067/0006.jpg",
-          "summary": "信頼の積み上げ／場を小さくする／出口の確認"
+          "summary": "相手・沈黙"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/067/0007.jpg",
-          "summary": "リハーサルの効果／環境の整え方／選べる範囲の探し方"
+          "summary": "言葉・定型"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/067/0008.jpg",
-          "summary": "オンラインの不安／確認の重要性／要約の効果"
+          "summary": "反応・相手"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/067/0009.jpg",
-          "summary": "曝露の考え方／怖さと話す力"
+          "summary": "言葉・相手"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/067/0010.jpg",
-          "summary": "五感の言葉"
+          "summary": "内容・態度"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/067/0011.jpg",
-          "summary": "自分のペース／余裕の生まれる"
+          "summary": "緊張・環境"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/067/0012.jpg",
-          "summary": "褒められたとき／褒め合える関係"
+          "summary": "不安・確認"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/067/0013.jpg",
-          "summary": "自己嫌悪の解釈／解釈の緩め方"
+          "summary": "会話・相手"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/067/0014.jpg",
-          "summary": "対話の意味／対等な呼吸"
+          "summary": "五感・言葉"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/067/0015.jpg",
-          "summary": "距離の調整／自己効力感"
+          "summary": "相手・余裕"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/067/0016.jpg",
-          "summary": "振り返りの習慣／条件の選択"
+          "summary": "解釈・相手"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/067/0017.jpg",
-          "summary": "声の録音／声の変化"
+          "summary": "意味・恐怖"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/067/0018.jpg",
-          "summary": "観察力の強み"
+          "summary": "場面・条件"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/067/0019.jpg",
-          "summary": "会話の交換／関係の生まれる"
+          "summary": "変化・貢献"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/067/0020.jpg",
-          "summary": "静けさの回復／選べる感覚"
+          "summary": "関係・回復"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/067/0021.jpg",
-          "summary": "成功の記憶／経験の支え／時間帯の選択／リズムの選択／苦手を…"
+          "summary": "記憶・成功"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/067/0022.jpg",
-          "summary": "目的の再定義"
+          "summary": "時間帯・季節"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/067/0023.jpg",
-          "summary": "実践のステップ／変化のプロセス"
+          "summary": "方法・目的"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/067/0024.jpg",
-          "summary": "体の向きと目線／視線の効果"
+          "summary": "距離・最後"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/067/0025.jpg",
-          "summary": "小さな成功の積み重ね"
+          "summary": "相手・目線"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/067/0026.jpg",
-          "summary": "話の順序を決める"
+          "summary": "相手・プロ"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/067/0027.jpg",
-          "summary": "拒絶の意味／拒絶の受け止め方"
+          "summary": "拒絶・順序"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/067/0028.jpg",
-          "summary": "表情の練習／柔らかい表情"
+          "summary": "口角・安心"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/067/0029.jpg",
-          "summary": "内側の温度／正直さの効果／日記の効果"
+          "summary": "日記・素材"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/067/0030.jpg",
-          "summary": "出会いの意味／好奇心の視点"
+          "summary": "好奇心・予期不安"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/067/0031.jpg",
-          "summary": "不安の対処法／時間の境界／余白の意味"
+          "summary": "余白・再調整"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/067/0032.jpg",
-          "summary": "名前の呼び方／滑らかさの効果"
+          "summary": "リセット・視線"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/067/0033.jpg",
-          "summary": "視線のリセット／頭のリセット"
+          "summary": "安心・拠点"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/067/0034.jpg",
-          "summary": "拠点の作り方／手の位置／小さな身振り"
+          "summary": "挑戦・半年後"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/067/0035.jpg",
-          "summary": "労う時間／労いの効果"
+          "summary": "信頼・会話"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/067/0036.jpg",
-          "summary": "手紙の効果／信頼の土台"
+          "summary": "馴染・最後"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/067/0037.jpg",
-          "summary": "自分の色の混ぜ方／自分のものになる／実践の呼びかけ／繰り返…"
+          "summary": "メモ・部屋"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/067/0038.jpg",
-          "summary": "朝の準備／体の覚え"
+          "summary": "言葉・恐怖"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/067/0039.jpg",
-          "summary": "地図の小さな描き方／保険の効果"
+          "summary": "役割・大切"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/067/0040.jpg",
-          "summary": "言葉の棘／棘の抜け方"
+          "summary": "サイン・感覚"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/067/0041.jpg",
-          "summary": "役割の絞り方／エネルギーの集中"
+          "summary": "関係・言葉"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/067/0042.jpg",
-          "summary": "緊張の扱い方／サインの付け方"
+          "summary": "場面・明日"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/067/0043.jpg",
-          "summary": "顔の向き合い／存在の確かなり"
+          "summary": "練習場・苦手"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/067/0044.jpg",
-          "summary": "小さなコミュニティ／関係の支え／橋の架け方／自然さの力"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/067/0045.jpg",
-          "summary": "一日の流れ／振り返りの習慣／練習場の日常／習慣の力／優しさ…"
+          "summary": "意図・明日"
         }
       ]
     },
@@ -9400,228 +9330,223 @@
       "video_id": "CH02-070",
       "channel": "CH02",
       "video": "070",
-      "run_id": "CH02-070_mix433_20260106",
-      "count": 44,
+      "run_id": "CH02-070_regen_20260105_175807",
+      "count": 43,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/070/0001.jpg",
-          "summary": "夜の不安が膨らむ様子／今日のテーマを紹介"
+          "summary": "不安・昼間"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/070/0002.jpg",
-          "summary": "夜の不安の仕組み／不安を紙に書き出す／朝まで待つ決断"
+          "summary": "解決・平易"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/070/0003.jpg",
-          "summary": "不安を「今できること」と「後回し」に分ける／短い行動で不安…"
+          "summary": "不安・第一歩"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/070/0004.jpg",
-          "summary": "光と音が不安を増幅／呼吸で自律神経を整える／呼吸の吐く時間…"
+          "summary": "不安・行動"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/070/0005.jpg",
-          "summary": "未来の不安は朝に回す／不安を封筒に閉じて朝に渡す"
+          "summary": "呼吸・自律神経"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/070/0006.jpg",
-          "summary": "夜の思考の深さと堂々巡り／堂々巡りから抜け出す方法／心理学…"
+          "summary": "封筒・内側"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/070/0007.jpg",
-          "summary": "制御できないものをリスト化／制御できないものを紙に書いて置…"
+          "summary": "思考・制御"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/070/0008.jpg",
-          "summary": "眠れないときの対処法／時間を区切ることの効果／区切りを作る…"
+          "summary": "反芻・不安"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/070/0009.jpg",
-          "summary": "夜の準備儀式"
+          "summary": "準備・制御"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/070/0010.jpg",
-          "summary": "小さな良かったことを数える"
+          "summary": "安心・感情"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/070/0011.jpg",
-          "summary": "筋弛緩法の実践"
+          "summary": "リズム・区切"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/070/0012.jpg",
-          "summary": "昼の情報と夜の関係"
+          "summary": "通過・儀式"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/070/0013.jpg",
-          "summary": "朝に回すリストを三つだけ書く／不安を封筒に入れて朝に預ける…"
+          "summary": "緊張・安心"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/070/0014.jpg",
-          "summary": "体の不安と調整"
+          "summary": "不安・情報"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/070/0015.jpg",
-          "summary": "安心の共有／夜の手放し"
+          "summary": "後悔・封筒"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/070/0016.jpg",
-          "summary": "安全基地の象徴／音のタイマー"
+          "summary": "不安・警戒"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/070/0017.jpg",
-          "summary": "医療相談の約束"
+          "summary": "安心・制御"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/070/0018.jpg",
-          "summary": "不安の増幅と緊張解き"
+          "summary": "安全基地・安心"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/070/0019.jpg",
-          "summary": "夜の習慣と脳のサイン／感謝と安心の呼び戻し"
+          "summary": "不安・相談"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/070/0020.jpg",
-          "summary": "未来への手紙と記録"
+          "summary": "不安・大切"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/070/0021.jpg",
-          "summary": "最後の手順を実行／夜の不安を朝に渡す／朝の光と夜の静けさ"
+          "summary": "安心・サイン"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/070/0022.jpg",
-          "summary": "夜を越える小さな道具／紙と頭の境界線"
+          "summary": "不安・明日"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/070/0023.jpg",
-          "summary": "映像で巡る思考／体の温度と安全感／不安の音量調整／時計と紙…"
+          "summary": "世界・映像"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/070/0024.jpg",
-          "summary": "不安の箱分け"
+          "summary": "途切・不安"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/070/0025.jpg",
-          "summary": "仕事の終わりの儀式／体の疲れと眠気"
+          "summary": "時計・時間"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/070/0026.jpg",
-          "summary": "昼のリセット時間／体の安心する姿勢"
+          "summary": "仕事・不安"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/070/0027.jpg",
-          "summary": "昼の感情の放出"
+          "summary": "不安・リセット"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/070/0028.jpg",
-          "summary": "生活リズムの維持／数を数えるリズム"
+          "summary": "安心・不安"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/070/0029.jpg",
-          "summary": "寝室の匂いと記憶"
+          "summary": "リズム・放出口"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/070/0030.jpg",
-          "summary": "夜の食事と体の休息"
+          "summary": "単調・複雑"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/070/0031.jpg",
-          "summary": "不安を警報と捉える"
+          "summary": "安心・消化"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/070/0032.jpg",
-          "summary": "夜への優しい言葉／夜のバトン渡し"
+          "summary": "警報・不安"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/070/0033.jpg",
-          "summary": "夜の仕込みとスイッチ切り替え／朝の光の準備／体内時計の整え…"
+          "summary": "バトン・時間"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/070/0034.jpg",
-          "summary": "安心のタッチポイント"
+          "summary": "スイッチ・光"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/070/0035.jpg",
-          "summary": "環境音の調整"
+          "summary": "リズム・不安"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/070/0036.jpg",
-          "summary": "今日できたことの記録"
+          "summary": "安心・タッチポイント"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/070/0037.jpg",
-          "summary": "判断の朝への移行"
+          "summary": "背景・ホワイトノイズ"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/070/0038.jpg",
-          "summary": "夜の香りの合図"
+          "summary": "不安・時間"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/070/0039.jpg",
-          "summary": "「もしも」の検証"
+          "summary": "検証・準備"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/070/0040.jpg",
-          "summary": "夜の振り返りリスト"
+          "summary": "リズム・対処"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/070/0041.jpg",
-          "summary": "夜の散歩とリズム／布団の質感調整"
+          "summary": "不安・布団"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/070/0042.jpg",
-          "summary": "夜の自分と昼の自分"
+          "summary": "今夜・明日"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/070/0043.jpg",
-          "summary": "夜の準備の完了／夜への橋渡し"
-        },
-        {
-          "file": "0044.jpg",
-          "rel": "media/video_images/CH02/070/0044.jpg",
-          "summary": "朝の不安の確認／不安の片づけと覚え"
+          "summary": "不安・光"
         }
       ]
     },
@@ -10052,218 +9977,213 @@
       "video_id": "CH02-073",
       "channel": "CH02",
       "video": "073",
-      "run_id": "CH02-073_mix433_20260106",
-      "count": 42,
+      "run_id": "CH02-073_regen_20260105_175810",
+      "count": 41,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/073/0001.jpg",
-          "summary": "努力の停滞／焦りの悪循環／小さな成果の積み重ね"
+          "summary": "頑張・結果"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/073/0002.jpg",
-          "summary": "比較の変化"
+          "summary": "ゼロ・成果"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/073/0003.jpg",
-          "summary": "手触りの記録"
+          "summary": "比較・他人"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/073/0004.jpg",
-          "summary": "視野の拡張"
+          "summary": "手触・数値"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/073/0005.jpg",
-          "summary": "完璧主義の問題"
+          "summary": "成果・ステップ"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/073/0006.jpg",
-          "summary": "成果の可視化／体の緊張をほぐす"
+          "summary": "成果・視野"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/073/0007.jpg",
-          "summary": "潜伏期間の蓄積"
+          "summary": "潜伏期間・蓄積"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/073/0008.jpg",
-          "summary": "評価軸の問題"
+          "summary": "関係・評価"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/073/0009.jpg",
-          "summary": "関係の重要性"
+          "summary": "待機・行為"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/073/0010.jpg",
-          "summary": "タスクの絞り込み／環境の整備／環境整備の効果"
+          "summary": "通知・椅子"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/073/0011.jpg",
-          "summary": "短期報酬の設定／過程の価値／自己効力感の育成"
+          "summary": "過程・価値"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/073/0012.jpg",
-          "summary": "視線の選択"
+          "summary": "感覚・経験"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/073/0013.jpg",
-          "summary": "リズムの整備"
+          "summary": "成果・区切"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/073/0014.jpg",
-          "summary": "視野の回復"
+          "summary": "一点・達成"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/073/0015.jpg",
-          "summary": "過去の達成"
+          "summary": "判断・時間"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/073/0016.jpg",
-          "summary": "睡眠の重要性"
+          "summary": "行動・階段"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/073/0017.jpg",
-          "summary": "体の動かし方"
+          "summary": "不安・未来"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/073/0018.jpg",
-          "summary": "評価軸の追加／実験の重要性"
+          "summary": "空気・速度"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/073/0019.jpg",
-          "summary": "恐れの対処"
+          "summary": "ライン・合図"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/073/0020.jpg",
-          "summary": "空気の影響"
+          "summary": "裏側・手応"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/073/0021.jpg",
-          "summary": "十分ラインの設定／恐れの分析"
+          "summary": "ゼロ・アウトプット"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/073/0022.jpg",
-          "summary": "比較の焦り"
+          "summary": "言葉・潜伏期間"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/073/0023.jpg",
-          "summary": "進捗の多角化／成長の非線形"
+          "summary": "集中・実験"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/073/0024.jpg",
-          "summary": "言葉の力／ストア派の方法"
+          "summary": "時間・配分"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/073/0025.jpg",
-          "summary": "実験の効果"
+          "summary": "両方・未来"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/073/0026.jpg",
-          "summary": "時間の配分"
+          "summary": "感謝・両眼視"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/073/0027.jpg",
-          "summary": "ベースレートの調査／未来の描写"
+          "summary": "エール・橋渡"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/073/0028.jpg",
-          "summary": "成果の見方／感謝の習慣／小さな成果"
+          "summary": "価値・成果"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/073/0029.jpg",
-          "summary": "振り返りの重要性／体の動かし方／価値の分離"
+          "summary": "通帳・言葉"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/073/0030.jpg",
-          "summary": "進捗の記録／マイルストーンの設定"
+          "summary": "スイッチ・瞬間"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/073/0031.jpg",
-          "summary": "感情の管理"
+          "summary": "チャンス・熟成"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/073/0032.jpg",
-          "summary": "スイッチの切り替え"
+          "summary": "手入・成果"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/073/0033.jpg",
-          "summary": "小さな賭けの連鎖／熟成と詰まりの区別"
+          "summary": "速度・無理"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/073/0034.jpg",
-          "summary": "間接成果の認識／休息の重要性／速度の言語化"
+          "summary": "ルール・上下"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/073/0035.jpg",
-          "summary": "進捗の可視化"
+          "summary": "三行・未来"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/073/0036.jpg",
-          "summary": "視線の回復／未来への手紙"
+          "summary": "期待・物語"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/073/0037.jpg",
-          "summary": "三行の儀式／期待と意志の分離／進捗の共有"
+          "summary": "証拠・成果"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/073/0038.jpg",
-          "summary": "体のケア"
+          "summary": "感情・名前"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/073/0039.jpg",
-          "summary": "感情の名前付け／再起動手順"
+          "summary": "時計・共有"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/073/0040.jpg",
-          "summary": "期待の調整／未来の視点"
+          "summary": "投資・成果"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/073/0041.jpg",
-          "summary": "休みの認識"
-        },
-        {
-          "file": "0042.jpg",
-          "rel": "media/video_images/CH02/073/0042.jpg",
-          "summary": "微細な上がり／成果の決め方／焦りの克服"
+          "summary": "成果・一歩"
         }
       ]
     },
@@ -10490,203 +10410,198 @@
       "video_id": "CH02-075",
       "channel": "CH02",
       "video": "075",
-      "run_id": "CH02-075_mix433_20260106",
-      "count": 39,
+      "run_id": "CH02-075_regen_20260105_175812",
+      "count": 38,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/075/0001.jpg",
-          "summary": "スマホと不安のサイクル／情報と不安の関係"
+          "summary": "不安・情報"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/075/0002.jpg",
-          "summary": "情報と不安の関係／情報の量調整の重要性"
+          "summary": "情報・仕組"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/075/0003.jpg",
-          "summary": "情報収集の時間管理"
+          "summary": "情報・時間"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/075/0004.jpg",
-          "summary": "情報源の選定"
+          "summary": "情報源・ソース"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/075/0005.jpg",
-          "summary": "事実と推測の分離"
+          "summary": "推測・事実"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/075/0006.jpg",
-          "summary": "行動による不安軽減／小さな行動の効果"
+          "summary": "行動・不安"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/075/0007.jpg",
-          "summary": "体調と情報依存"
+          "summary": "情報・見続"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/075/0008.jpg",
-          "summary": "情報の意味づけ"
+          "summary": "情報・意味"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/075/0009.jpg",
-          "summary": "最悪シナリオの具体化"
+          "summary": "情報・知恵"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/075/0010.jpg",
-          "summary": "情報と知恵の違い"
+          "summary": "情報・感覚"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/075/0011.jpg",
-          "summary": "感覚によるリセット"
+          "summary": "不安・距離"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/075/0012.jpg",
-          "summary": "他人の不安の受け取り方"
+          "summary": "情報・入口"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/075/0013.jpg",
-          "summary": "情報更新のタイミング"
+          "summary": "情報・断片"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/075/0014.jpg",
-          "summary": "情報の入口と出口の儀式"
+          "summary": "情報・音楽"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/075/0015.jpg",
-          "summary": "情報の食事の意識"
+          "summary": "作業・常備情報"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/075/0016.jpg",
-          "summary": "体調確認の重要性"
+          "summary": "情報・共有"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/075/0017.jpg",
-          "summary": "情報の分類／常備情報の整備"
+          "summary": "映像・距離"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/075/0018.jpg",
-          "summary": "情報後の体の動かし方／情報共有ルール"
+          "summary": "情報・サイン"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/075/0019.jpg",
-          "summary": "今ここへの意識の戻し方"
+          "summary": "情報・時間"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/075/0020.jpg",
-          "summary": "情報の飽和サイン"
+          "summary": "情報・投資"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/075/0021.jpg",
-          "summary": "情報の役割分け"
+          "summary": "意図・情報"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/075/0022.jpg",
-          "summary": "外部からのサポート"
+          "summary": "情報・不安"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/075/0023.jpg",
-          "summary": "情報の休息の捉え方"
+          "summary": "情報・感情"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/075/0024.jpg",
-          "summary": "感情の温度記録"
+          "summary": "不安・好奇心"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/075/0025.jpg",
-          "summary": "動かせるものと動かせないもの"
+          "summary": "心・情報"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/075/0026.jpg",
-          "summary": "情報の意図の感じ取り／夜の不安の対処法"
+          "summary": "光・メモ"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/075/0027.jpg",
-          "summary": "情報の断食"
+          "summary": "不安・確認"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/075/0028.jpg",
-          "summary": "感情の対象化／呼吸と小さな行動／情報と好奇心の分離"
+          "summary": "情報・時間"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/075/0029.jpg",
-          "summary": "情報の二段階処理"
+          "summary": "情報・余力"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/075/0030.jpg",
-          "summary": "光と音の情報"
+          "summary": "不安・情報"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/075/0031.jpg",
-          "summary": "情報の確認タイミング／情報の断食"
+          "summary": "価値観・必要"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/075/0032.jpg",
-          "summary": "身体の位置の変化／情報の温度共有"
+          "summary": "例外・日常"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/075/0033.jpg",
-          "summary": "情報の温度を共有／余力を守る／まとめる"
+          "summary": "姿勢・呼吸"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/075/0034.jpg",
-          "summary": "不安を言葉に変える／川から水を掬う／価値観のフィルター"
+          "summary": "今必要・情報"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/075/0035.jpg",
-          "summary": "情報を受け取る姿勢／検索回数の制限"
+          "summary": "情報・ノイズ"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/075/0036.jpg",
-          "summary": "情報の分類／情報の動かす・固める"
+          "summary": "情報・時間"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/075/0037.jpg",
-          "summary": "未来の想像／情報の扱い方の変化"
+          "summary": "最後・今日一"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/075/0038.jpg",
-          "summary": "情報の道具化／情報の扱い方の変化"
-        },
-        {
-          "file": "0039.jpg",
-          "rel": "media/video_images/CH02/075/0039.jpg",
-          "summary": "情報の道具化"
+          "summary": "心・余白"
         }
       ]
     },
@@ -10694,228 +10609,223 @@
       "video_id": "CH02-076",
       "channel": "CH02",
       "video": "076",
-      "run_id": "CH02-076_mix433_20260106",
-      "count": 44,
+      "run_id": "CH02-076_regen_20260105_175813",
+      "count": 43,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/076/0001.jpg",
-          "summary": "締め切りの焦り／テーマの紹介"
+          "summary": "先延・心臓"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/076/0002.jpg",
-          "summary": "先延ばしの本質／短い締め切りの効果／小さな報酬の例"
+          "summary": "報酬・仕組"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/076/0003.jpg",
-          "summary": "具体的なタスク分解／環境整備の重要性"
+          "summary": "曖昧・具体"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/076/0004.jpg",
-          "summary": "モチベーションの問題"
+          "summary": "モチベーション・摩擦"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/076/0005.jpg",
-          "summary": "信頼回復のプロセス"
+          "summary": "信頼・リズム"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/076/0006.jpg",
-          "summary": "先延ばしの合図／始まりの重要性／未来の自分への手紙"
+          "summary": "五分・未来"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/076/0007.jpg",
-          "summary": "完璧主義の克服／フィードバックの早期化"
+          "summary": "先延・完璧"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/076/0008.jpg",
-          "summary": "行動が意志を育てる"
+          "summary": "意志・行動"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/076/0009.jpg",
-          "summary": "実行意図の具体化"
+          "summary": "行為・自体"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/076/0010.jpg",
-          "summary": "罪悪感の軽減／夜の準備と朝の一手"
+          "summary": "罪悪感・先延"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/076/0011.jpg",
-          "summary": "時間の切り分け"
+          "summary": "時間・先延"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/076/0012.jpg",
-          "summary": "環境の活用"
+          "summary": "報酬・五分"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/076/0013.jpg",
-          "summary": "小さな報酬の積み重ね／ラベルの重要性"
+          "summary": "状態・ラベル"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/076/0014.jpg",
-          "summary": "タスクの入口作り"
+          "summary": "入口・要因"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/076/0015.jpg",
-          "summary": "先延ばしの要因分析"
+          "summary": "未来・時間"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/076/0016.jpg",
-          "summary": "未来の自分への現実的な期待"
+          "summary": "ストレス・先延"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/076/0017.jpg",
-          "summary": "締め切り前のストレス軽減／効果的な道具の準備"
+          "summary": "感情・タイマー"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/076/0018.jpg",
-          "summary": "感情の整理／信念の変化／意味の具体化"
+          "summary": "信念・先延"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/076/0019.jpg",
-          "summary": "自己否定の弱化"
+          "summary": "意味・一手"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/076/0020.jpg",
-          "summary": "周囲の力の借り方／休息の重要性"
+          "summary": "補給・宣言"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/076/0021.jpg",
-          "summary": "集中の儀式"
+          "summary": "先延・儀式"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/076/0022.jpg",
-          "summary": "作業の二段階化"
+          "summary": "タスク・許可"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/076/0023.jpg",
-          "summary": "エネルギーに合わせたタスク配分"
+          "summary": "入口・出口"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/076/0024.jpg",
-          "summary": "「後でまとめてやる」の対策"
+          "summary": "感情・タスク"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/076/0025.jpg",
-          "summary": "作業の入口と出口"
+          "summary": "褒美・具体"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/076/0026.jpg",
-          "summary": "感情に合わせたタスク調整／未来のご褒美の具体化"
+          "summary": "原因・期待"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/076/0027.jpg",
-          "summary": "進め方の根本見直し"
+          "summary": "経験・言葉"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/076/0028.jpg",
-          "summary": "周囲の期待の明確化／諦めの上書き"
+          "summary": "サイン・資料"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/076/0029.jpg",
-          "summary": "情報探しの上限設定／体のサインの観察"
+          "summary": "先延・感覚"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/076/0030.jpg",
-          "summary": "一行日記の効果"
+          "summary": "タスク・名前"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/076/0031.jpg",
-          "summary": "タスクの分類／先延ばしの振り返り／タスクの名前付け"
+          "summary": "区切・先延"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/076/0032.jpg",
-          "summary": "作業の終わり方／先延ばしの時間／感情の温度計"
+          "summary": "温度・タスク"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/076/0033.jpg",
-          "summary": "未来の自分への贈り物"
+          "summary": "仕上・未来"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/076/0034.jpg",
-          "summary": "タスクの三段階化"
+          "summary": "段階・約束"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/076/0035.jpg",
-          "summary": "他人との約束の活用"
+          "summary": "先延・刺激"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/076/0036.jpg",
-          "summary": "楽しさの混ぜ方／終わったリストの効果／疲労の自動化対策"
+          "summary": "自動化・説明"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/076/0037.jpg",
-          "summary": "進捗の説明場の設定／先延ばしの扱い方"
+          "summary": "エネルギー・自信"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/076/0038.jpg",
-          "summary": "エネルギーに合わせたタスク配分"
+          "summary": "先延・摩擦"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/076/0039.jpg",
-          "summary": "テンプレートと摩擦の減少／儀式の重要性／トリガーの自動化"
+          "summary": "儀式・トリガー"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/076/0040.jpg",
-          "summary": "進捗の地図化"
+          "summary": "地図・自動化"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/076/0041.jpg",
-          "summary": "未来の時間への当てにしすぎの減少"
+          "summary": "来週・借金"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/076/0042.jpg",
-          "summary": "難しいタスクへのアプローチ"
+          "summary": "先延・簡単"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/076/0043.jpg",
-          "summary": "流れの変化"
-        },
-        {
-          "file": "0044.jpg",
-          "rel": "media/video_images/CH02/076/0044.jpg",
-          "summary": "行動の呼びかけ"
+          "summary": "先延・行動"
         }
       ]
     },
@@ -10923,183 +10833,178 @@
       "video_id": "CH02-077",
       "channel": "CH02",
       "video": "077",
-      "run_id": "CH02-077_mix433_20260106",
-      "count": 35,
+      "run_id": "CH02-077_regen_20260105_175814",
+      "count": 34,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/077/0001.jpg",
-          "summary": "断れない悩みの表現／断れない心理の深層／断る力の本質"
+          "summary": "予定・タスク"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/077/0002.jpg",
-          "summary": "断れない原因の分析／感情の扱い方／信頼を守る範囲設定"
+          "summary": "言葉・気持"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/077/0003.jpg",
-          "summary": "役立つための自己保護"
+          "summary": "範囲・信頼"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/077/0004.jpg",
-          "summary": "断り言葉の準備"
+          "summary": "余力・大切"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/077/0005.jpg",
-          "summary": "境界の明確化／境界の正しい理解"
+          "summary": "時間・言葉"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/077/0006.jpg",
-          "summary": "現実的な判断基準"
+          "summary": "境界・言葉"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/077/0007.jpg",
-          "summary": "過剰な責任感の解放"
+          "summary": "相手・背負"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/077/0008.jpg",
-          "summary": "罪悪感の処理方法／断ることの選択肢／敬意ある断り方"
+          "summary": "敬意・選択"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/077/0009.jpg",
-          "summary": "中庸のバランス／自己主張と攻撃の区別"
+          "summary": "自己主張・攻撃"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/077/0010.jpg",
-          "summary": "期待の確認と断りの技術"
+          "summary": "健全・時間"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/077/0011.jpg",
-          "summary": "断りのクッション技法"
+          "summary": "事実・状況"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/077/0012.jpg",
-          "summary": "断った後の自己評価"
+          "summary": "練習・勧誘"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/077/0013.jpg",
-          "summary": "断りの練習方法"
+          "summary": "記憶・言葉"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/077/0014.jpg",
-          "summary": "過去のトラウマの解剖"
+          "summary": "優先順位・最優先"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/077/0015.jpg",
-          "summary": "日常的な境界言葉／優先順位の確認"
+          "summary": "返事・保留"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/077/0016.jpg",
-          "summary": "断ることの矛盾／返事を保留する／代案を提案する"
+          "summary": "事実・相手"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/077/0017.jpg",
-          "summary": "感情と事実の分離"
+          "summary": "役割・相手"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/077/0018.jpg",
-          "summary": "役割の整理方法"
+          "summary": "余裕・集中"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/077/0019.jpg",
-          "summary": "姿勢と声の重要性／断る技のメリット／伝え方の工夫"
+          "summary": "言葉・馴染"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/077/0020.jpg",
-          "summary": "過去の教えの更新"
+          "summary": "フォロー・時間"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/077/0021.jpg",
-          "summary": "断り後のフォロー方法"
+          "summary": "説明・謝罪"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/077/0022.jpg",
-          "summary": "時間の数字化"
+          "summary": "記憶・理由"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/077/0023.jpg",
-          "summary": "過剰な謝罪の回避"
+          "summary": "価値観・無理"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/077/0024.jpg",
-          "summary": "過去の失敗から学ぶ／断る練習の方法／周囲への伝え方"
+          "summary": "相手・立場"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/077/0025.jpg",
-          "summary": "価値観の羅針盤／相手の立場の認識／優しさの持続方法"
+          "summary": "呼吸・余裕"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/077/0026.jpg",
-          "summary": "呼吸による冷静化／断りの協力的側面"
+          "summary": "場面・時間"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/077/0027.jpg",
-          "summary": "小さな断りの積み重ね"
+          "summary": "境界・報酬"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/077/0028.jpg",
-          "summary": "自己肯定の言葉"
+          "summary": "環境・共有"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/077/0029.jpg",
-          "summary": "予想と準備／断り後の気持ち整理"
+          "summary": "時間・感情"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/077/0030.jpg",
-          "summary": "環境の整備／感情と判断の分離／断りで得られる時間"
+          "summary": "時間・練習"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/077/0031.jpg",
-          "summary": "断る練習の具体例／断ることの長期的利益／断ることの価値観形…"
+          "summary": "価値観・言葉"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/077/0032.jpg",
-          "summary": "境界の線引き"
+          "summary": "境界・一緒"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/077/0033.jpg",
-          "summary": "断ることの集中"
+          "summary": "場面・余裕"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/077/0034.jpg",
-          "summary": "朝夜の儀式／自分の軸"
-        },
-        {
-          "file": "0035.jpg",
-          "rel": "media/video_images/CH02/077/0035.jpg",
-          "summary": "断りの生きる力"
+          "summary": "境界・筋肉"
         }
       ]
     },
@@ -11107,233 +11012,228 @@
       "video_id": "CH02-078",
       "channel": "CH02",
       "video": "078",
-      "run_id": "CH02-078_mix433_20260106",
-      "count": 45,
+      "run_id": "CH02-078_regen_20260105_175815",
+      "count": 44,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/078/0001.jpg",
-          "summary": "空洞のイメージ／テーマの提示"
+          "summary": "心・予定"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/078/0002.jpg",
-          "summary": "空洞の器／底をつくる"
+          "summary": "意味・行動"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/078/0003.jpg",
-          "summary": "価値と行動の結びつき／価値に沿った行動"
+          "summary": "一文・未来"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/078/0004.jpg",
-          "summary": "喜びの記録／快の感覚の復活"
+          "summary": "行動・価値"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/078/0005.jpg",
-          "summary": "休日の空白"
+          "summary": "感覚・記録"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/078/0006.jpg",
-          "summary": "余白の変化／充実の定義"
+          "summary": "リスト・実行"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/078/0007.jpg",
-          "summary": "つながりの薄さ／つながりの深め方"
+          "summary": "頻度・価値"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/078/0008.jpg",
-          "summary": "幸福の定義／物差しの磨き方"
+          "summary": "物差・充実"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/078/0009.jpg",
-          "summary": "フロー体験／集中の活動例"
+          "summary": "集中・時間"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/078/0010.jpg",
-          "summary": "目標の分解／一歩の積み重ね"
+          "summary": "心・情報"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/078/0011.jpg",
-          "summary": "体の基本ケア"
+          "summary": "感覚・実感"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/078/0012.jpg",
-          "summary": "感覚の増加／過去の振り返り"
+          "summary": "時間・意味"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/078/0013.jpg",
-          "summary": "意味の味わい"
+          "summary": "境界・仕事"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/078/0014.jpg",
-          "summary": "体の感覚／感謝の光"
+          "summary": "価値観・場所"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/078/0015.jpg",
-          "summary": "時間の境界／価値観の近い人／小さなつながり"
+          "summary": "瞬間・未来"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/078/0016.jpg",
-          "summary": "心が動く瞬間／砂金の積み重ね／不確実さへの備え"
+          "summary": "何者・行動"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/078/0017.jpg",
-          "summary": "今できること／集中と余白の時間／心の呼吸"
+          "summary": "物語・時間"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/078/0018.jpg",
-          "summary": "自分の物語／感覚の時間"
+          "summary": "心・一滴"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/078/0019.jpg",
-          "summary": "一滴の感謝／朝の決意／行動の底"
+          "summary": "未来・証拠"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/078/0020.jpg",
-          "summary": "未来への手紙／価値と行動の接点／自分の物差し"
+          "summary": "物差・時間"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/078/0021.jpg",
-          "summary": "SNSの減らし方"
+          "summary": "見直・サイン"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/078/0022.jpg",
-          "summary": "器の見直し／器の修復"
+          "summary": "三分・意味"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/078/0023.jpg",
-          "summary": "意味の儀式"
+          "summary": "感謝・光"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/078/0024.jpg",
-          "summary": "味わう時間／感覚の戻り"
+          "summary": "時間・空気"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/078/0025.jpg",
-          "summary": "感謝の記録／体を通じた満たし／風の心地よさ"
+          "summary": "本音・創作"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/078/0026.jpg",
-          "summary": "情報の断食／手作業の創作／形の生成／本音の会話"
+          "summary": "時間・心"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/078/0027.jpg",
-          "summary": "備えと味わい"
+          "summary": "速度・一日"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/078/0028.jpg",
-          "summary": "時間の色分け／習慣の速度／小さな気づき"
+          "summary": "時間・儀式"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/078/0029.jpg",
-          "summary": "時間の儀式／「いつか」の実行／空洞の柱"
+          "summary": "道・感覚"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/078/0030.jpg",
-          "summary": "新しい道／眠りの準備"
+          "summary": "安心・前後"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/078/0031.jpg",
-          "summary": "安心のセット／長期目標の可視化"
+          "summary": "他人・距離"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/078/0032.jpg",
-          "summary": "他人の期待／自分大事にするもの"
+          "summary": "瞬間・一日"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/078/0033.jpg",
-          "summary": "満ちた瞬間／器の静かな満ち"
+          "summary": "手触・一行日記"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/078/0034.jpg",
-          "summary": "小さな行動の積み重ね／満ちた器の日々／意図と気づきの往復"
+          "summary": "手紙・温度"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/078/0035.jpg",
-          "summary": "手紙の温度／自然のリズム／物の味方"
+          "summary": "日常・味方"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/078/0036.jpg",
-          "summary": "日常の整え方／小さな達成の喜び"
+          "summary": "計画・感情"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/078/0037.jpg",
-          "summary": "未来と現在のバランス／計画と感情のバランス／数字と言葉の両立"
+          "summary": "季節・立体"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/078/0038.jpg",
-          "summary": "季節ごとの習慣"
+          "summary": "光・アナログ"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/078/0039.jpg",
-          "summary": "刷り込まれた形／「もう十分」の線／心の中の音"
+          "summary": "時間・一人"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/078/0040.jpg",
-          "summary": "見返す日／満たす行為"
+          "summary": "言葉・文化"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/078/0041.jpg",
-          "summary": "虚しさの信号／小さな動き"
+          "summary": "余白・場所"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/078/0042.jpg",
-          "summary": "心が動くこと／満ちる音"
+          "summary": "見返・安心"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/078/0043.jpg",
-          "summary": "一滴の積み重ね／自分の色の差／器と水の関係"
+          "summary": "信号・一言"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/078/0044.jpg",
-          "summary": "満たすと満たされる"
-        },
-        {
-          "file": "0045.jpg",
-          "rel": "media/video_images/CH02/078/0045.jpg",
-          "summary": "虚しさの信号／心の小さな動き"
+          "summary": "心・最後"
         }
       ]
     },
@@ -11341,238 +11241,233 @@
       "video_id": "CH02-079",
       "channel": "CH02",
       "video": "079",
-      "run_id": "CH02-079_mix433_20260106",
-      "count": 46,
+      "run_id": "CH02-079_regen_20260105_175816",
+      "count": 45,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/079/0001.jpg",
-          "summary": "計画倒れの悩み／計画の快感と落差／重い計画の問題／軽い計画…"
+          "summary": "計画倒・三日"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/079/0002.jpg",
-          "summary": "二段構えの速度設定"
+          "summary": "計画・快感"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/079/0003.jpg",
-          "summary": "余白の重要性"
+          "summary": "計画・余白"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/079/0004.jpg",
-          "summary": "三つのタスク制限"
+          "summary": "ライン・目的"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/079/0005.jpg",
-          "summary": "長期目標の翻訳"
+          "summary": "保険・計画"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/079/0006.jpg",
-          "summary": "計画の壊れる性質／計画の更新習慣／計画の形式の重要性"
+          "summary": "前面・達成感"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/079/0007.jpg",
-          "summary": "自己信頼の回復"
+          "summary": "計画・一歩"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/079/0008.jpg",
-          "summary": "小さなご褒美"
+          "summary": "計画・更新"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/079/0009.jpg",
-          "summary": "計画の自由と不自由"
+          "summary": "計画・証拠"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/079/0010.jpg",
-          "summary": "不確実性の前提化"
+          "summary": "区切・褒美"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/079/0011.jpg",
-          "summary": "実行意図の活用"
+          "summary": "計画・不確実性"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/079/0012.jpg",
-          "summary": "習慣の自動運転"
+          "summary": "意志・計画"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/079/0013.jpg",
-          "summary": "数字と物語の記録"
+          "summary": "数字・物語"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/079/0014.jpg",
-          "summary": "無駄な時間の保険化／計画の視覚化"
+          "summary": "保険・計画"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/079/0015.jpg",
-          "summary": "未来の自分への贈り物"
+          "summary": "未来・借金"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/079/0016.jpg",
-          "summary": "終わり方の先決"
+          "summary": "計画・儀式"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/079/0017.jpg",
-          "summary": "計画の試行錯誤／観察からの学び／習慣の形成"
+          "summary": "観察・時間"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/079/0018.jpg",
-          "summary": "現実の速度測定"
+          "summary": "速度・理想"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/079/0019.jpg",
-          "summary": "やらないことの決定／視界のシンプル化"
+          "summary": "シンプル・視界"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/079/0020.jpg",
-          "summary": "目標の意味付け／計画への遊びの追加／目標の共有"
+          "summary": "計画・余裕"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/079/0021.jpg",
-          "summary": "完璧主義の克服"
+          "summary": "今週・途中"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/079/0022.jpg",
-          "summary": "三段階の目標視覚化"
+          "summary": "習慣・計画"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/079/0023.jpg",
-          "summary": "習慣の障害除去"
+          "summary": "進捗・極小"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/079/0024.jpg",
-          "summary": "計画の見た目を変える／小さな進捗を積み上げる／失敗を笑いに…"
+          "summary": "計画・体温"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/079/0025.jpg",
-          "summary": "計画の共有相手／リスクの小さな試行"
+          "summary": "計画・欲張"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/079/0026.jpg",
-          "summary": "期待と諦めのバランス"
+          "summary": "事実・記録"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/079/0027.jpg",
-          "summary": "事実の淡々記録／儀式のリズム化"
+          "summary": "計画・リズム"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/079/0028.jpg",
-          "summary": "心の疲れへの配慮"
+          "summary": "行為・気分"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/079/0029.jpg",
-          "summary": "気分に左右されない仕組み／哲学的選択の重さ／挫折の具体例"
+          "summary": "布団・摩擦"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/079/0030.jpg",
-          "summary": "摩擦の減少策"
+          "summary": "小片・計画"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/079/0031.jpg",
-          "summary": "タスクの粒度を小さくする／小片で計画を柔軟に／感情データで…"
+          "summary": "感情・設計"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/079/0032.jpg",
-          "summary": "摩擦の減少設計"
+          "summary": "計画・エネルギー"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/079/0033.jpg",
-          "summary": "ストア派の哲学／比較の毒"
+          "summary": "昨日・速度"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/079/0034.jpg",
-          "summary": "小さな入口／自然に伸びる／滑らかな滑走路／言葉の地図"
+          "summary": "入口・音声"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/079/0035.jpg",
-          "summary": "計画の燃料／開始トリガーの設定"
+          "summary": "計画・場所"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/079/0036.jpg",
-          "summary": "週次棚卸し"
+          "summary": "睡眠・光"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/079/0037.jpg",
-          "summary": "価値と計画の結びつけ"
+          "summary": "計画・棚卸"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/079/0038.jpg",
-          "summary": "命令から招待へ"
+          "summary": "意味・言葉"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/079/0039.jpg",
-          "summary": "戻れる場所の作成／週末のリセット"
+          "summary": "入口・再開"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/079/0040.jpg",
-          "summary": "成功スパイラルの作成"
+          "summary": "成功・計画"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/079/0041.jpg",
-          "summary": "タスクの解像度向上"
+          "summary": "解像度・集中"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/079/0042.jpg",
-          "summary": "集中時間の確保"
+          "summary": "計画・集中"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/079/0043.jpg",
-          "summary": "生きる理由の明確化"
+          "summary": "計画・未来"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/079/0044.jpg",
-          "summary": "未来の自分への手紙"
+          "summary": "計画・道具"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/079/0045.jpg",
-          "summary": "外部雑音の遮断"
-        },
-        {
-          "file": "0046.jpg",
-          "rel": "media/video_images/CH02/079/0046.jpg",
-          "summary": "計画の道具化／五分の積み重ね／軽い計画の実践"
+          "summary": "計画・ライン"
         }
       ]
     },
@@ -11580,238 +11475,233 @@
       "video_id": "CH02-080",
       "channel": "CH02",
       "video": "080",
-      "run_id": "CH02-080_mix433_20260106",
-      "count": 46,
+      "run_id": "CH02-080_regen_20260105_175817",
+      "count": 45,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/080/0001.jpg",
-          "summary": "不安な休息／休むことへの恐怖"
+          "summary": "罪悪感・布団"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/080/0002.jpg",
-          "summary": "前提の書き換え／脳の回復の必要性／休みの再定義"
+          "summary": "準備・前提"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/080/0003.jpg",
-          "summary": "具体的な休みの方法／小さな休みの積み重ね"
+          "summary": "回復・ケガ"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/080/0004.jpg",
-          "summary": "休むことの論理／紙に罪悪感を書き出す"
+          "summary": "予定・罪悪感"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/080/0005.jpg",
-          "summary": "休みの効果を記録する／休みの哲学的意義"
+          "summary": "抵抗・ミス"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/080/0006.jpg",
-          "summary": "体を緩める方法"
+          "summary": "論理・場所"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/080/0007.jpg",
-          "summary": "休息の哲学／休む権利"
+          "summary": "効果・記録"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/080/0008.jpg",
-          "summary": "休みの条件付け"
+          "summary": "心・行為"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/080/0009.jpg",
-          "summary": "動きながら休む"
+          "summary": "言葉・条件"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/080/0010.jpg",
-          "summary": "夜の休みの準備"
+          "summary": "条件・翌日"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/080/0011.jpg",
-          "summary": "小さな休みの認識／休みの種類分け／切り替えの儀式"
+          "summary": "準備・光"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/080/0012.jpg",
-          "summary": "比較の無限性"
+          "summary": "感情・儀式"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/080/0013.jpg",
-          "summary": "休みの積極的選択"
+          "summary": "比較・昨日"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/080/0014.jpg",
-          "summary": "無意味な時間の価値"
+          "summary": "休日・時間"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/080/0015.jpg",
-          "summary": "警戒モードの脳／休みの罪悪感／休みの三種類／ミニ休暇の効果"
+          "summary": "価値・許可"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/080/0016.jpg",
-          "summary": "体の栄養と休み"
+          "summary": "サイン・小休止"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/080/0017.jpg",
-          "summary": "休憩の場所を決める／タイマーを使った休憩／休憩のルール化"
+          "summary": "視点・創造"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/080/0018.jpg",
-          "summary": "休みの創造性／休みの社会的意義"
+          "summary": "場所・カフェイン"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/080/0019.jpg",
-          "summary": "時間の作り方"
+          "summary": "五分・罪悪感"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/080/0020.jpg",
-          "summary": "作業と休みの混合"
+          "summary": "迷惑・創造"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/080/0021.jpg",
-          "summary": "朝の光と睡眠／休みの振り返り"
+          "summary": "時間・立派"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/080/0022.jpg",
-          "summary": "境界の重要性"
+          "summary": "睡眠・罪悪感"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/080/0023.jpg",
-          "summary": "情報の制限"
+          "summary": "境界・アップデート"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/080/0024.jpg",
-          "summary": "再開の小さな一歩／罪悪感の転換"
+          "summary": "時間・再開"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/080/0025.jpg",
-          "summary": "五感を使った休み／外部の雑音の遮断"
+          "summary": "罪悪感・欲望"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/080/0026.jpg",
-          "summary": "休みの共有／通知の切断／休息の再起動"
+          "summary": "外部・雑音"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/080/0027.jpg",
-          "summary": "未来への贈り物／呼吸によるリセット"
+          "summary": "距離・今夜"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/080/0028.jpg",
-          "summary": "引き継ぎの重要性"
+          "summary": "再起動・未来"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/080/0029.jpg",
-          "summary": "自然の癒し"
+          "summary": "安全・数字"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/080/0030.jpg",
-          "summary": "短い瞑想"
+          "summary": "必要・側面"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/080/0031.jpg",
-          "summary": "可視性の低下"
+          "summary": "自然・瞑想"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/080/0032.jpg",
-          "summary": "燃え尽きまでの道筋"
+          "summary": "大敵・感覚"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/080/0033.jpg",
-          "summary": "軽いタスクからの再開"
+          "summary": "タスク・ガードレール"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/080/0034.jpg",
-          "summary": "音の環境整備／深さ優先の休み／休みと遊びの結びつけ"
+          "summary": "環境・時間"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/080/0035.jpg",
-          "summary": "記憶の書き換え"
+          "summary": "余裕・記憶"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/080/0036.jpg",
-          "summary": "遅さの回復"
+          "summary": "状況・理由"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/080/0037.jpg",
-          "summary": "習慣の形成"
+          "summary": "習慣・罪悪感"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/080/0038.jpg",
-          "summary": "美徳の再定義"
+          "summary": "美徳・チェック"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/080/0039.jpg",
-          "summary": "体と心のチェック"
+          "summary": "区切・作業"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/080/0040.jpg",
-          "summary": "作業の区切り"
+          "summary": "実感・認識"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/080/0041.jpg",
-          "summary": "進捗のメモ／休みの可視化"
+          "summary": "宣言・約束"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/080/0042.jpg",
-          "summary": "休みの合図／休みの仲間作り／週末の前倒し休憩／休みの貸し借り"
+          "summary": "時間・循環"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/080/0043.jpg",
-          "summary": "リズムの尊重"
+          "summary": "回復・勇気"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/080/0044.jpg",
-          "summary": "回復の記録／休みの勇気"
+          "summary": "心・選択"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/080/0045.jpg",
-          "summary": "小さな選択の積み重ね／休みの保留"
-        },
-        {
-          "file": "0046.jpg",
-          "rel": "media/video_images/CH02/080/0046.jpg",
-          "summary": "休みの実践"
+          "summary": "予定・最後"
         }
       ]
     },
@@ -11819,238 +11709,233 @@
       "video_id": "CH02-081",
       "channel": "CH02",
       "video": "081",
-      "run_id": "CH02-081_mix433_20260106",
-      "count": 46,
+      "run_id": "CH02-081_regen_20260105_175818",
+      "count": 45,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/081/0001.jpg",
-          "summary": "理想と現実の乖離／理想と現実の調整"
+          "summary": "理想・空虚"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/081/0002.jpg",
-          "summary": "灯台と足元の視線／理想の重さと参考の余白"
+          "summary": "理想・灯台"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/081/0003.jpg",
-          "summary": "現在の理想の欠片"
+          "summary": "現在・理想"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/081/0004.jpg",
-          "summary": "理想を具体化する／比較の洪水"
+          "summary": "距離・理想"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/081/0005.jpg",
-          "summary": "時間の区切り／過程の価値／過程の認識"
+          "summary": "理想・価値"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/081/0006.jpg",
-          "summary": "中庸の選択"
+          "summary": "理想・歩幅"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/081/0007.jpg",
-          "summary": "「べき」から「ありたい」へ"
+          "summary": "注意・道"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/081/0008.jpg",
-          "summary": "マインドフルネスの実践"
+          "summary": "感覚・理想"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/081/0009.jpg",
-          "summary": "複数の小さな実験／進歩の記録"
+          "summary": "理想・一歩"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/081/0010.jpg",
-          "summary": "体の疲れと感覚の回復／理想と現実の調整／理想の単位変更"
+          "summary": "未来・理想"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/081/0011.jpg",
-          "summary": "逃げ場としての未来／今の不安と対処"
+          "summary": "基準・言葉"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/081/0012.jpg",
-          "summary": "比較の基準を一つに／小さな理想の要素を足す"
+          "summary": "未来・理想"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/081/0013.jpg",
-          "summary": "速度の選択／途中経過の許容／理想の欠片の固定"
+          "summary": "速度・主導権"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/081/0014.jpg",
-          "summary": "焦りのバランス／理想と今の切り替え"
+          "summary": "理想・部分"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/081/0015.jpg",
-          "summary": "感覚の意識"
+          "summary": "理想・感覚"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/081/0016.jpg",
-          "summary": "情報の摂取リズム／記録の力／未来への手紙"
+          "summary": "情報・理想"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/081/0017.jpg",
-          "summary": "体を使った行動"
+          "summary": "未来・手紙"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/081/0018.jpg",
-          "summary": "理想の言葉の短縮／休みの重要性"
+          "summary": "理想・言葉"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/081/0019.jpg",
-          "summary": "理想の質感"
+          "summary": "理想・質感"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/081/0020.jpg",
-          "summary": "理想の共有／体温の上昇"
+          "summary": "理想・温度"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/081/0021.jpg",
-          "summary": "絶望の解消／時間の縮尺／感情の地図"
+          "summary": "理想・絶望"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/081/0022.jpg",
-          "summary": "交換条件の想像"
+          "summary": "感情・交換条件"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/081/0023.jpg",
-          "summary": "足るを知る"
+          "summary": "理想・哲学者"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/081/0024.jpg",
-          "summary": "ささやかな贅沢"
+          "summary": "理想・尺度"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/081/0025.jpg",
-          "summary": "道具の整備／小さな貢献"
+          "summary": "理想・貢献"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/081/0026.jpg",
-          "summary": "手放すものの選択"
+          "summary": "理想・サイズ"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/081/0027.jpg",
-          "summary": "理想の妄想のタイミング"
+          "summary": "理想・尊重"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/081/0028.jpg",
-          "summary": "場所の使い方"
+          "summary": "理想・未来"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/081/0029.jpg",
-          "summary": "小さなコミュニティ"
+          "summary": "棚卸・感謝"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/081/0030.jpg",
-          "summary": "理想への一歩／手作業のリセット／理想の目的"
+          "summary": "理想・途中"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/081/0031.jpg",
-          "summary": "やらないことの決め／棚卸しの感謝／小さな公開"
+          "summary": "エネルギー・空虚"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/081/0032.jpg",
-          "summary": "質問の意識"
+          "summary": "理想・途中"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/081/0033.jpg",
-          "summary": "エネルギーの配分／過去の手紙の読み返し"
+          "summary": "空虚・理解"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/081/0034.jpg",
-          "summary": "理想の動き"
+          "summary": "季節・地味"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/081/0035.jpg",
-          "summary": "理想に近い人の観察／夜の不安の解消"
+          "summary": "不完全・季節"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/081/0036.jpg",
-          "summary": "地味な繰り返しの面白さ／季節の感覚"
+          "summary": "理想・納得"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/081/0037.jpg",
-          "summary": "不完全の許容"
+          "summary": "役割・距離"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/081/0038.jpg",
-          "summary": "価値観の優先順位／小さな勝利"
+          "summary": "理想・場所"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/081/0039.jpg",
-          "summary": "内側の批評家の役割"
+          "summary": "理想・景色"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/081/0040.jpg",
-          "summary": "未来の感謝／短期の理想"
+          "summary": "理想・探検"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/081/0041.jpg",
-          "summary": "時間帯の変化"
+          "summary": "心・未来"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/081/0042.jpg",
-          "summary": "記録の風景／理想の探検／感謝の土台"
+          "summary": "光・理想"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/081/0043.jpg",
-          "summary": "手を動かす家事／手帳の混ぜ"
+          "summary": "物語・理想"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/081/0044.jpg",
-          "summary": "光の調整"
+          "summary": "理想・一歩"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/081/0045.jpg",
-          "summary": "他人の物語／体の固定／灯台と火種"
-        },
-        {
-          "file": "0046.jpg",
-          "rel": "media/video_images/CH02/081/0046.jpg",
-          "summary": "小さな一歩と一瞬／理想と今のバランス／行動と感覚の積み重ね"
+          "summary": "理想・一歩"
         }
       ]
     },
@@ -12058,238 +11943,233 @@
       "video_id": "CH02-082",
       "channel": "CH02",
       "video": "082",
-      "run_id": "CH02-082_mix433_20260106",
-      "count": 46,
+      "run_id": "CH02-082_rebuild_20260106_083221",
+      "count": 45,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH02/082/0001.jpg",
-          "summary": "スマホに手が伸びる／注意が四方に引かれる"
+          "summary": "注意が散る導入"
         },
         {
           "file": "0002.jpg",
           "rel": "media/video_images/CH02/082/0002.jpg",
-          "summary": "注意の流れ／注意の杭"
+          "summary": "行き先を一つに"
         },
         {
           "file": "0003.jpg",
           "rel": "media/video_images/CH02/082/0003.jpg",
-          "summary": "刺激の入口／時間の区切り／集中の儀式"
+          "summary": "25分と儀式"
         },
         {
           "file": "0004.jpg",
           "rel": "media/video_images/CH02/082/0004.jpg",
-          "summary": "体の状態と集中／体と集中の関係"
+          "summary": "作業を小さく"
         },
         {
           "file": "0005.jpg",
           "rel": "media/video_images/CH02/082/0005.jpg",
-          "summary": "集中が途切れたらリセット／技を持っていれば戻れる／小さな枠…"
+          "summary": "体で戻す"
         },
         {
           "file": "0006.jpg",
           "rel": "media/video_images/CH02/082/0006.jpg",
-          "summary": "環境を変える／「やらないこと」を先に決める"
+          "summary": "場所と境界"
         },
         {
           "file": "0007.jpg",
           "rel": "media/video_images/CH02/082/0007.jpg",
-          "summary": "朝の注意の質／時間帯ごとの注意配分"
+          "summary": "朝の注意設計"
         },
         {
           "file": "0008.jpg",
           "rel": "media/video_images/CH02/082/0008.jpg",
-          "summary": "フローの条件"
+          "summary": "選べる感覚"
         },
         {
           "file": "0009.jpg",
           "rel": "media/video_images/CH02/082/0009.jpg",
-          "summary": "注意の向きが生を形作る／注意の向きを選ぶ練習"
+          "summary": "五感スイッチ"
         },
         {
           "file": "0010.jpg",
           "rel": "media/video_images/CH02/082/0010.jpg",
-          "summary": "内側からの邪魔／声を紙に書き出す／五感の合図／小さな進捗の…"
+          "summary": "外敵を見える化"
         },
         {
           "file": "0011.jpg",
           "rel": "media/video_images/CH02/082/0011.jpg",
-          "summary": "血糖と集中の関係／集中の邪魔を可視化"
+          "summary": "場所に役割"
         },
         {
           "file": "0012.jpg",
           "rel": "media/video_images/CH02/082/0012.jpg",
-          "summary": "場所に役割を与える"
+          "summary": "難易度の調律"
         },
         {
           "file": "0013.jpg",
           "rel": "media/video_images/CH02/082/0013.jpg",
-          "summary": "体を小さく動かす／マルチタスクの害／完了の宣言"
+          "summary": "机と小さな終わり"
         },
         {
           "file": "0014.jpg",
           "rel": "media/video_images/CH02/082/0014.jpg",
-          "summary": "難易度の調整"
+          "summary": "責めずに切る"
         },
         {
           "file": "0015.jpg",
           "rel": "media/video_images/CH02/082/0015.jpg",
-          "summary": "意味の錨／整った机"
+          "summary": "観察と三つ"
         },
         {
           "file": "0016.jpg",
           "rel": "media/video_images/CH02/082/0016.jpg",
-          "summary": "昼食後の注意温め直し／時間帯とタスクの戦略／観察ではなく責…"
+          "summary": "睡眠と洪水止め"
         },
         {
           "file": "0017.jpg",
           "rel": "media/video_images/CH02/082/0017.jpg",
-          "summary": "優先度の決め方／睡眠の質と注意／情報の摂取の時間制限"
+          "summary": "集中の波"
         },
         {
           "file": "0018.jpg",
           "rel": "media/video_images/CH02/082/0018.jpg",
-          "summary": "集中の波の記録／集中の方法の多様性／雑念を封じる"
+          "summary": "雑念を預ける"
         },
         {
           "file": "0019.jpg",
           "rel": "media/video_images/CH02/082/0019.jpg",
-          "summary": "最初の五分だけやる"
+          "summary": "最初の1分"
         },
         {
           "file": "0020.jpg",
           "rel": "media/video_images/CH02/082/0020.jpg",
-          "summary": "最初の一分を守る／一分の壁"
+          "summary": "新規性デトックス"
         },
         {
           "file": "0021.jpg",
           "rel": "media/video_images/CH02/082/0021.jpg",
-          "summary": "新規性の摂取量／新規性の枠／開始の摩擦を減らす"
+          "summary": "呼吸とログ"
         },
         {
           "file": "0022.jpg",
           "rel": "media/video_images/CH02/082/0022.jpg",
-          "summary": "深い呼吸のアンカー"
+          "summary": "体と音を選ぶ"
         },
         {
           "file": "0023.jpg",
           "rel": "media/video_images/CH02/082/0023.jpg",
-          "summary": "邪魔のログ／体のサインを見逃さない／サインに気づく"
+          "summary": "雑音を薄める"
         },
         {
           "file": "0024.jpg",
           "rel": "media/video_images/CH02/082/0024.jpg",
-          "summary": "音の環境の選択／雑多な音の害／後で考える箱"
+          "summary": "ウォームアップと香り"
         },
         {
           "file": "0025.jpg",
           "rel": "media/video_images/CH02/082/0025.jpg",
-          "summary": "ウォームアップタスク"
+          "summary": "ご褒美と姿勢"
         },
         {
           "file": "0026.jpg",
           "rel": "media/video_images/CH02/082/0026.jpg",
-          "summary": "集中の香り／ご褒美の設定"
+          "summary": "少しずつ伸ばす"
         },
         {
           "file": "0027.jpg",
           "rel": "media/video_images/CH02/082/0027.jpg",
-          "summary": "目線の高さ"
+          "summary": "夜と気掛かり"
         },
         {
           "file": "0028.jpg",
           "rel": "media/video_images/CH02/082/0028.jpg",
-          "summary": "集中の持久力／集中の共有"
+          "summary": "視界を減らす"
         },
         {
           "file": "0029.jpg",
           "rel": "media/video_images/CH02/082/0029.jpg",
-          "summary": "睡眠前のスクリーンタイム"
+          "summary": "服でモード"
         },
         {
           "file": "0030.jpg",
           "rel": "media/video_images/CH02/082/0030.jpg",
-          "summary": "気掛かりの減らし／視界に入る物を減らす"
+          "summary": "工夫と設計図"
         },
         {
           "file": "0031.jpg",
           "rel": "media/video_images/CH02/082/0031.jpg",
-          "summary": "集中がうまくいかない日"
+          "summary": "開始リスト"
         },
         {
           "file": "0032.jpg",
           "rel": "media/video_images/CH02/082/0032.jpg",
-          "summary": "「本当に今必要か」を問う／集中の服装"
+          "summary": "意志頼みにしない"
         },
         {
           "file": "0033.jpg",
           "rel": "media/video_images/CH02/082/0033.jpg",
-          "summary": "天井を見上げる休憩／失敗をデータと捉える"
+          "summary": "境界と協力"
         },
         {
           "file": "0034.jpg",
           "rel": "media/video_images/CH02/082/0034.jpg",
-          "summary": "開始リスト"
+          "summary": "自信を燃料に"
         },
         {
           "file": "0035.jpg",
           "rel": "media/video_images/CH02/082/0035.jpg",
-          "summary": "甘い逃げ道を遠ざける／感謝の言葉"
+          "summary": "反応回数を減らす"
         },
         {
           "file": "0036.jpg",
           "rel": "media/video_images/CH02/082/0036.jpg",
-          "summary": "意志だけに頼らない／習慣になる集中"
+          "summary": "先に動く"
         },
         {
           "file": "0037.jpg",
           "rel": "media/video_images/CH02/082/0037.jpg",
-          "summary": "境界の伝え方／記録と褒める"
+          "summary": "終わりの手がかり"
         },
         {
           "file": "0038.jpg",
           "rel": "media/video_images/CH02/082/0038.jpg",
-          "summary": "注意は最高の寛容"
+          "summary": "光と準備"
         },
         {
           "file": "0039.jpg",
           "rel": "media/video_images/CH02/082/0039.jpg",
-          "summary": "デジタルの切り替え／余白の心／始まりのポーズ"
+          "summary": "水でリセット"
         },
         {
           "file": "0040.jpg",
           "rel": "media/video_images/CH02/082/0040.jpg",
-          "summary": "やる気より先に動く／感情のメモ／注意は愛に似ている"
+          "summary": "紙の深さ"
         },
         {
           "file": "0041.jpg",
           "rel": "media/video_images/CH02/082/0041.jpg",
-          "summary": "太陽光の効果／準備から始まる集中／リセットの動き"
+          "summary": "深まりを言語化"
         },
         {
           "file": "0042.jpg",
           "rel": "media/video_images/CH02/082/0042.jpg",
-          "summary": "小さな成功の強化／適温の重要性／読書の筋トレ"
+          "summary": "時間を一本の線"
         },
         {
           "file": "0043.jpg",
           "rel": "media/video_images/CH02/082/0043.jpg",
-          "summary": "集中の感覚の言語化／集中の筋肉／時間を一本の線に"
+          "summary": "矢印で再開"
         },
         {
           "file": "0044.jpg",
           "rel": "media/video_images/CH02/082/0044.jpg",
-          "summary": "集中の技／次にやる一手／やることの三つに絞る"
+          "summary": "環境を増やす"
         },
         {
           "file": "0045.jpg",
           "rel": "media/video_images/CH02/082/0045.jpg",
-          "summary": "照明を落として集中／集中できる環境を増やす"
-        },
-        {
-          "file": "0046.jpg",
-          "rel": "media/video_images/CH02/082/0046.jpg",
-          "summary": "集中の入口作り"
+          "summary": "今日一つだけ"
         }
       ]
     },
@@ -17346,6 +17226,48 @@
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH26/009/0001.jpg",
+          "summary": "Static portrait layout (right portrait, left black). No in-image text."
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-001",
+      "channel": "CH27",
+      "video": "001",
+      "run_id": "CH27-001_capcut_v1",
+      "count": 1,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/001/0001.jpg",
+          "summary": "Static portrait layout (right portrait, left black). No in-image text."
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-002",
+      "channel": "CH27",
+      "video": "002",
+      "run_id": "CH27-002_capcut_v1",
+      "count": 1,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/002/0001.jpg",
+          "summary": "Static portrait layout (right portrait, left black). No in-image text."
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-027",
+      "channel": "CH27",
+      "video": "027",
+      "run_id": "CH27-027_capcut_v1",
+      "count": 1,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/027/0001.jpg",
           "summary": "Static portrait layout (right portrait, left black). No in-image text."
         }
       ]
