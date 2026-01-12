@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_12";
+const SITE_ASSET_VERSION = "20260112_13";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -789,6 +789,21 @@ function episodeAssetPackPath(it) {
   return `workspaces/video/assets/episodes/${ch}/${v}`;
 }
 
+function episodeAssetPackImagesTreeUrl(it) {
+  if (!gitTreeBase) return "";
+  const rel = episodeAssetPackPath(it);
+  if (!rel) return "";
+  return `${gitTreeBase}${rel}/images`;
+}
+
+function episodeAssetPackManifestBlobUrl(it) {
+  if (!gitTreeBase) return "";
+  const rel = episodeAssetPackPath(it);
+  if (!rel) return "";
+  const blobBase = gitTreeBase.replace("/tree/", "/blob/");
+  return `${blobBase}${rel}/manifest.json`;
+}
+
 function updateAssetPackLink(it) {
   const rel = episodeAssetPackPath(it);
   if (!rel) {
@@ -1177,10 +1192,32 @@ function renderVideoImagesEntry(it, entry) {
   head.textContent = `count=${count || files.length || 0}${runId ? " / run=" + runId : ""}`;
   videoImagesBody.appendChild(head);
 
-  if (files.length) {
-    const tools = document.createElement("div");
-    tools.className = "video-images-tools";
+  const tools = document.createElement("div");
+  tools.className = "video-images-tools";
 
+  const imagesTreeUrl = episodeAssetPackImagesTreeUrl(it);
+  if (imagesTreeUrl) {
+    const a = document.createElement("a");
+    a.className = "btn btn--ghost";
+    a.target = "_blank";
+    a.rel = "noreferrer";
+    a.href = imagesTreeUrl;
+    a.textContent = "素材束(images)をGitHubで開く";
+    tools.appendChild(a);
+  }
+
+  const manifestUrl = episodeAssetPackManifestBlobUrl(it);
+  if (manifestUrl) {
+    const a = document.createElement("a");
+    a.className = "btn btn--ghost";
+    a.target = "_blank";
+    a.rel = "noreferrer";
+    a.href = manifestUrl;
+    a.textContent = "manifest.json";
+    tools.appendChild(a);
+  }
+
+  if (files.length) {
     const copyUrls = document.createElement("button");
     copyUrls.type = "button";
     copyUrls.className = "btn btn--ghost";
@@ -1194,9 +1231,9 @@ function renderVideoImagesEntry(it, entry) {
       setCopyStatus(ok ? "画像URLをコピーしました" : "コピーに失敗しました", !ok);
     });
     tools.appendChild(copyUrls);
-
-    videoImagesBody.appendChild(tools);
   }
+
+  if (tools.childNodes.length) videoImagesBody.appendChild(tools);
 
   if (!files.length) {
     const empty = document.createElement("div");
@@ -1298,11 +1335,43 @@ async function loadVideoImages(it) {
       videoImagesState = "missing";
       videoImagesCount = 0;
       updateBadges();
-      videoImagesBody.textContent = [
-        "未公開（Pages用プレビューがまだ生成されていません）。",
+      videoImagesBody.innerHTML = "";
+      const msg = document.createElement("div");
+      msg.className = "muted";
+      msg.textContent = "未公開（Pages用プレビューがまだ生成されていません）。";
+      videoImagesBody.appendChild(msg);
+
+      const tools = document.createElement("div");
+      tools.className = "video-images-tools";
+      const imagesTreeUrl = episodeAssetPackImagesTreeUrl(it);
+      if (imagesTreeUrl) {
+        const a = document.createElement("a");
+        a.className = "btn btn--ghost";
+        a.target = "_blank";
+        a.rel = "noreferrer";
+        a.href = imagesTreeUrl;
+        a.textContent = "素材束(images)をGitHubで開く";
+        tools.appendChild(a);
+      }
+      const manifestUrl = episodeAssetPackManifestBlobUrl(it);
+      if (manifestUrl) {
+        const a = document.createElement("a");
+        a.className = "btn btn--ghost";
+        a.target = "_blank";
+        a.rel = "noreferrer";
+        a.href = manifestUrl;
+        a.textContent = "manifest.json";
+        tools.appendChild(a);
+      }
+      if (tools.childNodes.length) videoImagesBody.appendChild(tools);
+
+      const next = document.createElement("pre");
+      next.className = "pre pre--small muted";
+      next.textContent = [
         `次: python3 scripts/ops/pages_video_images_previews.py --channel ${it.channel} --video ${it.video} --write`,
         "→ commit/push で Pages から表示できます。",
       ].join("\n");
+      videoImagesBody.appendChild(next);
       return;
     }
     renderVideoImagesEntry(it, entry);
@@ -1938,6 +2007,13 @@ function setupEvents() {
     if (!text) return;
     const ok = await copyText(text);
     setCopyStatus(ok ? "パスをコピーしました" : "コピーに失敗しました", !ok);
+  });
+
+  $("copyLink").addEventListener("click", async () => {
+    const url = String(window.location.href || "").trim();
+    if (!url) return;
+    const ok = await copyText(url);
+    setCopyStatus(ok ? "リンクをコピーしました" : "コピーに失敗しました", !ok);
   });
 
   $("copyRaw").addEventListener("click", async () => {

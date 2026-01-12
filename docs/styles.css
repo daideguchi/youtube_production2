@@ -843,13 +843,14 @@ body {
   }
 
   .controls__browseGrid {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: none;
   }
 
-  /* Mobile: avoid horizontal scrolling for channel selection */
+  /* Mobile: simplify browsing; use channel chips + list instead of heavy selects */
   .channel-chips {
-    display: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: 38vh;
   }
 
   .channel-chip {

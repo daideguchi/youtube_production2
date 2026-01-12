@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260112_12" />
-    <script defer src="./app.js?v=20260112_12"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260112_13" />
+    <script defer src="./app.js?v=20260112_13"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -46,7 +46,7 @@
               </label>
             </div>
             <div id="channelChips" class="channel-chips" aria-label="Channel chips"></div>
-            <div class="video-list__hint muted">下の一覧をタップで選択（サムネ付き）</div>
+            <div class="video-list__hint muted">① Channelを選択 → ② 下の一覧をタップ（サムネ付き）</div>
             <div id="videoList" class="video-list" aria-label="Video list"></div>
           </div>
         </details>
@@ -73,6 +73,7 @@
           </div>
           <div class="meta__actions">
             <button id="copyPath" class="btn btn--ghost" type="button">パスをコピー</button>
+            <button id="copyLink" class="btn btn--ghost" type="button">リンクをコピー</button>
             <a id="openRaw" class="btn btn--ghost" target="_blank" rel="noreferrer">raw を開く</a>
             <a id="openAssetPack" class="btn btn--ghost" target="_blank" rel="noreferrer">素材束（Git）</a>
             <a id="openSnapshot" class="btn btn--ghost" href="./snapshot/">進捗（snapshot）</a>
