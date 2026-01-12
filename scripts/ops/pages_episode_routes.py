@@ -455,6 +455,31 @@ def _thumbs_alt_index_json(*, variants: dict[str, dict[str, set[str]]], updated_
     return json.dumps(out, ensure_ascii=False, indent=2) + "\n"
 
 
+def _thumb_alt_label(variant: str) -> str:
+    v = str(variant or "").strip()
+    if not v:
+        return "イラストサムネ"
+    if v == "illust_v1":
+        return "イラストサムネ（縦長）"
+    if "illust" in v.lower():
+        return f"イラストサムネ（{v}）"
+    return f"thumb_alt:{v}"
+
+
+def _preferred_thumb_alt_variant(*, variants: dict[str, set[str]], channel: str, video: str) -> str | None:
+    """Pick a default thumb_alt variant (used for CH27 default illustration thumbs)."""
+    available = sorted([v for v, vids in (variants or {}).items() if video in (vids or set())])
+    if not available:
+        return None
+    for cand in ("illust_v1",):
+        if cand in available:
+            return cand
+    for v in available:
+        if "illust" in v.lower():
+            return v
+    return available[0]
+
+
 def _standard_links(*, page_dir: Path, docs_root: Path, ep_root: Path, channel_dir: Path | None) -> str:
     ep_href = _rel_href(page_dir, ep_root, is_dir=True)
     viewer_href = _rel_href(page_dir, docs_root / "index.html", is_dir=False)
@@ -521,26 +546,26 @@ def _ep_index_html(
         "<main>\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
-        "      <div><strong>Jump</strong> <span class=\"muted\">CHxx-001 で直ジャンプ（綺麗なURL）</span></div>\n"
+        "      <div><strong>直ジャンプ</strong> <span class=\"muted\">CHxx-001 で開く（綺麗なURL）</span></div>\n"
         f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
         "    </div>\n"
         "    <div class=\"panel__body\">\n"
         "      <form id=\"epJumpForm\" style=\"display:flex;gap:8px;flex-wrap:wrap;align-items:center\">\n"
         "        <input id=\"epJumpInput\" placeholder=\"例: CH27-001\" style=\"flex:1;min-width:220px\" />\n"
         "        <select id=\"epJumpView\">\n"
-        "          <option value=\"script\">script</option>\n"
-        "          <option value=\"audio\">audio</option>\n"
-        "          <option value=\"thumb\">thumb</option>\n"
-        "          <option value=\"images\">images</option>\n"
+        "          <option value=\"script\">台本</option>\n"
+        "          <option value=\"audio\">音声</option>\n"
+        "          <option value=\"thumb\">サムネ</option>\n"
+        "          <option value=\"images\">画像</option>\n"
         "        </select>\n"
-        "        <button class=\"btn btn--accent\" type=\"submit\">Go</button>\n"
+        "        <button class=\"btn btn--accent\" type=\"submit\">開く</button>\n"
         "      </form>\n"
         "      <div class=\"muted\" style=\"margin-top:10px\">URLルール: <code>/ep/CH27/001/</code> / <code>/ep/CH27/001/thumb/</code> など</div>\n"
         "      <div class=\"muted\" style=\"margin-top:10px\">※ /ep は共有用（綺麗URL）。制作作業（台本/概要欄コピー・チャンネル情報確認・企画/進捗）は Script Viewer を使ってください。</div>\n"
         "    </div>\n"
         "  </div>\n\n"
         "  <div class=\"panel\">\n"
-        "    <div class=\"panel__head\"><div><strong>Channels</strong></div><div class=\"muted\">/ep/CHxx/</div></div>\n"
+        "    <div class=\"panel__head\"><div><strong>チャンネル一覧</strong></div><div class=\"muted\">/ep/CHxx/</div></div>\n"
         f"    <div class=\"panel__body\">{cards_block}</div>\n"
         "  </div>\n"
         "</main>\n"
@@ -571,6 +596,10 @@ def _channel_index_html(
     cards: list[str] = []
     for it in episodes:
         thumb_path = docs_root / "media" / "thumbs" / it.channel / f"{it.video}.jpg"
+        if it.channel == "CH27":
+            variant = _preferred_thumb_alt_variant(variants=variants, channel=it.channel, video=it.video)
+            if variant:
+                thumb_path = docs_root / "media" / "thumbs_alt" / variant / it.channel / f"{it.video}.jpg"
         thumb_href = _rel_href(page_dir, thumb_path, is_dir=False)
         img_count = int(video_images_count_by_video_id.get(it.video_id, 0) or 0)
         script_badge = (
@@ -590,7 +619,7 @@ def _channel_index_html(
             f"</div></a>"
         )
     variant_links = [
-        f'<a class="btn" href="./thumb/{_escape_html(v)}/">thumb_alt:{_escape_html(v)}</a>'
+        f'<a class="btn" href="./thumb/{_escape_html(v)}/">{_escape_html(_thumb_alt_label(v))} 一覧</a>'
         for v in sorted(variants.keys())
     ]
     variant_block = (
@@ -650,13 +679,13 @@ def _episode_tabs_html(*, page_dir: Path, ep_base_dir: Path, active_key: str, va
     images_dir = ep_base_dir / "images"
 
     out = [
-        tab("script", script_dir, "script"),
-        tab("audio", audio_dir, "audio"),
-        tab("thumb", thumb_dir, "thumb"),
-        tab("images", images_dir, "images"),
+        tab("台本", script_dir, "script"),
+        tab("音声", audio_dir, "audio"),
+        tab("サムネ", thumb_dir, "thumb"),
+        tab("画像", images_dir, "images"),
     ]
     for variant in variants:
-        out.append(tab(f"thumb:{variant}", thumb_dir / variant, f"thumb:{variant}"))
+        out.append(tab(_thumb_alt_label(variant), thumb_dir / variant, f"thumb:{variant}"))
     return '<nav class="tabs">' + "".join(out) + "</nav>"
 
 
@@ -675,6 +704,8 @@ def _episode_viewer_page_html(
     variants: list[str],
 ) -> str:
     vid = f"{channel}-{video}"
+    view_label_map = {"script": "台本", "audio": "音声", "thumb": "サムネ", "images": "画像"}
+    view_label = view_label_map.get(view, view)
 
     links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=channel_dir)
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
@@ -688,7 +719,7 @@ def _episode_viewer_page_html(
         f"  {tabs}\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
-        f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">{_escape_html(view)}</span></div>\n"
+        f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">{_escape_html(view_label)}</span></div>\n"
         f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
         "    </div>\n"
         "    <div class=\"panel__body\">\n"
@@ -727,17 +758,41 @@ def _episode_thumb_page_html(
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
     tabs = _episode_tabs_html(page_dir=page_dir, ep_base_dir=ep_base_dir, active_key="thumb", variants=variants)
 
-    img_path = docs_root / "media" / "thumbs" / channel / f"{video}.jpg"
-    img_href = _rel_href(page_dir, img_path, is_dir=False)
+    normal_img_path = docs_root / "media" / "thumbs" / channel / f"{video}.jpg"
+    normal_img_href = _rel_href(page_dir, normal_img_path, is_dir=False)
+    img_path = normal_img_path
+    img_href = normal_img_href
+    alt_img_href = ""
+    chosen_variant = ""
+    if channel == "CH27" and variants:
+        # Prefer illust_v1 when available.
+        chosen_variant = "illust_v1" if "illust_v1" in variants else variants[0]
+        alt_img_path = docs_root / "media" / "thumbs_alt" / chosen_variant / channel / f"{video}.jpg"
+        alt_img_href = _rel_href(page_dir, alt_img_path, is_dir=False)
+        img_path = alt_img_path
+        img_href = alt_img_href
 
     viewer_href = _rel_href(page_dir, docs_root, is_dir=True) + f"?id={vid}&view=thumb"
+
+    primary_label = "通常サムネ（横長）"
+    if alt_img_href and chosen_variant:
+        primary_label = _thumb_alt_label(chosen_variant)
+
+    normal_btn = ""
+    if alt_img_href:
+        normal_btn = f"        <a class=\"btn\" href=\"{_escape_html(normal_img_href)}\" target=\"_blank\" rel=\"noreferrer\">通常サムネ（横長）</a>\n"
+
+    gal_btn = ""
+    if alt_img_href and chosen_variant:
+        gal_href = _rel_href(page_dir, channel_dir / "thumb" / chosen_variant, is_dir=True)
+        gal_btn = f"        <a class=\"btn\" href=\"{_escape_html(gal_href)}\">イラスト一覧</a>\n"
 
     body = (
         "<main>\n"
         f"  {tabs}\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
-        f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">thumb</span></div>\n"
+        f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">サムネ</span></div>\n"
         f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
         "    </div>\n"
         "    <div class=\"panel__body\">\n"
@@ -745,8 +800,10 @@ def _episode_thumb_page_html(
         f"        <img loading=\"lazy\" src=\"{_escape_html(img_href)}\" alt=\"{_escape_html(vid)} thumb\" style=\"width:100%;height:auto;border-radius:12px;border:1px solid var(--border);background:#000\" />\n"
         "      </a>\n"
         "      <div style=\"margin-top:10px;display:flex;gap:10px;flex-wrap:wrap\">\n"
-        f"        <a class=\"btn btn--accent\" href=\"{_escape_html(img_href)}\" target=\"_blank\" rel=\"noreferrer\">Download</a>\n"
-        f"        <a class=\"btn\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Open Script Viewer</a>\n"
+        f"        <a class=\"btn btn--accent\" href=\"{_escape_html(img_href)}\" target=\"_blank\" rel=\"noreferrer\">{_escape_html(primary_label)} を開く（DL）</a>\n"
+        f"{normal_btn}"
+        f"{gal_btn}"
+        f"        <a class=\"btn\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Script Viewer</a>\n"
         "      </div>\n"
         "    </div>\n"
         "  </div>\n"
@@ -817,7 +874,7 @@ def _episode_images_page_html(
         body_inner = (
             "  <div class=\"panel\">\n"
             "    <div class=\"panel__head\">\n"
-            f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">images</span></div>\n"
+            f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">画像</span></div>\n"
             f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
             "    </div>\n"
             f"    <div class=\"panel__body\">{hint}</div>\n"
@@ -828,14 +885,14 @@ def _episode_images_page_html(
         body_inner = (
             "  <div class=\"panel\">\n"
             "    <div class=\"panel__head\">\n"
-            f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">images</span></div>\n"
+            f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">画像</span></div>\n"
             f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
             "    </div>\n"
             "    <div class=\"panel__body\">\n"
             "      <div class=\"muted\">動画内画像プレビューは未生成（またはrunが未作成）です。</div>\n"
             f"      <div class=\"muted\" style=\"margin-top:10px\">次: <code>python3 scripts/ops/pages_video_images_previews.py --channel {channel} --video {video} --write</code></div>\n"
             "      <div style=\"margin-top:10px;display:flex;gap:10px;flex-wrap:wrap\">\n"
-            f"        <a class=\"btn\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Open Script Viewer</a>\n"
+            f"        <a class=\"btn\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Script Viewer</a>\n"
             "      </div>\n"
             "    </div>\n"
             "  </div>\n"
@@ -877,23 +934,26 @@ def _episode_thumb_alt_page_html(
     img_href = _rel_href(page_dir, img_path, is_dir=False)
 
     viewer_href = _rel_href(page_dir, docs_root, is_dir=True) + f"?id={vid}&view=thumb"
+    normal_href = _rel_href(page_dir, ep_base_dir / "thumb", is_dir=True)
 
     body = (
         "<main>\n"
         f"  {tabs}\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
-        f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">thumb_alt:{_escape_html(variant)}</span></div>\n"
+        f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">{_escape_html(_thumb_alt_label(variant))}</span></div>\n"
         f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
         "    </div>\n"
         "    <div class=\"panel__body\">\n"
         f"      <a href=\"{_escape_html(img_href)}\" target=\"_blank\" rel=\"noreferrer\">\n"
         f"        <img src=\"{_escape_html(img_href)}\" alt=\"{_escape_html(vid)} {_escape_html(variant)}\" style=\"width:100%;height:auto;border-radius:12px;border:1px solid var(--border);background:#000\" />\n"
         "      </a>\n"
+        "      <div style=\"margin-top:10px;display:flex;gap:10px;flex-wrap:wrap\">\n"
+        f"        <a class=\"btn btn--accent\" href=\"{_escape_html(img_href)}\" target=\"_blank\" rel=\"noreferrer\">画像を開く（DL）</a>\n"
+        f"        <a class=\"btn\" href=\"{_escape_html(normal_href)}\">サムネ（通常/既定）</a>\n"
+        f"        <a class=\"btn\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Script Viewer</a>\n"
+        "      </div>\n"
         "    </div>\n"
-        "  </div>\n"
-        "  <div class=\"panel\"><div class=\"panel__head\"><div><strong>Open</strong></div><div class=\"muted\">viewer</div></div>\n"
-        f"    <div class=\"panel__body\"><a class=\"btn btn--accent\" href=\"{_escape_html(viewer_href)}\" target=\"_blank\" rel=\"noreferrer\">Open Script Viewer</a></div>\n"
         "  </div>\n"
         "</main>\n"
     )
@@ -922,6 +982,7 @@ def _variant_gallery_html(
 ) -> str:
     links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=channel_dir)
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
+    label = _thumb_alt_label(variant)
 
     cards = []
     for v in videos:
@@ -938,7 +999,7 @@ def _variant_gallery_html(
         "<main>\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
-        f"      <div><strong>{_escape_html(channel)}</strong> <span class=\"muted\">thumb_alt={_escape_html(variant)} count={len(videos)}</span></div>\n"
+        f"      <div><strong>{_escape_html(channel)}</strong> <span class=\"muted\">{_escape_html(label)} · {len(videos)}枚</span></div>\n"
         f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
         "    </div>\n"
         "    <div class=\"panel__body\">\n"
@@ -950,8 +1011,8 @@ def _variant_gallery_html(
     )
 
     return _page_shell(
-        title=f"{channel} — thumb_alt:{variant}",
-        subtitle="altサムネ一覧（綺麗なURL）",
+        title=f"{channel} — {label}",
+        subtitle="イラストサムネ一覧（綺麗なURL）",
         styles_href=styles_href,
         script_href=None,
         links_html=links_html,

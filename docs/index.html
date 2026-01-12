@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260112_27" />
-    <script defer src="./app.js?v=20260112_27"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260113_01" />
+    <script defer src="./app.js?v=20260113_01"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -82,8 +82,8 @@
           <div class="hero-media__actions">
             <a id="heroOpenThumb" class="btn btn--ghost" target="_blank" rel="noreferrer">サムネを開く</a>
             <a id="heroOpenThumbFallback" class="btn btn--ghost" target="_blank" rel="noreferrer" hidden>通常サムネ</a>
-            <button id="heroToThumb" class="btn btn--ghost" type="button">サムネ（詳細）</button>
-            <button id="heroToImages" class="btn btn--ghost" type="button">画像を見る</button>
+            <button id="heroToThumb" class="btn btn--ghost" type="button">サムネ（DL/切替）</button>
+            <button id="heroToImages" class="btn btn--ghost" type="button">動画内画像（DL）</button>
           </div>
         </div>
         <div class="meta__row">
@@ -236,7 +236,7 @@
         </details>
 
         <details id="thumbDetails" class="details">
-          <summary>サムネ（選択プレビュー）</summary>
+          <summary>サムネ（DL/切替）</summary>
           <div class="details__body">
             <div id="thumbBody" class="muted">—</div>
           </div>

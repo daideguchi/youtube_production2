@@ -9,7 +9,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_27";
+const SITE_ASSET_VERSION = "20260113_01";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -652,7 +652,17 @@ function thumbAltVariantsForEpisode(it) {
 
 function preferredThumbAltVariant(it) {
   const variants = thumbAltVariantsForEpisode(it);
-  return variants.length ? variants[0] : "";
+  if (!variants.length) return "";
+  if (variants.includes("illust_v1")) return "illust_v1";
+  return variants[0];
+}
+
+function thumbAltVariantLabel(variant) {
+  const v = String(variant || "").trim();
+  if (!v) return "";
+  if (v === "illust_v1") return "イラストサムネ（縦長）";
+  if (v.toLowerCase().includes("illust")) return `イラストサムネ（${v}）`;
+  return `イラストサムネ（${v}）`;
 }
 
 function pickThumbUrls(it) {
@@ -684,7 +694,7 @@ function updateHeroMedia(it) {
   heroThumbImg.hidden = true;
   heroThumbFallback.hidden = false;
   const hasAlt = Boolean(preferredThumbAltVariant(it));
-  heroThumbFallback.textContent = hasAlt ? "イラスト読み込み中…" : "サムネ読み込み中…";
+  heroThumbFallback.textContent = hasAlt ? "イラストサムネ読み込み中…" : "サムネ読み込み中…";
 
   const { primaryUrl, fallbackUrl } = pickThumbUrls(it);
   const currentId = videoId;
@@ -700,14 +710,15 @@ function updateHeroMedia(it) {
     return;
   }
 
+  const altVariant = preferredThumbAltVariant(it);
   heroOpenThumb.hidden = false;
   heroOpenThumb.href = primaryUrl;
-  heroOpenThumb.textContent = hasAlt ? "イラストを開く" : "サムネを開く";
+  heroOpenThumb.textContent = hasAlt ? `${thumbAltVariantLabel(altVariant)}を開く` : "サムネを開く";
 
   if (fallbackUrl) {
     heroOpenThumbFallback.hidden = false;
     heroOpenThumbFallback.href = fallbackUrl;
-    heroOpenThumbFallback.textContent = "通常サムネ";
+    heroOpenThumbFallback.textContent = "通常サムネ（横長）を開く";
   } else {
     heroOpenThumbFallback.hidden = true;
     heroOpenThumbFallback.removeAttribute("href");
@@ -1442,7 +1453,7 @@ function renderThumbProject(it, proj) {
   }
 
   det.appendChild(body);
-  thumbBody.appendChild(det);
+  thumbBody.prepend(det);
 }
 
 function renderThumbPreviewOnly(it) {
@@ -1463,7 +1474,7 @@ function renderThumbPreviewOnly(it) {
   card.className = "thumb-selected";
   const title = document.createElement("div");
   title.className = "thumb-selected__title";
-  title.textContent = "サムネ（プレビュー）";
+  title.textContent = "通常サムネ（横長・プレビュー）";
   card.appendChild(title);
 
   const previewWrap = document.createElement("div");
@@ -1542,7 +1553,10 @@ function appendThumbAltPreviews(it) {
   det.open = true;
 
   const sum = document.createElement("summary");
-  sum.textContent = `イラスト（thumb_alt: ${variants.join(", ")}）`;
+  sum.textContent =
+    variants.length === 1
+      ? `${thumbAltVariantLabel(variants[0]) || "イラストサムネ"}`
+      : `イラストサムネ（${variants.map((v) => thumbAltVariantLabel(v) || v).join(" / ")}）`;
   det.appendChild(sum);
 
   const body = document.createElement("div");
@@ -1557,7 +1571,7 @@ function appendThumbAltPreviews(it) {
 
     const title = document.createElement("div");
     title.className = "thumb-selected__title";
-    title.textContent = `thumb_alt:${variant}`;
+    title.textContent = thumbAltVariantLabel(variant) || `イラストサムネ（${variant}）`;
     card.appendChild(title);
 
     const tools = document.createElement("div");
@@ -1571,7 +1585,7 @@ function appendThumbAltPreviews(it) {
     aEp.target = "_blank";
     aEp.rel = "noreferrer";
     aEp.href = epUrl;
-    aEp.textContent = "epで見る";
+    aEp.textContent = "共有ページで見る（/ep）";
     tools.appendChild(aEp);
 
     const aGal = document.createElement("a");
@@ -1579,7 +1593,7 @@ function appendThumbAltPreviews(it) {
     aGal.target = "_blank";
     aGal.rel = "noreferrer";
     aGal.href = galUrl;
-    aGal.textContent = "まとめ（30枚など）";
+    aGal.textContent = "一覧で見る（30枚など）";
     tools.appendChild(aGal);
 
     const aImg = document.createElement("a");
@@ -1587,7 +1601,7 @@ function appendThumbAltPreviews(it) {
     aImg.target = "_blank";
     aImg.rel = "noreferrer";
     aImg.href = url;
-    aImg.textContent = "画像を開く";
+    aImg.textContent = "画像を開く（DL）";
     tools.appendChild(aImg);
 
     card.appendChild(tools);
