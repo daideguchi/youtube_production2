@@ -8,7 +8,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_24";
+const SITE_ASSET_VERSION = "20260112_25";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -246,6 +246,7 @@ let snapshotByChannel = new Map();
 let snapshotChannelsPromise = null;
 let snapshotEpisodeByVideoId = new Map();
 let snapshotEpisodePromiseByChannel = new Map();
+let snapshotEpisodesByChannel = new Map();
 
 function pickChannelDisplayName(meta) {
   const yt = meta?.youtube || {};
@@ -480,6 +481,7 @@ async function loadSnapshotChannel(channelId) {
       if (!res.ok) throw new Error(`snapshot fetch failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
       const eps = Array.isArray(data?.episodes) ? data.episodes : [];
+      snapshotEpisodesByChannel.set(ch, eps);
       for (const ep of eps) {
         const vid = String(ep?.video_id || "").trim();
         if (!vid) continue;
@@ -1734,26 +1736,71 @@ function renderChannels() {
   renderChannelChips(filterChannelsForChips(channels, active), active);
 }
 
+function _snapshotEpisodeToPseudoItem(ep, fallbackChannel) {
+  const parsedVid = parseVideoIdParam(String(ep?.video_id || "").trim());
+  const ch = normalizeChannelParam(ep?.channel) || normalizeChannelParam(fallbackChannel) || parsedVid?.channel || "";
+  const v = normalizeVideoParam(ep?.video) || (parsedVid?.video ? normalizeVideoParam(parsedVid.video) : "");
+  const videoId = ch && v ? `${ch}-${v}` : String(ep?.video_id || "").trim();
+  return {
+    channel: ch || normalizeChannelParam(fallbackChannel) || "",
+    video: v,
+    video_id: videoId,
+    title: cleanText(ep?.title),
+    planning: ep?.planning || {},
+    assembled_path: cleanText(ep?.assembled_path),
+  };
+}
+
+function mergedEpisodesForChannel(channel) {
+  const ch = String(channel || "").trim();
+  const scripts = grouped.get(ch) || [];
+  const snapRaw = snapshotEpisodesByChannel.get(ch);
+  const snap = Array.isArray(snapRaw) ? snapRaw : [];
+  if (!snap.length) return scripts;
+
+  const byVideo = new Map();
+  for (const it of scripts) {
+    const vv = String(it?.video || "").trim();
+    if (!vv) continue;
+    byVideo.set(vv, it);
+  }
+  for (const ep of snap) {
+    const pseudo = _snapshotEpisodeToPseudoItem(ep, ch);
+    const vv = String(pseudo?.video || "").trim();
+    if (!vv) continue;
+    if (!byVideo.has(vv)) byVideo.set(vv, pseudo);
+  }
+  const out = Array.from(byVideo.values());
+  out.sort((a, b) => {
+    const na = Number(String(a?.video || "").trim());
+    const nb = Number(String(b?.video || "").trim());
+    if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na - nb;
+    return String(a?.video || "").localeCompare(String(b?.video || ""));
+  });
+  return out;
+}
+
 function defaultVideoForChannel(channel) {
-  const list = grouped.get(String(channel || "")) || [];
+  const list = mergedEpisodesForChannel(String(channel || ""));
   if (!list.length) return null;
   return isNarrowView() ? (list[list.length - 1]?.video ?? null) : (list[0]?.video ?? null);
 }
 
 function renderVideos(channel) {
-  const list = grouped.get(channel) || [];
+  const list = mergedEpisodesForChannel(channel);
   videoSelect.innerHTML = "";
   for (const it of list) {
     const opt = document.createElement("option");
     opt.value = it.video;
-    opt.textContent = `${it.video} ${it.title ? "· " + it.title : ""}`.trim();
+    const hasScript = Boolean(String(it?.assembled_path || "").trim());
+    opt.textContent = `${it.video} ${it.title ? "· " + it.title : ""}${hasScript ? "" : "（台本未）"}`.trim();
     videoSelect.appendChild(opt);
   }
   renderVideoList(channel, videoSelect.value || "");
 }
 
 function renderVideoList(channel, activeVideo) {
-  const list0 = grouped.get(channel) || [];
+  const list0 = mergedEpisodesForChannel(channel);
   const active = String(activeVideo || "").trim() || String(videoSelect.value || "").trim();
   videoList.innerHTML = "";
 
@@ -1764,10 +1811,19 @@ function renderVideoList(channel, activeVideo) {
     const plan = Number(snap?.planning_count) || 0;
     const snapScripts = Number(snap?.scripts_count);
     const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : 0;
-    empty.textContent =
-      plan > 0
-        ? `このチャンネルには台本がありません（${scriptsN}/${plan}）。snapshot で企画/進捗を確認してください。`
-        : "このチャンネルには台本がありません。";
+    if (plan > 0) {
+      empty.textContent = `企画を読み込み中…（台本 ${scriptsN}/${plan}）`;
+      void (async () => {
+        const ch = normalizeChannelParam(channel);
+        if (!ch) return;
+        await loadSnapshotChannel(ch);
+        if (String(channelSelect.value || "").trim() !== ch) return;
+        renderVideos(ch);
+        renderVideoList(ch, active);
+      })();
+    } else {
+      empty.textContent = "このチャンネルには台本がありません。";
+    }
     videoList.appendChild(empty);
     return;
   }
@@ -1899,8 +1955,14 @@ function renderVideoList(channel, activeVideo) {
 }
 
 function findItem(channel, video) {
-  const list = grouped.get(channel) || [];
-  return list.find((it) => it.video === video) || null;
+  const ch = String(channel || "").trim();
+  const v = normalizeVideoParam(video);
+  const list = grouped.get(ch) || [];
+  const found = list.find((it) => String(it?.video || "").trim() === v) || null;
+  if (found) return found;
+  const vid = ch && v ? `${ch}-${v}` : "";
+  const ep = vid ? snapshotEpisodeByVideoId.get(vid) : null;
+  return ep ? _snapshotEpisodeToPseudoItem(ep, ch) : null;
 }
 
 function findItemByVideoId(videoId) {
@@ -2112,6 +2174,16 @@ function selectItem(channel, video) {
   videoSelect.value = video;
   renderVideoList(channel, video);
   updateBrowseSummary();
+  // After snapshot hydration, re-render Browse so Planning-only episodes appear (and counts match).
+  void (async () => {
+    const ch = normalizeChannelParam(channel);
+    if (!ch) return;
+    await loadSnapshotChannel(ch);
+    if (String(channelSelect.value || "").trim() !== ch) return;
+    renderVideos(ch);
+    videoSelect.value = normalizeVideoParam(video);
+    renderVideoList(ch, normalizeVideoParam(video));
+  })();
   const it = findItem(channel, video);
   if (it) {
     void loadScript(it);
@@ -2159,6 +2231,7 @@ async function reloadIndex() {
     snapshotByChannel = new Map();
     snapshotEpisodeByVideoId = new Map();
     snapshotEpisodePromiseByChannel = new Map();
+    snapshotEpisodesByChannel = new Map();
 
     const [res] = await Promise.all([
       fetch(siteUrl(INDEX_URL), { cache: "no-store" }),
@@ -2263,13 +2336,26 @@ function setupEvents() {
   channelSelect.addEventListener("change", () => {
     const ch = channelSelect.value;
     renderChannelChips(filterChannelsForChips(channelsSorted, ch), ch);
-    renderVideos(ch);
-    const video = defaultVideoForChannel(ch);
-    if (video) {
-      selectItem(ch, video);
+    const fast = (grouped.get(String(ch)) || []).slice();
+    const fastVideo = fast.length ? (isNarrowView() ? fast[fast.length - 1]?.video : fast[0]?.video) : null;
+    if (fastVideo) {
+      selectItem(ch, fastVideo);
     } else {
       clearSelectionForChannel(ch);
     }
+    void (async () => {
+      const norm = normalizeChannelParam(ch);
+      if (!norm) return;
+      await loadSnapshotChannel(norm);
+      if (String(channelSelect.value || "").trim() !== norm) return;
+      if (!fastVideo && (!selected || String(selected?.channel || "").trim() !== norm)) {
+        const dv = defaultVideoForChannel(norm);
+        if (dv) selectItem(norm, dv);
+        return;
+      }
+      renderVideos(norm);
+      renderVideoList(norm, selected?.video || fastVideo || "");
+    })();
   });
 
   channelFilter?.addEventListener("input", () => {
@@ -2287,8 +2373,7 @@ function setupEvents() {
   videoSelect.addEventListener("change", () => {
     const ch = channelSelect.value;
     const video = videoSelect.value;
-    const it = findItem(ch, video);
-    if (it) void loadScript(it);
+    selectItem(ch, video);
   });
 
   searchInput.addEventListener("input", () => {
@@ -2321,36 +2406,26 @@ function setupEvents() {
 
     const parsed = parseVideoIdParam(raw);
     if (parsed) {
-      const it = findItem(parsed.channel, parsed.video);
-      if (it) {
-        hideSearchResults();
-        selectItem(it.channel, it.video);
-        closeBrowseIfNarrow();
-        return;
-      }
-    }
-
-    // If only a channel is provided (e.g. CH27), jump to that channel's default video.
-    const chOnly = normalizeChannelParam(raw);
-    if (chOnly && grouped.has(chOnly)) {
       hideSearchResults();
-      const video = defaultVideoForChannel(chOnly);
-      if (video) {
-        selectItem(chOnly, video);
-      } else {
-        clearSelectionForChannel(chOnly);
-      }
+      selectItem(parsed.channel, parsed.video);
       closeBrowseIfNarrow();
       return;
     }
 
-    // If a channel exists in Planning but has no scripts yet, jump to snapshot instead.
-    if (chOnly && /^CH\d{2}$/.test(chOnly) && !grouped.has(chOnly)) {
+    // If only a channel is provided (e.g. CH27), jump to that channel's default/planned video.
+    const chOnly = normalizeChannelParam(raw);
+    if (chOnly && /^CH\d{2}$/.test(chOnly)) {
       hideSearchResults();
-      const url = new URL("./snapshot/", window.location.href);
-      url.searchParams.set("channel", chOnly);
-      url.searchParams.set("q", chOnly);
-      window.location.href = url.toString();
+      void (async () => {
+        await loadSnapshotChannel(chOnly);
+        const video = defaultVideoForChannel(chOnly);
+        if (video) {
+          selectItem(chOnly, video);
+        } else {
+          clearSelectionForChannel(chOnly);
+        }
+        closeBrowseIfNarrow();
+      })();
       return;
     }
 
