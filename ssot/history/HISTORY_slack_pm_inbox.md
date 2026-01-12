@@ -19,15 +19,21 @@
 <!-- inbox:start -->
 - [ ] 2026-01-11T12:01:33.344009Z key=69ba15eb14 src=thread kind=request who=human plain | UIから台本とかが消えてる！ちゃんと整理して
 - [ ] 2026-01-11T09:29:12.403069Z key=e8e8bc4bb1 src=thread kind=request who=human plain | スマホで今台本見れてるけど、音声とサムネも確認できるようにして。
+- [ ] 2026-01-11T08:06:36.010039Z key=5abbf03a72 src=thread kind=note who=human plain | github pagesで台本の最新読みたかったけど全然反映されてないです!!対処して
 - [ ] 2026-01-11T07:55:05.601499Z key=1ab22abe96 src=thread kind=question who=human plain | まず、モデル指定はコード、スロットって運用はokだよね？
 - [ ] 2026-01-11T07:12:03.745109Z key=56391899fe src=thread kind=question who=human plain | script-main-1はそれで固定でいいが、script-main-2は？　kimiだよね？
 - [ ] 2026-01-11T06:54:24.149009Z key=ecfbaade1e src=thread kind=question who=human plain | ただ、死んだ処理や、やり直したいって時はkillを積極的に許容しないとやばくない？
 - [ ] 2026-01-11T04:37:31.970429Z key=78b185feef src=thread kind=request who=human plain | 推奨でどんどん進めて。明らかに死んでるワーカーは止めてもいいよ。明らかに死んでたらね
+- [ ] 2026-01-11T03:13:24.892619Z key=177a121f92 src=thread kind=note who=human plain | 1は別リポでok 2はもっと熟考して提案し直して
 - [ ] 2026-01-11T02:26:42.590689Z key=37de41410a src=thread kind=request who=human plain | 30分に一回ペースくらいでポーリング的なやつ打って、slackの投稿拾って、codex execのxhighで処理させる仕掛け作ろう。これ実装すれば対話型が止まってたとしても、slackとローカルが常時接続状態になる。もちろんMacが稼働してるときだけど。もちろん非対話だからといって記憶なしに進めるのではなく、対話非…
 - [ ] 2026-01-11T00:49:02.218679Z key=9c63fba7f0 src=thread kind=request who=human plain | pid稼働に関しては、そんな情報を羅列されても、結局どの処理が今回ってるか分からない。私が把握できる形式に整理して通知してほしい
 - [ ] 2026-01-11T00:47:38.029999Z key=9599c1355c src=thread kind=question who=human plain | そういえば、gitをストレージ保管庫にする作戦を伝えてたはずだけどどうなった？長文だったから3回くらいに分けて送信してたんだけど。これ実装すれば、容量問題は解決しそうだけど、、、あとはレガシー系のロジックもgitの書庫リポにぶち込んでいけば、躊躇せずに整理が進む気もするが。
 - [ ] 2026-01-10T13:31:32.140019Z key=7ad0b2b227 src=thread kind=request who=human plain | daideguchi/youtube_production2] LLM Smoke workflow run
+- [ ] 2026-01-10T13:17:52.548959Z key=955cc7fba0 src=thread kind=note who=human plain | やり取り保守
+- [ ] 2026-01-10T13:17:30.425089Z key=3dcac3f399 src=thread kind=ack who=human plain | 了解:ok_hand:
+- [ ] 2026-01-10T12:26:26.646179Z key=9218c0b1ad src=thread kind=thanks who=human plain | あなたとここで会話ができてとても嬉しい。良い仕組みを作ってくれてありがとう
 - [ ] 2026-01-10T12:26:04.210179Z key=ce9d2a24a2 src=thread kind=question who=human plain | ローカル辞書は疑問。不要と思う。汎用的な修正がむずしいから個別対応してるわけでしょ？
+- [ ] 2026-01-10T06:18:42.560649Z key=9f63ba80e8 src=thread kind=note who=human plain | 基本的にttsってvoicevoxかvoicepeakで音声作るようになってて、それぞれ公式の辞書があります。
 - [ ] 2026-01-10T00:15:30.439699Z key=95bab0ac37 src=thread kind=rule who=human plain | ローテはしない！！
 - [ ] 2026-01-09T14:39:46.733219Z key=8b6ef6ee8c src=thread kind=decision who=human plain | Aはok
 <!-- inbox:end -->
