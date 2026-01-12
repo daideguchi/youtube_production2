@@ -316,6 +316,7 @@ const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
 const searchInput = $("searchInput");
 const searchResults = $("searchResults");
+const browseDetails = $("browseDetails");
 const reloadIndexButton = $("reloadIndex");
 const metaTitle = $("metaTitle");
 const metaPath = $("metaPath");
@@ -754,6 +755,90 @@ function renderThumbProject(it, proj) {
   thumbBody.appendChild(det);
 }
 
+function renderThumbPreviewOnly(it) {
+  thumbBody.innerHTML = "";
+
+  const videoId = String(it?.video_id || "").trim();
+  const idx = videoId ? thumbIndexByVideoId.get(videoId) : null;
+  const publishedRel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
+  const publishedUrl = siteUrl(publishedRel);
+  const publishedKnownMissing = idx && idx.preview_rel && idx.preview_exists === false;
+
+  const head = document.createElement("div");
+  head.className = "thumb-head";
+  head.textContent = `selected=(unknown) / preview=${publishedRel || "-"}`;
+  thumbBody.appendChild(head);
+
+  const card = document.createElement("div");
+  card.className = "thumb-selected";
+  const title = document.createElement("div");
+  title.className = "thumb-selected__title";
+  title.textContent = "サムネ（プレビュー）";
+  card.appendChild(title);
+
+  const previewWrap = document.createElement("div");
+  previewWrap.className = "thumb-selected__preview";
+
+  const message = document.createElement("div");
+  message.className = "thumb-selected__message muted";
+
+  if (!publishedUrl) {
+    message.textContent = "プレビューURLを決定できません。";
+    previewWrap.appendChild(message);
+  } else if (publishedKnownMissing) {
+    message.textContent = [
+      "プレビュー未公開（まだPagesに生成されていません）。",
+      `次: python3 scripts/ops/pages_thumb_previews.py --channel ${it.channel} --video ${it.video} --write`,
+      "→ commit/push で Pages から表示できます。",
+    ].join("\n");
+    previewWrap.appendChild(message);
+  } else {
+    const a = document.createElement("a");
+    a.className = "thumb-selected__imglink";
+    a.target = "_blank";
+    a.rel = "noreferrer";
+    a.href = publishedUrl;
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.alt = `${videoId} thumbnail`;
+    img.hidden = true;
+    img.onload = () => {
+      img.hidden = false;
+      try {
+        message.remove();
+      } catch (_err) {
+        // ignore
+      }
+    };
+    img.onerror = () => {
+      try {
+        img.remove();
+      } catch (_err) {
+        // ignore
+      }
+      message.textContent = [
+        "画像プレビューを読み込めませんでした。",
+        `次: python3 scripts/ops/pages_thumb_previews.py --channel ${it.channel} --video ${it.video} --write`,
+      ].join("\n");
+      previewWrap.appendChild(message);
+    };
+    img.src = publishedUrl;
+
+    a.appendChild(img);
+    previewWrap.appendChild(a);
+    previewWrap.appendChild(message);
+  }
+
+  const note = document.createElement("div");
+  note.className = "thumb-selected__src muted";
+  note.textContent = "※ projects.json 未登録のため、候補一覧/選択IDは表示できません（プレビューのみ）。";
+
+  card.appendChild(previewWrap);
+  card.appendChild(note);
+  thumbBody.appendChild(card);
+}
+
 async function loadThumb(it) {
   const currentId = it?.video_id || "";
   thumbState = "loading";
@@ -764,8 +849,15 @@ async function loadThumb(it) {
     if (selected?.video_id !== currentId) return;
     const proj = map.get(currentId);
     if (!proj) {
-      thumbBody.textContent = "projects.json に未登録（thumb未作成 or 未同期）";
-      thumbState = "missing";
+      renderThumbPreviewOnly(it);
+      const idx = thumbIndexByVideoId.get(currentId);
+      if (idx && idx.preview_exists === true) {
+        thumbState = "ok";
+      } else if (idx && idx.preview_exists === false) {
+        thumbState = "missing";
+      } else {
+        thumbState = "partial";
+      }
       updateBadges();
       return;
     }
@@ -839,9 +931,53 @@ function showSearchResults(results) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "search-results__item";
-    btn.innerHTML = `<span class="search-results__id">${it.video_id}</span><span class="search-results__title">${escapeHtml(
-      it.title || ""
-    )}</span>`;
+    const left = document.createElement("div");
+    left.className = "search-results__thumb";
+
+    const videoId = String(it?.video_id || "").trim();
+    const idx = videoId ? thumbIndexByVideoId.get(videoId) : null;
+    const rel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
+    const canShow = idx ? idx.preview_exists !== false : true;
+    const thumbUrl = canShow ? siteUrl(rel) : "";
+
+    if (thumbUrl) {
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = `${videoId} thumb`;
+      img.src = thumbUrl;
+      img.onerror = () => {
+        try {
+          img.remove();
+        } catch (_err) {
+          // ignore
+        }
+        left.textContent = "—";
+      };
+      left.appendChild(img);
+    } else {
+      left.textContent = "—";
+    }
+
+    const right = document.createElement("div");
+    right.className = "search-results__meta";
+
+    const id = document.createElement("div");
+    id.className = "search-results__id";
+    id.textContent = String(it.video_id || "").trim();
+    right.appendChild(id);
+
+    const title = document.createElement("div");
+    title.className = "search-results__title";
+    title.textContent = String(it.title || "").trim();
+    right.appendChild(title);
+
+    const sub = document.createElement("div");
+    sub.className = "search-results__sub muted";
+    sub.textContent = channelLabel(it.channel);
+    right.appendChild(sub);
+
+    btn.appendChild(left);
+    btn.appendChild(right);
     btn.addEventListener("click", () => {
       hideSearchResults();
       selectItem(it.channel, it.video);
@@ -958,7 +1094,7 @@ async function reloadIndex() {
   setLoading(true);
   setControlsDisabled(true);
   try {
-    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta()]);
+    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta(), loadThumbIndex()]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
     indexData = await res.json();
     items = Array.isArray(indexData?.items) ? indexData.items : [];
@@ -1065,16 +1201,22 @@ function setupEvents() {
       }
     }
 
-    // If only a video number is provided, assume current channel.
+    // If only a video number is provided, show candidates across channels.
     if (/^\d{1,4}$/.test(raw)) {
-      const ch = channelSelect.value;
       const v = normalizeVideoParam(raw);
-      const it = findItem(ch, v);
-      if (it) {
-        hideSearchResults();
-        selectItem(it.channel, it.video);
+      const matches = items.filter((it) => String(it.video || "") === v).slice(0, 20);
+      if (!matches.length) {
+        setCopyStatus("見つかりません（CHxx-NNN 形式推奨）", true);
         return;
       }
+      if (matches.length === 1) {
+        hideSearchResults();
+        selectItem(matches[0].channel, matches[0].video);
+        return;
+      }
+      showSearchResults(matches);
+      setCopyStatus(`候補が複数あります（${matches.length}件）。選んでください`, false);
+      return;
     }
 
     // Fallback: if user typed an exact video_id-like string.
@@ -1124,6 +1266,11 @@ function setupEvents() {
 }
 
 setupEvents();
+try {
+  browseDetails.open = !isNarrowView();
+} catch (_err) {
+  // ignore
+}
 setActiveView(currentView);
 updateBadges();
 void reloadIndex();

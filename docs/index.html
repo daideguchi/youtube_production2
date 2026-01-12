@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css" />
-    <script defer src="./app.js"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260112_01" />
+    <script defer src="./app.js?v=20260112_01"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -24,16 +24,27 @@
       <section class="controls">
         <label class="control control--wide">
           <span class="control__label">Search（最速）</span>
-          <input id="searchInput" class="control__input" placeholder="例: CH10-005 / 005 / タイトル断片（Enterでジャンプ）" />
+          <input
+            id="searchInput"
+            class="control__input"
+            placeholder="例: CH10-005（Enterで直ジャンプ） / タイトル断片 / 005（候補一覧）"
+          />
         </label>
-        <label class="control">
-          <span class="control__label">Channel</span>
-          <select id="channelSelect" class="control__input"></select>
-        </label>
-        <label class="control">
-          <span class="control__label">Video</span>
-          <select id="videoSelect" class="control__input"></select>
-        </label>
+        <details id="browseDetails" class="details controls__browse">
+          <summary>Browse（Channel/Videoで選ぶ）</summary>
+          <div class="details__body">
+            <div class="controls__browseGrid">
+              <label class="control">
+                <span class="control__label">Channel</span>
+                <select id="channelSelect" class="control__input"></select>
+              </label>
+              <label class="control">
+                <span class="control__label">Video</span>
+                <select id="videoSelect" class="control__input"></select>
+              </label>
+            </div>
+          </div>
+        </details>
       </section>
 
       <section id="searchResults" class="search-results" hidden></section>

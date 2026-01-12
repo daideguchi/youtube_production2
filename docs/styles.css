@@ -68,13 +68,19 @@ body {
 }
 
 .controls {
-  display: grid;
-  grid-template-columns: minmax(240px, 360px) minmax(140px, 200px) 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   padding: 12px;
   border: 1px solid var(--border);
   background: rgba(17, 26, 51, 0.7);
   border-radius: 14px;
+}
+
+.controls__browseGrid {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) 1fr;
+  gap: 10px;
 }
 
 .control {
@@ -110,9 +116,10 @@ body {
 }
 
 .search-results__item {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: center;
   width: 100%;
   padding: 10px 12px;
   border: none;
@@ -127,6 +134,34 @@ body {
   background: rgba(110, 168, 255, 0.12);
 }
 
+.search-results__thumb {
+  width: 72px;
+  height: 54px;
+  border-radius: 10px;
+  border: 1px solid rgba(233, 238, 255, 0.12);
+  background: rgba(15, 23, 48, 0.6);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.search-results__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.search-results__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
 .search-results__id {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   color: rgba(233, 238, 255, 0.85);
@@ -134,7 +169,18 @@ body {
 }
 
 .search-results__title {
-  color: var(--muted);
+  color: rgba(233, 238, 255, 0.92);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  white-space: normal;
+}
+
+.search-results__sub {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -525,7 +571,7 @@ body {
     justify-content: flex-start;
   }
 
-  .controls {
+  .controls__browseGrid {
     grid-template-columns: 1fr;
   }
 
@@ -599,7 +645,7 @@ body {
     justify-content: flex-start;
   }
 
-  .controls {
+  .controls__browseGrid {
     grid-template-columns: 1fr;
   }
 }
