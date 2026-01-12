@@ -38,6 +38,33 @@ body {
   gap: 12px;
 }
 
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 440px);
+  gap: 12px;
+  align-items: start;
+}
+
+.workspace > .content {
+  grid-column: 1;
+}
+
+.workspace > .assets {
+  grid-column: 2;
+}
+
+.app[data-view="audio"] .workspace > .assets,
+.app[data-view="thumb"] .workspace > .assets,
+.app[data-view="images"] .workspace > .assets {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 960px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -461,6 +488,8 @@ body {
 .meta__actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .view-tabs {
@@ -535,6 +564,71 @@ body {
   border: 1px solid var(--border);
   background: rgba(17, 26, 51, 0.7);
   border-radius: 14px;
+  align-self: start;
+}
+
+.menu {
+  display: inline-block;
+}
+
+.menu > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu__body {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(15, 23, 48, 0.88);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.menu--inline .menu__body {
+  margin-top: 6px;
+}
+
+.app[data-view="audio"] .content,
+.app[data-view="thumb"] .content,
+.app[data-view="images"] .content {
+  display: none;
+}
+
+.app[data-view="audio"] .meta__row--buttons,
+.app[data-view="thumb"] .meta__row--buttons,
+.app[data-view="images"] .meta__row--buttons {
+  display: none;
+}
+
+.app[data-view="script"] #audioPrepDetails,
+.app[data-view="script"] #thumbDetails,
+.app[data-view="script"] #videoImagesDetails {
+  display: none;
+}
+
+.app[data-view="audio"] #youtubeMetaDetails,
+.app[data-view="audio"] #thumbDetails,
+.app[data-view="audio"] #videoImagesDetails {
+  display: none;
+}
+
+.app[data-view="thumb"] #youtubeMetaDetails,
+.app[data-view="thumb"] #audioPrepDetails,
+.app[data-view="thumb"] #videoImagesDetails {
+  display: none;
+}
+
+.app[data-view="images"] #youtubeMetaDetails,
+.app[data-view="images"] #audioPrepDetails,
+.app[data-view="images"] #thumbDetails {
+  display: none;
 }
 
 .details {

@@ -16,11 +16,16 @@
         </div>
         <div class="header__right">
           <a class="btn btn--ghost" href="./ep/">ep（綺麗URL）</a>
-          <a class="btn btn--ghost" href="./guide/">SSOT Guide</a>
-          <a class="btn btn--ghost" href="./snapshot/">企画/進捗（snapshot）</a>
-          <a id="openFixedLogic" class="btn btn--ghost" target="_blank" rel="noreferrer">確定ロジック</a>
-          <a id="openContactBox" class="btn btn--ghost" target="_blank" rel="noreferrer">CONTACT_BOX</a>
-          <button id="reloadIndex" class="btn btn--ghost" type="button">索引を再読み込み</button>
+          <details class="menu">
+            <summary class="btn btn--ghost">メニュー</summary>
+            <div class="menu__body">
+              <a class="btn btn--ghost" href="./guide/">SSOT Guide</a>
+              <a class="btn btn--ghost" href="./snapshot/">企画/進捗（snapshot）</a>
+              <a id="openFixedLogic" class="btn btn--ghost" target="_blank" rel="noreferrer">確定ロジック</a>
+              <a id="openContactBox" class="btn btn--ghost" target="_blank" rel="noreferrer">CONTACT_BOX</a>
+              <button id="reloadIndex" class="btn btn--ghost" type="button">データ再読み込み</button>
+            </div>
+          </details>
         </div>
       </header>
 
@@ -81,21 +86,31 @@
             <code id="metaPath">—</code>
           </div>
           <div class="meta__actions">
-            <button id="openBrowse" class="btn btn--ghost" type="button">チャンネル/台本を選ぶ</button>
-            <button id="copyPath" class="btn btn--ghost" type="button">パスをコピー</button>
-            <button id="copyLink" class="btn btn--ghost" type="button">リンクをコピー</button>
+            <button id="openBrowse" class="btn btn--ghost" type="button">台本を選ぶ</button>
+            <button id="copyLink" class="btn btn--ghost" type="button">共有リンクをコピー</button>
             <a id="openRaw" class="btn btn--ghost" target="_blank" rel="noreferrer">raw を開く</a>
-            <a id="openAssetPack" class="btn btn--ghost" target="_blank" rel="noreferrer">台本/音声フォルダ（Git）</a>
-            <a id="openSnapshot" class="btn btn--ghost" href="./snapshot/">進捗（snapshot）</a>
+            <details class="menu menu--inline">
+              <summary class="btn btn--ghost">その他</summary>
+              <div class="menu__body">
+                <button id="copyPath" class="btn btn--ghost" type="button">パスをコピー</button>
+                <a id="openAssetPack" class="btn btn--ghost" target="_blank" rel="noreferrer">台本/音声フォルダ（Git）</a>
+                <a id="openSnapshot" class="btn btn--ghost" href="./snapshot/">進捗（snapshot）</a>
+              </div>
+            </details>
           </div>
         </div>
         <div class="meta__row meta__row--buttons">
-          <button id="copyNoSep" class="btn" type="button">コピー（---なし）</button>
-          <button id="copyRaw" class="btn" type="button">コピー（そのまま）</button>
-          <div class="chunk-copy" aria-label="---なしでコピー（10,000文字ずつ）">
-            <span class="muted">---なし:</span>
-            <div id="copyNoSepChunks" class="chunk-copy__buttons"></div>
-          </div>
+          <button id="copyNoSep" class="btn btn--primary" type="button">台本コピー（---なし）</button>
+          <details class="menu menu--inline">
+            <summary class="btn btn--ghost">コピー詳細</summary>
+            <div class="menu__body">
+              <button id="copyRaw" class="btn btn--ghost" type="button">台本コピー（そのまま）</button>
+              <div class="chunk-copy" aria-label="---なしでコピー（10,000文字ずつ）">
+                <span class="muted">---なし:</span>
+                <div id="copyNoSepChunks" class="chunk-copy__buttons"></div>
+              </div>
+            </div>
+          </details>
           <span id="copyStatus" class="muted"></span>
         </div>
       </section>
@@ -121,9 +136,15 @@
         </div>
       </nav>
 
-      <section class="assets" aria-label="音声/サムネ">
+      <div class="workspace">
+        <main class="content">
+          <div id="loading" class="loading" hidden>読み込み中…</div>
+          <pre id="contentPre" class="pre"></pre>
+        </main>
+
+        <section class="assets" aria-label="YouTube/音声/サムネ/画像">
         <details id="youtubeMetaDetails" class="details" open>
-          <summary>YouTube（タイトル/概要欄/タグ）</summary>
+          <summary>YouTubeメタ（タイトル/概要欄/タグ）</summary>
           <div class="details__body">
             <div class="assets__grid">
               <div class="asset-card">
@@ -166,7 +187,7 @@
           </div>
         </details>
 
-        <details id="audioPrepDetails" class="details" open>
+        <details id="audioPrepDetails" class="details">
           <summary>音声（TTS用テキスト）</summary>
           <div class="details__body">
             <div class="assets__grid">
@@ -211,11 +232,7 @@
           </div>
         </details>
       </section>
-
-      <main class="content">
-        <div id="loading" class="loading" hidden>読み込み中…</div>
-        <pre id="contentPre" class="pre"></pre>
-      </main>
+      </div>
 
       <footer class="footer muted">
         <span id="footerMeta">—</span>

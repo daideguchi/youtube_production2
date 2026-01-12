@@ -2146,9 +2146,24 @@ async function reloadIndex() {
   setLoading(true);
   setControlsDisabled(true);
   try {
+    // Force refresh for avatar/channel metadata and asset indexes (browser cache + in-memory cache).
+    channelMetaPromise = null;
+    channelMetaById = new Map();
+    thumbProjectPromise = null;
+    thumbProjectByVideoId = new Map();
+    thumbIndexPromise = null;
+    thumbIndexByVideoId = new Map();
+    videoImagesIndexPromise = null;
+    videoImagesIndexByVideoId = new Map();
+    snapshotChannelsPromise = null;
+    snapshotByChannel = new Map();
+    snapshotEpisodeByVideoId = new Map();
+    snapshotEpisodePromiseByChannel = new Map();
+
     const [res] = await Promise.all([
       fetch(siteUrl(INDEX_URL), { cache: "no-store" }),
       loadChannelMeta(),
+      loadThumbProjects(),
       loadThumbIndex(),
       loadVideoImagesIndex(),
       loadSnapshotChannels(),
