@@ -800,7 +800,8 @@ body {
   }
 
   .controls__browseGrid {
-    display: none;
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   /* Mobile: avoid horizontal scrolling for channel selection */

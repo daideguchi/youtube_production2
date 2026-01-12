@@ -62,6 +62,13 @@ function guessGitHubRepoFromPages() {
   return repo ? { owner, repo } : null;
 }
 
+function parseGitHubRepoFromRawBase(rawBase) {
+  const s = String(rawBase || "").trim();
+  const m = s.match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//);
+  if (!m) return null;
+  return { owner: m[1], repo: m[2], branch: m[3] };
+}
+
 function resolveRawBase() {
   const params = new URLSearchParams(window.location.search);
   const rawBaseOverride = params.get("rawBase");
@@ -81,6 +88,36 @@ function resolveRawBase() {
 
   // local preview: serve repo root via `python3 -m http.server` and open `/docs/`
   return `${window.location.origin}/`;
+}
+
+function resolveGitTreeBase() {
+  const params = new URLSearchParams(window.location.search);
+  const branchParam = params.get("branch") || "";
+  const rawBaseOverride = params.get("rawBase") || "";
+
+  let owner = params.get("owner") || "";
+  let repo = params.get("repo") || "";
+  let branch = branchParam || "main";
+
+  if (!owner || !repo) {
+    const guessed = guessGitHubRepoFromPages();
+    if (guessed) {
+      owner = guessed.owner;
+      repo = guessed.repo;
+    }
+  }
+
+  if ((!owner || !repo) && rawBaseOverride) {
+    const parsed = parseGitHubRepoFromRawBase(rawBaseOverride);
+    if (parsed) {
+      owner = parsed.owner;
+      repo = parsed.repo;
+      if (!branchParam) branch = parsed.branch || branch;
+    }
+  }
+
+  if (!owner || !repo) return null;
+  return `https://github.com/${owner}/${repo}/tree/${branch}/`;
 }
 
 function joinUrl(base, path) {
@@ -183,6 +220,7 @@ function getInitialUiState() {
 }
 
 const rawBase = resolveRawBase();
+const gitTreeBase = resolveGitTreeBase();
 const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
 const thumbProjectsUrl = joinUrl(rawBase, THUMB_PROJECTS_PATH);
 
@@ -405,6 +443,7 @@ const reloadIndexButton = $("reloadIndex");
 const metaTitle = $("metaTitle");
 const metaPath = $("metaPath");
 const openRaw = $("openRaw");
+const openAssetPack = $("openAssetPack");
 const openSnapshot = $("openSnapshot");
 const contentPre = $("contentPre");
 const copyStatus = $("copyStatus");
@@ -679,6 +718,22 @@ function buildGrouped(itemsList) {
 
 function episodeBasePath(it) {
   return `workspaces/scripts/${it.channel}/${it.video}`;
+}
+
+function episodeAssetPackPath(it) {
+  const ch = normalizeChannelParam(it?.channel);
+  const v = normalizeVideoParam(it?.video);
+  if (!ch || !v) return "";
+  return `workspaces/video/assets/episodes/${ch}/${v}`;
+}
+
+function updateAssetPackLink(it) {
+  const rel = episodeAssetPackPath(it);
+  if (!rel) {
+    openAssetPack.removeAttribute("href");
+    return;
+  }
+  openAssetPack.href = gitTreeBase ? `${gitTreeBase}${rel}` : joinUrl(rawBase, rel);
 }
 
 async function fetchTextOptional(url) {
@@ -1251,6 +1306,7 @@ function clearSelectionForChannel(channel) {
   metaTitle.textContent = ch ? `${channelLabel(ch)}（台本なし）` : "—";
   metaPath.textContent = "—";
   openRaw.removeAttribute("href");
+  openAssetPack.removeAttribute("href");
   contentPre.textContent = "このチャンネルには台本がありません。";
   initialChannelWanted = ch;
   initialVideoWanted = "";
@@ -1536,6 +1592,7 @@ async function loadScript(it) {
 
   const url = joinUrl(rawBase, it.assembled_path);
   openRaw.href = url;
+  updateAssetPackLink(it);
 
   setLoading(true);
   try {

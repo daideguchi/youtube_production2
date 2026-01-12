@@ -181,6 +181,28 @@ def video_input_root() -> Path:
     return workspace_root() / "video" / "input"
 
 
+def video_assets_root() -> Path:
+    """
+    Root for git-tracked video-related assets.
+
+    Canonical location:
+      - workspaces/video/assets
+    """
+    return workspace_root() / "video" / "assets"
+
+
+def video_episode_assets_dir(channel: str, video: str) -> Path:
+    """
+    Editor-agnostic episode asset pack directory (git-tracked).
+
+    Canonical location:
+      - workspaces/video/assets/episodes/{CHxx}/{NNN}/
+    """
+    ch = _norm_channel(channel)
+    no = _norm_video(video)
+    return video_assets_root() / "episodes" / ch / no
+
+
 def video_capcut_local_drafts_root() -> Path:
     """
     Local writable CapCut draft root (fallback when the real CapCut root is not writable).

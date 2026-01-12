@@ -62,7 +62,7 @@
 - `ops/OPS_SCRIPTS_CLEANUP_CANDIDATES.md`: `scripts/**` のレガシー掃除候補台帳（要 dd 承認 / archive-first）。
 - `ops/OPS_PRODUCTION_PACK.md`: 量産投入前の「Production Pack」定義（スナップショット + QA gate + 差分ログ）。
 - `ops/OPS_PREPRODUCTION_FRAME.md`: 入口〜量産投入直前の参照フレーム（SoT/拡張/差分ログの線引き）。
-- `ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`: 入口〜投入前の入力カタログ（SoT/必須/任意/上書きの一覧）。
+- `ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`: 入口〜投入前の入力カタログ（SoT/必須/オプション/上書きの一覧）。
 - `ops/OPS_PREPRODUCTION_REMEDIATION.md`: 入口〜投入前の“抜け漏れ”修復導線（issue→直す場所→検証）。
 - `ops/OPS_REPO_DIRECTORY_SSOT.md`: リポジトリのディレクトリ構造（正本）。配置/移設/互換symlink方針の基準。
 - `ops/OPS_SCRIPT_SOURCE_MAP.md`: 台本/音声/動画の“ソース元”対応表（SoT→生成物）。
@@ -80,6 +80,7 @@
 - `ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`: Aテキストの品質ゲート（LLM Judge→Fixer で「字数だけ合格」を禁止）。
 - `ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`: 対話AIによる台本監査（LLM API禁止 / 企画整合+流れを目視で確定し redo_script を運用）。
 - `ops/OPS_AUDIO_TTS.md`: 音声（TTS）運用手順とSoT/cleanup。
+- `ops/OPS_TTS_UNPOSTED_AUDIO_AUDIT.md`: 未投稿×既存音声の一括再監査（NO LLM / 再現可能）。
 - `ops/OPS_SRT_LINEBREAK_FORMAT.md`: SRT字幕の改行整形（意味/語彙は不変、改行のみで視認性を上げる）。
 - `packages/audio_tts/docs/SRT_SYNC_PROTOCOL.md` (Reference): 音声final（SRT/WAV）と video_pipeline 入力同期の契約メモ。
 - `ops/OPS_PLANNING_CSV_WORKFLOW.md`: 企画/進捗CSV（Planning SoT）の運用手順。
@@ -94,7 +95,7 @@
 - `ops/OPS_ALIGNMENT_CHECKPOINTS.md`: SoT整合チェック（壊さないための確定チェックリスト）。
 - `ops/OPS_SEMANTIC_ALIGNMENT.md`: タイトル/サムネ訴求 ↔ 台本コア の意味整合チェック/最小修正（明らかなズレのみ）。
 - `ops/OPS_THUMBNAILS_PIPELINE.md`: サムネ量産/修正（ローカル合成）の運用SSOT（Compiler/retake/QC/明るさ補正）。
-- `ops/OPS_VISION_PACK.md`: スクショ/サムネ画像の前処理パック（読み取り精度を上げる任意ツール）。
+- `ops/OPS_VISION_PACK.md`: スクショ/サムネ画像の前処理パック（読み取り精度を上げるオプションツール）。
 - `ops/OPS_LOGGING_MAP.md`: 現行ログの配置/種類/増殖経路とTarget収束先の正本マップ。
 - `ops/OPS_YT_DLP.md`: yt-dlp運用（競合タイトル/メタ収集）のSSOT（DLせず公開メタのみ）。
 - (Register) `ops/OPS_CLEANUP_EXECUTION_LOG.md`: 実行した片付け（復元/再現可能な記録）。
@@ -102,6 +103,7 @@
 - `ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`: published済みエピソードのアーカイブ（planning progress 連動、探索ノイズ削減）。
 - `ops/OPS_GH_RELEASES_ARCHIVE.md`: GitHub Releases を“重い物置き”にする（manifest/index + push/pull）。
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
+- `ops/OPS_VIDEO_ASSET_PACK.md`: 編集ソフト非依存の「エピソード資産束」（Git追跡）。CapCut以外の制作ルートもここに寄せる。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
 - `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md` (Reference): 全チャンネル共通 CapCutドラフト生成SOP（auto_capcut_run / safe_image_swap）。

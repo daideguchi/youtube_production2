@@ -41,6 +41,13 @@ function guessGitHubRepoFromPages() {
   return repo ? { owner, repo } : null;
 }
 
+function parseGitHubRepoFromRawBase(rawBase) {
+  const s = String(rawBase || "").trim();
+  const m = s.match(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//);
+  if (!m) return null;
+  return { owner: m[1], repo: m[2], branch: m[3] };
+}
+
 function resolveRawBase() {
   const params = new URLSearchParams(window.location.search);
   const rawBaseOverride = params.get("rawBase");
@@ -62,6 +69,36 @@ function resolveRawBase() {
   return `${window.location.origin}/`;
 }
 
+function resolveGitTreeBase() {
+  const params = new URLSearchParams(window.location.search);
+  const branchParam = params.get("branch") || "";
+  const rawBaseOverride = params.get("rawBase") || "";
+
+  let owner = params.get("owner") || "";
+  let repo = params.get("repo") || "";
+  let branch = branchParam || "main";
+
+  if (!owner || !repo) {
+    const guessed = guessGitHubRepoFromPages();
+    if (guessed) {
+      owner = guessed.owner;
+      repo = guessed.repo;
+    }
+  }
+
+  if ((!owner || !repo) && rawBaseOverride) {
+    const parsed = parseGitHubRepoFromRawBase(rawBaseOverride);
+    if (parsed) {
+      owner = parsed.owner;
+      repo = parsed.repo;
+      if (!branchParam) branch = parsed.branch || branch;
+    }
+  }
+
+  if (!owner || !repo) return null;
+  return `https://github.com/${owner}/${repo}/tree/${branch}/`;
+}
+
 function joinUrl(base, path) {
   const safeBase = String(base || "").replace(/\/+$/, "") + "/";
   const safePath = String(path || "").replace(/^\/+/, "");
@@ -80,6 +117,19 @@ function normVideo(raw) {
   const n = Number(s);
   if (!Number.isFinite(n)) return s.padStart(3, "0");
   return String(Math.trunc(n)).padStart(3, "0");
+}
+
+function episodeAssetPackPath(channel, video) {
+  const ch = normChannel(channel);
+  const v = normVideo(video);
+  if (!ch || !v) return "";
+  return `workspaces/video/assets/episodes/${ch}/${v}`;
+}
+
+function episodeAssetPackHref(channel, video) {
+  const rel = episodeAssetPackPath(channel, video);
+  if (!rel) return "";
+  return gitTreeBase ? `${gitTreeBase}${rel}` : joinUrl(rawBase, rel);
 }
 
 function stageBadgeLabel(key) {
@@ -179,6 +229,7 @@ const openDataJson = $("openDataJson");
 const loading = $("loading");
 const footerMeta = $("footerMeta");
 const rawBase = resolveRawBase();
+const gitTreeBase = resolveGitTreeBase();
 const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
 
 let channelMetaById = new Map();
@@ -442,6 +493,7 @@ function renderTable() {
     const assembledUrl = assembledPath ? joinUrl(rawBase, assembledPath) : "";
     const statusPath = script?.status_path || "";
     const statusUrl = statusPath ? joinUrl(rawBase, statusPath) : "";
+    const assetPackHref = episodeAssetPackHref(ep.channel, ep.video);
 
     const idHtml = `<a class="link mono" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video))}">${escapeHtml(ep.video_id)}</a>`;
     const titleHtml = `<div class="cell-title"><span class="cell-title__title">${escapeHtml(ep.title || "—")}</span><span class="cell-title__sub">${escapeHtml(
@@ -452,6 +504,7 @@ function renderTable() {
       `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video, "script"))}">台本</a>`,
       `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video, "thumb"))}">サムネ</a>`,
       `<a class="btn btn--ghost" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video, "images"))}">画像</a>`,
+      assetPackHref ? `<a class="btn btn--ghost" href="${escapeHtml(assetPackHref)}" target="_blank" rel="noreferrer">素材束</a>` : "",
       assembledUrl ? `<a class="btn btn--ghost" href="${escapeHtml(assembledUrl)}" target="_blank" rel="noreferrer">raw</a>` : "",
       statusUrl ? `<a class="btn btn--ghost" href="${escapeHtml(statusUrl)}" target="_blank" rel="noreferrer">status</a>` : "",
     ]

@@ -74,7 +74,8 @@ workspaces/audio/final/CH02/033
 └── log.json
 ```
 
-※ `*.wav` / `*.srt` は gitignore 対象で、通常はディスク上にのみ存在する。
+※ `*.wav` / `*.srt` は gitignore 対象で、通常はディスク上にのみ存在する。  
+ただし **CapCut以外の編集ソフト向けの共有**は `workspaces/video/assets/episodes/{CH}/{NNN}/audio|subtitles` に **exportしてGit追跡**する（SSOT: `ops/OPS_VIDEO_ASSET_PACK.md`）。
 
 ### 2.3 video_pipeline
 
@@ -84,6 +85,12 @@ workspaces/audio/final/CH02/033
   - `image_cues.json`, `images/*.png`, `capcut_draft`（CapCutプロジェクトへのsymlink）, `capcut_draft_info.json`, `auto_run_info.json` など
   - `runs/` は `workspaces/.gitignore` で gitignore 対象
 * 入力キャッシュ: `workspaces/video/input/`（gitignore 対象）
+
+#### 2.3.1 Episode Asset Pack（編集ソフト非依存 / Git追跡）
+
+* 目的: CapCut以外（Vrew等）でも同じ素材束で制作できるようにする
+* 正本: `workspaces/video/assets/episodes/{CH}/{NNN}/`（`images/0001.png...`, `audio/*.wav`, `subtitles/*.srt`）
+* run_dir との関係: run_dir は実行時作業場（gitignore）で、**共有は Asset Pack に寄せる**
 
 ### 2.4 workspaces/planning/channels（企画CSV）
 
@@ -132,13 +139,13 @@ workspaces/thumbnails/README.md
 - 標準レイアウト（動画単位）:
   - `workspaces/thumbnails/assets/{CH}/{NNN}/`
     - SoT（動画差分）:
-      - 推奨: `thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
+      - 標準: `thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
       - 互換: `thumb_spec.json`（legacy。2案運用時は混線事故の温床なので、可能なら stable へ移行する）
     - SoT（文字・行単位）:
-      - 推奨: `text_line_spec.<stable>.json`
+      - 標準: `text_line_spec.<stable>.json`
       - 互換: `text_line_spec.json`
     - SoT（追加要素・図形/画像など）:
-      - 推奨: `elements_spec.<stable>.json`
+      - 標準: `elements_spec.<stable>.json`
       - 互換: `elements_spec.json`
     - 派生（planning由来）: `planning_meta.json`
     - 派生（安定出力）: `00_thumb.png` または `00_thumb_1.png` / `00_thumb_2.png`、`10_bg.png`、`20_portrait.png` など
@@ -194,7 +201,7 @@ asset
 * 一部の古い動画では `chunks` や `inference_metadata.txt` が存在しないケースがある
 * 画像ファイル名に日本語や特殊文字を含むファイルが存在する（`"ChatGPT Image 2025年12月10日 21_01_09.png"`など）
 
-## 5. 改善アイデア（任意）
+## 5. 改善アイデア（参考）
 
 * ディレクトリ構造を標準化し、すべての動画で同じファイル構造を持つように統一すると管理しやすくなる
 * データパス解決のための共通ユーティリティ（repo/workspaces SoT）は `packages/factory_common/paths.py` に集約し、直書きパスを段階的に廃止する（`ssot/completed/PLAN_STAGE1_PATH_SSOT_MIGRATION.md`）。
