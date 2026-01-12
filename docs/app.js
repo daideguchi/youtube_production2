@@ -4,6 +4,7 @@ const INDEX_URL = "./data/index.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
 const THUMB_PROJECTS_PATH = "workspaces/thumbnails/projects.json";
 const THUMBS_INDEX_URL = "./data/thumbs_index.json";
+const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
 
@@ -97,7 +98,7 @@ function siteUrl(relPath) {
 
 function normalizeView(raw) {
   const v = String(raw || "").trim().toLowerCase();
-  if (v === "audio" || v === "thumb" || v === "script") return v;
+  if (v === "audio" || v === "thumb" || v === "images" || v === "script") return v;
   return "script";
 }
 
@@ -177,6 +178,8 @@ let thumbProjectByVideoId = new Map();
 let thumbProjectPromise = null;
 let thumbIndexByVideoId = new Map();
 let thumbIndexPromise = null;
+let videoImagesIndexByVideoId = new Map();
+let videoImagesIndexPromise = null;
 
 function pickChannelDisplayName(meta) {
   const yt = meta?.youtube || {};
@@ -192,6 +195,23 @@ function channelLabel(channelId) {
   const meta = channelMetaById.get(ch);
   const name = pickChannelDisplayName(meta);
   return name ? `${name} (${ch})` : ch;
+}
+
+function channelAvatarUrl(channelId) {
+  const ch = String(channelId || "").trim();
+  const meta = channelMetaById.get(ch) || {};
+  const branding = meta?.branding || {};
+  const url = String(branding?.avatar_url || "").trim();
+  if (url && /^https?:\/\//.test(url)) return url;
+  return "";
+}
+
+function channelShortName(channelId) {
+  const ch = String(channelId || "").trim();
+  const label = channelLabel(ch);
+  const m = label.match(/^(.*)\\s+\\(CH\\d+\\)$/);
+  const out = (m ? m[1] : label).trim();
+  return out || ch;
 }
 
 function loadChannelMeta() {
@@ -296,9 +316,53 @@ function loadThumbIndex() {
   return thumbIndexPromise;
 }
 
+function loadVideoImagesIndex() {
+  if (videoImagesIndexPromise) return videoImagesIndexPromise;
+  videoImagesIndexPromise = (async () => {
+    try {
+      const res = await fetch(VIDEO_IMAGES_INDEX_URL, { cache: "no-store" });
+      if (res.status === 404) {
+        videoImagesIndexByVideoId = new Map();
+        return videoImagesIndexByVideoId;
+      }
+      if (!res.ok) throw new Error(`video_images_index fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const items = Array.isArray(data?.items) ? data.items : [];
+      const next = new Map();
+      for (const it of items) {
+        const vid = String(it?.video_id || "").trim();
+        if (!vid) continue;
+        const filesRaw = Array.isArray(it?.files) ? it.files : [];
+        const files = filesRaw
+          .map((f) => ({
+            file: String(f?.file || "").trim(),
+            rel: String(f?.rel || "").trim(),
+            summary: String(f?.summary || "").trim(),
+          }))
+          .filter((f) => f.file && f.rel);
+        next.set(vid, {
+          video_id: vid,
+          channel: String(it?.channel || "").trim(),
+          video: String(it?.video || "").trim(),
+          run_id: String(it?.run_id || "").trim(),
+          count: Number(it?.count) || files.length,
+          files,
+        });
+      }
+      videoImagesIndexByVideoId = next;
+    } catch (err) {
+      console.warn("[script_viewer] failed to load video_images_index.json", err);
+      videoImagesIndexByVideoId = new Map();
+    }
+    return videoImagesIndexByVideoId;
+  })();
+  return videoImagesIndexPromise;
+}
+
 let indexData = null;
 let items = [];
 let grouped = new Map();
+let channelsSorted = [];
 let selected = null;
 let loadedText = "";
 let loadedNoSepText = "";
@@ -311,9 +375,12 @@ let currentView = initialUiState.view || "script";
 let scriptState = "idle"; // idle | loading | ok | error
 let audioState = "idle"; // idle | loading | ok | partial | missing | error
 let thumbState = "idle"; // idle | loading | ok | partial | missing | error
+let videoImagesState = "idle"; // idle | loading | ok | partial | missing | error
+let videoImagesCount = 0;
 
 const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
+const channelChips = $("channelChips");
 const videoList = $("videoList");
 const searchInput = $("searchInput");
 const searchResults = $("searchResults");
@@ -332,11 +399,14 @@ const viewTabs = $("viewTabs");
 const tabScript = $("tabScript");
 const tabAudio = $("tabAudio");
 const tabThumb = $("tabThumb");
+const tabImages = $("tabImages");
 const badgeScript = $("badgeScript");
 const badgeAudio = $("badgeAudio");
 const badgeThumb = $("badgeThumb");
+const badgeImages = $("badgeImages");
 const audioPrepDetails = $("audioPrepDetails");
 const thumbDetails = $("thumbDetails");
+const videoImagesDetails = $("videoImagesDetails");
 const audioPrepScriptPre = $("audioPrepScriptPre");
 const audioPrepMetaPre = $("audioPrepMetaPre");
 const openAudioPrepScript = $("openAudioPrepScript");
@@ -344,6 +414,7 @@ const openAudioPrepMeta = $("openAudioPrepMeta");
 const copyAudioPrepScript = $("copyAudioPrepScript");
 const copyAudioPrepMeta = $("copyAudioPrepMeta");
 const thumbBody = $("thumbBody");
+const videoImagesBody = $("videoImagesBody");
 
 function setLoading(on) {
   loading.hidden = !on;
@@ -420,13 +491,30 @@ function updateBadges() {
   } else {
     setBadge(badgeThumb, "—", "neutral");
   }
+
+  if (videoImagesState === "loading") {
+    setBadge(badgeImages, "…", "neutral");
+  } else if (videoImagesState === "error") {
+    setBadge(badgeImages, "ERR", "error");
+  } else if (videoImagesState === "ok") {
+    setBadge(badgeImages, videoImagesCount ? String(videoImagesCount) : "OK", "ok");
+  } else if (videoImagesState === "partial") {
+    setBadge(badgeImages, videoImagesCount ? String(videoImagesCount) : "一部", "warn");
+  } else if (videoImagesState === "missing") {
+    setBadge(badgeImages, "未", "neutral");
+  } else {
+    setBadge(badgeImages, "—", "neutral");
+  }
 }
 
 function persistUiState() {
   try {
     const stored = readUiStateFromStorage();
-    const channel = selected?.channel || stored.channel || "";
-    const video = selected?.video || stored.video || "";
+    // Prefer current UI selection over stale `selected` (mobile select quirks / empty-channel cases).
+    const chUi = normalizeChannelParam(channelSelect?.value || "");
+    const vUi = normalizeVideoParam(videoSelect?.value || "");
+    const channel = chUi || selected?.channel || stored.channel || "";
+    const video = vUi || selected?.video || stored.video || "";
     const view = normalizeView(currentView);
     window.localStorage.setItem(
       UI_STATE_KEY,
@@ -438,14 +526,16 @@ function persistUiState() {
 
   try {
     const params = new URLSearchParams(window.location.search);
-    if (selected?.video_id) {
-      params.set("id", String(selected.video_id));
+    const selCh = normalizeChannelParam(channelSelect?.value || "") || String(selected?.channel || "").trim();
+    const selVideo = normalizeVideoParam(videoSelect?.value || "") || String(selected?.video || "").trim();
+    if (selCh && selVideo) {
+      params.set("id", `${selCh}-${selVideo}`);
       params.delete("ch");
       params.delete("v");
     }
-    const v = normalizeView(currentView);
-    if (v && v !== "script") {
-      params.set("view", v);
+    const viewParam = normalizeView(currentView);
+    if (viewParam && viewParam !== "script") {
+      params.set("view", viewParam);
     } else {
       params.delete("view");
     }
@@ -464,17 +554,25 @@ function setActiveView(view) {
   tabScript.classList.toggle("view-tab--active", v === "script");
   tabAudio.classList.toggle("view-tab--active", v === "audio");
   tabThumb.classList.toggle("view-tab--active", v === "thumb");
+  tabImages.classList.toggle("view-tab--active", v === "images");
 
   // Open only the relevant details for the selected view.
   if (v === "script") {
     audioPrepDetails.open = false;
     thumbDetails.open = false;
+    videoImagesDetails.open = false;
   } else if (v === "audio") {
     audioPrepDetails.open = true;
     thumbDetails.open = false;
+    videoImagesDetails.open = false;
   } else if (v === "thumb") {
     thumbDetails.open = true;
     audioPrepDetails.open = false;
+    videoImagesDetails.open = false;
+  } else if (v === "images") {
+    videoImagesDetails.open = true;
+    audioPrepDetails.open = false;
+    thumbDetails.open = false;
   }
 
   persistUiState();
@@ -501,6 +599,8 @@ function goToView(view) {
     scrollToEl(audioPrepDetails);
   } else if (v === "thumb") {
     scrollToEl(thumbDetails);
+  } else if (v === "images") {
+    scrollToEl(videoImagesDetails);
   } else {
     scrollToEl(contentPre);
   }
@@ -880,6 +980,215 @@ async function loadThumb(it) {
   }
 }
 
+function renderVideoImagesEntry(it, entry) {
+  videoImagesBody.innerHTML = "";
+
+  const files = Array.isArray(entry?.files) ? entry.files : [];
+  const count = Number(entry?.count) || files.length;
+  const runId = String(entry?.run_id || "").trim();
+
+  const head = document.createElement("div");
+  head.className = "video-images-head";
+  head.textContent = `count=${count || files.length || 0}${runId ? " / run=" + runId : ""}`;
+  videoImagesBody.appendChild(head);
+
+  if (!files.length) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.textContent = "プレビュー画像がありません（indexはあるが files が空）。";
+    videoImagesBody.appendChild(empty);
+    return;
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "video-images-grid";
+  videoImagesBody.appendChild(grid);
+
+  const maxInitial = 12;
+  let shown = 0;
+  const total = files.length;
+
+  function addMore(nextN) {
+    const end = Math.min(total, shown + nextN);
+    for (let i = shown; i < end; i += 1) {
+      const f = files[i] || {};
+      const rel = String(f?.rel || "").trim();
+      const url = siteUrl(rel);
+      const summary = String(f?.summary || "").trim();
+
+      const card = document.createElement("div");
+      card.className = "video-image-card";
+
+      const a = document.createElement("a");
+      a.className = "video-image-card__imglink";
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      a.href = url;
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = summary ? `${it?.video_id || ""} ${summary}` : `${it?.video_id || ""} image`;
+      img.src = url;
+      img.onerror = () => {
+        try {
+          img.remove();
+        } catch (_err) {
+          // ignore
+        }
+        const msg = document.createElement("div");
+        msg.className = "muted";
+        msg.textContent = "画像を読み込めません";
+        a.appendChild(msg);
+      };
+      a.appendChild(img);
+      card.appendChild(a);
+
+      if (summary) {
+        const cap = document.createElement("div");
+        cap.className = "video-image-card__caption muted";
+        cap.textContent = summary;
+        card.appendChild(cap);
+      }
+
+      grid.appendChild(card);
+    }
+    shown = end;
+  }
+
+  addMore(maxInitial);
+
+  if (shown < total) {
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "btn btn--ghost";
+    more.textContent = `さらに表示（残り ${total - shown}）`;
+    more.addEventListener("click", () => {
+      addMore(24);
+      if (shown >= total) {
+        try {
+          more.remove();
+        } catch (_err) {
+          // ignore
+        }
+      } else {
+        more.textContent = `さらに表示（残り ${total - shown}）`;
+      }
+    });
+    videoImagesBody.appendChild(more);
+  }
+}
+
+async function loadVideoImages(it) {
+  const currentId = it?.video_id || "";
+  videoImagesState = "loading";
+  videoImagesCount = 0;
+  updateBadges();
+  videoImagesBody.textContent = "読み込み中…";
+  try {
+    const map = await loadVideoImagesIndex();
+    if (selected?.video_id !== currentId) return;
+    const entry = map.get(currentId);
+    if (!entry) {
+      videoImagesState = "missing";
+      videoImagesCount = 0;
+      updateBadges();
+      videoImagesBody.textContent = [
+        "未公開（Pages用プレビューがまだ生成されていません）。",
+        `次: python3 scripts/ops/pages_video_images_previews.py --channel ${it.channel} --video ${it.video} --write`,
+        "→ commit/push で Pages から表示できます。",
+      ].join("\n");
+      return;
+    }
+    renderVideoImagesEntry(it, entry);
+    videoImagesCount = Array.isArray(entry?.files) ? entry.files.length : 0;
+    videoImagesState = videoImagesCount ? "ok" : "partial";
+    updateBadges();
+  } catch (err) {
+    if (selected?.video_id !== currentId) return;
+    videoImagesBody.textContent = `読み込みに失敗しました: ${String(err)}`;
+    videoImagesState = "error";
+    videoImagesCount = 0;
+    updateBadges();
+  }
+}
+
+function renderChannelChips(channels, activeChannel) {
+  const active = String(activeChannel || "").trim();
+  channelChips.innerHTML = "";
+  for (const ch of channels) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "channel-chip";
+    if (active && String(ch) === active) btn.classList.add("channel-chip--active");
+
+    const avatar = document.createElement("div");
+    avatar.className = "channel-chip__avatar";
+    const url = channelAvatarUrl(ch);
+    if (url) {
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = `${ch} avatar`;
+      img.src = url;
+      img.onerror = () => {
+        try {
+          img.remove();
+        } catch (_err) {
+          // ignore
+        }
+        avatar.textContent = String(ch).replace(/^CH/, "");
+      };
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = String(ch).replace(/^CH/, "");
+    }
+
+    const text = document.createElement("div");
+    text.className = "channel-chip__text";
+    const name = document.createElement("div");
+    name.className = "channel-chip__name";
+    name.textContent = channelShortName(ch);
+    const code = document.createElement("div");
+    code.className = "channel-chip__code muted";
+    code.textContent = String(ch);
+    text.appendChild(name);
+    text.appendChild(code);
+
+    btn.appendChild(avatar);
+    btn.appendChild(text);
+    btn.addEventListener("click", () => {
+      channelSelect.value = String(ch);
+      renderVideos(String(ch));
+      const video = videoSelect.value || (grouped.get(String(ch))?.[0]?.video ?? null);
+      if (video) {
+        selectItem(String(ch), String(video));
+      } else {
+        clearSelectionForChannel(String(ch));
+      }
+    });
+    channelChips.appendChild(btn);
+  }
+}
+
+function clearSelectionForChannel(channel) {
+  const ch = String(channel || "").trim();
+  selected = null;
+  loadedText = "";
+  loadedNoSepText = "";
+  scriptState = "idle";
+  audioState = "idle";
+  thumbState = "idle";
+  videoImagesState = "idle";
+  updateBadges();
+  renderNoSepChunkButtons();
+  metaTitle.textContent = ch ? `${channelLabel(ch)}（台本なし）` : "—";
+  metaPath.textContent = "—";
+  openRaw.removeAttribute("href");
+  contentPre.textContent = "このチャンネルには台本がありません。";
+  initialChannelWanted = ch;
+  initialVideoWanted = "";
+  persistUiState();
+}
+
 function renderChannels() {
   const channels = Array.from(grouped.keys()).sort((a, b) => {
     const na = Number(String(a).replace(/^CH/, "")) || 999999;
@@ -887,6 +1196,7 @@ function renderChannels() {
     if (na !== nb) return na - nb;
     return String(a).localeCompare(String(b));
   });
+  channelsSorted = channels;
   channelSelect.innerHTML = "";
   for (const ch of channels) {
     const opt = document.createElement("option");
@@ -894,6 +1204,7 @@ function renderChannels() {
     opt.textContent = channelLabel(ch);
     channelSelect.appendChild(opt);
   }
+  renderChannelChips(channels, channelSelect.value || channels[0] || "");
 }
 
 function renderVideos(channel) {
@@ -1121,6 +1432,7 @@ async function loadScript(it) {
   renderNoSepChunkButtons();
   void loadAudioPrep(it);
   void loadThumb(it);
+  void loadVideoImages(it);
 
   const chLabel = channelLabel(it.channel);
   metaTitle.textContent = it.title ? `${chLabel} · ${it.video} · ${it.title}` : `${chLabel} · ${it.video}`;
@@ -1158,18 +1470,28 @@ async function loadScript(it) {
 
 function selectItem(channel, video) {
   channelSelect.value = channel;
+  renderChannelChips(channelsSorted, channel);
   renderVideos(channel);
   videoSelect.value = video;
   renderVideoList(channel, video);
   const it = findItem(channel, video);
-  if (it) void loadScript(it);
+  if (it) {
+    void loadScript(it);
+  } else {
+    clearSelectionForChannel(channel);
+  }
 }
 
 async function reloadIndex() {
   setLoading(true);
   setControlsDisabled(true);
   try {
-    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta(), loadThumbIndex()]);
+    const [res] = await Promise.all([
+      fetch(INDEX_URL, { cache: "no-store" }),
+      loadChannelMeta(),
+      loadThumbIndex(),
+      loadVideoImagesIndex(),
+    ]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
     indexData = await res.json();
     items = Array.isArray(indexData?.items) ? indexData.items : [];
@@ -1226,9 +1548,14 @@ function setupEvents() {
 
   channelSelect.addEventListener("change", () => {
     const ch = channelSelect.value;
+    renderChannelChips(channelsSorted, ch);
     renderVideos(ch);
     const video = videoSelect.value || (grouped.get(ch)?.[0]?.video ?? null);
-    if (video) selectItem(ch, video);
+    if (video) {
+      selectItem(ch, video);
+    } else {
+      clearSelectionForChannel(ch);
+    }
   });
 
   videoSelect.addEventListener("change", () => {
