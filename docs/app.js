@@ -8,7 +8,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_23";
+const SITE_ASSET_VERSION = "20260112_24";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -2167,39 +2167,8 @@ async function reloadIndex() {
       const reqId = reqCh && reqV ? `${reqCh}-${reqV}` : "";
       const itRequested = reqCh && reqV ? findItem(reqCh, reqV) : null;
       if (reqId && !itRequested) {
-        channelSelect.value = reqCh;
-        renderChannelChips(filterChannelsForChips(channelsSorted, reqCh), reqCh);
-        renderVideos(reqCh);
-        try {
-          videoSelect.value = reqV;
-        } catch (_err) {
-          // ignore
-        }
-        renderVideoList(reqCh, reqV);
-        updateBrowseSummary();
-
-        selected = null;
-        heroMedia.hidden = true;
-        loadedText = "";
-        loadedNoSepText = "";
-        scriptState = "idle";
-        audioState = "idle";
-        thumbState = "idle";
-        videoImagesState = "idle";
-        updateBadges();
-        renderNoSepChunkButtons();
-
-        metaTitle.textContent = `指定された台本が見つかりません: ${reqId}`;
-        metaPath.textContent = "—";
-        renderYoutubeMeta({ channel: reqCh });
-        openRaw.removeAttribute("href");
-        openAssetPack.removeAttribute("href");
-        contentPre.textContent = [
-          "この台本はまだ生成されていません（または索引未更新）。",
-          "- 企画/進捗は snapshot を確認してください。",
-          "- 生成済みのはずなら「索引を再読み込み」を試してください。",
-        ].join("\n");
-        footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")}`;
+        // Try to show Planning metadata even if the script is not in index.json.
+        selectItem(reqCh, reqV);
         hideSearchResults();
         if (isNarrowView()) {
           try {
