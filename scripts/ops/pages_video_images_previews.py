@@ -43,7 +43,10 @@ except Exception:  # pragma: no cover
 
 CHANNEL_RE = re.compile(r"^CH\d{2}$")
 VIDEO_RE = re.compile(r"^\d{3}$")
-IMG_NAME_RE = re.compile(r"^(\d{4})\.(png|jpg|jpeg|webp)$", re.IGNORECASE)
+# Supports both:
+# - 0001.png
+# - 0001_v1767685803.png (versioned regenerations; prefer the highest v)
+IMG_NAME_RE = re.compile(r"^(?P<idx>\d{4})(?:_v(?P<v>\d+))?\.(png|jpg|jpeg|webp)$", re.IGNORECASE)
 
 
 def _now_iso_utc() -> str:
@@ -210,17 +213,21 @@ def _iter_images(run_dir: Path) -> list[tuple[int, Path]]:
     images_dir = run_dir / "images"
     if not images_dir.exists():
         return []
-    seen: dict[int, Path] = {}
+    # idx -> (version, path)
+    seen: dict[int, tuple[int, Path]] = {}
     for p in sorted(images_dir.iterdir()):
         if not p.is_file():
             continue
         m = IMG_NAME_RE.match(p.name)
         if not m:
             continue
-        idx = int(m.group(1))
-        if idx not in seen:
-            seen[idx] = p
-    return sorted([(idx, p) for idx, p in seen.items()], key=lambda t: t[0])
+        idx = int(m.group("idx"))
+        ver_raw = m.group("v")
+        ver = int(ver_raw) if ver_raw and ver_raw.isdigit() else 0
+        prev = seen.get(idx)
+        if prev is None or ver > prev[0]:
+            seen[idx] = (ver, p)
+    return sorted([(idx, p) for idx, (_ver, p) in seen.items()], key=lambda t: t[0])
 
 
 def _write_preview_jpg(*, src: Path, dest: Path, width: int, quality: int) -> None:
