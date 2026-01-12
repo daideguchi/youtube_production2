@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T03:44:45.496317Z",
+  "generated_at": "2026-01-12T07:32:09.921627Z",
   "channel": "CH12",
   "planning_csv": "workspaces/planning/channels/CH12.csv",
   "planning_count": 30,

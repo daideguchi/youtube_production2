@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T03:44:45.593749Z",
+  "generated_at": "2026-01-12T07:32:09.991550Z",
   "channel": "CH23",
   "planning_csv": "workspaces/planning/channels/CH23.csv",
   "planning_count": 30,
-  "scripts_count": 30,
+  "scripts_count": 26,
   "episodes": [
     {
       "channel": "CH23",
@@ -910,19 +910,7 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH23/027/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH23",
@@ -944,19 +932,7 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH23/028/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "processing",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH23",
@@ -978,19 +954,7 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH23/029/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH23",
@@ -1012,19 +976,7 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH23/030/status.json",
-        "status": "script_in_progress",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     }
   ]
 }

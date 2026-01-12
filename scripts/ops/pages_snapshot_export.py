@@ -111,6 +111,31 @@ def _discover_assembled_path(episode_dir: Path) -> str | None:
     return None
 
 
+def _discover_assembled_file(episode_dir: Path) -> Path | None:
+    """
+    Return the actual assembled file path if it exists.
+    Prefer `content/assembled.md`, fallback to legacy `assembled.md`.
+    """
+    candidate = episode_dir / "content" / "assembled.md"
+    if candidate.exists():
+        return candidate
+    legacy = episode_dir / "assembled.md"
+    if legacy.exists():
+        return legacy
+    return None
+
+
+def _mtime_iso_utc(path: Path) -> str:
+    try:
+        return (
+            datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+    except Exception:
+        return ""
+
+
 def _read_json_optional(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
@@ -121,11 +146,27 @@ def _read_json_optional(path: Path) -> dict[str, Any] | None:
     return obj if isinstance(obj, dict) else None
 
 
-def _script_summary(channel: str, video: str, episode_dir: Path) -> dict[str, Any] | None:
+def _script_summary(episode_dir: Path, *, assembled_file: Path | None) -> dict[str, Any] | None:
+    """
+    Script availability for snapshot UI.
+
+    - Prefer `status.json` when present (pipeline status).
+    - If `status.json` is missing but `assembled.md` exists, still report as present
+      (many channels have content without pipeline status artifacts).
+    """
+    if assembled_file is None:
+        return None
     status_path = episode_dir / "status.json"
     obj = _read_json_optional(status_path)
     if not obj:
-        return None
+        return {
+            "exists": True,
+            "status_path": None,
+            "status": "completed",
+            "updated_at": _mtime_iso_utc(assembled_file),
+            "stages": {},
+            "note": "status.json missing (assembled.md exists)",
+        }
     stages = obj.get("stages") if isinstance(obj.get("stages"), dict) else {}
     stage_statuses: dict[str, str] = {}
     for k in SCRIPT_STAGE_KEYS:
@@ -187,8 +228,9 @@ def _build_channel_payload(channel: str) -> dict[str, Any]:
     for video in all_videos:
         episode_dir = scripts_root / video
         assembled_path = _discover_assembled_path(episode_dir) if episode_dir.exists() else None
-        script = _script_summary(ch, video, episode_dir) if episode_dir.exists() else None
-        if script:
+        assembled_file = _discover_assembled_file(episode_dir) if episode_dir.exists() else None
+        script = _script_summary(episode_dir, assembled_file=assembled_file) if episode_dir.exists() else None
+        if assembled_path:
             scripts_count += 1
         planning = planning_by_video.get(video)
         title = (planning or {}).get("タイトル") or None

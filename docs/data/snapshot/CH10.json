@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T03:44:45.468008Z",
+  "generated_at": "2026-01-12T07:32:09.895181Z",
   "channel": "CH10",
   "planning_csv": "workspaces/planning/channels/CH10.csv",
   "planning_count": 30,
@@ -490,8 +490,8 @@
       "planning": {
         "動画番号": "15",
         "タイトル": "【岡本太郎流】成功よりも爆発を選ぶべき理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-12T04:02:07.224844Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "自分を出せない",
         "悩みタグ_サブ": "他人の目が気になる",
@@ -506,7 +506,7 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH10/015/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T04:02:07.228131Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",
@@ -524,8 +524,8 @@
       "planning": {
         "動画番号": "16",
         "タイトル": "【宮沢賢治流】力を抜いた人が最後に勝つ理由",
-        "進捗": "topic_research: pending",
-        "更新日時": "2025-12-04 12:00:00",
+        "進捗": "投稿済み",
+        "更新日時": "2026-01-12T06:08:50.832497Z",
         "作成フラグ": "",
         "悩みタグ_メイン": "宮沢賢治流",
         "悩みタグ_サブ": "",
@@ -540,7 +540,7 @@
         "exists": true,
         "status_path": "workspaces/scripts/CH10/016/status.json",
         "status": "script_validated",
-        "updated_at": "",
+        "updated_at": "2026-01-12T06:08:50.834799Z",
         "stages": {
           "script_outline": "completed",
           "script_draft": "completed",

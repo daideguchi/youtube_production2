@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T03:44:45.357837Z",
+  "generated_at": "2026-01-12T07:32:09.797062Z",
   "channel": "CH02",
   "planning_csv": "workspaces/planning/channels/CH02.csv",
   "planning_count": 112,
-  "scripts_count": 112,
+  "scripts_count": 91,
   "episodes": [
     {
       "channel": "CH02",
@@ -3120,19 +3120,7 @@
         "説明文_リード": "孤独で眠れない夜に、ショーペンハウアーの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/092/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3154,19 +3142,7 @@
         "説明文_リード": "人間関係で眠れない夜に、ロジャーズの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/093/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3188,19 +3164,7 @@
         "説明文_リード": "人間関係で眠れない夜に、ウィトゲンシュタインの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/094/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3222,19 +3186,7 @@
         "説明文_リード": "思考疲れで眠れない夜に、行動経済学の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/095/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3256,19 +3208,7 @@
         "説明文_リード": "不安で眠れない夜に、キルケゴールの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/096/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3290,19 +3230,7 @@
         "説明文_リード": "思考疲れで眠れない夜に、ハイデガーの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/097/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3324,19 +3252,7 @@
         "説明文_リード": "不安で眠れない夜に、無常の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/098/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3358,19 +3274,7 @@
         "説明文_リード": "思考疲れで眠れない夜に、禅の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/099/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3392,19 +3296,7 @@
         "説明文_リード": "思考疲れで眠れない夜に、マインドフルネスの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/100/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3426,19 +3318,7 @@
         "説明文_リード": "自己肯定感で眠れない夜に、セルフコンパッションの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/101/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3460,19 +3340,7 @@
         "説明文_リード": "人間関係で眠れない夜に、愛着理論の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/102/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3494,19 +3362,7 @@
         "説明文_リード": "思考疲れで眠れない夜に、アリストテレスの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/103/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3528,19 +3384,7 @@
         "説明文_リード": "不安で眠れない夜に、条件づけの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/104/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3562,19 +3406,7 @@
         "説明文_リード": "思考疲れで眠れない夜に、ストア派の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/105/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3596,19 +3428,7 @@
         "説明文_リード": "人間関係で眠れない夜に、共同体感覚の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/106/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3630,19 +3450,7 @@
         "説明文_リード": "不安で眠れない夜に、REBTの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/107/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3664,19 +3472,7 @@
         "説明文_リード": "自己肯定感で眠れない夜に、恥の研究の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/108/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3698,19 +3494,7 @@
         "説明文_リード": "怒りで眠れない夜に、エピクテトスの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/109/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3732,19 +3516,7 @@
         "説明文_リード": "思考疲れで眠れない夜に、成長マインドセットの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/110/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3766,19 +3538,7 @@
         "説明文_リード": "不安で眠れない夜に、カミュの視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/111/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH02",
@@ -3800,19 +3560,7 @@
         "説明文_リード": "不安で眠れない夜に、認知療法の視点で心を整えます。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH02/112/status.json",
-        "status": "pending",
-        "updated_at": "",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T03:44:45.601761Z",
+  "generated_at": "2026-01-12T07:32:09.999718Z",
   "channel": "CH25",
   "planning_csv": "workspaces/planning/channels/CH25.csv",
   "planning_count": 30,
-  "scripts_count": 1,
+  "scripts_count": 0,
   "episodes": [
     {
       "channel": "CH25",
@@ -26,19 +26,7 @@
         "説明文_リード": "眠りながら、偉人の人生と考え方を静かに学ぶ時間。"
       },
       "assembled_path": null,
-      "script": {
-        "exists": true,
-        "status_path": "workspaces/scripts/CH25/001/status.json",
-        "status": "pending",
-        "updated_at": "2026-01-07T12:48:41.717594Z",
-        "stages": {
-          "script_outline": "pending",
-          "script_draft": "pending",
-          "script_review": "pending",
-          "script_validation": "pending",
-          "audio_synthesis": "pending"
-        }
-      }
+      "script": null
     },
     {
       "channel": "CH25",

@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.index.v1",
-  "generated_at": "2026-01-12T03:44:45.626647Z",
+  "generated_at": "2026-01-12T07:32:10.029915Z",
   "generated_by": "scripts/ops/pages_snapshot_export.py",
   "channels": [
     {
@@ -14,7 +14,7 @@
       "channel": "CH02",
       "planning_csv": "workspaces/planning/channels/CH02.csv",
       "planning_count": 112,
-      "scripts_count": 112,
+      "scripts_count": 91,
       "data_path": "data/snapshot/CH02.json"
     },
     {
@@ -112,7 +112,7 @@
       "channel": "CH16",
       "planning_csv": "workspaces/planning/channels/CH16.csv",
       "planning_count": 30,
-      "scripts_count": 30,
+      "scripts_count": 11,
       "data_path": "data/snapshot/CH16.json"
     },
     {
@@ -161,7 +161,7 @@
       "channel": "CH23",
       "planning_csv": "workspaces/planning/channels/CH23.csv",
       "planning_count": 30,
-      "scripts_count": 30,
+      "scripts_count": 26,
       "data_path": "data/snapshot/CH23.json"
     },
     {
@@ -175,7 +175,7 @@
       "channel": "CH25",
       "planning_csv": "workspaces/planning/channels/CH25.csv",
       "planning_count": 30,
-      "scripts_count": 1,
+      "scripts_count": 0,
       "data_path": "data/snapshot/CH25.json"
     },
     {
@@ -189,14 +189,14 @@
       "channel": "CH27",
       "planning_csv": "workspaces/planning/channels/CH27.csv",
       "planning_count": 30,
-      "scripts_count": 0,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH27.json"
     },
     {
       "channel": "CH28",
       "planning_csv": "workspaces/planning/channels/CH28.csv",
       "planning_count": 30,
-      "scripts_count": 0,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH28.json"
     },
     {
