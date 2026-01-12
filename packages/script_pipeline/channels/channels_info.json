@@ -2790,6 +2790,7 @@
     "name": "60代からの静かな救いの物語",
     "description": "孤独・喪失・自尊心の回復を、静かな物語で届けるチャンネル。最後は「呼吸が戻る」ような希望で終えます。",
     "youtube_title": "60代からの静かな救いの物語",
+    "youtube_handle": "@kokoro_kurashi",
     "persona_path": "workspaces/planning/personas/CH28_PERSONA.md",
     "template_path": "packages/script_pipeline/channels/CH28-60代からの静かな救いの物語/script_prompt.txt",
     "audience_profile": "60代以上中心。孤独や喪失で心が冷え、静かな希望を取り戻したい人。",
