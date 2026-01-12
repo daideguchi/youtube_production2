@@ -3,6 +3,7 @@
   "name": "老後の心がほどける物語",
   "description": "親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。",
   "youtube_title": "老後の心がほどける物語",
+  "youtube_handle": "@kokoro_story_friends",
   "persona_path": "workspaces/planning/personas/CH27_PERSONA.md",
   "template_path": "packages/script_pipeline/channels/CH27-老後の心がほどける物語/script_prompt.txt",
   "audience_profile": "60代以上中心（女性多め）。親友・友人関係で心がすり減り、争わずに距離を整えたい人。",
