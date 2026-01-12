@@ -2,6 +2,20 @@
 
 const INDEX_URL = "../data/snapshot/channels.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
+const VIDEO_IMAGES_INDEX_URL = "../data/video_images_index.json";
+const SITE_ASSET_VERSION = "20260112_06";
+
+const PAGES_ROOT_URL = new URL("../", window.location.href);
+
+function assetUrl(relPath) {
+  const safe = String(relPath || "")
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/^\.\/+/, "");
+  const url = new URL(safe, PAGES_ROOT_URL);
+  if (SITE_ASSET_VERSION) url.searchParams.set("v", SITE_ASSET_VERSION);
+  return url.toString();
+}
 
 function $(id) {
   const el = document.getElementById(id);
@@ -169,6 +183,8 @@ const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
 
 let channelMetaById = new Map();
 let channelMetaPromise = null;
+let videoImagesCountByVideoId = new Map();
+let videoImagesIndexPromise = null;
 
 function pickChannelDisplayName(meta) {
   const yt = meta?.youtube || {};
@@ -209,6 +225,32 @@ function loadChannelMeta() {
   return channelMetaPromise;
 }
 
+function loadVideoImagesIndex() {
+  if (videoImagesIndexPromise) return videoImagesIndexPromise;
+  videoImagesIndexPromise = (async () => {
+    try {
+      const res = await fetch(VIDEO_IMAGES_INDEX_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error(`video_images_index fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const items = Array.isArray(data?.items) ? data.items : [];
+      const next = new Map();
+      for (const it of items) {
+        const vid = String(it?.video_id || "").trim();
+        if (!vid) continue;
+        const files = Array.isArray(it?.files) ? it.files : [];
+        const count = Number(it?.count) || files.length;
+        next.set(vid, count);
+      }
+      videoImagesCountByVideoId = next;
+    } catch (err) {
+      console.warn("[snapshot] failed to load video_images_index.json", err);
+      videoImagesCountByVideoId = new Map();
+    }
+    return videoImagesCountByVideoId;
+  })();
+  return videoImagesIndexPromise;
+}
+
 function setLoading(on) {
   loading.hidden = !on;
 }
@@ -247,7 +289,7 @@ function renderChannelSelect() {
 function scriptViewerLink(channel, video, view = "") {
   const ch = normChannel(channel);
   const vv = normVideo(video);
-  const url = new URL("../", window.location.href);
+  const url = new URL(PAGES_ROOT_URL.toString());
   url.searchParams.set("id", `${ch}-${vv}`);
   const v = String(view || "").trim().toLowerCase();
   if (v && v !== "script") url.searchParams.set("view", v);
@@ -430,6 +472,11 @@ function renderTable() {
 
     const card = document.createElement("article");
     card.className = "ep-card";
+    const thumbSrc = assetUrl(`media/thumbs/${normChannel(ep.channel)}/${normVideo(ep.video)}.jpg`);
+    const imgCount = Number(videoImagesCountByVideoId.get(String(ep.video_id || "").trim()) || 0);
+    const imgBadge = imgCount
+      ? `<span class="badge badge--ok" title="${escapeHtml(String(imgCount))} images">画像 ${escapeHtml(String(imgCount))}</span>`
+      : `<span class="badge badge--off">画像 —</span>`;
     card.innerHTML = `
       <div class="ep-card__head">
         <div>
@@ -442,8 +489,12 @@ function renderTable() {
           <span class="badge badge--${classifyScriptOverallStatus(scriptStatus)}" title="${escapeHtml(
             scriptStatus || "—"
           )}">${escapeHtml(scriptLabel)}</span>
+          ${imgBadge}
         </div>
       </div>
+      <a class="ep-card__thumb" href="${escapeHtml(scriptViewerLink(ep.channel, ep.video, "thumb"))}">
+        <img loading="lazy" src="${escapeHtml(thumbSrc)}" alt="${escapeHtml(ep.video_id || "")} thumbnail" />
+      </a>
       <div class="badges">${stageBadges}</div>
       <div class="ep-card__links">${links}</div>
     `;
@@ -502,7 +553,7 @@ async function reloadIndex() {
   setLoading(true);
   setAlert("");
   try {
-    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta()]);
+    const [res] = await Promise.all([fetch(INDEX_URL, { cache: "no-store" }), loadChannelMeta(), loadVideoImagesIndex()]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
     indexData = await res.json();
     channels = Array.isArray(indexData?.channels) ? indexData.channels : [];

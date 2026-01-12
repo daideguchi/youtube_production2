@@ -132,6 +132,17 @@ function parseVideoIdParam(raw) {
   return null;
 }
 
+function urlHasExplicitVideoSelection() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (parseVideoIdParam(id)) return true;
+    return Boolean(params.get("ch") && params.get("v"));
+  } catch (_err) {
+    return false;
+  }
+}
+
 function readUiStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const view = normalizeView(params.get("view"));
@@ -372,6 +383,7 @@ let loadedNoSepText = "";
 let audioPrepScriptText = "";
 let audioPrepMetaText = "";
 const initialUiState = getInitialUiState();
+const initialUrlHasSelection = urlHasExplicitVideoSelection();
 let initialChannelWanted = initialUiState.channel || "";
 let initialVideoWanted = initialUiState.video || "";
 let currentView = initialUiState.view || "script";
@@ -1593,7 +1605,17 @@ async function reloadIndex() {
       (grouped.get(preferredChannel)?.[0]?.video ?? null);
     if (preferredVideo) {
       selectItem(preferredChannel, preferredVideo);
-      closeBrowseIfNarrow();
+      // Mobile UX: if user opened the viewer without an explicit deep link, keep Browse open
+      // so they can pick a channel/video without hunting for the toggle.
+      if (initialUrlHasSelection) {
+        closeBrowseIfNarrow();
+      } else if (isNarrowView()) {
+        try {
+          browseDetails.open = true;
+        } catch (_err) {
+          // ignore
+        }
+      }
     }
     footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")}`;
     hideSearchResults();

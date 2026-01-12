@@ -85,10 +85,13 @@ body {
 
 .channel-chips {
   margin-top: 10px;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 4px 2px 8px;
+  max-height: 240px;
   -webkit-overflow-scrolling: touch;
 }
 
