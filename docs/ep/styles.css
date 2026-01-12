@@ -25,5 +25,19 @@ code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
 .card .meta{padding:10px 12px 12px}
 .card .id{font-weight:800;font-size:13px}
 .card .desc{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.35}
+.card .sub{margin-top:8px;font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .frame{width:100%;height:min(84vh,980px);border:0;background:#000;border-radius:12px}
 input,select{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--fg)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);font-size:12px;white-space:nowrap}
+.badge--ok{border-color:rgba(110,168,255,.55)}
+.badge--warn{border-color:rgba(255,199,92,.55)}
+.badge--off{opacity:.75}
+.channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:12px}
+.channel-card{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--card)}
+.channel-card:hover{border-color:rgba(255,255,255,.22)}
+.channel-card__avatar{width:56px;height:56px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(233,238,255,.85)}
+.channel-card__avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.channel-card__meta{min-width:0}
+.channel-card__name{font-weight:900}
+.channel-card__name span{font-weight:700;color:var(--muted)}
+.channel-card__counts{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
