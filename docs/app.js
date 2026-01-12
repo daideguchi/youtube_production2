@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_11";
+const SITE_ASSET_VERSION = "20260112_12";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -1364,7 +1364,7 @@ function renderChannelChips(channels, activeChannel) {
     btn.addEventListener("click", () => {
       channelSelect.value = String(ch);
       renderVideos(String(ch));
-      const video = videoSelect.value || (grouped.get(String(ch))?.[0]?.video ?? null);
+      const video = defaultVideoForChannel(String(ch));
       if (video) {
         selectItem(String(ch), String(video));
       } else {
@@ -1416,6 +1416,12 @@ function renderChannels() {
   renderChannelChips(channels, channelSelect.value || channels[0] || "");
 }
 
+function defaultVideoForChannel(channel) {
+  const list = grouped.get(String(channel || "")) || [];
+  if (!list.length) return null;
+  return isNarrowView() ? (list[list.length - 1]?.video ?? null) : (list[0]?.video ?? null);
+}
+
 function renderVideos(channel) {
   const list = grouped.get(channel) || [];
   videoSelect.innerHTML = "";
@@ -1429,11 +1435,11 @@ function renderVideos(channel) {
 }
 
 function renderVideoList(channel, activeVideo) {
-  const list = grouped.get(channel) || [];
+  const list0 = grouped.get(channel) || [];
   const active = String(activeVideo || "").trim() || String(videoSelect.value || "").trim();
   videoList.innerHTML = "";
 
-  if (!list.length) {
+  if (!list0.length) {
     const empty = document.createElement("div");
     empty.className = "muted";
     empty.textContent = "このチャンネルには台本がありません。";
@@ -1441,87 +1447,126 @@ function renderVideoList(channel, activeVideo) {
     return;
   }
 
-  for (const it of list) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "video-list__item";
-    if (active && String(it.video || "") === active) {
-      btn.classList.add("video-list__item--active");
+  // Mobile: show latest first + chunked rendering (performance).
+  const narrow = isNarrowView();
+  const list = narrow ? [...list0].slice().reverse() : list0;
+  const maxInitial = narrow ? 60 : 180;
+  let shown = 0;
+
+  function appendItems(nextN) {
+    const end = Math.min(list.length, shown + nextN);
+    const frag = document.createDocumentFragment();
+    for (let i = shown; i < end; i += 1) {
+      const it = list[i];
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "video-list__item";
+      if (active && String(it.video || "") === active) {
+        btn.classList.add("video-list__item--active");
+      }
+
+      const left = document.createElement("div");
+      left.className = "video-list__thumb";
+
+      const videoId = String(it?.video_id || "").trim();
+      const idx = videoId ? thumbIndexByVideoId.get(videoId) : null;
+      const rel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
+      const canShow = idx ? idx.preview_exists !== false : true;
+      const thumbUrl = canShow ? siteUrl(rel) : "";
+
+      if (thumbUrl) {
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.alt = `${videoId} thumb`;
+        img.src = thumbUrl;
+        img.onerror = () => {
+          try {
+            img.remove();
+          } catch (_err) {
+            // ignore
+          }
+          left.textContent = "—";
+        };
+        left.appendChild(img);
+      } else {
+        left.textContent = "—";
+      }
+
+      const right = document.createElement("div");
+      right.className = "video-list__meta";
+
+      const id = document.createElement("div");
+      id.className = "video-list__id";
+      id.textContent = String(it.video_id || "").trim();
+      right.appendChild(id);
+
+      const title = document.createElement("div");
+      title.className = "video-list__title";
+      title.textContent = String(it.title || "").trim();
+      right.appendChild(title);
+
+      const badges = document.createElement("div");
+      badges.className = "mini-badges";
+      const vid = String(it?.video_id || "").trim();
+
+      const thumbIdx = vid ? thumbIndexByVideoId.get(vid) : null;
+      if (thumbIdx && thumbIdx.preview_exists === true) {
+        badges.appendChild(makeMiniBadge("サムネ✓", "ok"));
+      } else if (thumbIdx && thumbIdx.preview_exists === false) {
+        badges.appendChild(makeMiniBadge("サムネ未", "bad"));
+      } else {
+        badges.appendChild(makeMiniBadge("サムネ?", "neutral"));
+      }
+
+      const imgs = vid ? videoImagesIndexByVideoId.get(vid) : null;
+      const imgCount = Array.isArray(imgs?.files) ? imgs.files.length : 0;
+      if (imgs && imgCount > 0) {
+        badges.appendChild(makeMiniBadge(`画像${imgCount}`, "ok"));
+      } else if (imgs) {
+        badges.appendChild(makeMiniBadge("画像一部", "warn"));
+      } else {
+        badges.appendChild(makeMiniBadge("画像未", "neutral"));
+      }
+      right.appendChild(badges);
+
+      btn.appendChild(left);
+      btn.appendChild(right);
+      btn.addEventListener("click", () => {
+        selectItem(it.channel, it.video);
+        searchInput.value = "";
+        hideSearchResults();
+        closeBrowseIfNarrow();
+      });
+      frag.appendChild(btn);
     }
+    videoList.appendChild(frag);
+    shown = end;
+  }
 
-    const left = document.createElement("div");
-    left.className = "video-list__thumb";
+  appendItems(maxInitial);
 
-    const videoId = String(it?.video_id || "").trim();
-    const idx = videoId ? thumbIndexByVideoId.get(videoId) : null;
-    const rel = String(idx?.preview_rel || `media/thumbs/${it.channel}/${it.video}.jpg`).trim();
-    const canShow = idx ? idx.preview_exists !== false : true;
-    const thumbUrl = canShow ? siteUrl(rel) : "";
-
-    if (thumbUrl) {
-      const img = document.createElement("img");
-      img.loading = "lazy";
-      img.alt = `${videoId} thumb`;
-      img.src = thumbUrl;
-      img.onerror = () => {
+  if (shown < list.length) {
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "btn btn--ghost";
+    function updateText() {
+      more.textContent = `さらに表示（残り ${list.length - shown}）`;
+    }
+    updateText();
+    more.addEventListener("click", () => {
+      appendItems(narrow ? 80 : 200);
+      if (shown >= list.length) {
         try {
-          img.remove();
+          more.remove();
         } catch (_err) {
           // ignore
         }
-        left.textContent = "—";
-      };
-      left.appendChild(img);
-    } else {
-      left.textContent = "—";
-    }
-
-    const right = document.createElement("div");
-    right.className = "video-list__meta";
-
-    const id = document.createElement("div");
-    id.className = "video-list__id";
-    id.textContent = String(it.video_id || "").trim();
-    right.appendChild(id);
-
-    const title = document.createElement("div");
-    title.className = "video-list__title";
-    title.textContent = String(it.title || "").trim();
-    right.appendChild(title);
-
-    const badges = document.createElement("div");
-    badges.className = "mini-badges";
-    const vid = String(it?.video_id || "").trim();
-
-    const thumbIdx = vid ? thumbIndexByVideoId.get(vid) : null;
-    if (thumbIdx && thumbIdx.preview_exists === true) {
-      badges.appendChild(makeMiniBadge("サムネ✓", "ok"));
-    } else if (thumbIdx && thumbIdx.preview_exists === false) {
-      badges.appendChild(makeMiniBadge("サムネ未", "bad"));
-    } else {
-      badges.appendChild(makeMiniBadge("サムネ?", "neutral"));
-    }
-
-    const imgs = vid ? videoImagesIndexByVideoId.get(vid) : null;
-    const imgCount = Array.isArray(imgs?.files) ? imgs.files.length : 0;
-    if (imgs && imgCount > 0) {
-      badges.appendChild(makeMiniBadge(`画像${imgCount}`, "ok"));
-    } else if (imgs) {
-      badges.appendChild(makeMiniBadge("画像一部", "warn"));
-    } else {
-      badges.appendChild(makeMiniBadge("画像未", "neutral"));
-    }
-    right.appendChild(badges);
-
-    btn.appendChild(left);
-    btn.appendChild(right);
-    btn.addEventListener("click", () => {
-      selectItem(it.channel, it.video);
-      searchInput.value = "";
-      hideSearchResults();
-      closeBrowseIfNarrow();
+      } else {
+        updateText();
+      }
     });
-    videoList.appendChild(btn);
+    videoList.appendChild(more);
   }
 }
 
@@ -1756,8 +1801,7 @@ async function reloadIndex() {
     const preferredVideoCandidate = initialVideoWanted || "";
     const preferredVideo =
       (preferredVideoCandidate && findItem(preferredChannel, preferredVideoCandidate) ? preferredVideoCandidate : "") ||
-      videoSelect.value ||
-      (grouped.get(preferredChannel)?.[0]?.video ?? null);
+      defaultVideoForChannel(preferredChannel);
     if (preferredVideo) {
       selectItem(preferredChannel, preferredVideo);
       // Mobile UX: if user opened the viewer without an explicit deep link, keep Browse open
@@ -1804,7 +1848,7 @@ function setupEvents() {
     const ch = channelSelect.value;
     renderChannelChips(channelsSorted, ch);
     renderVideos(ch);
-    const video = videoSelect.value || (grouped.get(ch)?.[0]?.video ?? null);
+    const video = defaultVideoForChannel(ch);
     if (video) {
       selectItem(ch, video);
     } else {
