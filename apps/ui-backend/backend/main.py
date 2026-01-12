@@ -146,6 +146,7 @@ from backend.routers import swap
 from backend.routers import params
 from backend.routers import kb
 from backend.routers import reading_dict
+from backend.routers import audio_check
 from factory_common.publish_lock import (
     is_episode_published_locked,
     mark_episode_published_locked,
@@ -6028,6 +6029,7 @@ app.include_router(swap.router)
 app.include_router(params.router)
 app.include_router(kb.router)
 app.include_router(reading_dict.router)
+app.include_router(audio_check.router)
 try:
     from backend.routers import prompts
 
@@ -13200,64 +13202,6 @@ def get_lock_metrics():
         history=history,
         daily=daily,
     )
-
-
-
-# ---------------------------------------------------------------------------
-# Audio Integrity API
-# ---------------------------------------------------------------------------
-
-@app.get("/api/audio-check/recent")
-def list_recent_audio_checks(limit: int = 10):
-    """Find recently generated audio logs."""
-    results = []
-    audio_root = audio_artifacts_root() / "final"
-    if not audio_root.exists():
-        return []
-    
-    # Search for log.json files in workspaces/audio/final/CHxx/xxx/log.json
-    for channel_dir in audio_root.iterdir():
-        if not channel_dir.is_dir() or not channel_dir.name.startswith("CH"):
-            continue
-        for video_dir in channel_dir.iterdir():
-            if not video_dir.is_dir() or not video_dir.name.isdigit():
-                continue
-            
-            log_path = video_dir / "log.json"
-            if log_path.exists():
-                try:
-                    stat = log_path.stat()
-                    # Read basic info lightly if needed, or just return path metadata
-                    # To be fast, just use mtime
-                    results.append({
-                        "channel": channel_dir.name,
-                        "video": video_dir.name,
-                        "mtime": stat.st_mtime,
-                        "updated_at": datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat()
-                    })
-                except Exception:
-                    continue
-    
-    # Sort by mtime desc
-    results.sort(key=lambda x: x["mtime"], reverse=True)
-    return results[:limit]
-
-@app.get("/api/audio-check/{channel_id}/{video_id}")
-def get_audio_integrity_log(channel_id: str, video_id: str):
-    """Retrieve audio integrity logs from log.json."""
-    channel_code = normalize_channel_code(channel_id)
-    video_no = normalize_video_number(video_id)
-    log_path = audio_final_dir(channel_code, video_no) / "log.json"
-    if not log_path.exists():
-        raise HTTPException(status_code=404, detail="Audio log not found. Run TTS first.")
-    
-    try:
-        with open(log_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to parse log.json: {e}")
-
 
 def parse_cli_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the YouTube Master UI backend")
