@@ -843,10 +843,10 @@ body {
   }
 
   .controls__browseGrid {
-    display: none;
+    grid-template-columns: 1fr;
   }
 
-  /* Mobile: simplify browsing; use channel chips + list instead of heavy selects */
+  /* Mobile: keep both selects + chips (native picker is easiest). */
   .channel-chips {
     display: grid;
     grid-template-columns: 1fr;

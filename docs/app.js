@@ -5,9 +5,10 @@ const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json
 const THUMB_PROJECTS_PATH = "workspaces/thumbnails/projects.json";
 const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
+const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_17";
+const SITE_ASSET_VERSION = "20260112_18";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -241,6 +242,8 @@ let thumbIndexByVideoId = new Map();
 let thumbIndexPromise = null;
 let videoImagesIndexByVideoId = new Map();
 let videoImagesIndexPromise = null;
+let snapshotByChannel = new Map();
+let snapshotChannelsPromise = null;
 
 function pickChannelDisplayName(meta) {
   const yt = meta?.youtube || {};
@@ -418,6 +421,38 @@ function loadVideoImagesIndex() {
     return videoImagesIndexByVideoId;
   })();
   return videoImagesIndexPromise;
+}
+
+function loadSnapshotChannels() {
+  if (snapshotChannelsPromise) return snapshotChannelsPromise;
+  snapshotChannelsPromise = (async () => {
+    try {
+      const res = await fetch(siteUrl(SNAPSHOT_CHANNELS_URL), { cache: "no-store" });
+      if (res.status === 404) {
+        snapshotByChannel = new Map();
+        return snapshotByChannel;
+      }
+      if (!res.ok) throw new Error(`snapshot channels fetch failed: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const rows = Array.isArray(data?.channels) ? data.channels : [];
+      const next = new Map();
+      for (const row of rows) {
+        const ch = String(row?.channel || "").trim();
+        if (!ch) continue;
+        next.set(ch, {
+          planning_count: Number(row?.planning_count) || 0,
+          scripts_count: Number(row?.scripts_count) || 0,
+          data_path: String(row?.data_path || "").trim(),
+        });
+      }
+      snapshotByChannel = next;
+    } catch (err) {
+      console.warn("[script_viewer] failed to load snapshot channels.json", err);
+      snapshotByChannel = new Map();
+    }
+    return snapshotByChannel;
+  })();
+  return snapshotChannelsPromise;
 }
 
 let indexData = null;
@@ -1451,7 +1486,11 @@ function renderChannelChips(channels, activeChannel) {
     name.textContent = channelShortName(ch);
     const code = document.createElement("div");
     code.className = "channel-chip__code muted";
-    code.textContent = String(ch);
+    const snap = snapshotByChannel.get(String(ch)) || null;
+    const plan = Number(snap?.planning_count) || 0;
+    const snapScripts = Number(snap?.scripts_count);
+    const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : (grouped.get(String(ch)) || []).length;
+    code.textContent = plan > 0 ? `${ch} · ${scriptsN}/${plan}` : scriptsN > 0 ? `${ch} · ${scriptsN}` : String(ch);
     text.appendChild(name);
     text.appendChild(code);
 
@@ -1483,11 +1522,18 @@ function clearSelectionForChannel(channel) {
   videoImagesState = "idle";
   updateBadges();
   renderNoSepChunkButtons();
-  metaTitle.textContent = ch ? `${channelLabel(ch)}（台本なし）` : "—";
+  const snap = snapshotByChannel.get(ch) || null;
+  const plan = Number(snap?.planning_count) || 0;
+  const snapScripts = Number(snap?.scripts_count);
+  const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : (grouped.get(ch) || []).length;
+  metaTitle.textContent = ch ? (plan > 0 ? `${channelLabel(ch)}（台本 ${scriptsN}/${plan}）` : `${channelLabel(ch)}（台本なし）`) : "—";
   metaPath.textContent = "—";
   openRaw.removeAttribute("href");
   openAssetPack.removeAttribute("href");
-  contentPre.textContent = "このチャンネルには台本がありません。";
+  contentPre.textContent =
+    plan > 0
+      ? `このチャンネルには台本がありません（${scriptsN}/${plan}）。\n→ 企画/進捗は snapshot を確認してください。`
+      : "このチャンネルには台本がありません。";
   initialChannelWanted = ch;
   initialVideoWanted = "";
   updateBrowseSummary();
@@ -1495,7 +1541,11 @@ function clearSelectionForChannel(channel) {
 }
 
 function renderChannels() {
-  const channels = Array.from(grouped.keys()).sort((a, b) => {
+  const set = new Set();
+  for (const ch of grouped.keys()) set.add(ch);
+  for (const ch of channelMetaById.keys()) set.add(ch);
+  for (const ch of snapshotByChannel.keys()) set.add(ch);
+  const channels = Array.from(set).sort((a, b) => {
     const na = Number(String(a).replace(/^CH/, "")) || 999999;
     const nb = Number(String(b).replace(/^CH/, "")) || 999999;
     if (na !== nb) return na - nb;
@@ -1506,7 +1556,11 @@ function renderChannels() {
   for (const ch of channels) {
     const opt = document.createElement("option");
     opt.value = ch;
-    opt.textContent = channelLabel(ch);
+    const snap = snapshotByChannel.get(String(ch)) || null;
+    const plan = Number(snap?.planning_count) || 0;
+    const snapScripts = Number(snap?.scripts_count);
+    const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : (grouped.get(String(ch)) || []).length;
+    opt.textContent = plan > 0 ? `${channelLabel(ch)} · ${scriptsN}/${plan}` : channelLabel(ch);
     channelSelect.appendChild(opt);
   }
   renderChannelChips(channels, channelSelect.value || channels[0] || "");
@@ -1538,7 +1592,14 @@ function renderVideoList(channel, activeVideo) {
   if (!list0.length) {
     const empty = document.createElement("div");
     empty.className = "muted";
-    empty.textContent = "このチャンネルには台本がありません。";
+    const snap = snapshotByChannel.get(String(channel || "").trim()) || null;
+    const plan = Number(snap?.planning_count) || 0;
+    const snapScripts = Number(snap?.scripts_count);
+    const scriptsN = snap && Number.isFinite(snapScripts) ? snapScripts : 0;
+    empty.textContent =
+      plan > 0
+        ? `このチャンネルには台本がありません（${scriptsN}/${plan}）。snapshot で企画/進捗を確認してください。`
+        : "このチャンネルには台本がありません。";
     videoList.appendChild(empty);
     return;
   }
@@ -1871,12 +1932,65 @@ async function reloadIndex() {
       loadChannelMeta(),
       loadThumbIndex(),
       loadVideoImagesIndex(),
+      loadSnapshotChannels(),
     ]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
     indexData = await res.json();
     items = Array.isArray(indexData?.items) ? indexData.items : [];
     grouped = buildGrouped(items);
     renderChannels();
+
+    // If the page was opened with an explicit deep link, but the script does not exist in index.json,
+    // do NOT silently fall back to CH01. Show a clear message instead.
+    if (initialUrlHasSelection && initialChannelWanted && initialVideoWanted) {
+      const reqCh = String(initialChannelWanted || "").trim();
+      const reqV = String(initialVideoWanted || "").trim();
+      const reqId = reqCh && reqV ? `${reqCh}-${reqV}` : "";
+      const itRequested = reqCh && reqV ? findItem(reqCh, reqV) : null;
+      if (reqId && !itRequested) {
+        channelSelect.value = reqCh;
+        renderChannelChips(channelsSorted, reqCh);
+        renderVideos(reqCh);
+        try {
+          videoSelect.value = reqV;
+        } catch (_err) {
+          // ignore
+        }
+        renderVideoList(reqCh, reqV);
+        updateBrowseSummary();
+
+        selected = null;
+        heroMedia.hidden = true;
+        loadedText = "";
+        loadedNoSepText = "";
+        scriptState = "idle";
+        audioState = "idle";
+        thumbState = "idle";
+        videoImagesState = "idle";
+        updateBadges();
+        renderNoSepChunkButtons();
+
+        metaTitle.textContent = `指定された台本が見つかりません: ${reqId}`;
+        metaPath.textContent = "—";
+        openRaw.removeAttribute("href");
+        openAssetPack.removeAttribute("href");
+        contentPre.textContent = [
+          "この台本はまだ生成されていません（または索引未更新）。",
+          "- 企画/進捗は snapshot を確認してください。",
+          "- 生成済みのはずなら「索引を再読み込み」を試してください。",
+        ].join("\n");
+        footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")}`;
+        hideSearchResults();
+        if (isNarrowView()) {
+          try {
+            browseDetails.open = true;
+          } catch (_err) {
+            // ignore
+          }
+        }
+        return;
+      }
+    }
 
     // Default selection: first item, or keep current if possible
     const preferredChannel =
