@@ -7,7 +7,7 @@ const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_16";
+const SITE_ASSET_VERSION = "20260112_17";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -465,6 +465,7 @@ const openFixedLogic = $("openFixedLogic");
 const openContactBox = $("openContactBox");
 const contentPre = $("contentPre");
 const copyStatus = $("copyStatus");
+const copyNoSep = $("copyNoSep");
 const copyNoSepChunks = $("copyNoSepChunks");
 const loading = $("loading");
 const footerMeta = $("footerMeta");
@@ -2073,6 +2074,16 @@ function setupEvents() {
     if (!url) return;
     const ok = await copyText(url);
     setCopyStatus(ok ? "リンクをコピーしました" : "コピーに失敗しました", !ok);
+  });
+
+  copyNoSep.addEventListener("click", async () => {
+    const cleaned = loadedNoSepText.trim() ? loadedNoSepText : stripPauseSeparators(loadedText);
+    if (!cleaned.trim()) {
+      setCopyStatus("台本が空です", true);
+      return;
+    }
+    const ok = await copyText(cleaned);
+    setCopyStatus(ok ? "コピーしました（---なし）" : "コピーに失敗しました（分割コピーを試してください）", !ok);
   });
 
   $("copyRaw").addEventListener("click", async () => {
