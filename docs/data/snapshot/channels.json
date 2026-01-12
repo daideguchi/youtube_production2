@@ -1,6 +1,6 @@
 {
   "schema": "ytm.pages.snapshot.index.v1",
-  "generated_at": "2026-01-12T10:58:43.623396Z",
+  "generated_at": "2026-01-12T12:08:39.084801Z",
   "generated_by": "scripts/ops/pages_snapshot_export.py",
   "channels": [
     {
@@ -189,7 +189,7 @@
       "channel": "CH27",
       "planning_csv": "workspaces/planning/channels/CH27.csv",
       "planning_count": 30,
-      "scripts_count": 3,
+      "scripts_count": 30,
       "data_path": "data/snapshot/CH27.json"
     },
     {

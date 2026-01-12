@@ -1,10 +1,10 @@
 {
   "schema": "ytm.pages.snapshot.channel.v1",
-  "generated_at": "2026-01-12T10:58:43.552094Z",
+  "generated_at": "2026-01-12T12:08:38.963194Z",
   "channel": "CH27",
   "planning_csv": "workspaces/planning/channels/CH27.csv",
   "planning_count": 30,
-  "scripts_count": 3,
+  "scripts_count": 30,
   "episodes": [
     {
       "channel": "CH27",
@@ -94,7 +94,9 @@
         "status_path": "workspaces/scripts/CH27/003/status.json",
         "status": "script_validated",
         "updated_at": "2026-01-12T08:54:34Z",
-        "stages": {}
+        "stages": {
+          "audio_synthesis": "completed"
+        }
       }
     },
     {
@@ -117,8 +119,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/004/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/004/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -140,8 +150,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/005/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/005/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -163,8 +181,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/006/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/006/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -186,8 +212,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/007/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/007/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -209,8 +243,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/008/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/008/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -232,8 +274,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/009/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/009/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -255,8 +305,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/010/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/010/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -278,8 +336,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/011/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/011/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -301,8 +365,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/012/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/012/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -324,8 +394,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/013/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/013/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -347,8 +423,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/014/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/014/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -370,8 +452,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/015/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/015/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -393,8 +481,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/016/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/016/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -416,8 +510,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/017/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/017/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -439,8 +539,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/018/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/018/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -462,8 +568,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/019/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/019/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -485,8 +597,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/020/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/020/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -508,8 +626,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/021/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/021/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -531,8 +655,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/022/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/022/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -554,8 +684,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/023/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/023/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -577,8 +713,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/024/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/024/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -600,8 +742,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/025/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/025/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -623,8 +771,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/026/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/026/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -646,8 +800,16 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/027/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/027/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {
+          "audio_synthesis": "completed"
+        }
+      }
     },
     {
       "channel": "CH27",
@@ -669,8 +831,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/028/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/028/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -692,8 +860,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/029/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/029/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     },
     {
       "channel": "CH27",
@@ -715,8 +889,14 @@
         "説明文_リード": "※本チャンネルの物語はフィクションです。",
         "説明文_この動画でわかること": "・関係を壊さない距離の置き方<br>・今夜できる一手"
       },
-      "assembled_path": null,
-      "script": null
+      "assembled_path": "workspaces/scripts/CH27/030/content/assembled.md",
+      "script": {
+        "exists": true,
+        "status_path": "workspaces/scripts/CH27/030/status.json",
+        "status": "script_validated",
+        "updated_at": "2026-01-12T08:54:34Z",
+        "stages": {}
+      }
     }
   ]
 }

@@ -87,7 +87,7 @@ def _best_tracked_assembled_by_key(tracked_paths: set[str]) -> dict[tuple[str, i
         if not path.startswith("workspaces/scripts/"):
             continue
 
-        m = re.match(r"^workspaces/scripts/(CH\\d+)/(\\d+)/", path)
+        m = re.match(r"^workspaces/scripts/(CH\d+)/(\d+)/", path)
         if not m:
             continue
         channel = m.group(1)
