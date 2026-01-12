@@ -8,7 +8,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260112_21";
+const SITE_ASSET_VERSION = "20260112_22";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -478,6 +478,7 @@ let videoImagesCount = 0;
 const channelSelect = $("channelSelect");
 const videoSelect = $("videoSelect");
 const channelChips = $("channelChips");
+const channelFilter = $("channelFilter");
 const videoList = $("videoList");
 const searchInput = $("searchInput");
 const searchResults = $("searchResults");
@@ -1525,6 +1526,32 @@ async function loadVideoImages(it) {
   }
 }
 
+function getChannelFilterQuery() {
+  return String(channelFilter?.value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function filterChannelsForChips(channels, activeChannel) {
+  const q = getChannelFilterQuery();
+  if (!q) return channels;
+
+  const out = [];
+  for (const ch of channels) {
+    const chId = String(ch || "").trim();
+    if (!chId) continue;
+    const label = channelLabel(chId).toLowerCase();
+    const short = channelShortName(chId).toLowerCase();
+    if (chId.toLowerCase().includes(q) || label.includes(q) || short.includes(q)) {
+      out.push(chId);
+    }
+  }
+
+  const active = String(activeChannel || "").trim();
+  if (active && !out.includes(active) && channels.includes(active)) out.unshift(active);
+  return out;
+}
+
 function renderChannelChips(channels, activeChannel) {
   const active = String(activeChannel || "").trim();
   channelChips.innerHTML = "";
@@ -1640,7 +1667,8 @@ function renderChannels() {
     opt.textContent = plan > 0 ? `${channelLabel(ch)} · ${scriptsN}/${plan}` : channelLabel(ch);
     channelSelect.appendChild(opt);
   }
-  renderChannelChips(channels, channelSelect.value || channels[0] || "");
+  const active = channelSelect.value || channels[0] || "";
+  renderChannelChips(filterChannelsForChips(channels, active), active);
 }
 
 function defaultVideoForChannel(channel) {
@@ -2006,7 +2034,7 @@ async function loadScript(it) {
 
 function selectItem(channel, video) {
   channelSelect.value = channel;
-  renderChannelChips(channelsSorted, channel);
+  renderChannelChips(filterChannelsForChips(channelsSorted, channel), channel);
   renderVideos(channel);
   videoSelect.value = video;
   renderVideoList(channel, video);
@@ -2045,7 +2073,7 @@ async function reloadIndex() {
       const itRequested = reqCh && reqV ? findItem(reqCh, reqV) : null;
       if (reqId && !itRequested) {
         channelSelect.value = reqCh;
-        renderChannelChips(channelsSorted, reqCh);
+        renderChannelChips(filterChannelsForChips(channelsSorted, reqCh), reqCh);
         renderVideos(reqCh);
         try {
           videoSelect.value = reqV;
@@ -2155,7 +2183,7 @@ function setupEvents() {
 
   channelSelect.addEventListener("change", () => {
     const ch = channelSelect.value;
-    renderChannelChips(channelsSorted, ch);
+    renderChannelChips(filterChannelsForChips(channelsSorted, ch), ch);
     renderVideos(ch);
     const video = defaultVideoForChannel(ch);
     if (video) {
@@ -2163,6 +2191,18 @@ function setupEvents() {
     } else {
       clearSelectionForChannel(ch);
     }
+  });
+
+  channelFilter?.addEventListener("input", () => {
+    const ch = channelSelect.value || channelsSorted[0] || "";
+    renderChannelChips(filterChannelsForChips(channelsSorted, ch), ch);
+  });
+
+  channelFilter?.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Escape") return;
+    channelFilter.value = "";
+    const ch = channelSelect.value || channelsSorted[0] || "";
+    renderChannelChips(filterChannelsForChips(channelsSorted, ch), ch);
   });
 
   videoSelect.addEventListener("change", () => {

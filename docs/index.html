@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260112_21" />
-    <script defer src="./app.js?v=20260112_21"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260112_22" />
+    <script defer src="./app.js?v=20260112_22"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -46,6 +46,14 @@
                 <select id="videoSelect" class="control__input"></select>
               </label>
             </div>
+            <label class="control control--wide">
+              <span class="control__label">Channel filter（任意）</span>
+              <input
+                id="channelFilter"
+                class="control__input"
+                placeholder="例: CH27 / 人間関係 / 仏教（チャンネル一覧を絞り込み）"
+              />
+            </label>
             <div id="channelChips" class="channel-chips" aria-label="Channel chips"></div>
             <div class="video-list__hint muted">① Channelを選択 → ② 下の一覧をタップ（サムネ付き）</div>
             <div id="videoList" class="video-list" aria-label="Video list"></div>
