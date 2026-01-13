@@ -274,7 +274,8 @@ def _load_audio_analysis(channel: str, video: str) -> AudioAnalysisResponse:
 
 @router.get("/integrity", response_model=List[AudioIntegrityItem])
 def audio_integrity_report():
-    from backend.main import get_audio_duration_seconds, safe_relative_path
+    from backend.app.episode_store import get_audio_duration_seconds
+    from backend.main import safe_relative_path
 
     items: List[AudioIntegrityItem] = []
     for channel, video, _video_dir in _iter_video_dirs():
@@ -325,4 +326,3 @@ def audio_integrity_report():
 @router.get("/analysis/{channel}/{video}", response_model=AudioAnalysisResponse)
 def audio_analysis(channel: str, video: str):
     return _load_audio_analysis(channel, video)
-

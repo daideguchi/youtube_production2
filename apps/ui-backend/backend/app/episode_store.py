@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import contextlib
 import json
+import wave
 from pathlib import Path
 from typing import Optional
 
@@ -114,3 +116,16 @@ def resolve_srt_path(status: dict, base_dir: Path) -> Optional[Path]:
     legacy_candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.srt"
     return legacy_candidate.resolve() if legacy_candidate.exists() else None
 
+
+def get_audio_duration_seconds(path: Path) -> Optional[float]:
+    if not path.exists():
+        return None
+    try:
+        with contextlib.closing(wave.open(str(path), "rb")) as wav_file:
+            frames = wav_file.getnframes()
+            rate = wav_file.getframerate()
+            if rate:
+                return round(frames / float(rate), 3)
+    except (wave.Error, OSError):  # wave.Error for invalid WAV, OSError for unreadable file
+        return None
+    return None

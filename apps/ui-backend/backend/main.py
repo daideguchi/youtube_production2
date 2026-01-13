@@ -32,7 +32,6 @@ import copy
 import subprocess
 import sys
 import uuid
-import wave
 import re
 import urllib.request
 import urllib.parse
@@ -160,6 +159,7 @@ from backend.app.normalize import (
 )
 from backend.app.episode_store import (
     _detect_artifact_path,
+    get_audio_duration_seconds,
     load_status,
     load_status_optional,
     resolve_audio_path,
@@ -1596,20 +1596,6 @@ def verify_srt_file(
         diff_ms=diff_ms,
         issues=issues,
     )
-
-
-def get_audio_duration_seconds(path: Path) -> Optional[float]:
-    if not path.exists():
-        return None
-    try:
-        with contextlib.closing(wave.open(str(path), "rb")) as wav_file:
-            frames = wav_file.getnframes()
-            rate = wav_file.getframerate()
-            if rate:
-                return round(frames / float(rate), 3)
-    except (wave.Error, OSError):  # wave.Error for invalid WAV, OSError for unreadable file
-        return None
-    return None
 
 
 def _default_status_payload(channel_code: str, video_number: str) -> dict:

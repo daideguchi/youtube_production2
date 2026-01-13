@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from fastapi import APIRouter, HTTPException
 
+from backend.app.episode_store import get_audio_duration_seconds
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.main import (
     NaturalCommandRequest,
@@ -37,7 +38,6 @@ from backend.main import (
     build_status_payload,
     ensure_expected_updated_at,
     get_planning_section,
-    get_audio_duration_seconds,
     interpret_natural_command,
     list_video_dirs,
     load_status,
