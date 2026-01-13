@@ -4925,6 +4925,13 @@ except Exception as e:
     logger.error("Failed to load ssot_docs router: %s", e)
 
 try:
+    from backend.routers import gh_releases_archive
+
+    app.include_router(gh_releases_archive.router)
+except Exception as e:
+    logger.error("Failed to load gh_releases_archive router: %s", e)
+
+try:
     from backend.routers import agent_org
 
     app.include_router(agent_org.router)
