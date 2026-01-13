@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.channel_catalog import CHANNEL_PLANNING_DIR, DATA_ROOT, list_channel_dirs
 from backend.app.channel_info_store import refresh_channel_info
@@ -62,6 +62,36 @@ def list_channels():
             channel_info_map[code] = info
         channels.append(_build_channel_summary(code, info))
     return channels
+
+
+@router.post("/{channel}/branding/refresh", response_model=ChannelSummaryResponse)
+def refresh_channel_branding(channel: str, ignore_backoff: bool = Query(False, description="true で一時停止中でも強制実行")):
+    from backend.app.normalize import normalize_channel_code
+    from backend.main import _build_channel_summary, ensure_channel_branding
+
+    channel_code = normalize_channel_code(channel)
+    channel_info_map = refresh_channel_info()
+    info = channel_info_map.get(channel_code)
+    if not info:
+        raise HTTPException(status_code=404, detail=f"チャンネル {channel_code} の情報が見つかりません")
+    ensure_channel_branding(
+        channel_code,
+        info,
+        force_refresh=True,
+        ignore_backoff=ignore_backoff,
+        strict=True,
+    )
+    refreshed = refresh_channel_info(force=True).get(channel_code, info)
+    return _build_channel_summary(channel_code, refreshed)
+
+
+@router.get("/{channel}/profile", response_model=ChannelProfileResponse)
+def get_channel_profile(channel: str):
+    from backend.app.normalize import normalize_channel_code
+    from backend.main import _build_channel_profile_response
+
+    channel_code = normalize_channel_code(channel)
+    return _build_channel_profile_response(channel_code)
 
 
 @router.post("/register", response_model=ChannelProfileResponse, status_code=201)

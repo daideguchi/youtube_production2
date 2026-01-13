@@ -6239,30 +6239,6 @@ def update_planning_channel_progress(channel_code: str, video_number: str, paylo
     )
 
 
-@app.post("/api/channels/{channel}/branding/refresh", response_model=ChannelSummaryResponse)
-def refresh_channel_branding(channel: str, ignore_backoff: bool = Query(False, description="true で一時停止中でも強制実行")):
-    channel_code = normalize_channel_code(channel)
-    channel_info_map = refresh_channel_info()
-    info = channel_info_map.get(channel_code)
-    if not info:
-        raise HTTPException(status_code=404, detail=f"チャンネル {channel_code} の情報が見つかりません")
-    ensure_channel_branding(
-        channel_code,
-        info,
-        force_refresh=True,
-        ignore_backoff=ignore_backoff,
-        strict=True,
-    )
-    refreshed = refresh_channel_info(force=True).get(channel_code, info)
-    return _build_channel_summary(channel_code, refreshed)
-
-
-@app.get("/api/channels/{channel}/profile", response_model=ChannelProfileResponse)
-def get_channel_profile(channel: str):
-    channel_code = normalize_channel_code(channel)
-    return _build_channel_profile_response(channel_code)
-
-
 @app.put("/api/channels/{channel}/profile", response_model=ChannelProfileResponse)
 def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
     channel_code = normalize_channel_code(channel)
