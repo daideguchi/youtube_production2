@@ -109,6 +109,7 @@
 | 2bd | Planning models（`Planning*Request/Response` 等）を `app/planning_models.py` に移設し、planning routers はそこから参照（`backend.main` 依存を削減） | dd | - | Done（2026-01-13） |
 | 2be | Planning payload/queries（`build_planning_payload*`, `_load_planning_rows`, `_load_channel_spreadsheet`）を `app/` に移設し、`main.py` から削除（planning_csv router の `backend.main` 依存も減らす） | dd | - | Done（2026-01-13） |
 | 2bf | Normalize helpers（`normalize_optional_text`, `normalize_planning_video_number`）を `app/normalize.py` に統一し、`main.py` の重複定義を削除（挙動互換） | dd | - | Done（2026-01-13） |
+| 2bg | Episode files helpers（`video_base_dir`, `load_status*`, `resolve_audio_path`, `resolve_log_path`, `resolve_srt_path`）を `app/episode_store.py` に移設し、router はそこから参照（`backend.main` 依存を削減） | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
