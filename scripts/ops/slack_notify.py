@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import sys
 import time
 import urllib.error
@@ -904,6 +905,18 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
     task = str(event.get("task") or "-").strip()
     agent = str(event.get("agent") or "-").strip()
 
+    def _human_task_label(name: str) -> str:
+        t = (name or "").strip()
+        if t == "tts_reading":
+            return "TTS読み監査（VOICEVOXの読みOK/NG判定）"
+        if t == "visual_bible":
+            return "Visual Bible（動画用ペルソナ/ルール）生成"
+        if t == "visual_image_cues_plan":
+            return "画像cues計画（セクション/配分）"
+        if t == "image_generation":
+            return "画像生成"
+        return t or "-"
+
     def rel(p: Any) -> str:
         raw = str(p or "").strip()
         if not raw:
@@ -913,24 +926,203 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
         except Exception:
             return raw
 
+    def _abs_path(p: Any) -> Optional[Path]:
+        raw = str(p or "").strip()
+        if not raw:
+            return None
+        try:
+            pp = Path(raw).expanduser()
+            if pp.is_absolute():
+                return pp
+            return (PROJECT_ROOT / pp).resolve()
+        except Exception:
+            return None
+
+    def _load_json_best_effort(path: Optional[Path]) -> Optional[Dict[str, Any]]:
+        if not path:
+            return None
+        try:
+            if not path.exists():
+                return None
+            obj = json.loads(path.read_text(encoding="utf-8"))
+            return obj if isinstance(obj, dict) else None
+        except Exception:
+            return None
+
+    def _extract_episode_from_argv(argv: Any) -> str:
+        """
+        Best-effort episode label extraction from an argv list.
+        Prefer explicit flags when present.
+        """
+        if not isinstance(argv, list):
+            return "-"
+        toks = [str(x) for x in argv if str(x).strip()]
+        ch = None
+        vid = None
+        for i, t in enumerate(toks):
+            if t == "--channel" and i + 1 < len(toks):
+                ch = toks[i + 1].strip().upper()
+            if t == "--video" and i + 1 < len(toks):
+                v = toks[i + 1].strip()
+                if v.isdigit():
+                    vid = f"{int(v):03d}"
+                else:
+                    vid = v
+        if ch and vid:
+            return f"{ch}-{vid}"
+        # Fallback: look for CHxx-NNN tokens
+        for t in toks:
+            m = re.match(r"^(CH\\d{2})-(\\d{3})$", t.strip().upper())
+            if m:
+                return f"{m.group(1)}-{m.group(2)}"
+        return "-"
+
+    def _sanitize_argv(argv: Any) -> list[str]:
+        if not isinstance(argv, list):
+            return []
+        toks = [str(x) for x in argv]
+        redacted: list[str] = []
+        sensitive_flags = {
+            "--api-key",
+            "--token",
+            "--secret",
+            "--password",
+            "--webhook-url",
+            "--slack-webhook-url",
+            "--bot-token",
+        }
+        skip_next = False
+        for t in toks:
+            if skip_next:
+                redacted.append("<REDACTED>")
+                skip_next = False
+                continue
+            if t in sensitive_flags:
+                redacted.append(t)
+                skip_next = True
+                continue
+            if re.match(r"^(gho|ghp|github_pat)_[A-Za-z0-9_]+$", t):
+                redacted.append("<REDACTED>")
+                continue
+            redacted.append(t)
+        return redacted
+
+    def _format_invocation(obj: Optional[Dict[str, Any]]) -> str:
+        inv = obj.get("invocation") if isinstance(obj, dict) else {}
+        argv = inv.get("argv") if isinstance(inv, dict) else None
+        toks = _sanitize_argv(argv)
+        if not toks:
+            return "-"
+        # Prefer repo-relative script path for readability (sys.argv does not include the interpreter).
+        pretty: list[str] = ["python"]
+        for t in toks[:19]:
+            try:
+                p = Path(t)
+                if p.is_absolute():
+                    pretty.append(rel(p))
+                else:
+                    pretty.append(t)
+            except Exception:
+                pretty.append(t)
+        if len(toks) > 19:
+            pretty.append("...")
+        return " ".join([shlex.quote(x) for x in pretty])
+
+    def _summarize_result(task_name: str, result_obj: Optional[Dict[str, Any]], response_fmt: str) -> list[str]:
+        if not isinstance(result_obj, dict):
+            return []
+        content_raw = str(result_obj.get("content") or "")
+        content_obj: Any = None
+        if response_fmt == "json_object":
+            try:
+                content_obj = json.loads(content_raw) if content_raw.strip() else None
+            except Exception:
+                content_obj = None
+
+        if task_name == "tts_reading" and isinstance(content_obj, dict):
+            items = content_obj.get("items")
+            if isinstance(items, list):
+                ok = 0
+                ng = 0
+                skip = 0
+                ng_items: list[str] = []
+                for it in items:
+                    if not isinstance(it, dict):
+                        continue
+                    decision = str(it.get("decision") or "").strip().lower()
+                    if decision == "ok":
+                        ok += 1
+                    elif decision == "ng":
+                        ng += 1
+                        surface = str(it.get("surface") or "").strip()
+                        kana = str(it.get("correct_kana") or "").strip()
+                        if surface:
+                            ng_items.append(f"{surface}→{kana}" if kana else surface)
+                    else:
+                        skip += 1
+                lines = [f"summary: ok={ok} ng={ng} skip={skip}"]
+                if ng_items:
+                    lines.append("ng_items: " + ", ".join(ng_items[:6]) + (" ..." if len(ng_items) > 6 else ""))
+                return lines
+
+        if isinstance(content_obj, dict) and content_obj:
+            keys = sorted([str(k) for k in content_obj.keys()])[:12]
+            return [f"result_keys: {', '.join(keys)}" + (" ..." if len(content_obj.keys()) > 12 else "")]
+
+        return []
+
     queue_dir = rel(event.get("queue_dir"))
     runbook_path = rel(event.get("runbook_path"))
     pending_path = rel(event.get("pending_path"))
     result_path = rel(event.get("result_path"))
     response_format = str(event.get("response_format") or "").strip() or "-"
 
-    title = f"[agent_task] {ev} task={task} id={task_id}"
-    lines = [
-        f"agent: {agent}",
-        f"task_id: {task_id}",
-        f"task: {task}",
-        f"response_format: {response_format}",
-        f"runbook: {runbook_path}",
-        f"queue: {queue_dir}",
-        f"pending: {pending_path}",
+    # Enrich: try to load completed/pending json to extract episode + invocation.
+    q_abs = _abs_path(event.get("queue_dir"))
+    completed_abs = (q_abs / "completed" / f"{task_id}.json") if q_abs else None
+    pending_abs = _abs_path(event.get("pending_path"))
+    result_abs = _abs_path(event.get("result_path")) or ((q_abs / "results" / f"{task_id}.json") if q_abs else None)
+
+    pending_or_completed = _load_json_best_effort(pending_abs) or _load_json_best_effort(completed_abs)
+    result_obj = _load_json_best_effort(result_abs)
+
+    inv = pending_or_completed.get("invocation") if isinstance(pending_or_completed, dict) else {}
+    episode = _extract_episode_from_argv(inv.get("argv") if isinstance(inv, dict) else None)
+    invocation = _format_invocation(pending_or_completed)
+
+    human = _human_task_label(task)
+    title_bits = [f"[agent_task] {ev}", f"task={task}"]
+    if episode != "-":
+        title_bits.append(f"episode={episode}")
+    title = " ".join(title_bits)
+
+    agent_display = agent if agent != "-" else "<unset> (set LLM_AGENT_NAME)"
+    headline = [
+        f"- what: {human}",
+        f"- agent: {agent_display}",
+        f"- next: 元の実行を再開する → 下の invocation を再実行",
+        f"- runbook: {runbook_path}",
     ]
-    if result_path != "-":
-        lines.append(f"result: {result_path}")
+    if ev == "CLAIM":
+        headline[2] = f"- next: runbook+messagesに従って結果を作成 → `python scripts/agent_runner.py complete {task_id} --content-file ...`"
+
+    pending_display = rel(pending_abs) if pending_abs else pending_path
+    if ev == "COMPLETE" and pending_display != "-":
+        pending_display = f"{pending_display} (moved to completed)"
+
+    lines = [
+        *headline,
+        f"- task_id: {task_id}",
+        f"- queue: {queue_dir}",
+        f"- pending: {pending_display}",
+        f"- result: {rel(result_abs) if result_abs else result_path}",
+        f"- completed: {rel(completed_abs) if completed_abs else '-'}",
+        f"- invocation: {invocation}",
+    ]
+    summary = _summarize_result(task, result_obj, response_format)
+    if summary:
+        # Keep order stable: insert after `what/agent`.
+        lines = [lines[0], lines[1], *[f"- {x}" for x in summary], *lines[2:]]
 
     body = "```" + "\n".join(lines) + "\n```"
     return title + "\n" + body

@@ -36,6 +36,18 @@
 - `YTM_SLACK_NOTIFY_MIN_DURATION_SEC`（default: `0`）: この秒数未満の実行は通知しない（例: `30`）
 - `YTM_SLACK_NOTIFY_AGENT_TASKS`（default: `1`）: THINK MODE の agent task（`./ops agent claim/complete`）も通知する（スパムが嫌なら `0`）
 
+通知フォーマット（agent_task; 固定）:
+```text
+[agent_task] COMPLETE task=tts_reading episode=CH27-001
+- what: TTS読み監査（VOICEVOXの読みOK/NG判定）
+- agent: dd-tts-01
+- summary: ok=4 ng=0 skip=0
+- next: 元の実行を再開する → 下の invocation を再実行
+- runbook: ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md
+- result: workspaces/logs/agent_tasks/results/tts_reading__<hash>.json
+- invocation: python scripts/ops/ops_cli.py audio --channel CH27 --video 001
+```
+
 備考:
 - `--llm think` で pending が出た場合は「失敗」ではなく `PENDING` として通知される（task埋め→再実行で続行）。
 - `./ops` の通知は `ops_latest`（keep-latest pointer）と `run_log`（内側コマンドのstdout/stderr）を添えて、Slackだけで一次切り分けができる形にする。
