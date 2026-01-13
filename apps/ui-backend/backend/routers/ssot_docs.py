@@ -14,7 +14,8 @@ from backend.app.channels_models import (
     PlanningTemplateUpdateRequest,
 )
 from backend.app.normalize import normalize_channel_code
-from backend.app.prompts_store import safe_relative_path, write_text_with_lock
+from backend.app.path_utils import safe_relative_path
+from backend.app.prompts_store import write_text_with_lock
 from factory_common.paths import persona_path as ssot_persona_path
 from factory_common.paths import planning_root as ssot_planning_root
 from script_pipeline.tools import planning_requirements

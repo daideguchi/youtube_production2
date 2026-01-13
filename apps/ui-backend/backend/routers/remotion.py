@@ -10,6 +10,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 
+from backend.app.path_utils import safe_relative_path
 from factory_common.paths import repo_root as ssot_repo_root
 from factory_common.paths import video_input_root as ssot_video_input_root
 
@@ -18,13 +19,6 @@ logger = logging.getLogger("ui_backend")
 REPO_ROOT = ssot_repo_root()
 
 router = APIRouter(prefix="/api/remotion", tags=["remotion"])
-
-
-def _safe_relative_path(path: Path) -> Optional[str]:
-    try:
-        return str(path.relative_to(REPO_ROOT))
-    except ValueError:
-        return str(path) if path.exists() else None
 
 
 @router.post("/restart_preview")
@@ -110,7 +104,7 @@ def restart_remotion_preview(port: int = 3100):
                     "port": port,
                     "url": url,
                     "pid": proc.pid,
-                    "log_path": _safe_relative_path(log_path) or str(log_path),
+                    "log_path": safe_relative_path(log_path) or str(log_path),
                 }
         except Exception as e:
             last_error = str(e)
@@ -120,4 +114,3 @@ def restart_remotion_preview(port: int = 3100):
         status_code=500,
         detail=f"Remotion preview did not start on {url}. Check {log_path} (last_error={last_error})",
     )
-

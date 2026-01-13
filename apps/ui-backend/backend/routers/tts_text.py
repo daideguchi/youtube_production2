@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 
 from backend.app.scripts_models import ScriptTextResponse
+from backend.app.path_utils import safe_relative_path
 
 router = APIRouter(prefix="/api", tags=["tts"])
 
@@ -16,7 +17,6 @@ def get_tts_plain_text(channel: str, video: str) -> ScriptTextResponse:
         normalize_channel_code,
         normalize_video_number,
         resolve_text_file,
-        safe_relative_path,
         video_base_dir,
     )
 

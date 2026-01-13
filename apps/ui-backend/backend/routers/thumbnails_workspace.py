@@ -16,6 +16,7 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.responses import PlainTextResponse, StreamingResponse
 
 from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.path_utils import safe_relative_path
 from backend.main import (
     ThumbnailChannelBlockResponse,
     ThumbnailChannelSummaryResponse,
@@ -397,7 +398,7 @@ def get_thumbnail_thumb_spec(
         target_path = stable_path if stable_path is not None else None
         return ThumbnailThumbSpecResponse(
             exists=False if stable_id else False,
-            path=(backend_main.safe_relative_path(target_path) if isinstance(target_path, Path) else None),
+            path=(safe_relative_path(target_path) if isinstance(target_path, Path) else None),
             schema=THUMB_SPEC_SCHEMA_V1,
             channel=channel_code,
             video=video_number,
@@ -416,9 +417,9 @@ def get_thumbnail_thumb_spec(
     return ThumbnailThumbSpecResponse(
         exists=stable_exists if stable_id else True,
         path=(
-            backend_main.safe_relative_path(stable_path) or str(stable_path)
+            safe_relative_path(stable_path) or str(stable_path)
             if stable_id and isinstance(stable_path, Path)
-            else (backend_main.safe_relative_path(loaded.path) or str(loaded.path))
+            else (safe_relative_path(loaded.path) or str(loaded.path))
         ),
         schema=(str(payload.get("schema") or "") or None),
         channel=channel_code,
@@ -529,7 +530,7 @@ def get_thumbnail_text_line_spec(
         target_path = stable_path if stable_path is not None else legacy_path
         return ThumbnailTextLineSpecResponse(
             exists=False,
-            path=(backend_main.safe_relative_path(target_path) or str(target_path)),
+            path=(safe_relative_path(target_path) or str(target_path)),
             channel=channel_code,
             video=video_number,
             stable=stable_label,
@@ -560,7 +561,7 @@ def get_thumbnail_text_line_spec(
     updated_at = payload.get("updated_at") if isinstance(payload, dict) and isinstance(payload.get("updated_at"), str) else None
     return ThumbnailTextLineSpecResponse(
         exists=True,
-        path=(backend_main.safe_relative_path(path) or str(path)),
+        path=(safe_relative_path(path) or str(path)),
         channel=channel_code,
         video=video_number,
         stable=stable_label,
@@ -675,7 +676,7 @@ def get_thumbnail_elements_spec(
         target_path = stable_path if stable_path is not None else legacy_path
         return ThumbnailElementsSpecResponse(
             exists=False,
-            path=(backend_main.safe_relative_path(target_path) or str(target_path)),
+            path=(safe_relative_path(target_path) or str(target_path)),
             channel=channel_code,
             video=video_number,
             stable=stable_label,
@@ -701,7 +702,7 @@ def get_thumbnail_elements_spec(
     )
     return ThumbnailElementsSpecResponse(
         exists=True,
-        path=(backend_main.safe_relative_path(path) or str(path)),
+        path=(safe_relative_path(path) or str(path)),
         channel=channel_code,
         video=video_number,
         stable=stable_label,

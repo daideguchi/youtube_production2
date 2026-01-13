@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException
 
 from backend.app.episode_store import get_audio_duration_seconds
 from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.path_utils import safe_relative_path
 from backend.main import (
     NaturalCommandRequest,
     NaturalCommandResponse,
@@ -49,7 +50,6 @@ from backend.main import (
     planning_hash_from_row,
     iter_thumbnail_catches_from_row,
     sha1_file_bytes,
-    safe_relative_path,
     save_status,
     resolve_audio_path,
     resolve_srt_path,

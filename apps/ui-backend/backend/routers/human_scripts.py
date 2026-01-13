@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, HTTPException
 
 from backend.app.scripts_models import HumanScriptResponse, HumanScriptUpdateRequest
+from backend.app.path_utils import safe_relative_path
 
 router = APIRouter(prefix="/api", tags=["scripts"])
 
@@ -17,7 +18,6 @@ def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
         normalize_channel_code,
         normalize_video_number,
         resolve_text_file,
-        safe_relative_path,
         video_base_dir,
     )
 
