@@ -854,6 +854,11 @@ def _print_list() -> None:
     print("    ./ops codex <cmd> ...   # force --llm codex (explicit)")
     print("    tip: export YTM_OPS_DEFAULT_LLM=think  # make THINK the default when --llm is omitted")
     print("")
+    print("  Session bookkeeping (start/end; for interrupted work):")
+    print('    ./ops session start --name dd-<area>-01 --role worker --doing "..." --next "..."')
+    print("    ./ops session end --name dd-<area>-01")
+    print("    ./ops session list --open-only --all-agents")
+    print("")
     print("  Planning (CSV):")
     print("    ./ops planning lint -- --channel CHxx --write-latest")
     print("    ./ops planning sanitize -- --channel CHxx --write-latest   # dry-run")
@@ -1040,6 +1045,32 @@ def cmd_doctor(_args: argparse.Namespace) -> int:
     except Exception:
         pass
     return 0
+
+
+def cmd_session(args: argparse.Namespace) -> int:
+    """
+    Session bookkeeping wrappers.
+
+    - start: scripts/ops/start_here.py  (agent heartbeat + board + session start)
+    - end:   scripts/ops/end_here.py    (session end + standard checks + optional Slack digest)
+    - list:  scripts/ops/ops_session.py list
+
+    Note: this wrapper intentionally uses REMAINDER so operators can run:
+      ./ops session start --name dd-... --doing "..."
+    without requiring a `--` delimiter.
+    """
+    action = str(getattr(args, "action", "") or "").strip().lower()
+    forwarded = [str(x) for x in (getattr(args, "args", None) or [])]
+
+    if action == "start":
+        return _run(["python3", "scripts/ops/start_here.py", *forwarded])
+    if action == "end":
+        return _run(["python3", "scripts/ops/end_here.py", *forwarded])
+    if action == "list":
+        return _run(["python3", "scripts/ops/ops_session.py", "list", *forwarded])
+
+    print(f"unknown session action: {action}", file=sys.stderr)
+    return 2
 
 
 def cmd_mode(args: argparse.Namespace) -> int:
@@ -1968,6 +1999,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("doctor", help="run preflight/env checks")
     sp.set_defaults(func=cmd_doctor)
+
+    sp = sub.add_parser("session", help="start/end bookkeeping for interrupted work")
+    sp.add_argument("action", choices=["start", "end", "list"], help="session operation")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying session tool (no '--' needed)")
+    sp.set_defaults(func=cmd_session)
 
     sp = sub.add_parser("think", help="force THINK MODE for the nested ops command")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="nested ops command (use '--' before flags; e.g. audio -- --channel CHxx --video NNN)")

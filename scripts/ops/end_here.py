@@ -32,6 +32,12 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--session-id", default="", help="explicit session id (default: latest open)")
     ap.add_argument("--ssot-scope", choices=["core", "all"], default="core", help="run ssot_audit --text-scope (default: core)")
     ap.add_argument("--run-pre-push", action="store_true", help="also run scripts/ops/pre_push_final_check.py")
+    ap.add_argument(
+        "--slack",
+        choices=["auto", "on", "off"],
+        default="auto",
+        help="post session end digest to Slack (default: auto; uses slack_notify config)",
+    )
     return ap
 
 
@@ -55,9 +61,10 @@ def main(argv: List[str] | None = None) -> int:
         cmd += ["--session-id", str(args.session_id)]
     if args.run_pre_push:
         cmd += ["--run-pre-push"]
+    if args.slack:
+        cmd += ["--slack", str(args.slack)]
     return int(_run(cmd, env=env).returncode)
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -1,10 +1,10 @@
 # START_HERE — 迷わないための入口
 
 - 入口固定（セッション記帳; 途中で落ちても復旧できる）:
-  - 開始: `python3 scripts/ops/start_here.py --name dd-<area>-01 --role worker --doing "..." --next "..."`
-  - 終了: `python3 scripts/ops/end_here.py --name dd-<area>-01`
+  - 開始: `./ops session start --name dd-<area>-01 --role worker --doing "..." --next "..."`
+  - 終了: `./ops session end --name dd-<area>-01`（Slack digestは `--slack auto` が既定）
   - 途中で落ちた/中断した場合:
-    - 未完セッション一覧: `LLM_AGENT_NAME=dd-<area>-01 python3 scripts/ops/ops_session.py list --open-only`
+    - 未完セッション一覧: `./ops session list --agent dd-<area>-01 --open-only`
     - 記帳ログ: `workspaces/logs/ops/sessions/<session_id>/{start.json,end.json}`
 
 - 統一入口（正本/P0ランチャー）: `./ops list`

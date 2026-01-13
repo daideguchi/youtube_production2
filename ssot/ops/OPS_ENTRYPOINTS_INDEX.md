@@ -14,6 +14,11 @@
 - 一覧: `./ops list`
 - 実体（P0 launcher）: `python3 scripts/ops/ops_cli.py --help`（`./ops` が呼ぶ）
 - 事前点検: `./ops doctor`
+- セッション記帳（start/end; 途中で落ちても復旧できる）:
+  - 開始: `./ops session start --name dd-<area>-01 --role worker --doing "..." --next "..."`
+  - 終了: `./ops session end --name dd-<area>-01`（Slack digestは `--slack auto` が既定）
+  - 未完セッション一覧: `./ops session list --agent dd-<area>-01 --open-only`
+  - 記帳ログ: `workspaces/logs/ops/sessions/<session_id>/{start.json,end.json}`
 - 迷子/復帰:
   - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
   - “最新の実行” ポインタ（keep-latest）: `./ops latest --channel CHxx --video NNN`

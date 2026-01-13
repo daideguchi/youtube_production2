@@ -93,6 +93,48 @@ def _agent_name_fallback() -> str:
     )
 
 
+def _slack_webhook_url() -> str:
+    return str(os.getenv("YTM_SLACK_WEBHOOK_URL") or os.getenv("SLACK_WEBHOOK_URL") or "").strip()
+
+
+def _slack_bot_token() -> str:
+    return str(os.getenv("SLACK_BOT_TOKEN") or os.getenv("YTM_SLACK_BOT_TOKEN") or "").strip()
+
+
+def _slack_channel() -> str:
+    return str(os.getenv("SLACK_CHANNEL") or os.getenv("YTM_SLACK_CHANNEL") or "").strip()
+
+
+def _slack_thread_ts() -> str | None:
+    """
+    Optional: route session digests to a thread to reduce channel spam.
+    Requires bot-token mode (webhook cannot reply in a thread).
+    """
+    ts = str(os.getenv("YTM_SLACK_THREAD_TS") or "").strip()
+    if not ts:
+        return None
+    if not (_slack_bot_token() and _slack_channel()):
+        return None
+    return ts
+
+
+def _slack_notify_text(text: str) -> None:
+    """
+    Best-effort Slack notify (no-op when Slack is not configured).
+    """
+    s = str(text or "").strip()
+    if not s:
+        return
+    cmd = [sys.executable, "scripts/ops/slack_notify.py", "--text", s]
+    thread_ts = _slack_thread_ts()
+    if thread_ts:
+        cmd += ["--thread-ts", thread_ts]
+    try:
+        subprocess.run(cmd, cwd=str(_root()), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        return
+
+
 def _best_effort_relative(path: Path | str) -> str:
     try:
         return str(Path(path).resolve().relative_to(_root()))
@@ -284,6 +326,59 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def _build_end_slack_text(
+    *,
+    session_id: str,
+    agent: str,
+    note: str,
+    end_json: str,
+    git: dict[str, Any],
+    checks: list[CheckResult],
+    locks_end: list[dict[str, Any]],
+) -> str:
+    note_s = str(note or "").strip()
+    note_short = (note_s[:240] + "...") if len(note_s) > 240 else note_s
+
+    head = str(git.get("head") or "").strip()
+    head_short = head[:8] if head else "-"
+    branch = str(git.get("branch") or "").strip() or "-"
+    dirty = str(git.get("dirty_paths") if "dirty_paths" in git else "-")
+
+    bad = [c for c in checks if int(c.rc) != 0]
+    ok = [c for c in checks if int(c.rc) == 0]
+
+    lines: list[str] = []
+    lines.append(f"[ops_session] END {session_id} agent={agent}")
+    if note_short:
+        lines.append(f"note: {note_short}")
+    lines.append(f"git: {branch}@{head_short} dirty_paths={dirty}")
+    lines.append(f"end.json: {end_json}")
+
+    if not bad:
+        ok_names = ", ".join([c.name for c in ok]) if ok else "-"
+        lines.append(f"checks: OK ({ok_names})")
+    else:
+        lines.append("checks: FAIL")
+        for c in bad[:3]:
+            lines.append(f"- {c.name}: rc={c.rc}")
+            lines.append(f"  stdout: {c.stdout_path}")
+            lines.append(f"  stderr: {c.stderr_path}")
+        if len(bad) > 3:
+            lines.append(f"... ({len(bad) - 3} more failures)")
+
+    if locks_end:
+        lines.append(f"locks_still_held: {len(locks_end)}")
+        for it in locks_end[:5]:
+            lid = str(it.get("id") or "").strip()
+            if lid:
+                lines.append(f"- unlock: python3 scripts/agent_org.py unlock {lid}")
+        if len(locks_end) > 5:
+            lines.append(f"... ({len(locks_end) - 5} more locks)")
+
+    lines.append("next: ./ops session list --open-only --all-agents")
+    return "\n".join(lines).strip() + "\n"
+
+
 def cmd_end(args: argparse.Namespace) -> int:
     agent = str(args.agent or "").strip() or _agent_name_fallback()
     sid = str(args.session_id or "").strip() or _pick_latest_open_session(agent=agent)
@@ -373,6 +468,24 @@ def cmd_end(args: argparse.Namespace) -> int:
             print(f"  - {lid}  (hint: python3 scripts/agent_org.py unlock {lid})")
         if len(locks_end) > 10:
             print(f"  ... ({len(locks_end) - 10} more)")
+
+    slack_mode = str(getattr(args, "slack", "auto") or "auto").strip().lower()
+    if slack_mode != "off":
+        try:
+            git_info = payload.get("git") if isinstance(payload.get("git"), dict) else {}
+            note = str(start.get("note") or "").strip() if isinstance(start, dict) else ""
+            text = _build_end_slack_text(
+                session_id=sid,
+                agent=agent,
+                note=note,
+                end_json=_best_effort_relative(end_p),
+                git=git_info,
+                checks=checks,
+                locks_end=locks_end,
+            )
+            _slack_notify_text(text)
+        except Exception:
+            pass
     return 1 if any_fail else 0
 
 
@@ -390,6 +503,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--session-id", default="", help="explicit session id (default: latest open)")
     sp.add_argument("--ssot-scope", choices=["core", "all"], default="core", help="run ssot_audit --text-scope (default: core)")
     sp.add_argument("--run-pre-push", action="store_true", help="also run scripts/ops/pre_push_final_check.py")
+    sp.add_argument("--slack", choices=["auto", "on", "off"], default="auto", help="post end digest to Slack (default: auto)")
     sp.set_defaults(func=cmd_end)
 
     sp = sub.add_parser("list", help="list recent sessions for this agent")
