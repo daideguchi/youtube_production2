@@ -5,13 +5,12 @@ from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.normalize import normalize_channel_code
+from backend.app.normalize import normalize_channel_code, normalize_optional_text
 from backend.main import (
     PlanningCsvRowResponse,
     PlanningProgressUpdateRequest,
     build_planning_payload_from_row,
     current_timestamp,
-    normalize_optional_text,
     _normalize_video_number_token,
     _read_channel_csv_rows,
     _write_csv_with_lock,

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
+from backend.app.normalize import normalize_channel_code, normalize_optional_text, normalize_video_number
 from backend.main import (
     PlanningUpdateRequest,
     PlanningUpdateResponse,
@@ -10,9 +11,6 @@ from backend.main import (
     ensure_expected_updated_at,
     get_planning_section,
     load_status,
-    normalize_channel_code,
-    normalize_optional_text,
-    normalize_video_number,
     run_ssot_sync_for_channel,
     save_status,
 )
@@ -74,4 +72,3 @@ def update_planning(channel: str, video: str, payload: PlanningUpdateRequest):
     run_ssot_sync_for_channel(channel_code, video_number)
     planning_payload = build_planning_payload(metadata)
     return PlanningUpdateResponse(status="ok", updated_at=timestamp, planning=planning_payload)
-

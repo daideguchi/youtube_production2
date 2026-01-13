@@ -4,9 +4,8 @@ from typing import Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from backend.app.normalize import normalize_channel_code
+from backend.app.normalize import CHANNEL_PLANNING_DIR, normalize_channel_code, normalize_optional_text
 from backend.main import (
-    CHANNEL_PLANNING_DIR,
     PlanningCreateRequest,
     PlanningCsvRowResponse,
     PlanningSpreadsheetResponse,
@@ -18,7 +17,6 @@ from backend.main import (
     _write_csv_with_lock,
     build_planning_payload_from_row,
     current_timestamp,
-    normalize_optional_text,
 )
 from backend.tools.optional_fields_registry import FIELD_KEYS
 from script_pipeline.tools import planning_requirements
