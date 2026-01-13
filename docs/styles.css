@@ -86,6 +86,27 @@ code {
   }
 }
 
+/* Touch devices can report a desktop-sized viewport (e.g. "デスクトップ用サイト"/in-app browsers),
+   so also force single-column layout based on pointer capabilities. */
+@media (hover: none) and (pointer: coarse) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace > .content,
+  .workspace > .assets {
+    grid-column: 1;
+  }
+
+  .workspace > .assets {
+    grid-row: 1;
+  }
+
+  .workspace > .content {
+    grid-row: 2;
+  }
+}
+
 /* Embed mode (used by /ep wrapper iframes). */
 .app[data-embed="1"] {
   max-width: none;
