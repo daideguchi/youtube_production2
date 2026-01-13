@@ -1098,7 +1098,7 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
 
     agent_display = agent if agent != "-" else "<unset> (set LLM_AGENT_NAME)"
     headline = [
-        "✅ 何が終わった？" if ev == "COMPLETE" else "🧭 何が起きた？",
+        "何が終わった？" if ev == "COMPLETE" else "何が起きた？",
         f"- task: {task}" + (f"（{human}）" if human and human != task else ""),
         f"- episode: {episode}" if episode != "-" else "- episode: -",
         f"- agent: {agent_display}",
@@ -1114,17 +1114,17 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
     lines = [*headline]
     summary = _summarize_result(task, result_obj, response_format)
     if summary:
-        lines.append("🧾 サマリ")
+        lines.append("サマリ")
         lines.extend([f"- {x}" for x in summary])
 
     lines.extend(
         [
             "",
-            "▶ 次にやること",
+            "次にやること",
             f"- {next_line}",
             f"- invocation: `{invocation}`" if invocation != "-" else "- invocation: -",
             "",
-            "📄 参照（困ったらここを見る）",
+            "参照（困ったらここを見る）",
             f"- runbook: `{runbook_path}`" if runbook_path != "-" else "- runbook: -",
             f"- result: `{rel(result_abs) if result_abs else result_path}`",
             f"- pending: `{pending_display}`",
