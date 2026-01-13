@@ -37,7 +37,7 @@ jobs:
       - name: SSOT audit
         run: |
           set -e
-          python3 scripts/ops/ssot_audit.py --path-audit --link-audit
+          python3 scripts/ops/ssot_audit.py --path-audit --link-audit --text-audit --text-scope all
 
       - name: Repo sanity audit
         run: |
