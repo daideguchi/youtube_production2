@@ -63,6 +63,11 @@ body {
   .workspace {
     grid-template-columns: 1fr;
   }
+
+  .workspace > .content,
+  .workspace > .assets {
+    grid-column: 1;
+  }
 }
 
 .header {
