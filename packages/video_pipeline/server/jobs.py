@@ -335,8 +335,8 @@ class CommandBuilder:
         if prompt_style := options.get("style"):
             env["COMMENTARY02_PROMPT_STYLE"] = str(prompt_style)
 
-        nanobanana = str(options.get("nanobanana", "direct"))
-        if nanobanana not in ("direct", "none"):
+        nanobanana = str(options.get("nanobanana", "batch"))
+        if nanobanana not in ("batch", "direct", "none"):
             nanobanana = "direct"
 
         command: List[str] = [

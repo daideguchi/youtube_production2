@@ -2,7 +2,7 @@
 
 目的:
 - 画像生成の運用を **コスト最優先**で安定化する（待ち時間は許容）。
-- Batch運用が本実装できた段階で、動画内画像（`visual_image_gen`）の既定を **FLUX schnell → Gemini（Batch）**へ寄せられる状態にする。
+- 動画内画像（`visual_image_gen`）は `nanobanana=batch` を既定にし、Gemini 系モデルでは **Batch 運用をデフォルト**にする（モデル変更は slot/model_key で明示）。
 - ただし **サイレント切替はしない**（正本: `ssot/DECISIONS.md:D-002`）。
 
 前提（意思決定/正本）:
@@ -29,7 +29,11 @@
 
 共通固定:
 - どちらも「モデル固定（slot code / model_key）」で運用し、**勝手に別モデルへは流さない**。
-- Batchは非同期なので、パイプラインは **submit→待ち→resume** で設計する。
+- Batchは非同期なので、パイプラインは **submit→poll→fetch（止まってもresume）** で設計する。
+
+現状（2026-01-13）:
+- ✅ video_pipeline: `nanobanana=batch` を実装（Gemini Batch: submit→poll→fetch、run_dir に `_gemini_batch/manifest.json` を保存）
+- ⏳ チャンネル別のモデル寄せ（FLUX→Gemini）は `channel_presets.json` の `image_generation.model_key` を段階的に更新して進める
 
 ---
 
@@ -74,4 +78,3 @@ Batch実装が「置き換え可能」と言える条件:
   - `python3 scripts/image_usage_report.py`
 - 失敗/詰まり:
   - Slack→PM Inbox（`ssot/history/HISTORY_slack_pm_inbox.md`）で取りこぼしゼロ化
-

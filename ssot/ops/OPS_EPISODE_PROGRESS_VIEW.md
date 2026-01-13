@@ -31,7 +31,12 @@ episode_progress は以下を参照して集計する（書き換えない）:
 - Audio SoT（下流参照の正本）: `workspaces/audio/final/{CH}/{NNN}/`
   - `{CH}-{NNN}.wav`, `{CH}-{NNN}.srt` の存在を基準に `audio_ready` を判定
 - Video SoT（run 単位）: `workspaces/video/runs/{run_id}/`
+  - `srt_segments.json`（SRT解析/チャンク）
+  - `image_cues.json`（キュー分割/画像プロンプト）
+  - `images/`（画像生成の成果物）
+  - `belt_config.json`（帯テキスト。チャンネル設定で無効の場合もある）
   - `timeline_manifest.json`, `capcut_draft`（symlink/dir）, `capcut_draft_info.json` 等
+  - `auto_run_info.json`（存在する場合: AutoDraft の進捗/失敗理由の要約）
 
 ---
 
@@ -47,7 +52,27 @@ episode_progress は以下を参照して集計する（書き換えない）:
   - `broken`: `capcut_draft` は symlink だがターゲットが存在しない
   - `ok`: `capcut_draft` が dir または有効 symlink
 
-### 2.1.1 集計サマリ（一覧の上に出せる）
+### 2.1.1 CapCutドラフト進捗（どこまで終わってる？）
+`capcut_draft_status` は「CapCutドラフトの有無（/リンク切れ）」しか分からないため、
+下流（動画）側の “途中段階” を見える化するために以下も派生で集計する。
+
+- `capcut_draft_progress`（object; read-only）
+  - `status`: `unstarted` / `in_progress` / `completed` / `broken` / `failed`
+    - `unstarted`: run_dir が見つからない（未着手）
+    - `in_progress`: run_dir はあるが `capcut_draft_status=missing`（作成中）
+    - `completed`: `capcut_draft_status=ok`（完了）
+    - `broken`: `capcut_draft_status=broken`（要修復）
+    - `failed`: `auto_run_info.json: status=failed` を検出（要修復）
+  - `stage`: 進捗の “現在地” を大雑把に表す（例: `segments` / `cues` / `prompts` / `images` / `capcut_draft`）
+  - `metrics`:
+    - `segments`: `srt_segments.json` の有無/件数
+    - `cues`: `image_cues.json` の有無/キュー数
+    - `prompts`: プロンプトが埋まっている数（キュー数に対して何件）
+    - `images`: 生成済み画像数（キュー数に対して何枚）+ complete 判定
+    - `belt`: `belt_config.json` の有無（無効チャンネルでは false になり得る）
+    - `auto_run_status`: `auto_run_info.json` がある場合の status（completed/failed など）
+
+### 2.1.2 集計サマリ（一覧の上に出せる）
 - `episodes_total`: エピソード総数（view に含まれる件数）
 - `episodes_published`: 投稿済みロック件数（published_locked=true の件数）
 - `episodes_with_issues`: issues が1つ以上あるエピソード数
@@ -79,4 +104,5 @@ episode_progress は以下を参照して集計する（書き換えない）:
 
 ### 3.3 UI
 - `/planning` に read-only 列を追加して表示（例: `動画run`, `CapCutドラフト`）
+- `/capcut-draft-progress` で CapCutドラフトの途中段階（キュー分割/プロンプト/画像生成/ドラフト）を一覧で確認できる
 - “正本の更新” は既存導線（published lock / status.json / run 選択ツール等）に限定する

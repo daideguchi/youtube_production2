@@ -82,7 +82,7 @@ notes: <消し忘れ防止の一言>
 ### Phase D. Video（SRT→画像→CapCut）
 - P0:
   - 正規: `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.factory ...`
-  - 詳細制御: `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --srt <srt> --out workspaces/video/runs/<run_id> ...`
+  - 詳細制御: `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --srt <srt> --run-name <run_name> ...`
 
 ### Phase D'. Remotion（未主線/実験）
 - P0（運用上の入口として固定）:

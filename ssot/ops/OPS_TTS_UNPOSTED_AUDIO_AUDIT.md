@@ -40,14 +40,14 @@ VOICEVOX自動監査では誤読を確定できない（= “白”に見えて�
 例（まず prepass で mismatch を潰す → 合成）:
 
 ```bash
-PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
+SKIP_TTS_READING=1 PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
   --channel CH02 --video 046 \
   --input workspaces/scripts/CH02/046/content/assembled_human.md \
   --allow-unvalidated --prepass
   # NOTE: assembled_human.md が無いCHは assembled.md を指定する
 
 # mismatch=0 を確認したら合成（既存finalを上書きするので未投稿のみ）
-PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
+SKIP_TTS_READING=1 PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
   --channel CH02 --video 046 \
   --input workspaces/scripts/CH02/046/content/assembled_human.md \
   --allow-unvalidated --force-overwrite-final
@@ -82,6 +82,30 @@ VOICEPEAK は `audio_query.kana` が無いので、監査は「未知/ASCII/数�
 ### 4) STALE は「音声と現行A/Bがズレている可能性」
 `stale_audit_latest.json` に載る回は、**今のAを正本とするなら音声は再生成する**。
 - 再生成した場合、CapCutドラフトがある回は **音声/SRT差し替え**（manifestベース）までセットで行う。
+
+## CapCut注意: 音声を再生成したら「画像タイムライン」もズレる
+TTSを `--force-overwrite-final` で作り直すと、**SRTが変わる** → run_dir の `image_cues.json` と CapCut の srt2images_* トラックがズレる。
+
+そのため、音声を更新した回で CapCut ドラフトが存在する場合は、次をセットで実行する（NO LLM / 画像生成なし）:
+
+1) run_dir を final SRT に合わせて retime（cues/manifest を更新）:
+```bash
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.align_run_dir_to_tts_final --run <run_dir>
+```
+2) CapCut の画像トラック（srt2images_*）を cues に合わせて retime:
+```bash
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.patch_draft_images_from_cues --run <run_dir>
+```
+3) CapCut の音声/字幕を manifest に合わせて差し替え:
+```bash
+PYTHONPATH=".:packages" python3 -m video_pipeline.tools.patch_draft_audio_subtitles_from_manifest --run <run_dir> --tolerance-sec 3.0
+```
+
+CH02は run_dir が複数あることが多く、どれが「実際のドラフト」か迷いやすいので、範囲を一気に処理する専用スクリプトを使う:
+```bash
+python3 scripts/ops/ch02_sync_capcut_after_tts.py --min-video 42 --max-video 82
+```
+（capcut_draft の壊れた symlink も自動修復し、cues数≒srt2imagesセグメント数が一致する run_dir を優先して選ぶ）
 
 ## 関連SSOT
 - 音声/TTS全体: `ssot/ops/OPS_AUDIO_TTS.md`

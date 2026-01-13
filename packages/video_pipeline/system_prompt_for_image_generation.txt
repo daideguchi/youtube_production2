@@ -59,7 +59,10 @@ CH02-015 について、
 - 最終的に、CH02-015 で Gemini 2.5 Flash Image を使って PNG が生成されるところまで行ってください。
 
 ### 画像生成ルートの固定
-- `nanobanana` は `direct`（ImageClient+Gemini 2.5 Flash Image）か `none`（スキップ）のみ。legacy cli/mcp/その他指定は強制的に direct にクランプする。
+- `nanobanana` は `batch`（Gemini Batch: 安い・非同期）, `direct`（同期: ImageClient）, `none`（スキップ）。
+  - 不明/legacy 指定（cli/mcp 等）は **direct にクランプ**する（破壊的な挙動変更を防ぐ）。
+  - `batch` は Gemini provider の generateContent 画像モデルのみ対象（例: `gemini-2.5-flash-image`）。対象外の model_key/provider の場合は **ログに明示して direct にフォールバック**する。
+  - `batch` 実行時は run_dir に `_gemini_batch/manifest.json`（job_id/入力/出力対応）を保存する（中断しても再実行で resume できる）。
 - Gemini には aspect_ratio を送らない（capabilities: supports_aspect_ratio=false）。比率はリサイズで担保。
 - タイムアウト強制は避け、ログに特定文言が出たら停止する abort-on-log で守る。
 
@@ -148,10 +151,10 @@ factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
 
 #### 4-1. `new`
 
-1. `run_pipeline.py` を **engine=gemini or direct** で呼び出し、
+1. `run_pipeline.py` を `--engine none` で呼び出し、
 
    * cue 生成
-   * 画像生成（Gemini 2.5 Flash Image 経由）
+   * 画像生成（`--nanobanana {batch|direct}`。デフォルトは `batch`）
      を行い、新しい run_dir を作る
 
 2. 同じ run_dir に対して `auto_capcut_run.py` を実行し、
@@ -169,8 +172,7 @@ factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
 
 1. `run_pipeline.py` を `--engine none` で呼び出し、
 
-   * cue のみ生成（画像生成はスキップ）
-   * belt_generation（LLMRouter + gpt-5-mini）まで行う
+   * cue を生成（画像生成は `--nanobanana` に依存。`none` ならスキップ）
 2. 新しい run_dir が 1つだけ増える
 3. CapCut draft は作らない
 
@@ -234,16 +236,16 @@ factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
 
    * `--engine` / `--nanobanana` の指定に応じて、
 
-     * `engine="none"` なら **画像生成を完全スキップ**（今まで通り placeholder 可）
-     * `engine="gemini"` or `nanobanana="direct"` なら、
-       新しい LLMRouter 経由の画像生成を使うようにする。
+     * `nanobanana="none"` なら **画像生成をスキップ**
+     * `nanobanana="batch"` なら **Gemini Batch（対象外 provider/model の場合は direct にフォールバック）**
+     * `nanobanana="direct"` なら **ImageClient（同期）**
 
 3. CH02-015 について、以下の2パターンを **実際に通して検証** すること：
 
    * パターンA（画像なし検証）
 
      ```bash
-     factory-commentary CH02 ... check   # engine=none
+     factory-commentary CH02 ... check --nanobanana none   # 画像生成なし（cue/beltのみ）
      ```
 
      * run_dir が 1つ増える
@@ -253,7 +255,7 @@ factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
    * パターンB（画像あり本番）
 
      ```bash
-     factory-commentary CH02 ... new   # engine=gemini or nanobanana=direct
+     factory-commentary CH02 ... new --nanobanana batch   # 推奨（デフォルトも batch）
      ```
 
      * run_dir が 1つ増える
@@ -270,13 +272,13 @@ factory-commentary CH02 workspaces/video/input/CH02_哲学系/CH02-015.srt draft
   * 成功例：
 
     ```text
-    [CH02-015_20251210_214116][image_gen][OK] engine=gemini_2_5_flash_image images=44 dir=.../images
+    [CH02-015_20251210_214116][image_gen][OK] mode=batch requested=44 ok=44 dir_total=44 dir=.../images
     ```
 
   * フォールバック（placeholderを書いた場合など）：
 
     ```text
-    [CH02-015_20251210_214116][image_gen][FALLBACK] reason='nanobanana CLI missing' placeholders=44
+    [CH02-015_20251210_214116][image_gen][FALLBACK] reason='placeholder' placeholders=44
     ```
 
   * クリティカルエラーで途中終了する場合：

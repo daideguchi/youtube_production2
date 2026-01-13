@@ -140,6 +140,7 @@
   - キャッシュバスター: `docs/index.html` の `styles.css?v=...` / `app.js?v=...` を更新（Pages/モバイルのキャッシュ対策）
   - レスポンシブ: `.workspace` はモバイルで1カラムに倒す（`grid-column` の残留で台本が極細になる事故に注意）
   - 索引生成（台本一覧・パス）: `python3 scripts/ops/pages_script_viewer_index.py --write`
+  - clean URL（/ep/CHxx/NNN/ の iframe wrapper）生成: `python3 scripts/ops/pages_episode_routes.py --write --clean`（モバイル: 前/次ボタンで台本遷移）
   - サムネ（選択サムネのPages用プレビュー）:
     - 全件: `python3 scripts/ops/pages_thumb_previews.py --all --write`
     - 欠け埋め（placeholder; すべての回が必ず表示される状態にする）: `python3 scripts/ops/pages_thumb_placeholders.py --write`
@@ -330,7 +331,7 @@
 - 進捗の統一ビュー（派生 / read-only）:
   - SSOT: `ssot/ops/OPS_EPISODE_PROGRESS_VIEW.md`
   - CLI: `./ops progress --channel CHxx`
-  - API: `GET /api/channels/{ch}/episode-progress`（UI `/planning` が参照）
+  - API: `GET /api/channels/{ch}/episode-progress`（UI `/planning` / `/capcut-draft-progress` が参照）
 
 ### 3.8 Alignment（Planning↔Script 整合スタンプ）
 - `scripts/enforce_alignment.py`（dry-runがデフォルト。`--apply` で `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment` を更新）

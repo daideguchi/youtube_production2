@@ -17,6 +17,22 @@ import "./PlanningPage.css";
 
 type Row = Record<string, string>;
 
+type CapcutDraftProgressMetrics = {
+  segments?: { exists?: boolean; count?: number | null } | null;
+  cues?: { exists?: boolean; count?: number | null } | null;
+  prompts?: { ready?: boolean; count?: number | null } | null;
+  images?: { count?: number; complete?: boolean } | null;
+  belt?: { exists?: boolean } | null;
+  timeline_manifest?: { exists?: boolean } | null;
+  auto_run_status?: string | null;
+};
+
+type CapcutDraftProgress = {
+  status?: string | null;
+  stage?: string | null;
+  metrics?: CapcutDraftProgressMetrics | null;
+};
+
 type EpisodeProgressItem = {
   video: string;
   script_status?: string | null;
@@ -26,6 +42,7 @@ type EpisodeProgressItem = {
   capcut_draft_run_id?: string | null;
   capcut_draft_target?: string | null;
   capcut_draft_target_exists?: boolean | null;
+  capcut_draft_progress?: CapcutDraftProgress | null;
   issues?: string[];
 };
 
@@ -350,7 +367,7 @@ const fetchDialogAuditChannel = async (channelCode: string): Promise<Record<stri
 
 const formatCapcutLabel = (statusRaw: string, isCandidate: boolean): string => {
   const status = String(statusRaw || "").trim().toLowerCase();
-  const base = status === "ok" ? "OK" : status === "broken" ? "LINK切れ" : status === "missing" ? "未生成" : statusRaw || "";
+  const base = status === "ok" ? "完了" : status === "broken" ? "LINK切れ" : status === "missing" ? "未生成" : statusRaw || "";
   if (!base) return "";
   return isCandidate ? `${base}(候補)` : base;
 };
@@ -376,7 +393,22 @@ const attachEpisodeProgressColumns = (rows: Row[], progressMap: Record<string, E
     const candidateRun = item?.capcut_draft_run_id ? String(item.capcut_draft_run_id) : "";
     const runLabel = selectedRun || (candidateRun ? `候補:${candidateRun}` : "");
     const isCandidate = !selectedRun && Boolean(candidateRun);
-    const capcutLabel = item ? formatCapcutLabel(String(item.capcut_draft_status || ""), isCandidate) : "";
+    const capcutStatus = String(item?.capcut_draft_status || "").trim().toLowerCase();
+    const progressStatus = String(item?.capcut_draft_progress?.status || "").trim().toLowerCase();
+    const capcutLabel =
+      capcutStatus === "ok"
+        ? formatCapcutLabel("ok", isCandidate)
+        : capcutStatus === "broken" || progressStatus === "broken" || progressStatus === "failed"
+          ? formatCapcutLabel("broken", isCandidate)
+          : progressStatus === "in_progress"
+            ? formatCapcutLabel("作成中", isCandidate)
+            : progressStatus === "unstarted"
+              ? formatCapcutLabel("未着手", isCandidate)
+              : capcutStatus === "missing"
+                ? formatCapcutLabel("未生成", isCandidate)
+                : item
+                  ? formatCapcutLabel(String(item.capcut_draft_status || ""), isCandidate)
+                  : "";
     const scriptLabel = item ? formatScriptLabel(String(item.script_status || "")) : "";
     const audioLabel = item ? (item.audio_ready ? "OK" : "未生成") : "";
     return { ...row, "台本(自動)": scriptLabel, "音声(自動)": audioLabel, 動画run: runLabel, CapCutドラフト: capcutLabel };
@@ -1381,20 +1413,50 @@ export function PlanningPage() {
                           const selected = item?.video_run_id ? String(item.video_run_id) : "";
                           const candidate = item?.capcut_draft_run_id ? String(item.capcut_draft_run_id) : "";
                           const isCandidate = !selected && Boolean(candidate);
-                          const status = String(item?.capcut_draft_status || "").trim().toLowerCase();
                           const fallback = String(row[col] ?? "").trim();
-                          const label = item ? formatCapcutLabel(status, isCandidate) || "—" : fallback || "—";
-                          const badgeCls =
-                            status === "ok"
-                              ? "planning-page__badge planning-page__badge--capcut-ok"
-                              : status === "broken"
-                                ? "planning-page__badge planning-page__badge--capcut-broken"
-                                : status === "missing"
-                                  ? "planning-page__badge planning-page__badge--capcut-missing"
-                                  : "planning-page__badge planning-page__badge--capcut-missing";
+                          const capcutStatus = String(item?.capcut_draft_status || "").trim().toLowerCase();
+                          const progressStatus = String(item?.capcut_draft_progress?.status || "").trim().toLowerCase();
+
+                          let label = fallback || "—";
+                          let badgeCls = "planning-page__badge planning-page__badge--capcut-missing";
+                          if (item) {
+                            if (capcutStatus === "ok") {
+                              label = formatCapcutLabel("ok", isCandidate) || "—";
+                              badgeCls = "planning-page__badge planning-page__badge--capcut-ok";
+                            } else if (capcutStatus === "broken" || progressStatus === "broken" || progressStatus === "failed") {
+                              label = formatCapcutLabel("broken", isCandidate) || "—";
+                              badgeCls = "planning-page__badge planning-page__badge--capcut-broken";
+                            } else if (progressStatus === "in_progress") {
+                              label = formatCapcutLabel("作成中", isCandidate) || "—";
+                              badgeCls = "planning-page__badge planning-page__badge--capcut-running";
+                            } else if (progressStatus === "unstarted") {
+                              label = formatCapcutLabel("未着手", isCandidate) || "—";
+                              badgeCls = "planning-page__badge planning-page__badge--capcut-missing";
+                            } else if (capcutStatus === "missing") {
+                              label = formatCapcutLabel("未生成", isCandidate) || "—";
+                              badgeCls = "planning-page__badge planning-page__badge--capcut-missing";
+                            } else {
+                              label = formatCapcutLabel(String(item.capcut_draft_status || ""), isCandidate) || "—";
+                              badgeCls = "planning-page__badge planning-page__badge--capcut-missing";
+                            }
+                          }
+
                           const target = item?.capcut_draft_target ? String(item.capcut_draft_target) : "";
                           const runId = selected || candidate;
-                          const titleParts = [`status=${status || "unknown"}`];
+                          const titleParts: string[] = [];
+                          titleParts.push(`capcut_status=${capcutStatus || "unknown"}`);
+                          if (progressStatus) titleParts.push(`draft_progress=${progressStatus}`);
+                          const stage = item?.capcut_draft_progress?.stage ? String(item.capcut_draft_progress.stage) : "";
+                          if (stage) titleParts.push(`stage=${stage}`);
+                          const metrics = item?.capcut_draft_progress?.metrics ?? null;
+                          const cueCount = metrics?.cues?.count;
+                          const promptCount = metrics?.prompts?.count;
+                          const imagesCount = metrics?.images?.count;
+                          if (cueCount !== null && cueCount !== undefined) titleParts.push(`cues=${cueCount}`);
+                          if (promptCount !== null && promptCount !== undefined) titleParts.push(`prompts=${promptCount}/${cueCount ?? "?"}`);
+                          if (imagesCount !== null && imagesCount !== undefined) titleParts.push(`images=${imagesCount}/${cueCount ?? "?"}`);
+                          const autoRun = metrics?.auto_run_status ? String(metrics.auto_run_status) : "";
+                          if (autoRun) titleParts.push(`auto=${autoRun}`);
                           if (runId) titleParts.push(`run=${runId}`);
                           if (target) titleParts.push(`target=${target}`);
                           return (

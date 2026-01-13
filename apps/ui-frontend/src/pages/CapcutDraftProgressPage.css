@@ -1,0 +1,122 @@
+.capcut-draft-progress-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.capcut-draft-progress-page__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.capcut-draft-progress-page__controls select,
+.capcut-draft-progress-page__controls input {
+  padding: 5px 8px;
+  font-size: 13px;
+  border: 1px solid #cbd2d9;
+  border-radius: 6px;
+}
+
+.capcut-draft-progress-page__status {
+  color: #0b6efd;
+}
+
+.capcut-draft-progress-page__error {
+  color: #c1121f;
+  font-weight: 700;
+}
+
+.capcut-draft-progress-page__table-wrapper {
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  max-height: calc(100vh - 260px);
+}
+
+.capcut-draft-progress-page__table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 12px;
+}
+
+.capcut-draft-progress-page__table th,
+.capcut-draft-progress-page__table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #f1f3f5;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.capcut-draft-progress-page__table th {
+  position: sticky;
+  top: 0;
+  background: #e2e8f0;
+  z-index: 2;
+  font-weight: 800;
+}
+
+.capcut-draft-progress-page__table tr:hover td {
+  background: #f8fbff;
+}
+
+.capcut-draft-progress-page__title {
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.capcut-draft-progress-page__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.capcut-draft-progress-page__badge--done {
+  border: 1px solid rgba(22, 163, 74, 0.35);
+  background: rgba(22, 163, 74, 0.12);
+  color: #166534;
+}
+
+.capcut-draft-progress-page__badge--doing {
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  background: rgba(2, 132, 199, 0.12);
+  color: #075985;
+}
+
+.capcut-draft-progress-page__badge--todo {
+  border: 1px solid rgba(71, 85, 105, 0.25);
+  background: rgba(71, 85, 105, 0.08);
+  color: #334155;
+}
+
+.capcut-draft-progress-page__badge--danger {
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.12);
+  color: #991b1b;
+}
+
+.capcut-draft-progress-page__link {
+  color: #0b6efd;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.capcut-draft-progress-page__link:hover {
+  text-decoration: underline;
+}
+

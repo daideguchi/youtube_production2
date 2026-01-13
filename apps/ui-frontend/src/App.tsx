@@ -45,6 +45,7 @@ import { AuditPage } from "./pages/AuditPage";
 import { ImageModelRoutingPage } from "./pages/ImageModelRoutingPage";
 import { ChannelModelPolicyPage } from "./pages/ChannelModelPolicyPage";
 import { GhReleasesArchivePage } from "./pages/GhReleasesArchivePage";
+import { CapcutDraftProgressPage } from "./pages/CapcutDraftProgressPage";
 
 function App() {
   return (
@@ -85,6 +86,7 @@ function App() {
         <Route path="/agent-board" element={<AgentBoardPage />} />
         <Route path="/archives" element={<GhReleasesArchivePage />} />
         <Route path="/audio-review" element={<AudioReviewRoute />} />
+        <Route path="/capcut-draft-progress" element={<CapcutDraftProgressPage />} />
         <Route path="/capcut-edit" element={<CapcutEditPage />} />
         <Route path="/capcut-edit/production" element={<ProductionPage />} />
         <Route path="/capcut-edit/draft" element={<CapcutDraftPage />} />

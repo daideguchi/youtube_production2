@@ -1,4 +1,6 @@
 from __future__ import annotations
+import base64
+import hashlib
 import math
 import logging
 import os
@@ -10,15 +12,18 @@ from collections import deque
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import json
-from typing import Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 from functools import lru_cache
 
 from factory_common.image_client import (
     ImageClient,
     ImageGenerationError,
     ImageTaskOptions,
+    IMAGE_MODEL_KEY_BLOCKLIST,
+    IMAGE_MODEL_KEY_BLOCKLIST_TASKS,
 )
 from factory_common.paths import repo_root
+from factory_common.routing_lockdown import lockdown_active
 
 from video_pipeline.src.core.config import config
 
@@ -618,7 +623,8 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
-    # Normalize mode: allow only direct (ImageClient) or none (skip)
+    # Normalize mode for the per-image generator: allow only direct (ImageClient) or none (skip).
+    # NOTE: mode=batch is handled at generate_image_batch() level (submit→poll→fetch).
     mode_norm = mode
     if mode_norm not in ("direct", "none"):
         logging.warning("nanobanana mode=%s is deprecated; forcing direct", mode_norm)
@@ -729,6 +735,530 @@ def _rate_limited_gen_one(cue: Dict, mode: str, force: bool, width: int, height:
              retry_until_success, max_retries, placeholder_text)
 
 
+# ==== Gemini Batch (Developer API Batch) ====
+_GEMINI_BATCH_SCHEMA = "ytm.gemini_batch_images.v1"
+
+
+def _utc_stamp() -> str:
+    return time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+
+
+def _sha256(text: str) -> str:
+    return hashlib.sha256(str(text or "").encode("utf-8")).hexdigest()
+
+
+def _read_json(path: Path) -> Dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_json(path: Path, data: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _resolve_gemini_api_key() -> str:
+    key = (os.getenv("GEMINI_API_KEY") or "").strip()
+    if not key:
+        raise ImageGenerationError(
+            "GEMINI_API_KEY is not set.\n"
+            "- Recommended: run via ./scripts/with_ytm_env.sh ...\n"
+            "- Or export GEMINI_API_KEY in your shell."
+        )
+    return key
+
+
+def _infer_run_dir_from_cues(cues: List[Dict[str, Any]]) -> Optional[Path]:
+    if not cues:
+        return None
+    try:
+        out_path = str(cues[0].get("image_path") or "").strip()
+        if not out_path:
+            return None
+        p = Path(out_path).expanduser().resolve()
+        # images/.. -> run_dir
+        return p.parent.parent
+    except Exception:
+        return None
+
+
+def _infer_channel_from_run_dir(run_dir: Path) -> str:
+    m = re.match(r"^(CH\\d{2})\\b", str(run_dir.name or ""), flags=re.IGNORECASE)
+    return m.group(1).upper() if m else ""
+
+
+def _resolve_model_conf_for_task(*, task: str, selector: Optional[str]) -> Tuple[str, Dict[str, Any]]:
+    """
+    Resolve a model selector (slot code or model_key) to a concrete model_conf in ImageClient config,
+    without making any network calls.
+    """
+    client = ImageClient()
+    task_conf = (client._config.get("tasks", {}) or {}).get(task)  # type: ignore[attr-defined]
+    if not isinstance(task_conf, dict):
+        raise ImageGenerationError(f"Task '{task}' not found in image model configuration")
+
+    tier_name = str(task_conf.get("tier") or "").strip()
+    if not tier_name:
+        raise ImageGenerationError(f"Tier is not defined for task '{task}'")
+
+    candidates = (client._config.get("tiers", {}) or {}).get(tier_name)  # type: ignore[attr-defined]
+    if not isinstance(candidates, list) or not candidates:
+        raise ImageGenerationError(f"No tier candidates found for tier '{tier_name}'")
+
+    model_key: Optional[str] = None
+    selector_norm = (str(selector or "").strip() or None)
+    if selector_norm:
+        model_key = client._resolve_model_key_selector(task=task, selector=selector_norm) or selector_norm  # type: ignore[attr-defined]
+    else:
+        first = candidates[0]
+        model_key = str(first).strip() if isinstance(first, str) and str(first).strip() else None
+
+    if not model_key:
+        raise ImageGenerationError(f"Failed to resolve model_key for task '{task}' (selector={selector_norm!r})")
+
+    if (
+        lockdown_active()
+        and str(task or "").strip() in IMAGE_MODEL_KEY_BLOCKLIST_TASKS
+        and model_key in IMAGE_MODEL_KEY_BLOCKLIST
+    ):
+        raise ImageGenerationError(
+            "\n".join(
+                [
+                    "[LOCKDOWN] Forbidden image model key detected for video images (Gemini 3 image models are not allowed for visual_image_gen).",
+                    f"- task: {task}",
+                    f"- selector: {selector_norm or '(tier default)'}",
+                    f"- resolved_model_key: {model_key}",
+                    "- policy: Gemini 3 系の画像モデルは動画内画像では使用禁止です（サムネは許可）。",
+                    "- fix: use slot/codes like img-gemini-flash-1 (g-1).",
+                ]
+            )
+        )
+
+    model_conf = (client._config.get("models", {}) or {}).get(model_key)  # type: ignore[attr-defined]
+    if not isinstance(model_conf, dict):
+        raise ImageGenerationError(f"Model '{model_key}' not found in image model configuration")
+    return model_key, model_conf
+
+
+def _extract_image_b64_parts_from_response_dict(resp: Dict[str, Any]) -> List[Tuple[str, str]]:
+    out: List[Tuple[str, str]] = []
+    candidates = resp.get("candidates") or []
+    if not isinstance(candidates, list):
+        return out
+    for cand in candidates:
+        if not isinstance(cand, dict):
+            continue
+        content = cand.get("content") or {}
+        if not isinstance(content, dict):
+            continue
+        parts = content.get("parts") or []
+        if not isinstance(parts, list):
+            continue
+        for part in parts:
+            if not isinstance(part, dict):
+                continue
+            inline = part.get("inlineData") or part.get("inline_data") or {}
+            if not isinstance(inline, dict):
+                continue
+            mime = inline.get("mimeType") or inline.get("mime_type") or ""
+            data = inline.get("data") or ""
+            if isinstance(mime, str) and isinstance(data, str) and mime.startswith("image/") and data:
+                out.append((mime, data))
+    return out
+
+
+def _compute_batch_indices(
+    *,
+    cues: List[Dict[str, Any]],
+    force: bool,
+    min_bytes: int,
+) -> List[int]:
+    """
+    Select cue indices to generate via batch.
+    - Skip cues with existing injected assets (asset_relpath exists).
+    - When not forcing: treat missing or too-small PNGs as targets (placeholder detection).
+    """
+    out: List[int] = []
+    for cue in cues:
+        if not isinstance(cue, dict):
+            continue
+        try:
+            idx = int(cue.get("index") or 0)
+        except Exception:
+            idx = 0
+        if idx <= 0:
+            continue
+
+        # Skip cues that are backed by an injected asset (e.g., b-roll mp4).
+        rel = ""
+        try:
+            rel = (cue.get("asset_relpath") or "").strip()
+        except Exception:
+            rel = ""
+        if rel:
+            try:
+                out_path = Path(str(cue.get("image_path") or "")).expanduser().resolve()
+                run_dir = out_path.parent.parent
+                asset_path = (run_dir / rel).resolve()
+                if asset_path.exists():
+                    continue
+            except Exception:
+                pass
+
+        if force:
+            out.append(idx)
+            continue
+
+        out_path_raw = cue.get("image_path")
+        if not isinstance(out_path_raw, str) or not out_path_raw.strip():
+            out.append(idx)
+            continue
+        out_path = Path(out_path_raw).expanduser()
+        try:
+            if out_path.exists() and out_path.is_file():
+                size = int(out_path.stat().st_size)
+                if size >= max(0, int(min_bytes)):
+                    continue
+        except Exception:
+            pass
+        out.append(idx)
+    return sorted(set(out))
+
+
+def _generate_images_via_gemini_batch(
+    *,
+    cues: List[Dict[str, Any]],
+    force: bool,
+    width: int,
+    height: int,
+    retry_until_success: bool,
+    placeholder_text: Optional[str],
+    max_retries: int,
+) -> None:
+    run_dir = _infer_run_dir_from_cues(cues)
+    if run_dir is None:
+        raise ImageGenerationError("batch mode requires cues[*].image_path to infer run_dir")
+
+    channel = _infer_channel_from_run_dir(run_dir)
+
+    # Prefer a single per-cue selector when present; otherwise fall back to the run-level env override.
+    selectors: set[str] = set()
+    for cue in cues:
+        mk = cue.get("image_model_key") if isinstance(cue, dict) else None
+        if isinstance(mk, str) and mk.strip():
+            selectors.add(mk.strip())
+    selector: Optional[str] = None
+    if len(selectors) == 1:
+        selector = next(iter(selectors))
+    elif len(selectors) > 1:
+        logging.warning(
+            "nanobanana mode=batch: multiple image_model_key detected (%s). Falling back to direct.",
+            ", ".join(sorted(selectors)),
+        )
+        generate_image_batch(
+            cues=cues,
+            mode="direct",
+            concurrency=1,
+            force=force,
+            width=width,
+            height=height,
+            retry_until_success=retry_until_success,
+            max_retries=max_retries,
+            placeholder_text=placeholder_text,
+        )
+        return
+
+    env_selector = (os.getenv("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN") or "").strip() or None
+    selector = selector or env_selector
+
+    task = "visual_image_gen"
+    model_key, model_conf = _resolve_model_conf_for_task(task=task, selector=selector)
+    provider = str(model_conf.get("provider") or "").strip().lower()
+    model_name = str(model_conf.get("model_name") or "").strip()
+
+    # Only Gemini (generateContent image models) are batchable via this interface.
+    if provider != "gemini" or not model_name or model_name.startswith("imagen"):
+        logging.warning(
+            "nanobanana mode=batch: provider/model not batchable (provider=%s model=%s model_key=%s). Falling back to direct.",
+            provider or "?",
+            model_name or "?",
+            model_key,
+        )
+        generate_image_batch(
+            cues=cues,
+            mode="direct",
+            concurrency=1,
+            force=force,
+            width=width,
+            height=height,
+            retry_until_success=retry_until_success,
+            max_retries=max_retries,
+            placeholder_text=placeholder_text,
+        )
+        return
+
+    # Placeholder detection threshold (default: 60KB). Keep consistent with UI validation.
+    try:
+        min_bytes = int(os.getenv("SRT2IMAGES_MIN_IMAGE_BYTES", "60000"))
+    except Exception:
+        min_bytes = 60000
+
+    indices = _compute_batch_indices(cues=cues, force=force, min_bytes=min_bytes)
+    if not indices:
+        logging.info("nanobanana mode=batch: nothing to do (all images present).")
+        return
+
+    batch_dir = run_dir / "_gemini_batch"
+    batch_dir.mkdir(parents=True, exist_ok=True)
+    input_jsonl = batch_dir / "batch_input.jsonl"
+    manifest_path = batch_dir / "manifest.json"
+
+    # Build JSONL + manifest items.
+    id_to_item: Dict[str, Dict[str, Any]] = {}
+    lines: List[str] = []
+    items: List[Dict[str, Any]] = []
+    idx_to_cue: Dict[int, Dict[str, Any]] = {}
+    for cue in cues:
+        if not isinstance(cue, dict):
+            continue
+        try:
+            idx = int(cue.get("index") or 0)
+        except Exception:
+            continue
+        if idx > 0:
+            idx_to_cue[idx] = cue
+
+    for idx in indices:
+        cue = idx_to_cue.get(idx) or {}
+        prompt = str(cue.get("prompt") or cue.get("summary") or "").strip()
+        if not prompt:
+            prompt = "Scene illustration. No text."
+        out_path = Path(str(cue.get("image_path") or (run_dir / "images" / f"{idx:04d}.png"))).expanduser()
+        if not out_path.is_absolute():
+            out_path = (repo_root() / out_path).resolve()
+        req_id = f"{run_dir.name}#{idx:04d}"
+        line = {
+            "request": {
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": prompt}],
+                    }
+                ]
+            },
+            "metadata": {"id": req_id},
+        }
+        lines.append(json.dumps(line, ensure_ascii=False))
+        item = {
+            "id": req_id,
+            "run_dir": str(run_dir),
+            "cue_index": int(idx),
+            "output_path": str(out_path),
+            "prompt_sha256": _sha256(prompt),
+        }
+        items.append(item)
+        id_to_item[req_id] = item
+
+    input_jsonl.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    api_key = _resolve_gemini_api_key()
+    try:
+        import google.genai as genai  # type: ignore
+        import google.genai.types as genai_types  # type: ignore
+    except Exception as exc:  # pragma: no cover
+        raise ImageGenerationError(
+            "google-genai is required for Gemini Batch. Install: pip install google-genai\n"
+            f"Import error: {exc}"
+        ) from exc
+
+    client = genai.Client(api_key=api_key)
+    uploaded = client.files.upload(
+        file=str(input_jsonl),
+        config=genai_types.UploadFileConfig(mime_type="application/json"),
+    )
+    job = client.batches.create(model=model_name, src=str(uploaded.name))
+    job_name = str(getattr(job, "name", "") or "")
+
+    manifest = {
+        "schema": _GEMINI_BATCH_SCHEMA,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "channel": channel or None,
+        "task": task,
+        "selector": selector or None,
+        "resolved_model_key": model_key,
+        "model": model_name,
+        "input": {
+            "path": str(input_jsonl),
+            "uploaded_file": str(getattr(uploaded, "name", "") or ""),
+            "count": len(items),
+        },
+        "job": {
+            "name": job_name,
+            "state": str(getattr(job, "state", "") or ""),
+        },
+        "items": items,
+    }
+    _write_json(manifest_path, manifest)
+    logging.info("nanobanana mode=batch: submitted job=%s items=%d out=%s", job_name, len(items), manifest_path)
+
+    # Poll until finished (batch can be slow; waiting is the default behavior for the production pipeline).
+    poll_sec = int(os.getenv("SRT2IMAGES_GEMINI_BATCH_POLL_SEC", "30") or 30)
+    while True:
+        j = client.batches.get(name=job_name)
+        state = str(getattr(j, "state", "") or "")
+        if "SUCCEEDED" in state or "JOB_STATE_SUCCEEDED" in state:
+            break
+        if "FAILED" in state or "CANCELLED" in state:
+            raise ImageGenerationError(f"Gemini Batch job failed: {job_name} state={state}")
+        logging.info("nanobanana mode=batch: waiting job=%s state=%s", job_name, state)
+        time.sleep(max(5, poll_sec))
+
+    # Fetch results (inline or file download).
+    j = client.batches.get(name=job_name)
+    dest = getattr(j, "dest", None)
+    if dest is None:
+        raise ImageGenerationError("Gemini Batch job has no destination")
+
+    decoded: Dict[str, bytes] = {}
+    errors: List[str] = []
+
+    inlined = getattr(dest, "inlined_responses", None)
+    if isinstance(inlined, list) and inlined:
+        # Inline responses: order matches input request order; metadata may be absent.
+        if len(inlined) != len(items):
+            logging.warning("inlined_responses count mismatch: dest=%d items=%d", len(inlined), len(items))
+        for i, item in enumerate(items):
+            if i >= len(inlined):
+                break
+            resp_obj = inlined[i]
+            err = getattr(resp_obj, "error", None)
+            if err:
+                errors.append(f"{item['id']}: {err}")
+                continue
+            resp = getattr(resp_obj, "response", None)
+            try:
+                resp_dict = resp.model_dump() if hasattr(resp, "model_dump") else {}
+            except Exception:
+                resp_dict = {}
+            parts = _extract_image_b64_parts_from_response_dict(resp_dict)
+            if not parts:
+                errors.append(f"{item['id']}: no inline image parts")
+                continue
+            _mime, b64_data = parts[0]
+            try:
+                decoded[item["id"]] = base64.b64decode(b64_data)
+            except Exception:
+                errors.append(f"{item['id']}: base64 decode failed")
+        # proceed to write
+    else:
+        file_name = getattr(dest, "file_name", None)
+        if not (isinstance(file_name, str) and file_name.strip()):
+            raise ImageGenerationError("No results found in batch destination")
+
+        raw_name = str(file_name).strip()
+        name = raw_name.split("files/", 1)[1] if raw_name.startswith("files/") else raw_name
+        url = f"https://generativelanguage.googleapis.com/v1beta/files/{name}:download"
+        headers = {"x-goog-api-key": api_key}
+        params = {"alt": "media"}
+
+        import requests  # local import; optional dependency already used in repo
+
+        with requests.get(url, headers=headers, params=params, stream=True, timeout=600) as r:
+            r.raise_for_status()
+            for line in r.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                obj = json.loads(line)
+                meta = obj.get("metadata") or {}
+                if not isinstance(meta, dict):
+                    continue
+                rid = str(meta.get("id") or "").strip()
+                if not rid:
+                    continue
+                if rid not in id_to_item:
+                    continue
+                if obj.get("error"):
+                    errors.append(f"{rid}: {obj.get('error')}")
+                    continue
+                resp = obj.get("response") or {}
+                if not isinstance(resp, dict):
+                    errors.append(f"{rid}: missing response")
+                    continue
+                parts = _extract_image_b64_parts_from_response_dict(resp)
+                if not parts:
+                    errors.append(f"{rid}: no inline image parts")
+                    continue
+                _mime, b64_data = parts[0]
+                try:
+                    decoded[rid] = base64.b64decode(b64_data)
+                except Exception:
+                    errors.append(f"{rid}: base64 decode failed")
+
+    # Write images (+ convert to 16:9).
+    failed_indices: List[int] = []
+    for item in items:
+        rid = str(item.get("id") or "")
+        out_path = Path(str(item.get("output_path") or "")).expanduser()
+        if not out_path.is_absolute():
+            out_path = (repo_root() / out_path).resolve()
+        img_bytes = decoded.get(rid)
+        if not img_bytes:
+            failed_indices.append(int(item.get("cue_index") or 0))
+            continue
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            if force and out_path.exists() and out_path.is_file():
+                bdir = run_dir / "images" / f"_backup_{_utc_stamp()}"
+                bdir.mkdir(parents=True, exist_ok=True)
+                try:
+                    shutil.copy2(out_path, bdir / out_path.name)
+                except Exception:
+                    pass
+            out_path.write_bytes(img_bytes)
+            _convert_to_16_9(str(out_path), width, height)
+        except Exception as exc:
+            errors.append(f"{rid}: write failed: {exc}")
+            failed_indices.append(int(item.get("cue_index") or 0))
+
+    if failed_indices or errors:
+        msg = f"nanobanana mode=batch: completed with errors (failed_indices={sorted(set([i for i in failed_indices if i>0]))[:10]}... total_failed={len(set([i for i in failed_indices if i>0]))} errors={len(errors)})"
+        if retry_until_success:
+            raise ImageGenerationError(msg + " (retry_until_success=true)")
+
+        _ensure_pillow()
+        for idx in sorted(set([i for i in failed_indices if i > 0])):
+            out_path = run_dir / "images" / f"{idx:04d}.png"
+            try:
+                _make_placeholder_png(
+                    str(out_path),
+                    width,
+                    height,
+                    placeholder_text or "画像生成に失敗しました（batch）。後で再生成してください。",
+                )
+            except Exception:
+                pass
+        logging.warning(msg)
+
+    # Summary log (keep consistent with direct mode summary).
+    images_dir = run_dir / "images"
+    requested = len(indices)
+    ok = 0
+    for idx in indices:
+        p = images_dir / f"{idx:04d}.png"
+        try:
+            if p.exists() and p.is_file() and p.stat().st_size > 0:
+                ok += 1
+        except Exception:
+            pass
+    try:
+        dir_total = len([f for f in images_dir.glob("*.png") if f.is_file()]) if images_dir.exists() else 0
+    except Exception:
+        dir_total = 0
+    run_dir_name = run_dir.name
+    logging.info(
+        f"[{run_dir_name}][image_gen][OK] mode=batch requested={requested} ok={ok} dir_total={dir_total} dir={images_dir}"
+    )
+
+
 def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: bool, width: int, height: int, bin_path: str | None = None, timeout_sec: int = 300, config_path: str | None = None,
                          retry_until_success: bool = False, max_retries: int = 6, placeholder_text: str | None = None):
     """
@@ -745,6 +1275,19 @@ def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: b
         max_per_minute = int(env_value)
     except ValueError:
         max_per_minute = 10  # 万一おかしな値が来ても安全側に倒す
+
+    mode_norm = (mode or "").strip().lower()
+    if mode_norm == "batch":
+        _generate_images_via_gemini_batch(
+            cues=cues,
+            force=force,
+            width=width,
+            height=height,
+            retry_until_success=retry_until_success,
+            placeholder_text=placeholder_text,
+            max_retries=max_retries,
+        )
+        return
 
     # ★ここが「完全直列」のポイント★
     # ThreadPoolExecutor や asyncio.gather 等は一切使わず、

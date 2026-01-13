@@ -6,9 +6,9 @@ from video_pipeline.src.srt2images import nanobanana_client as nb
 def test_nanobanana_mode_forces_direct(tmp_path, monkeypatch):
     called = {"run_direct": False}
 
-    def fake_run_direct(prompt, output_path, width, height, config_path, timeout_sec, input_images=None, *, max_retries=3):
+    def fake_run_direct(prompt, output_path, width, height, config_path, timeout_sec, input_images=None, **kwargs):
         called["run_direct"] = True
-        assert max_retries == 1
+        assert kwargs.get("max_retries") == 1
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         Path(output_path).write_bytes(b"img")
         return True
@@ -37,3 +37,23 @@ def test_nanobanana_mode_forces_direct(tmp_path, monkeypatch):
 
     assert called["run_direct"] is True
     assert Path(cue["image_path"]).exists()
+
+
+def test_nanobanana_batch_mode_routes_to_gemini_batch(monkeypatch):
+    called = {"batch": False}
+
+    def fake_gemini_batch(**_kwargs):
+        called["batch"] = True
+
+    monkeypatch.setattr(nb, "_generate_images_via_gemini_batch", fake_gemini_batch)
+
+    nb.generate_image_batch(
+        cues=[],
+        mode="batch",
+        concurrency=1,
+        force=False,
+        width=1920,
+        height=1080,
+    )
+
+    assert called["batch"] is True

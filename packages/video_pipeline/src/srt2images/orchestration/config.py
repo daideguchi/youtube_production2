@@ -73,7 +73,8 @@ def get_args():
     args.cue_mode = args.cue_mode or get_config_val('cues.cue_mode', 'grouped')
     args.crossfade = args.crossfade or get_config_val('output.crossfade', 0.5)
     args.fps = args.fps or get_config_val('output.fps', 30)
-    args.nanobanana = args.nanobanana or get_config_val('image_generation.nanobanana', 'direct')
+    # Default to batch for video images when neither CLI nor config specifies a mode.
+    args.nanobanana = args.nanobanana or get_config_val('image_generation.nanobanana', 'batch')
     args.nanobanana_bin = ''  # deprecated
     args.nanobanana_timeout = args.nanobanana_timeout or get_config_val('image_generation.nanobanana_timeout', 300)
     

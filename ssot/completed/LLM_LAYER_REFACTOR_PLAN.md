@@ -237,7 +237,7 @@ class LLMClient:
 - **実装メモ (進捗)**
   - ✅ LLMClient 実装済み（usage ログを `workspaces/logs/llm_usage.jsonl` に JSONL 追記。`LLM_USAGE_LOG_PATH` でパス変更可、`LLM_USAGE_LOG_DISABLE=1` で無効化）。
   - ✅ ImageClient フェイルオーバー実装。commentary 画像経路の legacy router を削除し、ImageClient のみを再試行。
-  - ✅ 画像生成ルートは単一: `nanobanana=direct`（ImageClient + Gemini 2.5 flash image）。検証時は `--nanobanana none` を利用。
+  - ✅ 画像生成モード: `nanobanana=batch|direct|none`（既定=batch。batch=Gemini Batch when supported, direct=ImageClient, none=停止/PLACEHOLDER）。
   - ✅ Gemini image で aspect_ratio を送らない（capabilities supports_aspect_ratio=false）ことで Unknown field エラーを解消。
   - ✅ StyleResolver は `ssot/ops/master_styles.json` が無ければ `config/master_styles.json` をフォールバックする。
   - ✅ abort-on-log オプションを factory/auto_capcut に追加（パターン検知で早期停止、デフォルトは無効）。

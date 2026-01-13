@@ -19,6 +19,7 @@ from factory_common.timeline_manifest import parse_episode_id
 
 
 EPISODE_PROGRESS_VIEW_SCHEMA = "ytm.episode_progress_view.v1"
+VIDEO_RUN_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
 
 def _utc_now_iso() -> str:
@@ -76,6 +77,127 @@ def _safe_read_json(path: Path) -> dict[str, Any]:
     except Exception:
         return {}
     return data if isinstance(data, dict) else {}
+
+def _compute_capcut_draft_progress(
+    run_dir: Optional[Path],
+    *,
+    capcut_draft_status: str,
+) -> dict[str, Any]:
+    """
+    Derive an in-progress view for CapCut draft creation within a run_dir.
+
+    This is intentionally read-only and best-effort (never raises).
+    """
+    if not run_dir or not run_dir.exists() or not run_dir.is_dir():
+        return {
+            "status": "unstarted",
+            "stage": "unstarted",
+            "metrics": {
+                "segments": {"exists": False, "count": None},
+                "cues": {"exists": False, "count": None},
+                "prompts": {"ready": False, "count": None},
+                "images": {"count": 0, "complete": False},
+                "belt": {"exists": False},
+                "timeline_manifest": {"exists": False},
+                "auto_run_status": None,
+            },
+        }
+
+    segments_exists = False
+    segments_count: Optional[int] = None
+    segments_path = run_dir / "srt_segments.json"
+    if segments_path.exists() and segments_path.is_file():
+        segments_exists = True
+        payload = _safe_read_json(segments_path)
+        segments = payload.get("segments") if isinstance(payload, dict) else None
+        if isinstance(segments, list):
+            segments_count = len(segments)
+
+    cue_exists = False
+    cue_count: Optional[int] = None
+    prompt_count: Optional[int] = None
+    prompt_ready = False
+    cues_path = run_dir / "image_cues.json"
+    if cues_path.exists() and cues_path.is_file():
+        cue_exists = True
+        payload = _safe_read_json(cues_path)
+        cues = payload.get("cues") if isinstance(payload, dict) else None
+        if isinstance(cues, list):
+            cue_count = len(cues)
+            prompt_count = 0
+            for cue in cues:
+                if not isinstance(cue, dict):
+                    continue
+                prompt_value = str(cue.get("refined_prompt") or cue.get("prompt") or cue.get("summary") or "").strip()
+                if prompt_value:
+                    prompt_count += 1
+            prompt_ready = bool(prompt_count)
+
+    images_count = 0
+    images_complete = False
+    images_dir = run_dir / "images"
+    if images_dir.exists() and images_dir.is_dir():
+        try:
+            for child in images_dir.iterdir():
+                if not child.is_file():
+                    continue
+                if child.suffix.lower() not in VIDEO_RUN_IMAGE_EXTENSIONS:
+                    continue
+                images_count += 1
+        except Exception:
+            images_count = 0
+    if cue_count is not None and cue_count > 0:
+        images_complete = images_count >= cue_count
+
+    belt_exists = (run_dir / "belt_config.json").exists()
+    timeline_manifest_exists = (run_dir / "timeline_manifest.json").exists()
+
+    auto_run_status: Optional[str] = None
+    auto_run_info = run_dir / "auto_run_info.json"
+    if auto_run_info.exists() and auto_run_info.is_file():
+        payload = _safe_read_json(auto_run_info)
+        status_raw = payload.get("status")
+        if status_raw is not None:
+            auto_run_status = str(status_raw).strip() or None
+
+    status = "in_progress"
+    stage = "unstarted"
+
+    capcut_status_norm = str(capcut_draft_status or "").strip().lower()
+    if capcut_status_norm == "ok":
+        status = "completed"
+        stage = "capcut_draft"
+    elif capcut_status_norm == "broken":
+        status = "broken"
+        stage = "capcut_draft"
+    else:
+        if auto_run_status and auto_run_status.lower() == "failed":
+            status = "failed"
+
+        if images_count > 0:
+            stage = "images"
+        elif prompt_ready:
+            stage = "prompts"
+        elif cue_exists:
+            stage = "cues"
+        elif segments_exists:
+            stage = "segments"
+        else:
+            stage = "unstarted"
+
+    return {
+        "status": status,
+        "stage": stage,
+        "metrics": {
+            "segments": {"exists": bool(segments_exists), "count": segments_count},
+            "cues": {"exists": bool(cue_exists), "count": cue_count},
+            "prompts": {"ready": bool(prompt_ready), "count": prompt_count},
+            "images": {"count": int(images_count), "complete": bool(images_complete)},
+            "belt": {"exists": bool(belt_exists)},
+            "timeline_manifest": {"exists": bool(timeline_manifest_exists)},
+            "auto_run_status": auto_run_status,
+        },
+    }
 
 
 def _planning_video_token(row: dict[str, str], *, channel: str) -> Optional[str]:
@@ -413,6 +535,11 @@ def build_episode_progress_view(
         else:
             capcut_effective_status = "missing"
 
+        capcut_draft_progress = _compute_capcut_draft_progress(
+            (video_runs_root() / capcut_effective_run_id) if capcut_effective_run_id else None,
+            capcut_draft_status=str(capcut_effective_status or ""),
+        )
+
         episodes.append(
             {
                 "video": vid,
@@ -431,6 +558,7 @@ def build_episode_progress_view(
                 "capcut_draft_target": capcut_effective_target,
                 "capcut_draft_target_exists": capcut_effective_target_exists,
                 "capcut_draft_run_id": capcut_effective_run_id,
+                "capcut_draft_progress": capcut_draft_progress,
                 "issues": issues,
             }
         )

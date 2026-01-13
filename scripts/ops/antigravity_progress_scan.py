@@ -23,7 +23,7 @@ import re
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence
+from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
 from _bootstrap import bootstrap
 
@@ -147,6 +147,8 @@ class Item:
     chars: int
     issues: List[str]
     status: str
+    redo_script: bool = False
+    redo_note: str = ""
 
 
 def _iter_targets(channels: Sequence[str], videos: Sequence[str]) -> Iterable[tuple[str, str]]:
@@ -163,7 +165,36 @@ def _assembled_paths(channel: str, video: str) -> List[Path]:
     return [base / "assembled_human.md", base / "assembled.md"]
 
 
-def build_manifest(*, channels: Sequence[str], videos: Sequence[str], min_chars: int, max_chars: int) -> Dict[str, object]:
+def _read_redo_flags(channel: str, video: str) -> Tuple[bool, str]:
+    """
+    Best-effort: read `metadata.redo_script` / `metadata.redo_note` from status.json.
+    (These are SSOT/operator signals, not derived from assembled content.)
+    """
+    try:
+        status_path = repo_paths.video_root(channel, video) / "status.json"
+        if not status_path.exists():
+            return False, ""
+        obj = json.loads(status_path.read_text(encoding="utf-8"))
+        if not isinstance(obj, dict):
+            return False, ""
+        meta = obj.get("metadata") or {}
+        if not isinstance(meta, dict):
+            return False, ""
+        redo_script = bool(meta.get("redo_script"))
+        redo_note = str(meta.get("redo_note") or "").strip()
+        return redo_script, redo_note
+    except Exception:
+        return False, ""
+
+
+def build_manifest(
+    *,
+    channels: Sequence[str],
+    videos: Sequence[str],
+    min_chars: int,
+    max_chars: int,
+    respect_redo_flags: bool,
+) -> Dict[str, object]:
     items: List[Item] = []
     for ch, v in _iter_targets(channels, videos):
         paths = _assembled_paths(ch, v)
@@ -175,11 +206,18 @@ def build_manifest(*, channels: Sequence[str], videos: Sequence[str], min_chars:
                 chosen = p
                 break
 
+        redo_script = False
+        redo_note = ""
+        if respect_redo_flags:
+            redo_script, redo_note = _read_redo_flags(ch, v)
+
         exists = chosen.exists()
         text = chosen.read_text(encoding="utf-8") if exists else ""
         chars = _non_space_chars(text) if exists else 0
         issues = _detect_issues(text) if exists else []
         status = _status_from(exists=exists, chars=chars, issues=issues, min_chars=min_chars, max_chars=max_chars)
+        if redo_script and status not in {"missing", "empty"}:
+            status = "needs_rebuild_redo"
 
         items.append(
             Item(
@@ -191,6 +229,8 @@ def build_manifest(*, channels: Sequence[str], videos: Sequence[str], min_chars:
                 chars=chars,
                 issues=list(issues),
                 status=status,
+                redo_script=bool(redo_script),
+                redo_note=str(redo_note),
             )
         )
 
@@ -229,6 +269,11 @@ def parse_args() -> argparse.Namespace:
         help="Maximum non-space characters for OK (default: 8000)",
     )
     p.add_argument(
+        "--respect-redo-flags",
+        action="store_true",
+        help="If status.json has metadata.redo_script=true, force status to needs_rebuild_redo (except missing/empty).",
+    )
+    p.add_argument(
         "--out",
         default=str((repo_paths.workspace_root() / "scripts" / "_state" / "antigravity_ch27_31_progress.json").as_posix()),
         help="Output manifest path (default under workspaces/scripts/_state)",
@@ -262,7 +307,13 @@ def main() -> None:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    manifest = build_manifest(channels=channels, videos=videos, min_chars=int(args.min_chars), max_chars=int(args.max_chars))
+    manifest = build_manifest(
+        channels=channels,
+        videos=videos,
+        min_chars=int(args.min_chars),
+        max_chars=int(args.max_chars),
+        respect_redo_flags=bool(args.respect_redo_flags),
+    )
     out_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"[ok] wrote: {out_path}")
     print("[summary]", manifest.get("summary"))
@@ -270,4 +321,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

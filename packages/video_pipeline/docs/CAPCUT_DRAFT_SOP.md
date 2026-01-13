@@ -2,7 +2,7 @@
 
 ## 0. Environment
 - Load keys from one place: set `GEMINI_API_KEY` in the project `.env` (or export in your shell). No `.gemini_config` / credentials copies.
-- nanobanana route is single: `direct` only. CLI/mcp 経路や config.json は不要（空でOK）。
+- nanobanana modes: `batch` (Gemini Batch when supported), `direct` (sync ImageClient), `none` (skip). Default is `batch` for video images.
 
 ## 1. Run command (no fallbacks)
 ```
@@ -12,7 +12,7 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run \
 	  --run-name <run> \
 	  --title "<title>" \
 	  --belt-mode llm \
-	  --nanobanana direct \
+	  --nanobanana batch \
 	  --img-concurrency 3 \
 	  --force
 ```

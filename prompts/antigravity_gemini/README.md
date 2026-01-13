@@ -22,9 +22,20 @@ CH27〜CH31 を連続で書かせる運用（完了済みスキップ + 文字�
 CH27〜CH31 autopilot（進捗JSONで自動再開 / 最大5本で停止）:
 - `prompts/antigravity_gemini/RUNBOOK_AUTOPILOT_CH27_31.md`
 
+CH28 だけの autopilot（進捗JSONで自動再開 / 最大5本で停止）:
+- `prompts/antigravity_gemini/RUNBOOK_AUTOPILOT_CH28.md`
+  - 企画変更などで `status.json: metadata.redo_script=true` の動画は、進捗スキャンが `needs_rebuild_redo` に落として全面書き直し対象にする（runbook内で `--respect-redo-flags` を使用）。
+
 Batch運用（Gemini Developer API Batch）:
 - 個別/Full プロンプト生成: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_script_prompts.py build --channel CHxx --videos NNN-NNN`
 - Batch submit/fetch: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py --help`
+
+メモリ/残骸クリーンアップ（コンテキスト肥大化対策）:
+- Gemini/Antigravity のセッションが重くなって品質が崩れ始めたら、一旦止めて “brain” を掃除してから新セッションで再開する。
+- コマンド（dry-run がデフォルト）:
+  - `./ops clear-brain`
+  - `./ops clear-brain -- --run`
+- これは `workspaces/scripts/_state/antigravity*.json` と `workspaces/_scratch/gemini_batch_scripts/*`（完了判定のみ）だけを消す。SoT（`assembled*.md` / `status.json`）には触れない。
 
 注意:
 - Gemini が前置きやチェックリストを出したら、その出力は使わない。本文のみで出し直す。

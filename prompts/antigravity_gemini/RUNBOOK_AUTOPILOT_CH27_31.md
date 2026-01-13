@@ -14,12 +14,13 @@
 
 生成/更新（必須。毎回これを最初に実行してから着手）:
 ```bash
-python3 scripts/ops/antigravity_progress_scan.py --channels CH27,CH28,CH29,CH30,CH31 --videos 001-030 --out workspaces/scripts/_state/antigravity_ch27_31_progress.json
+python3 scripts/ops/antigravity_progress_scan.py --channels CH27,CH28,CH29,CH30,CH31 --videos 001-030 --respect-redo-flags --out workspaces/scripts/_state/antigravity_ch27_31_progress.json
 ```
 
 この JSON の `items[].status` が作業の指示書になる:
 - `ok` のものは **スキップ**
 - それ以外（`missing`, `needs_extend`, `needs_rebuild_*`, `needs_shorten`, `needs_fix_ending`）は **未完/不合格** として処理対象
+  - `needs_rebuild_redo`: `status.json: metadata.redo_script=true` を根拠に全面書き直し（企画/方針の変更やボツ指示）
 
 ## 1) セッションの上限（暴走防止）
 
@@ -67,7 +68,7 @@ python3 scripts/ops/antigravity_progress_scan.py --channels CH27,CH28,CH29,CH30,
 - 既存 `assembled*.md` を **捨てずに**、物語とほどきを崩さずに加筆して 6000〜8000 に収めて完成させる。
 - 水増しは禁止。具体（場面、生活音、距離感、小道具、小さな棘）を増やして厚みを作る。
 
-3) `status=needs_rebuild_punct` または `status=needs_rebuild_forbidden`:
+3) `status=needs_rebuild_punct` / `needs_rebuild_forbidden` / `needs_rebuild_redo`:
 - 既存本文は事故源なので **退避してから** 全面書き直しする。
   - 退避: `assembled.md.bak`（同階層）にコピーしてから上書き
 
@@ -79,6 +80,8 @@ python3 scripts/ops/antigravity_progress_scan.py --channels CH27,CH28,CH29,CH30,
 1. 進捗 JSON を更新し、未完の先頭（CH27-001→...→CH31-030の順）を特定する。
 2. 対象のチャンネル MASTER と 個別プロンプトを読み、要件を固定する。
 3. 台本本文を生成し、保存する（`content/assembled.md`）。
+   - `needs_rebuild_redo` は `status.json: metadata.redo_script=true` が根拠なので、**書き直し完了後に** `redo_script=false` に戻す（戻さないと次回スキャンでも `needs_rebuild_redo` のまま）。
+   - 既存CLI（推奨）: `python3 scripts/mark_redo_done.py --channel CHxx --videos NNN --type script`
 4. 進捗 JSON を更新する（再スキャンして状態を確定させる）。
 5. 1〜4 を繰り返し、最大 5 本で停止する。
 

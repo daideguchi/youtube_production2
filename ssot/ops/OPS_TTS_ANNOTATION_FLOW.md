@@ -49,7 +49,7 @@
 1) AテキストSoTを解決（`assembled_human.md` があれば優先、無ければ `assembled.md`）
 2) B生成（正規化/辞書/override/文脈パッチ）→ `script_sanitized.txt` を materialize
 3) **prepass**（読みだけ。wavは作らない）で mismatch=0 を確認  
-   - `PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled_human.md --prepass`（無い場合は `assembled.md`）
+   - `SKIP_TTS_READING=1 PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled_human.md --prepass`（無い場合は `assembled.md`）
    - mismatch が出た場合も `audio_prep/log.json` は残す（候補抽出/原因調査用）。最終的に mismatch=0 になるまで修正してから合成へ。
 4) mismatch が0になったら合成（wav/srt）へ進む
 5) 公式辞書へ反映したい語は「確定語だけ」人間レビュー→昇格→sync

@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import io
 import json
 import os
 import re
@@ -552,6 +553,30 @@ def fetch_job(*, manifest_path: Path, write_images: bool, backup_existing: bool)
 
     id_to_item = {it.id: it for it in items}
 
+    # Target size: read from each run_dir/image_cues.json (cached per run_dir).
+    # Gemini Batch outputs may not honor aspect ratio; enforce the run_dir's target here.
+    target_sizes: Dict[str, Tuple[int, int]] = {}
+
+    def _get_target_size(run_dir_str: str) -> Tuple[int, int]:
+        cached = target_sizes.get(run_dir_str)
+        if cached is not None:
+            return cached
+        width, height = 1920, 1080
+        try:
+            cues_path = Path(run_dir_str) / "image_cues.json"
+            if cues_path.exists():
+                cues_data = json.loads(cues_path.read_text(encoding="utf-8"))
+                size = cues_data.get("size")
+                if isinstance(size, dict):
+                    w = int(size.get("width") or 0)
+                    h = int(size.get("height") or 0)
+                    if w > 0 and h > 0:
+                        width, height = w, h
+        except Exception:
+            pass
+        target_sizes[run_dir_str] = (width, height)
+        return target_sizes[run_dir_str]
+
     # Backup handling: lazily create one backup dir per run_dir when we first overwrite.
     backup_dirs: Dict[str, Path] = {}
 
@@ -581,7 +606,46 @@ def fetch_job(*, manifest_path: Path, write_images: bool, backup_existing: bool)
         out_path = Path(it.output_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         _maybe_backup(out_path, run_dir_str=it.run_dir)
-        out_path.write_bytes(img_bytes)
+        target_w, target_h = _get_target_size(it.run_dir)
+
+        # Write as a 16:9 (or run_dir-specified) PNG to keep downstream (CapCut) consistent.
+        try:
+            from PIL import Image
+
+            with Image.open(io.BytesIO(img_bytes)) as img:
+                img.load()
+                w, h = img.size
+                if w <= 0 or h <= 0:
+                    raise RuntimeError(f"invalid_image_size={img.size}")
+
+                current_ratio = w / h
+                target_ratio = target_w / target_h
+                out = img
+
+                # Center-crop to target aspect ratio if needed.
+                if abs(current_ratio - target_ratio) >= 0.01:
+                    if current_ratio > target_ratio:
+                        # Too wide → crop width.
+                        new_w = int(round(h * target_ratio))
+                        new_w = max(1, min(w, new_w))
+                        left = (w - new_w) // 2
+                        box = (left, 0, left + new_w, h)
+                    else:
+                        # Too tall → crop height.
+                        new_h = int(round(w / target_ratio))
+                        new_h = max(1, min(h, new_h))
+                        top = (h - new_h) // 2
+                        box = (0, top, w, top + new_h)
+                    out = img.crop(box)
+
+                # Resize to target dimensions (ensures CapCut-friendly consistency).
+                if out.size != (target_w, target_h):
+                    out = out.resize((target_w, target_h), Image.LANCZOS)
+
+                out.save(out_path, format="PNG")
+                return
+        except Exception as exc:
+            raise RuntimeError(f"resize_to_target_failed: {exc}") from exc
 
     errors: List[str] = []
     decoded_images = 0

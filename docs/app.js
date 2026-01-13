@@ -2367,11 +2367,13 @@ function _sortedVideosForChannel(channel) {
 function _setContentNavButton(btn, channel, video) {
   const ch = normalizeChannelParam(channel);
   const v = normalizeVideoParam(video);
+  const isPrev = btn === contentPrev || String(btn?.id || "") === "contentPrev";
   if (!ch || !v) {
     btn.disabled = true;
     delete btn.dataset.channel;
     delete btn.dataset.video;
     btn.title = "";
+    btn.textContent = isPrev ? "← 前" : "次 →";
     return;
   }
   const it = findItem(ch, v);
@@ -2381,6 +2383,7 @@ function _setContentNavButton(btn, channel, video) {
   btn.dataset.channel = ch;
   btn.dataset.video = v;
   btn.title = title ? `${vid} · ${title}` : vid;
+  btn.textContent = isPrev ? `← ${vid}` : `${vid} →`;
 }
 
 function updateContentNav(it) {
@@ -2778,12 +2781,20 @@ function setupEvents() {
   contentPrev.addEventListener("click", () => {
     const ch = String(contentPrev.dataset.channel || "").trim();
     const v = String(contentPrev.dataset.video || "").trim();
-    if (ch && v) selectItem(ch, v);
+    if (ch && v) {
+      closeBrowseIfNarrow();
+      selectItem(ch, v);
+      scrollToEl(contentPre);
+    }
   });
   contentNext.addEventListener("click", () => {
     const ch = String(contentNext.dataset.channel || "").trim();
     const v = String(contentNext.dataset.video || "").trim();
-    if (ch && v) selectItem(ch, v);
+    if (ch && v) {
+      closeBrowseIfNarrow();
+      selectItem(ch, v);
+      scrollToEl(contentPre);
+    }
   });
 
   viewTabs.addEventListener("click", (ev) => {

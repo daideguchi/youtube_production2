@@ -160,7 +160,7 @@ models:
 1) script_pipeline: stages.yaml/templates.yaml に task を明示し、`_run_llm` で `resolve_task` を必須にする（fallback 直指定禁止）。  
 2) script_pipeline: `script_outline`/`script_chapter_review`/`script_global_consistency` を新設（空でもよい）し、ルータ経由で実行できるようにする。  
 3) TTS: `tts_annotate`→`tts_text_prepare`→`tts_reading` の三段階を導線化し、旧 `llm_client` 参照を全削除。  
-4) video_pipeline: `LLMContextAnalyzer` と image prompt 生成を router 経由に統一し、nanobanana=direct 以外の分岐を削除。  
+4) video_pipeline: `LLMContextAnalyzer` と image prompt 生成を router 経由に統一し、画像生成モード（nanobanana）は `batch|direct|none` に固定する（legacy 指定は direct にクランプ）。  
 5) E2E: script→tts→image の最小ケースを `tests/test_e2e_pipeline.py` などで追加し、環境変数で実行可否を制御。  
 
 ## 8. 付録

@@ -238,7 +238,7 @@ def build_capcut_draft(
         cmd += ["--resume", "--nanobanana", "none"]
     else:
         # Default: build real images via pipeline
-        cmd += ["--nanobanana", "direct"]
+        cmd += ["--nanobanana", "batch"]
 
     _run(
         cmd,

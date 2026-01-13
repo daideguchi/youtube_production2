@@ -503,6 +503,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True, help="srt2images output run dir (contains image_cues.json)")
     ap.add_argument("--channel", help="Override channel id (e.g., CH02). If omitted, inferred from run_dir name.")
+    ap.add_argument(
+        "--nanobanana",
+        default="batch",
+        choices=["batch", "direct", "none"],
+        help="Image generation mode: batch (Gemini Batch when supported), direct (sync ImageClient), none (skip). Default: batch.",
+    )
     ap.add_argument("--force", action="store_true", help="Delete existing images/*.png before regeneration (destructive)")
     ap.add_argument(
         "--overwrite",
@@ -805,10 +811,15 @@ def main() -> None:
     _write_json(cues_path, payload)
     print(f"[PROMPTS] updated={len(gen_cues)} cues_path={cues_path}")
 
+    nanobanana_mode = str(args.nanobanana or "").strip().lower()
+    if nanobanana_mode == "none":
+        print("[SKIP] nanobanana=none (prompts updated only; image generation skipped)")
+        return
+
     # Generate images (rate-limited inside nanobanana_client)
     generate_image_batch(
         gen_cues,
-        mode="direct",
+        mode=nanobanana_mode,
         concurrency=1,
         force=force_generate,
         width=width,

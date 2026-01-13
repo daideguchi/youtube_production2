@@ -646,7 +646,12 @@ def main():
     ap.add_argument("--template", help="Explicit CapCut template name (optional, otherwise preset capcut_template)")
     ap.add_argument("--prompt-template", help="Explicit prompt template path (optional, otherwise preset prompt_template)")
     ap.add_argument("--img-concurrency", type=int, default=1, help="Image generation concurrency (default: 1 for rate limit safety)")
-    ap.add_argument("--nanobanana", default="direct", choices=["direct", "none"], help="Image generation mode (direct=ImageClient(Gemini), none=skip)")
+    ap.add_argument(
+        "--nanobanana",
+        default="batch",
+        choices=["batch", "direct", "none"],
+        help="Image generation mode (batch=Gemini Batch when supported, direct=sync ImageClient, none=skip)",
+    )
     ap.add_argument("--force", action="store_true", help="Force regenerate images")
     ap.add_argument("--suppress-warnings", action="store_true", default=True, help="Suppress DeprecationWarnings from underlying libs")
     ap.add_argument("--dry-run", action="store_true", help="Only run pre-flight + logging without modifying drafts")
@@ -703,7 +708,7 @@ def main():
         if not broll_ratio_cli:
             args.broll_ratio = cfg_ratio
 
-    if args.nanobanana not in ("direct", "none"):
+    if args.nanobanana not in ("batch", "direct", "none"):
         print(f"⚠️ nanobanana={args.nanobanana} is deprecated; falling back to 'direct'")
         args.nanobanana = "direct"
 

@@ -154,7 +154,12 @@ def main():
     parser.add_argument("--title", help="Explicit video title (overrides LLM generation)")
     parser.add_argument("--labels", help="Explicit belt labels (comma separated)")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
-    parser.add_argument("--nanobanana", choices=["direct", "none"], default="direct", help="Image generation mode: direct=ImageClient(Gemini), none=skip")
+    parser.add_argument(
+        "--nanobanana",
+        choices=["batch", "direct", "none"],
+        default="batch",
+        help="Image generation mode: batch=Gemini Batch when supported, direct=sync ImageClient, none=skip",
+    )
     parser.add_argument("--abort-on-log", help="Comma-separated patterns; if any appears in child stdout/stderr, abort the process.")
     parser.add_argument("--timeout-ms", type=int, help="Optional timeout (ms) for child commands (run_pipeline/auto_capcut_run). Default: no timeout.")
 
@@ -304,7 +309,7 @@ def main():
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         run_name = f"{video_id}_{timestamp}"
 
-        # Execute pipeline; respect requested nanobanana mode (default: direct).
+        # Execute pipeline; respect requested nanobanana mode (default: batch).
         run_pipeline_cmd = [
             sys.executable,
             str(PROJECT_ROOT / "tools" / "run_pipeline.py"),

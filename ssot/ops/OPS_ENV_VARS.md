@@ -431,6 +431,10 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - オプション: `SRT2IMAGES_TARGET_SECTIONS=12` のように指定すると、cues 計画の目標セクション数を上書きできる（最低5）。
 - オプション: `SRT2IMAGES_FORCE_CUES_PLAN=1` を設定すると、既存の `visual_cues_plan.json` を無視して再生成する（SRTが変わった/プランを作り直したい時）。
 - オプション: `SRT2IMAGES_VISUAL_BIBLE_PATH=/abs/or/repo/relative/path.json` を指定すると、Visual Bible を外部ファイルから読み込める（デフォルトは pipeline が in-memory で渡す）。
+- 画像生成（nanobanana）:
+  - `SRT2IMAGES_IMAGE_MAX_PER_MINUTE`（default: `10`）: direct モードのレート制限（1分あたり上限）
+  - `SRT2IMAGES_GEMINI_BATCH_POLL_SEC`（default: `30`）: batch モードの Gemini Batch poll 間隔（秒）
+  - `SRT2IMAGES_MIN_IMAGE_BYTES`（default: `60000`）: 既存画像を placeholder 扱いする最小サイズ（resume/regen の対象判定）
 
 ### Stock B-roll（フリー動画）向け補足
 必要キー（provider有効時のみ）:

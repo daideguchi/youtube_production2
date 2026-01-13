@@ -51,7 +51,7 @@ VIDEO_RE_3 = re.compile(r"^\d{3}$")
 
 # Cache-bust for docs/ep static assets (styles/app).
 # Bump this string when updating /docs/ep UX.
-EP_ASSET_VERSION = "20260113_06"
+EP_ASSET_VERSION = "20260113_07"
 
 
 def _now_iso_utc() -> str:
@@ -210,6 +210,8 @@ code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px;overflow
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .tab{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02)}
 .tab[aria-current="page"]{border-color:rgba(78,161,255,.8);background:rgba(78,161,255,.10)}
+.pager{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.pager .btn{flex:1 1 140px;text-align:center}
 .panel{margin-top:12px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
 .panel__head{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
 .panel__body{padding:12px}
@@ -846,6 +848,31 @@ def _episode_tabs_html(*, page_dir: Path, ep_base_dir: Path, active_key: str, va
     return '<nav class="tabs">' + "".join(out) + "</nav>"
 
 
+def _episode_pager_html(
+    *,
+    page_dir: Path,
+    channel_dir: Path,
+    channel: str,
+    view: str,
+    prev_video: str | None,
+    next_video: str | None,
+) -> str:
+    def link(*, label: str, video: str | None, cls: str) -> str:
+        if not video:
+            return f'<span class="btn {cls}" aria-disabled="true">{_escape_html(label)}</span>'
+        target = channel_dir / video
+        if view != "script":
+            target = target / view
+        href = _rel_href(page_dir, target, is_dir=True)
+        return f'<a class="btn {cls}" href="{_escape_html(href)}">{_escape_html(label)}</a>'
+
+    prev_label = f"← {channel}-{prev_video}" if prev_video else "← 前"
+    next_label = f"{channel}-{next_video} →" if next_video else "次 →"
+    prev_html = link(label=prev_label, video=prev_video, cls="btn--ghost")
+    next_html = link(label=next_label, video=next_video, cls="btn--accent")
+    return f'<div class="pager">{prev_html}{next_html}</div>'
+
+
 def _episode_viewer_page_html(
     *,
     page_dir: Path,
@@ -859,6 +886,8 @@ def _episode_viewer_page_html(
     view: str,
     updated_at: str,
     variants: list[str],
+    prev_video: str | None,
+    next_video: str | None,
 ) -> str:
     vid = f"{channel}-{video}"
     view_label_map = {"script": "台本", "audio": "音声", "thumb": "サムネ", "images": "画像"}
@@ -867,6 +896,14 @@ def _episode_viewer_page_html(
     links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=channel_dir)
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
     tabs = _episode_tabs_html(page_dir=page_dir, ep_base_dir=ep_base_dir, active_key=view, variants=variants)
+    pager = _episode_pager_html(
+        page_dir=page_dir,
+        channel_dir=channel_dir,
+        channel=channel,
+        view=view,
+        prev_video=prev_video,
+        next_video=next_video,
+    )
 
     docs_dir_href = _rel_href(page_dir, docs_root, is_dir=True)
     viewer_src = f"{docs_dir_href}?id={vid}&view={view}&embed=1&sv={EP_ASSET_VERSION}"
@@ -911,6 +948,7 @@ def _episode_viewer_page_html(
     body = (
         "<main>\n"
         f"  {tabs}\n"
+        f"  {pager}\n"
         f"{desc_panel}"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
@@ -946,12 +984,22 @@ def _episode_thumb_page_html(
     title: str | None,
     updated_at: str,
     variants: list[str],
+    prev_video: str | None,
+    next_video: str | None,
 ) -> str:
     vid = f"{channel}-{video}"
 
     links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=channel_dir)
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
     tabs = _episode_tabs_html(page_dir=page_dir, ep_base_dir=ep_base_dir, active_key="thumb", variants=variants)
+    pager = _episode_pager_html(
+        page_dir=page_dir,
+        channel_dir=channel_dir,
+        channel=channel,
+        view="thumb",
+        prev_video=prev_video,
+        next_video=next_video,
+    )
 
     normal_img_path = docs_root / "media" / "thumbs" / channel / f"{video}.jpg"
     normal_img_href = _rel_href(page_dir, normal_img_path, is_dir=False)
@@ -985,6 +1033,7 @@ def _episode_thumb_page_html(
     body = (
         "<main>\n"
         f"  {tabs}\n"
+        f"  {pager}\n"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
         f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">サムネ</span></div>\n"
@@ -1028,12 +1077,22 @@ def _episode_images_page_html(
     updated_at: str,
     variants: list[str],
     video_images_entry: dict[str, Any] | None,
+    prev_video: str | None,
+    next_video: str | None,
 ) -> str:
     vid = f"{channel}-{video}"
 
     links_html = _standard_links(page_dir=page_dir, docs_root=docs_root, ep_root=ep_root, channel_dir=channel_dir)
     styles_href = _rel_href(page_dir, ep_root / "styles.css", is_dir=False)
     tabs = _episode_tabs_html(page_dir=page_dir, ep_base_dir=ep_base_dir, active_key="images", variants=variants)
+    pager = _episode_pager_html(
+        page_dir=page_dir,
+        channel_dir=channel_dir,
+        channel=channel,
+        view="images",
+        prev_video=prev_video,
+        next_video=next_video,
+    )
 
     viewer_href = _rel_href(page_dir, docs_root, is_dir=True) + f"?id={vid}&view=images"
 
@@ -1093,7 +1152,7 @@ def _episode_images_page_html(
             "  </div>\n"
         )
 
-    body = "<main>\n" + f"  {tabs}\n" + body_inner + "</main>\n"
+    body = "<main>\n" + f"  {tabs}\n" + f"  {pager}\n" + body_inner + "</main>\n"
 
     return _page_shell(
         title=f"{vid} — images",
@@ -1336,7 +1395,9 @@ def main() -> int:
                 ),
             )
 
-        for it in ch_eps:
+        for idx, it in enumerate(ch_eps):
+            prev_video = ch_eps[idx - 1].video if idx > 0 else None
+            next_video = ch_eps[idx + 1].video if idx + 1 < len(ch_eps) else None
             ep_base_dir = ch_dir / it.video
             ep_base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1357,6 +1418,8 @@ def main() -> int:
                     view="script",
                     updated_at=updated_at,
                     variants=episode_variants,
+                    prev_video=prev_video,
+                    next_video=next_video,
                 ),
             )
 
@@ -1376,6 +1439,8 @@ def main() -> int:
                     view="audio",
                     updated_at=updated_at,
                     variants=episode_variants,
+                    prev_video=prev_video,
+                    next_video=next_video,
                 ),
             )
 
@@ -1394,6 +1459,8 @@ def main() -> int:
                     title=it.title,
                     updated_at=updated_at,
                     variants=episode_variants,
+                    prev_video=prev_video,
+                    next_video=next_video,
                 ),
             )
             images_dir = ep_base_dir / "images"
@@ -1411,6 +1478,8 @@ def main() -> int:
                     updated_at=updated_at,
                     variants=episode_variants,
                     video_images_entry=video_images_by_video_id.get(it.video_id),
+                    prev_video=prev_video,
+                    next_video=next_video,
                 ),
             )
 

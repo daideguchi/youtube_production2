@@ -51,7 +51,7 @@
 | visual_persona | SRT 連結テキスト（数千文字） + Visual Bible | ペルソナテキスト (<=1200 chars) | ~6k + 1k = **7k** | 1 | heavy_reasoning → **or_deepseek_v3_2_exp**（thinking必須） | 役柄抽出。短尺だが hallucination 回避に reasoning。【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L90-L132】【F:configs/llm_router.yaml†L147-L155】 |
 | visual_section_plan | 最大 1000 セグメントを結合（概算 50k chars）【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L35-L84】【F:video_pipeline/src/srt2images/llm_context_analyzer.py†L182-L220】 | section JSON | **55k** | 1 | heavy_reasoning → **or_deepseek_v3_2_exp**（thinking必須） | 最長ステップ。長文応答と Visual Bible システム文脈が必要。【F:configs/llm_router.yaml†L147-L160】 |
 | visual_prompt_refine | セクションごとの短文 (~1k) | 画像プロンプト | **1.5k** | 20–30 (セクション数) | heavy_reasoning → **or_deepseek_v3_2_exp**（fallback: **or_kimi_k2_thinking**） | R1 系は使わない。 |
-| visual_image_gen | 画像生成 API | 画像 | - | セクション数と同等 | image_gen → **gemini_2_5_flash_image** | 画像専用モデルのみ指定。UI/auto は direct/none の 1本道。【F:configs/llm_router.yaml†L31-L39】【F:configs/llm_router.yaml†L160-L163】【F:configs/image_models.yaml†L25-L41】 |
+| visual_image_gen | 画像生成 API | 画像 | - | セクション数と同等 | image_gen → **gemini_2_5_flash_image** | 画像専用モデルのみ指定。UI/auto は `batch|direct|none`（既定=batch、Gemini系はBatch運用）。【F:configs/llm_router.yaml†L31-L39】【F:configs/llm_router.yaml†L160-L163】【F:configs/image_models.yaml†L25-L41】 |
 | e2e_smoke | 便宜上の環境ゲート | - | - | - | RUN_E2E_SMOKE=1 でのみ実行 | 重いテストの誤実行防止（ゲートのみ）。 |
 
 ## 3. モデル適性評価
@@ -72,7 +72,7 @@
 - 実装済み: `packages/factory_common/llm_client.py` が呼び出し成功ごとに `workspaces/logs/llm_usage.jsonl` へ JSONL 追記。
 - 環境変数: `LLM_USAGE_LOG_PATH` でログパス変更、`LLM_USAGE_LOG_DISABLE=1` でロギング停止。
 - 集計: `python3 scripts/aggregate_llm_usage.py --log workspaces/logs/llm_usage.jsonl --top 20` で task/provider/model ごとの call/token 集計を確認。
-- 画像生成の経路は単一: `nanobanana=direct`（ImageClient + Gemini 2.5 flash image）か `none`（スキップ）。legacy router/cli/mcp は廃止し、Gemini には aspect_ratio を送らない設定（capabilities supports_aspect_ratio=false）。
+- 画像生成は `nanobanana=batch|direct|none`。量産=Batch（Gemini Batch）、即時=direct（ImageClient）、停止=none（スキップ）。Gemini には aspect_ratio を送らない設定（capabilities supports_aspect_ratio=false）。
 - 残課題: 長尺 SRT を使った `visual_section_plan`（600 セグ分割）のスモークを実施し、トークン/セクション品質を目視確認する。
 
 ## 5. 実行順序（着手ガイド）

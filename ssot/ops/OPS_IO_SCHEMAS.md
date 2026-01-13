@@ -288,7 +288,7 @@ belts[*]（観測）:
 - `resume`: bool
 - `force`: bool
 - `fallback_if_missing_cues`: bool
-- `nanobanana`: string（`direct|none`）
+- `nanobanana`: string（`batch|direct|none`）
 - `images`: number（= cue_count）※従来互換
 - `duration_sec`: number（= cues_end_sec）
 - `timings`: dict（工程時間）

@@ -71,6 +71,7 @@ export type WorkspaceView =
   | "thumbnails"
   | "imageManagement"
   | "channelWorkspace"
+  | "capcutDraftProgress"
   | "channelSettings"
   | "promptManager"
   | "scriptFactory"
@@ -283,6 +284,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/channel-workspace", pathname)) {
     return "channelWorkspace";
   }
+  if (matchPath("/capcut-draft-progress", pathname)) {
+    return "capcutDraftProgress";
+  }
   if (matchPath("/channel-settings", pathname)) {
     return "channelSettings";
   }
@@ -421,6 +425,10 @@ const PLACEHOLDER_COPY: Record<
   channelWorkspace: {
     title: "台本・音声字幕管理",
     description: "既存の台本・音声・字幕成果物を編集し、Ready 状態を調整します。",
+  },
+  capcutDraftProgress: {
+    title: "CapCutドラフト進捗",
+    description: "キュー分割 → 画像プロンプト → 画像生成 → CapCutドラフト作成の進捗を、チャンネル単位で一覧化します。",
   },
   channelSettings: {
     title: "チャンネル詳細設定",
@@ -1414,6 +1422,7 @@ export function AppShell() {
           { key: "dashboard", label: "ダッシュボード", icon: "📊", path: "/dashboard" },
           { key: "publishingProgress", label: "投稿進捗", icon: "📅", path: "/publishing-progress" },
           { key: "channelWorkspace", label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
+          { key: "capcutDraftProgress", label: "CapCutドラフト進捗", icon: "🧩", path: "/capcut-draft-progress" },
           { key: "channelPortal", label: "チャンネルポータル", icon: "🧭", path: channelPortalLink },
           { key: "audioReview", label: "音声レビュー", icon: "🎧", path: "/audio-review" },
           { key: "audioIntegrity", label: "音声整合性", icon: "🩺", path: audioIntegrityLink },
