@@ -14,6 +14,7 @@ from backend.app.channels_models import (
     ChannelAuditItemResponse,
     ChannelProfileResponse,
     ChannelRegisterRequest,
+    ChannelSummaryResponse,
 )
 from backend.app.normalize import normalize_optional_text
 from factory_common.paths import (
@@ -46,6 +47,21 @@ def _clean_default_tags(values: Optional[List[str]]) -> Optional[List[str]]:
     if len(cleaned) > 50:
         raise HTTPException(status_code=400, detail="タグは最大50件までです。")
     return cleaned
+
+
+@router.get("", response_model=List[ChannelSummaryResponse])
+def list_channels():
+    from backend.main import YOUTUBE_CLIENT, _build_channel_summary, _ensure_youtube_metrics, list_known_channel_codes
+
+    channels: List[ChannelSummaryResponse] = []
+    channel_info_map = refresh_channel_info(force=True)
+    for code in list_known_channel_codes(channel_info_map):
+        info = channel_info_map.get(code, {"channel_id": code})
+        if YOUTUBE_CLIENT is not None:
+            info = _ensure_youtube_metrics(code, info)
+            channel_info_map[code] = info
+        channels.append(_build_channel_summary(code, info))
+    return channels
 
 
 @router.post("/register", response_model=ChannelProfileResponse, status_code=201)

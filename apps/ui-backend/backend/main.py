@@ -6029,19 +6029,6 @@ def _build_channel_summary(code: str, info: dict) -> ChannelSummaryResponse:
     )
 
 
-@app.get("/api/channels", response_model=List[ChannelSummaryResponse])
-def list_channels():
-    channels = []
-    channel_info_map = refresh_channel_info(force=True)
-    for code in list_known_channel_codes(channel_info_map):
-        info = channel_info_map.get(code, {"channel_id": code})
-        if YOUTUBE_CLIENT is not None:
-            info = _ensure_youtube_metrics(code, info)
-            channel_info_map[code] = info
-        channels.append(_build_channel_summary(code, info))
-    return channels
-
-
 @app.get("/api/planning", response_model=List[PlanningCsvRowResponse])
 def list_planning_rows(channel: Optional[str] = Query(None, description="CHコード (例: CH06)")):
     channel_code = normalize_channel_code(channel) if channel else None
