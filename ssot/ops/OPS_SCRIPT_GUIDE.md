@@ -9,7 +9,7 @@
 
 複数エージェント競合でカオスになった場合の止血・復帰は `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md` が正本。
 
-推奨実行（共通）:
+入口固定（共通）:
 - **必ず** `./scripts/with_ytm_env.sh python3 ...` を使う（.envロード + PYTHONPATH固定）。
   - 例: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH10 --video 008`
 
@@ -57,7 +57,7 @@
 
 ---
 
-## 2. 出力（I/Oの目安）
+## 2. 出力（I/O配置）
 
 - `workspaces/scripts/{CH}/{NNN}/content/`
   - `assembled.md`（最終台本）
@@ -91,7 +91,7 @@ UI側でも「詰まったらまずここ」を固定する。
 
 ### 3.1 Script Validation（品質ゲート）
 
-- 実行（推奨: 入口固定）:
+- 実行（入口固定）:
   - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
 - （内部CLI。必要時のみ）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
@@ -106,34 +106,36 @@ UI側でも「詰まったらまずここ」を固定する。
 
 追加ゲート（意味整合）:
 - 正本: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
-- 既定では `verdict: major` のみ停止（ok/minor は合格）。minor/major は可能なら最小リライトを自動適用して収束させる。
-- 厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok 以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
+- 判定ポリシー:
+  - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=0`（既定）: `ok/minor` は合格、`major` は停止（pending）
+  - `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（strict）: `ok` のみ合格（`minor/major` は停止）
+  - `script_validation` はAテキストを自動書き換えしない（止まったら人間修正、または `semantic-align --apply` を明示実行）
 - 手動で直す場合（内部CLI。通常は不要）:
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（チェックのみ）
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`（最小リライト）
 
 字数NG（短すぎ/長すぎ）への対処:
-- 原則: reset→再生成（混入/水増しの副作用が最小）
+- 標準: reset→再生成（混入/水増しの副作用が最小）
 - “軽い短尺補正” のみ許可する場合:
   - `./scripts/with_ytm_env.sh python3 scripts/expand_a_text.py --channel CHxx --video NNN --mode run --hint "水増し禁止/現代の作り話禁止"`
-  - 実行後に `script_validation` を再実行して通す（長尺2〜3h級はMarathon推奨）
+  - 実行後に `script_validation` を再実行して通す（長尺2〜3h級はMarathon（付録B）を使う）
 
 ---
 
 ## 4. やり直し（Redo / Reset）
 
 ### 4.1 企画側が更新された場合（CSV更新後）
-原則:
+方針:
 - 企画CSVを直したら、台本は **reset→再生成** を基本にする（旧台本が残ると混乱源）。
 
-コマンド（推奨: 入口固定）:
+コマンド（入口固定）:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to NNN --wipe-research`
 
 （内部CLI。必要時のみ）:
 - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
 
 ### 4.2 人間が台本を直した場合
-原則:
+方針:
 - `assembled_human.md`（正本）または `assembled.md`（ミラー）を更新したら、それ以降（音声/動画）は **必ず再生成** する。
 - 安全のため、まず `script_validation` を再実行してから音声へ進む（UI保存時も `script_validation` が pending になるのが正）。
 
@@ -142,7 +144,7 @@ UI側でも「詰まったらまずここ」を固定する。
 ## 5. 禁止事項（破綻を防ぐ）
 
 - パス直書き禁止（`packages/factory_common/paths.py` を使う）
-- `status.json` を手で大改造しない（必要なら `reset/reconcile` を使う）
+- `status.json` を手で大改造しない。補正は `reset/reconcile` を使う
 - `assembled.md` と別の入力で音声生成しない（例外はSSOTに残す）
 
 ### 5.1 台本本文に “メタ情報（出典/脚注/URL）” を混入させない
@@ -153,7 +155,7 @@ UI側でも「詰まったらまずここ」を固定する。
   - `([戦国ヒストリー][13])` のような Markdown 参照リンク
   - `[...]` 内が数字の脚注（例: `[13]`）
   - URL（`https://...` / `www...`）
-  - `Wikipedia/ウィキペディア` を “出典として” 直接書く表現（必要なら本文で自然な言い換えにする）
+  - `Wikipedia/ウィキペディア` を “出典として” 直接書く表現（本文で自然な言い換えにする）
 - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する（SoTは research 側）
 - 既に混入してしまった場合:
   - まず台本（Aテキスト）を正に戻す（`scripts/sanitize_a_text.py` で退避→除去→同期）
@@ -203,7 +205,7 @@ UI側でも「詰まったらまずここ」を固定する。
   - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --block-template personal_benefit_v1 --apply`
   - 正本: `configs/longform_block_templates.json`（templates / channel_overrides）
 
-確認（推奨）:
+確認（標準）:
 - 機械lint（非LLM。禁則/反復/まとめ重複）:
   - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
 

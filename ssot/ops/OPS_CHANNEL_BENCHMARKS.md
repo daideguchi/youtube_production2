@@ -17,7 +17,7 @@
 
 - SoT: `packages/script_pipeline/channels/CHxx-*/channel_info.json`
 - 集約（読み取り用）: `packages/script_pipeline/channels/channels_info.json`
-  - ※集約は UI が読む“カタログ”。編集は必ず `CHxx-*/channel_info.json` 側で行い、必要なら再生成する。
+  - ※集約は UI が読む“カタログ”。編集は必ず `CHxx-*/channel_info.json` 側で行い、編集後は再生成する。
 
 ---
 
@@ -32,24 +32,24 @@
     "updated_at": "2025-12-23",
     "allow_empty_channels": false,
     "channels": [
-      {
-        "handle": "@example",
-        "name": "チャンネル名（任意）",
-        "url": "https://www.youtube.com/@example",
-        "note": "何を学ぶか（任意）"
-      }
-    ],
-    "script_samples": [
-      {
-        "base": "research",
-        "path": "benchmarks_ch07_ch08.md",
-        "label": "ベンチマークメモ（任意）",
-        "note": "使いどころ（任意）"
-      }
-    ],
-    "notes": "総評（任意）"
-  }
-}
+	      {
+	        "handle": "@example",
+	        "name": "チャンネル名（省略可）",
+	        "url": "https://www.youtube.com/@example",
+	        "note": "何を学ぶか（省略可）"
+	      }
+	    ],
+	    "script_samples": [
+	      {
+	        "base": "research",
+	        "path": "benchmarks_ch07_ch08.md",
+	        "label": "ベンチマークメモ（省略可）",
+	        "note": "使いどころ（省略可）"
+	      }
+	    ],
+	    "notes": "総評（省略可）"
+	  }
+	}
 ```
 
 ### 2.1 `script_samples` のパス規約（UI プレビュー対応）
@@ -58,7 +58,7 @@
   - 例: `base="research", path="ブッダ系/バズ台本構造分析.md"`
   - 例: `base="scripts", path="CH10/002/content/assembled.md"`
 
-#### 推奨: ジャンル索引（迷わない入口）
+#### 標準: ジャンル索引（迷わない入口）
 `workspaces/research` は **ジャンル別**で運用し、各ジャンルに `INDEX.md` を置く。
 
 - 入口: `workspaces/research/INDEX.md`（ジャンル一覧）
@@ -71,8 +71,8 @@
 
 ## 3. 運用ルール（事故防止）
 
-- **最低限の要件（原則）**
-  - `benchmarks.channels` に 1 件以上（競合/参考チャンネル）。`handle`（推奨）または `url` のどちらかは必須。
+- **最低限の要件（必須）**
+  - `benchmarks.channels` に 1 件以上（競合/参考チャンネル）。`handle` または `url` のどちらかは必須。`handle` が取得できる場合は `handle` を入れる（UI参照性のため）。
   - `benchmarks.script_samples` に 1 件以上（台本サンプル）。
 - **例外（競合を特定しないチャンネル）**
   - 競合を特定しない場合は `benchmarks.allow_empty_channels=true` を明示し、`benchmarks.notes` に理由を書く（監査で「欠損」と区別するため）。

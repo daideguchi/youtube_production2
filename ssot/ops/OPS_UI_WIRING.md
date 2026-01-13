@@ -21,7 +21,7 @@
 
 ## 1) URL/環境変数ルール（迷わないための固定）
 
-- 原則: **相対パス**（同一origin）で `/api/...` を叩く（dev proxy / start_all 前提）。
+- **相対パス**（同一origin）で `/api/...` を叩く（dev proxy / start_all 前提）。
 - 例外: GitHub Pages / 別originで動かす場合は `REACT_APP_API_BASE_URL` を設定する。
   - 正本実装: `apps/ui-frontend/src/api/baseUrl.ts`
   - 注意: `REACT_APP_API_BASE_URL` は末尾 `/` なしに正規化される。
@@ -88,7 +88,7 @@
 | `/ssot` | `apps/ui-frontend/src/pages/SsotPortalPage.tsx` | `/api/research`（base=`ssot`） | `ssot/**` |
 
 補足:
-- fetch直叩きが残っている箇所は、原則 `apps/ui-frontend/src/api/client.ts` へ集約して“配線”を減らす（例外: streaming / blob 等）。
+- 方針: fetch直叩きが残っている箇所は `apps/ui-frontend/src/api/client.ts` へ集約して“配線”を減らす（例外: streaming / blob 等）。
   - 直叩きが必要な場合でも `apiUrl()` / `resolveApiUrl()` を必ず通し、base URL の不整合を作らない。
 
 ---

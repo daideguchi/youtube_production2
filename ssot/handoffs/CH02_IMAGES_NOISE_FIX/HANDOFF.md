@@ -65,7 +65,7 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
 
 ---
 
-## 3. 修正手順（推奨: 既存 run_name を活かして置換）
+## 3. 修正手順（標準: 既存 run_name を活かして置換）
 
 ### 3.1 対象 run_dir を選ぶ（超重要）
 対象ドラフトが例えば:
@@ -84,7 +84,7 @@ run_dir は:
 ⚠️ `*_regen_img*` の一部は `image_cues.json` が無い不完全runがあるので、基本は使わない。
 
 ### 3.2 画像を実生成で置換（run_dir 側）
-まずは 1枚だけで疎通確認（推奨）:
+まずは 1枚だけで疎通確認（標準）:
 
 ```bash
 PYTHONPATH=".:packages" python3 -m video_pipeline.tools.regenerate_images_from_cues \

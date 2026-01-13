@@ -61,7 +61,7 @@ SSOTが読めない/何が正かわからないときは、先に “現状” �
 - “最新の実行” ポインタ: `./ops latest --channel CHxx --video NNN`
 - 復帰（固定導線）: `./ops resume episode -- --channel CHxx --video NNN`
 - SSOTアンカーの更新状況: `./ops ssot status`
-- 連絡/合意が必要なら: `reference/CONTACT_BOX.md`（secrets禁止）
+- 連絡/合意: `reference/CONTACT_BOX.md`（secrets禁止）
 
 ---
 
@@ -74,5 +74,5 @@ SSOTが読めない/何が正かわからないときは、先に “現状” �
 1. どのファイル同士が矛盾しているか（パス）を控える
 2. 実装/実行結果（`./ops` の挙動）で現状を確認する
 3. 乖離として `ssot/ops/OPS_GAPS_REGISTER.md` に根拠付きで記録する
-4. 判断が必要なら `ssot/DECISIONS.md` に Decision を追加（Proposed→合意後 Done）
+4. 判断が必要なものは `ssot/DECISIONS.md` に Decision を追加（Proposed→合意後 Done）
 5. Done になったら SSOT→実装の順で修正し、再発防止のチェック（`./ops ssot check` 等）に乗せる

@@ -7,7 +7,7 @@
 前提:
 - 台本は全て AIナレーション用の Aテキスト。
 - ポーズ記号は `---` のみ（1行単独）。それ以外の区切りは使わない。
-- **Aテキスト本文（`content/chapters/*.md` / `content/assembled*.md`）の生成・修正は常に LLM API（原則 Fireworks）で行う**。
+- **Aテキスト本文（`content/chapters/*.md` / `content/assembled*.md`）の生成・修正は常に LLM API で行う**（本文taskのルーティングは `configs/llm_task_overrides.yaml` が正本）。
   - Codex exec は本文を書かない（読み取り/判定/提案はOK。ただし本文へ混入させない）。
 - ルール正本: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 - 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`（本書はアーキテクチャ詳細）
@@ -42,17 +42,17 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
   - 人手編集（UI）が入る場合は `assembled_human.md` を作り、以後はそれを正本として `assembled.md` に同期する
 - 目標: 1回で狙いどおりに書ける確率を上げ、後段の修正コストを減らす。
 
-### 2.2.1（推奨）セクション分割→組み上げ（長尺の安定化）
+### 2.2.1 セクション分割→組み上げ（長尺の安定化）
 長尺は「一撃で書く」より、**決定論×推論**で分割統治したほうが安定する。
 
-ベストプラクティス（コストは増えるが品質が安定）:
+標準手順（コストは増えるが品質が安定）:
 1) SSOTパターンから決定論プラン（セクションと字数配分）を作る  
 2) セクションごとに執筆（局所制約: 主題逸脱/水増し/禁則を抑える）  
    - 決定論バリデーションでNGなら **そのセクションだけ**再生成（最大N回）  
    - セクション草稿内では `---` を禁止（区切りは組み上げ工程でのみ付与）  
 3) 推論で組み上げ（繋ぎ・一貫性・字数レンジ・反復削除）  
    - 組み上げ後も決定論バリデーションでNGなら、必要に応じて **組み上げのみ**再試行（最大M回）  
-4) 必要なら `script_validation`（Judge/Fix）で収束させる（内容品質の最終ゲート）  
+4) `script_validation`（Judge/Fix）で収束させる（内容品質の最終ゲート）  
 
 実装（ops）:
 - `python scripts/ops/a_text_section_compose.py --channel CH07 --video 009`（dry-runで候補生成）
@@ -90,7 +90,7 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - 章番号/全章数、所属ブロック（章の役割）
 - `goal`（この章で増やす理解は1つだけ）
 - `must_include`（最大3） / `avoid`（最大3）
-- 章の字数目安（char_budget）と記号上限（「」/（））
+- 章の字数配分（char_budget）と記号上限（「」/（））
 - コアメッセージ（全章でブレない）
 - persona要点 / channel指針要点（長文化させず要点のみ）
 - 直前章末尾（~320字。文脈だけ。コピー禁止）
@@ -99,7 +99,7 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 - 本文のみ（見出し/箇条書き/番号リスト/URL/脚注/参照番号/制作メタ禁止）
 - `---` を章本文に入れない（ブロック境界にだけ入れる）
 - 途中章で「最後に/まとめると/結論/挨拶」などの締めをしない
-- `「」`/`『』` と `（）`/`()` は原則0（必要時だけ緩和）
+- `「」`/`『』` と `（）`/`()` は既定: 0（セリフ（発話）がある章だけ最小限にする）
 - “字数合わせの言い換え”禁止: 各段落に「新しい理解」を最低1つ入れる（具体/見立て/手順/落とし穴）
 
 ### 2.3 推論Judge→必要最小修正（品質固定）
@@ -131,13 +131,13 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
    - 事故/レート制限/契約変更に備え、Codexを完全にOFFにしても量産が止まらないことを要件とする。
 
 運用スイッチ（迷わないための最小セット）:
-- 推奨: **exec-slot** で切替（モデル名/環境変数の直書きを増やさない）
+- 切替（入口固定）: **exec-slot** で切替（モデル名/環境変数の直書きを増やさない）
   - Codex exec を優先: `LLM_EXEC_SLOT=1`
   - Codex exec を無効化: `LLM_EXEC_SLOT=2`
 - Codex exec の既定設定は `configs/codex_exec.yaml`（個別環境は `configs/codex_exec.local.yaml`）で管理する（SSOTを汚さない）。
 - 緊急デバッグのみ（通常運用ではロックダウンで停止）:
   - `YTM_CODEX_EXEC_DISABLE=1` / `YTM_CODEX_EXEC_ENABLED=1|0`
-  - `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`） / `YTM_CODEX_EXEC_MODEL`（任意）
+  - `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`） / `YTM_CODEX_EXEC_MODEL`（省略可）
   - 使う場合は `YTM_EMERGENCY_OVERRIDE=1` を同時にセットして「この実行だけ」例外扱いにする
 
 ### 2.5 本文モデルの「1スイッチ切替」設計（DeepSeek ⇄ Mistral ⇄ GLM-4.7）
@@ -161,7 +161,7 @@ SSOT配置（正本）:
     `script_a_text_quality_shrink`, `script_a_text_quality_extend`, `script_a_text_final_polish`,
     `script_semantic_alignment_fix` など（本文を書き換える可能性があるもの）。
 - **切替レバーは1つに統一**し、複数の方式を併用しない（運用の混乱防止）。
-  - 推奨（迷わない/壊さない）: **数字スロット** `LLM_MODEL_SLOT`（または入口CLIの `--llm-slot`）で **この実行だけ**切替する。
+  - 切替レバー（迷わない/壊さない）: **数字スロット** `LLM_MODEL_SLOT`（または入口CLIの `--llm-slot`）で **この実行だけ**切替する。
     - repoのYAMLを触らずに比較できる（ロールバック事故を避ける）。モデル名の書き換えもしない。
     - 入口（例）:
       - `python3 scripts/ops/script_runbook.py … --llm-slot 4`
@@ -231,7 +231,7 @@ SSOT配置（正本）:
 - 複数の概念や逸話を並べて“広く”見せる（芯が薄くなり、視聴者の理解が増えない）
 - 研究/統計/機関名を捏造して説得力を作る
 - `---` を機械的に等間隔で入れる（文脈ベースのみ）
-- 本文内容と無関係な“言い回しの好み”だけでパイプラインを停止させる（必要なら「校正」で直す）
+- 本文内容と無関係な“言い回しの好み”だけでパイプラインを停止させる（言い回しの調整は「校正」で行う）
 
 ---
 
@@ -239,7 +239,7 @@ SSOT配置（正本）:
 現状の設計でも長尺は作れるが、2〜3時間級で反復/微妙なズレをさらに減らすには以下が必要。
 
 現状（実装済み）:
-- Marathon v1.1 で `content/analysis/longform/memory.json` / `chapter_summaries.json` を生成し、章プロンプトに Memory を投入する（既定ON、必要なら `--no-memory`）。
+- Marathon v1.1 で `content/analysis/longform/memory.json` / `chapter_summaries.json` を生成し、章プロンプトに Memory を投入する（既定ON。無効化は `--no-memory`）。
 
 実装済み（Marathon v1.2）:
 - ブロック単位で “要約＋抜粋” による Judge を行い、NG時は「問題章番号」を返す（全文LLM禁止）

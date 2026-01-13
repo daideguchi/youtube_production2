@@ -344,7 +344,7 @@
   - audio: `python -m scripts.cleanup_workspace --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs: `python -m scripts.cleanup_workspace --video-runs --dry-run --channel CHxx --video NNN` → OKなら `--run`
   - video runs（unscoped/legacyも整理）: `python -m scripts.cleanup_workspace --video-runs --all --dry-run --video-unscoped-only --video-archive-unscoped --video-archive-unscoped-legacy --keep-recent-minutes 1440` → OKなら `--run --yes`
-  - broken symlinks: `python -m scripts.cleanup_workspace --broken-symlinks --dry-run` → OKなら `--run`（必要なら `--symlinks-include-episodes`）
+- broken symlinks: `python -m scripts.cleanup_workspace --broken-symlinks --dry-run` → OKなら `--run`（episode側も対象にする場合は `--symlinks-include-episodes`）
   - logs: `python -m scripts.cleanup_workspace --logs --dry-run` → OKなら `--run`
   - scripts: `python -m scripts.cleanup_workspace --scripts --dry-run` → OKなら `--run`
 - 復旧（run dir を戻す）:
@@ -365,7 +365,7 @@
 - `scripts/ops/archive_capcut_local_drafts.py --run`（`workspaces/video/_capcut_drafts` のローカル退避ドラフトを `_archive/<timestamp>/` へ移動して探索ノイズ/重複を削減。report: `workspaces/logs/regression/capcut_local_drafts_archive/`）
 - `scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（`workspaces/thumbnails/CHxx_*|CHxx-*` の旧ディレクトリを `_archive/<timestamp>/` へ退避して探索ノイズを削減。report: `workspaces/logs/regression/thumbnails_legacy_archive/`）
 - `scripts/ops/purge_legacy_agent_task_queues.py --run`（旧 `workspaces/logs/agent_tasks_*`（実験残骸）を archive-first で削除。report: `workspaces/logs/regression/agent_tasks_legacy_purge/`）
-- `python -m video_pipeline.tools.sync_audio_inputs --wav-policy symlink --wav-dedupe`（`workspaces/video/input` の wav を symlink 化して重複を減らす。必要なら `--hash-wav`）
+- `python -m video_pipeline.tools.sync_audio_inputs --wav-policy symlink --wav-dedupe`（`workspaces/video/input` の wav を symlink 化して重複を減らす。重複判定を hash にする場合は `--hash-wav`）
 - 実行ログ: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`
 
 ## 4.1 SSOTメンテ（索引/計画書の整合）

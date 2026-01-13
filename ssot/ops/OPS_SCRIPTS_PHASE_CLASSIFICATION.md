@@ -21,7 +21,7 @@
 
 ### P2: 禁止（絶対に使わない）
 誤誘導・旧設計・品質事故の温床。**実行禁止**。  
-原則「archive-first → 削除」を次のcleanupバッチで行う。
+「archive-first → 削除」を次のcleanupバッチで行う。
 
 ### P3: 一時スクリプト（adhoc）
 その場限りの検証/一時バッチ。**置き場を固定**して混入を防ぐ（後述）。
@@ -36,7 +36,7 @@
 
 ### 1.2 一時スクリプト（P3）の置き場
 - 置き場: `scripts/_adhoc/`
-- 原則 `.gitignore` で除外（混入防止）。必要があれば「期限付きで」明示的に add する。
+- `.gitignore` で除外（混入防止）。trackedにする場合は「期限付きで」明示的に add する。
 - ファイル先頭に必ずメタ情報を書く（テンプレ）:
 
 ```
@@ -90,7 +90,7 @@ notes: <消し忘れ防止の一言>
 
 ### Phase E. Thumbnails（独立動線）
 - P0:
-  - UI（推奨）: `/thumbnails`
+  - UI（入口固定）: `/thumbnails`
   - inventory同期（整合）: `python3 scripts/sync_thumbnail_inventory.py`（通常は start_manager guard で check）
   - 統一CLI（量産/リテイク/QC）: `python scripts/thumbnails/build.py --help`
 
@@ -196,7 +196,7 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/generate_subtitles.py CHxx-NNN ...`（既存SRTのタイミングを保持して本文だけ差し替え）
 
 ### Audio（補助/バッチ）
-- `python3 scripts/batch_regenerate_tts.py --help`（UIの batch-tts が内部で呼ぶ。手動運用は原則UIから）
+- `python3 scripts/batch_regenerate_tts.py --help`（UIの batch-tts が内部で呼ぶ。手動運用はUIから）
 - `python3 scripts/cleanup_audio_prep.py --dry-run` → OKなら `--run`（prepの不要chunk削除）
 - `python3 scripts/sync_audio_prep_to_final.py --help`（prep→final の不足同期）
 - `python3 scripts/purge_audio_prep_binaries.py --help`（prep の重複 wav/srt 削除）
@@ -219,7 +219,7 @@ notes: <消し忘れ防止の一言>
 - `python3 scripts/ops/archive_thumbnails_legacy_channel_dirs.py --run`（thumbnails旧dirを _archive へ移動）
 - `python3 scripts/ops/purge_legacy_agent_task_queues.py --run`（旧agent task queue残骸を archive-first で削除）
 - `python3 scripts/ops/cleanup_video_runs.py --dry-run` → OKなら `--run`（video run_dir を `_archive/` へ退避。`cleanup_workspace --video-runs` が内部で呼ぶ）
-- `bash scripts/run_srt2images.sh ...`（UI内部が呼ぶ wrapper。単体実行は原則デバッグのみ）
+- `bash scripts/run_srt2images.sh ...`（UI内部が呼ぶ wrapper。単体実行はデバッグのみ）
 
 ### SSOTメンテ（固定ロジックの維持）
 - `python3 scripts/ops/ssot_audit.py`（索引/PLAN_STATUS の整合監査）
@@ -265,6 +265,6 @@ notes: <消し忘れ防止の一言>
 本書は運用ルールとして固定する（“TODO”を置かない）。
 
 - 棚卸し更新: `python3 scripts/ops/scripts_inventory.py --write` → `ssot/ops/OPS_SCRIPTS_INVENTORY.md` を最新化
-- 一時スクリプト: `scripts/_adhoc/`（P3。原則git管理しない。必要なら期限付きで明示的に add）
+- 一時スクリプト: `scripts/_adhoc/`（P3。git管理しない。trackedにする場合は期限付きで明示的に add）
 - 新規入口追加: P0/P1 を追加したら **必ず** `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` / 本書 / Inventory を更新
 - 削除: `PLAN_LEGACY_AND_TRASH_CLASSIFICATION` の条件を満たしたもののみ（archive-first → `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` 記録）

@@ -13,7 +13,7 @@
 ## 1. 目的（DoD）
 - 入口固定（runbook）で `new/resume` を回し、`script_validation` まで完了させる。
 
-## 2. 実行（推奨: exec-slot=0 明示）
+## 2. 実行（入口固定: exec-slot=0 明示）
 新規作成:
 ```bash
 ./scripts/with_ytm_env.sh --exec-slot 0 \

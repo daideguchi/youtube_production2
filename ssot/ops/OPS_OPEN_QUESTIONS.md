@@ -1,7 +1,7 @@
 # Open Questions（意思決定が必要な不明点）
 
 このファイルは「実装とSSOTの両方を読んだ上で、**どちらに寄せるか決めないと固定ロジックにならない点**」を列挙する。
-（回答が決まったら `ssot/ops/OPS_GAPS_REGISTER.md` の暫定→確定へ反映し、必要なら SSOT → 実装 の順で修正方針へ落とす）
+（回答が決まったら `ssot/ops/OPS_GAPS_REGISTER.md` の暫定→確定へ反映し、SSOT/実装の修正が発生する場合は SSOT → 実装 の順で修正方針へ落とす）
 
 ---
 
@@ -14,7 +14,7 @@
 - UIには明示ロック操作がある（安全だが、人が忘れると後工程で誤編集し得る）。
 
 決めたいこと:
-- publisher が（任意フラグで）ローカルロックも更新するべき？
+- publisher が（オプションフラグで）ローカルロックも更新するべき？
   - 例: `--also-lock-local`（CSV+status.json更新）など
 - それとも “人間がUIでロックする” を固定運用にする？
 
@@ -27,7 +27,7 @@
 ### Q2) `script_validation` LLM品質ゲートの round 上限（3 vs 5）をどうする？
 
 現状:
-- SSOTは「最大3回」を推奨。
+- SSOTは「最大3回」と記載している。
 - 実装は draft provenance が `codex_exec` の場合、default/hard cap が 5。
 
 決めたいこと:
@@ -59,7 +59,7 @@
 - UI側は JobManager 経由で `run_srt2images.sh` / `capcut_bulk_insert.py` を実行する。
 
 決めたいこと:
-- `run_pipeline --engine capcut` を SSOTで “非推奨/実験” と明示する？
+- `run_pipeline --engine capcut` を SSOTで “主線ではない（実験）” と明示する？
 - 入口索引（OPS_ENTRYPOINTS_INDEX）上も、主線を `auto_capcut_run` に寄せ切る？
 
 関連: `ssot/ops/OPS_GAPS_REGISTER.md#GAP-004`

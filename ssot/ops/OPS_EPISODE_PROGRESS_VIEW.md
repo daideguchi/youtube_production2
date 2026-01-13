@@ -67,7 +67,7 @@ episode_progress は以下を参照して集計する（書き換えない）:
 ### 3.1 CLI（read-only）
 - `python3 scripts/ops/episode_progress.py --channel CH12`
 - `python3 scripts/ops/episode_progress.py --channel CH12 --videos 012,013 --format json`
-- 統一入口（推奨）:
+- 統一入口（入口固定）:
   - `./ops progress --channel CH12 --videos 012,013 --format summary`
   - “最新の実行” を見る（session/run_id/担当）: `./ops latest --channel CH12 --video 013`
   - “時系列” を見る（直近の実行ログ）: `./ops history --tail 50 --channel CH12 --video 013`
@@ -75,7 +75,7 @@ episode_progress は以下を参照して集計する（書き換えない）:
 ### 3.2 Backend API（UI 用）
 - `GET /api/channels/{ch}/episode-progress`
   - query:
-    - `videos=012,013`（任意）
+    - `videos=012,013`（省略可）
 
 ### 3.3 UI
 - `/planning` に read-only 列を追加して表示（例: `動画run`, `CapCutドラフト`）

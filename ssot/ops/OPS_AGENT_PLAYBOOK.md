@@ -27,13 +27,13 @@
 
 ### 2.1 自己識別（必須: agent_org の write系）
 - 並列作業では **各Codex/ターミナルごと**に agent name が必須（名前が無いと attribution が壊れて事故る）。
-- `LLM_AGENT_NAME` をセットしない場合でも、`scripts/agent_org.py` の write系は **自動で agent name を生成→端末/host_pidごとに記憶**する（以後は自動）。必要なら `LLM_AGENT_NAME` / `--agent-name` で上書き。
-- 推奨命名: `<owner>-<area>-<nn>`（例: `dd-capcut-01`, `dd-ui-02`, `dd-tts-01`）
+- `LLM_AGENT_NAME` をセットしない場合でも、`scripts/agent_org.py` の write系は **自動で agent name を生成→端末/host_pidごとに記憶**する（以後は自動）。上書きする場合は `LLM_AGENT_NAME` / `--agent-name` を使う。
+- 命名規則（固定）: `<owner>-<area>-<nn>`（例: `dd-capcut-01`, `dd-ui-02`, `dd-tts-01`）
 ```bash
 export LLM_AGENT_NAME=dd-ui-01
 python scripts/agent_org.py agents start --name "$LLM_AGENT_NAME" --role worker
 ```
-（推奨: heartbeat + board を同時に更新）:
+（入口固定: heartbeat + board を同時に更新）:
 ```bash
 python3 scripts/ops/agent_bootstrap.py --name "$LLM_AGENT_NAME" --role worker --doing "ui: ..." --next "..." --tags ui
 ```
@@ -54,14 +54,14 @@ python scripts/agent_org.py lock 'packages/video_pipeline/tools/**' --mode no_to
   lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
   lock の作成/解除は `locks/lease.lock`（flock）で直列化され、レースで二重取得しにくい（UI/API/Orchestrator/CLI 共通）。
 
-3) lock の履歴（JSON）が増えすぎたら（任意: 整理）:
+3) lock の履歴（JSON）が増えすぎたら（オプション: 整理）:
 ```bash
 python scripts/agent_org.py locks-prune --older-than-days 30 --dry-run
 python scripts/agent_org.py locks-prune --older-than-days 30
 ```
 期限切れ lock を `workspaces/logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避する（active/no-expiry は触らない）。
 
-4) “解除し忘れ” がないか点検（推奨）:
+4) “解除し忘れ” がないか点検（入口固定）:
 ```bash
 # expires_at が無い（= auto-expire しない）lock を一覧
 python scripts/agent_org.py locks-audit
@@ -70,7 +70,7 @@ python scripts/agent_org.py locks-audit
 python scripts/agent_org.py locks-audit --older-than-hours 6
 ```
 
-lock がある範囲は **触らない**。必要なら memo/request で調整する（`ssot/plans/PLAN_AGENT_ORG_COORDINATION.md`）。
+lock がある範囲は **触らない**。調整は memo/request で行う（`ssot/plans/PLAN_AGENT_ORG_COORDINATION.md`）。
 
 ### 2.2.5 Gitロールバック遮断（強制）
 並列運用では、Codex からの `git restore/checkout/reset` 等で作業ツリーが巻き戻る事故を **仕組みで封じる**。
@@ -78,7 +78,7 @@ lock がある範囲は **触らない**。必要なら memo/request で調整�
 仕組み（優先順）:
 - Codex Git Guard: Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を常に BLOCK（`~/.codex/bin/git`）
 - Codex execpolicy: 上記コマンドを `forbidden`（バイパス防止）
-- `.git` write-lock（任意）: `.git/` を lock して metadata 書き換え系を失敗させる  
+- `.git` write-lock（オプション）: `.git/` を lock して metadata 書き換え系を失敗させる  
   ※ `git restore` のように worktree だけ触るコマンドは、これ **単体では止まらない**
 
 コマンド（`.git` write-lock）:
@@ -124,7 +124,7 @@ python3 scripts/ops/git_write_lock.py unlock-for-push
 - 実行直前に表示されるワンタイム文字列 `ALLOW <cmd> <CODE>` を完全一致入力できた場合のみ `/bin/kill` 等へ通す
 
 注意:
-- エージェント（Codex）は kill を使わない。必要なら手順・原因を提示して **人間判断**へエスカレーションする。
+- エージェント（Codex）は kill を使わない。手順・原因を提示して **人間判断**へエスカレーションする。
 
 ### 2.3 共同メモ（単一ファイル / Shared Board）
 複数エージェントで「今なにをやっているか / 何が詰まっているか / 申し送り」を1枚に集約したい場合は `board` を使う。
@@ -144,7 +144,7 @@ python scripts/agent_org.py board set --doing "cleanup: logs整理" --next "ssot
 - `topic` の先頭に必ず種別を付ける: `[Q]` / `[DECISION]` / `[BLOCKER]` / `[FYI]` / `[REVIEW]` / `[DONE]`
 - 必須の情報（note本文に含める）:
   - `scope`: 触った/触る予定のパス（repo-relative）
-  - `locks`: lock_id or “(none)”（必要なら「lock作成コマンド」も併記）
+  - `locks`: lock_id or “(none)”（該当する場合は「lock作成コマンド」も併記）
   - `now`: いまの状態（何が起きたか）
   - `options`: 選択肢（1,2,3…）
   - `ask`: 何を決めてほしいか / 何をしてほしいか（明示）
@@ -182,7 +182,7 @@ EOF
 - `python scripts/agent_org.py board area-set <AREA> --owner <AGENT> --reviewers <csv>` で担当/レビュー担当を固定
 - `python scripts/agent_org.py board areas` で一覧化（「誰が何を担当？」の正本）
 
-#### 推奨タグ（tags）
+#### 標準タグ（tags）
 `refactor,cleanup,ssot,ui,llm,tts,capcut,remotion,video,review,blocking,decision,question,done`
 
 ---
@@ -207,7 +207,7 @@ EOF
 ### 3.4 SSOT変更時のUI反映（強制）
 SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI側のSSOT表示（System Map/Catalog）が古いままになると、全員が迷って事故る。
 
-- `ssot/**` を更新したら、**必ず** UI側SSOT（`/ssot/map` / Docs Browser）の整合も確認・必要なら修正する
+- `ssot/**` を更新したら、**必ず** UI側SSOT（`/ssot/map` / Docs Browser）の整合も確認し、差分があれば修正する
 - 典型パターン:
   - 新しい運用レバー/設定キー/ロジックを追加した → `packages/factory_common/ssot_catalog.py`（System Map）に追記
   - catalogの返却JSONに新しいフィールドを足した → `apps/ui-frontend/src/api/types.ts` と表示コンポーネントを更新
@@ -271,7 +271,7 @@ bash scripts/ops/cleanup_caches.sh
 
 ## 5. 変更の残し方（小さく刻む）
 
-### 5.1 原則: 小コミット
+### 5.1 固定ルール: 小コミット
 - 1コミット = 1目的（1つの不具合/1つの移行/1つのcleanup）
 
 ### 5.2 git が使えない場合（パッチ運用）
@@ -279,7 +279,7 @@ bash scripts/ops/cleanup_caches.sh
 その場合はパッチを保存し、Orchestrator/人間が apply→commit する。
 
 ```bash
-# 推奨: スコープを明示してパッチを切る（事故率が低い）
+# 標準: スコープを明示してパッチを切る（事故率が低い）
 bash scripts/ops/save_patch.sh --label stage2_paths --path 'packages/<area>/**'
 
 # Codex 並列運用: lock を取っているなら、未指定でも自分の lock scopes に自動スコープされる

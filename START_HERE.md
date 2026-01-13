@@ -25,7 +25,7 @@
 - 実行入口: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
 - Gitブランチ運用（main/feature/snapshot）: `ssot/ops/OPS_GIT_BRANCH_POLICY.md`
 - 入口〜量産投入直前（参照フレーム）: `ssot/ops/OPS_PREPRODUCTION_FRAME.md`
-- 入口〜投入前の入力カタログ（必須/任意/上書き）: `ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`
+- 入口〜投入前の入力カタログ（必須/オプション/上書き）: `ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`
 - 入口〜投入前の修復導線（issue→直す場所）: `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md`
 - Planning運用（CSVの扱い/必須列/投稿済みロック）: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - 全体TODO（次に何をやるか）: `ssot/ops/OPS_GLOBAL_TODO.md`

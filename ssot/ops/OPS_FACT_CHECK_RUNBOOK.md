@@ -18,7 +18,7 @@
 
 `script_validation` は以下の順で止血する:
 1. 機械チェック（禁則/字数/記号など）
-2. LLM品質ゲート（Judge→Fixer→必要なら Extend/Expand/Shrink）
+2. LLM品質ゲート（Judge→Fixer→不足時は Extend/Expand/Shrink）
 3. 意味整合（semantic alignment）
 4. **ファクトチェック（本Runbook）**
 
@@ -32,7 +32,7 @@
 ## 2) チャンネル別ポリシー（SoT）
 
 SoT: `configs/sources.yaml`
-- `channels.CHxx.fact_check_policy`（任意。未設定時は `web_search_policy` から導出）
+- `channels.CHxx.fact_check_policy`（オプション; 未設定時は `web_search_policy` から導出）
   - `disabled`: 実行しない（reportは `verdict=skipped` を書く）
   - `auto`: `fail` のときのみ停止（`warn` は通すがreportは残る）
   - `required`: `pass` 以外は停止（`warn/fail` で止める）
@@ -60,7 +60,7 @@ SoT: `configs/sources.yaml`
 
 ## 4) 失敗したときの対処（停止→直す→再ゲート）
 
-原則:
+方針:
 - report の `claims[].status` が `unsupported/uncertain` の箇所を “事実として断言しない” 形へ修正する。
 - 出典が無い/弱い場合は、**数字/固有名詞/断言を弱める**（例: 断言→「〜とされる」「一部では」へ）。
 
@@ -72,7 +72,7 @@ SoT: `configs/sources.yaml`
 
 ---
 
-## 5) 環境変数（任意）
+## 5) 環境変数（省略可）
 
 （詳細は `ssot/ops/OPS_ENV_VARS.md` を正とする）
 
@@ -85,9 +85,9 @@ SoT: `configs/sources.yaml`
 - `YTM_FACT_CHECK_FETCH_TIMEOUT_S`（default: 20）: URL本文取得timeout
 - `YTM_FACT_CHECK_FETCH_MAX_CHARS`（default: 20000）: URL本文の最大文字数
 - `YTM_FACT_CHECK_CODEX_TIMEOUT_S`（default: 180）: `codex exec` のtimeout
-- `YTM_FACT_CHECK_CODEX_MODEL`（任意）: codex exec に渡すモデル名
-- `YTM_FACT_CHECK_FORCE=1`（任意）: fingerprint一致でも再実行
-- `YTM_FACT_CHECK_LLM_FALLBACK=0`（任意）: Codex失敗時のAPIフォールバックを禁止
+- `YTM_FACT_CHECK_CODEX_MODEL`（省略可）: codex exec に渡すモデル名
+- `YTM_FACT_CHECK_FORCE=1`（省略可）: fingerprint一致でも再実行
+- `YTM_FACT_CHECK_LLM_FALLBACK=0`（省略可）: Codex失敗時のAPIフォールバックを禁止
 - `YTM_FACT_CHECK_LLM_TASK`（default: `script_a_text_quality_judge`）: フォールバックで使う LLMRouter task key
 
 ---

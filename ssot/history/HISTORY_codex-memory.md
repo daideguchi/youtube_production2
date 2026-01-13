@@ -266,3 +266,10 @@
   - lock/unlock を Orchestrator 依存から切り離し、UIから即時反映できるAPIを追加（`apps/ui-backend/backend/routers/agent_org.py`, `apps/ui-frontend/src/pages/AgentOrgPage.tsx`）。
   - lock 作成/解除を `locks/lease.lock`（flock）で直列化し、レースで二重取得しにくくした（UI/API/Orchestrator/CLI 共通）。
   - agent name を未設定でも自動生成→端末/host_pidごとに記憶し、attribution が `unknown` になりにくいようにした（`scripts/agent_org.py`）。
+
+## 2026-01-13
+- CH27: `workspaces/video/runs/CH27-{001..030}_capcut_v2/` を作成（cue生成→Gemini Batch画像→CapCutドラフト）。
+- Image: 画像生成は **Gemini Developer API Batch** のみで実施（`video_pipeline.tools.gemini_batch_regenerate_images_from_cues`）。欠損分はバッチ再投入で補完。
+- CapCut: `★CH27-001/002/027` の旧ドラフトは衝突回避のため `OLD__...__20260113T015654Z` へリネーム後、30本の新ドラフトを生成。
+- Audit: 30本の draft 参照切れ/尺/字幕位置（CH27は中央下段）を機械監査し、failures=0（`workspaces/logs/ops/ch27_capcut_audit3_20260113T020745Z/report.json`）。
+- Ops/local: `configs/llm_task_overrides.local.yaml` を追加し、`visual_image_cues_plan` を外部pin無しで実行できるようにした（Codex exec 優先→API不足時のTHINK化を回避）。

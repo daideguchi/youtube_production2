@@ -13,7 +13,7 @@
 - 辞書の箱はこの4つだけに収束させる（上が安全/下が例外、下ほど強い）:
   1) `packages/audio_tts/data/global_knowledge_base.json`（全CH共通・確定語のみ）
   2) `packages/audio_tts/data/reading_dict/CHxx.yaml`（そのCHでのみ確定語）
-  3) `audio_prep/local_reading_dict.json`（その回だけ・**フレーズ**のみ。単語単体は原則禁止）
+  3) `audio_prep/local_reading_dict.json`（その回だけ・**フレーズ**のみ。単語単体は禁止）
   4) `audio_prep/local_token_overrides.json`（文脈依存/曖昧語の最終手段。位置指定）
 - `packages/audio_tts/configs/learning_dict.json` は **自動学習/補助**（strict B生成には使う）が、公式辞書へは自動同期しない。
 
@@ -41,26 +41,26 @@
   - `audio_manifest.json`（契約）
 - Voicepeak user dict（GUIの辞書を repo と揃える用途）:
   - SoT: `packages/audio_tts/data/voicepeak/dic.json`
-  - 自動: `run_tts` は engine=voicepeak のとき、実行開始時に上記 SoT を best-effort でローカル設定へ **追記同期（add-only）** する（人間がローカルで追加した辞書は消さない）。
+- 自動: `run_tts` は engine=voicepeak のとき、実行開始時に上記 SoT をローカル設定へ **追記同期（add-only）** する（追記同期は試行。失敗しても run_tts は継続／人間がローカルで追加した辞書は消さない）。
   - Sync: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict [--dry-run]`
   - Destination: `~/Library/Application Support/Dreamtonics/Voicepeak/settings/dic.json`
-  - strict 読み置換: ローカル `dic.json` に加えて `~/Library/Application Support/Dreamtonics/Voicepeak/settings/user.csv` も best-effort で取り込み（安全な語のみ）
+- strict 読み置換: ローカル `dic.json` に加えて `~/Library/Application Support/Dreamtonics/Voicepeak/settings/user.csv` も取り込みを試行（安全な語のみ）
 - VOICEVOX user dict（公式ユーザー辞書 / ローカル確認用）:
   - SoT（repo / strict側の読み置換）:
     - グローバル（確定/手でレビューして昇格させる領域）: `packages/audio_tts/data/global_knowledge_base.json`
     - グローバル（自動学習/補助。公式辞書へは自動同期しない）: `packages/audio_tts/configs/learning_dict.json`
     - チャンネル: `packages/audio_tts/data/reading_dict/CHxx.yaml`（そのCHで読みが一意な語のみ）
     - 動画ローカル（その回だけ）:
-      - **原則**: Bテキスト（`audio_prep/script_sanitized.txt`）をカナ表記にして個別対応
+      - 標準: Bテキスト（`audio_prep/script_sanitized.txt`）をカナ表記にして個別対応
       - 文脈で読みを割る必要がある場合: `audio_prep/local_token_overrides.json`（位置指定）
       - `audio_prep/local_reading_dict.json`（surface→readingの一括置換）は **例外的に使用可**（その回で一意/安全な“フレーズ”のみ。単語単体・曖昧語は禁止。再発したら昇格）
-  - Sync（repo → engine / 推奨）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
+  - Sync（repo → engine / 入口固定）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
   - Sync（必要時）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx --overwrite`
     - 注: 安全語のみ反映・衝突（チャンネル間で読みが違う語）は skip（固定ルール: `ssot/DECISIONS.md` の D-014）
 - Voicepeak CLI 安定化（クラッシュ抑制）:
   - 既定: VOICEPEAK の同時起動で落ちやすいため、CLI 呼び出しを **プロセス間ロックで直列化** する（multi-agent安全）。
   - 調整（必要時のみ）: `VOICEPEAK_CLI_TIMEOUT_SEC`, `VOICEPEAK_CLI_RETRY_COUNT`, `VOICEPEAK_CLI_RETRY_SLEEP_SEC`, `VOICEPEAK_CLI_COOLDOWN_SEC`
-  - 例外: `VOICEPEAK_CLI_GLOBAL_LOCK=0` で直列化を無効化（非推奨）
+  - 例外: `VOICEPEAK_CLI_GLOBAL_LOCK=0` で直列化を無効化（注意: 同時起動でクラッシュしやすい）
 - 読点（、）の間引き（Voicepeakテンポ改善）:
   - `packages/script_pipeline/audio/channels/<CH>/voice_config.json` の voicepeak `engine_options` に `comma_policy: "particles"` を設定すると、`は/が/に/で/も/へ/を` の直後の `、` を strict 側で間引く（字幕テキストは維持、読み入力のみ変更）。
 
@@ -68,12 +68,12 @@
 
 ## 1. 入口（Entry points）
 
-### 1.1 推奨（UI / Backend 経由）
+### 1.1 入口固定（UI / Backend 経由）
 - `POST /api/audio-tts/run-from-script`（input_path の指定不要。上記「AテキストSoT」を backend 側で解決）
   - UI: Episode Studio / 音声ワークスペースの「TTS実行」
   - 返却: `/api/channels/{CH}/videos/{NNN}/audio|srt|log` の URL を返す（ファイルパスではない）
 
-### 1.2 推奨（script_pipeline 経由）
+### 1.2 入口固定（script_pipeline 経由）
 - `python -m script_pipeline.cli audio --channel CH06 --video 033`
   - 途中再開（chunksを再利用）: `... --resume`
 
@@ -105,7 +105,7 @@
 
 - `workspaces/scripts/{CH}/{NNN}/audio_prep/` は **strict run_tts の作業領域（L2/L3）**
   - 容量最大: `audio_prep/chunks/*.wav`
-  - finalが揃ったら原則削除して良い（保持/削除の正本は `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
+  - finalが揃ったら削除してよい（保持/削除の正本は `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
   - UI/Backend 経由の TTS 成功時は **自動で chunks を削除**（下記参照）
 
 ---
@@ -113,7 +113,7 @@
 ## 4. 後片付け（容量対策・安全ガード付き）
 
 ### 4.0 自動cleanup（UI/Backend 経由の TTS 成功時）
-backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時にベストエフォートで以下を実行する。
+backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時に以下を試行する（失敗しても停止しない）。
 
 - `workspaces/scripts/{CH}/{NNN}/audio_prep/chunks/` を削除
 - `workspaces/scripts/{CH}/{NNN}/audio_prep/{CH}-{NNN}.wav|.srt`（重複バイナリ）を削除
@@ -144,7 +144,7 @@ backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時にベス
 
 対処:
 - まず `status.json` を確認し、意図して未完了か判定する
-- 必要なら `--resume` で再開して final を作ってから cleanup する
+- final が無い場合は `--resume` で再開して final を作ってから cleanup する
 
 ---
 
@@ -161,11 +161,13 @@ backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時にベス
 ここで言う「アノテーション」は **Aテキストを書き換えることではない**。  
 `run_tts` が A（SoT）から **B（TTS入力）を決定的に materialize** する工程（辞書/override/正規化）を指す。
 
-### 7.0 運用フロー（おすすめ / 全話を効率よく回す）
+詳細な確定フロー/辞書運用ルールは `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md` を正本とする。
+
+### 7.0 運用フロー（標準 / 全話を効率よく回す）
 
 1) **prepassで“読めるか”だけ先に潰す**（wavを作らない）  
    - `python3 scripts/batch_regenerate_tts.py --channel CHxx --prepass --skip-tts-reading --min-video 1 --max-video 30 [--allow-unvalidated]`  
-   - ここで mismatch が出た回だけが修正対象になる。
+   - `--skip-tts-reading` は auditor（LLM）を無効化するためのNO LLMモード（mismatchは検出してfail-fastする）。
 2) mismatch が出たら、修正は **B側**で次の順に最小で行う  
    - 全CH共通で一意（例: `口業→クゴウ`）→ `global_knowledge_base.json`  
    - CH内だけ一意 → `reading_dict/CHxx.yaml`  
@@ -252,12 +254,12 @@ VOICEPEAK は VOICEVOX のような `audio_query.kana` が無いため、**自�
 
 **アノテーションの流れ（VOICEPEAK）**
 1) 7.1 のB生成で `b_text` を確定（数字/英字カナ化・重複読み注釈除去は同じ）
-2) Voicepeak辞書ソースを best-effort で合成側に取り込む（安全語のみ）
+2) Voicepeak辞書ソースを合成側に取り込む（試行 / 安全語のみ）
    - repo SoT: `packages/audio_tts/data/voicepeak/dic.json`
    - local: `~/Library/Application Support/Dreamtonics/Voicepeak/settings/dic.json`
    - local GUI: `~/Library/Application Support/Dreamtonics/Voicepeak/settings/user.csv`
    - 注意: **曖昧語/1文字surfaceは取り込まない**（誤爆防止）
-3) （任意）テンポ改善: `comma_policy: "particles"` で助詞直後の `、` をB側だけ間引く（字幕は維持）
+3) （オプション）テンポ改善: `comma_policy: "particles"` で助詞直後の `、` をB側だけ間引く（字幕は維持）
 4) VOICEPEAK CLI へ入力（行/文で分割して安定化。CLI呼び出しはロックで直列化）
 
 **Bテキストの理想（VOICEPEAK）**
@@ -284,20 +286,20 @@ VOICEPEAK は VOICEVOX のような `audio_query.kana` が無いため、**自�
 - 辞書に入れるのは「読みが1つに確定できる」ものだけ（D-014）。
   - 全チャンネルで一意（確定語/人間レビュー済） → `packages/audio_tts/data/global_knowledge_base.json`
   - そのチャンネルで一意 → `packages/audio_tts/data/reading_dict/CHxx.yaml`
-  - その回だけ/文脈依存 → `audio_prep/local_token_overrides.json`（推奨） / `audio_prep/local_reading_dict.json`（フレーズのみ）
+  - その回だけ/文脈依存 → `audio_prep/local_token_overrides.json`（位置指定; 最終手段） / `audio_prep/local_reading_dict.json`（フレーズのみ）
 - 昇格ルール（乱立防止・効果最大化）:
-  - `local_token_overrides.json` は “最後の逃げ道”。同じ表記/同じ誤読が **別回でも再発**したら、まずフレーズ化できないか検討し、可能なら `CHxx.yaml` へ昇格する。
+  - `local_token_overrides.json` は “最後の逃げ道”。同じ表記/同じ誤読が **別回でも再発**したら、まずフレーズ化できないか検討し、フレーズ化できる場合は `CHxx.yaml` へ昇格する。
   - `local_reading_dict.json` のフレーズが **同一CHで複数回**出るなら `CHxx.yaml` へ昇格（動画ローカルに残さない）。
   - `CHxx.yaml` の語が **他CHでも再発**し、読みが一意なら `global_knowledge_base.json` へ昇格（全CH一元化）。
 
 ### 8.5 Voicepeak手動辞書資産の扱い（再利用しつつ分離）
 - Voicepeak の `user.csv`（人間がGUIで育てた辞書）は貴重だが、**VOICEVOXへは自動混入させない**（再現性が崩れるため）。
-- 推奨運用:
+- 標準運用:
   1) `user.csv` の内容は “候補リスト” として扱う（安全語のみ抽出）
   2) **読みが一意で確定**できる語だけを `global_knowledge_base.json`（全CH共通）/ `CHxx.yaml`（CH固有）へ昇格
   3) VOICEVOX公式ユーザー辞書へは `--global-only` で同期（配布先として使う）
 
 ### 8.4 公式辞書への反映（手順）
-- VOICEVOX（推奨: グローバルのみ）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
+- VOICEVOX（標準: グローバルのみ）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
 - VOICEVOX（必要時: CHの補助語も同期）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx --overwrite`
 - VOICEPEAK: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（add-only）

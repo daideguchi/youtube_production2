@@ -197,6 +197,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Allow TTS even when script_validation is not completed (not recommended).",
     )
+    audio_p.add_argument(
+        "--force-overwrite-final",
+        action="store_true",
+        help="Force overwrite final artifacts (also disables AUTO finalize_existing when manual wav/srt exists).",
+    )
 
     align_p = sub.add_parser("semantic-align", parents=[common], help="Check/fix semantic alignment (title/thumbnail ↔ script)")
     align_p.add_argument("--apply", action="store_true", help="Rewrite A-text when mismatch is obvious")
@@ -401,6 +406,8 @@ def main() -> None:
         ]
         if getattr(args, "allow_unvalidated", False):
             cmd.append("--allow-unvalidated")
+        if getattr(args, "force_overwrite_final", False):
+            cmd.append("--force-overwrite-final")
         if getattr(args, "indices", ""):
             cmd.extend(["--indices", str(args.indices)])
         if getattr(args, "prepass", False):

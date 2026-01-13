@@ -8,7 +8,7 @@
 - **最終更新日**: 2026-01-10
 
 ## 1. 目的（DoD）
-- 任意のパイプラインコマンドを THINK MODE で完走させる。
+- あらゆるパイプラインコマンドを THINK MODE で完走させる。
 - pending が出たら、エージェントが runbook に従って results を投入し、再実行で前に進める。
 
 ## 2. 重要な前提
@@ -21,7 +21,7 @@
 ## 3. 実行プロトコル（ループ）
 
 ### 3.1 実行（1回目）
-推奨: `scripts/think.sh`（.envロード＋THINK MODE＋pending一覧/バンドル作成まで一発）
+入口固定: `scripts/think.sh`（.envロード＋THINK MODE＋pending一覧/バンドル作成まで一発）
 
 ```bash
 ./scripts/think.sh --all-text -- <command> [args...]
@@ -30,18 +30,18 @@
 注: `--all-text` は非`script_*`のテキスト系（`tts_/visual_/title_/belt_`）向け。台本生成の入口には使わない。
 
 `--loop` を付けると「pending が消えるまで待機→自動で再実行」になる。  
-同一ターミナルで手作業する場合は **ブロックして不便** なので、基本は `--loop` なし（pending 解決→手で再実行）を推奨。
+同一ターミナルで手作業する場合は **ブロックして不便** なので、`--loop` なし（pending 解決→手で再実行）を標準にする。
 
 ### 3.2 pending を検出したらやること
 1. pending 一覧:
    - `python scripts/agent_runner.py list`
-   - フォールバック/申し送りのメモ確認（任意）:
+   - フォールバック/申し送りのメモ確認（省略可）:
      - `python scripts/agent_org.py memos`
-   - 複数エージェント運用（任意）:
+   - 複数エージェント運用（オプション）:
      - `python scripts/agent_org.py orchestrator status`
      - `python scripts/agent_org.py agents list`
 2. 1タスクずつ処理:
-   - （推奨）担当を明示して claim:
+   - （複数エージェント運用では必須）担当を明示して claim:
      - `export LLM_AGENT_NAME=Mike`（または `python scripts/agent_runner.py --agent-name Mike ...`）
      - `python scripts/agent_runner.py claim <TASK_ID>`
    - `python scripts/agent_runner.py bundle <TASK_ID> --include-runbook`

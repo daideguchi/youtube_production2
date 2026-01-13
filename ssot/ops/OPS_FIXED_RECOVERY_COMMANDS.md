@@ -135,4 +135,4 @@ LLMコスト制御（重要）:
 - `ssot/ops/OPS_RECONCILE_RUNBOOK.md`
 
 注意:
-- `--run` で `--video/--videos` を省略すると拒否する（暴発防止）。全体実行が必要なら `--all` を明示する。
+- `--run` で `--video/--videos` を省略すると拒否する（暴発防止）。全体実行は `--all` を明示する。

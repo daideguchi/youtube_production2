@@ -1,7 +1,7 @@
-# OPS_PREPRODUCTION_INPUTS_CATALOG — 入口〜量産投入前の入力カタログ（SoT/必須/任意/上書き）
+# OPS_PREPRODUCTION_INPUTS_CATALOG — 入口〜量産投入前の入力カタログ（SoT/必須/オプション/上書き）
 
 目的:
-- 入口（Planning/任意入力）〜量産投入直前までの「何が入力で、どこが正本で、何が必須/任意か」を **1枚で漏れなく**把握できる状態にする。
+- 入口（Planning/オプション入力）〜量産投入直前までの「何が入力で、どこが正本で、何が必須/オプションか」を **1枚で漏れなく**把握できる状態にする。
 - “完全固定の仕様”ではなく、**現行ラインの都合**（命名/配置/成果物形式）に合わせて **参照フレーム**として使う。
 - 入力が追加された場合は **拡張として品質が上がる** 一方、入力が無くても **破綻せずに回る** ことを優先する。
 
@@ -25,7 +25,7 @@ episode を識別する最小キー:
 補助キー:
 - `script_id`: `CHxx-NNN`
 
-以降の “必須/任意” は **「量産投入（Script→Audio→Video）に必要か」** の観点で定義する。
+以降の “必須/オプション” は **「量産投入（Script→Audio→Video）に必要か」** の観点で定義する。
 
 ---
 
@@ -46,18 +46,18 @@ episode を識別する最小キー:
 - **必須**:
   - 該当行（`channel`+`video`）が存在する
   - `タイトル` が空でない（投入不可の停止条件）
-- **任意（拡張）**:
+- **オプション（拡張）**:
   - `企画意図`, `ターゲット層`, `具体的な内容（話の構成案）`
   - `説明文_リード`, `説明文_この動画でわかること`（投稿用説明文の下書き/要点。無くても進むが、あると後段の説明文整備が安定）
-  - 追加の“任意列”のキー化は `packages/script_pipeline/tools/optional_fields_registry.py` が正本（表記揺れ対策もここ）。
+  - 追加の“オプション列”のキー化は `packages/script_pipeline/tools/optional_fields_registry.py` が正本（表記揺れ対策もここ）。
 - **品質ガード**:
   - `python3 scripts/ops/planning_lint.py --channel CHxx --write-latest`
-  - “L3汚染”除去（任意・決定論）: `python3 scripts/ops/planning_sanitize.py --channel CHxx --apply --write-latest`
+  - “L3汚染”除去（オプション; 決定論）: `python3 scripts/ops/planning_sanitize.py --channel CHxx --apply --write-latest`
 
 ### 2.2 Planning Template（入力の雛形）
 
-- **Config（推奨）**: `workspaces/planning/templates/CHxx_planning_template.csv`
-- **位置づけ**: 無くても運用は回るが、CSV追加/列統一の事故率が下がるため **推奨**。
+- **Config（省略可）**: `workspaces/planning/templates/CHxx_planning_template.csv`
+- **位置づけ**: 省略可（無くても運用は回る）。ただし CSV追加/列統一の事故率を下げるため、各チャンネルで用意する。
 
 ### 2.3 企画の上書き/追加/部分更新（Planning Patch）
 
@@ -71,9 +71,9 @@ episode を識別する最小キー:
 ### 2.4 チャンネル定義（台本/ベンチマーク/動画ワークフロー）
 
 - **Config（正本）**: `packages/script_pipeline/channels/CHxx-*/channel_info.json`
-  - `video_workflow`: `capcut` など（動画側の必須/任意判定に影響）
-  - `benchmarks`: 任意（あると精度↑。欠落はwarn）
-  - `youtube_description`: 任意（投稿用の固定テンプレ。欠落時は `python3 scripts/ops/channel_info_normalize.py --channel CHxx --apply` で補完できる）
+  - `video_workflow`: `capcut` など（動画側の必須/オプション判定に影響）
+  - `benchmarks`: 省略可（あると精度↑。欠落はwarn）
+  - `youtube_description`: 省略可（投稿用の固定テンプレ。欠落時は `python3 scripts/ops/channel_info_normalize.py --channel CHxx --apply` で補完できる）
 - **Config（カタログ/ミラー）**: `packages/script_pipeline/channels/channels_info.json`
   - 編集対象ではない（再生成される）。
 
@@ -81,8 +81,8 @@ episode を識別する最小キー:
 
 - **Config（正本）**: `packages/script_pipeline/channels/CHxx-*/script_prompt.txt`
 - **参照解決**: `configs/sources.yaml: channels.CHxx.channel_prompt` が入口（runnerは repo相対で解決）
-- **位置づけ**: “無くても動く”よりも、再現性と品質に直結するため **原則必須**（無い場合は投入判断で止める寄せ方）。
-- **補助（legacy mirror / 任意）**: `packages/script_pipeline/prompts/channels/CHxx.yaml`
+- **位置づけ**: “無くても動く”よりも、再現性と品質に直結するため **必須**（無い場合は投入判断で止める寄せ方）。
+- **補助（legacy mirror / 省略可）**: `packages/script_pipeline/prompts/channels/CHxx.yaml`
   - runner は YAML を読み込まない（`script_prompt.txt` が正本）。
   - YAML は `script_pipeline.tools.channel_prompt_sync` の入力（YAML→`script_prompt.txt`/`channel_info.json` を上書き）としてのみ使う。
   - **安全策**: `channel_prompt_sync` は、既存 `script_prompt.txt` と YAML の `prompt_body` が不一致のとき **デフォルトで上書きを拒否**する（事故防止）。意図した上書きは `--force` が必要。
@@ -101,7 +101,7 @@ episode を識別する最小キー:
 
 ### 2.7 Persona（拡張入力）
 
-- **Extension（推奨）**: `workspaces/planning/personas/CHxx_PERSONA.md`
+- **Extension（省略可）**: `workspaces/planning/personas/CHxx_PERSONA.md`
 - **位置づけ**: 無くても進む（品質が落ちやすいので warn）。
 - **注意**: persona は “人間用の表/テンプレ” が混入しやすいので、runner は LLM投入用に抽出・短縮する（詳細は `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`）。
 
@@ -120,8 +120,8 @@ episode を識別する最小キー:
   - `prompt_template` の登録表（capcut_template の登録表ではない）。
 - **位置づけ**:
   - `video_workflow=capcut` の場合は preset（特に `capcut_template`）が **必須**（欠落は fail）。
-  - `prompt_template` は **任意**（未指定なら既定テンプレで進む）。ただし指定しているのにファイルが無い場合は実行時に停止するため fail。
-  - `template_registry.json` への登録は推奨（未登録は warning）。
+  - `prompt_template` は **省略可**（未指定なら既定テンプレで進む）。ただし指定しているのにファイルが無い場合は実行時に停止するため fail。
+  - `template_registry.json` への登録は省略可（未登録は warning）。
 
 ### 2.10 サムネ（独立動線）
 

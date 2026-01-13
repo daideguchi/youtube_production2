@@ -321,47 +321,61 @@ def run_strict_pipeline(
 
     # 2. Reading Resolution (Arbiter)
     print(f"[STEP 2] Reading Resolution (AI Arbiter) - Processing {len(active_segments)} segments")
-    patches_by_block = resolve_readings_strict(
-        segments=active_segments,
-        engine=engine,
-        voicevox_client=vv_client,
-        speaker_id=speaker_id,
-        channel=channel,
-        video=video_no,
-        skip_tts_reading=skip_tts_reading,
-        segment_indices=active_indices,
-    )
+    arbiter_error: Optional[Exception] = None
+    patches_by_block: Dict[int, List[Any]] = {}
+    try:
+        patches_by_block = resolve_readings_strict(
+            segments=active_segments,
+            engine=engine,
+            voicevox_client=vv_client,
+            speaker_id=speaker_id,
+            channel=channel,
+            video=video_no,
+            skip_tts_reading=skip_tts_reading,
+            segment_indices=active_indices,
+        )
+    except Exception as exc:
+        # SSOT: even when fail-fast triggers (mismatch), keep a detailed prepass log for diagnosis.
+        arbiter_error = exc
+        for s in segments:
+            if not s.arbiter_verdict or s.arbiter_verdict == "pending_auditor":
+                s.arbiter_verdict = "arbiter_failed"
+        print(f"[WARN] Arbiter failed (log will still be written): {exc}")
     
     if not prepass:
+        if arbiter_error is not None:
+            # Skip synthesis/SRT; we will raise after writing the log.
+            print("[STOP] Arbiter failed; skipping synthesis/SRT.")
+        else:
         # 3. Synthesis
-        print("[STEP 3] Audio Synthesis")
-        # Pass target_indices to synthesizer so it knows which chunks to regenerate vs reuse
-        strict_synthesis(
-            segments=segments, # Pass ALL segments
-            output_wav=output_wav,
-            engine=engine,
-            voice_config=voice_config,
-            voicevox_client=vv_client,
-            speaker_id=speaker_id,
-            target_indices=target_indices, # New arg
-            resume=resume,
-            patches=patches_by_block,
-            channel=channel,
-            voicepeak_overrides=voicepeak_config,
-        )
+            print("[STEP 3] Audio Synthesis")
+            # Pass target_indices to synthesizer so it knows which chunks to regenerate vs reuse
+            strict_synthesis(
+                segments=segments, # Pass ALL segments
+                output_wav=output_wav,
+                engine=engine,
+                voice_config=voice_config,
+                voicevox_client=vv_client,
+                speaker_id=speaker_id,
+                target_indices=target_indices, # New arg
+                resume=resume,
+                patches=patches_by_block,
+                channel=channel,
+                voicepeak_overrides=voicepeak_config,
+            )
         
         # 4. SRT Generation
-        srt_path = output_wav.with_suffix(".srt")
-        generate_srt(
-            segments,
-            srt_path,
-            channel=channel,
-            video_no=video_no,
-            engine=engine,
-            voice_config=voice_config,
-            voicevox_client=vv_client,
-            speaker_id=speaker_id,
-        )
+            srt_path = output_wav.with_suffix(".srt")
+            generate_srt(
+                segments,
+                srt_path,
+                channel=channel,
+                video_no=video_no,
+                engine=engine,
+                voice_config=voice_config,
+                voicevox_client=vv_client,
+                speaker_id=speaker_id,
+            )
     else:
         print("[STEP 3] Prepass mode: skip synthesis/SRT. Log only.")
     
@@ -395,7 +409,7 @@ def run_strict_pipeline(
             )
         vv_kana = s.voicevox_reading or ""
         vv_token_map: Dict[int, str] = {}
-        if prepass:
+        if prepass and vv_client is not None:
             # prepass時のみ、ログ精度を上げるため再度 audio_query で accent_phrases を取得し alignment を試みる
             try:
                 query_for_log = vv_client.audio_query(s.reading or s.text, speaker_id)
@@ -449,3 +463,5 @@ def run_strict_pipeline(
     }
     output_log.write_text(json.dumps(log_data, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"=== PIPELINE FINISHED ===")
+    if arbiter_error is not None:
+        raise RuntimeError(str(arbiter_error)) from arbiter_error

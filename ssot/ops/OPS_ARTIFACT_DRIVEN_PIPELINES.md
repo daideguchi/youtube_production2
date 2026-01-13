@@ -7,7 +7,7 @@
 - **artifactが揃ったら処理が進む**（未生成/不整合は即停止）。
 - 生成物は「目視で直せる」「再実行しても同じ入力なら同じ結果」へ寄せる。
 
-## 設計原則
+## 設計ルール
 1. **型（schema）を先に決める**
    - 例: `ytm.srt_segments.v1`, `ytm.visual_cues_plan.v1`, `ytm.image_cues.v1`
 2. **LLMは“artifact生成器”としてだけ使う**
@@ -64,7 +64,7 @@
 - まず `srt_segments.json` の `source_srt.sha1` を見る（入力取り違えが最悪事故）。
 - 画像が等間隔/画風崩れなどの品質問題は、最初に `visual_cues_plan.json` と `image_cues.json` を見て原因を切り分ける。
 - **f-1（FLUX schnell）等で「似た絵が量産」された時の復旧**（外部LLM APIコストを使わない）:
-  - 推奨: `audit_fix_drafts.py` を **THINK MODE** で回し、画像プロンプト（`refined_prompt`）はエージェントが推論して埋める（pending→complete→rerun）。
+  - 標準: `audit_fix_drafts.py` を **THINK MODE** で回し、画像プロンプト（`refined_prompt`）はエージェントが推論して埋める（pending→complete→rerun）。
     - 例: `./ops think video audit-fix-drafts -- --channel CHxx --min-id 43 --max-id 82 --refine-prompts --regen-refined-subject-dupes --refined-subject-dupe-min-count 2`
   - fallback（LLM無し）: `audit_fix_drafts.py --refine-prompts-local` は **非決定（SystemRandom）**でローカルに `refined_prompt` を再合成し、固定モチーフ/固定seedでの量産を避ける。
     - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1 PYTHONPATH=".:packages" python3 -m video_pipeline.tools.audit_fix_drafts --channel CHxx --min-id 43 --max-id 82 --refine-prompts-local --regen-refined-subject-dupes --refined-subject-dupe-min-count 2`

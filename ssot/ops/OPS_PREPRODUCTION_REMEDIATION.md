@@ -50,7 +50,7 @@ python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest
 - `missing_sources_entry` / `missing_sources_channel_entry`
   - 意味: `configs/sources.yaml` に `channels.CHxx` が無い（入口が迷子になる）。
   - 直す場所: `configs/sources.yaml`
-  - 推奨修復:
+  - 標準修復:
     - 既存チャンネルの登録漏れなら `channels.CHxx` ブロックを追加（planning/persona/prompt/chapter/文字数）。
     - 新チャンネル追加なら `python3 -m script_pipeline.tools.channel_registry create ...` を使う（雛形生成 + sources追記）。
   - 再検証: `python3 scripts/ops/preproduction_audit.py --channel CHxx --write-latest`
@@ -66,8 +66,8 @@ python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest
   - 再検証: `python3 scripts/ops/planning_lint.py --channel CHxx --write-latest`
 
 - `missing_sources_persona`
-  - 意味: sources.yaml に persona の参照が無い（任意入力。欠落はwarn止まり）。
-  - 直す場所: `configs/sources.yaml`（任意: `channels.CHxx.persona` を追加）
+  - 意味: sources.yaml に persona の参照が無い（オプション入力。欠落はwarn止まり）。
+  - 直す場所: `configs/sources.yaml`（省略可: `channels.CHxx.persona` を追加）
   - 再検証: `python3 scripts/ops/preproduction_audit.py --channel CHxx --write-latest`
 
 - `missing_sources_channel_prompt` / `missing_channel_prompt`
@@ -87,7 +87,7 @@ python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest
 - `missing_planning_row`
   - 意味: `CHxx/NNN` の行が CSV に存在しない。
   - 直す場所:
-    - 手で追加（UI推奨）: `/planning`
+    - UIで追加: `/planning`
     - 追跡したい場合: Patch で `add_row`（`workspaces/planning/patches/*.yaml`）
   - 再検証: `python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest`
 
@@ -106,7 +106,7 @@ python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest
 - `planning_lint_warnings`
   - 意味: warning がある（投入はできるが、後段のズレ/事故率が上がる）。
   - 直す場所: `workspaces/planning/channels/CHxx.csv`（or Patch）
-  - 補助（決定論/任意）:
+  - 補助（決定論/オプション）:
     - タイトルに沿って“汚染しやすい列”を安全に揃える: `python3 scripts/ops/planning_realign_to_title.py --channel CHxx --from NNN --to MMM --apply --write-latest`
   - 再検証: `python3 scripts/ops/planning_lint.py --channel CHxx --write-latest`
 
@@ -117,7 +117,7 @@ python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest
 
 - `planning_row_published_lock`
   - 意味: “投稿済み” のロックが疑われる（誤って再投入しないための警告）。
-  - 直す場所: 原則触らない。誤ロックのときだけ `OPS_PLANNING_CSV_WORKFLOW` の手順で解除。
+  - 直す場所: 触らない。誤ロックのときだけ `OPS_PLANNING_CSV_WORKFLOW` の手順で解除。
 
 ### 1.3 Channel assets（script_pipeline/channels）
 
@@ -148,11 +148,11 @@ python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest
 
 - `active_preset_missing_prompt_template`
   - 意味: `prompt_template` が未指定（既定テンプレで進むが、画風/品質が安定しにくい）。
-  - 直す場所: `packages/video_pipeline/config/channel_presets.json`（任意の品質改善）
+  - 直す場所: `packages/video_pipeline/config/channel_presets.json`（オプション; 品質改善）
 
 - `missing_prompt_template`
   - 意味: `prompt_template` が未指定（既定テンプレで進むが、画風/品質が安定しにくい）。
-  - 直す場所: `packages/video_pipeline/config/channel_presets.json`（任意の品質改善）
+  - 直す場所: `packages/video_pipeline/config/channel_presets.json`（オプション; 品質改善）
 
 - `missing_prompt_template_file`
   - 意味: `prompt_template` を指定しているのにファイルが存在しない（実行時に停止）。
@@ -164,7 +164,7 @@ python3 scripts/ops/production_pack.py --channel CHxx --video NNN --write-latest
   - 意味: `template_registry.json` に登録されていない（ガバナンス上のwarning）。
   - 直す場所: `packages/video_pipeline/config/template_registry.json`
 
-### 1.6 Benchmarks（任意入力）
+### 1.6 Benchmarks（オプション入力）
 
 - `missing_benchmarks` / `benchmarks_empty_channels` / `benchmarks_empty_script_samples`
   - 意味: ベンチマークが無い/空（品質劣化しやすいが投入は可能）。

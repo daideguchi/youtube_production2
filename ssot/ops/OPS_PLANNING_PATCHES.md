@@ -23,7 +23,7 @@
 
 ## 1. 判断キー（どの単位で差し替えるか）
 
-最小の運用単位（推奨）:
+最小の運用単位（固定）:
 - **episode 単位**: `channel` + `video (NNN)`
 
 ### 1.1 シリーズ/テンプレの“まとめ変更”はどう扱うか（現行の最適解）
@@ -36,7 +36,7 @@
   - apply が途中で止まっても、どこまで反映したかが追える（復旧しやすい）
   - 既存ライン（channel+video が最小キー）と自然に接続できる
 
-補助（任意）:
+補助（オプション）:
 - 複数episode分の patch YAML をまとめて作りたい場合は `planning_patch_gen` を使う:
   - `python3 scripts/ops/planning_patch_gen.py --op set --channel CHxx --from 1 --to 10 --set '進捗=topic_research: pending' --label reset_progress --write`
 
@@ -109,12 +109,12 @@ notes: |
 
 ## 4. 適用と差分ログ（運用）
 
-推奨フロー:
+標準フロー:
 1) 対象 CSV の lock を確認し、自分の作業範囲に lock を置く
 2) dry-run（差分ログ + candidate CSV 生成）→ 内容確認
 3) apply（CSVへ反映）
    - `planning_apply_patch.py` は candidate に対して `planning_lint` を実行し、**lint error がある場合は apply を自動停止**する（壊さないための安全弁）
-4) 必要なら Production Pack を再生成し、diff で「何が変わったか」を固定する
+4) Production Pack を使う運用の場合は再生成し、diff で「何が変わったか」を固定する
 
 CLI:
 - dry-run: `python3 scripts/ops/planning_apply_patch.py --patch workspaces/planning/patches/<PATCH>.yaml`
@@ -136,5 +136,5 @@ CLI:
 - **追加**: 新規行を追加する（episode を増やす）
 - **部分更新**: `進捗` や補助列だけを更新する（下流 SoT の破壊を避ける）
 
-下流（台本/音声/動画）に反映させたい変更がある場合は、原則「reset → 再生成」で揃える。
+下流（台本/音声/動画）に反映させたい変更がある場合は、「reset → 再生成」で揃える。
 （混在は事故源。詳細は `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`）

@@ -16,8 +16,8 @@
 
 **中身（固定）**:
 - `images/0001.png` …（1-based・4桁ゼロ埋め。SRTのセグメント順に対応）
-- `audio/CHxx-NNN.wav`（編集ソフト側の音声 / 任意）
-- `subtitles/CHxx-NNN.srt`（編集ソフト側の字幕 / 任意）
+- `audio/CHxx-NNN.wav`（編集ソフト側の音声 / 省略可）
+- `subtitles/CHxx-NNN.srt`（編集ソフト側の字幕 / 省略可）
 - `manifest.json`（生成メタ。スキーマ/件数/生成元runなど）
 
 命名ルール:

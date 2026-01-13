@@ -140,7 +140,7 @@ workspaces/thumbnails/README.md
   - `workspaces/thumbnails/assets/{CH}/{NNN}/`
     - SoT（動画差分）:
       - 標準: `thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
-      - 互換: `thumb_spec.json`（legacy。2案運用時は混線事故の温床なので、可能なら stable へ移行する）
+      - 互換: `thumb_spec.json`（legacy。2案運用時は混線事故の温床なので、stable へ移行する）
     - SoT（文字・行単位）:
       - 標準: `text_line_spec.<stable>.json`
       - 互換: `text_line_spec.json`

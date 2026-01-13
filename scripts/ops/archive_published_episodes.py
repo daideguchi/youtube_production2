@@ -7,7 +7,9 @@ Published definition (SoT):
 
 Safety:
 - Default is dry-run.
-- --run performs MOVE (no delete).
+- --run executes the requested action.
+- Default action is archive (MOVE).
+- --delete switches action to DELETE (dangerous; irreversible).
 - For batch runs, --yes is required.
 - Respects coordination locks (scripts/agent_org.py lock).
 
@@ -51,12 +53,13 @@ from factory_common.paths import (  # noqa: E402
 from factory_common.timeline_manifest import parse_episode_id  # noqa: E402
 
 
-REPORT_SCHEMA = "ytm.ops.archive_published_episodes_report.v1"
+REPORT_SCHEMA = "ytm.ops.archive_published_episodes_report.v2"
 
 
 def _is_under(path: Path, root: Path) -> bool:
     try:
-        path.resolve().relative_to(root.resolve())
+        # Do not resolve symlinks here; we want to validate the *path itself* lives under the domain root.
+        path.absolute().relative_to(root.absolute())
         return True
     except Exception:
         return False
@@ -96,6 +99,17 @@ def _move_path(src: Path, dest: Path) -> None:
         return
     except OSError:
         shutil.move(str(src), str(dest))
+
+
+def _delete_path(path: Path) -> None:
+    # Safety: never follow symlinks (unlink the link itself).
+    if path.is_symlink():
+        path.unlink()
+        return
+    if path.is_dir():
+        shutil.rmtree(path)
+        return
+    path.unlink()
 
 
 def _normalize_channel(raw: str) -> str:
@@ -151,20 +165,22 @@ def _planning_published_videos(csv_path: Path) -> list[str]:
 
 
 @dataclass(frozen=True)
-class MoveItem:
+class WorkItem:
+    action: str  # "archive" | "delete"
     domain: str
     channel: str
     video: str
     src: Path
-    dest: Path
+    dest: Optional[Path]
 
     def as_dict(self) -> dict[str, Any]:
         return {
+            "action": self.action,
             "domain": self.domain,
             "channel": self.channel,
             "video": self.video,
             "src": str(self.src),
-            "dest": str(self.dest),
+            "dest": str(self.dest) if self.dest else None,
         }
 
 
@@ -261,16 +277,17 @@ def _video_run_candidates(ch: str, video: str) -> list[Path]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Archive artifacts for episodes with Planning 進捗=投稿済み.")
+    ap = argparse.ArgumentParser(description="Archive (or delete) artifacts for episodes with Planning 進捗=投稿済み.")
     ap.add_argument("--channel", action="append", required=True, help="Target channel (repeatable). e.g. CH01")
     ap.add_argument("--video", action="append", help="Limit to specific video(s) (repeatable). e.g. 216")
-    ap.add_argument("--audio", action="store_true", help="Archive workspaces/audio/final/** (domain).")
-    ap.add_argument("--thumbnails", action="store_true", help="Archive workspaces/thumbnails/assets/** (domain).")
-    ap.add_argument("--video-input", action="store_true", help="Archive workspaces/video/input/** (domain).")
-    ap.add_argument("--video-runs", action="store_true", help="Archive workspaces/video/runs/** (domain).")
+    ap.add_argument("--audio", action="store_true", help="Target domain: workspaces/audio/final/**")
+    ap.add_argument("--thumbnails", action="store_true", help="Target domain: workspaces/thumbnails/assets/**")
+    ap.add_argument("--video-input", action="store_true", help="Target domain: workspaces/video/input/**")
+    ap.add_argument("--video-runs", action="store_true", help="Target domain: workspaces/video/runs/**")
     ap.add_argument("--dry-run", action="store_true", help="Dry-run (default).")
-    ap.add_argument("--run", action="store_true", help="Actually move artifacts.")
-    ap.add_argument("--yes", action="store_true", help="Required for --run when archiving multiple episodes.")
+    ap.add_argument("--run", action="store_true", help="Actually move/delete artifacts.")
+    ap.add_argument("--delete", action="store_true", help="Delete artifacts instead of moving them to _archive (dangerous).")
+    ap.add_argument("--yes", action="store_true", help="Safety confirm for dangerous runs (e.g. batch, or --delete --run).")
     ap.add_argument("--stamp", default=None, help="Override timestamp folder name (default: now UTC).")
     ap.add_argument(
         "--ignore-created-by",
@@ -285,7 +302,13 @@ def main() -> int:
     requested_domains = {k for k in ("audio", "thumbnails", "video_input", "video_runs") if getattr(args, k, False)}
     domains = requested_domains or {"audio", "thumbnails", "video_input", "video_runs"}
 
+    do_delete = bool(args.delete)
+    if do_delete and not requested_domains:
+        raise SystemExit("--delete requires explicit domain flags (e.g. --audio --video-input --video-runs).")
+
     do_run = bool(args.run) and not bool(args.dry_run)
+    if do_run and do_delete and not args.yes:
+        raise SystemExit("--delete --run requires --yes (safety).")
     if do_run and not args.yes:
         # Require explicit --yes when this could touch more than 1 episode.
         if len(channels) != 1 or not videos_filter or len(videos_filter) != 1:
@@ -296,7 +319,8 @@ def main() -> int:
     ignore_created_by = (args.ignore_created_by or os.getenv("LLM_AGENT_NAME") or os.getenv("AGENT_NAME") or "").strip() or None
     locks = load_active_locks(ignore_created_by=ignore_created_by)
 
-    items: list[MoveItem] = []
+    action = "delete" if do_delete else "archive"
+    items: list[WorkItem] = []
     missing: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
 
@@ -311,7 +335,7 @@ def main() -> int:
                 src = audio_final_dir(ch, vid)
                 if src.exists():
                     dest = audio_artifacts_root() / "_archive_audio" / stamp / ch / vid
-                    items.append(MoveItem(domain="audio", channel=ch, video=vid, src=src, dest=dest))
+                    items.append(WorkItem(action=action, domain="audio", channel=ch, video=vid, src=src, dest=None if do_delete else dest))
                 else:
                     missing.append({"domain": "audio", "channel": ch, "video": vid, "src": str(src)})
 
@@ -320,7 +344,9 @@ def main() -> int:
                 if thumbs:
                     for src in thumbs:
                         dest = thumbnails_root() / "_archive" / stamp / ch / "assets" / src.name
-                        items.append(MoveItem(domain="thumbnails", channel=ch, video=vid, src=src, dest=dest))
+                        items.append(
+                            WorkItem(action=action, domain="thumbnails", channel=ch, video=vid, src=src, dest=None if do_delete else dest)
+                        )
                 else:
                     missing.append({"domain": "thumbnails", "channel": ch, "video": vid, "src": str(thumbnails_root() / "assets" / ch / vid)})
 
@@ -334,7 +360,9 @@ def main() -> int:
                         except Exception:
                             rel = Path(ch) / src.name
                         dest = workspace_root() / "video" / "_archive" / stamp / ch / "video_input" / rel
-                        items.append(MoveItem(domain="video_input", channel=ch, video=vid, src=src, dest=dest))
+                        items.append(
+                            WorkItem(action=action, domain="video_input", channel=ch, video=vid, src=src, dest=None if do_delete else dest)
+                        )
                 else:
                     missing.append({"domain": "video_input", "channel": ch, "video": vid, "src": str(video_input_root())})
 
@@ -343,7 +371,9 @@ def main() -> int:
                 if runs:
                     for src in runs:
                         dest = workspace_root() / "video" / "_archive" / stamp / ch / "runs" / src.name
-                        items.append(MoveItem(domain="video_runs", channel=ch, video=vid, src=src, dest=dest))
+                        items.append(
+                            WorkItem(action=action, domain="video_runs", channel=ch, video=vid, src=src, dest=None if do_delete else dest)
+                        )
                 else:
                     # not an error: many episodes have no runs on disk
                     missing.append({"domain": "video_runs", "channel": ch, "video": vid, "src": str(video_runs_root())})
@@ -359,7 +389,7 @@ def main() -> int:
         if allowed_root and not _is_under(src, allowed_root):
             skipped.append({**item.as_dict(), "reason": "out_of_scope_src", "allowed_root": str(allowed_root)})
             continue
-        if _is_under(src, scripts_root) or _is_under(dest, scripts_root):
+        if _is_under(src, scripts_root) or (dest and _is_under(dest, scripts_root)):
             skipped.append({**item.as_dict(), "reason": "blocked_by_scripts_sot_guard"})
             continue
 
@@ -367,7 +397,7 @@ def main() -> int:
             skipped.append({**item.as_dict(), "reason": "missing_at_move_time"})
             continue
 
-        blocker = find_blocking_lock(src, locks) or find_blocking_lock(dest, locks)
+        blocker = find_blocking_lock(src, locks) or (dest and find_blocking_lock(dest, locks))
         if blocker:
             skipped.append(
                 {
@@ -379,10 +409,15 @@ def main() -> int:
             )
             continue
 
-        record: dict[str, Any] = {**item.as_dict(), "moved": False}
+        record: dict[str, Any] = {**item.as_dict(), "executed": False}
         if do_run:
-            _move_path(src, dest)
-            record["moved"] = True
+            if item.action == "delete":
+                _delete_path(src)
+            else:
+                if not dest:
+                    raise SystemExit("internal error: dest is required for archive action")
+                _move_path(src, dest)
+            record["executed"] = True
         moved.append(record)
 
     report_dir = logs_root() / "regression" / "archive_published_episodes"
@@ -398,16 +433,16 @@ def main() -> int:
         "lock_ignore_created_by": ignore_created_by,
         "counts": {
             "planned_moves": len(items),
-            "executed_moves": sum(1 for r in moved if r.get("moved")),
+            "executed_moves": sum(1 for r in moved if r.get("executed")),
             "skipped": len(skipped),
             "missing": len(missing),
         },
-        "moved": moved,
+        "items": moved,
         "skipped": skipped,
         "missing": missing,
         "notes": {
             "sot": "planning csv progress == 投稿済み",
-            "mode": "move_only_no_delete",
+            "action": action,
             "archive_roots": {
                 "audio": str(audio_artifacts_root() / "_archive_audio" / stamp),
                 "thumbnails": str(thumbnails_root() / "_archive" / stamp),
@@ -422,10 +457,11 @@ def main() -> int:
     print(f"[archive_published_episodes] report: {report_path}")
     print(
         f"[archive_published_episodes] planned={report['counts']['planned_moves']} "
-        f"moved={report['counts']['executed_moves']} "
+        f"executed={report['counts']['executed_moves']} "
         f"skipped={report['counts']['skipped']} "
         f"missing={report['counts']['missing']} "
-        f"mode={'run' if do_run else 'dry-run'}"
+        f"mode={'run' if do_run else 'dry-run'} "
+        f"action={action}"
     )
     return 0
 

@@ -46,7 +46,7 @@
     - `packages/factory_common/llm_router.py`（LLMRouter。router スキーマ: `status`, `task`, `provider`, `model`, `chain`, `latency_ms`, `usage?`, `error?`, `retry?`, `cache?`, `routing?`, `timestamp`）
     - `packages/factory_common/llm_api_failover.py`（API失敗→THINKフォールバック: `status=api_failover_*`, `task_id`, `pending?`, `runbook?`。注: `script_*` はフォールバックしない）
   - 形式: 1行JSON（複数スキーマ混在。将来的に schema_version で統一予定）
-  - `routing`（任意）:
+- `routing`（省略可）:
     - `LLM_AZURE_SPLIT_RATIO` が設定されている場合、Azure/非Azure の振り分け情報（policy/ratio/bucket/preferred_provider/routing_key）を出力する
   - Reader/UI: `apps/ui-backend/backend/routers/llm_usage.py`, `scripts/aggregate_llm_usage.py`
   - 種別: **L1**
@@ -58,7 +58,7 @@
     - `workspaces/logs/agent_tasks/coordination/memos/*.json`（申し送り/フォールバック通知）
       - Writer: `packages/factory_common/llm_api_failover.py`, `scripts/agent_org.py`
       - Reader: `python scripts/agent_org.py memos`, `python scripts/agent_org.py memo-show <MEMO_ID>`
-    - `workspaces/logs/agent_tasks/coordination/locks/*.json`（任意: 作業スコープロック）
+    - `workspaces/logs/agent_tasks/coordination/locks/*.json`（作業スコープロック; 省略可）
       - Writer/Reader: `scripts/agent_org.py`
       - Housekeeping: `python scripts/agent_org.py locks-prune` が期限切れ lock を `workspaces/logs/agent_tasks/coordination/locks/_archive/YYYYMM/` に退避する
     - `workspaces/logs/agent_tasks/coordination/board.json`（Shared Board: 共同メモ/状態の単一ファイル）
@@ -89,7 +89,7 @@
   - Writer: `packages/factory_common/llm_api_cache.py`
   - 役割: LLM 呼び出しの **再利用キャッシュ**（同一入力の再実行を高速化/低コスト化）
   - 形式: JSON（レスポンス/メタデータ）
-  - 種別: **L3（安全に削除可能。必要なら再生成される）**
+  - 種別: **L3（安全に削除可能。再生成される）**
 
 ### 1.2 Audio/TTS（グローバル）
 
@@ -131,7 +131,7 @@
   - 形式: 1行JSON
     - `task`, `model`, `provider`, `latency_ms`, `usage`, `error?`
   - Reader: `scripts/llm_logs_combined_report.py`
-  - 種別: **L3（必要なら L1 に昇格可）**
+  - 種別: **L3（L1へ昇格する場合は本マップで明示する）**
 
 - `workspaces/logs/swap/swap_<timestamp>.log`  
   - Writer: `apps/ui-backend/backend/routers/swap.py`（UI Hub Swap API）
@@ -146,7 +146,7 @@
 - `workspaces/logs/swap/thumb_cache/<draft_key>/<max_dim>/*.png`  
   - Writer: `apps/ui-backend/backend/routers/swap.py`（画像プレビューのサムネキャッシュ）
   - Reader: UI（画像一覧プレビュー）
-  - 種別: **L3（安全に削除可能。必要なら再生成される）**
+  - 種別: **L3（安全に削除可能。再生成される）**
 
 ### 1.4 UI / Ops（グローバル）
 
@@ -243,7 +243,7 @@
   - 種別: **L3（30日）**
 - 旧名/旧拡張子の残骸（例: `workspaces/logs/ch03_batch.out`）
   - 種別: **L3（Legacy）**
-- 手動メモ → `workspaces/logs/pipeline_memo.txt`（L3。必要ならSSOTへ移す）
+- 手動メモ → `workspaces/logs/pipeline_memo.txt`（L3。SSOTへ昇格する場合はSSOTへ転記する）
 - その他 `scripts/*.py|*.sh` が `workspaces/logs/*.log|*.txt` を直接生成（Stage1で paths SSOT 化→Stage2で移設予定）
 
 Legacy（削除済みのWriter。復活禁止）:
@@ -407,7 +407,7 @@ workspaces/logs/
 - `workspaces/logs/swap/*.log`, `workspaces/logs/swap/history/**`, `workspaces/logs/swap/thumb_cache/**`: **30日ローテ**
 - `workspaces/logs/repair/*.log`: **30日ローテ**
 - `workspaces/logs/ops/**`: **30日ローテ**
-- `workspaces/logs/llm_api_cache/**`: **必要なら 30日ローテ（キャッシュなので安全に削除可能）**
+- `workspaces/logs/llm_api_cache/**`: **30日ローテ（`--include-llm-api-cache` を付けた場合。キャッシュなので安全に削除可能）**
 
 実行（手動/cron）:
 - `python3 scripts/ops/cleanup_logs.py --run --keep-days 30`（workspaces/logs 直下の L3 を日数ローテ。report: `workspaces/logs/regression/logs_cleanup/`）
@@ -419,6 +419,6 @@ workspaces/logs/
 ## 5. 次の確定タスク（ログ整理のための追加調査）
 
 - `scripts/` / `tools/` の ad‑hoc ログ生成箇所を **ファイル単位で Active/Legacy 判定**し、
-  `workspaces/logs/ops/` へ寄せる（必要なら新しい OPS log を作る）。
+  `workspaces/logs/ops/` へ寄せる（新しい OPS log が無い場合は追加する）。
 - BatchTTS の progress/log は `workspaces/logs/ui/` に統一済み。ローテは `scripts/ops/cleanup_logs.py` の対象。
 - 2025-12-12: `packages/video_pipeline/{src,ui/src}/memory/**` は参照ゼロの確実ゴミとして削除済み（`ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）。

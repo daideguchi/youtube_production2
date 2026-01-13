@@ -89,9 +89,18 @@ def normalize_for_compare(kana: str) -> str:
     text = str(kana)
     text = text.translate({code: code + 0x60 for code in range(ord("ぁ"), ord("ゖ") + 1)})  # ひらがな→カタカナ
     text = _normalize(text)
+    # VOICEVOX kana sometimes expands yōon (拗音) in longer phrases:
+    #   ギョウ -> ギヨウ, キョク -> キヨク, etc.
+    # For comparison only, normalize: I-row kana + ヨ + <katakana> -> I-row kana + smallョ + same char.
+    # This reduces false mismatches without rewriting the script itself.
+    text = re.sub(r"([キギシジチニヒミリピビ])ヨ([ァ-ヺー])", r"\1ョ\2", text)
     # Orthographic variants that should not trigger audits
     # (e.g., ヅ/ズ, ヂ/ジ, ヲ/オ are effectively the same in modern pronunciation).
     text = text.replace("ヅ", "ズ").replace("ヂ", "ジ").replace("ヲ", "オ")
+    # Foreign V-sounds: VOICEVOX often collapses ヴ系 -> バ/ビ/ベ/ボ.
+    text = text.replace("ヴァ", "バ").replace("ヴィ", "ビ").replace("ヴェ", "ベ").replace("ヴォ", "ボ").replace("ヴ", "ブ")
+    # NOTE: Particle pronunciation (は=ワ / へ=エ) should be handled at token-level.
+    # Doing a blind string replace here breaks real words (e.g., 一発=イチハツ).
     text = _collapse_long_vowels(text)
     # Colloquial contraction normalization:
     # - MeCab often yields: コウイウ / ソウイウ / ドウイウ
@@ -115,19 +124,7 @@ def is_trivial_diff(expected: str, actual: str) -> bool:
     norm_expected = normalize_for_compare(str(expected))
     norm_actual = normalize_for_compare(str(actual))
 
-    if norm_expected == norm_actual:
-        return True
-
-    # Single character delta or long sound mark fluctuation
-    if abs(len(norm_expected) - len(norm_actual)) <= 1:
-        diff_positions = [i for i, (a, b) in enumerate(zip(norm_expected, norm_actual)) if a != b]
-        diff_chars = len(diff_positions)
-        if diff_chars <= 1:
-            # 先頭1文字差で長さが十分ある場合（例: ツライ/カライ）は非トリビアル扱い
-            if diff_positions and diff_positions[0] == 0 and max(len(norm_expected), len(norm_actual)) >= 3:
-                return False
-            return True
-    return False
+    return norm_expected == norm_actual
 
 
 def _is_numeric_surface(surface: str) -> bool:

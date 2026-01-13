@@ -33,7 +33,7 @@
 - `promise`（視聴価値）
 - `angle`（切り口）
 
-推奨スキーマ（最小）:
+スキーマ例（最小）:
 ```json
 {
   "idea_id": "CH01-IDEA-20251231-0007",
@@ -70,7 +70,7 @@
 
 ルール:
 - 移動は必ず理由を1行残す（`history` に記録）。
-- `DONE` は原則ロック（編集は別レコード運用推奨）。
+- `DONE` はロックする（編集は別レコード運用にする）。
 
 ---
 
@@ -127,7 +127,7 @@ python3 scripts/ops/idea.py list --channel CH01 --status INBOX
 # 仕分け（理由必須）
 python3 scripts/ops/idea.py triage --channel CH01 --idea-id CH01-IDEA-... --to BACKLOG --reason "素材が良い"
 
-# 採点（任意で auto-status）
+# 採点（--auto-status は省略可）
 python3 scripts/ops/idea.py score --channel CH01 --idea-id CH01-IDEA-... --novelty 4 --retention 3 --feasibility 4 --brand-fit 4 --auto-status
 
 # 重複チェック（reportのみ）
@@ -137,7 +137,7 @@ python3 scripts/ops/idea.py dedup --channel CH01
 python3 scripts/ops/idea.py select --channel CH01 --n 10
 python3 scripts/ops/idea.py select --channel CH01 --n 10 --apply
 
-# Planningへ投入（READY→Planning CSVへ追加行。patch生成→lint→任意でapply）
+# Planningへ投入（READY→Planning CSVへ追加行。patch生成→lint→apply（省略可））
 python3 scripts/ops/idea.py slot --channel CH01 --n 10
 python3 scripts/ops/idea.py slot --channel CH01 --n 10 --apply
 

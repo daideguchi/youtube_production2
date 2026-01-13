@@ -85,7 +85,7 @@ python scripts/agent_org.py lock --mode no_write --ttl-min 60 --note "INCIDENT: 
   "configs/sources.yaml"
 ```
 
-3) オーナーを宣言（推奨: memo。boardでも可）:
+3) オーナーを宣言（標準: memo。boardでも可）:
 ```bash
 python scripts/agent_org.py memo --to "*" --subject "[INCIDENT][script] freeze CH23-001 owner=<YOUR_NAME>" --body "SoT固定のため一時停止。候補は candidates/ に隔離して提出してください。"
 ```
@@ -109,7 +109,7 @@ mkdir -p "workspaces/scripts/CH23/001/content/analysis/incident_${ts}/candidates
 
 ### 4.4 検証（合否確定）
 
-入口固定（推奨）:
+入口固定:
 ```bash
 ./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH23 --video 001
 ```
@@ -132,4 +132,3 @@ mkdir -p "workspaces/scripts/CH23/001/content/analysis/incident_${ts}/candidates
 - `content/analysis/**` の `fix_latest.md` を「正本」と誤解して下流へ流す
 - 文字数/チャンネル設定を変えたのに、既存エピソードを古い `status.json` のまま検証して混乱する
 - lock を置かずに同じ回を複数人が触る
-

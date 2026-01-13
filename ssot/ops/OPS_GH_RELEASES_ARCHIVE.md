@@ -6,7 +6,7 @@
 - “どこに何があるか” を repo 内の **manifest（目録）**で検索できるようにする。
 
 非目的:
-- パイプラインの SoT（`workspaces/**`）を GitHub Releases に置き換えること（これは **任意の退避**であり、標準フローではない）。
+- パイプラインの SoT（`workspaces/**`）を GitHub Releases に置き換えること（これは **オプションの退避**であり、標準フローではない）。
 - ローカルの自動削除（削除判断は人間/Orchestrator側で行う）。
 
 ---
@@ -23,7 +23,7 @@
 ## 1) 実行入口（CLI）
 
 - `python3 scripts/ops/release_archive.py --help`
-- 推奨（`.env` 読み込み + PYTHONPATH整備）:
+- 入口固定（`.env` 読み込み + PYTHONPATH整備）:
   - `./scripts/with_ytm_env.sh python3 scripts/ops/release_archive.py ...`
 
 必要条件:
@@ -79,10 +79,10 @@ ARCHIVE_REPO="OWNER/REPO" \
 
 ## 4) 設定（env / CLI）
 
-- `ARCHIVE_REPO`（推奨）: `OWNER/REPO`
+- `ARCHIVE_REPO`（標準）: `OWNER/REPO`
   - `--repo OWNER/REPO` で上書き可
   - 未指定時は `git remote origin` から推測（失敗する場合がある）
-- `CHUNK_SIZE_BYTES`（任意）:
+- `CHUNK_SIZE_BYTES`（省略可）:
   - `--chunk-size-bytes` で上書き可
   - 既定: 1,900,000,000 bytes（2GiB未満運用）
 

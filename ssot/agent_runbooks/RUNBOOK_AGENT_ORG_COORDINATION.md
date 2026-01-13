@@ -39,8 +39,8 @@ python scripts/agent_org.py orchestrator stop
 ## 4. Worker Agent（名前・心拍）
 重要:
 - 並列運用では **各Codex/ターミナルごと**に agent name が必須（`lock/memo/board` 等の write 操作の attribution を壊さないため）。
-- `LLM_AGENT_NAME` を毎回セットしたくない場合でも、`scripts/agent_org.py` の write系は **自動で agent name を生成→端末/host_pidごとに記憶**する（以後は自動）。必要なら `LLM_AGENT_NAME` / `--agent-name` で上書き。
-- 推奨命名: `<owner>-<area>-<nn>`（例: `dd-ui-01`）
+- `LLM_AGENT_NAME` を毎回セットしたくない場合でも、`scripts/agent_org.py` の write系は **自動で agent name を生成→端末/host_pidごとに記憶**する（以後は自動）。手動で指定する場合は `LLM_AGENT_NAME` / `--agent-name` で上書き。
+- 命名ルール（標準）: `<owner>-<area>-<nn>`（例: `dd-ui-01`）
 
 ### 4.1 heartbeat を起動（各Agentごと）
 ```bash
@@ -51,7 +51,7 @@ export LLM_AGENT_NAME=Eric
 python scripts/agent_org.py agents start --name "$LLM_AGENT_NAME" --role worker
 python scripts/agent_org.py agents list
 ```
-（推奨: heartbeat + board を同時に更新）:
+（標準: heartbeat + board を同時に更新）:
 ```bash
 python3 scripts/ops/agent_bootstrap.py --name "$LLM_AGENT_NAME" --role worker --doing "ui: ..." --next "..." --tags ui
 ```
@@ -103,7 +103,7 @@ python scripts/agent_org.py lock 'apps/ui-backend/**' --mode no_touch --ttl-min 
 python scripts/agent_org.py locks --path apps/ui-backend/backend/main.py
 ```
 UIから行う場合: `/agent-org` → Actions タブ（`from` は agent 名に合わせる）
-※ `lock` は既存の active lock とスコープが交差する場合、作成を拒否する（衝突を作らないため）。必要なら `--force`（要合意）。
+※ `lock` は既存の active lock とスコープが交差する場合、作成を拒否する（衝突を作らないため）。強制する場合は `--force`（要合意）。
   lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
   lock の作成/解除は `locks/lease.lock`（flock）で直列化され、レースで二重取得しにくい（UI/API/Orchestrator/CLI 共通）。
 

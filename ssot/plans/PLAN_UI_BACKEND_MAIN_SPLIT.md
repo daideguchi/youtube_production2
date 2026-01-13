@@ -27,7 +27,7 @@
 - **In Scope**
   - `main.py` から “純粋な移設が可能” なものを `routers/**` / `app/**` に移す。
   - `main.py` に残すのは次のみに制限: app生成、middleware、`include_router`、lifecycle/hook、最小の glue code。
-  - 必要なら `apps/ui-backend/backend/app/` に “共通スキーマ/共通ユーティリティ” を追加する。
+  - 同一スキーマ/ユーティリティが2箇所以上で参照される時点で、`apps/ui-backend/backend/app/` に “共通スキーマ/共通ユーティリティ” を追加する。
 - **Out of Scope**
   - ルーティングSSOT/モデル管理の設計変更（別plan/decisionで扱う）
   - FastAPIの大規模アーキ変更（DI/コンテナ導入など）

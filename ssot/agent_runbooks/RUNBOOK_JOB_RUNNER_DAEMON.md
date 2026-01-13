@@ -9,7 +9,7 @@
 ## 1. 前提
 - `<REPO_ROOT>`（このリポジトリの絶対パス）がプロジェクトルート
 - `.env` をプロジェクト直下に配置済み（キー設定済み）
-- Python はシステムデフォルトを想定（必要なら venv の python を指定）
+- Python はシステムデフォルトを想定（venv の python を使う場合は明示指定）
 
 キュー実体（参考）:
 - `workspaces/scripts/_state/job_queue.jsonl`（pending/running/completed/failed）
@@ -64,10 +64,10 @@
 
 ## 5. 簡易ホスティング（例: Render）
 - 起動コマンド例: `python -m script_pipeline.job_runner run-loop --max-iter 60 --limit 100 --max-parallel 1 --sleep 10`
-- `.env` を環境変数として登録（必要なら `SCRIPT_PIPELINE_FORCE_FALLBACK=1`）
+- `.env` を環境変数として登録（fallback を強制する場合は `SCRIPT_PIPELINE_FORCE_FALLBACK=1`）
 - 永続ストレージに `workspaces/` をマウントし、`workspaces/scripts/_state/job_queue.jsonl` と `workspaces/logs/` を保持する
 
-## 6. Slack通知（任意）
+## 6. Slack通知（オプション）
 - `scripts/notifications.py` に簡易Webhook送信あり。環境変数 `SLACK_WEBHOOK_URL` を設定する。
 
 ## 7. 運用メモ

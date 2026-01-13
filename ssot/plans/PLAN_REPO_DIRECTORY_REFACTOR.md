@@ -17,7 +17,7 @@
 - git tracked symlink（mode=120000）がゼロ
 - ルート直下の別名ディレクトリがゼロ（互換symlink禁止）
 - 実行コード/SSOT/Docs が `apps/` / `packages/` / `workspaces/` の正本パスのみを参照
-- import は `PYTHONPATH=".:packages"`（推奨: `./scripts/with_ytm_env.sh`）で成立し、symlink に依存しない
+- import は `PYTHONPATH=".:packages"`（入口固定: `./scripts/with_ytm_env.sh`）で成立し、symlink に依存しない
 
 ## 実行順序（安全）
 1. 参照の統一（Docs/コード/.gitignore）

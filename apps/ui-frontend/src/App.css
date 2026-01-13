@@ -7068,7 +7068,7 @@ button:hover:not(:disabled) {
 .channel-chip__avatar {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
+  border-radius: 50%;
   background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
   color: #ffffff;
   font-weight: 700;
@@ -7232,7 +7232,7 @@ button:hover:not(:disabled) {
 .channel-sidebar-card__avatar {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 50%;
   background: linear-gradient(135deg, #6366f1 0%, #14b8a6 100%);
   display: inline-flex;
   align-items: center;

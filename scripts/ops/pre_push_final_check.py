@@ -47,6 +47,12 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Final SSOT/logic checks before commit/push.")
     ap.add_argument("--write-ssot-report", action="store_true", help="Write ssot_audit JSON under workspaces/logs/ssot/.")
     ap.add_argument("--run-tests", action="store_true", help="Also run a small pytest subset (fast).")
+    ap.add_argument(
+        "--ssot-text-scope",
+        choices=("core", "all"),
+        default="core",
+        help="Scope for ssot_audit --text-audit (default: core). Use 'all' only after SSOT cleanup.",
+    )
     args = ap.parse_args(argv)
 
     rc = 0
@@ -54,8 +60,16 @@ def main(argv: list[str] | None = None) -> int:
     # Repo layout + symlink safety (SSOT compliance).
     rc = max(rc, _run([sys.executable, "scripts/ops/repo_sanity_audit.py", "--verbose"]))
 
-    # SSOT index + path/link integrity.
-    ssot_cmd = [sys.executable, "scripts/ops/ssot_audit.py", "--path-audit", "--link-audit"]
+    # SSOT index + path/link integrity + text invariants (core docs).
+    ssot_cmd = [
+        sys.executable,
+        "scripts/ops/ssot_audit.py",
+        "--path-audit",
+        "--link-audit",
+        "--text-audit",
+        "--text-scope",
+        args.ssot_text_scope,
+    ]
     if args.write_ssot_report:
         ssot_cmd.append("--write")
     rc = max(rc, _run(ssot_cmd))

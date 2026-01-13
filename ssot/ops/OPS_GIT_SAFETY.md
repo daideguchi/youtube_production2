@@ -30,7 +30,7 @@ Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **
 
 補足:
 - `python -c 'subprocess.run([\"git\", ...])'` のような “python 経由のバイパス” も PATH を経由する限り遮断できる。
-- 人間がやむを得ず実行する場合は **Codex外**で `/usr/bin/git ...` を使う（ただし運用上は原則禁止）。
+- 人間がやむを得ず実行する場合は **Codex外**で `/usr/bin/git ...` を使う（ただし運用上は禁止）。
 
 ---
 
@@ -47,7 +47,7 @@ Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **
 
 運用:
 - worker は「lock → その範囲だけを見る」を標準にする（lock 外の差分を見て直そうとしない）
-- 全体を見たい場合は人間/Orchestrator が `/usr/bin/git status` / `/usr/bin/git diff` を使う（Codex 外推奨）
+- 全体を見たい場合は人間/Orchestrator が `/usr/bin/git status` / `/usr/bin/git diff` を使う（Codex 外で実行する）
 
 ---
 
@@ -61,7 +61,7 @@ Codex shell では `git restore/checkout/reset/clean/revert/switch/stash` を **
 
 ---
 
-## 3) 仕組み（第三・任意）: `.git` write-lock（メタデータ保護）
+## 3) 仕組み（第三・オプション）: `.git` write-lock（メタデータ保護）
 
 `.git/` を write-lock して、`checkout/reset` など **`.git` を書き換える系**を即失敗させる。
 
@@ -116,7 +116,7 @@ push前に、SSOT↔実装の不整合がないかを点検する（詳細は `s
    - 人間の一時解除: `python3 scripts/ops/git_write_lock.py unlock`
    - Orchestrator運用: `python3 scripts/ops/git_write_lock.py unlock-for-push`（lease必須）
 2. commit/push
-3. （任意）事故が多い期間だけ再ロック: `python3 scripts/ops/git_write_lock.py lock`
+3. （オプション）事故が多い期間だけ再ロック: `python3 scripts/ops/git_write_lock.py lock`
 
 注意:
 

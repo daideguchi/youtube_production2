@@ -21,7 +21,7 @@
 | file_path | function / class | provider | model指定/特徴 | 用途 | 主なパラメータ |
 | --- | --- | --- | --- | --- | --- |
 | `packages/script_pipeline/runner.py` | `_call_azure_chat` | Azure | deployment + Responses/Chat API 切替 | 台本各ステージ（outline/draft/format 等） | `max_completion_tokens/max_output_tokens`, `reasoning_effort`, optional `response_format`, timeout 240s【F:packages/script_pipeline/runner.py†L345-L463】 |
-| `packages/script_pipeline/runner.py` | `_call_openrouter_chat` | OpenRouter | 任意 model ID | 台本ステージ fallback/指定 | `max_tokens`, messages or prompt, timeout 240s【F:packages/script_pipeline/runner.py†L465-L508】 |
+| `packages/script_pipeline/runner.py` | `_call_openrouter_chat` | OpenRouter | 指定 model ID | 台本ステージ fallback/指定 | `max_tokens`, messages or prompt, timeout 240s【F:packages/script_pipeline/runner.py†L465-L508】 |
 | `packages/script_pipeline/runner.py` | `_call_gemini_generate` | Gemini | `generateContent` v1beta | 台本ステージ（特に draft/format） | `maxOutputTokens`, optional `thinkingLevel`, JSON messages, timeout 120–240s【F:packages/script_pipeline/runner.py†L510-L619】 |
 | `packages/audio_tts/tts/llm_adapter.py` | `annotate_tokens` / `segment_text_llm` / `suggest_pauses` / `tts_text_prepare` | Router経由 (Azure/Gemini/OpenRouter) | `configs/llm_router.yaml` (+ overrides/codes/slots) | TTS 注釈・分割・pause推定・Bテキスト準備 | `max_output_tokens/max_tokens`, `response_format=json_object`, `timeout` などをタスク定義で正規化【F:packages/audio_tts/tts/llm_adapter.py†L1-L420】 |
 | `packages/audio_tts/tts/llm_adapter.py` | `annotate_tokens`, `segment_text_llm`, `suggest_pauses`, `B_TEXT_GEN_PROMPT` | Azure (default) | system/user プロンプト直書き | 読み誤り検出、SRT 分割、ポーズ付与、Bテキスト生成 | JSON schema 指定、最大 3000 tokens、失敗時デフォルト fallback【F:packages/audio_tts/tts/llm_adapter.py†L12-L218】 |
@@ -109,7 +109,7 @@ models:
 - 保存: `content/chapters_reviewed/chapter_<n>.json` に issues + revised を格納し、採用時のみ `chapters_formatted/` に書き戻す。
 
 ### 4.4 全体整合チェック (`script_global_consistency`)
-- 入力: `script_plan.json` + 全章本文。LLM に欠落・重複ポイントを列挙させ、追記案を `consistency_report.json` として保存。必要なら `chapter_appendix.md` を生成し組み込み。
+- 入力: `script_plan.json` + 全章本文。LLM に欠落・重複ポイントを列挙させ、追記案を `consistency_report.json` として保存。appendix を作る場合は `chapter_appendix.md` を生成し組み込む。
 
 ## 5. TTS 用 Bテキストと画像ドラフトの改善案
 ### 5.1 Bテキスト生成パイプライン
@@ -148,7 +148,7 @@ models:
 - [ ] `packages/script_pipeline/runner.py` を router API に差し替え、`script_plan.json` 保存/読込導線追加。  
   - 現状: 章ドラフト/整形は直接 Azure/Gemini 呼び出し。outline/review/consistency 未実装。
 - [ ] `packages/audio_tts/tts/llm_adapter.py` に三段階 Bテキスト生成ロジックと router 呼び出しを導入、`builder.py` で SSML 生成を統合。  
-  - 進捗: llm_adapter は router 呼び出しに統一済み。`generate_reading_script` は segment→reading の二段階に再構成済み。`generate_reading_for_blocks` も router 一括呼び出し化。`tts_text_prepare` の導線は orchestrator/builder まで配線済み（pause/ruby適用）。SSML側に `<break>` を入れる追加実装が必要なら残タスク。
+  - 進捗: llm_adapter は router 呼び出しに統一済み。`generate_reading_script` は segment→reading の二段階に再構成済み。`generate_reading_for_blocks` も router 一括呼び出し化。`tts_text_prepare` の導線は orchestrator/builder まで配線済み（pause/ruby適用）。SSML側に `<break>` を入れる追加実装は残タスク。
 - [ ] `audio_tts` 内の古い参照 (`auditor.py`, `qa_adapter.py`, `arbiter.py`, `strict_orchestrator.py`) を全て `LLMRouter` に移行し、旧ドキュメント言及を掃除する。  
   - 現状: llm_adapter は移行完了。旧 `llm_client.py` は legacy/非参照（削除候補）。残るのは文書の片付けと、SSMLへの `<break>` 挿入を要する場合の仕上げ。
 - [ ] `video_pipeline` に Visual Bible 読込と router 呼び出しを追加、画像プロンプト生成部を差し替え。  

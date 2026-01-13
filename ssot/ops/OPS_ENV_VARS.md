@@ -1,15 +1,15 @@
-# OPS_ENV_VARS — 環境変数とキーの原則
+# OPS_ENV_VARS — 環境変数とキーの固定ルール
 
-## 原則
+## 固定ルール
 - 秘密鍵はリポジトリ直下の `.env` もしくはシェル環境変数に一元管理する。`.gemini_config` や `credentials/` 配下への複製は禁止。
 - `.env.example` をベースに必要キーを埋める。
   - 注: LLMRouter は `.env` を `override=False` で読み込むため、**シェル export / `./scripts/with_ytm_env.sh` の値が優先**される（未設定のみ `.env` で補完）。
-- グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。必要なら `./scripts/with_ytm_env.sh ...` を使う。
+- グローバルに `PYTHONPATH` を固定しない（特に旧リポジトリ配下を含むと、誤importで事故りやすい）。CLI実行は `./scripts/with_ytm_env.sh ...` を使う。
 - **禁止（混乱の元）**: `GEMINI_MODEL` のような “モデル名直指定” env var を `.env` に置かない（本repoでは未使用/事故源）。
   - テキストLLMは `LLM_MODEL_SLOT`、画像は `channel_presets.json` / `templates.json` / `IMAGE_CLIENT_FORCE_MODEL_KEY_*`（必要時のみ）で制御する。
 - **キーはチャット/Issue/ログに貼らない**（貼った時点で漏洩扱い）。誤って共有した場合は **即ローテ/無効化**し、`.env` を更新して `python3 scripts/check_env.py --env-file .env` で再検証する。
 
-## Slack通知（任意）
+## Slack通知（オプション）
 目的:
 - 長時間処理（script/audio/video/thumbnails 等）が終わった/止まった（THINK pending）タイミングで、Slackに通知して取りこぼしを防ぐ。
 
@@ -23,37 +23,37 @@
   - `YTM_SLACK_WEBHOOK_URL`（または `SLACK_WEBHOOK_URL`）に Incoming Webhook URL を設定する（git管理しない）。
 - Bot方式（既存のSlack設定がこれの場合）:
   - `SLACK_BOT_TOKEN` と `SLACK_CHANNEL` を設定する（git管理しない）。
-  - `YTM_SLACK_THREAD_TS`（任意）を設定すると、通知は **チャンネル直投げではなくスレ返信**に寄せられる（スパム低減）。
+  - `YTM_SLACK_THREAD_TS`（省略可）を設定すると、通知は **チャンネル直投げではなくスレ返信**に寄せられる（スパム低減）。
     - 注意: thread返信は Bot方式のみ（Webhookでは不可）
 
-通知対象（任意）:
+通知対象（省略可）:
 - `YTM_SLACK_NOTIFY_CMDS`（default: `script,audio,video,thumbnails,publish,resume,reconcile`）
   - `./ops` の top-level cmd をカンマ区切りで指定する（例: `video,thumbnails,resume`）
 - `YTM_SLACK_NOTIFY_ALL=1` で全cmdを通知（スパム注意）
 
-通知条件（任意）:
+通知条件（省略可）:
 - `YTM_SLACK_NOTIFY_ON=both|success|failure`（default: `both`）
 - `YTM_SLACK_NOTIFY_MIN_DURATION_SEC`（default: `0`）: この秒数未満の実行は通知しない（例: `30`）
 - `YTM_SLACK_NOTIFY_AGENT_TASKS`（default: `1`）: THINK MODE の agent task（`./ops agent claim/complete`）も通知する（スパムが嫌なら `0`）
 
 備考:
 - `--llm think` で pending が出た場合は「失敗」ではなく `PENDING` として通知される（task埋め→再実行で続行）。
-- `./ops` の通知は、原則として `ops_latest`（keep-latest pointer）と `run_log`（内側コマンドのstdout/stderr）を添えて、Slackだけで一次切り分けができる形にする。
+- `./ops` の通知は `ops_latest`（keep-latest pointer）と `run_log`（内側コマンドのstdout/stderr）を添えて、Slackだけで一次切り分けができる形にする。
 - `exit=2` は「警告（WARN）」の意味で返ることがある（例: episode SSOT）。この場合は継続可能なので、manifestの warnings を見て対応する。
 - `packages/script_pipeline/job_runner.py` の通知（`scripts/notifications.py`）も同じ Slack 設定を使う（Webhook/Bot 両対応）。
-- Slack返信の取り込み（任意; Bot方式のみ）:
+- Slack返信の取り込み（オプション; Bot方式のみ）:
   - 目的: Slackスレッド返信で dd の意思決定を返し、repo作業へ反映しやすくする（copy/pasteミス防止）。
   - 送信（thread_ts取得）: `python3 scripts/ops/slack_notify.py --text "...(報告本文)..." --out-json workspaces/logs/ops/slack_sent.json --print-ts`
   - 返信取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
     - 取り込み先: `workspaces/logs/agent_tasks/coordination/memos/`（UIのBoard/Overviewから参照できる）
-  - チャンネル履歴の棚卸（任意）:
+  - チャンネル履歴の棚卸（オプション）:
     - 目的: Slackに流れてくるエラー/失敗報告をまとめて取得し、一次切り分けを速くする
     - 例: `python3 scripts/ops/slack_notify.py --history --history-grep '(error|failed|traceback)' --history-limit 200 --history-out-json workspaces/logs/ops/slack_history.json`
-  - Git書庫（PM Inbox）への要約保存（推奨）:
+  - Git書庫（PM Inbox）への要約保存（オプション）:
     - 目的: ddの指示/決定がSlackログに埋もれないように、**要約だけ**をgitへ残す（スマホで読む用）
     - SSOT: `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`
     - 同期: `python3 scripts/ops/slack_inbox_sync.py sync`（出力: `ssot/history/HISTORY_slack_pm_inbox.md`）
-- `./ops` の “迷わない” レバー（任意）:
+- `./ops` の “迷わない” レバー（オプション）:
   - `./ops think <cmd> ...` / `./ops api <cmd> ...` / `./ops codex <cmd> ...` を使う（`--llm` の付け忘れを物理的に防ぐ）
   - `YTM_OPS_DEFAULT_LLM=think|api|codex` を設定すると、`./ops` で `--llm` を省略した時の既定を切り替えられる（例: 「今日は外部APIを使わない」→ `think`）
   - `YTM_OPS_TIPS=0` で `./ops` のヒント表示（stderr）を無効化できる（default: ON）
@@ -61,7 +61,7 @@
   - `LLM_MODEL_SLOT`（default: `0`）: `configs/llm_model_slots.yaml` の `slots` から選ぶ
   - 個別調整は `configs/llm_model_slots.local.yaml`（git管理しない）で上書きする
   - スロット内で参照するモデルは **model code**（`open-k-1` / `fw-d-1` 等）に統一する（正本: `configs/llm_model_codes.yaml`）。
-  - 推奨実行: `./scripts/with_ytm_env.sh --llm-slot 2 python3 ...`（または `./scripts/with_ytm_env.sh 2 python3 ...`）
+  - 入口固定: `./scripts/with_ytm_env.sh --llm-slot 2 python3 ...`（または `./scripts/with_ytm_env.sh 2 python3 ...`）
   - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗時は非`script_*`はTHINKへ）
   - 注:
     - `script_*` は THINK フォールバックしない（API停止時は即停止・記録）
@@ -102,33 +102,33 @@
     - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
   - **許可（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は Gemini 3 系を使っても良い（必要時のみ明示して使う）。
     - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ...`
-  - 任意: `IMAGE_CLIENT_MODEL_SLOTS_PATH` で slot 定義ファイルを差し替えできる（検証/一時切替用途）
+  - 省略可: `IMAGE_CLIENT_MODEL_SLOTS_PATH` で slot 定義ファイルを差し替えできる（検証/一時切替用途）
 
 ## 主な必須キー（抜粋）
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
-- Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / 推奨。互換: `FIREWORKS_API_KEY`）
-  - キーローテ（任意・推奨）:
-    - `FIREWORKS_IMAGE_KEYS_FILE`（任意）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
+- Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / Fireworks provider用キー。互換: `FIREWORKS_API_KEY`）
+  - キーローテ（オプション）:
+    - `FIREWORKS_IMAGE_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
       - 既定探索: `~/.ytm/secrets/fireworks_image_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
-    - `FIREWORKS_IMAGE_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
-    - `FIREWORKS_IMAGE_KEYS_STATE_FILE`（任意）: キー状態（exhausted/invalid等）を保存するファイルパス。
+    - `FIREWORKS_IMAGE_KEYS`（省略可）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
+    - `FIREWORKS_IMAGE_KEYS_STATE_FILE`（省略可）: キー状態（exhausted/invalid等）を保存するファイルパス。
       - 既定: `~/.ytm/secrets/fireworks_image_keys_state.json`
       - 更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`（既定: `GET /inference/v1/models`。トークン消費なし。`412` は `suspended`）
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
-  - キーローテ（任意・推奨）:
-    - `FIREWORKS_SCRIPT_KEYS_FILE`（任意）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
+  - キーローテ（オプション）:
+    - `FIREWORKS_SCRIPT_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
       - 既定探索: `~/.ytm/secrets/fireworks_script_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool script add --key ...`（キーは表示しない）
-    - `FIREWORKS_SCRIPT_KEYS`（任意）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
-    - `FIREWORKS_SCRIPT_KEYS_STATE_FILE`（任意）: キー状態（exhausted/invalid等）を保存するファイルパス。
+    - `FIREWORKS_SCRIPT_KEYS`（省略可）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
+    - `FIREWORKS_SCRIPT_KEYS_STATE_FILE`（省略可）: キー状態（exhausted/invalid等）を保存するファイルパス。
       - 既定: `~/.ytm/secrets/fireworks_script_keys_state.json`
       - 更新（既定）: `python3 scripts/ops/fireworks_keyring.py --pool script check --show-masked`（`GET /inference/v1/models`。トークン消費なし）
       - 更新（推論で確認）: `python3 scripts/ops/fireworks_keyring.py --pool script check --mode chat --show-masked`（`POST /chat/completions`。最小トークン消費）
       - 退避（使えないキーを隔離）: `python3 scripts/ops/fireworks_keyring.py --pool script quarantine --show-masked`（既定: `~/.ytm/secrets/fireworks_script_keys.quarantine.txt`）
       - 復帰（隔離から戻す）: `python3 scripts/ops/fireworks_keyring.py --pool script restore --show-masked`
     - `FIREWORKS_SCRIPT_KEYS_SKIP_EXHAUSTED`（default: `1`）: stateで `exhausted/invalid/suspended` のキーをローテ候補から除外する。
-    - Fireworks コストガード（任意・強く推奨）:
+    - Fireworks コストガード（オプション; 事故防止）:
       - `FIREWORKS_BUDGET_MAX_CALLS_PER_ROUTING_KEY` / `FIREWORKS_BUDGET_MAX_TOKENS_PER_ROUTING_KEY`: 1本（`LLM_ROUTING_KEY=CHxx-NNN`）あたりの上限
       - `FIREWORKS_BUDGET_MAX_CALLS_TOTAL` / `FIREWORKS_BUDGET_MAX_TOKENS_TOTAL`: プロセス全体の上限
       - いずれかを設定すると、上限到達後は Fireworks を **停止**（他プロバイダへ自動フォールバックしない）
@@ -140,22 +140,22 @@
     - 画像は `FIREWORKS_IMAGE_KEY_MAX_ATTEMPTS`（default: `5`）回まで別キーへ切替して再試行する
     - lease は sha256 fingerprint で管理し、**キー本文は保存しない**
 - OpenRouter: `OPENROUTER_API_KEY`（LLMRouter provider=openrouter 用）
-- OpenAI（任意）: `OPENAI_API_KEY`（openai provider を使う場合のみ）
-- Azure（任意）: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`（Azureを使う場合のみ。未設定でも `./start.sh` は起動する）
+- OpenAI（省略可）: `OPENAI_API_KEY`（openai provider を使う場合のみ）
+- Azure（省略可）: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`（Azureを使う場合のみ。未設定でも `./start.sh` は起動する）
 - Drive/YouTube:  
   - `DRIVE_OAUTH_CLIENT_PATH`, `DRIVE_OAUTH_TOKEN_PATH`, `DRIVE_FOLDER_ID`  
   - `YT_OAUTH_CLIENT_PATH`, `YT_OAUTH_TOKEN_PATH`, `YT_PUBLISH_SHEET_ID`
 - Factory Commentary (例): `DRIVE_UPLOAD_MODE=oauth`、必要に応じて `SCRIPT_PIPELINE_FALLBACK_MODEL` など。詳細はルート `README.md` を参照。
-- E2Eスモーク実行フラグ（任意）: `RUN_E2E_SMOKE=1` をセットすると軽量スモーク（設定検証のみ）が走る。デフォルトでは実行されない。
+- E2Eスモーク実行フラグ（省略可）: `RUN_E2E_SMOKE=1` をセットすると軽量スモーク（設定検証のみ）が走る。デフォルトでは実行されない。
 
 ## チェック方法
 - `python3 packages/video_pipeline/check_gemini_key.py` で GEMINI の設定確認（.env／環境変数のみを参照）。
 - `env | grep -E \"GEMINI|OPENAI|AZURE_OPENAI\"` で export 状態を確認。
 - `.env` の必須キー充足は `python3 scripts/check_env.py --env-file .env` で検証できる（空文字も不足として扱う）。
-- LLMルーターのログ制御（任意）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
+- LLMルーターのログ制御（省略可）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
   - `llm_usage.jsonl` には `routing_key`（例: `CH10-010`）が記録されるため、1本あたりの呼び出し回数/トークン量を後追いできる。
   - 例: `python3 scripts/ops/llm_usage_report.py --channel CH10 --video 010 --task-prefix script_`
-- TTS（任意）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（デフォルトは削除）。
+- TTS（省略可）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（デフォルトは削除）。
 - TTS（運用）:
   - `SKIP_TTS_READING=1`（default: 0）: 読みLLM経路を完全にスキップし、辞書/override + 手動監査で運用する。
   - 誤読防止（常時ON）: VOICEVOX実読と期待読みが1件でもズレたら停止し、`workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json` を出力する（誤読混入を禁止）。
@@ -180,9 +180,9 @@
   - `brave`: Brave Search API を使用
   - `openrouter`: OpenRouter 検索モデルを使用（default model は下記）
   - `disabled`: 検索を実行しない（`hits=[]` の JSON を書く）
-- `BRAVE_SEARCH_API_KEY`（任意）: Brave Search API（provider=brave/auto のとき使用）
+- `BRAVE_SEARCH_API_KEY`（省略可）: Brave Search API（provider=brave/auto のとき使用）
 - `YTM_WEB_SEARCH_OPENROUTER_TASK`（default: `web_search_openrouter`）: provider=openrouter/auto のときに使う LLMRouter task key（`configs/llm_router.yaml: tasks`）
-- `YTM_WEB_SEARCH_OPENROUTER_MODEL`（任意）: OpenRouter検索モデルの上書き（LLMRouter が `model_name` / `deployment` / `provider:model_id` 形式で解決できるもの）
+- `YTM_WEB_SEARCH_OPENROUTER_MODEL`（省略可）: OpenRouter検索モデルの上書き（LLMRouter が `model_name` / `deployment` / `provider:model_id` 形式で解決できるもの）
   - 例: `perplexity/sonar`
   - 例: `openrouter:perplexity/sonar`
   - 使うモデルは `configs/llm_router.yaml: models` に登録しておく（未登録の場合は既定タスク設定にフォールバック）
@@ -205,7 +205,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `configs/sources.yaml: channels.CHxx.wikipedia.lang`（default: `ja`）: まず探すWikipedia言語
 - `configs/sources.yaml: channels.CHxx.wikipedia.fallback_lang`（default: `en`）: 見つからない場合のフォールバック言語（空なら無効）
 
-### 環境変数（任意）
+### 環境変数（省略可）
 - `YTM_WIKIPEDIA_FORCE`（default: `0`）: `1` で既存の `wikipedia_summary.json` があっても再取得
 - `YTM_WIKIPEDIA_LANG`（default: `ja`）: 参照言語の上書き
 - `YTM_WIKIPEDIA_FALLBACK_LANG`（default: `en`）: フォールバック言語の上書き
@@ -224,31 +224,31 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 有効化（デフォルトOFF）:
 - `SCRIPT_MASTER_PLAN_LLM`（default: `0`）: `1` で LLM による設計図サマリ生成を試す（失敗しても自動で決定論に戻して続行）。
 - `SCRIPT_MASTER_PLAN_LLM_TASK`（default: 空）: 使う task key（`configs/llm_router.yaml: tasks`）。例: `script_master_plan_opus`（Opus専用に作る）。
-- `SCRIPT_MASTER_PLAN_LLM_CHANNELS`（default: 空）: 実行を許可するチャンネルの allowlist（例: `CH10`）。`all` または `*` で全チャンネル（非推奨）。
+- `SCRIPT_MASTER_PLAN_LLM_CHANNELS`（default: 空）: 実行を許可するチャンネルの allowlist（例: `CH10`）。`all` または `*` で全チャンネル（注意: コスト暴走リスクが上がるため通常運用では使わない）。
 
-コスト暴走防止（強制推奨）:
+コスト暴走防止（必須）:
 - `SCRIPT_MASTER_PLAN_LLM_STRICT_SINGLE_MODEL`（default: `1`）:
   - `1`: task の tier が **1モデルのみ**のときだけ実行。複数候補や `LLM_FORCE_MODELS` で複数指定がある場合は自動スキップ。
-  - `0`: 上記制限を外す（非推奨）。
+  - `0`: 上記制限を外す（注意: コスト暴走リスクが上がるため通常運用では使わない）。
 
-微調整（任意）:
+微調整（省略可）:
 - `SCRIPT_MASTER_PLAN_LLM_MAX_TOKENS`（default: `1200`）
 - `SCRIPT_MASTER_PLAN_LLM_TEMPERATURE`（default: `0.2`）
 
 観測（必ず残る）:
 - 実行結果: `workspaces/scripts/{CH}/{NNN}/status.json: stages.script_master_plan.details`
 
-## Script runbook: seed-expand（Seed→Expand / Seed生成は原則低コスト）
+## Script runbook: seed-expand（Seed→Expand / Seed生成は低コスト固定）
 `scripts/ops/script_runbook.py seed-expand` に適用される。
 
 目的:
 - 長文を一撃で書かせず、短いSeed→追記（`script_validation` の Extend/Expand）で収束させる。
-- Seed生成は **原則低コスト**で1回だけ（リトライでコストを増やさない）。
+- Seed生成は **低コスト**で1回だけ（リトライでコストを増やさない）。
 
-## Script pipeline: Aテキスト品質ゲート（任意）
+## Script pipeline: Aテキスト品質ゲート（既定ON）
 `packages/script_pipeline/runner.py` の `script_validation` に適用される。
 
-- `SCRIPT_VALIDATION_LLM_QUALITY_GATE`（default: `1`）: LLM品質ゲート（Judge→Fixer→必要ならExtend）を有効化。無効化は `0`。
+- `SCRIPT_VALIDATION_LLM_QUALITY_GATE`（default: `1`）: LLM品質ゲート（Judge→Fixer→不足時はExtend）を有効化。無効化は `0`。
 - `SCRIPT_VALIDATION_LLM_MAX_ROUNDS`（default: `3`）: Judge→Fixer の最大反復回数（v2は既定3。fail→Fix→Judge→Fix→Judge で収束させる）。コスト優先なら `2` に下げる。
 - `SCRIPT_VALIDATION_LLM_HARD_FIX_MAX`（default: `2`）: Fixer出力がハード禁則（字数/見出し/箇条書き等）に違反した場合の追加修正回数。
 - `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）: Aテキストがこの文字数（spoken chars）を超える場合、全文LLMゲートを自動スキップ（機械チェックは実行）。`0` で無効化。
@@ -274,7 +274,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `SCRIPT_VALIDATION_FINAL_POLISH_TASK`（default: `script_a_text_final_polish`）: LLMルーターの task key
 - `SCRIPT_VALIDATION_FINAL_POLISH_MIN_CHARS`（default: `12000`）: `auto` のときの最小文字数（min chars判定）
 - `SCRIPT_VALIDATION_FORCE_FINAL_POLISH_FOR_CODEX_DRAFT`（default: `1`）:
-  - 原則: Codex exec は Aテキスト本文 task を実行しない（SoT: `configs/codex_exec.yaml`）。そのため通常は影響しない。
+  - Codex exec は Aテキスト本文 task を実行しない（SoT: `configs/codex_exec.yaml`）。そのため通常は影響しない。
   - `1`: （例外運用で）章草稿が `codex_exec` 由来だった場合、最終本文の言い回し混入を避けるため **強制で全文ポリッシュ** を実行する
   - `0`: 強制しない（`SCRIPT_VALIDATION_FINAL_POLISH` の判定に従う）
 
@@ -296,12 +296,12 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 `packages/script_pipeline/runner.py` の `script_validation` の終盤で実行され、`content/analysis/research/fact_check_report.json` に保存される。
 
 ### チャンネル別ポリシー（SoT）
-- `configs/sources.yaml: channels.CHxx.fact_check_policy`（任意。未設定時は `web_search_policy` から既定を導出）
+- `configs/sources.yaml: channels.CHxx.fact_check_policy`（オプション; 未設定時は `web_search_policy` から既定を導出）
   - `disabled`: 実行しない（reportは `verdict=skipped` を必ず書く）
   - `auto`: `fail` のときのみ停止（`warn` は通すがreportは残る）
   - `required`: `pass` 以外は停止（`warn/fail` で止める）
 
-### 環境変数（任意）
+### 環境変数（省略可）
 - `YTM_FACT_CHECK_POLICY`（override）: `disabled|auto|required`
 - `YTM_FACT_CHECK_MAX_CLAIMS`（default: `12`）: 抽出するclaim上限
 - `YTM_FACT_CHECK_MIN_CLAIM_SCORE`（default: `4`）: claim抽出の最小スコア（客観要素が弱い文を除外）
@@ -311,7 +311,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `YTM_FACT_CHECK_FETCH_TIMEOUT_S`（default: `20`）: URL本文取得timeout
 - `YTM_FACT_CHECK_FETCH_MAX_CHARS`（default: `20000`）: URL本文の最大文字数
 - `YTM_FACT_CHECK_CODEX_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout
-- `YTM_FACT_CHECK_CODEX_MODEL`（任意）: codex exec に渡すモデル名
+- `YTM_FACT_CHECK_CODEX_MODEL`（省略可）: codex exec に渡すモデル名
 - `YTM_FACT_CHECK_FORCE`（default: `0`）: `1` で fingerprint 一致でも再実行
 - `YTM_FACT_CHECK_LLM_FALLBACK`（default: `1`）: Codex失敗時に API（LLMRouter）へフォールバック
 - `YTM_FACT_CHECK_LLM_TASK`（default: `script_a_text_quality_judge`）: フォールバックで使う LLMRouter task key
@@ -330,25 +330,25 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - 固定: `script_*` は Codex exec 対象外（台本文体/モデル混入防止）。台本は LLM API（Fireworks）固定。
 - 固定（用語）: 「Codex（AIエージェント）」と「codex exec（非対話CLI）」は別物。TTSは前者（pending運用）に寄せる。
 - 既定（tracked）: `tts_*` は Codex exec 対象外。TTS（`voicevox_kana`）は **AIエージェント（Codex）主担当**として pending を解決する。
-  - 推奨: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+  - 入口固定: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
 - Codex exec の対象は `configs/codex_exec.yaml: selection.include_task_prefixes` に一致する **非台本** task のみ（例: `visual_*`）。
 - 例外（固定）: `image_generation`, `web_search_openrouter` は Codex exec 対象外（既定でも除外）。
   - 詳細SSOT: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`（2.4）
 
 ### 設定（SoT）
 - `configs/codex_exec.yaml`（tracked）
-- 任意のローカル上書き: `configs/codex_exec.local.yaml`
+- ローカル上書き（省略可）: `configs/codex_exec.local.yaml`
 
-### 環境変数（任意）
+### 環境変数（省略可）
 - 注意: 通常運用では `YTM_ROUTING_LOCKDOWN=1` のため、`YTM_CODEX_EXEC_*` の直接上書きは **検出した時点で停止**する。切替は `LLM_EXEC_SLOT=1/2` と `configs/codex_exec*.yaml` を使う（緊急デバッグのみ `YTM_EMERGENCY_OVERRIDE=1`）。
 - `YTM_CODEX_EXEC_ENABLED`（override）: `1` で強制ON / `0` で強制OFF（未設定なら `configs/codex_exec.yaml` と `CODEX_MANAGED_BY_NPM` に従う）
 - `YTM_CODEX_EXEC_DISABLE`（default: `0`）: `1` で強制OFF（緊急停止用）
 - `YTM_CODEX_EXEC_ENABLE_IN_PYTEST`（default: `0`）: `1` のときだけ pytest 中の Codex exec を許可（既定はテスト安定のためOFF）
 - `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`）: `codex exec --profile` に渡すプロファイル名
-- `YTM_CODEX_EXEC_MODEL`（任意）: `codex exec -m` に渡すモデル名
+- `YTM_CODEX_EXEC_MODEL`（省略可）: `codex exec -m` に渡すモデル名
 - `YTM_CODEX_EXEC_TIMEOUT_S`（default: `180`）: `codex exec` のtimeout（秒）
-- `YTM_CODEX_EXEC_SANDBOX`（default: `read-only`）: `codex exec --sandbox`（運用では read-only 固定推奨）
-- `YTM_CODEX_EXEC_EXCLUDE_TASKS`（任意）: `codex exec` を **試さない task** をカンマ区切りで指定（例: `visual_bible,visual_image_cues_plan`）
+- `YTM_CODEX_EXEC_SANDBOX`（default: `read-only`）: `codex exec --sandbox`（運用では read-only 固定）
+- `YTM_CODEX_EXEC_EXCLUDE_TASKS`（省略可）: `codex exec` を **試さない task** をカンマ区切りで指定（例: `visual_bible,visual_image_cues_plan`）
 - `YTM_SCRIPT_ALLOW_OPENROUTER`（legacy）: 旧運用互換。`YTM_ROUTING_LOCKDOWN=1`（既定）では **検出した時点で停止**するため、通常運用では使わない（slot定義で固定する）
 
 ## Script pipeline: Planning整合（内容汚染の安全弁）
@@ -357,7 +357,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 ## Script pipeline: エピソード重複（採用済み回と被せない）
 - `SCRIPT_BLOCK_ON_EPISODE_DUPLICATION`（default: `0`）: 採用済み（Planning CSV の `進捗=投稿済み/公開済み` または `published_lock=true`（UI の `投稿完了`））の回と `キーコンセプト` が重複する場合、`topic_research/script_outline/script_draft` 等の高コスト工程の前で停止する（strict運用）。既定は停止せず、lint警告のみ。
 
-## Script pipeline: リサーチ足場（URLソース）不足で停止（任意 / strict）
+## Script pipeline: リサーチ足場（URLソース）不足で停止（strict; 既定OFF）
 - `SCRIPT_BLOCK_ON_MISSING_RESEARCH_SOURCES`（default: `0`）: `topic_research` 実行前に **検証用URL（search_hits/references/wiki）が0件** の場合に停止する（strict運用）。
   - 既定は停止しない（= Web検索/Wikipedia が空でもパイプラインは続行する）。
   - 停止時は `status.json: stages.topic_research.details.fix_hints` に、Braveの有効化または手動投入（research bundle）の案内が出る。
@@ -366,7 +366,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 ## Agent-mode / THINK MODE（API LLM をエージェント運用へ置換）
 Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`, `ssot/agent_runbooks/README.md`
 
-### 切替（推奨: exec-slot）
+### 切替（入口固定: exec-slot）
 - `LLM_EXEC_SLOT`:
   - `0`（デフォルト）: 通常どおり API LLM を呼ぶ
   - `3`（THINK MODE）: LLM 呼び出しを止めて `workspaces/logs/agent_tasks/` に pending を作る（安全デフォルトで intercept）
@@ -374,23 +374,23 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - 互換/緊急用: `LLM_MODE=api|agent|think`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
 
 ### キュー配置
-- `LLM_AGENT_QUEUE_DIR`（任意）: 既定 `workspaces/logs/agent_tasks`
+- `LLM_AGENT_QUEUE_DIR`（省略可）: 既定 `workspaces/logs/agent_tasks`
 
-### 担当エージェント名（推奨 / agent_org write系は必須）
-- `LLM_AGENT_NAME`（推奨 / `scripts/agent_org.py` の lock/memo/board 等の write 操作では **必須**）: 例 `LLM_AGENT_NAME=Mike`
+### 担当エージェント名（agent_org write系は必須）
+- `LLM_AGENT_NAME`（必須 / `scripts/agent_org.py` の lock/memo/board 等の write 操作）: 例 `LLM_AGENT_NAME=Mike`
   - pending 生成時に `claimed_by` / `claimed_at` を自動付与（担当者の見える化）
   - `python scripts/agent_runner.py complete ...` 実行時に results の `completed_by` に保存
-- `AGENT_NAME`（任意）: 互換用の別名（`LLM_AGENT_NAME` が未指定のときのみ参照）
+- `AGENT_NAME`（省略可）: 互換用の別名（`LLM_AGENT_NAME` が未指定のときのみ参照）
 - CLIでの上書き: `python scripts/agent_runner.py --agent-name Mike claim <TASK_ID>`
 
-### 対象タスクの絞り込み（任意）
-- `LLM_AGENT_TASKS`（任意）: 例 `tts_reading,visual_image_cues_plan`（完全一致 allowlist）
-- `LLM_AGENT_TASK_PREFIXES`（任意）: 例 `tts_,visual_,title_,belt_`（prefix allowlist）
-- `LLM_AGENT_EXCLUDE_TASKS`（任意）: 例 `image_generation`（完全一致 blocklist）
-- `LLM_AGENT_EXCLUDE_PREFIXES`（任意）: 例 `visual_`（prefix blocklist）
+### 対象タスクの絞り込み（省略可）
+- `LLM_AGENT_TASKS`（省略可）: 例 `tts_reading,visual_image_cues_plan`（完全一致 allowlist）
+- `LLM_AGENT_TASK_PREFIXES`（省略可）: 例 `tts_,visual_,title_,belt_`（prefix allowlist）
+- `LLM_AGENT_EXCLUDE_TASKS`（省略可）: 例 `image_generation`（完全一致 blocklist）
+- `LLM_AGENT_EXCLUDE_PREFIXES`（省略可）: 例 `visual_`（prefix blocklist）
 
 ### Runbook マッピング
-- `LLM_AGENT_RUNBOOKS_CONFIG`（任意）: 既定 `configs/agent_runbooks.yaml`
+- `LLM_AGENT_RUNBOOKS_CONFIG`（省略可）: 既定 `configs/agent_runbooks.yaml`
 
 ### 実行例
 - THINK MODE（一発）:
@@ -403,10 +403,10 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 
 ### srt2images（CapCut/画像）向け補足
 - THINK MODE 時の cues 計画は `visual_image_cues_plan` に集約（複数回 stop/resume しないため）。
-- 任意: `SRT2IMAGES_CUES_PLAN_MODE=plan` を設定すると、通常モードでも cues 計画を single-task 経路へ寄せられる。
-- 任意: `SRT2IMAGES_TARGET_SECTIONS=12` のように指定すると、cues 計画の目標セクション数を上書きできる（最低5）。
-- 任意: `SRT2IMAGES_FORCE_CUES_PLAN=1` を設定すると、既存の `visual_cues_plan.json` を無視して再生成する（SRTが変わった/プランを作り直したい時）。
-- 任意: `SRT2IMAGES_VISUAL_BIBLE_PATH=/abs/or/repo/relative/path.json` を指定すると、Visual Bible を外部ファイルから読み込める（デフォルトは pipeline が in-memory で渡す）。
+- オプション: `SRT2IMAGES_CUES_PLAN_MODE=plan` を設定すると、通常モードでも cues 計画を single-task 経路へ寄せられる。
+- オプション: `SRT2IMAGES_TARGET_SECTIONS=12` のように指定すると、cues 計画の目標セクション数を上書きできる（最低5）。
+- オプション: `SRT2IMAGES_FORCE_CUES_PLAN=1` を設定すると、既存の `visual_cues_plan.json` を無視して再生成する（SRTが変わった/プランを作り直したい時）。
+- オプション: `SRT2IMAGES_VISUAL_BIBLE_PATH=/abs/or/repo/relative/path.json` を指定すると、Visual Bible を外部ファイルから読み込める（デフォルトは pipeline が in-memory で渡す）。
 
 ### Stock B-roll（フリー動画）向け補足
 必要キー（provider有効時のみ）:
@@ -414,7 +414,7 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - `PIXABAY_API_KEY`（pixabay）
 - `COVERR_API_KEY`（coverr）
 
-容量/再利用（推奨デフォルト）:
+容量/再利用（運用既定）:
 - `YTM_BROLL_FILE_CACHE`（default: `1`）: mp4本体を共有キャッシュし、run_dir へは hardlink で再利用する（重複DL/重複保存を抑制）
   - cache path: `workspaces/video/_state/stock_broll_cache/<provider>/files/*.mp4`
 - `YTM_BROLL_MAX_W`（default: `1280`）, `YTM_BROLL_MAX_H`（default: `720`）: 候補選定で **過大解像度（例: 1080p/4K）を避ける**ための上限
@@ -426,7 +426,7 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
   - **ロックダウン中（`YTM_ROUTING_LOCKDOWN=1`）は非`script_*` の failover は必ずON**（絶対ルール / OFFにできない）
   - OFF にする必要があるのは緊急デバッグ時のみ（`YTM_EMERGENCY_OVERRIDE=1` の上で使う）
 - 互換/緊急: `LLM_API_FAILOVER_TO_THINK=0`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
-- `LLM_FAILOVER_MEMO_DISABLE=1`（任意）: フォールバック時の全体向け memo 自動作成を無効化
+- `LLM_FAILOVER_MEMO_DISABLE=1`（オプション）: フォールバック時の全体向け memo 自動作成を無効化
 
 ### 失敗時に見る場所
 - pending: `workspaces/logs/agent_tasks/pending/*.json`（または `LLM_AGENT_QUEUE_DIR`）

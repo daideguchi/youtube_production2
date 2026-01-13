@@ -6,12 +6,12 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 - SoT: `workspaces/planning/channels/CHxx.csv`（企画・進捗）、`workspaces/planning/personas/CHxx_PERSONA.md`（チャンネルの固定文脈）。
 - ベンチマークSoT: `packages/script_pipeline/channels/CHxx-*/channel_info.json` の `benchmarks`（schema: `ssot/ops/OPS_CHANNEL_BENCHMARKS.md`）
 - ゴール: 上記 2 ファイルが更新され、`進捗` が `topic_research: pending` の 30 本が連番で並び、ペルソナ/禁止事項/トーンが最新化されていること。
-- 成果物チェック: UI `/planning` で列ズレ/表示を spot check し、必要なら `python3 scripts/api_health_check.py --all-channels` で planning の読み込みを確認する（旧 verify コマンドは廃止）。
+- 成果物チェック: UI `/planning` で列ズレ/表示を spot check し、`python3 scripts/api_health_check.py --all-channels` で planning の読み込みを確認する（旧 verify コマンドは廃止）。
 
 ## 1. インテイク（エージェントが受け取る入力）
 - チャンネル ID（例: `CH12`）、テーマ 1 文、想定視聴者 1 文。
 - 禁止トピック・トーン（NG ワード/避けたい世界観）、必須で入れる参照例（動画 URL / チャンネル名）。
-- 企画のボリューム目標（30 本固定）、尺の目安（短尺/長尺）、サムネトーン（例: "夜の図書館"）。
+- 企画のボリューム目標（30 本固定）、尺区分（短尺/長尺）、サムネトーン（例: "夜の図書館"）。
 - 既存 CSV がある場合は No. / 動画番号の最終値（例: No.=42, 動画番号=042）。
 
 ## 2. 企画準備完了の定義（アウトプット）
@@ -47,7 +47,7 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 
 ### Step C. 企画 30 本の生成と整形
 - テンプレを基に 30 行の案を下書きし、以下をチェック
-  - タイトルは 28〜34 文字を目安に「痛み+解決」で構成
+  - タイトルは 28〜34 文字を標準として「痛み+解決」で構成
   - `企画意図` は 1〜2 文でポジティブゴールを明文化
   - `具体的な内容（話の構成案）` は 4〜5 ブロックの骨子（導入/課題/本質/実践/締めなど）
   - `サムネタイトル` は 12〜15 文字の感情コピー、`AI向け画像生成プロンプト (背景用)` と `テキスト配置・デザイン指示` をセットで書く
@@ -65,11 +65,11 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
 - 手順
   1. `packages/script_pipeline/prompts/channels/CHxx.yaml` を作成/更新
      - `channel_prompt.channel_id` に CHxx を設定し、`persona_path` は `workspaces/planning/personas/CHxx_PERSONA.md` を指定。
-     - `prompt_body` に「ゴール」「トーン&スタイル」「運用ルール」を明記。`CH03.yaml` をひな形に、禁止事項・口調・長さ目安をペルソナと整合させる。
+     - `prompt_body` に「ゴール」「トーン&スタイル」「運用ルール」を明記。`CH03.yaml` をひな形に、禁止事項・口調・長さルールをペルソナと整合させる。
   2. プロンプトをチャンネルディレクトリへ反映
      - コマンド例: `python3 -m script_pipeline.tools.channel_prompt_sync --yaml packages/script_pipeline/prompts/channels/CHxx.yaml --channel-dir "packages/script_pipeline/channels/CHxx-<チャンネル名>"`
      - 注意: 既存の `script_prompt.txt` と YAML `prompt_body` が不一致の場合、デフォルトでは **上書きを拒否**する（事故防止）。意図して上書きする場合のみ `--force` を付ける。
-     - 事前監査（推奨）: `python3 scripts/ops/script_prompt_integrity_audit.py --channel CHxx --write-latest`
+     - 事前監査（標準）: `python3 scripts/ops/script_prompt_integrity_audit.py --channel CHxx --write-latest`
      - 成功すると `packages/script_pipeline/channels/CHxx-<チャンネル名>/script_prompt.txt` と `channel_info.json` が更新され、台本 CLI が参照できる状態になる。
   3. 最終チェック
      - `script_prompt.txt` に不要な空行や未置換のプレースホルダがないかを確認。
@@ -90,7 +90,7 @@ AI エージェントがテーマ入力直後から「企画準備完了！」�
   - `workspaces/scripts/CHxx/`（UIのチャンネル一覧に出るため）
   - `workspaces/planning/channels/CHxx.csv`（ヘッダーのみ）
   - `workspaces/planning/personas/CHxx_PERSONA.md`（スタブ）
-  - `configs/sources.yaml`（planning/persona/prompt + chapter_count/文字数の任意項目）
+  - `configs/sources.yaml`（planning/persona/prompt + chapter_count/文字数のオプション項目）
 - 補足
   - YouTubeの `channel_id`/タイトル/アイコンは、ハンドルページのメタ情報（OpenGraph）から取得するため、APIキー/検索に依存しない（重複事故を避ける）。
   - 企画30本（CSVの中身）自体は Step C 以降で作る（この登録は“入口の整備”）。

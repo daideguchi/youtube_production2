@@ -35,7 +35,7 @@
   - 実行ボタン（安全な順序で）
   - 成果物プレビュー（Aテキスト/Bテキスト/音声/SRT/動画プロジェクト）
   - ログ（ジョブログ/最終log.json/失敗原因）
-  - “次の一手”の明示（推奨アクション）
+  - “次の一手”の明示（次アクション）
 - 既存ページは残しつつ、Episode Studio から最短導線で到達できる（破壊的変更なし）。
 
 ### 2.2 BackendのDoD（I/O整合）
@@ -51,7 +51,7 @@
 - **Episode Studio（新設/主戦場）**
   - URL案: `/studio?channel=CHxx&video=NNN`（または `/channels/:ch/videos/:video` の中に統合タブとして実装）
   - 目的: エピソードの“一本道”を提供し、実行/確認/復旧まで完結。
-  - タブ（推奨）:
+  - タブ（このPlanの案）:
     1) Planning（企画CSV）
     2) Script（台本）
     3) Audio（TTS/字幕/品質/辞書）
@@ -66,7 +66,7 @@
 エピソードに対し、UIは常に以下を出す:
 - **Now（現状）**: どこまで出来ているか（Script/Audio/Video/Thumbnail）
 - **Blockers（阻害要因）**: 何が無いと次へ行けないか（例: final SRTが無い）
-- **Next（推奨アクション）**: いま押すべき 1–3 個のボタン
+- **Next（次アクション）**: いま押すべき 1–3 個のボタン
 - **Recover（復旧）**: 失敗時の再試行/手動チェック/ログへの直リンク
 
 判定の正本は `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md` と `ssot/ops/OPS_ALIGNMENT_CHECKPOINTS.md`。
@@ -97,7 +97,7 @@
   - `{CH}-{NNN}.wav`, `{CH}-{NNN}.srt`, `log.json` 等
 - **UI操作**:
   - 音声再生/更新時刻/品質メタ表示
-  - SRTプレビュー（必要なら修正）
+  - SRTプレビュー（崩れがあれば修正）
   - 辞書登録（誤読→即登録）
   - 整合性チェック（音声/SRT duration）
 - **完了条件**:
@@ -157,7 +157,7 @@ UIの複雑さを減らすため、フロントが複数APIを繋ぎ合わせる
     - audio summary（final wav/srt/log の有無/更新時刻/品質）
     - video summary（関連project一覧、最新job、guard、capcut draft）
     - thumbnail summary（候補/override）
-    - next_actions（UI表示用の推奨アクション配列）
+    - next_actions（UI表示用の次アクション配列）
 
 このAPIは“表示専用”から開始し、実行系は既存 `/api/jobs`, `/api/auto-draft/create`, `/api/video-production/projects/*` を使う。
 
@@ -209,7 +209,7 @@ UIの複雑さを減らすため、フロントが複数APIを繋ぎ合わせる
 - **リスク**: SoTが複数箇所になりズレる（audio_prep vs final 等）
   - **対策**: “参照正本”をfinalに統一し、UIはfinalのみ読む（本Planの必須条件）。
 - **リスク**: 旧ページ/旧APIが残り混乱
-  - **対策**: Episode Studio を“唯一の推奨導線”にし、旧ページは「詳細/例外対応」と明示。
+  - **対策**: Episode Studio を“唯一の主線”にし、旧ページは「詳細/例外対応」と明示。
 - **リスク**: 大規模移設で壊れる
   - **対策**: `packages/factory_common/paths.py` で吸収し、物理移設は段階実施（`PLAN_REPO_DIRECTORY_REFACTOR.md`）。
 

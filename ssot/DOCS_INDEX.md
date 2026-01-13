@@ -80,6 +80,7 @@
 - `ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`: Aテキストの品質ゲート（LLM Judge→Fixer で「字数だけ合格」を禁止）。
 - `ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`: 対話AIによる台本監査（LLM API禁止 / 企画整合+流れを目視で確定し redo_script を運用）。
 - `ops/OPS_AUDIO_TTS.md`: 音声（TTS）運用手順とSoT/cleanup。
+- `ops/OPS_TTS_ANNOTATION_FLOW.md`: TTSアノテーション（読み/分割/ポーズ等）の運用フローと証跡。
 - `ops/OPS_TTS_UNPOSTED_AUDIO_AUDIT.md`: 未投稿×既存音声の一括再監査（NO LLM / 再現可能）。
 - `ops/OPS_SRT_LINEBREAK_FORMAT.md`: SRT字幕の改行整形（意味/語彙は不変、改行のみで視認性を上げる）。
 - `packages/audio_tts/docs/SRT_SYNC_PROTOCOL.md` (Reference): 音声final（SRT/WAV）と video_pipeline 入力同期の契約メモ。
@@ -88,10 +89,10 @@
 - `ops/OPS_SCRIPT_INPUT_CONTRACT.md`: Planning入力の契約（L1/L2/L3）と汚染防止ルール。
 - `ops/OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm_router.yaml` + codes/slots）。
 - `ops/OPS_CHANNEL_MODEL_ROUTING.md`: チャンネル別モデルルーティング（slot/codes/画像コードの運用正本）。
-- `ops/OPS_ENV_VARS.md`: 環境変数・キー管理の原則と必須一覧。
+- `ops/OPS_ENV_VARS.md`: 環境変数・キー管理の固定ルールと必須一覧。
 - `ops/OPS_LLM_RUNTIME_OVERRIDES.md`: 設定ファイルを編集せずに「この実行だけ」LLMを調整する（lockdown + emergency override）。
 - `ops/OPS_CONFIRMED_PIPELINE_FLOW.md`: 現行フローの確定ロジック/確定処理フロー（フェーズ別I/O正本）。
-- `ops/OPS_ARTIFACT_DRIVEN_PIPELINES.md`: THINK/API共通のartifact駆動設計（型→処理継続の原則）。
+- `ops/OPS_ARTIFACT_DRIVEN_PIPELINES.md`: THINK/API共通のartifact駆動設計（型→処理継続の固定ルール）。
 - `ops/OPS_ALIGNMENT_CHECKPOINTS.md`: SoT整合チェック（壊さないための確定チェックリスト）。
 - `ops/OPS_SEMANTIC_ALIGNMENT.md`: タイトル/サムネ訴求 ↔ 台本コア の意味整合チェック/最小修正（明らかなズレのみ）。
 - `ops/OPS_THUMBNAILS_PIPELINE.md`: サムネ量産/修正（ローカル合成）の運用SSOT（Compiler/retake/QC/明るさ補正）。
@@ -161,4 +162,4 @@
 - 計画書は `PLAN_<DOMAIN>_<TOPIC>.md` で `ssot/plans/` に追加する。**完了/Closed になった計画書は `ssot/completed/` に移動**し、`ssot/plans/` は現行作業の索引に保つ。
 - Legacy と明記されたものは参考用。新規実装の根拠は必ず Active な PLAN を参照する。
 - 追加・変更したら `ssot/README.md` と本索引にリンクを追記する。
-- 整理の原則: 内容を捨てずに「種類（確定/台帳/計画/履歴）」と導線を整理する。ファイルを移動する場合は、旧ファイル側に移動先リンクを残して破壊的変更を避ける。
+- 整理ルール: 内容を捨てずに「種類（確定/台帳/計画/履歴）」と導線を整理する。ファイルを移動する場合は、旧ファイル側に移動先リンクを残して破壊的変更を避ける。

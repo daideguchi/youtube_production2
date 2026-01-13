@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 from fastapi import HTTPException
 
 from backend.core.llm import LLMFactory
-from factory_common.paths import ssot_repo_root, ssot_research_root
+from factory_common.paths import repo_root as ssot_repo_root, research_root as ssot_research_root
 
 LOGGER_NAME = "ui_backend"
 logger = logging.getLogger(LOGGER_NAME)
@@ -236,4 +236,3 @@ def _validate_provider_endpoint(provider: str) -> None:
     elif provider == "gemini":
         if not os.getenv("GEMINI_API_KEY"):
             raise HTTPException(status_code=400, detail="provider=gemini には GEMINI_API_KEY が必要です。")
-

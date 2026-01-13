@@ -25,7 +25,7 @@ DocType: Register（台帳 / タスク管理）
 1. `ssot/ops/OPS_GLOBAL_TODO.md` からタスクIDを選ぶ
 2. 触る範囲に lock を置く（`python3 scripts/agent_org.py lock 'path/**' --ttl-min 60 --note 'TODO-...'`）
 3. 作業を開始したら thread に `[UPDATE]` を投稿（再現コマンド/成果物/次アクションまで書く）
-4. SSOTのステータスを更新（原則: Orchestratorが更新）
+4. SSOTのステータスを更新（更新者: Orchestrator）
 
 ### 1.3 タスク表記（固定）
 - 優先度: `P0` (停止/事故) / `P1` (主線) / `P2` (改善) / `P3` (後回し)
@@ -128,14 +128,14 @@ DocType: Register（台帳 / タスク管理）
 - [ ] `TODO-COORD-002` Slack取りこぼしゼロ化（30分ポーリング）を設計→実装（P1, todo）
   - scope: `scripts/ops/slack_pm_loop.py`, `scripts/ops/slack_inbox_sync.py`, `ssot/plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md`
   - thread: `note__20251222T145419Z__c13676e2`
-  - DoD: “Mac稼働中のみ” で `slack_pm_loop` が定期実行され、SSOT inbox 更新＋（任意）digest返信までが事故なく回る（secretsはgitに固定しない）
+  - DoD: “Mac稼働中のみ” で `slack_pm_loop` が定期実行され、SSOT inbox 更新＋（省略可）digest返信までが事故なく回る（secretsはgitに固定しない）
 
 ### 4.6 SSOT（CLI-only/曖昧排除）
 - [ ] `TODO-SSOT-002` SSOTの曖昧表現を排除し、全導線をCLIで完結させる（P1, todo）
   - scope: `ssot/**`, `scripts/ops/ops_cli.py`, `scripts/ops/ssot_audit.py`
   - thread: `note__20251222T145431Z__c67da380`
   - DoD:
-    - SoT/Guide内の「推奨/任意」等が「正本/互換/禁止」に置換され、判断の余地が残らない
+    - SoT/Guide内の曖昧表現が「正本/互換/禁止」に置換され、判断の余地が残らない
     - SSOTの入口が `./ops` に統一され、引数転送の `--` ルールが全SSOTで一致している
     - `./ops ssot audit -- --strict` と `./ops ssot check` が常にOK
 

@@ -20,11 +20,11 @@
 - [ ] ファイル名 `CHxx.csv` と列 `チャンネル` の値が一致している（存在する場合）
 - [ ] 各行で動画番号が取れる（`動画番号` または `No.` が空でない）
 - [ ] 各行で動画IDが取れる（`動画ID` または `台本番号` が空でない）
-- [ ] `CHxx-NNN` 形式が壊れていない（`NNN` は 3 桁推奨）
+- [ ] `CHxx-NNN` 形式が壊れていない（`NNN` は 3 桁固定）
 
-推奨（迷子/再生成ミスが激減する）:
+追加チェック（迷子/再生成ミスを減らす）:
 - [ ] `台本` または `台本パス` が `workspaces/scripts/{CH}/{NNN}/content/assembled.md` を指す
-  - 形式は **repo 相対パス** を推奨（絶対パス混入は誤参照/移設事故の原因）
+  - 形式は **repo 相対パス** に統一する（絶対パス混入は誤参照/移設事故の原因）
 - [ ] 企画更新後に下流を再生成する運用が守られている（`OPS_PLANNING_CSV_WORKFLOW.md`）
 
 ---
@@ -40,7 +40,7 @@
 - [ ] `status.json` に `script_id`, `channel`, `metadata`, `status`, `stages` が存在する（許容スキーマは `OPS_IO_SCHEMAS.md`）
 - [ ] `content/assembled.md` が存在し、空ではない
 
-推奨:
+追加チェック:
 - [ ] `metadata.title` と Planning CSV の `タイトル` が一致（差分がある場合は「どちらが正か」を決めて reset する）
 - [ ] `updated_at` が更新されている（いつ作られたか追える）
 - [ ] `metadata.alignment.schema == "ytm.alignment.v1"` が入っている（Planning↔Scriptの整合スタンプ）
@@ -61,7 +61,7 @@
 - [ ] `{CH}-{NNN}.srt` が存在する
 - [ ] `log.json` が存在し、`channel`, `video`, `engine`, `segments` を含む（許容スキーマは `OPS_IO_SCHEMAS.md`）
 
-推奨:
+追加チェック:
 - [ ] `log.json` の `channel/video` とディレクトリ `{CH}/{NNN}` が一致する
 - [ ] 中間生成物（`workspaces/scripts/.../audio_prep/`）は final 生成後に cleanup できる（規約: `PLAN_OPS_ARTIFACT_LIFECYCLE.md`）
 - [ ] `run_tts` 実行前に `status.json: metadata.alignment` が最新である（無い/不一致なら `run_tts` が停止する）
@@ -79,7 +79,7 @@
 - [ ] `images/` が存在し、`cues` と概ね対応する枚数がある
 - [ ] `capcut_draft_info.json` が存在する（CapCut Draft 連携を使う場合）
 
-推奨:
+追加チェック:
 - [ ] `auto_run_info.json` があれば run の入力（CH/NNN/元SRT等）が追える
 - [ ] `belt_config.json` があれば帯の仕様が追える（run により存在しない場合あり）
 
@@ -94,6 +94,6 @@
 - [ ] `projects.json` が JSON として読める
 - [ ] 各案件に `channel`, `video`, `variants[]` がある
 
-推奨:
+追加チェック:
 - [ ] `variants[].image_path` が実ファイルへ辿れる（`workspaces/thumbnails/assets/` or 旧資産ディレクトリ）
 - [ ] 選定/承認の履歴を残す（`ssot/history/HISTORY_codex-memory.md`）

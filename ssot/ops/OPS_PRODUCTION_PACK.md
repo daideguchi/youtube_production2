@@ -1,7 +1,7 @@
 # OPS_PRODUCTION_PACK — 量産投入前の「Production Pack」定義（正本）
 
 目的:
-- 入口（Planning/任意入力）〜量産投入直前までを **1つのスナップショット** に束ね、再現性と品質を安定させる。
+- 入口（Planning/オプション入力）〜量産投入直前までを **1つのスナップショット** に束ね、再現性と品質を安定させる。
 - 「入力が無くても破綻しない」設計に寄せつつ、入力が追加された場合は **拡張として品質が上がる** 形にする。
 - 企画の上書き/追加/部分更新が起きても、**何が変わったか（差分）** が追跡できる状態にする。
 
@@ -32,7 +32,7 @@ Production Pack は「この動画を量産パイプラインへ投入する直�
 
 Pack は「量産投入の前段」で使う（= ここで止めれば事故が最安）。
 
-推奨:
+標準手順:
 1) Planning を更新（UI or 直接編集）
 2) Planning lint / 最低限の QA を通す
 3) Production Pack を生成（スナップショット + 判定）
@@ -46,7 +46,7 @@ Pack は「量産投入の前段」で使う（= ここで止めれば事故が�
 
 ---
 
-## 2. 必須入力 / 任意入力（入力が無くても破綻しない設計）
+## 2. 必須入力 / オプション入力（入力が無くても破綻しない設計）
 
 ### 2.1 必須（無いと止める）
 - `channel`（`CHxx`）
@@ -54,14 +54,14 @@ Pack は「量産投入の前段」で使う（= ここで止めれば事故が�
 - Planning CSV の該当行
   - 最低限: `タイトル` が存在すること
 
-### 2.2 任意（無くても動くが、あると品質/精度が上がる）
+### 2.2 オプション（無くても動くが、あると品質/精度が上がる）
 - Persona（例: `workspaces/planning/personas/CHxx_PERSONA.md`）
 - ベンチマーク/バズ台本/勝ちパターン（例: `packages/script_pipeline/channels/CHxx-*/channel_info.json: benchmarks` → `workspaces/research/**`）
 - サムネ参照（例: `workspaces/thumbnails/projects.json`, `workspaces/thumbnails/assets/{CH}/{NNN}/`）
 - 動画テンプレ参照（例: `packages/video_pipeline/config/channel_presets.json`）
 - チャンネルの入出典（chapter_count/文字数など）: `configs/sources.yaml`
 
-任意入力は **「欠落=空」でもパイプラインが進む** ように扱い、存在する場合のみ後段の品質に効かせる。
+オプション入力は **「欠落=空」でもパイプラインが進む** ように扱い、存在する場合のみ後段の品質に効かせる。
 
 ---
 
@@ -80,13 +80,13 @@ Pack は最低限、次を保持する:
 
 ### 3.1 現行 `production_pack.py` がスナップショットする主な参照（実装ベース）
 - Planning: `workspaces/planning/channels/CHxx.csv` の該当行（row snapshot）+ planning_lint（targeted）
-- Planning Patch: `workspaces/planning/patches/*.yaml`（該当episodeのみ、best-effort）
+- Planning Patch: `workspaces/planning/patches/*.yaml`（該当episodeのみ。存在すれば読み込み、無ければスキップ）
 - Sources: `configs/sources.yaml`（+ overlay `packages/script_pipeline/config/sources.yaml`）の該当CH設定（`resolved.sources.*`）
 - Script: `packages/script_pipeline/channels/CHxx-*/script_prompt.txt`, `channel_info.json`, `templates.yaml`, `stages.yaml`
 - Audio: `packages/script_pipeline/audio/channels/CHxx/voice_config.json`（音声設定の正本。存在/JSON妥当性をゲートする）
 - Video: `packages/video_pipeline/config/channel_presets.json`（該当CHのpreset解決）, `template_registry.json`（prompt_template の登録表）, `system_prompt_for_image_generation.txt`
 - Thumbnails: `workspaces/thumbnails/templates.json`, `workspaces/thumbnails/projects.json`, `workspaces/thumbnails/assets/{CH}/{NNN}/`（存在のみ）
-- 任意: `workspaces/planning/personas/CHxx_PERSONA.md`, `workspaces/planning/templates/CHxx_planning_template.csv`, `benchmarks_summary`（channel_info由来）
+- オプション: `workspaces/planning/personas/CHxx_PERSONA.md`, `workspaces/planning/templates/CHxx_planning_template.csv`, `benchmarks_summary`（channel_info由来）
 
 ---
 
@@ -119,8 +119,8 @@ Production Pack 生成時に、最低限ここまでを判定する:
 - A-text lint: `python3 scripts/ops/a_text_lint.py ...`
 
 メモ:
-- `production_pack.py` の `qa_gate` には `result (pass/warn/fail)` に加えて `score (0-100)` と `counts` を含める（運用の目安）。
-- `qa_gate.issues[*].fix_hints`（任意）がある場合は、それが最短の修復導線。体系は `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
+- `production_pack.py` の `qa_gate` には `result (pass/warn/fail)` に加えて `score (0-100)` と `counts` を含める（運用メトリクス）。
+- `qa_gate.issues[*].fix_hints`（省略可）がある場合は、それが最短の修復導線。体系は `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
 
 ---
 
@@ -132,7 +132,7 @@ Production Pack は「その時点のスナップショット」なので、再�
 - 変更元:
   - Planning CSV の更新
   - 企画上書きの適用（patch）
-  - Persona/ベンチマーク等の任意入力の追加
+  - Persona/ベンチマーク等のオプション入力の追加
 - 変更ログ:
   - `workspaces/logs/regression/production_pack/`（Pack 本体 + diff/summary）
 
@@ -153,8 +153,8 @@ diff では `generated_at` や `tool.*` など「毎回変わるノイズ」は�
 Phase 0（今すぐ）:
 - Pack は「生成して眺める」だけで良い（現行 runner を変更しない）。
 - Pack の pass/warn/fail を人間/UI が参照して投入判断する。
-- 併用（推奨）: `preproduction_audit` でチャンネル横断の抜け漏れを先に潰す（`python3 scripts/ops/preproduction_audit.py --all --write-latest`）。
-- 修復は `qa_gate.issues[*].fix_hints`（任意）と `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
+- 併用（標準）: `preproduction_audit` でチャンネル横断の抜け漏れを先に潰す（`python3 scripts/ops/preproduction_audit.py --all --write-latest`）。
+- 修復は `qa_gate.issues[*].fix_hints`（省略可）と `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
 
 Phase 1（運用が固まってから）:
 - UI で「Production Pack を生成 → Gate 結果を表示」する。

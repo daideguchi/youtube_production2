@@ -4,7 +4,7 @@
 `LLM_EXEC_SLOT=3（THINK）` / `LLM_EXEC_SLOT=4（AGENT）` でパイプラインを動かすと、`workspaces/logs/agent_tasks/pending/` に「処理待ちタスク」が生成されます。
 また、API LLM が失敗した場合も **API→THINK failover（デフォルト有効）** により pending が生成されます（無効化は `LLM_EXEC_SLOT=5`）。
 
-## 原則
+## 固定ルール
 - Runbook は「そのまま実行できる」レベルで書く（コマンド/分岐/成果物/チェックを具体化）。
 - 変更したら必ず Runbook 内の `最終更新日` と `ADR` を更新する。
 - タスク→Runbook の割当は `configs/agent_runbooks.yaml` が正本。
@@ -13,12 +13,12 @@
 
 ## 使い方（基本）
 1. THINK MODE で実行（結果が無ければ止まる）
-   - 推奨: `./scripts/think.sh --all-text -- <command> [args...]`（非`script_*`のテキスト系のみ）
+   - 入口固定: `./scripts/think.sh --all-text -- <command> [args...]`（非`script_*`のテキスト系のみ）
 2. pending を確認
    - `python scripts/agent_runner.py list`
-   - フォールバック/申し送りのメモ確認（任意）: `python scripts/agent_org.py memos`
-   - 複数エージェント組織運用（任意）: [`RUNBOOK_AGENT_ORG_COORDINATION.md`](/ssot/agent_runbooks/RUNBOOK_AGENT_ORG_COORDINATION.md)
-   - 先に担当を明示（推奨）:
+   - フォールバック/申し送りのメモ確認（省略可）: `python scripts/agent_org.py memos`
+   - 複数エージェント組織運用（オプション）: [`RUNBOOK_AGENT_ORG_COORDINATION.md`](/ssot/agent_runbooks/RUNBOOK_AGENT_ORG_COORDINATION.md)
+   - 担当を明示（複数エージェント運用では必須）:
      - `export LLM_AGENT_NAME=Mike`
      - `python scripts/agent_runner.py claim <TASK_ID>`
 3. タスク詳細を見る

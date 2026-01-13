@@ -23,7 +23,7 @@
 - KanaPatch は positions で全出現に適用し、accent_phrases で align。失敗時は長さクリップ＋fallback理由をログ。
 - vocab LLM は本番パイプラインから切り離し（enable_vocab=False デフォルト）。辞書育成はオフラインバッチ前提にする。
 - ログ: `tts_voicevox_reading.jsonl` に selected/adopted/rejected/calls、surface/mecab/voicevox/ruby、reason（hazard/trivial_skipped/banned/align_fallback 等）を記録し、集計でコール数≤2/件数≤40を確認する。
-- **実行モード（推奨・固定）**（更新: 2026-01-10 / `ssot/DECISIONS.md:D-013`）:
+- **実行モード（固定）**（更新: 2026-01-10 / `ssot/DECISIONS.md:D-013`）:
   - TTS/Bテキスト系（`tts_*` / `voicevox_kana`）は **AIエージェント（Codex / pending運用）** を正とする（例: `./scripts/think.sh --tts -- <cmd>` または `LLM_EXEC_SLOT=3/4`）。
   - 注: ここで言う Codex は **codex exec（非対話CLI）ではない**（別物）。TTSを codex exec へ寄せない。
   - 失敗時は **LLM APIへ自動フォールバックしない**（停止して原因を残す）。

@@ -30,6 +30,29 @@
 - `voicepeak_audit_latest.json`（VOICEPEAKリスク集計）
 - `stale_audit_latest.json`（STALE一覧）
 
+## 重要: `segments=0`（finalize_existing）は監査不能
+`workspaces/audio/final/{CH}/{NNN}/log.json` が `mode=finalize_existing` の回は、segmentごとの `voicevox_kana` が残らないため、
+VOICEVOX自動監査では誤読を確定できない（= “白”に見えても未監査）。
+
+- 原因: `--finalize-existing`（手動wav/srtコピー）で final を作った回
+- 対処: **strictで合成してログを復元**する（未投稿に限り推奨）
+
+例（まず prepass で mismatch を潰す → 合成）:
+
+```bash
+PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
+  --channel CH02 --video 046 \
+  --input workspaces/scripts/CH02/046/content/assembled_human.md \
+  --allow-unvalidated --prepass
+  # NOTE: assembled_human.md が無いCHは assembled.md を指定する
+
+# mismatch=0 を確認したら合成（既存finalを上書きするので未投稿のみ）
+PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
+  --channel CH02 --video 046 \
+  --input workspaces/scripts/CH02/046/content/assembled_human.md \
+  --allow-unvalidated --force-overwrite-final
+  # NOTE: assembled_human.md が無いCHは assembled.md を指定する
+```
 ## 判定の読み方（実務ルール）
 
 ### 1) VOICEVOX mismatch（最優先で潰す）

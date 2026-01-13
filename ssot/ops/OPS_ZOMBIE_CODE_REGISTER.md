@@ -85,7 +85,7 @@ DocType: Register（台帳 / 未確定）
 
 | path | 観測 | 暫定提案 |
 | --- | --- | --- |
-| `packages/video_pipeline/src/srt2images/engines/capcut_engine.py` | `run_pipeline --engine capcut` 経由で使えるが、SSOT上は **stub/非主線** | SSOTに「stub/非推奨」を明記し、CLI側で deprecate guard（警告/停止）を検討（削除は後） |
+| `packages/video_pipeline/src/srt2images/engines/capcut_engine.py` | `run_pipeline --engine capcut` 経由で使えるが、SSOT上は **stub/非主線** | SSOTに「stub/非主線」を明記し、CLI側で deprecate guard（警告/停止）を検討（削除は後） |
 
 ### C-2) “disabled/placeholder” の残骸（要棚卸し）
 

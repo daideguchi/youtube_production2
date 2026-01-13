@@ -17,7 +17,7 @@
 - `SKIP_TTS_READING=1` を必ず付け、読みLLM経路を完全にスキップする。
 - VOICEVOX の実読と期待読みが1件でもズレたら **停止** する（誤読混入を禁止 / 常時ON）。
   - 停止時のレポート: `workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json`
-- **Aテキスト（台本/字幕SoT）は原則変更しない**（意味・表現を守る）。
+- **Aテキスト（台本/字幕SoT）はそのまま保持する**（意味・表現を守る。TTS目的で変更しない）。
 - 読み補助が混入している場合（例: `刈羽郡、かりわぐん` / `大河内正敏（おおこうちまさとし）`）は、
   **Bテキスト側で重複部分を除去**し、読みは辞書/override で固定する（後述）。
   - 重複除去は `audio_tts.tts.arbiter._patch_tokens_with_words` で **Bのみ** に自動適用（Aは不変）。
@@ -31,7 +31,7 @@
   - 優先順位: `local_token_overrides.json` > `local_reading_dict.json` > `{CH}.yaml` > グローバル辞書。
   - 未カバーが残る場合は `{CH}.yaml` か `local_reading_dict.json` を追加し、mismatch=0 まで詰める。
 - 監査対象は **候補の全件**。候補抽出・確認・記録までを1セットとする。
-- 修正が必要なら **辞書/位置パッチを手で追加 → 該当動画のみ再合成**。
+- 修正は **辞書/位置パッチを手で追加 → 該当動画のみ再合成**。
 - 辞書登録の固定ルールは `ssot/DECISIONS.md` の **D-014** に従う（ユニーク誤読のみ辞書へ / 曖昧語は辞書に入れない）。
 - 進捗・証跡は `ssot/history/HISTORY_tts_reading_audit.md` に動画ごとに記録する（後述テンプレに従う）。
 
@@ -110,16 +110,16 @@
      PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts \
        --channel {CH} --video {VID} --input ... --resume
      ```
-3. **部分再生成（`--indices`）はSSOTでは使わない（原則禁止）**
-   - 手動監査フローは「全件監査 → 必要なら辞書/位置パッチ → **全体を再合成**」が正本。
+3. **部分再生成（`--indices`）はSSOTでは使わない（禁止）**
+   - 手動監査フローは「全件監査 → 辞書/位置パッチ → **全体を再合成**」が正本。
    - `--indices` による部分更新は、過去生成物の混入・セグメントずれ・未監査区間の残存が起きやすく、**誤読ゼロ運用に反する**ため本書では採用しない。
-   - 例外的に `--indices` を使う場合でも、**本書の完了条件（全候補の全件目視）**は満たす必要がある。原則は 3.0 に戻って `audio_prep` を作り直す。
+   - 例外的に `--indices` を使う場合でも、**本書の完了条件（全候補の全件目視）**は満たす必要がある。復帰手順は 3.0 に戻って `audio_prep` を作り直す。
 3. 生成物確認:
    - `audio_prep/CHxx-yyy.wav`
    - `audio_prep/CHxx-yyy.srt`
    - `audio_prep/log.json`
 
-#### 3.1.1 チャンネル一括で回す（BatchTTS / 推奨テクニック）
+#### 3.1.1 チャンネル一括で回す（BatchTTS）
 - **狙い**: 「アノテーション重複除去（Bのみ）」や辞書適用が全動画で効くかを、まず **prepass（wav生成なし）** で高速に確認 → その後に合成へ進む。
 - コマンド（prepass）:
   ```bash
@@ -134,7 +134,7 @@
       --all-channels \
       --prepass --skip-tts-reading
     ```
-  - `--allow-unvalidated` が必要な運用の時のみ付ける（原則は `script_validation` を完了させる）
+  - `--allow-unvalidated` は例外運用のみ。標準運用は `script_validation` を完了させる
   - 既に final がある動画をスキップするなら `--only-missing-final`
   - 進捗/ログ（デフォルト）:
     - `workspaces/logs/ui/batch_tts_progress.json`
@@ -221,7 +221,7 @@ PY
 #### 3.4.0 辞書キーは「Aテキストの token surface」基準（重要）
 - `audio_prep/local_reading_dict.json` / `{CH}.yaml` の **キーは Bテキストではなく**、`_patch_tokens_with_words` に入る **Aテキスト由来のトークン(surface)連結**で一致させる。
   - `reading_mismatches__*.json` の `b_text` は途中で正規化済みなので、**b_textを見てキーを作ると当たらない**ケースがある。
-- まず `reading_mismatches__*.json` の `text` を見て、必要なら `audio_prep/log.json` の `tokens[*].surface` を確認してキーを決める。
+- まず `reading_mismatches__*.json` の `text` を見て、足りなければ `audio_prep/log.json` の `tokens[*].surface` を確認してキーを決める。
 - 代表例（「b_textでは当たらない」典型）:
   - `PC` は既存辞書で `ピーシー` に正規化されるため、ローカル辞書は `ピーシー` ではなく **`PC` をキーにする**（例: `PC -> ピースィー`）。
   - `10時間` が `10ジカン` に正規化されていても、キーは **`10時間`**（Aの surface 連結）で作る。
@@ -235,16 +235,16 @@ PY
   - そのCH内だけ一意 → `packages/audio_tts/data/reading_dict/{CH}.yaml`（例: `packages/audio_tts/data/reading_dict/CH26.yaml`）
 - 反映（VOICEVOX公式ユーザー辞書に同期したい場合）:
   ```bash
-  # 推奨: グローバル確定語だけ同期（事故りにくい）
+  # 標準: グローバル確定語だけ同期（事故を増やさない）
   PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite
 
-  # 必要時: そのCHの語も同期
+  # CH辞書も同期する場合:
   PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel {CH} --overwrite
   ```
 
 **(2) 曖昧語/文脈依存 → 動画ローカルで個別対応（辞書に入れない）**
 - 例: 同じ表記でも文脈で読みが変わる・迷いがある語（例: 「人」「辛い」「行った」「怒り」など）。
-- 追記先（推奨）: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`（位置指定。曖昧語の最終手段）
+- 追記先（標準）: `workspaces/scripts/{CH}/{VID}/audio_prep/local_token_overrides.json`（位置指定。曖昧語の最終手段）
 - 追記先（フレーズが一意で安全な場合のみ）: `workspaces/scripts/{CH}/{VID}/audio_prep/local_reading_dict.json`（surface→読み; 2文字以上のフレーズ限定）
 - 形式:
   ```json

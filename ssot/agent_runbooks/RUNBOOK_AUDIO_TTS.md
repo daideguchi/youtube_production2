@@ -17,7 +17,7 @@
 ## 2. 手順
 1. pending を確認: `python scripts/agent_runner.py show <TASK_ID>`
 2. `messages` の指示どおりに出力を作る
-   - 読みの根拠（mecab/voicevox/ruby等）が必要なら `messages` の要請に従って含める
+   - 読みの根拠（mecab/voicevox/ruby等）が必要な場合は `messages` の要請に従って含める
 3. results を投入: `python scripts/agent_runner.py complete <TASK_ID> --content-file /path/to/content.txt`
 4. 元コマンドを rerun
 

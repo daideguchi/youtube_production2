@@ -86,14 +86,14 @@
 - 起動: `python scripts/agent_org.py orchestrator start --name dd-orch`
 - 状態: `python scripts/agent_org.py orchestrator status`
 - 停止: `python scripts/agent_org.py orchestrator stop`
-- 起動（推奨: guardrails + preflight 一括）: `python3 scripts/ops/orchestrator_bootstrap.py --name dd-orch`
+- 起動（入口固定: guardrails + preflight 一括）: `python3 scripts/ops/orchestrator_bootstrap.py --name dd-orch`
 - request 作成（例: 役割付与）:
-  - (推奨) `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_id":"<AGENT_ID>","role":"audio_worker"}' --wait-sec 3`
+  - `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_id":"<AGENT_ID>","role":"audio_worker"}' --wait-sec 3`
   - `agent_name` でも可（同名があると失敗しうる）: `python scripts/agent_org.py orchestrator request --action set_role --payload-json '{"agent_name":"Mike","role":"audio_worker"}' --wait-sec 3`
 
 ### Agents
 - heartbeat 起動: `python scripts/agent_org.py agents start --name Mike --role worker`
-- heartbeat + board更新（推奨）: `python3 scripts/ops/agent_bootstrap.py --name Mike --role worker --doing "..." --next "..." --tags ui,cleanup`
+- heartbeat + board更新（標準）: `python3 scripts/ops/agent_bootstrap.py --name Mike --role worker --doing "..." --next "..." --tags ui,cleanup`
 - 一覧: `python scripts/agent_org.py agents list`
 
 ### Locks / Memos
@@ -115,7 +115,7 @@
   - `.git` write-lock 状態
   - Orchestrator lease 状態
   - stale lock/agent heartbeat の概況
-  - execpolicy（rollback禁止）が有効かの probe（best-effort）
+  - execpolicy（rollback禁止）が有効かの probe（失敗は警告扱い）
 
 ## 5. ログ設計
 - `workspaces/logs/agent_tasks/coordination/events.jsonl` に協調系イベントを JSONL で集約（append-only）。

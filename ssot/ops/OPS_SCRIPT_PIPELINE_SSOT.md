@@ -7,7 +7,7 @@
 
 この文書は「台本パイプラインの単一SSOT（1枚）」である。詳細は必要時にリンク先へ降りるが、**迷ったら本書の手順を優先**する。
 
-推奨実行（共通）:
+入口固定（共通）:
 - **必ず** `./scripts/with_ytm_env.sh python3 ...` を使う（.envロード + PYTHONPATH固定）。
   - `python -m ...` 直叩きは環境差分（依存不足）で詰まりやすい。
   - 日常運用の入口（固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
@@ -53,7 +53,7 @@ flowchart TD
 - 台本アーキテクチャ（構造で壊さない）: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 - 入力契約（タイトル=正 / 補助 / 禁止）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
 - 運用手順（入口/やり直し）: `ssot/ops/OPS_SCRIPT_GUIDE.md`
-- 品質ゲート（Judge→Fixer→必要ならRebuild）: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
+- 品質ゲート（Judge→Fixer→Rebuild）: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
 - 超長尺（Marathon）設計: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`
 - 構成パターン（骨格/字数配分SSOT）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
 
@@ -93,7 +93,7 @@ SoT（正本）:
 
 LLMがやること（柔軟性が必要な領域）:
 - アウトライン設計（`script_outline`）と章執筆（`script_draft`）
-- 内容品質（薄い/冗長/流れが悪い）を Judge して、必要なら最小リライト（`script_validation` の LLM品質ゲート）
+- 内容品質（薄い/冗長/流れが悪い）を Judge して、不合格時は最小リライト（`script_validation` の LLM品質ゲート）
 - タイトル/サムネ訴求 ↔ 台本コアの「意味整合」（minor/major の判定 + 最小リライト）
 
 柔軟性を“どこに集約するか”（入口固定の前提）:
@@ -108,13 +108,13 @@ LLMがやること（柔軟性が必要な領域）:
 - やりすぎるとコストと内容汚染が増えるため、**チャンネルごとに実行可否を固定**する（SoT）。
 
 SoT（チャンネル別ポリシー）:
-- `configs/sources.yaml: channels.CHxx.web_search_policy`（default: `auto`。ただし運用では明示設定を推奨）
+- `configs/sources.yaml: channels.CHxx.web_search_policy`（default: `auto`。運用では明示設定する）
   - `disabled`: 検索しない（`search_results.json` は必ず `provider=disabled, hits=[]` を書く）
-  - `auto`: 可能なら検索する（provider は `YTM_WEB_SEARCH_PROVIDER`）。失敗しても **台本パイプラインは原則止めない**（`search_results.json` を `disabled` で埋め、`status.json` に decision/reason を残す）
+  - `auto`: 検索を試行する（provider は `YTM_WEB_SEARCH_PROVIDER`）。失敗しても **台本パイプラインは止めない**（`search_results.json` を `disabled` で埋め、`status.json` に decision/reason を残す）
   - `required`: 必ず「検索の試行」を行う（provider が `disabled` でも継続する）。ただし `status.json` に decision/reason を必ず残す（=運用で追える）
 
 Web検索 provider（実装側: env）:
-- `YTM_WEB_SEARCH_PROVIDER`（推奨 default: `disabled`）
+- `YTM_WEB_SEARCH_PROVIDER`（運用既定: `disabled`）
   - `disabled`: 検索しない（空の `search_results.json` を書く）
   - `brave`: Brave Search API（`BRAVE_SEARCH_API_KEY` が必要）
   - `openrouter`: LLMRouter task `web_search_openrouter`（OpenRouter経由）
@@ -150,7 +150,7 @@ SoT（チャンネル別ポリシー）:
 
 内容汚染対策（設計）:
 - Wikipedia の URL/出典を **本文へ直接書かない**（Aテキスト禁則）。
-- Wikipedia は「用語/人物/概念の導入・同定」の足場として使い、本文の裏取りは必要なら Web検索（search_results.json）で補強する。
+- Wikipedia は「用語/人物/概念の導入・同定」の足場として使い、本文の裏取りは不足時は Web検索（search_results.json）で補強する。
 
 ### 0.4 文字数ターゲット（長文でも崩さないためのSSOT）
 
@@ -170,7 +170,7 @@ SoT（正本）:
   - 例: CH10 の下限を 8k→15k に上げた場合、過去回は `script_validation` で **追記（extend/expand）** を実行して下限へ収束させる。
 
 例外（その回だけ手動固定したい場合）:
-- `status.json metadata.targets_locked=1` を設定すると、入口の同期を止められる（推奨はしない。実験用）。
+- `status.json metadata.targets_locked=1` を設定すると、入口の同期を止められる（運用では使わない。実験用）。
 
 ### 0.1 全体像（1枚で把握）
 
@@ -181,7 +181,7 @@ Planning SoT (CSV) ──┐
 persona/prompt/pattern ─┤  → status.json（ステージ管理）
                       └───────────────┐
                                       v
-topic_research（任意）
+topic_research（補助）
   v
 script_outline（ここで “ズレ” を早期停止: 安い）
   v
@@ -202,7 +202,7 @@ Mermaid（視覚用）:
 flowchart LR
   Planning["Planning SoT\nworkspaces/planning/channels/CHxx.csv"] --> Status["Script SoT\nworkspaces/scripts/{CH}/{NNN}/status.json"]
   Persona["persona / prompt / pattern"] --> Status
-  Status --> TR["topic_research（任意）"]
+  Status --> TR["topic_research（補助）"]
   TR --> OUT["script_outline（ズレを早期停止）"]
   OUT --> MP["script_master_plan（設計図）"]
   MP --> BR["chapter_brief"]
@@ -294,7 +294,7 @@ flowchart LR
      - `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別の結合。Batch投入の実体）
 2) Batch submit: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py submit --channel CHxx --videos NNN-NNN`
 3) 完了待ち → Batch fetch: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
-4) 復旧後に推奨: `script_validation` を再実行して品質ゲートを通す（LLM品質/意味整合/ファクトチェック）
+4) 復旧後: `script_validation` を再実行して品質ゲートを通す（LLM品質/意味整合/ファクトチェック）
 
 ### 2.2 長尺（安定化）: Seed→Expand（低コストSeed→追記で収束）
 目的:
@@ -315,7 +315,7 @@ flowchart LR
 - 超長尺は全文をLLMに渡す品質ゲート（Judge/Fix）が破綻しやすい。
 - したがって「章設計→章ごと生成→機械（非LLM）アセンブル→チャンク判定/差し替え」で収束させる。
 
-入口（推奨）:
+入口（固定）:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --plan-only`
 - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120`（dry-run）
 - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
@@ -324,11 +324,11 @@ flowchart LR
 - 超長尺で `script_validation` を回す場合は全文LLMを無効化して機械チェックだけ使う:
   - `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0 ./scripts/with_ytm_env.sh python3 -m script_pipeline.cli run --channel CHxx --video NNN --stage script_validation`
 
-### 2.4 コスト設計（低コストで量産するための固定原則）
+### 2.4 コスト設計（低コストで量産するための固定ルール）
 結論:
 - 高コスト工程（章草稿/本文リライト）に入る前に、**低コストの逸脱検出**で止めるのが最も安い。
 
-必須の順序（推奨）:
+必須の順序（固定）:
 1. Planning lint（非LLM・無料）で内容汚染を潰す  
    - `./scripts/with_ytm_env.sh python3 scripts/ops/planning_lint.py --channel CHxx --write-latest`
 2. アウトライン段階の意味整合ゲート（安い）で逸脱を止める（`SCRIPT_OUTLINE_SEMANTIC_ALIGNMENT_GATE=1`）
@@ -341,7 +341,7 @@ flowchart LR
 - Judgeの収束回数: 既定は `SCRIPT_VALIDATION_LLM_MAX_ROUNDS=3`。コスト優先なら `2` に下げる（ただし不合格率が上がる）。
 - 超長尺は Marathon: 全文LLMゲートはスキップし、章単位で収束させる（詳細: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`）。
 
-### 2.4.1 高コスト推論を“設計図で1回だけ”使う（任意）
+### 2.4.1 高コスト推論を“設計図で1回だけ”使う（オプション; default OFF）
 目的:
 - 章ブリーフ/章本文の迷子を減らし、後段の `script_validation`（Judge→Fix）往復を減らす。
 
@@ -379,7 +379,7 @@ flowchart LR
 3. `script_validation` が `completed` なら合格（`pending` なら止めて対処）
 4. 合格した台本だけ音声へ進む
 
-最短コマンド（入口固定 / 推奨）:
+最短コマンド（入口固定）:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CHxx --video NNN`
 
 補足（内部/詳細制御。通常運用では使わない）:
@@ -390,7 +390,7 @@ flowchart LR
 検証例（新規作成: CH10）:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH10 --video 008`
   - status.json が無ければ自動で初期化され、Planning SoT（`workspaces/planning/channels/CH10.csv`）のタイトルを使う
-  - 最後に `script_validation` が意味整合を検査し、既定では `verdict: major` のみ停止（収束可能なら最小リライトを試みる）
+  - 最後に `script_validation` が意味整合を検査し、既定では `verdict: major` のみ停止（report/fix_hints を出して pending）。修復は `semantic-align --apply` で明示適用する
 
 ---
 
@@ -399,17 +399,17 @@ flowchart LR
 Redo は「何を正本として残すか」を固定しないと、参照が内容汚染して破綻する。
 
 ### 4.1 CSV（企画）が変わった
-原則:
+固定ルール:
 - reset→再生成（旧台本が残ると混乱源）。
 
 コマンド:
-- 単発/バッチ（入口固定 / 推奨）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to NNN --wipe-research`
+- 単発/バッチ（入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CHxx --from NNN --to NNN --wipe-research`
 
 補足（内部/詳細制御）:
 - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
 
 ### 4.2 人間が本文（assembled_human）を直した
-原則:
+固定ルール:
 - 以降（音声/動画）は必ず再生成。
 - まず `script_validation` を再実行して品質を担保してから音声へ進む。
 
@@ -424,9 +424,9 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 検証例（既存やり直し: CH07-019 以降）:
 - まず “既存台本を直して通す” だけなら:
   - 単発: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019 --until script_validation`
-  - バッチ（推奨）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
+  - バッチ（入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo --channel CH07 --from 019 --to 030 --mode validate`
 - “企画が内容汚染している/ズレが大きいので作り直す” なら:
-  - バッチ（入口固定 / 推奨）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030 --wipe-research`
+  - バッチ（入口固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py redo-full --channel CH07 --from 019 --to 030 --wipe-research`
 
 途中から再開（手動介入/中断後）:
 - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CH07 --video 019`
@@ -499,8 +499,8 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
       - `ok`: 主題（タイトル/サムネの意図）と整合している（合格）
       - `minor`: 軽微なズレ（主題は合っているが、段落/言い回しに改善余地がある）
       - `major`: 重大なズレ（主題が外れている/別テーマへ寄っている）
-    - minor/major は可能なら最小リライトを自動適用して収束させる（収束しなければ pending で停止）。
-    - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止。コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）。
+    - minor/major は **自動書き換えしない**。report と fix_hints を出して pending で停止する。
+    - より厳密に止めたい場合は `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（ok以外は停止）。
     - 注（固定ルール）: `script_*` は **Codex exec を使わない**（全task）。
       - 標準運用は `script-main-1`（Fireworks）固定で、失敗時に別LLM/APIへ自動フォールバックしない（停止して記録する）。
       - Fireworks/OpenRouter が使えない期間は `D-018` に従い、**明示コマンドで** Gemini Batch を使う（勝手に切替しない）。
@@ -512,7 +512,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
   - 「タイトル語句が本文に出るか」は必須要件ではない（意味として回収できているかだけを見る）。
   - ただし「Nつ」などの数の約束は、台本側の `一つ目〜Nつ目` を **機械でサニティチェック**し、LLMの誤判定で止まる事故を防ぐ。
 
-### 5.4 完成台本ファクトチェック（任意/チャンネル別）
+### 5.4 完成台本ファクトチェック（オプション; チャンネル別）
 目的:
 - “それっぽい嘘” を含んだまま音声/字幕に進む事故を止める。
 - Aテキスト本文に URL/脚注を入れず、`topic_research` の中間生成物（検索/Wikipedia/refs）を “足場” にして検証する。
@@ -524,7 +524,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 - `content/analysis/research/fact_check_report.json`
 
 ポリシー（SoT）:
-- `configs/sources.yaml: channels.CHxx.fact_check_policy`（任意。未設定時は `web_search_policy` から既定を導出）
+- `configs/sources.yaml: channels.CHxx.fact_check_policy`（オプション; 未設定時は `web_search_policy` から既定を導出）
   - `disabled`: 実行しない（reportは `verdict=skipped` を書く）
   - `auto`: `fail` のときのみ停止（`warn` は通すがreportは残す）
   - `required`: `pass` 以外は停止（`warn/fail` で止める）

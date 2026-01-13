@@ -12,9 +12,9 @@
 
 ## 0. 共通ルール
 
-- **SoT（正本）**: その工程の真実。下流は原則 SoT のみを参照する。
+- **SoT（正本）**: その工程の真実。下流は SoT のみを参照する（例外を作るなら SoT を増やす）。
 - **Intermediate（中間）**: 再生成可能。保持/削除ルールは `PLAN_OPS_ARTIFACT_LIFECYCLE`。
-- **Schemaは“許容”で定義**: 実データには揺れがあるため、必須キー/任意キーを明示する。
+- **Schemaは“許容”で定義**: 実データには揺れがあるため、必須キー/省略可キーを明示する。
 
 ---
 
@@ -66,7 +66,7 @@
 ### 2.2 ディレクトリI/O（観測）
 - `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（最終台本入力の基本）
 - `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（LLM実行時の証跡。存在しない動画もある）
-- `workspaces/scripts/{CH}/{NNN}/audio_prep/`（TTS中間。gitignore推奨）
+- `workspaces/scripts/{CH}/{NNN}/audio_prep/`（TTS中間。git追跡しない）
 
 ### 2.3 Research（topic_research）— 検索/リサーチ中間
 用途:
@@ -81,9 +81,9 @@
   - `hits`: list
     - `title`: string
     - `url`: string（http/https）
-    - `snippet`: string|null（任意）
-    - `source`: string|null（任意）
-    - `age`: string|null（任意）
+    - `snippet`: string|null（省略可）
+    - `source`: string|null（省略可）
+    - `age`: string|null（省略可）
 - `workspaces/scripts/{CH}/{NNN}/content/analysis/research/wikipedia_summary.json`（Wikipedia 抜粋）
   - `schema`: `"ytm.wikipedia_summary.v1"`
   - `provider`: string（例: `wikipedia`, `disabled`）
@@ -100,10 +100,10 @@
     - `title`: string
     - `url`: string
     - `type`: string（例: `web`, `paper`）
-    - `source`: string（任意）
-    - `year`: number|null（任意）
-    - `note`: string（任意）
-    - `confidence`: number（任意）
+    - `source`: string（省略可）
+    - `year`: number|null（省略可）
+    - `note`: string（省略可）
+    - `confidence`: number（省略可）
 - `workspaces/scripts/{CH}/{NNN}/content/analysis/research/fact_check_report.json`（完成台本ファクトチェック）
   - `schema`: `"ytm.fact_check_report.v1"`
   - `provider`: string（例: `codex`, `llm_router:...`, `disabled`）
@@ -115,8 +115,8 @@
     - `id`: string（`c1` 等）
     - `claim`: string（検証対象の断言文）
     - `status`: string（`supported|unsupported|uncertain`）
-    - `rationale`: string|null（任意）
-    - `citations`: list（任意）
+    - `rationale`: string|null（省略可）
+    - `citations`: list（省略可）
       - `source_id`: string（`s1` 等）
       - `url`: string
       - `quote`: string（抜粋内の“完全一致”のみ許可）
@@ -135,7 +135,7 @@
 - `episode`: dict（`id`, `channel`, `video`）
 - `sot`: dict（`status_json` 等）
 - `outputs`: dict（`assembled_md` 等）
-- `notes`: string（任意）
+- `notes`: string（省略可）
 
 ### 2.4 status.json（観測スキーマ）
 必須（期待）:
@@ -145,11 +145,11 @@
 - `status`: string
 - `stages`: dict（stage_name → stage_state）
 
-観測される追加キー（Legacy/任意）:
+観測される追加キー（Legacy/省略可）:
 - `channel_code`, `video_number`
 - `created_at`, `updated_at`
 
-`metadata`（観測/任意）:
+`metadata`（観測: 追加フィールド）:
 - `sheet_title`: string（Planning CSVのタイトルスナップショット）
 - `alignment`: dict（Planning↔Scriptの整合スタンプ。UIの `整合` 列や下流ガードの根拠）
   - `schema`: `"ytm.alignment.v1"`
@@ -193,7 +193,7 @@ stage_state（観測）:
 - `final_dir`: string（repo相対）
 - `source`: dict（`a_text` 等）
 - `artifacts`: dict（`wav`, `srt`, `log` 等）
-- `notes`: string（任意）
+- `notes`: string（省略可）
 
 ### 3.3 log.json（観測スキーマ）
 トップレベル（必須）:
@@ -269,18 +269,18 @@ belts[*]（観測）:
 用途: 実行パラメータ/再現性（run の“証跡”）。**途中停止/画像スキップ等の進捗も残す**（後段の progress 集計/UI のため）。
 
 トップレベル（観測）:
-- `schema`: string（例: `"ytm.auto_run_info.v2"`）※任意/後方互換
+- `schema`: string（例: `"ytm.auto_run_info.v2"`）（省略可; 後方互換）
 - `timestamp`: string（ISO）
 - `channel`: string（`CHxx`）
 - `video` / `episode_id`: string（例: `"015"`, `"CH22-015"`）※解決できる場合
 - `run_dir`: string（absolute）
 - `srt_requested`: string（入力）
 - `srt_effective`: string（SoT解決後の入力）
-- `audio_wav_effective`: string（任意）
+- `audio_wav_effective`: string（省略可）
 - `title`: string（ドラフト/帯の最終タイトル）
-- `title_source`: string（`cli|planning_csv|llm|fallback`）※任意
+- `title_source`: string（`cli|planning_csv|llm|fallback`）（省略可）
 - `template`: string（CapCut template）
-- `draft_root`: string（CapCut projects root）※任意
+- `draft_root`: string（CapCut projects root）（省略可）
 - `draft` / `draft_name`: string（draft 生成をスキップした場合は空/欠損可）
 - `belt_mode`: string
 - `opening_offset`: number
@@ -292,9 +292,9 @@ belts[*]（観測）:
 - `images`: number（= cue_count）※従来互換
 - `duration_sec`: number（= cues_end_sec）
 - `timings`: dict（工程時間）
-- `progress`: dict（工程別ステータス。任意）
-- `replacements`: list（差し替え履歴。任意）
-- `errors` / `warnings`: list（任意）
+- `progress`: dict（工程別ステータス。省略可）
+- `replacements`: list（差し替え履歴。省略可）
+- `errors` / `warnings`: list（省略可）
 
 progress（観測例）:
 - `pipeline`: `{status, elapsed_sec?, error?}`
@@ -402,13 +402,13 @@ variants[*]（観測キー例）:
 標準レイアウト（動画単位）:
 - `workspaces/thumbnails/assets/{CH}/{NNN}/`
   - SoT（動画差分）:
-    - 推奨: `thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
-    - 互換: `thumb_spec.json`（legacy。2案運用時は混線事故の温床なので、可能なら stable へ移行する）
+    - 正本: `thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
+    - 互換: `thumb_spec.json`（legacy。2案運用時は混線事故の温床なので、stable へ移行する）
   - SoT（文字・行単位）:
-    - 推奨: `text_line_spec.<stable>.json`
+    - 正本: `text_line_spec.<stable>.json`
     - 互換: `text_line_spec.json`（legacy。例外として `00_thumb_1` のみ fallback 可 / `00_thumb_2` は継承しない）
   - SoT（追加要素・図形/画像など）:
-    - 推奨: `elements_spec.<stable>.json`
+    - 正本: `elements_spec.<stable>.json`
     - 互換: `elements_spec.json`（legacy。例外として `00_thumb_1` のみ fallback 可 / `00_thumb_2` は継承しない）
   - 派生（planning由来）: `planning_meta.json`
   - 派生（安定出力）: `00_thumb.png` または `00_thumb_1.png` / `00_thumb_2.png`、`10_bg.png`、`20_portrait.png` など
@@ -419,7 +419,7 @@ variants[*]（観測キー例）:
 - 「画像レイヤ（背景生成の指示）」と「文字レイヤ（テキスト配置/デザイン）」を、**チャンネル固有の if 分岐を増やさず**に運用できるようにする。
 - 仕様は汎用スキーマとして固定し、チャンネルごとの差分は YAML の値で吸収する（= 仕組みは共通、データだけ切替）。
 
-配置（推奨）:
+配置（標準）:
 - 仕様YAML（SoT）: `workspaces/thumbnails/compiler/layer_specs/*.yaml`
   - image prompts: `workspaces/thumbnails/compiler/layer_specs/image_prompts_v*.yaml`
   - text layout: `workspaces/thumbnails/compiler/layer_specs/text_layout_v*.yaml`
@@ -438,7 +438,7 @@ variants[*]（観測キー例）:
   - `version`: int
   - `coordinate_system`: `normalized_0_to_1`
   - `global`: `safe_zones`, `fonts`, `effects_defaults`, `fit_rules`, `overlays`
-    - `overlays.top_band` / `overlays.bottom_band`（任意）:
+    - `overlays.top_band` / `overlays.bottom_band`（省略可）:
       - 共通: `enabled: bool`, `color: "#RRGGBB"`, `y0/y1: float(0..1)`
       - 既定（gradient）: `alpha_top/alpha_bottom: float(0..1)`
       - `mode: brush|ink` の場合（黒筆帯/刷毛帯）:
@@ -447,8 +447,8 @@ variants[*]（観測キー例）:
         - `feather_px: int`（エッジのフェード幅）
         - `hole_count: int`（かすれ/薄い箇所の密度）
         - `blur_px: int`（マスクのぼかし）
-        - `seed: int`（任意。未指定は安定seed）
-  - `templates.*.slots.*.backdrop`（任意。文字の背面に「筆のような帯」を敷く）:
+        - `seed: int`（省略可。未指定は安定seed）
+  - `templates.*.slots.*.backdrop`（省略可。文字の背面に「筆のような帯」を敷く）:
     - `enabled: bool`
     - `mode: brush_stroke`（生成帯。互換: `brush`, `brushstroke`）
       - `color: "#RRGGBB"`
@@ -458,7 +458,7 @@ variants[*]（観測キー例）:
       - `feather_px: int`（エッジのフェード幅）
       - `hole_count: int`（かすれ/薄い箇所の密度）
       - `blur_px: int`（マスクのぼかし）
-      - `seed: int`（任意。未指定は安定seed）
+      - `seed: int`（省略可。未指定は安定seed）
     - `mode: image|png|asset`（透過PNGを「文字レイヤの1つ下」に敷く。ベンチの黒筆帯に寄せたい時はこれ）
       - `image_path: str`（例: `asset/thumbnails/common/brush/brush_swipe_bench_02.png`）
       - `fit: stretch|cover|contain`（既定: `cover`）
@@ -470,6 +470,6 @@ variants[*]（観測キー例）:
   - `items[]`: `{video_id,title?,template_id,fallbacks?,text:{top,main,accent,author}}`
 
 運用ルール:
-- UI は企画CSVの `thumbnail_*` を正本として編集し、**必要なら** layer specs の既定値を初期提案として読み込む（強制しない）。
+- UI は企画CSVの `thumbnail_*` を正本として編集し、layer specs の既定値は初期提案として読み込める（オプション; 強制しない）。
 - 文字合成（compose）は layer specs の `template_id/slots` を使ってもよいが、最終の文字列は企画CSV（`thumbnail_upper/title/lower` 等）を正とする。
 - 画像生成（generate）は templates.json の `image_model_key` と prompt_template を正にし、layer specs の指示は「追加のガイド」として利用できる。

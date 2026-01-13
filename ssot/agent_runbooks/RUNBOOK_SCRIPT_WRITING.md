@@ -15,7 +15,7 @@ NOTE（2026-01-10）:
 - 出力は「次工程がそのまま読める」品質（日本語の自然さ、矛盾/破綻の排除、不要な重複の削減）。
 
 ## 2. 手順
-1. `python scripts/agent_runner.py bundle <TASK_ID> --include-runbook`（推奨）
+1. `python scripts/agent_runner.py bundle <TASK_ID> --include-runbook`（標準）
 2. bundle か pending を読み、要求フォーマットを確認
 3. 出力を作る
    - 章立て/見出し/箇条書きなどは `messages` が指定する形式に合わせる

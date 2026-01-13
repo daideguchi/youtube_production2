@@ -52,7 +52,7 @@
 - **SoTの迷いが消える**: 典型的な修正指示（コピー、明るさ、pan/zoom、素材差替え）について「直す場所」が1つに収束している
 - **破損で止まらない**: `image file is truncated` 等の破損事故を atomic write + verify で抑止できる
 - **反復が速い**: 30本バッチ合成で planning CSV の読み込みが同一invocation内で1回に収束し、draft出力で体感待ちが大幅に減る
-- **新チャンネルが追加可能**: チャンネル追加で必要なのが「テンプレ/既定値/（必要なら）layer_specs/stylepack」だけで、コード改修が必須にならない
+- **新チャンネルが追加可能**: チャンネル追加で必要なのは「テンプレ/既定値」と、（engineにより）`layer_specs` / `stylepack` だけで、コード改修が必須にならない
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## 5. 方針・設計概要（スケール前提）
 
-### 5.1 設計原則（スケールのための固定ルール）
+### 5.1 設計ルール（スケールのための固定ルール）
 - **Spec-first**: サムネは「画像」ではなく「Spec（仕様）」から再生成できる成果物とする。
 - **SoTは役割ごとに1つ**: 管理・型・動画差分・生成物を混ぜない。
 - **共通ロジックは packages に集約**: UI/CLIの重複実装を禁止し、Compiler API を単一化する。
@@ -134,7 +134,7 @@
 ```
 
 注意:
-- “コピー” は原則 planning を正とし、thumb spec には **例外（この動画だけ別コピー）** のみ保持する。
+- “コピー” は planning を正とし、thumb spec には **例外（この動画だけ別コピー）** のみ保持する。
 - 画像生成プロンプト（thumbnail_prompt）も同様に planning を正とし、thumb spec は例外のみ。
 
 v1で許可する overrides（スケールのための“最小セット”）:
@@ -164,7 +164,7 @@ v1で許可する overrides（スケールのための“最小セット”）:
 ガードレール（強制）:
 - unknown key はエラー（silent accept しない）
 - 数値は型/範囲で clamp せず、**エラーにして止める**（勝手に丸めると収束しない）
-- overrides は「差分のみ」を推奨するが、v1は運用簡単化のため “差分判定” は必須にしない（実装側で正規化してもよい）
+- overrides は「差分のみ」を前提にする。v1は運用簡単化のため “差分判定” は必須にしない（実装側で正規化してもよい）
 
 ### 5.4 メタファイルの分離（衝突ゼロ）
 `workspaces/thumbnails/assets/{CH}/{NNN}/` 配下のメタを用途別に分け、上書き競合を消す。
@@ -198,7 +198,7 @@ UI/CLI は “同じ関数” を呼ぶ。
   - `layer_specs`（layer_specs_v3 を使う場合）
 - （engineにより）`workspaces/thumbnails/compiler/stylepacks/*.yaml` または `workspaces/thumbnails/compiler/layer_specs/*.yaml`
 
-追加構成（任意）:
+追加構成（オプション）:
 - portrait policy（例: `workspaces/thumbnails/compiler/policies/*.yaml`）
 - safe area / テキストfitルール（layer_specs側に集約）
 
@@ -223,7 +223,7 @@ UI/CLI は “同じ関数” を呼ぶ。
 - 数値は型/範囲を検証し、外れたら **適用せず止める**（勝手に丸めない）
 - 適用前後に **draft再合成→プレビュー** して、人間が確認できる状態にする
 
-保存形式（推奨）:
+保存形式（このPlanでは採用）:
 - チャットで確定した変更を `ytm.thumbnail.comment_patch.v1`（下記）で残す
 - その `ops` を UI で `thumb_spec.json` に保存して再合成する（同じ修正を再現可能にする）
 
@@ -257,7 +257,7 @@ UI/CLI は “同じ関数” を呼ぶ。
 - コメントで頻出する“ノブ”は、エンジン差を吸収する **共通コントロール** として定義してよい（例: 「文字の縁を太く」→ stroke.width_px）。
 - 同じoverrideが複数動画で繰り返されるなら、チャンネル既定（templates.json / layer_specs / stylepack）へ昇格し、動画差分を減らす。
 
-thumb_spec に入れるエフェクト（v1の推奨範囲）:
+thumb_spec に入れるエフェクト（v1で許可する範囲）:
 - 背景: `bg_enhance`（brightness/contrast/color/gamma）, `bg_pan_zoom`（zoom/pan_x/pan_y）, `bg_enhance_band`（x0..x1/power + enhance）
 - 文字: `text_effects.stroke`（width/color）, `text_effects.shadow`（alpha/offset/blur/color）, `text_effects.glow`（alpha/blur/color）
 - Overlay（必要時）: `overlays.left_tsz` / `overlays.top_band` / `overlays.bottom_band` の enabled/alpha/color

@@ -134,6 +134,11 @@ def main() -> int:
         action="store_true",
         help="Allow TTS even when script_validation is not completed (not recommended).",
     )
+    ap.add_argument(
+        "--force-overwrite-final",
+        action="store_true",
+        help="Force overwrite final artifacts (pass-through to CLI audio; required to regenerate finalize_existing episodes).",
+    )
     ap.add_argument("--prepass", action="store_true", help="Reading-only pass (no wav synthesis).")
     ap.add_argument(
         "--skip-tts-reading",
@@ -225,6 +230,7 @@ def main() -> int:
                         *(["--resume"] if args.resume else []),
                         *(["--prepass"] if args.prepass else []),
                         *(["--allow-unvalidated"] if args.allow_unvalidated else []),
+                        *(["--force-overwrite-final"] if args.force_overwrite_final else []),
                     ],
                     cwd=str(repo_paths.repo_root()),
                     env=env,

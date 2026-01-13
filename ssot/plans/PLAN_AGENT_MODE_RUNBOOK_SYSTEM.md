@@ -38,7 +38,7 @@
 ## 4. 切替（環境変数）
 正本: `ssot/ops/OPS_ENV_VARS.md`
 
-- `LLM_EXEC_SLOT`（推奨）:
+- `LLM_EXEC_SLOT`（標準）:
   - `0`（デフォルト）: 既存の API LLM 呼び出し
   - `3`（THINK MODE）: pending を作って停止（安全デフォルトで intercept）
   - `4`（AGENT MODE）: pending を作って停止（明示）
@@ -46,11 +46,11 @@
 - API失敗時のTHINK MODEフォールバック（重要ルール）:
   - デフォルト有効: API LLM が失敗したら自動で pending を作って停止（= THINK MODEで続行可能）
   - 無効化: `LLM_EXEC_SLOT=5`（非scriptのみ。`script_*` は例外で停止）
-- 担当エージェント名（推奨）:
+- 担当エージェント名（agent_org/agent_runner write系では必須）:
   - `LLM_AGENT_NAME=...`（例: `LLM_AGENT_NAME=Mike`）
     - pending に `claimed_by` / `claimed_at` を自動付与
     - results に `completed_by` を保存
-- 対象タスク（任意）:
+- 対象タスク（省略可）:
   - `LLM_AGENT_TASKS=...`（完全一致 allowlist）
   - `LLM_AGENT_TASK_PREFIXES=...`（prefix allowlist）
   - `LLM_AGENT_EXCLUDE_TASKS=...`（完全一致 blocklist）
@@ -61,7 +61,7 @@
   - `LLM_AGENT_RUNBOOKS_CONFIG=...`（既定: `configs/agent_runbooks.yaml`）
 
 ## 5. 運用の入口
-- 一発ラッパー（推奨）: `./scripts/think.sh`
+- 一発ラッパー（入口固定）: `./scripts/think.sh`
 - キュー操作: `python scripts/agent_runner.py ...`
 - Runbook 入口: `ssot/agent_runbooks/README.md`
 
@@ -80,6 +80,6 @@
 
 ## 7. schema_version 運用ルール
 - 破壊的に変える場合のみ `schema_version` を上げる（keys/意味が変わる、必須項目が増える、など）。
-- 互換が必要なら:
+- 互換が必要な場合は:
   - 変換スクリプト（old → new）を追加し、Runbook に手順を追記する。
   - または `agent_runner` 側で旧版を読み取り対応する（互換期間を決める）。

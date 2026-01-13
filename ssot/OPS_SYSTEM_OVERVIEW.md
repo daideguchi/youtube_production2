@@ -57,7 +57,7 @@
 ## 0) 用語（このSSOTで固定）
 
 - **SoT（Single Source of Truth / 正本）**: その工程の唯一の真実。以降の処理はここを読む。
-- **Mirror（ミラー）**: UIや互換のための写し。原則手動編集しない（編集する場合は同期ルールに従う）。
+- **Mirror（ミラー）**: UIや互換のための写し。手動編集しない（編集する場合は同期ルールに従う）。
 - **Artifacts（生成物）**: 中間/最終成果物。保持/削除の規約に従う（`PLAN_OPS_ARTIFACT_LIFECYCLE`）。
 - **Episode**: `{channel}/{video}`（例: `CH07/009`）。Workspacesの粒度は基本これ。
 - **run_dir**: 動画（画像/帯/CapCut等）を **run単位**で閉じるディレクトリ（例: `workspaces/video/runs/CH07-009/`）。
@@ -101,8 +101,8 @@
 1. 人間/UIで `workspaces/planning/channels/CHxx.csv` を更新（1行=1動画）
 2. 汚染/欠落を決定論で検出:
    - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write-latest`
-3. 必要ならL3混入クリーナ（慎重に）:
-   - `python3 scripts/ops/planning_sanitize.py --channel CHxx --write-latest`（dry-run）→ 必要時 `--apply`
+3. L3混入クリーナ（`planning_lint` で L3 混入が検出された場合のみ; 慎重に）:
+   - `python3 scripts/ops/planning_sanitize.py --channel CHxx --write-latest`（dry-run）→ 適用する場合は `--apply`
 
 ### 2.2 Script（台本生成）
 
@@ -119,7 +119,7 @@
 
 ### 2.3 人間が台本を直した場合（Redoの盤石化）
 
-編集の入口（推奨）
+編集の入口（固定）
 - UI: `/channels/:channelCode/videos/:video` の Script タブで A/B を編集して保存
 
 保存時に必ず起こること（事故防止の固定ロジック）
@@ -155,7 +155,7 @@
 - Template SoT: `workspaces/thumbnails/templates.json`
 - ローカル合成SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`（Compiler/retake/QC/明るさ補正）
 - 入口CLI: `python scripts/thumbnails/build.py --help`
-- Layer Specs（任意/段階導入）: 画像レイヤ・文字レイヤの設計はYAMLで管理できる（例: `workspaces/thumbnails/compiler/layer_specs/image_prompts_v3.yaml`, `workspaces/thumbnails/compiler/layer_specs/text_layout_v3.yaml`）。
+- Layer Specs（オプション; 段階導入）: 画像レイヤ・文字レイヤの設計はYAMLで管理できる（例: `workspaces/thumbnails/compiler/layer_specs/image_prompts_v3.yaml`, `workspaces/thumbnails/compiler/layer_specs/text_layout_v3.yaml`）。
 
 ### 2.7 Publish（外部SoT）
 
@@ -171,7 +171,7 @@
 
 ## 3) UIでできること（どのページが何のSoTを触るか）
 
-起動（推奨）
+起動（入口固定）
 - `bash scripts/start_all.sh start`
 - ガード込みヘルスチェック: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
 - UI配線（route↔API）: `ssot/ops/OPS_UI_WIRING.md`
@@ -234,7 +234,7 @@ Runbook入口
 1. Planning更新（CSV）→ lint
 2. Script生成（必要なところまで）
    - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CHxx --video NNN`
-3. 人間チェック（必要ならUIで A/B 修正 → 保存）
+3. 人間チェック（UIで A/B を確認。修正がある場合は UIで修正 → 保存）
 4. `script_validation` を通す
    - `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py resume --channel CHxx --video NNN`
 5. Audio生成

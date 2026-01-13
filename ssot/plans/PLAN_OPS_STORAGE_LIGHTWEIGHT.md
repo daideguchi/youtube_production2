@@ -27,11 +27,11 @@
 
 ## 3. 方針（固定）
 - 生成物分類（L0/L1/L2/L3）は `PLAN_OPS_ARTIFACT_LIFECYCLE.md` を正本とする。
-- **削除は原則 workspaces（untracked）だけ**。repo tracked を消す場合は `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の条件 + archive-first（`backups/graveyard/`）を必須にする。
+- **削除対象は workspaces（untracked）だけ**。repo tracked を消す場合は `PLAN_LEGACY_AND_TRASH_CLASSIFICATION.md` の条件 + archive-first（`backups/graveyard/`）を必須にする。
 - 実行は必ず `--dry-run` を先に走らせ、問題が無ければ `--run`。
 - `workspaces/video/_archive/**` の **MOVE（退避）** は「探索ノイズ削減」には効くが、同一ディスク内では容量は減らない。容量削減が目的なら「削除」か「別ボリュームへ退避」が必要（削除は別途合意/ログを残して実施）。
 
-## 4. 推奨コマンド（定期）
+## 4. 標準コマンド（定期）
 
 ### 4.1 日次（L3ログ/キャッシュ）
 ```bash
@@ -50,7 +50,7 @@ python -m scripts.cleanup_workspace --scripts --run --scripts-keep-days 14
 
 ### 4.3 月次（video runs の整理）
 ```bash
-# 全チャンネル対象（推奨: まず dry-run）
+# 全チャンネル対象（標準: まず dry-run）
 python -m scripts.cleanup_workspace --video-runs --dry-run --all
 
 # チャンネル指定で絞る（例）

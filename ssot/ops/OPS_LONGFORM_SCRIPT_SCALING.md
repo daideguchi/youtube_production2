@@ -117,7 +117,7 @@
 
 ---
 
-## 4) 推奨設計: Marathonモード（超長尺専用）
+## 4) 標準設計: Marathonモード（超長尺専用）
 
 ### 4.1 基本方針
 - **全文をLLMに渡さない**（判定も修正も）。
@@ -127,7 +127,7 @@
 ### 4.2 データ構造（SoT / I/O）
 既存の `content/chapters/chapter_{n}.md` を流用してよい（章=セグメント）。
 
-追加（推奨）:
+追加（Marathonで使う）:
 - `content/analysis/longform/plan.json`
   - 目標文字数、章数、章グルーピング（大セクション→章範囲）、各章の目的/禁止/キー概念
 - `content/analysis/longform/memory.json`
@@ -159,7 +159,7 @@
 やってはいけない:
 - 2〜3時間の本文をまとめて Judge/Fix に投げる（破綻する）。
 
-推奨:
+標準:
 - Judge: ブロック単位（例: 6〜8ブロック）で **要約＋抜粋**を評価し、問題章を特定する。
 - Fix: 問題章だけを再生成/差し替え（前後200〜400字 + Memory だけ参照）。
 
@@ -168,7 +168,7 @@
 ## 5) 直近の実装方針（最小リスクで段階導入）
 
 ### Phase 0（今すぐ可能: 運用で回避）
-- 超長尺は「全文LLMゲート」が破綻しやすいので、**全文をLLMに渡さない**運用（Marathon + チャンク品質ゲート）へ切り替える（推奨）。
+- 超長尺は「全文LLMゲート」が破綻しやすいので、**全文をLLMに渡さない**運用（Marathon + チャンク品質ゲート）へ切り替える。
   - 追加の安全弁: `SCRIPT_VALIDATION_LLM_MAX_A_TEXT_CHARS`（default: `30000`）を超えると、全文LLMゲートは自動スキップされる（強制したい場合は `SCRIPT_VALIDATION_FORCE_LLM_GATE=1`）。
   - どうしても LLM 品質ゲート無しで走らせる場合のみ（最終手段）: `SCRIPT_VALIDATION_LLM_QUALITY_GATE=0`（機械lint中心で止める）。
 - 章数/目標文字数は `status.json metadata` で上書きして実験できる（ただし手作業で事故りやすい）。
@@ -178,7 +178,7 @@
 - 既存の `content/chapters/` を生成し、`script_review` 相当の結合を行い、`assembled_human.md` を更新する。
   - 実装上のデフォルト（運用の事故を減らすため）:
   - 章ドラフトの `「」`/`『』` と `（）`/`()` は **0個（禁止）**（強調/引用は地の文で言い換える）
-    - 必要なら `--chapter-quote-max` / `--chapter-paren-max` で緩和
+    - 上限を緩和する場合は `--chapter-quote-max` / `--chapter-paren-max` を指定する
   - 章の字数は「章予算×(0.7〜1.6)」の範囲で判定し、最終的には全文を `target_chars_min/max` で確定チェックする（章だけで収束させない）
   - 全文が `target_chars_max` を超えた場合は `--balance-length`（デフォルトON）で **長い章だけ短縮**して収束させる（全文をLLMに渡さない）
   - `--title ... --apply` を使う場合、`status.json` の `sheet_title/expected_title/title` も上書きして下流の整合チェックを壊さない
@@ -199,7 +199,7 @@ Marathon v1 は “全文LLM” を避けるため、基本は **plan + 直前�
 
 - `content/analysis/longform/chapter_summaries.json`: 各章の1行要約/字数/必須観点を保存（監査/差し替えの足場）
 - `content/analysis/longform/memory.json`: 既出キーワード/既出must_include をスナップショット化し、次章の指示パックへ投入
-  - 既定: `--use-memory`（ON）/ 必要なら `--no-memory` でOFF
+  - 既定: `--use-memory`（ON）/ 無効化: `--no-memory`（OFF）
 
 Phase 1.2（実装済み: v1.2）: チャンク品質ゲート（全文LLMなし）
 - Marathon に「**要約＋抜粋**でブロック単位Judge → 問題章だけ差し替え」を追加した。

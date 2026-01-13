@@ -16,6 +16,42 @@ from _bootstrap import bootstrap
 REPO_ROOT = bootstrap(load_env=False)
 SSOT_ROOT = REPO_ROOT / "ssot"
 
+_TEXT_AUDIT_SCOPES = ("core", "all")
+
+# Core docs where ambiguous language must not appear.
+# (Operator-facing; must be deterministic.)
+_TEXT_AUDIT_CORE_DOCS = (
+    "START_HERE.md",
+    "ssot/SSOT_COMPASS.md",
+    "ssot/OPS_SYSTEM_OVERVIEW.md",
+    "ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md",
+    "ssot/ops/OPS_ENTRYPOINTS_INDEX.md",
+    "ssot/ops/OPS_EXECUTION_PATTERNS.md",
+    "ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md",
+    "ssot/ops/OPS_LOGGING_MAP.md",
+)
+
+# SSOT must avoid terms that require reader interpretation.
+# Use SSOT_COMPASS vocabulary (固定/既定/オプション/禁止/補助) instead.
+_AMBIGUOUS_TERMS_CORE = (
+    "推奨",
+    "任意",
+    "非推奨",
+    "おすすめ",
+    "原則",
+    "基本的に",
+    "なるべく",
+    "できるだけ",
+    "可能なら",
+    "必要なら",
+    "場合によって",
+    "目安",
+    "望ましい",
+    "ベストエフォート",
+    "best-effort",
+    "best effort",
+)
+
 _REPO_FILE_RE = re.compile(
     r"(?:^|[^A-Za-z0-9_./\\-])"
     r"(?P<path>(?:\\./)?(?:ssot|scripts|packages|apps|prompts|configs)/"
@@ -233,6 +269,36 @@ def _audit_repo_paths_from_ssot_docs(
     return missing_repo_paths, ssot_edges
 
 
+def _audit_text_invariants(*, paths: Iterable[Path]) -> dict[str, list[str]]:
+    """
+    SSOT text invariants:
+      - no ambiguous terms in operator-facing docs (core)
+    """
+    missing: list[str] = []
+    ambiguous_hits: list[str] = []
+
+    for p in paths:
+        rel = p.relative_to(REPO_ROOT).as_posix() if p.is_absolute() else str(p)
+        if not p.exists():
+            missing.append(rel)
+            continue
+        raw = _read_text(p)
+        for line_no, line in enumerate(raw.splitlines(), start=1):
+            for term in _AMBIGUOUS_TERMS_CORE:
+                if term in line:
+                    snippet = (line or "").strip()
+                    if len(snippet) > 140:
+                        snippet = snippet[:140] + "..."
+                    ambiguous_hits.append(f"{rel}:{line_no} | term={term} | {snippet}")
+
+    out: dict[str, list[str]] = {}
+    if missing:
+        out["text_audit_missing_files"] = sorted(missing)
+    if ambiguous_hits:
+        out["text_audit_ambiguous_terms"] = sorted(ambiguous_hits)
+    return out
+
+
 def _subset(paths: Iterable[str], *, prefix: str) -> set[str]:
     pre = (prefix or "").strip().rstrip("/") + "/"
     return {p for p in paths if p.startswith(pre)}
@@ -252,6 +318,17 @@ def main() -> int:
         "--link-audit",
         action="store_true",
         help="Also audit SSOT markdown links (reports docs referenced only from DOCS_INDEX/PLAN_STATUS).",
+    )
+    ap.add_argument(
+        "--text-audit",
+        action="store_true",
+        help="Also audit SSOT text invariants (no ambiguous terms in core docs).",
+    )
+    ap.add_argument(
+        "--text-scope",
+        choices=_TEXT_AUDIT_SCOPES,
+        default="core",
+        help="Scope for --text-audit (default: core).",
     )
     ap.add_argument("--include-history", action="store_true", help="Include ssot/history/* in --path-audit/--link-audit.")
     ap.add_argument(
@@ -309,6 +386,18 @@ def main() -> int:
         "plan_status_missing": plan_status_missing,
         "plan_status_listed_missing_files": plan_status_listed_missing_files,
     }
+
+    if args.text_audit:
+        if args.text_scope == "core":
+            text_paths = [REPO_ROOT / p for p in _TEXT_AUDIT_CORE_DOCS]
+        else:
+            md_docs_text = _iter_ssot_markdown_files(
+                include_history=args.include_history,
+                include_completed=args.include_completed,
+                include_cleanup_log=args.include_cleanup_log,
+            )
+            text_paths = [REPO_ROOT / "START_HERE.md", *md_docs_text]
+        problems.update(_audit_text_invariants(paths=text_paths))
 
     if args.path_audit or args.link_audit:
         md_docs = _iter_ssot_markdown_files(
@@ -407,6 +496,20 @@ def main() -> int:
                 print(f"  - {p}")
             if len(isolated) > 50:
                 print(f"  ... ({len(isolated)-50} more)")
+        if args.text_audit and problems.get("text_audit_missing_files"):
+            items = problems["text_audit_missing_files"]
+            print("text audit missing files:")
+            for p in items[:50]:
+                print(f"  - {p}")
+            if len(items) > 50:
+                print(f"  ... ({len(items)-50} more)")
+        if args.text_audit and problems.get("text_audit_ambiguous_terms"):
+            items = problems["text_audit_ambiguous_terms"]
+            print("text audit ambiguous terms:")
+            for p in items[:50]:
+                print(f"  - {p}")
+            if len(items) > 50:
+                print(f"  ... ({len(items)-50} more)")
 
     if args.write:
         out_dir = REPO_ROOT / "workspaces" / "logs" / "ssot"

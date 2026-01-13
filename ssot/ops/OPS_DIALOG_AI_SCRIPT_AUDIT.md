@@ -49,7 +49,7 @@ Script SoT = `workspaces/scripts/{CH}/{NNN}/status.json`
 ### 1.2 監査メタ（新規・更新可能）
 監査の再現性を担保するため、次のメタを `metadata.dialog_ai_audit` に保存する。
 
-推奨スキーマ:
+スキーマ（固定）:
 ```json
 {
   "schema": "ytm.dialog_ai_script_audit.v1",
@@ -57,7 +57,7 @@ Script SoT = `workspaces/scripts/{CH}/{NNN}/status.json`
   "audited_by": "dd-dialog-audit-01",
   "verdict": "pass|fail|grey",
   "reasons": ["planning_misalignment", "flow_break", "..."],
-  "notes": "短い補足（任意）",
+  "notes": "短い補足（省略可）",
   "script_hash_sha1": "<assembled.md の sha1>",
   "planning_snapshot": {
     "title": "...",
@@ -108,7 +108,7 @@ Script SoT = `workspaces/scripts/{CH}/{NNN}/status.json`
 
 ### 3.2 状態B: 監査が古い（stale）
 台本（`content/assembled.md`）が更新され、`script_hash_sha1` が変わったら監査は古い。
-- 望ましい運用:
+- 運用（標準）:
   - 対話AIが `stale` を検出 → `redo_script=true` に戻す（または `grey` 扱い） → 再監査して再確定
   - **自動で本文を直して合格扱いにしない**
 
@@ -144,12 +144,12 @@ Script SoT = `workspaces/scripts/{CH}/{NNN}/status.json`
 5) Script SoT を更新
 - `redo_script` と `redo_note`、`dialog_ai_audit` を更新する（本文は触らない）。
 
-6) レポートを残す（推奨）
+6) レポートを残す（標準）
 - `workspaces/scripts/_reports/dialog_ai_script_audit/<timestamp>/` に監査結果を保存する。
 
 ---
 
-## 5. 理由コード（推奨）
+## 5. 理由コード（固定）
 
 - `planning_misalignment`: 企画と主題がズレている
 - `flow_break`: つながりが飛ぶ/説明が落ちる

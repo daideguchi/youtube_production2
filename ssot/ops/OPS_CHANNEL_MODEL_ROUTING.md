@@ -6,7 +6,7 @@
 
 ## 0) まず覚える3点（チャンネル差分）
 
-チャンネルで基本的に違うのは **この3つだけ**:
+チャンネルで違うのは **この3つだけ**:
 
 - サムネ画像（`thumbnail_image_gen`）
 - 台本LLM（`script_*`）
@@ -14,11 +14,11 @@
 
 UI（`/model-policy`）では、この3点セットを **1つのコード**で表す:
 
-- 形式: `<thumb>_<script>_<video>`（必要なら suffix `@xN` を付ける）
+- 形式: `<thumb>_<script>_<video>`（suffix `@xN` は省略可）
   - `<thumb>`: サムネ画像の **画像コード**（例: `g-1`, `f-4`）
   - `<script>`: 台本の **LLMコード**（例: `script-main-1`）
   - `<video>`: 動画内画像の **画像コード**（例: `g-1`, `f-1`）
-  - `@xN`（任意）: 実行モードの共有用（例: `@x3` = THINK MODE）
+  - `@xN`（省略可）: 実行モードの共有用（例: `@x3` = THINK MODE）
 
 例:
 
@@ -69,7 +69,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 注:
 
 - 画像は `IMAGE_CLIENT_FORCE_MODEL_KEY_*` による **実行時 override** があるため、UIでは `effective` と `config` を併記する。
-- 台本（`script_*`）は **現状チャンネルごとの切替は無い**（task override / 数字スロットで統制）。必要ならSSOTで設計を追加する。
+- 台本（`script_*`）は **現状チャンネルごとの切替は無い**（task override / 数字スロットで統制）。追加する場合はSSOTで設計を追加する。
 
 ---
 
@@ -77,12 +77,12 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 
 ### テキストLLM（台本以外の一般タスク）
 - **数字スロット**: `LLM_MODEL_SLOT`（= `configs/llm_model_slots.yaml`）
-- 推奨: CLI の `--llm-slot <N>`（モデル名を直書きしない）
+- 入口固定: CLI の `--llm-slot <N>`（モデル名を直書きしない）
 
 ### 実行モード（どこで動く？）
 - **数字スロット**: `LLM_EXEC_SLOT`（= `configs/llm_exec_slots.yaml`）
   - 例: `--exec-slot 3`（THINK MODE）, `--exec-slot 1`（codex exec 強制ON）
-- 推奨: `./scripts/with_ytm_env.sh --exec-slot <N> ...`（env直書きの増殖を防ぐ）
+- 入口固定: `./scripts/with_ytm_env.sh --exec-slot <N> ...`（env直書きの増殖を防ぐ）
 
 ### 台本（script_*）
 - **台本は task override で固定**（= `configs/llm_task_overrides.yaml`）
@@ -134,7 +134,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 
 ---
 
-## 4) 画像コード（推奨）
+## 4) 画像コード（正本）
 
 `configs/image_model_slots.yaml`
 
@@ -190,7 +190,7 @@ SoT（正本）:
 
 ## 6) その他のLLM処理（共通）: task → tier → slot
 
-「Bテキスト」「画像プロンプト整形」「TTS補助」などの細かい処理は、基本的に **全チャンネル共通**。
+「Bテキスト」「画像プロンプト整形」「TTS補助」などの細かい処理は **全チャンネル共通**。
 
 - task（例）:
   - `belt_generation`（Bテキスト）
@@ -211,6 +211,6 @@ SoT（正本）:
 
 チャンネル別の「現状」は更新頻度が高く、SSOTに **手書きのスナップショット表**を置くとズレます。
 
-- 一覧（推奨）: UI `/model-policy`（effective + config + ENV override）
+- 一覧（入口固定）: UI `/model-policy`（effective + config + ENV override）
 - 編集: UI `/image-model-routing`（画像） / SSOT（台本LLM・スロット）
 - 生成チェック: `python3 scripts/ops/build_ssot_catalog.py --check`

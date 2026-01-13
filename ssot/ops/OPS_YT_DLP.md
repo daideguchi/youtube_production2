@@ -28,7 +28,7 @@
 
 ---
 
-## 3) “タイトルだけ”を最速で取る（推奨）
+## 3) “タイトルだけ”を最速で取る（標準）
 
 ```bash
 # @HANDLE の直近80本の「動画ID + タイトル」だけ取得（DLしない）
@@ -44,7 +44,7 @@ yt-dlp --flat-playlist --playlist-end 80 --extractor-args "youtube:lang=ja" \
 
 ---
 
-## 4) “全部（ベンチマーク一括）”を整理レポート化する（推奨）
+## 4) “全部（ベンチマーク一括）”を整理レポート化する（標準）
 
 ベンチマーク定義（`benchmarks.channels`）を入力にして、タイトル/尺/再生数/サムネURLを集計する。
 
@@ -72,5 +72,5 @@ python3 scripts/ops/yt_dlp_benchmark_analyze.py --url "https://www.youtube.com/@
 ## 5) よくある落とし穴
 
 - 競合チャンネルの CTR は取得できない（Analyticsの所有者指標）。
-- 投稿日/いいね/コメント等が必要なら、まず `report.md` で「当たり候補」を絞ってから深掘りする（全件深掘りは重い）。
+- 投稿日/いいね/コメント等が必要な場合は、まず `report.md` で「当たり候補」を絞ってから深掘りする（全件深掘りは重い）。
 - `--skip-download` などを混ぜて複雑化しない（まずは `--flat-playlist` で十分）。

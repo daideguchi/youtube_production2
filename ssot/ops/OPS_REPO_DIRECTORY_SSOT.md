@@ -15,12 +15,12 @@
 
 ---
 
-## 0. 大原則（壊さないための固定ルール）
+## 0. 固定ルール（壊さないための境界）
 
 - **SoTを分離**: 正本（SoT）/ミラー/生成物/キャッシュ/退避を混在させない。
 - **生成物は `workspaces/` に閉じる**: `apps/` と `packages/` に新規生成物を置かない。
 - **静的素材は `asset/` をL0（git管理）**: BGM/ロゴ/オーバーレイ等はここが正本。
-- **旧資産/試作は repo に常駐させない**: 必要なら archive-first で `backups/graveyard/` に退避し、現行フローに混ぜない。
+- **旧資産/試作は repo に常駐させない**: archive-first で `backups/graveyard/` に退避し、現行フローに混ぜない。
 - **パス直書き禁止**: 新規/移設対応のため、必ず `factory_common.paths` を経由する。
 
 ---
@@ -38,7 +38,7 @@
   - 旧名/互換aliasの履歴は `ssot/history/LEGACY_ALIASES.md` に退避（現行フローでは参照しない）。
 - `scripts/`:
   - 運用CLI（thin wrapper / orchestration / ops）。
-  - “恒久的なロジック”は原則 `packages/` へ寄せ、`scripts/` は入口に徹する。
+  - “恒久的なロジック”は `packages/` へ寄せ、`scripts/` は入口に徹する。
 - `tests/`:
   - 現行パイプラインのテストのみ（レガシー再現テストは入れない）。
 
@@ -53,11 +53,11 @@
   - 注: 音声/動画の巨大生成物（例: `workspaces/audio/final/**`, `workspaces/video/runs/**`）は **gitignore**（SoTはディスク上の正本として扱う）。
 - `asset/`（L0/SoT, git管理）:
   - BGM/ロゴ/オーバーレイ/role assets 等の静的素材の正本。
-  - cleanup対象外（削除は原則しない）。
+  - cleanup対象外（削除しない）。
 - `log_research/`（例外: 事実ログ専用）:
   - 事故調査/復旧のための **事実のみ** を時系列で残す場所（憶測は禁止）。
   - パイプラインの入力/正本/生成物として参照しない（運用メモ専用）。
-  - 例外扱いなので、ここに生成物を溜め込まない（必要なら `workspaces/logs/` へ）。
+  - 例外扱いなので、ここに生成物を溜め込まない（生成物/ログは `workspaces/logs/` へ）。
 
 ### 1.3 Config / Secrets / Docs / Archives
 - `configs/`（設定正本）:
@@ -74,7 +74,7 @@
 - `prompts/`（索引/ハブ）:
   - **人間/UI向けの“入口”**。実体の正本をここに複製・同期しない（= 二重SoTを作らない）。
   - 参照先の一覧: `prompts/PROMPTS_INDEX.md`
-  - 実際に動くプロンプトの正本は原則こちら:
+  - 実際に動くプロンプトの正本はこちら:
     - `packages/script_pipeline/prompts/**`
     - `packages/script_pipeline/channels/**/script_prompt.txt`
     - `packages/video_pipeline/**`（画像/CapCut系）
@@ -123,7 +123,7 @@
 
 1) `python scripts/agent_org.py locks --path <target>` でlock確認  
 2) 触る範囲にlockを置く（`python scripts/agent_org.py lock ...`）  
-3) **先にSSOTを更新**（本書 + 必要なら `OPS_CONFIRMED_PIPELINE_FLOW` / `DATA_LAYOUT` / `ENTRYPOINTS_INDEX`）  
+3) **先にSSOTを更新**（本書 + 関連SSOT（影響するもの）: `OPS_CONFIRMED_PIPELINE_FLOW` / `DATA_LAYOUT` / `ENTRYPOINTS_INDEX`）  
 4) 実装（`factory_common.paths` 優先、互換symlinkは作らない）  
 5) cleanup系の tracked 削除は **archive-first** → `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md` 記録  
 6) 小さくコミット（1コミット=1目的）  

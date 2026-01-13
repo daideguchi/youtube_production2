@@ -7,7 +7,7 @@
 正本（必ずここを見る）:
 - 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`
 - 全チャンネル共通Aテキストルール: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
-- LLM品質ゲート（Judge→Fixer→必要ならRebuild）: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
+- LLM品質ゲート（Judge→Fixer→Rebuild（最終手段））: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
 - 構成パターン（骨格固定）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
 - 大量生産アーキテクチャ: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 - 入口索引: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
@@ -19,7 +19,7 @@
 3) 合否はLLM Judgeで「内容」を見る（機械判定は禁則/字数だけ）
 4) failならFixerで最小修正、まだダメならRebuildで作り直し（回数は増やさない）
 
-プロンプト設計の原則（全チャンネル共通で事故らないため）:
+プロンプト設計の固定ルール（全チャンネル共通で事故らないため）:
 - `packages/script_pipeline/prompts/*.txt` は **全チャンネル共通**なので、ドメイン語（例: 特定宗教・特定分野名）を直書きしない。
 - ドメイン固有の指針は `configs/sources.yaml` の `channel_prompt`（CH別）と、SSOTパターンの `core_episode_candidates.safe_retelling`（中心エピソード）に集約する。
 - Aテキスト向けLLM呼び出しでは `channel_prompt` をそのまま渡さず、衝突しやすい「構成/形式/記号」指示を落とした `a_text_channel_prompt`（派生）を渡す（骨格はSSOTパターンが唯一の正本）。
@@ -35,4 +35,4 @@
 
 コスト/モデル（重要）:
 - `o3` 系は使用禁止（コストが高い）。設定は無効化済み。
-- 原則は `fw-d-1` を先頭に、必要なときだけ上位にフォールバックする（モデルコード正本: `configs/llm_model_codes.yaml`）。
+- 標準は `fw-d-1` を先頭に、必要なときだけ上位にフォールバックする（モデルコード正本: `configs/llm_model_codes.yaml`）。

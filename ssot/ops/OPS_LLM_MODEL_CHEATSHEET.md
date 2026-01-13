@@ -7,7 +7,7 @@
 
 ---
 
-## 0. 原則（モジュール管理の“正”）
+## 0. 固定ルール（モジュール管理の“正”）
 
 - **ハードコード禁止**: コードにモデル名（例: `gpt-5-mini`）を直書きしない。
 - **タスクキーで呼ぶ**: `LLMRouter.call(task=..., messages=...)` の `task` がSoT。
@@ -36,20 +36,20 @@
   - **数字スロット** `LLM_EXEC_SLOT`（api/think/agent/codex exec/failover）で「どこで動くか」を固定
 
 ### 1.1.1 変更後の固定チェック（必須）
-- 最短（推奨）: `./ops ssot check`（内部: `scripts/ops/pre_push_final_check.py`）
+- 最短（入口固定）: `./ops ssot check`（内部: `scripts/ops/pre_push_final_check.py`）
 - ルーティング整合（router+codes+slots+overrides）: `python3 scripts/ops/lint_llm_router_config.py`
 - カタログ整合（UI/SSOT）: `python3 scripts/ops/build_ssot_catalog.py --check`
 
 注:
 - `scripts/ops/lint_llm_config.py` は旧名の互換入口（shim）。新規運用では使わない（中身は `lint_llm_router_config.py`）。
 
-### 1.2 Legacy（原則使わない）: Tier上書き
-この repo では運用切替は **`LLM_MODEL_SLOT`** に統一しているため、ここは原則使わない（混乱/ズレ防止）。
+### 1.2 Legacy（運用では使わない）: Tier上書き
+この repo では運用切替は **`LLM_MODEL_SLOT`** に統一しているため、ここは使わない（混乱/ズレ防止）。
 
 - `configs/llm_tier_mapping.yaml`（task→tier; legacy）
 - `configs/llm_tier_candidates.yaml`（tier→モデル候補; legacy）
 
-### 1.3 Legacy（互換/原則使わない）
+### 1.3 Legacy（互換/運用では使わない）
 - `configs/llm.yml` / `configs/llm.local.yml`
   - legacy tooling/tests 互換のために残っている設定。通常運用のルーティングSSOTではない。
   - `script_pipeline`（台本生成の主線）は現状こちらを見ない。
@@ -59,7 +59,7 @@
 ## 2. 現行のモデル（正本: configs/llm_router.yaml の要約）
 
 ### 2.1 テキストLLM（台本/読み/補助）
-- `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（原則）。
+- `script_pipeline`（台本）の **“本文執筆/品質審査/意味整合”** は「thinking必須」を固定するため、既定のモデル選択を **最小**に保つ（固定）。
   - 既定: `script-main-1`（Fireworks / DeepSeek V3.2 exp + thinking）
   - 固定: **自動フォールバック禁止**（別モデルへ自動すり替えしない）。失敗時は停止して原因を残す。
   - 重要: 台本系のモデル指定は `configs/llm_task_overrides.yaml` の `models` が正（slot は未指定の task/tier のみに適用）
@@ -75,7 +75,7 @@
 結論:
 - 台本（`script_*`）は `configs/llm_task_overrides.yaml` の `models` を正として `script-main-1` を使う（provider=Fireworks）。
 - thinking は `configs/llm_task_overrides.yaml: options.extra_body.reasoning` を正として固定する（本文に混入させない）。
-- OpenRouter を台本へ流すのは incident/debug のみ（通常運用では禁止。必要なら SSOT に沿って手順化する）。
+- OpenRouter を台本へ流すのは incident/debug のみ（通常運用では禁止。手順化する場合は SSOT に沿って行う）。
 
 #### 2.1.2 Legacy（2026-01-06）: Fireworks(text) を停止し、台本系は OpenRouter 固定（当時の判断）
 ※ 2026-01-09 の Decision で方針を更新済み。履歴として残す。
@@ -86,7 +86,7 @@
 - （参考）Fireworks を復旧した場合でも、台本系は provider 変更でブレやすいので、slot の切替で一括管理する。
 
 運用ルール（重要: 憶測でパラメータを決めない）:
-- モデル仕様（reasoning対応/上限等）は鮮度が命。必要なら以下で **実在と仕様**を確認してから調整する。
+- モデル仕様（reasoning対応/上限等）は鮮度が命。調整する場合は以下で **実在と仕様**を確認してから行う。
   - OpenRouter: `https://openrouter.ai/api/v1/models`（ローカル更新: `packages/script_pipeline/config/openrouter_models.json`）
   - Fireworks（参考）: `https://api.fireworks.ai/inference/v1/models`（Bearer: `$FIREWORKS_SCRIPT`）
 - thinking必須の実装（主に“執筆/審査”タスク）:
@@ -108,7 +108,7 @@
 - 一時切替（ファイル編集なし / その実行だけ）:
   - 動画内画像: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=g-1`（Gemini）/ `f-1`（Flux schnell）/ `f-4`（Flux max）
   - サムネ: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=g-1`（Gemini）/ `f-4`（Flux max）
-- 注意: ロックダウン運用（`YTM_ROUTING_LOCKDOWN=1`）では `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY*` を恒久セットしない（混乱/コスト事故の原因）。必要なら prefix で「その実行だけ」明示する。
+- 注意: ロックダウン運用（`YTM_ROUTING_LOCKDOWN=1`）では `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY*` を恒久セットしない（混乱/コスト事故の原因）。prefix で「その実行だけ」明示する。
 - **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`）。
   - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
 - **許可（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は Gemini 3 系を使ってよい（必要時のみ、明示して使う）。
@@ -121,11 +121,11 @@
 ### 3.1 Script pipeline（台本）
 - `script_topic_research`: リサーチ/材料集め（重い推論）
 - `script_outline`: 構成（重い推論、thinking高）
-- `script_master_plan_opus`（任意）: 設計図（master plan）のサマリを Opus 4.5 で **1回だけ**補強（デフォルトOFF・allowlist必須）
+- `script_master_plan_opus`（オプション）: 設計図（master plan）のサマリを Opus 4.5 で **1回だけ**補強（デフォルトOFF・allowlist必須）
 - `script_chapter_brief`: 章の狙い（重い推論、thinking高）
 - `script_chapter_draft`: 章ドラフト（重い推論、thinking高）
 - `script_chapter_review`（保留）: 章レビュー（`script_enhancement` 廃止のため通常は呼ばれない）
-- `script_cta`（既定OFF）: CTA/締め（任意。コスト削減のため既定OFF）
+- `script_cta`（既定OFF）: CTA/締め（オプション。コスト削減のため既定OFF）
 - `script_quality_check`（廃止）: 全体品質チェック（`script_validation` に統合。通常は使わない）
 - `script_format`: 体裁整形（標準）
 - `script_a_text_quality_judge` / `script_a_text_quality_fix`: `script_validation` の QC（judge→fix）。モデルは `script-main-1` 固定（自動フォールバックしない）。
@@ -138,7 +138,7 @@
 - `tts_reading`: 読み解決（重い推論）
 - 実行（固定）:
   - `tts_*` は **AIエージェント（Codex）主担当**（`voicevox_kana` の差分/読み推論を Codex 側へ寄せる）。
-  - 推奨実行: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+  - 入口固定: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
     - これにより `tts_*` は **pending で停止**し、Codex（AIエージェント）が output を作って `complete` → rerun する。
     - 注: ここで言う「Codex」は **codex exec（非対話CLI）ではない**（別物）。TTSは codex exec へ寄せない。
   - 比較/デバッグで API 実行が必要な場合のみ、THINK MODE を使わずに実行する（通常運用で勝手に切り替えない）。
@@ -176,14 +176,14 @@
 
 目的: 実験/比較/コスト最適化のため、**設定ファイルを編集せず**に「この実行だけ」モデルを差し替える。
 
-- **推奨: 数字スロットで固定（モデル名を書かない）**
+- **固定ルール: 数字スロットで固定（モデル名を書かない）**
   - `LLM_MODEL_SLOT=0`（default）: `configs/llm_model_slots.yaml: slots.0`（現行: non-script=OpenRouter主線 / script=OpenRouter主線）
   - `LLM_MODEL_SLOT=1/2/...`: `configs/llm_model_slots.yaml: slots.<N>` を選ぶ
   - 個別調整は `configs/llm_model_slots.local.yaml`（git管理しない）で上書きする
   - 使い方（例）:
     - `./scripts/with_ytm_env.sh --llm-slot 2 python3 ...`
     - `./scripts/with_ytm_env.sh 2 python3 ...`（先頭が整数ならスロットとして解釈）
-    - 互換: `LLM_FORCE_MODELS=2`（legacy）が入っていても **スロット2** として扱われる（推奨は `LLM_MODEL_SLOT`）
+    - 互換: `LLM_FORCE_MODELS=2`（legacy）が入っていても **スロット2** として扱われる（運用は `LLM_MODEL_SLOT` を使う）
   - 重要:
     - スロットは strict 扱い（既定: 先頭モデルのみ）。複数モデルを試すのは `allow_fallback=true` を明示した時だけ
     - 非`script_*` は API 失敗時に THINK へ（モデル/プロバイダの自動すり替えはしない）
@@ -206,7 +206,7 @@
 - 互換/緊急デバッグ（通常運用では使わない。`YTM_ROUTING_LOCKDOWN=1` では停止）:
   - 全タスク共通（model chain を固定）:
     - `LLM_FORCE_MODELS="open-kimi-thinking-1"`（カンマ区切り。**モデルコード**は `configs/llm_model_codes.yaml`）
-      - 互換: `deepseek/deepseek-v3.2-exp`（model id）や `gpt-5-mini`（Azure deployment）も **一意に解決できる場合のみ** model key に自動解決される（推奨は常に model code 指定）。
+      - 互換: `deepseek/deepseek-v3.2-exp`（model id）や `gpt-5-mini`（Azure deployment）も **一意に解決できる場合のみ** model key に自動解決される（運用は model code 指定）。
       - 注: `script_*` task の OpenRouter 許可は slot 定義（`configs/llm_model_slots.yaml: script_allow_openrouter`）で固定する。
   - タスク別（task→model chain）:
     - `LLM_FORCE_TASK_MODELS_JSON='{"script_outline":["open-kimi-thinking-1"]}'`

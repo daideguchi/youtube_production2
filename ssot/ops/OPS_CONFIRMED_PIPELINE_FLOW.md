@@ -15,7 +15,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ### 0.1 SoTの階層
 - **SoT（正本）**: そのフェーズの唯一の真実。以降の全処理はこれを参照する。
-- **Mirror（ミラー）**: SoTをUI/集計用に写したもの。手動編集は原則禁止（手動時は同期ルールに従う）。
+- **Mirror（ミラー）**: SoTをUI/集計用に写したもの。手動編集は禁止。同期ルールが定義されている場合のみ、そのルールに従って手動編集してよい。
 - **Artifacts（生成物）**: 中間/最終成果物。保持/削除ルールは `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md` が正本。
 
 ### 0.2 ルートの実体（現行）
@@ -56,14 +56,14 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 ### 1.1 .env / 環境変数ロード
 - 秘密鍵・モデル設定は **リポジトリ直下 `.env` が正本**。  
-- Python起動時: `scripts/with_ytm_env.sh <cmd>`（推奨）で `.env` を export する。`_bootstrap` は repo root/`packages` を sys.path に入れ、`.env` を fail-soft でロードする（CWD非依存）。  
+- Python起動時: `scripts/with_ytm_env.sh <cmd>`（入口固定）で `.env` を export する。`_bootstrap` は repo root/`packages` を sys.path に入れ、`.env` を fail-soft でロードする（CWD非依存）。  
 - シェル/Node等: `scripts/with_ytm_env.sh <cmd>` を通して `.env` をexportして実行。
 - 例外的に各パッケージ内 `.env` / `credentials/*` へ複製は禁止（`ssot/ops/OPS_ENV_VARS.md` 参照）。
 
 ### 1.2 run_id / run_dir
 - Video/画像/CapCut/Remotion は **run単位で完結**。  
 - run_dirは `workspaces/video/runs/{run_id}/`。  
-  `{run_id}` は `CHxx-<video>` もしくは `jinsei220` のような人間が判別可能な名前を推奨。
+  `{run_id}` は `CHxx-<video>` もしくは `jinsei220` のような人間が判別可能な名前とする。
 - run_dirは **次フェーズの正本入力になるため、フローが確定するまで削除禁止**。
 
 ### 1.3 ステージ同期
@@ -80,7 +80,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 **Entry points**
 - 人間が `workspaces/planning/channels/CHxx.csv` を更新。
 - UI `/planning` でCSVを閲覧/編集（UIはCSVを直接読む）。
-- 推奨（決定論lint）:
+- 決定論lint（入口固定）:
   - `python3 scripts/ops/planning_lint.py --csv workspaces/planning/channels/CHxx.csv --write-latest`
     - タイトル/概要の `【tag】` 不一致や必須列欠落など、後工程で致命傷になる混入を早期に検出する。
 
@@ -94,7 +94,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - Scriptフェーズで使用する「最新企画コンテキスト」。
 
 **Downstream dependencies**
-- Script生成はCSVから動画番号/タイトル/タグ等を取り込むため、企画更新後は **必要ならScriptステージをresetして再生成**。
+- Script生成はCSVから動画番号/タイトル/タグ等を取り込むため、企画更新後で **既に Script 出力がある回**は Scriptステージを reset して再生成する。
 
 ---
 
@@ -107,7 +107,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
 - UI（補助）: `/api/script-*` 系（main.py側でrunner呼び出し）
 
-**補助ツール（推奨 / 事故防止）**
+**補助ツール（事故防止; オプション）**
 - Aテキスト決定論lint（反復/禁則混入の早期検出）:
   - `./scripts/with_ytm_env.sh python3 scripts/ops/a_text_lint.py --channel CHxx --video NNN --write-latest`
 - 長尺Aテキスト（セクション分割→合成）:
@@ -152,7 +152,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
      - `content/analysis/master_plan.json` (required)
    - 注:
      - デフォルトは決定論（SSOT patterns）で作成する（LLMなし）。
-     - 任意で高コスト推論（例: Opus）を **ここで1回だけ**使い、設計図サマリを補強できる（コスト暴走防止ガードあり）。
+     - オプション: 高コスト推論（例: Opus）を **ここで1回だけ**使い、設計図サマリを補強できる（コスト暴走防止ガードあり）。
 4. `chapter_brief`
    - Outputs:
      - `content/chapters/chapter_briefs.json` (required)
@@ -187,13 +187,13 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
      - タイトル/サムネ↔台本の意味整合も検証する（semantic alignment gate）
        - レポート: `content/analysis/alignment/semantic_alignment.json`
        - 既定では `verdict: major` のみ停止（ok/minor は合格）
-         - minor/major は可能なら `script_validation` が最小リライトを自動適用して収束させる（収束しなければ停止）
-         - 厳密にする場合（ok 以外は停止）: `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`（コスト優先なら `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_AUTO_FIX_MINOR=0` も推奨）
+         - `script_validation` は意味整合のために Aテキストを自動書き換えしない（事故防止）。修正は `semantic-align --apply` を手動で行う。
+         - 厳密にする場合（ok 以外は停止）: `SCRIPT_VALIDATION_SEMANTIC_ALIGNMENT_REQUIRE_OK=1`
          - 数の約束（例: 「7つ」）は、台本側の `一つ目〜Nつ目` を決定論でサニティチェックし、LLMの誤判定で止まる事故を防ぐ。
        - 手動修復（最小リライト）:
          - major のみ修復: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply`
          - minor も修復: `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN --apply --also-fix-minor`
-     - 追加ゲート（任意/チャンネル別）: **ファクトチェック（証拠ベース）**
+     - 追加ゲート（オプション; チャンネル別）: **ファクトチェック（証拠ベース）**
        - 出力: `content/analysis/research/fact_check_report.json`
        - CH05/CH22/CH23 は不要（`web_search_policy=disabled` のため既定で無効）
      - OKなら `status.json: stages.script_validation=completed` にし、Scriptフェーズ完了（`status=script_validated`）へ進む。
@@ -233,14 +233,14 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
     - `workspaces/scripts/{CH}/{NNN}/status.json: metadata.alignment.schema == "ytm.alignment.v1"`
     - `run_tts` は **無い/不一致なら停止**（誤台本で音声を作らないため）
     - 修復: `python scripts/enforce_alignment.py --channels CHxx --apply`（または `python -m script_pipeline.cli reconcile --channel CHxx --video NNN`）
-  - Script品質ゲート（推奨=主線の安全ガード）:
+  - Script品質ゲート（必須: 主線の安全ガード）:
     - `workspaces/scripts/{CH}/{NNN}/status.json: stages.script_validation.status == "completed"`
     - `run_tts` / `script_pipeline.cli audio` は未完了なら停止（例外が必要な場合のみ `--allow-unvalidated`）
   - **読みアノテーション/誤読ゼロ（固定ルール）**:
-    - **Aテキスト（台本/表示SoT）は原則変更しない**（TTS目的で触らない）。
+    - **Aテキスト（台本/表示SoT）は変更しない**（TTS目的で触らない）。
     - 読み注釈が混入している場合（例: `刈羽郡、かりわぐん` / `大河内正敏（おおこうちまさとし）`）は **B生成で重複部分のみ決定的に除去**し、辞書/overrideで読みを固定する。
     - 数字/英字も **B側で決定的にカナ化**して MeCab/VOICEVOX の読みを一致させる（局所辞書の無限増殖を防ぐ）。
-    - 推奨運用: まず `--prepass`（wav生成なし）で mismatch=0 を確認 → その後に合成へ。
+    - 手順: まず `--prepass`（wav生成なし）で mismatch=0 を確認 → その後に合成へ。
       - 詳細runbook: `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md`
       - チャンネル一括: `python3 scripts/batch_regenerate_tts.py --channel CHxx --prepass --skip-tts-reading --min-video 1 --max-video 30`
   - **出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
@@ -276,7 +276,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 ### Phase D. Video（SRT→画像→ベルト→CapCutドラフト）
 
 **Entry points**
-- CLI（正規/推奨）:
+- CLI（正規/入口固定）:
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`
 - CLI（詳細制御）:
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --srt <srt> --run-name <run_id> ...`
@@ -303,7 +303,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
        - `visual_image_cues_plan`（single-task）で区間計画→ cues 化
        - `PromptRefiner` はスキップ（stop/resume ループ回避）
        - **禁止**: no-LLM のヒューリスティック（辞書/固定プール等）で `visual_focus` を機械生成して続行しない。不足は `pending` で停止→runbookに従って埋めて再実行。
-       - **最重要（意味整合）**: 各cue画像は **そのセクション内容を正確に表現**する（抽象/比喩でも当該セクションの具体に紐づける）。同じ象徴（時計/懐中時計など）の連発や無関係な埋め画像はNG。必要なら `visual_cues_plan.json` を修正してから再実行する。
+       - **最重要（意味整合）**: 各cue画像は **そのセクション内容を正確に表現**する（抽象/比喩でも当該セクションの具体に紐づける）。同じ象徴（時計/懐中時計など）の連発や無関係な埋め画像はNG。修正は `visual_cues_plan.json` に反映してから再実行する。
 		     - Outputs:
 		     - `workspaces/video/runs/{run_id}/srt_segments.json`（SRTを決定論でパースしたsegments。plan/retimeの前提）
 		     - `workspaces/video/runs/{run_id}/image_cues.json`
@@ -315,7 +315,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
        - `image_cues.json` の `input_images` に guide 画像が入り、生成時に **前フレーム画像を追加参照**して identity drift を抑える（guide + prev）。
        - OpenRouter 側が multimodal を拒否した場合は **text-only に自動フォールバック**して継続する。
        - **投稿済み/確定済み**の run/draft は不変（事故防止）: 既存runを上書き再生成しない。必ず `run_id` を新規にして再生成する。
- 1.5. （任意）フリー素材B-roll注入（`--broll-provider`）
+ 1.5. （オプション）フリー素材B-roll注入（`--broll-provider`）
 	   - 既定はOFF（`configs/sources.yaml: channels.CHxx.video_broll.enabled=false`）。ONにする場合の既定は provider=`pexels` / ratio=`0.2`（= 画像:フリー素材 8:2）。
 	   - CLI指定（`--broll-provider/--broll-ratio`）がある場合は sources.yaml より優先される。
 	   - 目的: “画像だけ”の単調さを避けるため、文脈に合う stock video（mp4）を全体の約20%だけ差し込む。
@@ -325,7 +325,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 	     - APIレスポンスだけでなく **mp4本体も共有キャッシュ**する（重複DL/重複保存を防止）。
 	     - キャッシュ: `workspaces/video/_state/stock_broll_cache/<provider>/files/*.mp4`
 	     - run_dir への配置は hardlink 優先（同一inode再利用）なので、同一素材を複数run/draftで使っても容量が増えにくい。
-	     - 既定の解像度上限は `1280x720`（`YTM_BROLL_MAX_W/H`）。必要なら env で調整する。
+		   - 既定の解像度上限は `1280x720`（`YTM_BROLL_MAX_W/H`）。調整は env で行う。
 	   - Outputs:
 	     - `workspaces/video/runs/{run_id}/broll/<provider>/*.mp4`
 	     - `workspaces/video/runs/{run_id}/broll_manifest.json`（クレジット/デバッグ）
@@ -356,7 +356,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - `images/`
   - `capcut_draft`（CapCut projects への symlink）
   - `capcut_draft_info.json`
-- 推奨（再現性/監査）:
+- 追加（再現性/監査）:
   - `auto_run_info.json`（実行メタ）
   - `channel_preset.json`, `persona.txt`（存在する場合）
   - `srt_segments.json`（SRT→segments のSoT。入力取り違え検知に使う）
@@ -372,7 +372,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **CH06固有（CH06-テンプレ固定）**
 - CH06 はテンプレのレイヤ構造（BGM多段・メイン帯・ドリーミー紙吹雪）を壊さないことが最優先。
-- 推奨手順（画像タイムライン→音声/字幕の順でSoT反映）:
+- 手順（画像タイムライン→音声/字幕の順でSoT反映）:
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.rebuild_ch06_drafts_from_template --draft-root "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" --template "CH06-テンプレ" --runs-root workspaces/video/runs --channel-csv workspaces/planning/channels/CH06.csv --videos 2-30`
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.patch_draft_audio_subtitles_from_manifest --run workspaces/video/runs/CH06-002_capcut_v1`（002〜030を同様に実行）
   - 仕上げ: `timeline_manifest.json`（wav/srt/cues整合）を確認し、CapCutで目視確認して mp4 書き出し。
@@ -384,7 +384,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **After CapCut draft（手動/運用）**
 - CapCutで draft を開き、必要な手動調整・画像差し替え・帯/字幕の目視確認を実施（詳細SOP: `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md`）。
-- CapCutから最終 mp4 を書き出し（ローカル保存先は任意）。
+- CapCutから最終 mp4 を書き出し（ローカル保存先は自由）。
 - 完成 mp4 を Drive の `uploads/final` フォルダへアップロードし、URLを Publish Sheet の `Drive (final)` 列へ貼付する。
   - アップロード補助CLI: `python3 scripts/drive_upload_oauth.py --file <mp4>`（フォルダ変更時のみ `--folder <id>`）。
 
@@ -460,8 +460,8 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
   - Status=`uploaded`
   - YouTube Video ID
   - UpdatedAt
-- ローカル側の最終固定（推奨）:
-  - Planning CSV の該当行を `進捗=投稿済み` にして **投稿済みロック**（以後は原則触らない指標）
+- ローカル側の最終固定（必須）:
+  - Planning CSV の該当行を `進捗=投稿済み` にして **投稿済みロック**（以後は触らない指標）
   - UI: `Progress` 画面の `投稿済みにする（ロック）`（内部API: `POST /api/channels/{CH}/videos/{NNN}/published`）
 
 ---

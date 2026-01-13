@@ -10,7 +10,7 @@
 
 ---
 
-## 1) 原則（固定）
+## 1) 固定ルール
 
 - **通常運用（default）**: `YTM_ROUTING_LOCKDOWN=1`（ON）
   - ルーティングの上書き経路を潰し、エージェント間のブレを防ぐ
@@ -25,10 +25,10 @@
 
 ---
 
-## 2) 推奨（安全）: 数字スロットで切替える
+## 2) 標準（安全）: 数字スロットで切替える
 
 ### 2.1 LLMモデル（tier→モデル）: `LLM_MODEL_SLOT`
-- 正本: `configs/llm_model_slots.yaml`（必要なら `configs/llm_model_slots.local.yaml` で**ローカルだけ**上書き）
+- 正本: `configs/llm_model_slots.yaml`（ローカル上書き: `configs/llm_model_slots.local.yaml`（**ローカルだけ**））
 - 使い方（例）:
   - `LLM_MODEL_SLOT=2 ./ops ...`
   - `./ops --llm-slot 2 ...`（P0 launcher の1回だけ上書き）
@@ -39,11 +39,11 @@
 - 使い方（例）:
   - `./scripts/with_ytm_env.sh --exec-slot 0 python3 ...`（API）
   - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`（THINK）
-  - `./ops --exec-slot 0 ...`（P0 launcher の1回だけ上書き。通常は `./ops api|think|codex` 推奨）
+  - `./ops --exec-slot 0 ...`（P0 launcher の1回だけ上書き。通常運用は `./ops api|think|codex` を使う）
 
 ---
 
-## 3) 緊急デバッグ（非推奨）: モデル/オプションの“この実行だけ”上書き
+## 3) 緊急デバッグ（注意: 通常運用では使わない）: モデル/オプションの“この実行だけ”上書き
 
 ロックダウンON（既定）では **停止**する。使うなら必ず `YTM_EMERGENCY_OVERRIDE=1` をセットする。
 

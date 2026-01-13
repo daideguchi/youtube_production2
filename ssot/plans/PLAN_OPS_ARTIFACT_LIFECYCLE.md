@@ -29,7 +29,7 @@
 
 2. **L1: Final Artifacts（最終成果物）**
    - パイプラインが下流に渡す「使われる成果物」。
-   - 原則無期限保持。ただし published 後の一部は圧縮/移設可。
+   - 保持。ただし published 後は容量対策として audio/video の成果物を削除する（台本/進捗は保持）。
 
 3. **L2: Rebuildable Intermediates（再生成可能な中間物）**
    - Outline/chapters/segments/chunks/画像の中間 JSON など。
@@ -123,7 +123,7 @@
 - `scripts/purge_audio_final_chunks.py`: final/chunks を削除（recent window で生成中を保護）
 
 **現行の自動cleanup（UI/Backend 経由の TTS 成功時）**
-- backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時にベストエフォートで以下を実行する:
+- backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時に以下を実行する（失敗は警告扱い）:
   - `workspaces/scripts/.../audio_prep/chunks/` を削除
   - `workspaces/scripts/.../audio_prep/{CH}-{NNN}*.wav|.srt`（finalと重複するバイナリ。例: `*-regenerated.*`）を削除
   - `workspaces/audio/final/.../chunks/` を削除
@@ -146,14 +146,14 @@
   - `workspaces/video/_capcut_drafts/`（CapCut draft root のローカルフォールバック。SoTではない）
     - `auto_capcut_run.py` が実draft root（`~/Movies/CapCut/.../com.lveditor.draft`）に書けない場合にここへ生成する。
     - CapCutで使うには、該当ドラフト dir を実draft root へコピーする（Full Disk Access が必要な場合あり）。
-    - 生成済み/コピー済みの重複を整理（推奨）:
+    - 生成済み/コピー済みの重複を整理（標準）:
       - `python3 scripts/ops/archive_capcut_local_drafts.py --dry-run` → OKなら `--run`
       - 退避先: `workspaces/video/_capcut_drafts/_archive/<timestamp>/`（削除ではなく移動）
       - report: `workspaces/logs/regression/capcut_local_drafts_archive/`
 - `workspaces/video/input/<CH>_<PresetName>/<CH>-<NNN>.{srt,wav}`（Audio final の**ミラー**）
     - 正本は `workspaces/audio/final/<CH>/<NNN>/`。`video/input` は **手動編集禁止**（混乱の原因）。
     - 同期: `python -m video_pipeline.tools.sync_audio_inputs`
-      - 容量削減（推奨）: wav を symlink でミラーする（挙動は同じで重複を避けられる）
+      - 容量削減（標準）: wav を symlink でミラーする（挙動は同じで重複を避けられる）
         - `python -m video_pipeline.tools.sync_audio_inputs --mode run --wav-policy symlink --wav-dedupe --hash-wav --on-mismatch skip`
     - 不一致が見つかった場合は、古いコピーを `workspaces/video/_archive/<timestamp>/<CH>/video_input/` へ退避し、final を再同期して 1:1 を維持する。
 - **L3/Logs**
@@ -192,7 +192,7 @@
 - `video: published` で `out/<project>/` を zip 化、入力は削除。
 
 ### 3.7 ルート logs/output（workspaces/logs 正本）
-- **L3（原則）**
+- **L3（標準）**
   - `workspaces/logs/*.log|jsonl|db`
   - ルート `output/*` のテスト成果物（存在する場合。Legacy）
 - **例外的に L1 として残すログ**
@@ -256,13 +256,22 @@ python -m scripts.cleanup_workspace --all --run --yes
 
 ※ `--purge-level/--respect-status/--archive-dir` 等の高度なフラグは今後拡張（下の 4.2/7 を参照）。
 
-#### 4.1.1 投稿済み（進捗=投稿済み）をまとめてアーカイブ（横断）
+#### 4.1.1 投稿済み（進捗=投稿済み）をまとめて archive/delete（横断）
 
-「投稿済みは全てアーカイブへ移す」運用を、Planning SoT に従って横断実行する入口を追加する。
+投稿済み（Planning SoT: `進捗=投稿済み`）を根拠に、容量対策として削除、または復元用途でアーカイブを横断実行する入口を用意する。
 
-- 入口: `python3 scripts/ops/archive_published_episodes.py --dry-run --channel CHxx` → OKなら `--run --yes`
+- 入口（容量対策 / delete; 音声 + CapCut run_dir）:
+  - dry-run:
+    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --audio --video-runs --delete --dry-run`
+  - 実行:
+    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --audio --video-runs --delete --run --yes`
+- 入口（退避 / archive）:
+  - dry-run:
+    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --dry-run`
+  - 実行:
+    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --run --yes`
 - 判定: `workspaces/planning/channels/CHxx.csv` の `進捗=投稿済み`
-- 退避先（ドメイン別）:
+- 退避先（archive の場合 / ドメイン別）:
   - audio: `workspaces/audio/_archive_audio/<timestamp>/`
   - thumbnails: `workspaces/thumbnails/_archive/<timestamp>/`
   - video: `workspaces/video/_archive/<timestamp>/`

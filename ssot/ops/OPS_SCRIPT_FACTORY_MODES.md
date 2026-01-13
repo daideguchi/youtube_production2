@@ -81,7 +81,7 @@ START
   - **Planning CSV の1行の中で、別動画の情報が混ざっている状態**（典型: タイトル先頭の【…】と、企画要約先頭の【…】が不一致）。
   - これが起きると「タイトルはAなのに、本文生成がBに引っ張られる」事故の原因になる。
   - 対処: `workspaces/planning/channels/CHxx.csv` の該当行を修正（混線を解消）→再実行。
-  - 早期停止（任意）: `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH=1` で高コスト工程の前に止められる。
+  - 早期停止（オプション）: `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH=1` で高コスト工程の前に止められる。
 - 内容汚染:
   - **別の動画の企画要約/タグ等が混ざって、タイトルと別テーマのヒントが入っている状態**。
   - 例: タイトルは「縁」なのに、企画要約が「朝習慣」の話になっている。
@@ -91,10 +91,10 @@ START
   - `script_outline` の後に作る **台本の設計図JSON**（SoTではなく中間生成物）。
   - 出力: `workspaces/scripts/{CH}/{NNN}/content/analysis/master_plan.json`
   - 役割: 章の狙い/字数配分/脱線防止の“非交渉条件”を固定し、長尺でも迷子になりにくくする。
-  - 任意: 高コスト推論モデルを **この工程で1回だけ**使い、設計図サマリの質を底上げできる（デフォルトOFF）。
+  - オプション: 高コスト推論モデルを **この工程で1回だけ**使い、設計図サマリの質を底上げできる（デフォルトOFF）。
 - 自動安全フォールバック（LLMなし。旧称: 決定論フォールバック）:
   - LLMの出来に依存せず「事故を止める」ための安全弁。
-  - 原則: **内容には触れない**（文章を新規に書かない / 勝手に削らない）。やるのは「TTS事故を防ぐ形式レベルの修復」だけ（例: 行内 `---` の正規化、メタ混入の除去）。
+  - 固定ルール: **内容には触れない**（文章を新規に書かない / 勝手に削らない）。やるのは「TTS事故を防ぐ形式レベルの修復」だけ（例: 行内 `---` の正規化、メタ混入の除去）。
   - 例外は設けない: 重複段落の削除/末尾トリム/機械トリム等の “内容に触れる決定論修正（機械台本テコ入れ）” は **実装しない（禁止）**。  
     収束できない場合は要対応として止め、書き手（人/適切な生成モデル）で修正→再実行する。
   - 重要: フォールバック後も `validate_a_text`（機械ルール）に通らなければ **書き込まずに停止**する。中途半端な台本を“合格扱い”にする仕組みではない。
@@ -125,7 +125,7 @@ START
   - 優先: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
   - 代替（ミラー）: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`
 
-原則:
+固定ルール:
 - **正本は1つ**（SoTを増やすとズレが増える）。
 - `assembled_human.md` がある場合、`assembled.md` を手編集しない（内容汚染の元）。
 
@@ -166,7 +166,7 @@ flowchart TD
   A["入口: script_runbook.py <MODE>"] --> P["Planning SoT: CHxx.csv"]
   P --> R["topic_research (search_results.json / references.json)"]
   R --> O["script_outline (アウトライン)"]
-  O --> M["script_master_plan（設計図）\\nmaster_plan.json（任意で高コスト推論を1回だけ）"]
+  O --> M["script_master_plan（設計図）\\nmaster_plan.json（オプションで高コスト推論を1回だけ）"]
   M -->|意味整合ゲート| W["chapter_brief → script_draft → script_review"]
   W --> V["script_validation (機械禁則 + LLM品質 + 意味整合)"]
   V -->|合格のみ| S["audio_synthesis"]
@@ -273,7 +273,7 @@ flowchart TD
 - 長尺を「全文LLM」で回して、途中で迷子/反復/薄まりが起きる
 
 仕組み（正本）:
-- 企画取り違え（混線）の早期検知（任意）:
+- 企画取り違え（混線）の早期検知（オプション）:
   - `SCRIPT_BLOCK_ON_PLANNING_TAG_MISMATCH=1` で、高コスト工程（research/outline/draft）の前に停止できる（デフォルトOFF）。
 - 入力契約（タイトル=正 / 補助 / 禁止）で **内容汚染を検知したら、タイトルを正として汚染されやすいテーマヒントを無視**: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
 - `script_validation` で「禁則（機械チェック）」→「内容品質（LLM Judge）」→「意味整合（タイトル/サムネ↔台本）」を通す（“通った台本だけ” を次へ）

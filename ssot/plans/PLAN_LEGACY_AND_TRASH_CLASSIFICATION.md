@@ -84,7 +84,7 @@
 **Legacy隔離**
 - （削除済み）`tools/archive/`：過去版。参照ゼロのためアーカイブ後に削除済み（正本: `ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md`）。
 - `docs/spec_updates/*`：旧設計書/統合前の履歴。
-- `backups/`：過去退避（運用で必要なら legacy へ移すだけ）。
+- `backups/`：過去退避（運用で使う場合は legacy へ移すだけ）。
 
 **Trash候補（run外の残骸）**
 > `rg`参照ゼロ・SoTフロー外。管理者確認後に削除。
@@ -168,7 +168,7 @@
 
 - `data/hazard_readings.yaml` の参照経路が二重化していたが、`packages/audio_tts/tts/risk_utils.py` を修正して **repo root の hazard 辞書を優先**するようにした（2025-12-17）。  
   → 現在は `repo_root()/data/hazard_readings.yaml` → `audio_pkg_root()/data/hazard_readings.yaml` の順で探索する。
-- Visual Bible（任意入力）の扱いが揺れやすい（SoT の固定が必要）。  
+- Visual Bible（オプション入力）の扱いが揺れやすい（SoT の固定が必要）。  
   → 現行は「run_dir に保存（例: `workspaces/video/runs/{run_id}/visual_bible.json`）」を正とし、外部ファイルを使う場合のみ `SRT2IMAGES_VISUAL_BIBLE_PATH` で指定する（`ssot/ops/OPS_ENV_VARS.md` 参照）。
 - `scripts/` と `tools/` の中に旧ライン（route1/route2 等）が混在。  
   → Stage3後に「Active / Legacy / Trash」を **ファイル単位で再棚卸し**する。

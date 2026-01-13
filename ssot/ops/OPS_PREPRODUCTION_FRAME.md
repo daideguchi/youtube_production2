@@ -1,7 +1,7 @@
 # OPS_PREPRODUCTION_FRAME — 入口〜量産投入直前の参照フレーム（SSOT）
 
 目的:
-- 入口（Planning/任意入力）〜量産投入直前までの「どれが正本で、どれが拡張か」を整理し、品質の安定と再現性を上げる。
+- 入口（Planning/オプション入力）〜量産投入直前までの「どれが正本で、どれが拡張か」を整理し、品質の安定と再現性を上げる。
 - 企画の上書き/追加/一部設定差し替えが発生しても、**判断キー + 差分ログ**で追跡できる状態にする。
 
 前提:
@@ -11,7 +11,7 @@
 関連（正本）:
 - 確定フロー: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`
 - 入口索引: `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
-- 入力カタログ（必須/任意/上書きの一覧）: `ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`
+- 入力カタログ（必須/オプション/上書きの一覧）: `ssot/ops/OPS_PREPRODUCTION_INPUTS_CATALOG.md`
 - 修復導線（issue→直す場所）: `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md`
 - Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 - 企画差分（Patch）: `ssot/ops/OPS_PLANNING_PATCHES.md`
@@ -68,9 +68,9 @@
 
 ### 2.1 企画（Planning）を変えるときの基本
 - CSVを直接編集してもよいが、**追跡したい変更はPatchで残す**（差分ログが目的）。
-- 下流（台本/音声/動画）へ反映する場合は、原則「reset → 再生成」で揃える（混在が事故源）。
+- 下流（台本/音声/動画）へ反映する場合は「reset → 再生成」で揃える（混在が事故源）。
 
-### 2.2 Patch適用の安全手順（推奨）
+### 2.2 Patch適用の安全手順（固定）
 1) lock確認/取得（並列衝突防止）
 2) dry-run（差分ログ生成）→ 内容確認
 3) apply（CSVへ反映）→ 自動で lint/証跡が残る
@@ -100,7 +100,7 @@
 
 ## 5) 段階導入（現行ラインを壊さない）
 
-導入順（推奨 / 最小→拡張）:
+導入順（最小→拡張）:
 
 Phase 0（今すぐ / 破壊なし）:
 - `preproduction_audit` と `planning_lint` を “眺めるだけ” で回し、抜け漏れを可視化する（現行ラインは変えない）。
@@ -125,7 +125,7 @@ Phase 3（最終: Pack駆動）:
 
 「完全に漏れなく」を人間の目だけで担保すると事故るため、**監査コマンドで不足/矛盾を列挙**し、修正と差分ログを回せる状態にする。
 
-入口（推奨）:
+入口（固定）:
 - `python3 scripts/ops/preproduction_audit.py --all --write-latest`
 - 終了コード（自動化向け）: `0=pass`, `1=warn`, `2=fail`
 
@@ -134,11 +134,11 @@ Phase 3（最終: Pack駆動）:
 
 判定の考え方:
 - `error`: SoT不足や壊れ（投入前に必ず直す）
-- `warning`: 任意入力の欠落や品質リスク（投入はできるが、後段で詰まりやすい）
+- `warning`: オプション入力の欠落や品質リスク（投入はできるが、後段で詰まりやすい）
 - `ok`: 問題なし
 
 運用メモ:
 - JSON は `channels[].gate`（チャンネル別の pass/warn/fail）を持つ。`gate.issues[].channel` で横断集計もできる（修正対象の切り分けに使う）。
-- `gate.issues[*].fix_hints`（任意）がある場合は、最短の修復導線。体系は `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
+- `gate.issues[*].fix_hints`（省略可）がある場合は、最短の修復導線。体系は `ssot/ops/OPS_PREPRODUCTION_REMEDIATION.md` を正とする。
 
 ※ Audit は「仕様を固定する」ためではなく、「現行ラインの都合に合わせた欠落検知」を目的とする。

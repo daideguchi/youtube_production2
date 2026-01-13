@@ -87,7 +87,7 @@ Planning の `キーコンセプト` は、台本入力の補助であると同�
 
 確定対策:
 - `python scripts/ops/planning_lint.py --channel CHxx` が、採用済み（Planning CSV の `進捗=投稿済み/公開済み`）の回と `キーコンセプト` が重複している行を警告する。
-- strict運用（任意）: `SCRIPT_BLOCK_ON_EPISODE_DUPLICATION=1` で、高コスト工程（research/outline/draft）の前に停止できる（既定OFF）。判定対象の「採用済み」は Planning CSV の `進捗=投稿済み/公開済み` に加えて `published_lock=true`（UI の `投稿完了`）も含む。
+- strict運用（オプション）: `SCRIPT_BLOCK_ON_EPISODE_DUPLICATION=1` で、高コスト工程（research/outline/draft）の前に停止できる（既定OFF）。判定対象の「採用済み」は Planning CSV の `進捗=投稿済み/公開済み` に加えて `published_lock=true`（UI の `投稿完了`）も含む。
 
 ---
 

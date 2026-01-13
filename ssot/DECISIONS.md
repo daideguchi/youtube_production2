@@ -50,7 +50,7 @@
 ### Plan（手順）
 1) redo正本 = `status.json`  
 2) UIの進捗ビューは **CSV行 + status.json + 成果物（assembled, wav/srt 等）を “effective view” としてmerge**（read-only。status.json の欠損/古さを表示で吸収）  
-3) CSV側に redo を書き戻さない（必要なら “表示用export” を別ファイルで生成）
+3) CSV側に redo を書き戻さない（表示用exportが必要な場合は、別ファイルで生成）
 
 ### Rationale（根拠）
 - redo は **制作状態（pipeline state）** であり、企画CSV（Planning facts）と責務が異なる。
@@ -182,15 +182,15 @@
    - B) チャンネル辞書（そのCHだけ）: `packages/audio_tts/data/reading_dict/CHxx.yaml`
      - 追加条件: **そのチャンネルの運用上 “読みが一意”** であること
    - C) 動画ローカル（その回だけ）: `workspaces/scripts/{CH}/{VID}/audio_prep/`
-     - **原則**: Bテキスト（TTS入力）をカナ表記にして個別対応する（最も分かりやすい）
+     - 標準: Bテキスト（TTS入力）をカナ表記にして個別対応する（最も分かりやすい）
      - 文脈で読みが割れる/同一台本内で読みを変えたい: `local_token_overrides.json`（位置指定）で対応する
-     - `local_reading_dict.json`（surface→readingの一括置換）は **原則使わない**（台本内で一意に固定できる語だけに限定）
+     - `local_reading_dict.json`（surface→readingの一括置換）は通常運用では使わない（使うのは台本内で一意に固定できる語だけ）
    - 補助（自動学習/前処理）: `packages/audio_tts/configs/learning_dict.json`
      - strict B生成には使うが、公式ユーザー辞書へは **自動同期しない**（量/事故リスクのため）
 2) 「曖昧語」は辞書に入れない（例）
    - 例: 「人」「辛い」「行った」「怒り」など（文脈で読みが変わり得る/誤登録の影響が大きい）
 3) VOICEPEAK/VOICEVOX の“公式辞書（ユーザー辞書）”は、上記SoTから **同期**して使う（運用の利便性のため）
-   - VOICEPEAK: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（`run_tts` 開始時にもbest-effortで追記同期される）
+   - VOICEPEAK: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（`run_tts` 開始時にも追記同期を試行する。失敗しても停止しない）
    - VOICEVOX（運用固定: グローバルのみ）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
    - VOICEVOX（必要時: CH語も同期）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx --overwrite`
 
@@ -287,7 +287,7 @@
 ### Rationale（根拠）
 - Batchはコストに効く一方、台本は「段階的な生成/審査/修正」が多く、非同期化すると **オーケストレーションが一気に難しくなる**。
 - まず画像Batch（非同期の運用に慣れる）→その後に台本Batch、の順が事故りにくい。
-- なお Fireworks の Batch Inference は serverless より安いことが多い（目安: 約50%）。ただし本件はコストよりも “正確に完走する” を優先して Phase2 に送る。
+- なお Fireworks の Batch Inference は serverless より安いことが多い（概算: 約50%）。ただし本件はコストよりも “正確に完走する” を優先して Phase2 に送る。
 
 ### Alternatives（代替案）
 - A) すべてBatchに寄せる（不採用）: コストは下がるが、日中の反復速度が落ちやすい
@@ -333,7 +333,7 @@
 
 ### Plan（手順）
 1) `script_enhancement` は **stages.yaml から外す**（現状は outputs=[] のため実行されず、完了扱いになる）  
-2) “章の改善パス” が必要なら、後日あらためて **output契約を定義して実装**する（例: `chapter_enhancement` が `content/chapters/chapter_N.md` を上書き or `chapters_enhanced/` を生成）
+2) “章の改善パス” が必要になった場合は、後日あらためて **output契約を定義して実装**する（例: `chapter_enhancement` が `content/chapters/chapter_N.md` を上書き or `chapters_enhanced/` を生成）
 
 ### Rationale（根拠）
 - no-op stage は「完了したように見える」ため、運用ミスとコスト事故を誘発する。

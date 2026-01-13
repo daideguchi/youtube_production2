@@ -1,10 +1,10 @@
-# OPS_VISION_PACK — スクショ/サムネの読み取り精度を上げる（任意ツール）
+# OPS_VISION_PACK — スクショ/サムネの読み取り精度を上げる（補助ツール）
 
 目的:
 - 「スクショをそのまま投げる」運用で起きがちな誤読（小さい文字/低コントラスト/ノイズ）を減らす。
 - 画像を **複数の前処理版**（拡大/シャープ/二値化/エッジ）と **自動切り出し（テキスト領域候補）** に分解し、LLM入力を強くする。
 
-これは **任意ツール**（既存パイプラインのSoTは変更しない）。  
+これは **補助ツール**（既存パイプラインのSoTは変更しない）。  
 出力は `workspaces/tmp/` 配下を既定とし、作業後にディレクトリごと削除してよい（L3扱い）。
 
 関連:
@@ -18,13 +18,13 @@
 実装:
 - `scripts/vision/vision_pack.py`
 
-推奨（統一CLI）:
+入口固定（統一CLI）:
 ```bash
 ./ops vision --help
 ```
 
 ### 1.1 スクショ（UIテキスト転記向け）
-推奨:
+入口固定:
 ```bash
 ./ops vision screenshot /path/to/screenshot.png
 ```
@@ -33,13 +33,13 @@
 ./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py screenshot /path/to/screenshot.png
 ```
 
-OCRも併用（best-effort）:
+OCRも併用（利用可能な環境のみ）:
 ```bash
 ./scripts/with_ytm_env.sh python3 scripts/vision/vision_pack.py screenshot /path/to/screenshot.png --ocr --ocr-lang jpn+eng
 ```
 
 ### 1.2 サムネ（配色/構図の解析向け）
-推奨:
+入口固定:
 ```bash
 ./ops vision thumbnail /path/to/thumb.png
 ```
@@ -69,14 +69,14 @@ OCRも併用（best-effort）:
 - `crops/` + `crops.json` + `crops_overlay.png`: テキスト領域候補の自動切り出し（bbox付き）
 - `palette.json`（thumbnailモード）: k-means代表色（hex + 比率）
 - `grid/`（thumbnailモード）: 4x3などで分割したセル画像
-- `ocr.json` + `ocr_all.txt`（`--ocr` 指定時）: OCR結果（best-effort）
+- `ocr.json` + `ocr_all.txt`（`--ocr` 指定時）: OCR結果（取得できた場合のみ）
 - `pack.json`: 生成物の索引
 - `images_for_llm.txt`: LLM投入向けの画像リスト（カンマ区切り）
 - `prompt_template.txt`: 推測禁止・追加切り出し要求つきのプロンプト雛形
 
 ---
 
-## 3) LLMへ渡すときの型（推奨）
+## 3) LLMへ渡すときの型（標準）
 
 1) `images_for_llm.txt` の順に画像を投入（raw → 強調 → 二値化 → crops）
 2) `prompt_template.txt` をベースに指示（推測禁止 / [??] / 追加切り出し）
@@ -86,7 +86,7 @@ OCRも併用（best-effort）:
 
 ---
 
-## 4) OCR（任意・best-effort）
+## 4) OCR（オプション）
 
 `--ocr` は以下のいずれかで動作（あれば使う）:
 - `pytesseract`（Python）

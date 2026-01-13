@@ -65,8 +65,8 @@ LLMコスト制御（最重要）:
 
 入力:
 - `--channel CHxx`
-- `--video NNN`（必要なら）
-- `--run <run_dir>`（必要なら）
+- `--video NNN`（episode対象を指定する場合）
+- `--run <run_dir>`（run_dir対象を指定する場合）
 
 前提:
 - `./ops doctor` が通る
@@ -85,7 +85,7 @@ LLMコスト制御（最重要）:
 - `./ops reconcile --channel CHxx --video NNN`（dry-run→`--run`）
 
 注意:
-- LLMコスト: `./ops think ...` を推奨 / ここだけ `./ops api ...` 必須 など
+- LLMコスト: このパターンで使う llm モード（think/api/codex）を必ず明記する（例: `./ops think ...` / `./ops api ...`）
 - 禁止: 機械的分割/heuristicによる品質劣化/直叩き
 
 関連SSOT:
@@ -136,7 +136,7 @@ LLMコスト制御（最重要）:
    - `./ops progress --channel CHxx --videos NNN --format summary --issues-only`
 2) Reconcile（dry-run）で「何を叩くべきか」を確定する:
    - `./ops reconcile --channel CHxx --video NNN`
-3) 実行する（ここでllmモードを明示。通常は THINK 推奨）:
+3) 実行する（ここでllmモードを明示）:
    - `./ops think reconcile --channel CHxx --video NNN --run`
 4) まだ直らない場合は、固定の復帰コマンドを直接叩く:
    - `./ops resume episode -- --channel CHxx --video NNN`
@@ -166,9 +166,9 @@ LLMコスト制御（最重要）:
    - 変更する場合: `YTM_SLACK_NOTIFY_CMDS=...`
 
 注意:
-- `./ops` は終了時に best-effort で通知する（失敗しても処理自体は落とさない）。
+- `./ops` は終了時に通知を試みる（通知に失敗しても処理自体は落とさない）。
 - THINK MODEは「pendingが出た」こと自体が重要イベントなので、pendingがあれば通知される（allowlistに無くても）。
-- 通知本文には、原則として「次に見るべき場所」を含める:
+- 通知本文には「次に見るべき場所」を含める:
   - `ops_latest`: `workspaces/logs/ops/ops_cli/latest/<episode>.json`（または `latest.json`）
   - `run_log`: `workspaces/logs/ops/ops_cli/runs/<run_id>/...log`（内側コマンドのstdout/stderr）
 - `exit=2` は「警告（WARN）」の意味で返ることがある（例: `scripts/episode_ssot.py ensure` の warnings）。その場合は `FAILED` ではなく `WARN` として通知し、warnings を添付する（継続可）。
@@ -189,7 +189,7 @@ LLMコスト制御（最重要）:
 入口（固定）:
 - `./ops audio --llm think -- --channel CHxx --video NNN`
 
-推奨（外部LLM APIコストを使わない）:
+THINK（外部LLM APIコストを使わない）:
 - `./ops think audio -- --channel CHxx --video NNN`
 
 失敗/途中落ちの復帰（固定）:
@@ -214,7 +214,7 @@ LLMコスト制御（最重要）:
 入口（固定; episode向け）:
 - `./ops resume video -- --llm think --channel CHxx --video NNN`
 
-推奨（付け忘れ防止）:
+付け忘れ防止（入口固定）:
 - `./ops think resume video -- --channel CHxx --video NNN`
 
 補足（SRTを明示したい場合）:
@@ -244,7 +244,7 @@ LLMコスト制御（最重要）:
 入口（固定）:
 - `./ops video regen-images -- <args>`
 
-推奨:
+THINK版:
 - `./ops think video regen-images -- <args>`
 
 例:
@@ -261,14 +261,14 @@ LLMコスト制御（最重要）:
 ## PAT-VIDEO-AUDIT-FIX-DRAFTS-001 — Draft監査+placeholder/重複修復（audit-fix-drafts）
 
 目的:
-- placeholder/欠損/近似重複を検出し、可能なら sibling run からコピーして修復する。
+- placeholder/欠損/近似重複を検出し、sibling run が存在する場合はコピーして修復する。
 - 残るものは cue を根拠に再生成し、CapCut draft の assets に同期する。
 - 画像プロンプトは `--refine-prompts` を THINK MODE で **エージェントが推論して埋める**（局所heuristicで単調量産しない）。
 
 入口（固定）:
 - `./ops video audit-fix-drafts -- <args>`
 
-推奨（外部LLM APIコストを使わない）:
+THINK（外部LLM APIコストを使わない）:
 - `./ops think video audit-fix-drafts -- <args> --refine-prompts`
 
 例:
@@ -310,8 +310,8 @@ LLMコスト制御（最重要）:
 例:
 - `./ops video refresh-prompts -- --run <run_dir>`
 
-次にやる:
-- 必要なら `./ops think video regen-images -- --run <run_dir> --only-missing` → `./ops resume video -- --llm think --channel CHxx --video NNN`
+次にやる（欠損がある場合）:
+- `./ops think video regen-images -- --run <run_dir> --only-missing` → `./ops resume video -- --llm think --channel CHxx --video NNN`
 
 ## PAT-VIDEO-SOURCE-MIX-CH02-001 — CH02 画像ソースmix適用（apply-source-mix）
 
@@ -340,7 +340,7 @@ LLMコスト制御（最重要）:
 入口（固定）:
 - `./ops thumbnails build -- --channel CHxx --videos 001 002 ...`
 
-推奨（外部LLM APIコストを使わない）:
+THINK（外部LLM APIコストを使わない）:
 - `./ops think thumbnails build -- --channel CHxx --videos 001 002 ...`
 
 検証:

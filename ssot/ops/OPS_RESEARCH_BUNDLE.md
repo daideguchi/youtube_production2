@@ -34,9 +34,9 @@
 - `hits`: list
   - `title`: string
   - `url`: string（http/https）
-  - `snippet`: string|null（任意）
-  - `source`: string|null（任意）
-  - `age`: string|null（任意）
+  - `snippet`: string|null（省略可）
+  - `source`: string|null（省略可）
+  - `age`: string|null（省略可）
 
 #### wikipedia_summary.json（schema: ytm.wikipedia_summary.v1）
 必須キー:
@@ -57,10 +57,10 @@
 - `title`: string
 - `url`: string（http/https）
 - `type`: string（例: `web`, `paper`）
-- `source`: string（任意）
-- `year`: number|null（任意）
-- `note`: string（任意）
-- `confidence`: number（任意）
+- `source`: string（省略可）
+- `year`: number|null（省略可）
+- `note`: string（省略可）
+- `confidence`: number（省略可）
 
 ### 1.2 script_validation が吐く（ファクトチェック結果）
 場所（固定）:
@@ -81,8 +81,8 @@
   - `id`: string（`c1` 等）
   - `claim`: string
   - `status`: string（`supported|unsupported|uncertain`）
-  - `rationale`: string|null（任意）
-  - `citations`: list（任意）
+  - `rationale`: string|null（省略可）
+  - `citations`: list（省略可）
     - `source_id`: string（`s1` 等）
     - `url`: string
     - `quote`: string（提供抜粋内の“完全一致”のみ許可）
@@ -103,12 +103,12 @@
 ### 2.1 投入用 Research Bundle（schema: ytm.research_bundle.v1）
 これは **投入ツール専用の入力**（パイプラインは直接読まない）。
 
-推奨トップレベル:
+トップレベル（期待）:
 - `schema`: `"ytm.research_bundle.v1"`
 - `generated_at`: UTC ISO（`Z`）
 - `channel`: `CHxx`
 - `video`: `NNN`
-- `topic`: string（任意）
+- `topic`: string（省略可）
 - `search_results`: dict（`ytm.web_search_results.v1` 相当）
 - `wikipedia_summary`: dict（`ytm.wikipedia_summary.v1` 相当）
 - `references`: list（`references.json` 相当）
@@ -137,7 +137,7 @@ python3 scripts/ops/research_bundle.py apply --bundle /tmp/research_bundle_CH01_
 
 - URL/引用の捏造禁止（不確かな場合は入れない）。
 - `search_results.json` / `references.json` は **http/https のみ**（ファイルパス等は不可）。
-- `research_brief.md` にURLを貼るのは可（referencesが空の時のフォールバック抽出もある）が、可能なら `references.json` を正にする。
+- `research_brief.md` にURLを貼るのは可（referencesが空の時のフォールバック抽出もある）が、出典SoTは `references.json` に集約する。
 - `fact_check_report.json` は本文を書き換えない（検証と修正方針まで）。
 
 ### 3.1 重要: Web検索は「必須」ではない

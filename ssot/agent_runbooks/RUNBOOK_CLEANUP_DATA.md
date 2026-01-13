@@ -35,7 +35,7 @@ python3 scripts/cleanup_data.py --keep-days 30 --run
 安全のため、default は dry-run（削除しない）。実際に削除する場合は `--run` を付ける。  
 また、並列作業の衝突防止のため coordination lock を尊重する（危険なので通常 `--ignore-locks` は使わない）。
 
-## 5. 定期実行（任意）
+## 5. 定期実行（オプション）
 cron例（週1回、日曜3時 / `--run` を明示）:
 ```bash
 0 3 * * 0 cd <REPO_ROOT> && PYTHONPATH="<REPO_ROOT>:<REPO_ROOT>/packages" /usr/bin/python3 scripts/cleanup_data.py --run >> workspaces/logs/cleanup_data.log 2>&1

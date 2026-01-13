@@ -33,7 +33,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
   - Fireworks（画像）キー運用（固定）:
     - 台本用（`FIREWORKS_SCRIPT*`）とは **別プール**（`FIREWORKS_IMAGE*`）で運用する（コスト/枯渇の混線防止）
       - ただし現行運用では **Fireworks（text/台本）は無効**（`YTM_DISABLE_FIREWORKS_TEXT=1`）
-    - キーローテ（任意・推奨）: `~/.ytm/secrets/fireworks_image_keys.txt`
+    - キーローテ（オプション）: `~/.ytm/secrets/fireworks_image_keys.txt`
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
       - token-free状態更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`
     - 並列運用: 同一キーの同時利用を避けるため、画像生成は **key lease** で排他する（`FIREWORKS_KEYS_LEASE_DIR` 参照）
@@ -46,7 +46,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
       - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=i-1 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
     - サムネ背景生成で Gemini 3 を使う場合（許可・明示）:
       - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
-    - 事故防止のため `allow_fallback` は有効化しない（明示 `model_key` は strict が原則）。
+    - 事故防止のため `allow_fallback` は有効化しない（明示 `model_key` は strict 固定）。
     - 期間が長い場合は `.gitignore` 対象の `configs/*.local.*`（例: `configs/image_models.local.yaml`, `configs/image_model_slots.local.yaml`）で切替してよい（コミットしない）。
 
 ### 1.2 ローカル合成（Compiler）SoT
@@ -61,22 +61,22 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 ## 2. “サムネ作成”を分解する（全チャンネル共通）
 
 ### 2.1 背景（素材）を用意する
-背景は原則、動画ごとに `workspaces/thumbnails/assets/{CH}/{NNN}/10_bg.png`（または jpg/webp）を用意する。
+背景は動画ごとに `workspaces/thumbnails/assets/{CH}/{NNN}/10_bg.png`（または jpg/webp）を用意する。
 
 背景の作り方は2通り:
 1) UIのテンプレからAI生成（Templates SoTに従う）
 2) 手動/外部で作った画像を配置（アップロード/コピー）
 
-手動差し替え（推奨: UI経由）:
+手動差し替え（UI経由）:
 - `/thumbnails` → `調整（ドラッグ）` → `素材の差し替え（画像アップロード）` からアップロードすると、安定ファイル名へ置換される。
   - 背景: `10_bg.png`
-  - 肖像（任意）: `20_portrait.png`
+  - 肖像（オプション）: `20_portrait.png`
   - 出力（最終）: `00_thumb.png`（または `00_thumb_1.png` / `00_thumb_2.png`）
 - 直接ファイル操作する場合も、保存先は同じ: `workspaces/thumbnails/assets/{CH}/{NNN}/`
 
 ### 2.2 文字（コピー）を用意する
 コピーのSoTは「企画CSV」または「Layer Specs」。
-- 企画CSV（推奨フィールド）:
+- 企画CSV（参照フィールド）:
   - `サムネタイトル上` / `サムネタイトル` / `サムネタイトル下`
   - `サムネ画像プロンプト（URL・テキスト指示込み）`
 - Layer Specs:
@@ -91,7 +91,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 - `compiler/<build_id>/out_01.png`（“build単位”運用。CH07など）
 
 補足（2案/複数安定出力）:
-- 原則: サムネの“安定出力”は `00_thumb.png` の1枚運用。
+- 既定: サムネの“安定出力”は `00_thumb.png` の1枚運用。
 - 2案（`00_thumb_1/2`）を運用する場合は、各動画あたり **2つの別物**として扱う（片方の調整がもう片方に影響しないこと）。
   - UI（`/thumbnails`）のギャラリーは `2案（00_thumb_1/2）` 表示で確認する。未生成の案は `未生成` として表示される（生成/調整の入口）。
   - 企画CSV一覧（`/planning` の `サムネ` 列）は、`00_thumb_1/00_thumb_2` がある場合 **2枚を並べて表示**し、それぞれクリックで `stable=00_thumb_1|00_thumb_2` を付けて編集画面を開く（混線防止）。
@@ -109,7 +109,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
   - `assets/{CH}/{NNN}/thumb_spec.<stable>.json`（例: `thumb_spec.00_thumb_1.json`, `thumb_spec.00_thumb_2.json`）
     - schema: `ytm.thumbnail.thumb_spec.v1`（中身は通常の `thumb_spec.json` と同じ）
     - 背景/肖像/文字effects/template選択などの “leaf overrides” を安定出力ごとに独立保持する。
-    - 重要: 2案の混線防止のため、**`00_thumb_2` の既定は `overrides.portrait.enabled=false`**（必要なら `thumb_spec.00_thumb_2.json` で明示的にON）。
+    - 重要: 2案の混線防止のため、**`00_thumb_2` の既定は `overrides.portrait.enabled=false`**（ONにする場合は `thumb_spec.00_thumb_2.json` で明示的にON）。
       - CH26 は背景に顔が含まれることがあるため、`overrides.portrait.enabled=true` の間は “背景の顔を抑制” (`overrides.portrait.suppress_bg`) を強制ON（ダブルフェイス事故防止）。
         - 抑制領域は `overrides.portrait.offset_(x|y)` に追従しつつ、**元位置とオフセット位置の両方を覆う**（UIプレビュー/ビルド両方）。
   - `assets/{CH}/{NNN}/text_line_spec.<stable>.json`（例: `text_line_spec.00_thumb_1.json`）
@@ -126,7 +126,7 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 
 チャンネルごとに「どの合成エンジンを使うか」を切替できるようにする。
 
-### 3.1 Engine A: `layer_specs_v3`（推奨・柔軟）
+### 3.1 Engine A: `layer_specs_v3`（主線 / 柔軟）
 - 背景: `10_bg.png`（動画ごと）
 - 文字: `workspaces/thumbnails/compiler/layer_specs/text_layout_v3.yaml`
 - 特徴:
@@ -143,9 +143,9 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 - どちらも無ければエラー（設定不足）
 
 ### 3.4 チャンネル別の既定値（Templates SoT）
-CLI の “毎回同じ指定” を減らすため、`templates.json` の各チャンネルに `compiler_defaults` を任意で持たせる。
+CLI の “毎回同じ指定” を減らすため、`templates.json` の各チャンネルに `compiler_defaults` をオプションで持たせる。
 
-例（任意・後方互換）:
+例（オプション; 後方互換）:
 ```json
 {
   "channels": {
@@ -161,12 +161,12 @@ CLI の “毎回同じ指定” を減らすため、`templates.json` の各チ
 
 ルール:
 - CLI の引数が “既定値（例: brightness=1.0）” のままなら、`compiler_defaults` を適用してよい。
-- 明示指定があれば CLI を優先する（SSOT上の原則: “手動指定が最強”）。
+- 明示指定があれば CLI を優先する（SSOTルール: “手動指定が最強”）。
 
 ### 3.5 型管理（Typed Specs）とレイヤ分離（必須設計）
 サムネ量産/修正を「全チャンネルでスケール」させるため、Compiler は **型（schema）とレイヤ**を明確に分離する。
 
-原則:
+固定ルール:
 - **Image Layer（画像レイヤ）** と **Text Layer（文字レイヤ）** を別モジュールに分ける（責務の混在を禁止）。
 - `layer_specs_v3` の YAML は **Typed schema で読み込み時に検証**し、壊れた入力を早期に落とす（dict丸投げ禁止）。
 
@@ -231,7 +231,7 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 - `color`（>1 で彩度）
 - `gamma`（<1 で明るく。暗部を持ち上げやすい）
 
-原則:
+固定ルール:
 - 背景画像を直接上書きしない（累積補正を避けるため、合成時に一時PNGを作る）
 - “やりすぎ”は白飛び/ノイズで逆効果。QCで一括確認してから反映する。
 
@@ -251,7 +251,7 @@ UI/SoT側で「やり直しフラグ」を立て、CLIで一括再合成して�
 
 ## 7. 入口（確定CLI）
 
-統一CLI（推奨）:
+統一CLI（入口固定）:
 - `python scripts/thumbnails/build.py --help`
 
 想定サブコマンド:
@@ -274,9 +274,9 @@ A/B（2案）で安定出力名を分けたい場合:
    - 生成するなら `templates.json` にテンプレを追加
    - 既存素材なら `assets/{CH}/{NNN}/10_bg.png` を用意
 3) 合成エンジンを決める
-   - 推奨: `layer_specs_v3`（`templates.json.channels[CHxx].layer_specs` を設定）
+   - 主線: `layer_specs_v3`（`templates.json.channels[CHxx].layer_specs` を設定）
    - 互換: `buddha_3line_v1`（stylepackを用意）
-4) （任意）ベンチマーク（競合）サムネの特徴を集約→テンプレ雛形を作る
+4) （オプション）ベンチマーク（競合）サムネの特徴を集約→テンプレ雛形を作る
    - 競合定義SoT: `packages/script_pipeline/channels/CHxx-*/channel_info.json: benchmarks.channels`
    - 収集: `python3 scripts/ops/yt_dlp_benchmark_analyze.py --channel CHxx --apply`
    - 特徴抽出（styleguide）: `python3 scripts/ops/thumbnail_styleguide.py build --handle @HANDLE --apply`（または `--channel-id UC...`）
