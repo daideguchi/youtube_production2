@@ -152,7 +152,12 @@ from backend.app.planning_models import (
 )
 from backend.app.planning_payload import build_planning_payload, build_planning_payload_from_row
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
-from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.normalize import (
+    normalize_channel_code,
+    normalize_optional_text,
+    normalize_planning_video_number,
+    normalize_video_number,
+)
 from backend.app.ui_settings_store import (
     OPENROUTER_API_KEY,
     _get_effective_openai_key,
@@ -1176,18 +1181,6 @@ def write_json(path: Path, payload: dict) -> None:
     write_text_with_lock(path, json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
 
 
-def normalize_optional_text(value: Any) -> Optional[str]:
-    """Return a stripped string or None when empty/undefined."""
-
-    if value is None:
-        return None
-    if isinstance(value, str):
-        text = value.strip()
-    else:
-        text = str(value).strip()
-    return text or None
-
-
 def list_channel_dirs() -> List[Path]:
     if not DATA_ROOT.exists():
         return []
@@ -1281,28 +1274,6 @@ def list_planning_video_numbers(channel_code: str) -> List[str]:
         seen.add(number)
         unique.append(number)
     return unique
-
-
-def normalize_planning_video_number(value: Any) -> Optional[str]:
-    """
-    Best-effort normalization for Planning SoT columns ("動画番号" etc).
-
-    - Extract digits (so inputs like "1", "001", "第1話" do not crash the API).
-    - Return `None` when no numeric token is found.
-
-    This is intentionally more permissive than `normalize_video_number`, which validates
-    user-provided path params strictly.
-    """
-
-    if value is None:
-        return None
-    raw = str(value).strip()
-    if not raw:
-        return None
-    digits = "".join(ch for ch in raw if ch.isdigit())
-    if not digits:
-        return None
-    return digits.zfill(3)
 
 
 def video_base_dir(channel_code: str, video_number: str) -> Path:
