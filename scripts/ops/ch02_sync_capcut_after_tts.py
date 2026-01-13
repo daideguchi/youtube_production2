@@ -38,6 +38,12 @@ class Result:
     detail: str
 
 
+def _now_tag() -> str:
+    from datetime import datetime
+
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
 def _iter_videos(min_id: int, max_id: int) -> Iterable[str]:
     for n in range(min_id, max_id + 1):
         yield f"{n:03d}"
@@ -81,6 +87,93 @@ def _draft_srt2images_segment_counts(draft_dir: Path) -> list[int]:
         return out
     except Exception:
         return []
+
+def _rewrite_capcut_paths_in_json(*, payload: object, draft_dir: Path, token: str) -> tuple[object, int]:
+    """
+    Fix CapCut "参照切れ" caused by folder rename (e.g., "...(1)") where JSON still points to the old folder name.
+
+    We only rewrite keys named exactly "path", and only when:
+      - the path contains ".../com.lveditor.draft/<SOME_DRAFT_NAME>/..."
+      - <SOME_DRAFT_NAME> contains the episode token (e.g., CH02-043)
+      - the target file exists under the *current* draft_dir with the same relative suffix.
+    """
+
+    def rewrite_one(p: str) -> tuple[str, bool]:
+        if "com.lveditor.draft/" not in p:
+            return p, False
+        _prefix, rest = p.split("com.lveditor.draft/", 1)
+        parts = rest.split("/", 1)
+        if len(parts) != 2:
+            return p, False
+        old_draft_name, rel = parts[0], parts[1]
+        if old_draft_name == draft_dir.name:
+            return p, False
+        if token.upper() not in old_draft_name.upper():
+            return p, False
+        candidate = draft_dir / rel
+        if not candidate.exists():
+            return p, False
+        return str(candidate), True
+
+    changed = 0
+
+    def walk(obj: object) -> object:
+        nonlocal changed
+        if isinstance(obj, dict):
+            out: dict[object, object] = {}
+            for k, v in obj.items():
+                if k == "path" and isinstance(v, str):
+                    nv, did = rewrite_one(v)
+                    if did:
+                        changed += 1
+                    out[k] = nv
+                    continue
+                out[k] = walk(v)
+            return out
+        if isinstance(obj, list):
+            return [walk(v) for v in obj]
+        return obj
+
+    return walk(payload), changed
+
+
+def _fix_draft_broken_paths(*, draft_dir: Path, channel: str, video: str, dry_run: bool) -> tuple[bool, str]:
+    """
+    If CapCut renamed a draft folder (e.g., suffix "(1)"), internal JSON often still
+    points to the old folder name -> all media show as missing.
+    """
+    token = f"{channel}-{video}"
+    touched = 0
+    for fname in ("draft_content.json", "draft_info.json"):
+        p = draft_dir / fname
+        if not p.exists():
+            continue
+        try:
+            import json
+
+            payload = json.loads(p.read_text(encoding="utf-8"))
+            new_payload, changed = _rewrite_capcut_paths_in_json(payload=payload, draft_dir=draft_dir, token=token)
+            if changed <= 0:
+                continue
+            touched += changed
+            if dry_run:
+                continue
+            backup = p.with_name(f"{p.name}.bak_fix_paths_{_now_tag()}")
+            try:
+                backup.write_bytes(p.read_bytes())
+            except Exception:
+                pass
+            tmp = p.with_name(f"{p.name}.tmp.{_now_tag()}")
+            tmp.write_text(
+                json.dumps(new_payload, ensure_ascii=False, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            tmp.replace(p)
+        except Exception as e:
+            return False, f"fix_paths failed for {fname}: {e}"
+    if touched:
+        return True, f"fixed_paths={touched}"
+    return True, "no_path_fixes_needed"
 
 
 def _pick_run_dir(*, root: Path, channel: str, video: str, prefer_substr: str) -> Optional[Path]:
@@ -176,6 +269,16 @@ def main() -> None:
         draft_dir = _resolve_capcut_draft(run_dir=run_dir, apply_fixes=not args.dry_run)
         if not draft_dir or not draft_dir.exists():
             results.append(Result(video=vid, run_dir=run_dir, status="skip", detail="capcut_draft unresolved"))
+            continue
+
+        ok, msg = _fix_draft_broken_paths(
+            draft_dir=draft_dir,
+            channel=channel,
+            video=vid,
+            dry_run=bool(args.dry_run),
+        )
+        if not ok:
+            results.append(Result(video=vid, run_dir=run_dir, status="fail", detail=msg))
             continue
 
         ok, msg = _run_module(

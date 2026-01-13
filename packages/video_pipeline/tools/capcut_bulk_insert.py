@@ -699,6 +699,68 @@ def parse_srt_file(srt_path: Path):
     
     return subtitles
 
+
+_JP_PUNCT_BREAK_AFTER = set("、。！？!?…」』）》）)]】〕〉》")
+_JP_PUNCT_DISALLOW_LINE_START = set("、。！？!?…」』）》）)]】〕〉》")
+
+
+def _wrap_subtitle_text_jp(text: str, *, max_chars: int = 16) -> str:
+    """
+    Force-wrap Japanese subtitles for narrow layouts.
+
+    - Keeps content identical except for newline placement.
+    - Prefers breaking after punctuation/spaces, but falls back to hard wrap at max_chars.
+    """
+    if not text:
+        return ""
+    s = str(text).replace("\r\n", "\n").replace("\r", "\n")
+    # Collapse in-cue newlines; we'll re-wrap deterministically.
+    s = re.sub(r"\s*\n\s*", "", s).strip()
+    if not s:
+        return ""
+
+    lines: list[str] = []
+    rest = s
+    while rest:
+        if len(rest) <= max_chars:
+            lines.append(rest)
+            break
+
+        window = rest[: max_chars + 1]
+        break_at = None
+
+        # Prefer breaking after punctuation within the window.
+        for i in range(min(max_chars, len(window) - 1), 0, -1):
+            ch = window[i - 1]
+            if ch in _JP_PUNCT_BREAK_AFTER or ch.isspace():
+                break_at = i
+                break
+
+        # If next char would start with punctuation, try to include it in the previous line (when safe).
+        if break_at is None:
+            break_at = max_chars
+        if break_at < len(rest) and rest[break_at] in _JP_PUNCT_DISALLOW_LINE_START:
+            if break_at + 1 <= max_chars:
+                break_at += 1
+            else:
+                # Find an earlier break so punctuation doesn't lead the next line.
+                for i in range(break_at - 1, 0, -1):
+                    if rest[i - 1] in _JP_PUNCT_BREAK_AFTER or rest[i - 1].isspace():
+                        break_at = i
+                        break
+
+        head = rest[:break_at].strip()
+        if head:
+            lines.append(head)
+        rest = rest[break_at:].lstrip()
+
+        # Safety: avoid infinite loops on weird input.
+        if len(lines) > 20:
+            lines.append(rest)
+            break
+
+    return "\n".join(lines)
+
 def _extract_video_id_from_path(path_str: str) -> Optional[str]:
     """Pick first CHxx-xxx pattern from path-like string."""
     if not path_str:
@@ -740,6 +802,44 @@ def _load_title_from_channel_csv(channel_id: Optional[str], video_id: Optional[s
         logger.warning(f"Failed to load title from {csv_path}: {exc}")
         logger.debug(traceback.format_exc())
     return None
+
+
+def _load_person_info_text(run_dir: Path) -> Optional[str]:
+    """
+    Load lower-third person info text from run_dir/episode_info.json.
+
+    Expected schema (minimal):
+      {
+        "person": {
+          "name": "...",
+          "years": "1903–1957",
+          "achievement": "数学者 ..."
+        }
+      }
+    """
+    epi_path = run_dir / "episode_info.json"
+    if not epi_path.exists():
+        return None
+    try:
+        data = json.loads(epi_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(data, dict):
+        return None
+    person = data.get("person") or {}
+    if not isinstance(person, dict):
+        return None
+    name = str(person.get("name") or "").strip()
+    years = str(person.get("years") or "").strip()
+    achievement = str(person.get("achievement") or "").strip()
+    if not name:
+        return None
+
+    header = f"{name}（{years}）" if years else name
+    lines = [header]
+    if achievement:
+        lines.append(achievement)
+    return "\n".join(lines).strip() or None
 
 
 def make_absolute_schedule_us(cues, offset_us=0):
@@ -3332,10 +3432,12 @@ def main():
 
                     added = 0
                     for ent in subs:
-                        # 字幕は台本タイミング通り（冒頭ブランクは映像だけ）
-                        start_us = int(ent['start_us'])
+                        # Align subtitles with the opening-offset timeline (voice/images start at opening_offset_us).
+                        start_us = opening_offset_us + int(ent['start_us'])
                         dur_us = max(SEC // 60, int(ent['end_us'] - ent['start_us']))
                         text_val = ent.get('text', '')
+                        if style_id == "portrait_left_subtitles_v1":
+                            text_val = _wrap_subtitle_text_jp(text_val, max_chars=16)
                         try:
             # Create text segment (generic style)
                             text_seg = Text_segment(
@@ -3359,6 +3461,98 @@ def main():
 
         except Exception as e:
             print(f"Warning: Failed to insert SRT subtitles: {e}")
+
+    # Add lower-left person info if configured (CH09/CH26 portrait layout).
+    try:
+        if style_id == "portrait_left_subtitles_v1":
+            person_text = _load_person_info_text(run_dir)
+            raw_cfg = (getattr(adapter, "overrides", {}) or {}).get("raw", {}) or {}
+            person_cfg = raw_cfg.get("person_info") or {}
+            if person_text and isinstance(person_cfg, dict):
+                # Track goes below subtitles but above title (safe overlay zone).
+                track_name = "person_info_text"
+                try:
+                    script.add_track(Track_type.text, track_name, absolute_index=1_500_000)
+                except Exception:
+                    pass
+                try:
+                    script.tracks[track_name].segments = []
+                except Exception:
+                    pass
+
+                # Compute duration from cue schedule (includes opening_offset_us already).
+                total_us = 0
+                try:
+                    for s, d in schedule:
+                        total_us = max(total_us, int(s) + int(d))
+                except Exception:
+                    total_us = opening_offset_us + int(60 * SEC)
+                timeline_room_us = max(SEC // 60, total_us - opening_offset_us)
+
+                # Build style objects from capcut_settings.person_info
+                font_size = float(person_cfg.get("font_size", 4.4))
+                text_color = str(person_cfg.get("text_color", "#FFFFFF"))
+                stroke_color = str(person_cfg.get("stroke_color", "#000000"))
+                border_width = float(person_cfg.get("border_width", 0.06))
+                stroke_width = float(person_cfg.get("stroke_width", 0.0))
+                line_spacing = float(person_cfg.get("line_spacing", 0.02))
+                pos = person_cfg.get("position") or {}
+                bg = person_cfg.get("background") or {}
+
+                person_style = Text_style(
+                    size=font_size,
+                    color=adapter._hex_to_rgb_tuple(text_color),
+                    alpha=1.0,
+                    align=0,  # left
+                    line_spacing=line_spacing,
+                )
+
+                person_bg = None
+                try:
+                    if bool(bg.get("enabled", False)):
+                        person_bg = Text_background(
+                            color=adapter._hex_to_rgb_tuple(str(bg.get("color", "#000000"))),
+                            alpha=float(bg.get("alpha", 0.75)),
+                            round_radius=float(bg.get("round_radius", 0.4)),
+                            style=int(bg.get("style", 1)),
+                            height=float(bg.get("height", 0.18)),
+                            width=float(bg.get("width", 0.30)),
+                            horizontal_offset=float(bg.get("horizontal_offset", -1.0)),
+                            vertical_offset=float(bg.get("vertical_offset", -1.0)),
+                        )
+                except Exception:
+                    person_bg = None
+
+                person_border = None
+                try:
+                    if stroke_width > 0.0:
+                        person_border = Text_border(
+                            width=border_width,
+                            alpha=1.0,
+                            color=adapter._hex_to_rgb_tuple(stroke_color),
+                        )
+                except Exception:
+                    person_border = None
+
+                person_clip = Clip_settings(
+                    transform_x=float(pos.get("x", -0.62)),
+                    transform_y=float(pos.get("y", -0.78)),
+                    scale_x=1.0,
+                    scale_y=1.0,
+                )
+
+                seg = Text_segment(
+                    person_text,
+                    Timerange(opening_offset_us, int(timeline_room_us)),
+                    style=person_style,
+                    background=person_bg,
+                    border=person_border,
+                    clip_settings=person_clip,
+                )
+                script.add_segment(seg, track_name=track_name)
+                logger.info("✅ Inserted person info text on track '%s'", track_name)
+    except Exception as exc:
+        logger.warning("Failed to insert person info text (non-fatal): %s", exc)
 
     # Normalize timeranges for all text segments to avoid pyJianYingDraft export errors
     try:

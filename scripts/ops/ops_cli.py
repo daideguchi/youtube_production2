@@ -938,6 +938,10 @@ def _print_list() -> None:
     print("    ./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --run")
     print("    ./ops archive published --channel CHxx --audio --video-runs --delete --run --yes")
     print("")
+    print("  YouTube (paste-ready meta):")
+    print("    ./ops youtube meta --channel CHxx --video NNN")
+    print("    ./ops youtube meta --channel CHxx --video NNN --field description_full")
+    print("")
     print("  Agent queue helpers:")
     print("    ./ops agent list|show|prompt|chat|bundle|claim|complete ...")
     print("")
@@ -1174,6 +1178,28 @@ def cmd_publish(args: argparse.Namespace) -> int:
     forwarded = _strip_leading_double_dash(list(args.args))
     inner = ["python3", "scripts/youtube_publisher/publish_from_sheet.py", *forwarded]
     return _run_with_llm_mode(args.llm, inner)
+
+
+def cmd_youtube(args: argparse.Namespace) -> int:
+    action = str(getattr(args, "action", "") or "").strip()
+    if action != "meta":
+        print(f"unknown youtube action: {action}", file=sys.stderr)
+        return 2
+
+    inner = [
+        "python3",
+        "scripts/ops/youtube_meta.py",
+        "--channel",
+        str(getattr(args, "channel", "") or "").strip(),
+        "--video",
+        str(getattr(args, "video", "") or "").strip(),
+    ]
+    if bool(getattr(args, "json", False)):
+        inner.append("--json")
+    field = str(getattr(args, "field", "") or "").strip()
+    if field:
+        inner += ["--field", field]
+    return _run(inner)
 
 
 def cmd_ui(args: argparse.Namespace) -> int:
@@ -2059,6 +2085,28 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to publish_from_sheet.py (use '--' before flags)")
     sp.set_defaults(func=cmd_publish)
+
+    sp = sub.add_parser("youtube", help="YouTube helpers (paste-ready meta)")
+    sp.add_argument("action", choices=["meta"], help="youtube operation")
+    sp.add_argument("--channel", required=True, help="e.g. CH12")
+    sp.add_argument("--video", required=True, help="e.g. 013")
+    mg = sp.add_mutually_exclusive_group()
+    mg.add_argument("--json", action="store_true", help="emit JSON payload")
+    mg.add_argument(
+        "--field",
+        choices=[
+            "title",
+            "tags_comma",
+            "description_full",
+            "description_episode",
+            "description_channel",
+            "youtube_url",
+            "studio_url",
+        ],
+        default="",
+        help="print only one field (for piping)",
+    )
+    sp.set_defaults(func=cmd_youtube)
 
     sp = sub.add_parser("planning", help="planning helpers (lint/sanitize)")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())

@@ -22,6 +22,7 @@
     - “最新の実行” ポインタ: `./ops latest --channel CHxx --video NNN`
     - 実行タイムライン（opsレジャー）: `./ops history --tail 50 --channel CHxx`
     - 書庫（重いアセット退避の目録）: UI `/archive/` / SSOT: `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md`
+    - YouTube貼り付け（タイトル/概要欄/タグをstdoutへ出す）: `./ops youtube meta --channel CHxx --video NNN`（概要欄: `--field description_full`）
     - 処理パターン索引（CLIレシピSSOT）: `./ops patterns list`（正本: `ssot/ops/OPS_EXECUTION_PATTERNS.md`）
   - 復帰コマンド固定（SSOT）: `ssot/ops/OPS_FIXED_RECOVERY_COMMANDS.md`
   - Reconcile（issues→復帰コマンドを配線; dry-run既定）: `./ops reconcile --channel CHxx --video NNN`

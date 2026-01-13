@@ -102,6 +102,8 @@
         - `./ops resume video -- --llm think --channel CHxx --video NNN`
   - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
+  - 貼り付け用メタ（タイトル/概要欄/タグをstdoutへ出す）: `./ops youtube meta --channel CHxx --video NNN`
+    - 概要欄（全文）だけ: `./ops youtube meta --channel CHxx --video NNN --field description_full`
   - 正本入口（事故防止: ローカルも投稿済みロック同期）: `./ops publish -- --max-rows 1 --run --also-lock-local`
   - 互換（uploadのみ）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
   - 互換（also-lock-local）: `python scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run --also-lock-local`

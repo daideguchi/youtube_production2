@@ -13,6 +13,56 @@
   flex-wrap: wrap;
 }
 
+.capcut-draft-progress-page__channel-icons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.capcut-draft-progress-page__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #cbd2d9;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.capcut-draft-progress-page__chip.is-active {
+  border-color: #0b6efd;
+  color: #0b6efd;
+  background: #e7f0ff;
+}
+
+.capcut-draft-progress-page__chip-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px #fff;
+}
+
+.capcut-draft-progress-page__chip-icon {
+  font-size: 12px;
+}
+
+.capcut-draft-progress-page__chip-text {
+  font-weight: 800;
+  color: #111827;
+}
+
+.capcut-draft-progress-page__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
 .capcut-draft-progress-page__controls select,
 .capcut-draft-progress-page__controls input {
   padding: 5px 8px;
@@ -31,7 +81,8 @@
 }
 
 .capcut-draft-progress-page__table-wrapper {
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fff;
@@ -40,10 +91,9 @@
 }
 
 .capcut-draft-progress-page__table {
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
   font-size: 12px;
 }
 
@@ -53,7 +103,7 @@
   border-bottom: 1px solid #f1f3f5;
   text-align: left;
   vertical-align: top;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .capcut-draft-progress-page__table th {
@@ -62,10 +112,29 @@
   background: #e2e8f0;
   z-index: 2;
   font-weight: 800;
+  white-space: nowrap;
+}
+
+.capcut-draft-progress-page__col-video {
+  width: 70px;
 }
 
 .capcut-draft-progress-page__table tr:hover td {
   background: #f8fbff;
+}
+
+.capcut-draft-progress-page__row--posted td {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.capcut-draft-progress-page__row--posted:hover td {
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.capcut-draft-progress-page__video {
+  white-space: nowrap;
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .capcut-draft-progress-page__title {
@@ -84,6 +153,11 @@
   font-weight: 800;
   font-size: 11px;
   line-height: 1.2;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .capcut-draft-progress-page__badge--done {
@@ -110,7 +184,39 @@
   color: #991b1b;
 }
 
+.capcut-draft-progress-page__badge--posted {
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+}
+
+.capcut-draft-progress-page__status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.capcut-draft-progress-page__steps {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.capcut-draft-progress-page__run {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
 .capcut-draft-progress-page__link {
+  display: inline-block;
+  max-width: 100%;
   color: #0b6efd;
   font-weight: 700;
   text-decoration: none;
@@ -120,3 +226,179 @@
   text-decoration: underline;
 }
 
+.capcut-draft-progress-page__overview {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 10px 12px;
+}
+
+.capcut-draft-progress-page__overview-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.capcut-draft-progress-page__overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.capcut-draft-progress-page__overview-card {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: inherit;
+  padding: 10px 10px 9px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  min-width: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+
+.capcut-draft-progress-page__overview-card:hover {
+  border-color: rgba(11, 110, 253, 0.55);
+  background: rgba(11, 110, 253, 0.06);
+}
+
+.capcut-draft-progress-page__overview-card:focus-visible {
+  outline: 2px solid rgba(11, 110, 253, 0.55);
+  outline-offset: 2px;
+}
+
+.capcut-draft-progress-page__overview-card.is-active {
+  border-color: rgba(11, 110, 253, 0.75);
+  background: rgba(11, 110, 253, 0.1);
+  box-shadow: 0 0 0 2px rgba(11, 110, 253, 0.15), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.capcut-draft-progress-page__overview-card.is-danger {
+  border-color: rgba(220, 38, 38, 0.55);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.capcut-draft-progress-page__overview-card.is-danger.is-active {
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.16), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.capcut-draft-progress-page__overview-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.capcut-draft-progress-page__overview-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.capcut-draft-progress-page__overview-right {
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.capcut-draft-progress-page__overview-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  background: #fff;
+}
+
+.capcut-draft-progress-page__overview-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  background: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.capcut-draft-progress-page__overview-text {
+  min-width: 0;
+}
+
+.capcut-draft-progress-page__overview-code {
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: 0.02em;
+}
+
+.capcut-draft-progress-page__overview-name {
+  font-size: 11px;
+  color: #475569;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.capcut-draft-progress-page__overview-backlog-label {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.capcut-draft-progress-page__overview-backlog-value {
+  font-weight: 900;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.capcut-draft-progress-page__overview-bar {
+  margin-top: 9px;
+  height: 8px;
+  background: rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.capcut-draft-progress-page__overview-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0b6efd, #22c55e);
+  transition: width 200ms ease;
+}
+
+.capcut-draft-progress-page__overview-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.capcut-draft-progress-page__badge--mini {
+  font-size: 10px;
+  padding: 2px 7px;
+}
+
+.capcut-draft-progress-page__overview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.capcut-draft-progress-page__overview-error {
+  margin-top: 9px;
+  color: #c1121f;
+  font-weight: 700;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

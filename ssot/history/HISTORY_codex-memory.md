@@ -274,3 +274,7 @@
 - CapCut: `★CH27-001/002/027` の旧ドラフトは衝突回避のため `OLD__...__20260113T015654Z` へリネーム後、30本の新ドラフトを生成。
 - Audit: 30本の draft 参照切れ/尺/字幕位置（CH27は中央下段）を機械監査し、failures=0（`workspaces/logs/ops/ch27_capcut_audit3_20260113T020745Z/report.json`）。
 - Ops/local: `configs/llm_task_overrides.local.yaml` を追加し、`visual_image_cues_plan` を外部pin無しで実行できるようにした（Codex exec 優先→API不足時のTHINK化を回避）。
+- Audio: CH27-001..030 を **VOICEVOX 波音リツ（speaker_id=9）** で `--force-overwrite-final` 再生成（`workspaces/logs/ops/ch27_audio_resynth_20260113T095330Z/`）。
+- Retiming: 各 run_dir を final SRT/WAV に合わせて `align_run_dir_to_tts_final` で再整列（`workspaces/logs/ops/ch27_align_run_dir_to_tts_final_20260113T124207Z/`）。
+- CapCut patch: 既存ドラフトを in-place で音声/字幕/画像尺まで同期し、ドラフト内素材パスを `##_draftpath_placeholder_..._##` に正規化（参照切れ対策）（`workspaces/logs/ops/ch27_patch_capcut_drafts_v2_20260113T124713Z/`）。
+- Audit: 音声差し替え後の30本を再監査し failures=0（`workspaces/logs/ops/ch27_capcut_audit_audiofix_20260113T124951Z/report.json`）。
