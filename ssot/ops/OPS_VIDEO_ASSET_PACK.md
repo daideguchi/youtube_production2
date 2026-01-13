@@ -132,7 +132,7 @@ mv /tmp/episode_asset_pack__CHxx-NNN.tgz "$YTM_OFFLOAD_ROOT/episode_asset_pack/C
 - 「どのエピソードの Asset Pack を書庫化したか」を **UIで即確認**できるようにする（探す/見落とす事故を減らす）。
 
 入口:
-- UI: `/archives`（サイドバー: `書庫`）
+- UI: `/archive/`（サイドバー: `書庫`）
 
 見方（固定）:
 - 一覧は `gh_releases_archive/manifest/manifest.jsonl` / `gh_releases_archive/index/latest.json` の **目録**。

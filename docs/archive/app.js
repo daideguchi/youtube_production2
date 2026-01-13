@@ -87,6 +87,46 @@ function normalizeText(s) {
   return String(s || "").trim();
 }
 
+async function copyText(text) {
+  const s = String(text || "");
+  if (!s.trim()) return false;
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(s);
+      return true;
+    } catch (_err) {
+      // fall through
+    }
+  }
+  const ta = document.createElement("textarea");
+  ta.value = s;
+  ta.style.position = "fixed";
+  ta.style.top = "-1000px";
+  ta.style.left = "-1000px";
+  ta.setAttribute("readonly", "");
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch (_err) {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function resolveRepoSlug() {
+  const rawBase = resolveRawBase();
+  const parsed = parseGitHubRepoFromRawBase(rawBase);
+  if (parsed) return `${parsed.owner}/${parsed.repo}`;
+  const guessed = guessGitHubRepoFromPages();
+  if (guessed) return `${guessed.owner}/${guessed.repo}`;
+  return "";
+}
+
 function matchQuery(item, query) {
   const q = normalizeText(query).toLowerCase();
   if (!q) return true;
@@ -114,6 +154,7 @@ function render(items) {
   const listEl = $("list");
   const emptyEl = $("empty");
   listEl.innerHTML = "";
+  const repoSlug = resolveRepoSlug();
 
   if (!items.length) {
     emptyEl.hidden = false;
@@ -178,6 +219,23 @@ function render(items) {
     openRelease.textContent = "Release を開く";
     if (!releaseHref) openRelease.setAttribute("aria-disabled", "true");
     actions.appendChild(openRelease);
+
+    const copyPull = document.createElement("button");
+    copyPull.className = "btn";
+    copyPull.type = "button";
+    copyPull.textContent = "復元コマンドをコピー";
+    copyPull.addEventListener("click", async () => {
+      const outdir = "/tmp/ytm_restore";
+      const base = `./ops archive release pull "${archiveId}" --outdir "${outdir}"`;
+      const cmd = repoSlug ? `ARCHIVE_REPO="${repoSlug}" ${base}` : base;
+      const ok = await copyText(cmd);
+      const prev = copyPull.textContent;
+      copyPull.textContent = ok ? "コピーしました" : "コピー失敗";
+      window.setTimeout(() => {
+        copyPull.textContent = prev;
+      }, 1200);
+    });
+    actions.appendChild(copyPull);
 
     const manifestHref = buildTreeUrl(MANIFEST_PATH);
     const openManifest = document.createElement("a");

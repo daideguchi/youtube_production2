@@ -184,6 +184,24 @@
   - `SKIP_TTS_READING=1`（default: 0）: 読みLLM経路を完全にスキップし、辞書/override + 手動監査で運用する。
   - 誤読防止（常時ON）: VOICEVOX実読と期待読みが1件でもズレたら停止し、`workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json` を出力する（誤読混入を禁止）。
 
+## 書庫/退避（容量対策）
+
+用途:
+- 投稿済みの重い成果物（動画/音声/画像束）をローカルから退避し、必要時に復元できる状態にする。
+
+### GitHub Releases 書庫（目録 + 実体）
+
+- `ARCHIVE_REPO`（標準）: `OWNER/REPO`
+  - 対象: `./ops archive release ...` / `./ops archive episode-asset-pack --push ...`
+  - `gh auth status` が `Logged in` を表示すること（常時接続前提）
+- `CHUNK_SIZE_BYTES`（省略可）: 既定 chunk size を上書き（2GiB未満運用）
+
+### 外部SSD退避（ローカルのみ）
+
+- `YTM_OFFLOAD_ROOT`（省略可）: 退避先ルート（例: `/Volumes/SSD/ytm_offload`）
+  - 対象: `./ops archive episode-asset-pack --offload ...`
+  - 退避物のパイプライン参照はしない（復元/再利用は人間が選ぶ）
+
 ## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
 `packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/search_results.json` に保存される。
 

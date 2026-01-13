@@ -20,6 +20,15 @@
 
 ---
 
+## 0.1) UI（Pages）
+
+- 一覧UI: `/archive/`（GitHub Pages）
+  - データ: `gh_releases_archive/index/latest.json`（tracked）
+  - ここは **目録**。実体（.mp4/.wav/.zip/.tgz）は GitHub Releases assets。
+  - 空の場合は未投入（= `./ops archive ... --push --run` をまだ実行していない）。
+
+---
+
 ## 1) 実行入口（CLI）
 
 - 統一入口: `./ops archive release --help`

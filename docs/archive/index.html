@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>書庫（GitHub Releases Archive）</title>
-    <link rel="stylesheet" href="./styles.css?v=20260113_01" />
-    <script defer src="./app.js?v=20260113_01"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260113_02" />
+    <script defer src="./app.js?v=20260113_02"></script>
   </head>
   <body>
     <div class="wrap">
@@ -67,9 +67,14 @@
             <summary>CLI（書庫へ追加）</summary>
             <div class="hint__body">
               <div class="muted small">入口: <code>./ops archive</code>（デフォルトdry-run。実行は <code>--run</code>）</div>
-              <pre class="code">./ops archive episode-asset-pack --channel CHxx --video NNN --push --run
-./ops archive published --channel CHxx --apply --run
-./ops archive release --file /tmp/episode_asset_pack__CHxx-NNN.tgz --tags type:episode_asset_pack,channel:CHxx,video:NNN --run</pre>
+              <pre class="code"># 画像束（再利用/容量対策）: Episode Asset Pack → Releases書庫
+ARCHIVE_REPO="OWNER/REPO" ./ops archive episode-asset-pack --channel CHxx --video NNN --push --run
+
+# 投稿済み（容量対策）: 音声 + run_dir + CapCut drafts を削除（台本/進捗は保持）
+./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --run --yes
+
+# 単発ファイルをReleasesへ退避（例: mp4/wav/tgz）
+ARCHIVE_REPO="OWNER/REPO" ./ops archive release push "/path/to/file" --tags "type:movie,channel:CHxx,video:NNN" --note "final render"</pre>
             </div>
           </details>
         </div>
@@ -81,4 +86,3 @@
     </div>
   </body>
 </html>
-
