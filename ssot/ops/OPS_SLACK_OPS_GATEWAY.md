@@ -9,7 +9,7 @@
 - Slack識別子（channel_id / user_id / thread_ts 等）は **git に保存しない**（LaunchAgent plist と `workspaces/logs/` のローカル state のみに保存）。
 
 ## 安全ルール（事故防止 / 強制）
-- **任意コマンドの実行は禁止**。Slackから受け付けるのは allowlist だけ（`./ops` の一部固定コマンドに限定）。
+- **自由コマンドの実行は禁止**。Slackから受け付けるのは allowlist だけ（`./ops` の一部固定コマンドに限定）。
 - 実行者は **ddユーザーに限定**（`--dd-user` / `--allow-user`）。
 - 同時実行は **1本**（ロックファイルでガード）。
 - Slack返信は短く（上限あり）。詳細ログは `workspaces/logs/ops/slack_ops_loop/` を見る。
