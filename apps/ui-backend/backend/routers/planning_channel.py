@@ -1,11 +1,21 @@
 from __future__ import annotations
 
 import csv
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
 
 from backend.app.normalize import normalize_channel_code
+from backend.main import (
+    PlanningCsvRowResponse,
+    PlanningProgressUpdateRequest,
+    build_planning_payload_from_row,
+    current_timestamp,
+    normalize_optional_text,
+    _normalize_video_number_token,
+    _read_channel_csv_rows,
+    _write_csv_with_lock,
+)
 from backend.core.tools import thumbnails_lookup as thumbnails_lookup_tools
 from factory_common.alignment import (
     iter_thumbnail_catches_from_row,
@@ -160,3 +170,85 @@ def get_planning_channel_rows(channel_code: str):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to read csv: {exc}") from exc
 
+
+@router.put(
+    "/channels/{channel_code}/{video_number}/progress",
+    response_model=PlanningCsvRowResponse,
+)
+def update_planning_channel_progress(
+    channel_code: str,
+    video_number: str,
+    payload: PlanningProgressUpdateRequest,
+):
+    channel_code = normalize_channel_code(channel_code)
+    video_token = _normalize_video_number_token(video_number)
+    csv_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
+    if not csv_path.exists():
+        raise HTTPException(status_code=404, detail="planning csv not found")
+
+    fieldnames, rows = _read_channel_csv_rows(channel_code)
+    if "進捗" not in fieldnames:
+        fieldnames.append("進捗")
+    if "更新日時" not in fieldnames:
+        fieldnames.append("更新日時")
+
+    target_row: Optional[Dict[str, str]] = None
+    for row in rows:
+        row_channel = (row.get("チャンネル") or "").strip().upper()
+        if row_channel and row_channel != channel_code:
+            continue
+        raw_video = row.get("動画番号") or row.get("No.") or ""
+        if not raw_video:
+            continue
+        try:
+            existing_token = _normalize_video_number_token(str(raw_video))
+        except HTTPException:
+            continue
+        if existing_token == video_token:
+            target_row = row
+            break
+
+    if target_row is None:
+        raise HTTPException(status_code=404, detail=f"{channel_code}-{video_token} の企画行が見つかりません。")
+
+    current_updated_at = normalize_optional_text(target_row.get("更新日時"))
+    expected_updated_at = normalize_optional_text(payload.expected_updated_at)
+    if expected_updated_at is not None and current_updated_at:
+        if expected_updated_at != current_updated_at:
+            raise HTTPException(
+                status_code=409,
+                detail="他のセッションで更新されました。最新の情報を再取得してからもう一度保存してください。",
+            )
+
+    normalized_progress = payload.progress.strip()
+    current_progress = str(target_row.get("進捗") or "").strip()
+    if normalized_progress != current_progress:
+        target_row["進捗"] = normalized_progress
+        target_row["更新日時"] = current_timestamp()
+        _write_csv_with_lock(csv_path, fieldnames, rows)
+
+    script_id = (
+        normalize_optional_text(target_row.get("台本番号"))
+        or normalize_optional_text(target_row.get("動画ID"))
+        or f"{channel_code}-{video_token}"
+    )
+    planning_payload = build_planning_payload_from_row(target_row)
+    character_count_raw = target_row.get("文字数")
+    try:
+        character_value = int(character_count_raw) if character_count_raw else None
+    except ValueError:
+        character_value = None
+
+    return PlanningCsvRowResponse(
+        channel=channel_code,
+        video_number=video_token,
+        script_id=script_id,
+        title=normalize_optional_text(target_row.get("タイトル")),
+        script_path=normalize_optional_text(target_row.get("台本")),
+        progress=normalize_optional_text(target_row.get("進捗")),
+        quality_check=normalize_optional_text(target_row.get("品質チェック結果")),
+        character_count=character_value,
+        updated_at=normalize_optional_text(target_row.get("更新日時")),
+        planning=planning_payload,
+        columns=target_row,
+    )
