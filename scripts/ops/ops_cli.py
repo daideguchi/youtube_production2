@@ -1298,6 +1298,12 @@ def cmd_cleanup(args: argparse.Namespace) -> int:
     return 2
 
 
+def cmd_clear_brain(args: argparse.Namespace) -> int:
+    forwarded = _strip_leading_double_dash(list(args.args))
+    inner = ["python3", "scripts/ops/antigravity_clear_brain.py", *forwarded]
+    return _run(inner)
+
+
 def cmd_snapshot(args: argparse.Namespace) -> int:
     forwarded = _strip_leading_double_dash(list(args.args))
     action = str(args.action or "").strip()
@@ -2080,6 +2086,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("action", choices=["workspace", "logs", "caches"], help="cleanup operation")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying cleanup tool (use '--' before flags)")
     sp.set_defaults(func=cmd_cleanup)
+
+    sp = sub.add_parser("clear-brain", help="clear Antigravity 'memory' artifacts (safe by default)")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/antigravity_clear_brain.py (use '--' before flags)")
+    sp.set_defaults(func=cmd_clear_brain)
 
     sp = sub.add_parser("snapshot", help="snapshot helpers (safe; read-only)")
     sp.add_argument("action", choices=["workspace", "logs"], help="snapshot operation")

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH06-024 — script</title>
-    <link rel="stylesheet" href="../../styles.css" />
-    
+    <link rel="stylesheet" href="../../styles.css?v=20260113_01" />
+    <script defer src="../../app.js?v=20260113_01"></script>
   </head>
   <body>
     <div class="wrap">
@@ -18,10 +18,34 @@
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
+  <div class="panel" id="descPanel">
+    <div class="panel__head">
+      <div><strong>概要欄</strong> <span class="muted">YouTube貼り付け用</span></div>
+      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>全文コピー</button></div>
+    </div>
+    <div class="panel__body">
+      <div class="muted">手順: 「全文コピー」→ YouTube Studio の説明欄へ貼り付け</div>
+      <div class="copy-grid" style="margin-top:10px">
+        <div class="copy-block" data-kind="full">
+          <div class="copy-head"><div class="copy-title">全文（動画 + チャンネル固定文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+        </div>
+        <div class="copy-block" data-kind="episode">
+          <div class="copy-head"><div class="copy-title">動画ごと</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
+          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
+        </div>
+        <div class="copy-block" data-kind="channel">
+          <div class="copy-head"><div class="copy-title">チャンネル固定</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
+          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
+        </div>
+      </div>
+      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+    </div>
+  </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH06-024</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-12T23:40:25.903078Z</div>
+      <div class="muted">updated_at: 2026-01-13T07:31:31.224813Z</div>
     </div>
     <div class="panel__body">
       <iframe class="frame" src="../../../?id=CH06-024&amp;view=script" loading="lazy" referrerpolicy="no-referrer"></iframe>

@@ -27,7 +27,7 @@
 | D-013 | P0 | TTSのCodex（agent vs codex exec） | **TTSはAIエージェントCodex（pending）固定 / codex execと区別** | Done |
 | D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
 | D-015 | P1 | Slack→Git書庫（PM Inbox） | **Slack→memos→git要約（hash keyで識別 / IDは残さない）** | Proposed |
-| D-016 | P1 | 画像生成のコスト/待ち（Batch vs Sync） | **量産=Gemini Batch優先 / 即時=Imagen 4 Fast**（サイレント切替禁止） | Proposed |
+| D-016 | P1 | 画像生成のコスト/待ち（Batch vs Sync） | **量産=Gemini Batch優先 / 即時=Imagen 4 Fast**（サイレント切替禁止） | Done |
 | D-017 | P2 | 台本LLMのBatch化（Fireworks） | **当面は非Batch（既存のAPI主線）/ Phase2で検討** | Done |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
@@ -244,13 +244,15 @@
 ### Plan（手順）
 - 量産（大量/夜間）: **Gemini Batch** を優先（コスト最優先）
   - 参考単価（1024×1024相当）: `$0.0195/枚`（例: `gemini-2.5-flash-image` Batch / `gemini-2.0-flash` Batch）
-  - 注意: Batchは非同期（完了まで最大24hターゲット）。パイプラインは「投げて終わり」ではなく、**完了待ち→再実行**の導線を持つ。
+  - 注意: Batchは非同期（完了まで最大24hターゲット）。パイプラインは「投げて終わり」ではなく、**submit→poll→fetch（止まってもresume可能）**の導線を持つ。
+  - 実装（動画内画像）: `--nanobanana batch`（既定）で Gemini Batch を使う（run_dir に manifest を残し、再実行で回収できる）。
 - 即時（数枚の比較/急ぎ）: **Imagen 4 Fast**（Gemini API）を使う
   - 参考単価（1024×1024相当）: `$0.02/枚`（`imagen-4.0-fast-generate-001`）
   - slot code（例）: `i-1`（Imagen 4 Fast）
 - 固定ルール:
   - **サイレント切替は禁止**（正本: `D-002`）。Batch⇄Syncの切替は slot code / model_key で必ず明示する。
-  - 目標（動画内画像）: Batch運用が実装できたら、`visual_image_gen` の既定を **FLUX schnell から Gemini（Batch）へ寄せる**（schnellは必要時の明示選択へ。削除はしない）。
+  - Batch は Gemini provider のみ対応（Imagen / OpenRouter / Fireworks は対象外）。対象外の model_key の場合は **ログに明示した上で direct にフォールバック**し、運用上の取り違えを防ぐ。
+  - 目標（動画内画像）: Batch運用が実装できたら、必要なチャンネルから `image_generation.model_key` を **Gemini系（g-1）へ寄せる**（FLUX は必要時の明示選択へ。削除はしない）。
 
 ### Rationale（根拠）
 - 量産は「安さ」が最重要だが、即時作業は「待ち」がボトルネックになるため、両方を同じ既定にすると運用が破綻しやすい。
@@ -261,8 +263,7 @@
 - B) 常にBatch（不採用）: 安いがリテイク/比較が遅くなり、開発速度が落ちる
 
 ### Impact（影響/作業）
-- `configs/image_models.yaml` / `configs/image_model_slots.yaml` にBatch/Syncの選択肢を明示追加する
-- `factory_common.image_client` がBatch運用（submit/poll/resume）に対応する
+- `video_pipeline`（`nanobanana=batch`）が Gemini Batch 運用（submit/poll/fetch/resume）に対応する（run_dir に manifest を保存）
 - SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md` / `ssot/ops/OPS_THUMBNAILS_PIPELINE.md` に運用導線を追記する
 - Plan: `ssot/plans/PLAN_IMAGE_BATCH_MIGRATION.md`（段階導入 / DoD / ロールバック / 観測）
 

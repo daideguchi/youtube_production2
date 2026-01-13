@@ -28,7 +28,11 @@ def get_args():
     )
     parser.add_argument("--crossfade", type=float, help="Crossfade seconds between images (0 allowed)")
     parser.add_argument("--fps", type=int, help="Timeline FPS")
-    parser.add_argument("--nanobanana", choices=["direct", "none"], help="Image generation mode (direct=ImageClient(Gemini), none=skip)")
+    parser.add_argument(
+        "--nanobanana",
+        choices=["batch", "direct", "none"],
+        help="Image generation mode (batch=Gemini Batch when supported, direct=ImageClient sync, none=skip)",
+    )
     parser.add_argument("--nanobanana-bin", help="Path to nanobanana CLI binary (deprecated; ignored)")
     parser.add_argument("--nanobanana-timeout", type=int, help="Per-image generation timeout (seconds)")
     parser.add_argument(

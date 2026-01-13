@@ -297,6 +297,10 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 
 **内部順序（確定, auto_capcut_run）**
 1. `run_pipeline` 実行（cue生成＋画像生成）
+   - 画像生成モード（`--nanobanana`）:
+     - `batch`（既定）: Gemini Batch（安い・非同期）を使い、submit→poll→fetch で `images/*.png` を埋める（中断しても再実行で resume できるよう、run_dir に manifest を保存する）。
+     - `direct`: 同期（`factory_common.image_client.ImageClient`）で生成する（即時レーン）。
+     - `none`: 画像生成をスキップする（CapCut用の placeholder は後段で補うが、placeholder のみを「成功」とみなさない）。
    - cues 計画の分岐:
      - 通常: Visual Bible → `LLMContextAnalyzer`（文脈分割）→ `PromptRefiner`（近傍整合）
      - THINK/AGENT（`LLM_EXEC_SLOT=3|4`）または `SRT2IMAGES_CUES_PLAN_MODE=plan`:
@@ -308,6 +312,7 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 		     - `workspaces/video/runs/{run_id}/srt_segments.json`（SRTを決定論でパースしたsegments。plan/retimeの前提）
 		     - `workspaces/video/runs/{run_id}/image_cues.json`
 		     - `workspaces/video/runs/{run_id}/images/0001.png ...`
+		     - `workspaces/video/runs/{run_id}/_gemini_batch/manifest.json`（`nanobanana=batch` の場合。job_id/入力/出力対応のSoT）
     	     - `workspaces/video/runs/{run_id}/persona.txt` / `channel_preset.json`（存在時）
 	     - `workspaces/video/runs/{run_id}/visual_cues_plan.json`（cues_plan 経路のみ。THINK/AGENT では status=pending の骨格が先に出る）
      - Quota失敗時: `RUN_FAILED_QUOTA.txt` を出力して明示停止。

@@ -219,6 +219,20 @@
   - Reader: `./ops latest`
   - 種別: **L1（上書きポインタ。`cleanup_logs` が保護）**
 
+- `workspaces/logs/ops/slack_outbox/outbox__*.json`  
+  - Writer: `scripts/ops/slack_notify.py`（Slack送信失敗時のローカル退避）
+  - Reader: `python3 scripts/ops/slack_notify.py --flush-outbox`
+  - 種別: **L3（短期保持。再送できたら sent/ へ移動）**
+
+- `workspaces/logs/ops/slack_notify_dedupe_state.json`  
+  - Writer: `scripts/ops/slack_notify.py`（通知スパム抑制のローカル状態）
+  - 種別: **L3（状態ファイル。安全に削除可だが、削除すると再通知が増える）**
+
+- `workspaces/logs/ops/slack_ops_loop/*`  
+  - Writer: `scripts/ops/slack_ops_loop.py`（Slack→ローカル `./ops` 実行ゲートウェイ）
+  - 内容: state（最終処理ts/重複防止）+ 実行ログ（stdout/stderrの要約/保存）
+  - 種別: **L3（短期保持。ローテ対象）**
+
 - `workspaces/logs/ops/<operation>/<...>.log`  
   - Writer: 手動/単発の運用スクリプト（例: CapCutテンプレ正規化, 大量修復, 検証などの stdout リダイレクト）
   - 種別: **L3（短期保持。ローテ対象）**

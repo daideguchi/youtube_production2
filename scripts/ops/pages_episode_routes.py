@@ -49,6 +49,10 @@ CHANNEL_RE = re.compile(r"^CH\d{2,3}$")
 VIDEO_DIR_RE = re.compile(r"^\d+$")
 VIDEO_RE_3 = re.compile(r"^\d{3}$")
 
+# Cache-bust for docs/ep static assets (styles/app).
+# Bump this string when updating /docs/ep UX.
+EP_ASSET_VERSION = "20260113_01"
+
 
 def _now_iso_utc() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -166,6 +170,17 @@ def _rel_href(from_dir: Path, to_path: Path, *, is_dir: bool) -> str:
     return rel
 
 
+def _with_asset_version(href: str) -> str:
+    raw = str(href or "").strip()
+    if not raw:
+        return raw
+    v = str(EP_ASSET_VERSION or "").strip()
+    if not v:
+        return raw
+    sep = "&" if "?" in raw else "?"
+    return f"{raw}{sep}v={v}"
+
+
 def _write_text_atomic(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -189,6 +204,8 @@ code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
 .btn:hover{border-color:rgba(255,255,255,.22)}
 .btn--accent{border-color:rgba(78,161,255,.55)}
 .btn--accent:hover{border-color:rgba(78,161,255,.9)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn[aria-disabled="true"]{opacity:.55;pointer-events:none}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .tab{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02)}
 .tab[aria-current="page"]{border-color:rgba(78,161,255,.8);background:rgba(78,161,255,.10)}
@@ -218,11 +235,18 @@ input,select{padding:10px 12px;border-radius:10px;border:1px solid var(--border)
 .channel-card__name{font-weight:900}
 .channel-card__name span{font-weight:700;color:var(--muted)}
 .channel-card__counts{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+.copy-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.copy-block{border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.02);overflow:hidden}
+.copy-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.copy-title{font-weight:800}
+.copy-actions{display:flex;gap:8px;flex-wrap:wrap}
+.textarea{width:100%;min-height:140px;resize:vertical;padding:12px;border:0;outline:none;background:transparent;color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.4;white-space:pre-wrap}
+@media (min-width:960px){.copy-grid{grid-template-columns:1fr 1fr}.copy-block[data-kind="full"]{grid-column:1 / -1}}
 """
 
 
 def _app_js() -> str:
-    # Keep it tiny; only used by /ep/index.html
+    # Used by /ep/index.html and per-episode script pages.
     return """\
 function normalizeChannel(raw){
   const s=String(raw||"").trim().toUpperCase();
@@ -243,12 +267,40 @@ function normalizeVideo(raw){
 function gotoEpisode(ch, video, view){
   const C=normalizeChannel(ch);
   const V=normalizeVideo(video);
-  if(!/^CH\\d{2}$/.test(C)||!/^\\d{3}$/.test(V))return;
+  if(!/^CH\\d{2,3}$/.test(C)||!/^\\d{3}$/.test(V))return;
   let path=`./${C}/${V}/`;
   if(view&&view!=="script")path+=`${view}/`;
   location.href=path;
 }
-document.addEventListener("DOMContentLoaded",()=>{
+
+function textOrEmpty(el){
+  const s=String((el?.innerText||el?.textContent||"")||"").replace(/\\r\\n/g,"\\n").trim();
+  return s;
+}
+async function copyText(text){
+  const s=String(text||"");
+  if(!s.trim())return false;
+  if(navigator.clipboard&&window.isSecureContext){
+    await navigator.clipboard.writeText(s);
+    return true;
+  }
+  const ta=document.createElement("textarea");
+  ta.value=s;
+  ta.style.position="fixed";
+  ta.style.top="-1000px";
+  ta.style.left="-1000px";
+  ta.setAttribute("readonly","");
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+  let ok=false;
+  try{ok=document.execCommand("copy");}catch(_e){ok=false;}
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function setupEpJumpForm(){
   const form=document.getElementById("epJumpForm");
   if(!form)return;
   const input=document.getElementById("epJumpInput");
@@ -265,6 +317,107 @@ document.addEventListener("DOMContentLoaded",()=>{
     const video=parts[1]||"";
     gotoEpisode(ch, video, String(viewSel?.value||"script"));
   });
+}
+
+function getIframeDoc(frame){
+  try{return frame?.contentDocument||frame?.contentWindow?.document||null;}catch(_e){return null;}
+}
+
+function setupEpisodeDescriptionCopy(){
+  const panel=document.getElementById("descPanel");
+  if(!panel)return;
+  const frame=document.querySelector("iframe.frame");
+  if(!frame)return;
+
+  const status=document.getElementById("descStatus");
+  const studioLink=document.getElementById("descStudioLink");
+  const fullTa=document.getElementById("descFull");
+  const epTa=document.getElementById("descEpisode");
+  const chTa=document.getElementById("descChannel");
+
+  function setStatus(msg){
+    if(status)status.textContent=String(msg||"");
+  }
+  function setStudioHref(href){
+    if(!studioLink)return;
+    const s=String(href||"").trim();
+    if(!s){
+      studioLink.setAttribute("aria-disabled","true");
+      studioLink.classList.remove("btn--accent");
+      studioLink.href="#";
+      return;
+    }
+    studioLink.removeAttribute("aria-disabled");
+    studioLink.classList.add("btn--accent");
+    studioLink.href=s;
+  }
+  function updateCopyButtons(){
+    panel.querySelectorAll("[data-copy-target]").forEach((btn)=>{
+      const id=String(btn.getAttribute("data-copy-target")||"").trim();
+      const ta=document.getElementById(id);
+      const ok=!!(ta&&String(ta.value||"").trim());
+      if(ok)btn.removeAttribute("disabled");
+      else btn.setAttribute("disabled","");
+    });
+  }
+
+  async function refreshFromIframe(){
+    const doc=getIframeDoc(frame);
+    if(!doc){
+      setStatus("iframe読み込み中…（しばらく待ってください）");
+      return false;
+    }
+    const full=textOrEmpty(doc.getElementById("ytFullDescPre"));
+    const ep=textOrEmpty(doc.getElementById("ytEpisodeDescPre"));
+    const ch=textOrEmpty(doc.getElementById("ytChannelDescPre"));
+    if(fullTa)fullTa.value=full;
+    if(epTa)epTa.value=ep;
+    if(chTa)chTa.value=ch;
+
+    const studioHref=String(doc.getElementById("openYtStudio")?.href||"").trim();
+    setStudioHref(studioHref);
+
+    const hasAny=!!(full||ep||ch);
+    if(hasAny)setStatus("準備OK（コピーボタンを押してください）");
+    else setStatus("概要欄が未生成/未表示です（Script Viewer側の「YouTube貼り付け」を確認）");
+    updateCopyButtons();
+    return hasAny;
+  }
+
+  panel.querySelectorAll("[data-copy-target]").forEach((btn)=>{
+    btn.addEventListener("click",async()=>{
+      const id=String(btn.getAttribute("data-copy-target")||"").trim();
+      const ta=document.getElementById(id);
+      const text=String(ta?.value||"");
+      const labelById={descFull:"全文",descEpisode:"動画ごと",descChannel:"チャンネル固定"};
+      const label=labelById[id]||id;
+      try{
+        const ok=await copyText(text);
+        setStatus(ok?`コピーしました（${label}）`:`コピー失敗（${label}）`);
+      }catch(_e){
+        setStatus(`コピー失敗（${label}）`);
+      }
+    });
+  });
+
+  let tries=0;
+  async function poll(){
+    tries+=1;
+    const ok=await refreshFromIframe();
+    if(ok)return;
+    if(tries>=60)return;
+    window.setTimeout(poll,250);
+  }
+  frame.addEventListener("load",()=>{
+    tries=0;
+    poll();
+  });
+  poll();
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  setupEpJumpForm();
+  setupEpisodeDescriptionCopy();
 });
 """
 
@@ -278,7 +431,10 @@ def _page_shell(
     links_html: str,
     body_html: str,
 ) -> str:
-    script_tag = f'<script defer src="{script_href}"></script>' if script_href else ""
+    styles_tag_href = _escape_html(_with_asset_version(styles_href))
+    script_tag = (
+        f'<script defer src="{_escape_html(_with_asset_version(script_href))}"></script>' if script_href else ""
+    )
     return (
         "<!doctype html>\n"
         "<html lang=\"ja\">\n"
@@ -286,7 +442,7 @@ def _page_shell(
         "    <meta charset=\"utf-8\" />\n"
         "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n"
         f"    <title>{_escape_html(title)}</title>\n"
-        f"    <link rel=\"stylesheet\" href=\"{styles_href}\" />\n"
+        f"    <link rel=\"stylesheet\" href=\"{styles_tag_href}\" />\n"
         f"    {script_tag}\n"
         "  </head>\n"
         "  <body>\n"
@@ -714,9 +870,47 @@ def _episode_viewer_page_html(
     docs_dir_href = _rel_href(page_dir, docs_root, is_dir=True)
     viewer_src = f"{docs_dir_href}?id={vid}&view={view}"
 
+    desc_panel = ""
+    script_href = None
+    if view == "script":
+        script_href = _rel_href(page_dir, ep_root / "app.js", is_dir=False)
+        desc_panel = (
+            "  <div class=\"panel\" id=\"descPanel\">\n"
+            "    <div class=\"panel__head\">\n"
+            "      <div><strong>概要欄</strong> <span class=\"muted\">YouTube貼り付け用</span></div>\n"
+            "      <div class=\"copy-actions\">"
+            "<a class=\"btn\" id=\"descStudioLink\" href=\"#\" target=\"_blank\" rel=\"noreferrer\">YouTube Studio</a>"
+            "<button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\" disabled>全文コピー</button>"
+            "</div>\n"
+            "    </div>\n"
+            "    <div class=\"panel__body\">\n"
+            "      <div class=\"muted\">手順: 「全文コピー」→ YouTube Studio の説明欄へ貼り付け</div>\n"
+            "      <div class=\"copy-grid\" style=\"margin-top:10px\">\n"
+            "        <div class=\"copy-block\" data-kind=\"full\">\n"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">全文（動画 + チャンネル固定文）</div>"
+            "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\" disabled>コピー</button></div></div>\n"
+            "          <textarea id=\"descFull\" class=\"textarea\" rows=\"10\" readonly placeholder=\"読み込み中…\"></textarea>\n"
+            "        </div>\n"
+            "        <div class=\"copy-block\" data-kind=\"episode\">\n"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">動画ごと</div>"
+            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descEpisode\" disabled>コピー</button></div></div>\n"
+            "          <textarea id=\"descEpisode\" class=\"textarea\" rows=\"8\" readonly placeholder=\"—\"></textarea>\n"
+            "        </div>\n"
+            "        <div class=\"copy-block\" data-kind=\"channel\">\n"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">チャンネル固定</div>"
+            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descChannel\" disabled>コピー</button></div></div>\n"
+            "          <textarea id=\"descChannel\" class=\"textarea\" rows=\"8\" readonly placeholder=\"—\"></textarea>\n"
+            "        </div>\n"
+            "      </div>\n"
+            "      <div class=\"muted\" id=\"descStatus\" style=\"margin-top:10px\">読み込み中…</div>\n"
+            "    </div>\n"
+            "  </div>\n"
+        )
+
     body = (
         "<main>\n"
         f"  {tabs}\n"
+        f"{desc_panel}"
         "  <div class=\"panel\">\n"
         "    <div class=\"panel__head\">\n"
         f"      <div><strong>{_escape_html(vid)}</strong> <span class=\"muted\">{_escape_html(view_label)}</span></div>\n"
@@ -733,7 +927,7 @@ def _episode_viewer_page_html(
         title=f"{vid} — {view}",
         subtitle=str(title or "—"),
         styles_href=styles_href,
-        script_href=None,
+        script_href=script_href,
         links_html=links_html,
         body_html=body,
     )

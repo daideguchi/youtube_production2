@@ -7,7 +7,7 @@
 - **VOICEPEAK**: 自動で誤読確定できないため、**リスク指標**（未知トークン/ASCII/数字）を集計
 - **STALE**: Aテキスト更新後に音声が作られている（= その音声は現在のA/Bとズレている可能性が高い）を検出
 
-この監査は **Aテキストを書き換えない**。修正は原則 **B（TTS入力）側**（辞書/override）で行う。
+この監査は **Aテキストを書き換えない**。修正は **B（TTS入力）側**（辞書/override）で行う。
 
 ## 実行コマンド（正本）
 リポジトリルートで実行する。
@@ -35,7 +35,7 @@
 VOICEVOX自動監査では誤読を確定できない（= “白”に見えても未監査）。
 
 - 原因: `--finalize-existing`（手動wav/srtコピー）で final を作った回
-- 対処: **strictで合成してログを復元**する（未投稿に限り推奨）
+- 対処: **strictで合成してログを復元**する（未投稿のみ）
 
 例（まず prepass で mismatch を潰す → 合成）:
 
@@ -57,7 +57,7 @@ PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
 
 ### 1) VOICEVOX mismatch（最優先で潰す）
 - `voicevox_mismatches_latest.json` に載った回は **そのまま出荷しない**。
-- 原則の対処:
+- 対処（固定）:
   1. `audio_prep/local_reading_dict.json`（局所・文脈依存を吸収）や `audio_prep/local_token_overrides.json`（位置指定）で **Bを補正**
   2. `run_tts.py --prepass` で mismatch=0 を確認
   3. 音声生成 → `workspaces/audio/final/` 更新
@@ -77,7 +77,7 @@ PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py \
 
 ### 3) VOICEPEAK は“誤読確定”ではなく“要注意指標”
 VOICEPEAK は `audio_query.kana` が無いので、監査は「未知/ASCII/数字」の指標に留まる。
-- unknown が多い回は、人手でサンプル再生→必要ならB補正→再生成。
+- unknown が多い回は、人手でサンプル再生→B補正→再生成。
 
 ### 4) STALE は「音声と現行A/Bがズレている可能性」
 `stale_audit_latest.json` に載る回は、**今のAを正本とするなら音声は再生成する**。

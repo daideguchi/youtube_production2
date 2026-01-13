@@ -16,7 +16,7 @@ imgdur = 20.0
 cue_mode = "grouped"
 
 [image_generation]
-nanobanana = "direct"
+nanobanana = "batch"
 nanobanana_bin = ""
 nanobanana_timeout = 300
 nanobanana_config = ""

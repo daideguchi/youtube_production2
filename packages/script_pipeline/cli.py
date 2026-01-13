@@ -393,8 +393,7 @@ def main() -> None:
                 )
         
         if not input_path.exists():
-            print(f"Error: Input file not found: {input_path}")
-            return
+            raise SystemExit(f"Error: Input file not found: {input_path}")
 
         cmd = [
             sys.executable,

@@ -26,6 +26,20 @@ python3 scripts/ops/antigravity_progress_scan.py --channels CH27,CH28,CH29,CH30,
 - 1セッションで仕上げるのは最大 **5本**まで。
 - 5本を書き終えたら、このセッションは **`[STOP_AFTER_5]` の1行だけ**を出力して終了する（台本本文は出力しない）。
 
+## 1.1) メモリ/残骸クリーンアップ（任意）
+
+- コンテキストが肥大化して品質が崩れ始めたら、いったん停止してローカルで “brain” を掃除してから新しいセッションで再開する。
+- コマンド（dry-run がデフォルト）:
+```bash
+./ops clear-brain
+./ops clear-brain -- --run
+```
+- これは `workspaces/scripts/_state/antigravity*.json` と `workspaces/_scratch/gemini_batch_scripts/*`（完了判定のみ）だけを消す。SoT（`assembled*.md` / `status.json`）には触れない。
+- 未完の scratch run まで消したい場合: `./ops clear-brain -- --run --include-incomplete-scratch`
+- ユーザーが `/clear-brain` / `brainディレクトリを掃除して` / `過去のアーティファクトを削除して` と送った場合:
+  - 台本生成はせず、上のコマンドを実行してクリーンアップだけ行う。
+  - チャット出力は `[CLEANED]` の1行だけにして終了する。
+
 ## 2) 出力と保存（事故防止）
 
 - 台本本文（Aテキスト）は **ファイルに保存する**。チャットに本文を貼らない。

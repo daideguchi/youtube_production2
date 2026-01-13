@@ -270,6 +270,7 @@
 ## 2026-01-13
 - CH27: `workspaces/video/runs/CH27-{001..030}_capcut_v2/` を作成（cue生成→Gemini Batch画像→CapCutドラフト）。
 - Image: 画像生成は **Gemini Developer API Batch** のみで実施（`video_pipeline.tools.gemini_batch_regenerate_images_from_cues`）。欠損分はバッチ再投入で補完。
+- Fix: Gemini Batch の出力が 1024x1024(1:1) だったため、run_dir/images と CapCut draft の `assets/image/*.png` を 1920x1080(16:9) に一括リサイズして反映（`workspaces/logs/ops/ch27_fix_image_aspect_20260113T025850Z/`, `workspaces/logs/ops/ch27_sync_images_to_capcut_drafts_20260113T030108Z/`）。再監査 failures=0（`workspaces/logs/ops/ch27_capcut_audit_aspect_20260113T030447Z/report.json`）。
 - CapCut: `★CH27-001/002/027` の旧ドラフトは衝突回避のため `OLD__...__20260113T015654Z` へリネーム後、30本の新ドラフトを生成。
 - Audit: 30本の draft 参照切れ/尺/字幕位置（CH27は中央下段）を機械監査し、failures=0（`workspaces/logs/ops/ch27_capcut_audit3_20260113T020745Z/report.json`）。
 - Ops/local: `configs/llm_task_overrides.local.yaml` を追加し、`visual_image_cues_plan` を外部pin無しで実行できるようにした（Codex exec 優先→API不足時のTHINK化を回避）。

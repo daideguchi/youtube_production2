@@ -3,7 +3,7 @@
 ## 目的
 「台本（Aテキスト）を変えずに、TTS入力（Bテキスト）を **正確で聞きやすい日本語** にする」ための **決定論フロー** を固定する。
 
-- Aテキスト: 表示/内容の正本（SoT）。TTS都合では原則変更しない（誤字・破綻のみ例外）。
+- Aテキスト: 表示/内容の正本（SoT）。TTS都合では変更しない（誤字・破綻のみ例外）。
 - Bテキスト: Aから生成する派生物。読み最適化（=この文書でいうアノテーション）は **B側**に集約する。
 - 「辞書を手動運用し続ける」を禁止し、**repoを正本**にして engine 側へ **sync** する。
 
@@ -29,7 +29,7 @@
 
 1) **グローバル確定語**（全CH共通・昇格レビュー必須）  
    - SoT: `packages/audio_tts/data/global_knowledge_base.json`
-   - engine同期（推奨）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
+   - engine同期（入口固定）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
 2) **チャンネル確定語**（そのCHでのみ一意）  
    - SoT: `packages/audio_tts/data/reading_dict/CHxx.yaml`
    - engine同期: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx --overwrite`

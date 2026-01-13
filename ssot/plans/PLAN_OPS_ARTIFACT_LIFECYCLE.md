@@ -285,11 +285,14 @@ python -m scripts.cleanup_workspace --all --run --yes
 - `scripts/cleanup_data.py` は L3/一部L2の簡易版として残すが、
   - 新 cleanup が安定したら **本体に統合**し、cron も新コマンドへ移行。
 
-### 4.4 外部SSDへのオフロード（採用しない）
-外部SSDへの依存は不安定になりやすいため、SSOTの運用コマンドとしては採用しない。
+### 4.4 外部SSDへのオフロード（オプション; SoTではない）
+外部SSDは **オフロード先**として使えるが、パイプラインの正本（SoT）にはしない（通常運用で参照しない）。
 
-- `backups/graveyard/**` と `workspaces/**/_archive/**` は **ローカルに保持**する（必要なときに参照できることを優先）。
-- 容量/探索ノイズは `cleanup_workspace` の keep-days と `_archive/` のローテで解決する。
+- SoTは `workspaces/**` に置く（ローカルで完結）。
+- オフロードは “退避/再利用” のための追加導線として扱う。
+  - GitHub Releases 書庫（標準）: `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md`
+  - 外部SSD（ローカルのみ）: `YTM_OFFLOAD_ROOT` 配下へ移動/同期（復元は明示操作）
+- 容量/探索ノイズの主線は `cleanup_workspace` の keep-days と `_archive/**` ローテで解決する。
 
 ## 5. 既存ディレクトリ再編との整合（PLAN_REPO_DIRECTORY_REFACTOR 連動）
 - `workspaces/` へ移設後のパスをこの計画の正本にする。

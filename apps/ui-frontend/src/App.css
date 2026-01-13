@@ -7717,7 +7717,7 @@ button:hover:not(:disabled) {
 
 .script-tab__layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(560px, 100%), 1fr));
   gap: 24px;
   align-items: stretch;
 }
