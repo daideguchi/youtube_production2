@@ -9,7 +9,23 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260113_05";
+const SITE_ASSET_VERSION = "20260113_06";
+const EMBED_MODE = detectEmbedMode();
+
+function detectEmbedMode() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const raw = String(params.get("embed") || "").trim().toLowerCase();
+    if (raw && raw !== "0" && raw !== "false" && raw !== "off") return true;
+  } catch (_err) {
+    // ignore
+  }
+  try {
+    return window.self !== window.top;
+  } catch (_err) {
+    return true;
+  }
+}
 
 function $(id) {
   const el = document.getElementById(id);
@@ -222,6 +238,7 @@ function readUiStateFromStorage() {
 
 function getInitialUiState() {
   const fromUrl = readUiStateFromUrl();
+  if (EMBED_MODE) return fromUrl;
   const fromStorage = readUiStateFromStorage();
   return {
     channel: fromUrl.channel || fromStorage.channel || "",
@@ -592,12 +609,18 @@ const openSnapshot = $("openSnapshot");
 const openFixedLogic = $("openFixedLogic");
 const openContactBox = $("openContactBox");
 const contentPre = $("contentPre");
+const contentNav = $("contentNav");
+const contentPrev = $("contentPrev");
+const contentNext = $("contentNext");
 const copyStatus = $("copyStatus");
 const copyNoSep = $("copyNoSep");
 const copyNoSepChunks = $("copyNoSepChunks");
 const loading = $("loading");
 const footerMeta = $("footerMeta");
 const appRoot = $("appRoot");
+if (EMBED_MODE) {
+  appRoot.dataset.embed = "1";
+}
 const viewTabs = $("viewTabs");
 const tabScript = $("tabScript");
 const tabAudio = $("tabAudio");
@@ -1062,23 +1085,25 @@ function updateBadges() {
 }
 
 function persistUiState() {
-  try {
-    const stored = readUiStateFromStorage();
-    // Prefer `selected` as the source of truth (prevents accidental CH01 resets if selects desync).
-    const selCh = normalizeChannelParam(selected?.channel || "");
-    const selV = normalizeVideoParam(selected?.video || "");
-    const hasSelected = Boolean(selCh && selV);
-    const chUi = normalizeChannelParam(channelSelect?.value || "");
-    const vUi = normalizeVideoParam(videoSelect?.value || "");
-    const channel = (hasSelected ? selCh : chUi) || stored.channel || "";
-    const video = (hasSelected ? selV : vUi) || stored.video || "";
-    const view = normalizeView(currentView);
-    window.localStorage.setItem(
-      UI_STATE_KEY,
-      JSON.stringify({ channel, video, view, updated_at: new Date().toISOString() })
-    );
-  } catch (_err) {
-    // ignore
+  if (!EMBED_MODE) {
+    try {
+      const stored = readUiStateFromStorage();
+      // Prefer `selected` as the source of truth (prevents accidental CH01 resets if selects desync).
+      const selCh = normalizeChannelParam(selected?.channel || "");
+      const selV = normalizeVideoParam(selected?.video || "");
+      const hasSelected = Boolean(selCh && selV);
+      const chUi = normalizeChannelParam(channelSelect?.value || "");
+      const vUi = normalizeVideoParam(videoSelect?.value || "");
+      const channel = (hasSelected ? selCh : chUi) || stored.channel || "";
+      const video = (hasSelected ? selV : vUi) || stored.video || "";
+      const view = normalizeView(currentView);
+      window.localStorage.setItem(
+        UI_STATE_KEY,
+        JSON.stringify({ channel, video, view, updated_at: new Date().toISOString() })
+      );
+    } catch (_err) {
+      // ignore
+    }
   }
 
   try {
@@ -2305,6 +2330,87 @@ function findItem(channel, video) {
   return ep ? _snapshotEpisodeToPseudoItem(ep, ch) : null;
 }
 
+function _sortedVideosForChannel(channel) {
+  const ch = normalizeChannelParam(channel);
+  if (!ch) return [];
+
+  const out = [];
+  const seen = new Set();
+
+  const snap = snapshotEpisodesByChannel.get(ch);
+  if (Array.isArray(snap) && snap.length) {
+    for (const ep of snap) {
+      const v = normalizeVideoParam(ep?.video || "");
+      if (!v || seen.has(v)) continue;
+      seen.add(v);
+      out.push(v);
+    }
+  } else {
+    const list = grouped.get(ch) || [];
+    for (const it of list) {
+      const v = normalizeVideoParam(it?.video || "");
+      if (!v || seen.has(v)) continue;
+      seen.add(v);
+      out.push(v);
+    }
+  }
+
+  out.sort((a, b) => {
+    const na = Number(a);
+    const nb = Number(b);
+    if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+    return String(a).localeCompare(String(b));
+  });
+  return out;
+}
+
+function _setContentNavButton(btn, channel, video) {
+  const ch = normalizeChannelParam(channel);
+  const v = normalizeVideoParam(video);
+  if (!ch || !v) {
+    btn.disabled = true;
+    delete btn.dataset.channel;
+    delete btn.dataset.video;
+    btn.title = "";
+    return;
+  }
+  const it = findItem(ch, v);
+  const vid = `${ch}-${v}`;
+  const title = String(it?.title || "").trim();
+  btn.disabled = false;
+  btn.dataset.channel = ch;
+  btn.dataset.video = v;
+  btn.title = title ? `${vid} · ${title}` : vid;
+}
+
+function updateContentNav(it) {
+  if (EMBED_MODE) {
+    contentNav.hidden = true;
+    return;
+  }
+  const ch = normalizeChannelParam(it?.channel || "");
+  const v = normalizeVideoParam(it?.video || "");
+  if (!ch || !v) {
+    contentNav.hidden = true;
+    return;
+  }
+  const list = _sortedVideosForChannel(ch);
+  const idx = list.indexOf(v);
+  if (idx < 0) {
+    contentNav.hidden = true;
+    return;
+  }
+  const prev = idx > 0 ? list[idx - 1] : "";
+  const next = idx < list.length - 1 ? list[idx + 1] : "";
+  if (!prev && !next) {
+    contentNav.hidden = true;
+    return;
+  }
+  contentNav.hidden = false;
+  _setContentNavButton(contentPrev, ch, prev);
+  _setContentNavButton(contentNext, ch, next);
+}
+
 function findItemByVideoId(videoId) {
   const vid = String(videoId || "").trim().toUpperCase();
   for (const it of items) {
@@ -2432,6 +2538,7 @@ function renderNoSepChunkButtons() {
 
 async function loadScript(it) {
   selected = it;
+  updateContentNav(it);
   initialChannelWanted = String(it?.channel || "").trim();
   initialVideoWanted = String(it?.video || "").trim();
   updateBrowseSummary();
@@ -2463,6 +2570,7 @@ async function loadScript(it) {
     const hydrated = { ...it, title: cleanText(it?.title) || cleanText(ep?.title), planning: ep?.planning || it?.planning };
     renderYoutubeMeta(hydrated);
     updateMetaSub(hydrated);
+    updateContentNav(hydrated);
   })();
 
   if (!assembledPath) {
@@ -2667,6 +2775,16 @@ async function reloadIndex() {
 
 function setupEvents() {
   $("reloadIndex").addEventListener("click", () => void reloadIndex());
+  contentPrev.addEventListener("click", () => {
+    const ch = String(contentPrev.dataset.channel || "").trim();
+    const v = String(contentPrev.dataset.video || "").trim();
+    if (ch && v) selectItem(ch, v);
+  });
+  contentNext.addEventListener("click", () => {
+    const ch = String(contentNext.dataset.channel || "").trim();
+    const v = String(contentNext.dataset.video || "").trim();
+    if (ch && v) selectItem(ch, v);
+  });
 
   viewTabs.addEventListener("click", (ev) => {
     const target = ev.target instanceof Element ? ev.target.closest("[data-view]") : null;

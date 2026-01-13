@@ -19,10 +19,17 @@ html,
 body {
   margin: 0;
   padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   background: radial-gradient(1200px 600px at 30% 10%, rgba(110, 168, 255, 0.18), transparent),
     radial-gradient(900px 500px at 70% 0%, rgba(124, 92, 255, 0.14), transparent), var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .muted {
@@ -77,6 +84,49 @@ body {
   .workspace > .content {
     grid-row: 2;
   }
+}
+
+/* Embed mode (used by /ep wrapper iframes). */
+.app[data-embed="1"] {
+  max-width: none;
+  padding: 0;
+  gap: 0;
+}
+
+.app[data-embed="1"] .header,
+.app[data-embed="1"] .controls,
+.app[data-embed="1"] .meta,
+.app[data-embed="1"] .view-tabs,
+.app[data-embed="1"] .footer {
+  display: none;
+}
+
+.app[data-embed="1"] .workspace {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.app[data-embed="1"] .workspace > .content,
+.app[data-embed="1"] .workspace > .assets {
+  grid-column: 1;
+}
+
+.app[data-embed="1"] .content {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  min-height: 0;
+  background: transparent;
+}
+
+.app[data-embed="1"][data-view="script"] .workspace > .assets {
+  display: none;
+}
+
+.app[data-embed="1"][data-view="audio"] .workspace > .content,
+.app[data-embed="1"][data-view="thumb"] .workspace > .content,
+.app[data-embed="1"][data-view="images"] .workspace > .content {
+  display: none;
 }
 
 .header {
@@ -503,6 +553,8 @@ body {
 .meta__path code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 12px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .meta__actions {
@@ -940,6 +992,19 @@ body {
   font-family: inherit;
   font-size: 14px;
   line-height: 1.75;
+}
+
+.content-nav {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(233, 238, 255, 0.16);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.content-nav .btn {
+  flex: 1 1 140px;
 }
 
 .footer {

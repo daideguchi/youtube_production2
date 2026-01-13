@@ -51,7 +51,7 @@ VIDEO_RE_3 = re.compile(r"^\d{3}$")
 
 # Cache-bust for docs/ep static assets (styles/app).
 # Bump this string when updating /docs/ep UX.
-EP_ASSET_VERSION = "20260113_01"
+EP_ASSET_VERSION = "20260113_06"
 
 
 def _now_iso_utc() -> str:
@@ -192,9 +192,10 @@ def _styles_css() -> str:
     return """\
 :root{color-scheme:light dark;--bg:#0b0d10;--fg:#e7eef7;--muted:#9bb0c6;--card:#131820;--border:rgba(255,255,255,.10);--accent:#4ea1ff}
 *{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans JP",sans-serif;background:var(--bg);color:var(--fg)}
 a{color:inherit;text-decoration:none}
-code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
+code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px;overflow-wrap:anywhere;word-break:break-word}
 .wrap{max-width:1120px;margin:0 auto;padding:16px}
 .header{display:flex;gap:12px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
 .title{font-size:16px;font-weight:800;margin:0}
@@ -210,7 +211,7 @@ code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
 .tab{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02)}
 .tab[aria-current="page"]{border-color:rgba(78,161,255,.8);background:rgba(78,161,255,.10)}
 .panel{margin-top:12px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
-.panel__head{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.panel__head{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
 .panel__body{padding:12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
 .card{display:block;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
@@ -868,7 +869,7 @@ def _episode_viewer_page_html(
     tabs = _episode_tabs_html(page_dir=page_dir, ep_base_dir=ep_base_dir, active_key=view, variants=variants)
 
     docs_dir_href = _rel_href(page_dir, docs_root, is_dir=True)
-    viewer_src = f"{docs_dir_href}?id={vid}&view={view}"
+    viewer_src = f"{docs_dir_href}?id={vid}&view={view}&embed=1&sv={EP_ASSET_VERSION}"
 
     desc_panel = ""
     script_href = None

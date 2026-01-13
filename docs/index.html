@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260113_05" />
-    <script defer src="./app.js?v=20260113_05"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260113_06" />
+    <script defer src="./app.js?v=20260113_06"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -146,6 +146,10 @@
         <main class="content">
           <div id="loading" class="loading" hidden>読み込み中…</div>
           <pre id="contentPre" class="pre"></pre>
+          <div id="contentNav" class="content-nav" aria-label="前後の台本へ" hidden>
+            <button id="contentPrev" class="btn btn--ghost" type="button" disabled>← 前</button>
+            <button id="contentNext" class="btn btn--primary" type="button" disabled>次 →</button>
+          </div>
         </main>
 
         <section class="assets" aria-label="YouTube/音声/サムネ/画像">
