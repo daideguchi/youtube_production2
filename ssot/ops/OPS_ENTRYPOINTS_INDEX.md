@@ -127,6 +127,9 @@
   - 配線SSOT（UI↔Backend）: `ssot/ops/OPS_UI_WIRING.md`
   - API base URL（GitHub Pages / 別origin向け）: `apps/ui-frontend/src/api/baseUrl.ts`（`REACT_APP_API_BASE_URL`）
 - Script Viewer（GitHub Pages / 静的）: `docs/`
+  - UI/Style: `docs/index.html`, `docs/styles.css`, `docs/app.js`
+  - キャッシュバスター: `docs/index.html` の `styles.css?v=...` / `app.js?v=...` を更新（Pages/モバイルのキャッシュ対策）
+  - レスポンシブ: `.workspace` はモバイルで1カラムに倒す（`grid-column` の残留で台本が極細になる事故に注意）
   - 索引生成（台本一覧・パス）: `python3 scripts/ops/pages_script_viewer_index.py --write`
   - サムネ（選択サムネのPages用プレビュー）:
     - 全件: `python3 scripts/ops/pages_thumb_previews.py --all --write`
@@ -358,6 +361,9 @@
 - `./ops snapshot workspace -- --write-report`（= `python3 scripts/ops/workspace_snapshot.py --write-report`。workspaces 全体の容量スナップショット（観測用）。report: `workspaces/logs/regression/workspace_snapshot/`）
 - `scripts/ops/logs_snapshot.py`（logs の現状スナップショット: 件数/サイズ）
 - `scripts/ops/cleanup_caches.sh`（`__pycache__` / `.pytest_cache` / `.DS_Store` 削除）
+- antigravity “メモリ”掃除（Gemini Batch scripts の scratch/state。dry-run がデフォルト）:
+  - `./ops clear-brain` → OKなら `./ops clear-brain -- --run`
+  - 未完の scratch run も消す場合: `./ops clear-brain -- --run --include-incomplete-scratch`
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `workspaces/logs/regression/broken_symlinks/`）
 - `scripts/ops/cleanup_remotion_artifacts.py --run`（Remotion 生成物 `apps/remotion/out` と `apps/remotion/public/_bgm/_auto` を keep-days でローテ。report: `workspaces/logs/regression/remotion_cleanup/`）
 - `scripts/ops/prune_video_run_legacy_files.py --run`（`workspaces/video/runs/**` の `*.legacy.*` を archive-first で prune。report: `workspaces/logs/regression/video_runs_legacy_prune/`）
