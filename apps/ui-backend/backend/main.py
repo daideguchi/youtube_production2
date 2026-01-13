@@ -160,6 +160,7 @@ from backend.routers import reading_dict
 from backend.routers import audio_check
 from backend.routers import health
 from backend.routers import healthz
+from backend.routers import lock_metrics
 from factory_common.publish_lock import (
     is_episode_published_locked,
     mark_episode_published_locked,
@@ -4725,29 +4726,6 @@ class VideoSummaryResponse(BaseModel):
     thumbnail_progress: Optional[ThumbnailProgressResponse] = None
     video_images_progress: Optional[VideoImagesProgressResponse] = None
 
-
-class LockMetricSample(BaseModel):
-    timestamp: str
-    type: str
-    timeout: int
-    unexpected: int
-
-
-class LockMetricsResponse(BaseModel):
-    timeout: int
-    unexpected: int
-    history: List[LockMetricSample]
-    daily: List["LockMetricsDailySummary"]
-
-
-class LockMetricsDailySummary(BaseModel):
-    date: str
-    timeout: int
-    unexpected: int
-
-
-LockMetricsResponse.model_rebuild()
-
 class ThumbnailVariantResponse(BaseModel):
     id: str
     label: Optional[str] = None
@@ -5775,6 +5753,7 @@ app.include_router(reading_dict.router)
 app.include_router(audio_check.router)
 app.include_router(health.router)
 app.include_router(healthz.router)
+app.include_router(lock_metrics.router)
 try:
     from backend.routers import prompts
 
@@ -12884,34 +12863,6 @@ def reset_batch_tts_progress():
         pass
     return {"status": "reset", "message": "バッチ進捗をリセットしました。"}
 
-@app.get("/api/admin/lock-metrics", response_model=LockMetricsResponse)
-def get_lock_metrics():
-    history = [LockMetricSample(**entry) for entry in LOCK_HISTORY]
-    seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=6)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    with sqlite3.connect(LOCK_DB_PATH) as conn:
-        aggregates = conn.execute(
-            """
-            SELECT substr(occurred_at, 1, 10) AS day,
-                   SUM(CASE WHEN event_type = 'timeout' THEN 1 ELSE 0 END) AS timeout_count,
-                   SUM(CASE WHEN event_type = 'unexpected' THEN 1 ELSE 0 END) AS unexpected_count
-            FROM lock_metrics
-            WHERE occurred_at >= ?
-            GROUP BY day
-            ORDER BY day DESC
-            LIMIT 7
-            """,
-            (seven_days_ago,),
-        ).fetchall()
-    daily = [
-        {"date": row[0], "timeout": row[1], "unexpected": row[2]}
-        for row in aggregates
-    ]
-    return LockMetricsResponse(
-        timeout=LOCK_METRICS["timeout"],
-        unexpected=LOCK_METRICS["unexpected"],
-        history=history,
-        daily=daily,
-    )
 
 def parse_cli_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the YouTube Master UI backend")
