@@ -28,6 +28,9 @@
   - fetch直叩きが残る場合でも、URL組み立ては `apiUrl()`（or `client.ts` の `resolveApiUrl()`）を通す。
 - 例外（静的）: **Script Viewer（Pages）** は backend を使わない（APIなし）。
   - 静的ページ: `docs/`
+    - UI/Style: `docs/index.html`, `docs/styles.css`, `docs/app.js`
+    - キャッシュバスター: `docs/index.html` の `styles.css?v=...` / `app.js?v=...` は変更時に必ず更新（Pages/モバイルのキャッシュで“直ってない”事故を防ぐ）
+    - レスポンシブ: PCは2カラム（台本|YouTubeメタ）だが、モバイルは1カラム（台本→メタ）に倒す。`grid-column` が残ると暗黙の2列目が生えて台本が極端に細くなるので注意
   - 索引生成: `python3 scripts/ops/pages_script_viewer_index.py --write`
   - 台本本文の参照: `workspaces/scripts/**/assembled*.md` を GitHub raw から読む（複製しない）。
   - 重要: Pages で開けるのは **git追跡されているファイルだけ**。索引は Planning CSV と git追跡の台本を統合し、未生成（未追跡）の回も「企画/概要欄/タグ」までは表示する。

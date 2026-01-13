@@ -28,6 +28,7 @@
 
 必要条件:
 - `gh` がインストール済みでログイン済み: `gh auth status`
+  - チェック: 出力に `Logged in to github.com` と `Active account: true` がある
 - Releases assets の運用制限: **1ファイル < 2GiB**
   - 本ツールは自動で分割する（既定 chunk size: 1.9GB）
 
@@ -49,6 +50,44 @@ ARCHIVE_REPO="OWNER/REPO" \
 ./scripts/with_ytm_env.sh python3 scripts/ops/release_archive.py push "/path/to/file" \
   --note "..." \
   --tags "..."
+```
+
+### 2.1.1 例: Episode Asset Pack（画像束）の書庫化
+
+目的:
+- 投稿済みの run_dir を削除しても、再利用したい画像束（`0001.png...`）を残す。
+- 大きい実体は Releases へ、検索性は manifest（tags）へ寄せる。
+
+入口固定（1コマンド）:
+```bash
+# dry-run（計画だけ表示。何も書かない）
+./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push
+
+# 実行（Asset Pack確定 → tgz生成 → Releasesへpush）
+ARCHIVE_REPO="OWNER/REPO" \
+./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push --run
+
+# 容量対策（Releasesへpush後、ローカルpack/bundleを削除）:
+ARCHIVE_REPO="OWNER/REPO" \
+./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push --delete-pack-dir --delete-local-bundle --run
+
+# 注意: pack_dir に git 追跡ファイルがある場合、誤削除防止のため `--delete-pack-dir` は停止する。
+#       容量のために意図的に消す場合のみ `--force-delete-pack-dir` を追加する（repoがdirtyになる）。
+```
+
+分解コマンド（参考）:
+```bash
+# 1) run_dir から Asset Pack へ確定（番号固定）
+./scripts/with_ytm_env.sh python3 scripts/ops/video_assets_pack.py export --channel CHxx --video NNN --write --overwrite
+
+# 2) 1ファイルへ固める（tar.gz）
+tar -C workspaces/video/assets/episodes -czf /tmp/episode_asset_pack__CHxx-NNN.tgz CHxx/NNN
+
+# 3) Releases へ投入（manifest追記 + index更新）
+ARCHIVE_REPO="OWNER/REPO" \
+./scripts/with_ytm_env.sh python3 scripts/ops/release_archive.py push /tmp/episode_asset_pack__CHxx-NNN.tgz \
+  --note "episode asset pack (images) CHxx-NNN" \
+  --tags "type:episode_asset_pack,channel:CHxx,video:NNN"
 ```
 
 ### 2.2 pull（復元: download + 検証 + 結合）
