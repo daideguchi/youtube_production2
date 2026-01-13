@@ -10,6 +10,8 @@ from fastapi import APIRouter, HTTPException
 
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.main import (
+    NaturalCommandRequest,
+    NaturalCommandResponse,
     PROJECT_ROOT,
     PlanningInfoResponse,
     THUMBNAIL_PROJECTS_LOCK,
@@ -30,7 +32,9 @@ from backend.main import (
     build_planning_payload,
     build_planning_payload_from_row,
     build_status_payload,
+    ensure_expected_updated_at,
     get_planning_section,
+    interpret_natural_command,
     list_video_dirs,
     load_status,
     normalize_planning_video_number,
@@ -40,10 +44,18 @@ from backend.main import (
     save_status,
     update_planning_from_row,
     video_base_dir,
+    append_audio_history_entry,
 )
-from factory_common.paths import video_runs_root as ssot_video_runs_root
+from factory_common.paths import audio_final_dir, video_runs_root as ssot_video_runs_root
 
 router = APIRouter(prefix="/api/channels", tags=["channels"])
+
+
+def _load_tts_content_for_command(channel_code: str, video_number: str) -> str:
+    final_tts_snapshot = audio_final_dir(channel_code, video_number) / "a_text.txt"
+    editable_tts_path = video_base_dir(channel_code, video_number) / "audio_prep" / "script_sanitized.txt"
+    tts_plain_path = final_tts_snapshot if final_tts_snapshot.exists() else editable_tts_path
+    return tts_plain_path.read_text(encoding="utf-8") if tts_plain_path.exists() else ""
 
 
 @router.post("/{channel}/videos", status_code=201)
@@ -116,6 +128,40 @@ def register_video(channel: str, payload: VideoCreateRequest):
         "video": video_number,
         "updated_at": status_payload["updated_at"],
     }
+
+
+@router.post("/{channel}/videos/{video}/command", response_model=NaturalCommandResponse)
+def run_natural_command(channel: str, video: str, payload: NaturalCommandRequest):
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+    status = load_status(channel_code, video_number)
+    ensure_expected_updated_at(status, payload.expected_updated_at)
+
+    tts_content = _load_tts_content_for_command(channel_code, video_number)
+    actions, message = interpret_natural_command(payload.command, tts_content)
+    for action in actions:
+        if action.type == "insert_pause":
+            pause_value = action.pause_seconds or 0.0
+            append_audio_history_entry(
+                channel_code,
+                video_number,
+                {
+                    "event": "tts_command",
+                    "status": "suggested",
+                    "message": f"LLM suggested pause tag ({pause_value:.2f}s)",
+                },
+            )
+        elif action.type == "replace" and action.original and action.replacement:
+            append_audio_history_entry(
+                channel_code,
+                video_number,
+                {
+                    "event": "tts_command",
+                    "status": "suggested",
+                    "message": f"LLM suggested replace '{action.original}' → '{action.replacement}'",
+                },
+            )
+    return NaturalCommandResponse(actions=actions, message=message)
 
 
 VIDEO_RUN_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}

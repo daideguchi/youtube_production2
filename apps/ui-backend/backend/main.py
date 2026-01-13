@@ -6191,42 +6191,6 @@ def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
     return _build_channel_profile_response(channel_code)
 
 
-@app.post("/api/channels/{channel}/videos/{video}/command", response_model=NaturalCommandResponse)
-def run_natural_command(channel: str, video: str, payload: NaturalCommandRequest):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    status = load_status(channel_code, video_number)
-    ensure_expected_updated_at(status, payload.expected_updated_at)
-
-    detail = get_video_detail(channel, video)
-    tts_content = detail.tts_content or ""
-
-    actions, message = interpret_natural_command(payload.command, tts_content)
-    for action in actions:
-        if action.type == "insert_pause":
-            pause_value = action.pause_seconds or 0.0
-            append_audio_history_entry(
-                channel_code,
-                video_number,
-                {
-                    "event": "tts_command",
-                    "status": "suggested",
-                    "message": f"LLM suggested pause tag ({pause_value:.2f}s)",
-                },
-            )
-        elif action.type == "replace" and action.original and action.replacement:
-            append_audio_history_entry(
-                channel_code,
-                video_number,
-                {
-                    "event": "tts_command",
-                    "status": "suggested",
-                    "message": f"LLM suggested replace '{action.original}' → '{action.replacement}'",
-                },
-            )
-    return NaturalCommandResponse(actions=actions, message=message)
-
-
 def _resolve_channel_title(channel_code: str, info_map: Dict[str, dict]) -> Optional[str]:
     info = info_map.get(channel_code)
     if not isinstance(info, dict):
