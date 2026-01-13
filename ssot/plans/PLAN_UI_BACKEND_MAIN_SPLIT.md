@@ -87,6 +87,7 @@
 | 2ah | Planning channel rows（`GET /api/planning/channels/{channel_code}`）を `routers/planning_channel.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 2ai | Planning progress update（`PUT /api/planning/channels/{channel_code}/{video_number}/progress`）を `routers/planning_channel.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 2aj | Planning create entry（`POST /api/planning`）を `routers/planning_csv.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
+| 2ak | Channel videos register（`POST /api/channels/{channel}/videos`）を `routers/channel_videos.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
