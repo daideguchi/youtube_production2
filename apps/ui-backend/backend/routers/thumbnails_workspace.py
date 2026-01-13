@@ -2,15 +2,18 @@ from __future__ import annotations
 
 import io
 import json
+import mimetypes
 import re
+import urllib.parse
 import uuid
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import StreamingResponse
+import requests
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi.responses import PlainTextResponse, StreamingResponse
 
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.main import (
@@ -18,6 +21,11 @@ from backend.main import (
     ThumbnailChannelSummaryResponse,
     ThumbnailChannelVideoResponse,
     ThumbnailDescriptionResponse,
+    ThumbnailLibraryAssetResponse,
+    ThumbnailLibraryAssignRequest,
+    ThumbnailLibraryAssignResponse,
+    ThumbnailLibraryImportRequest,
+    ThumbnailLibraryRenameRequest,
     ThumbnailOverviewResponse,
     ThumbnailProjectResponse,
     ThumbnailProjectUpdateRequest,
@@ -447,6 +455,174 @@ def download_thumbnail_zip(
     filename = f"{channel_code}_thumbnails_{mode_norm}_{ts}.zip"
     headers = {"Content-Disposition": f'attachment; filename=\"{filename}\"'}
     return StreamingResponse(buffer, media_type="application/zip", headers=headers)
+
+
+@router.post(
+    "/{channel}/library/upload",
+    response_model=List[ThumbnailLibraryAssetResponse],
+)
+async def upload_thumbnail_library_assets(channel: str, files: List[UploadFile] = File(...)):
+    from backend import main as backend_main
+
+    channel_code = normalize_channel_code(channel)
+    if not files:
+        raise HTTPException(status_code=400, detail="アップロードする画像を選択してください。")
+    library_dir = backend_main._channel_primary_library_dir(channel_code, ensure=True)
+    assets: List[ThumbnailLibraryAssetResponse] = []
+    for file in files:
+        if not file.filename:
+            continue
+        sanitized = backend_main._sanitize_library_filename(file.filename, default_prefix="library_asset")
+        destination = backend_main._ensure_unique_filename(library_dir, sanitized)
+        await backend_main._save_upload_file(file, destination)
+        assets.append(backend_main._build_library_asset_response(channel_code, destination, base_dir=library_dir))
+    if not assets:
+        raise HTTPException(status_code=400, detail="有効な画像ファイルがありませんでした。")
+    return assets
+
+
+@router.post(
+    "/{channel}/library/import",
+    response_model=ThumbnailLibraryAssetResponse,
+)
+def import_thumbnail_library_asset(channel: str, payload: ThumbnailLibraryImportRequest):
+    from backend import main as backend_main
+
+    channel_code = normalize_channel_code(channel)
+    library_dir = backend_main._channel_primary_library_dir(channel_code, ensure=True)
+    source_url = payload.url.strip()
+    if not source_url:
+        raise HTTPException(status_code=400, detail="URL を指定してください。")
+    try:
+        response = requests.get(source_url, timeout=backend_main.THUMBNAIL_REMOTE_FETCH_TIMEOUT)
+    except requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail=f"画像の取得に失敗しました: {exc}") from exc
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail=f"画像の取得に失敗しました (status {response.status_code})")
+    content = response.content
+    if not content:
+        raise HTTPException(status_code=400, detail="画像データが空です。")
+    if len(content) > backend_main.THUMBNAIL_LIBRARY_MAX_BYTES:
+        raise HTTPException(status_code=400, detail="画像サイズが大きすぎます。")
+    content_type = response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+    suffix = mimetypes.guess_extension(content_type) if content_type else None
+    if suffix == ".jpe":
+        suffix = ".jpg"
+    if suffix not in backend_main.THUMBNAIL_SUPPORTED_EXTENSIONS:
+        suffix = None
+    candidate_name = payload.file_name.strip() if payload.file_name else ""
+    if not candidate_name:
+        parsed = urllib.parse.urlparse(source_url)
+        candidate_name = Path(parsed.path).name or ""
+    if candidate_name:
+        sanitized = backend_main._sanitize_library_filename(candidate_name, default_prefix="imported")
+        if suffix and not sanitized.lower().endswith(suffix):
+            sanitized = f"{Path(sanitized).stem}{suffix}"
+    else:
+        sanitized = backend_main._sanitize_library_filename(f"imported{suffix or '.png'}", default_prefix="imported")
+    destination = backend_main._ensure_unique_filename(library_dir, sanitized)
+    try:
+        with destination.open("wb") as buffer:
+            buffer.write(content)
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail=f"画像の保存に失敗しました: {exc}") from exc
+    return backend_main._build_library_asset_response(channel_code, destination, base_dir=library_dir)
+
+
+@router.get(
+    "/{channel}/library",
+    response_model=List[ThumbnailLibraryAssetResponse],
+)
+def get_thumbnail_library(channel: str):
+    from backend import main as backend_main
+
+    channel_code = normalize_channel_code(channel)
+    return backend_main._list_channel_thumbnail_library(channel_code)
+
+
+@router.patch(
+    "/{channel}/library/{asset_name}",
+    response_model=ThumbnailLibraryAssetResponse,
+)
+def rename_thumbnail_library_asset(
+    channel: str,
+    asset_name: str,
+    payload: ThumbnailLibraryRenameRequest,
+):
+    from backend import main as backend_main
+
+    channel_code = normalize_channel_code(channel)
+    base_dir, current_path = backend_main._resolve_library_asset_path(channel_code, asset_name)
+    new_name = payload.new_name
+    destination = base_dir / new_name
+    if destination.exists():
+        raise HTTPException(status_code=409, detail="同名のファイルが既に存在します。")
+    try:
+        current_path.rename(destination)
+    except OSError as exc:  # pragma: no cover - filesystem failure
+        raise HTTPException(status_code=500, detail=f"ファイル名の変更に失敗しました: {exc}") from exc
+    return backend_main._build_library_asset_response(channel_code, destination)
+
+
+@router.delete(
+    "/{channel}/library/{asset_path:path}",
+    status_code=204,
+    response_class=PlainTextResponse,
+)
+def delete_thumbnail_library_asset(channel: str, asset_path: str):
+    from backend import main as backend_main
+
+    channel_code = normalize_channel_code(channel)
+    _, source_path = backend_main._resolve_library_asset_path(channel_code, asset_path)
+    try:
+        source_path.unlink()
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="asset not found")
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail=f"ファイルの削除に失敗しました: {exc}") from exc
+    return PlainTextResponse("", status_code=204)
+
+
+@router.post(
+    "/{channel}/library/{asset_name}/assign",
+    response_model=ThumbnailLibraryAssignResponse,
+)
+def assign_thumbnail_library_asset(
+    channel: str,
+    asset_name: str,
+    payload: ThumbnailLibraryAssignRequest,
+):
+    from backend import main as backend_main
+
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(payload.video)
+    _, source_path = backend_main._resolve_library_asset_path(channel_code, asset_name)
+    image_path, public_url = backend_main._copy_library_asset_to_video(channel_code, video_number, source_path)
+    label = payload.label.strip() if payload.label else Path(source_path.name).stem
+    backend_main._persist_thumbnail_variant(
+        channel_code,
+        video_number,
+        label=label,
+        status="draft",
+        image_path=image_path,
+        make_selected=bool(payload.make_selected),
+    )
+    backend_main._append_thumbnail_quick_history(
+        {
+            "channel": channel_code,
+            "video": video_number,
+            "label": label or None,
+            "asset_name": source_path.name,
+            "image_path": image_path,
+            "public_url": public_url,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+    return ThumbnailLibraryAssignResponse(
+        file_name=source_path.name,
+        image_path=image_path,
+        public_url=public_url,
+    )
 
 
 @router.get("/history", response_model=List[ThumbnailQuickHistoryEntry])

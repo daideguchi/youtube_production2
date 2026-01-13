@@ -97,6 +97,7 @@
 | 2ar | Audio TTS run endpoints（`POST /api/audio-tts/run-from-script`, `POST /api/audio-tts/run`, `POST /api/audio-tts/run-batch`）を `routers/audio_tts.py` に移設し、`include_router` へ接続（main.py から削除） | dd | - | Done（2026-01-13） |
 | 2as | Thumbnails assets routes（`GET /thumbnails/assets/{channel}/{video}/{asset_path:path}`, `GET /thumbnails/library/{channel}/{asset_path:path}`）を `routers/thumbnails_assets.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 2at | Thumbnails history/describe（`GET /api/workspaces/thumbnails/history`, `POST /api/workspaces/thumbnails/{channel}/library/{asset_name}/describe`）を `routers/thumbnails_workspace.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
+| 2au | Thumbnails library CRUD（`POST /api/workspaces/thumbnails/{channel}/library/upload`, `POST /api/workspaces/thumbnails/{channel}/library/import`, `GET/PATCH/DELETE /api/workspaces/thumbnails/{channel}/library*`, `POST /api/workspaces/thumbnails/{channel}/library/{asset_name}/assign`）を `routers/thumbnails_workspace.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
