@@ -9,7 +9,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260113_06";
+const SITE_ASSET_VERSION = "20260113_07";
 const EMBED_MODE = detectEmbedMode();
 
 function detectEmbedMode() {

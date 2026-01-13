@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>書庫（GitHub Releases Archive）</title>
+    <link rel="stylesheet" href="./styles.css?v=20260113_01" />
+    <script defer src="./app.js?v=20260113_01"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="header">
+        <div>
+          <h1 class="title">書庫（GitHub Releases Archive）</h1>
+          <div class="muted">大容量ファイルを GitHub Releases に退避し、ここで一覧を確認する</div>
+        </div>
+        <div class="links">
+          <a class="btn btn--accent" href="../">Script Viewer</a>
+          <a class="btn" href="../ep/">/ep</a>
+          <a class="btn" href="../snapshot/">snapshot</a>
+          <a class="btn" id="openSsot" href="#" target="_blank" rel="noreferrer">SSOT</a>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="panel__head">
+          <div>
+            <div class="panel__title">検索</div>
+            <div class="muted small">データ: <code>gh_releases_archive/index/latest.json</code>（tracked）</div>
+          </div>
+          <div id="status" class="muted small">—</div>
+        </div>
+        <div class="panel__body">
+          <div class="filters">
+            <label class="field">
+              <div class="field__label">Query</div>
+              <input id="queryInput" class="input" placeholder="例: CH07 019 / episode_asset_pack / A-2026-..." />
+            </label>
+            <label class="field">
+              <div class="field__label">Tag（完全一致）</div>
+              <input id="tagInput" class="input" placeholder="例: type:episode_asset_pack" />
+            </label>
+            <button id="reloadBtn" class="btn btn--accent" type="button">再読み込み</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <div>
+            <div class="panel__title">最新アーカイブ</div>
+            <div id="countLabel" class="muted small">—</div>
+          </div>
+          <div class="links">
+            <a class="btn" id="openReleaseRoot" href="#" target="_blank" rel="noreferrer">Releases</a>
+            <a class="btn" id="openManifest" href="#" target="_blank" rel="noreferrer">manifest</a>
+          </div>
+        </div>
+        <div class="panel__body">
+          <div id="empty" class="empty" hidden>
+            <div class="empty__title">まだ書庫が空です</div>
+            <div class="muted small">CLIで書庫へ追加すると、この一覧に出ます。</div>
+          </div>
+          <div id="list" class="list" aria-label="archives list"></div>
+
+          <details class="hint">
+            <summary>CLI（書庫へ追加）</summary>
+            <div class="hint__body">
+              <div class="muted small">入口: <code>./ops archive</code>（デフォルトdry-run。実行は <code>--run</code>）</div>
+              <pre class="code">./ops archive episode-asset-pack --channel CHxx --video NNN --push --run
+./ops archive published --channel CHxx --apply --run
+./ops archive release --file /tmp/episode_asset_pack__CHxx-NNN.tgz --tags type:episode_asset_pack,channel:CHxx,video:NNN --run</pre>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <footer class="footer muted">
+        <span id="footerMeta">—</span>
+      </footer>
+    </div>
+  </body>
+</html>
+
