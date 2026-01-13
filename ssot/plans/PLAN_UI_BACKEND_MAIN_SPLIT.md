@@ -102,6 +102,7 @@
 | 2aw | Thumbnails text-line-spec（`GET /api/workspaces/thumbnails/{channel}/{video}/text-line-spec`, `PUT /api/workspaces/thumbnails/{channel}/{video}/text-line-spec`）を `routers/thumbnails_workspace.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 2ax | Thumbnails elements-spec（`GET /api/workspaces/thumbnails/{channel}/{video}/elements-spec`, `PUT /api/workspaces/thumbnails/{channel}/{video}/elements-spec`）を `routers/thumbnails_workspace.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 2ay | Thumbnails layer-specs + param-catalog（`GET /api/workspaces/thumbnails/{channel}/layer-specs`, `GET /api/workspaces/thumbnails/{channel}/{video}/layer-specs`, `GET /api/workspaces/thumbnails/param-catalog`）を `routers/thumbnails_specs.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
+| 2az | Thumbnails templates + image-models（`GET /api/workspaces/thumbnails/image-models`, `GET/PUT /api/workspaces/thumbnails/{channel}/templates`）を `routers/thumbnails_templates.py` に移設し、`include_router` へ接続 | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
