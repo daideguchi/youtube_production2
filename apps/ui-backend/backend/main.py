@@ -158,6 +158,16 @@ from backend.app.normalize import (
     normalize_planning_video_number,
     normalize_video_number,
 )
+from backend.app.episode_store import (
+    _detect_artifact_path,
+    load_status,
+    load_status_optional,
+    resolve_audio_path,
+    resolve_log_path,
+    resolve_srt_path,
+    resolve_text_file,
+    video_base_dir,
+)
 from backend.app.ui_settings_store import (
     OPENROUTER_API_KEY,
     _get_effective_openai_key,
@@ -1276,10 +1286,6 @@ def list_planning_video_numbers(channel_code: str) -> List[str]:
     return unique
 
 
-def video_base_dir(channel_code: str, video_number: str) -> Path:
-    return DATA_ROOT / channel_code / video_number
-
-
 def initialize_stage_payload(initial_stage: Optional[str] = None) -> Dict[str, dict]:
     stages: Dict[str, dict] = {}
     encountered = False
@@ -1606,20 +1612,6 @@ def get_audio_duration_seconds(path: Path) -> Optional[float]:
     return None
 
 
-def load_status(channel_code: str, video_number: str) -> dict:
-    status_path = DATA_ROOT / channel_code / video_number / "status.json"
-    if not status_path.exists():
-        raise HTTPException(status_code=404, detail="status.json not found")
-    return load_json(status_path)
-
-
-def load_status_optional(channel_code: str, video_number: str) -> Optional[dict]:
-    status_path = DATA_ROOT / channel_code / video_number / "status.json"
-    if not status_path.exists():
-        return None
-    return load_json(status_path)
-
-
 def _default_status_payload(channel_code: str, video_number: str) -> dict:
     return {
         "script_id": f"{channel_code}-{video_number}",
@@ -1879,16 +1871,6 @@ SCRIPT_POST_VALIDATION_AUTOCOMPLETE_STAGES = (
     "script_audio_ai",
     "script_tts_prepare",
 )
-
-
-def _detect_artifact_path(channel_code: str, video_number: str, extension: str) -> Path:
-    base = audio_final_dir(channel_code, video_number)
-    if extension == ".wav":
-        for ext in (".wav", ".flac", ".mp3", ".m4a"):
-            candidate = base / f"{channel_code}-{video_number}{ext}"
-            if candidate.exists():
-                return candidate
-    return base / f"{channel_code}-{video_number}{extension}"
 
 
 def _ensure_stage_slot(stages: Dict[str, Any], key: str) -> Dict[str, Any]:
@@ -2864,48 +2846,6 @@ def interpret_natural_command(command: str, tts_content: str) -> Tuple[List[Natu
     return _heuristic_natural_command(command, tts_content)
 
 
-def resolve_text_file(path: Path) -> Optional[str]:
-    """正規パスのみを読む。フォールバック禁止。"""
-    if not path.exists() or not path.is_file():
-        return None
-    return path.read_text(encoding="utf-8")
-
-
-def resolve_audio_path(status: dict, base_dir: Path) -> Optional[Path]:
-    channel = normalize_channel_code(status.get("channel") or base_dir.parent.name)
-    video_no = normalize_video_number(str(status.get("video_number") or base_dir.name))
-    metadata = status.get("metadata", {}) if isinstance(status, dict) else {}
-    audio_meta = metadata.get("audio", {}) if isinstance(metadata, dict) else {}
-    synth_meta = audio_meta.get("synthesis", {}) if isinstance(audio_meta, dict) else {}
-    final_wav = synth_meta.get("final_wav") if isinstance(synth_meta, dict) else None
-    if final_wav:
-        candidate = Path(str(final_wav))
-        if not candidate.is_absolute():
-            candidate = (PROJECT_ROOT / candidate).resolve()
-        if candidate.exists():
-            return candidate.resolve()
-
-    final_candidate = _detect_artifact_path(channel, video_no, ".wav")
-    if final_candidate.exists():
-        return final_candidate.resolve()
-
-    legacy_candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.wav"
-    return legacy_candidate.resolve() if legacy_candidate.exists() else None
-
-
-def resolve_log_path(status: dict, base_dir: Path) -> Optional[Path]:
-    channel = normalize_channel_code(status.get("channel") or base_dir.parent.name)
-    video_no = normalize_video_number(str(status.get("video_number") or base_dir.name))
-    final_log = audio_final_dir(channel, video_no) / "log.json"
-    if final_log.exists():
-        return final_log.resolve()
-    candidate = base_dir / "audio_prep" / "log.json"
-    if candidate.exists():
-        return candidate.resolve()
-    candidate_nested = base_dir / "audio_prep" / f"{channel}-{video_no}.log.json"
-    return candidate_nested.resolve() if candidate_nested.exists() else None
-
-
 def summarize_log(log_path: Path) -> Optional[dict]:
     if not log_path or not log_path.exists():
         return None
@@ -2924,26 +2864,6 @@ def summarize_log(log_path: Path) -> Optional[dict]:
         "chunk_count": chunk_count,
     }
 
-
-def resolve_srt_path(status: dict, base_dir: Path) -> Optional[Path]:
-    channel = normalize_channel_code(status.get("channel") or base_dir.parent.name)
-    video_no = normalize_video_number(str(status.get("video_number") or base_dir.name))
-    metadata = status.get("metadata", {}) if isinstance(status, dict) else {}
-    srt_meta = metadata.get("subtitles", {}) if isinstance(metadata, dict) else {}
-    final_srt = srt_meta.get("final_srt") if isinstance(srt_meta, dict) else None
-    if final_srt:
-        candidate = Path(str(final_srt))
-        if not candidate.is_absolute():
-            candidate = (PROJECT_ROOT / candidate).resolve()
-        if candidate.exists():
-            return candidate.resolve()
-
-    final_candidate = _detect_artifact_path(channel, video_no, ".srt")
-    if final_candidate.exists():
-        return final_candidate.resolve()
-
-    legacy_candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.srt"
-    return legacy_candidate.resolve() if legacy_candidate.exists() else None
 
 ESSENTIAL_BRANDING_KEYS = ("avatar_url", "subscriber_count", "view_count", "video_count")
 
