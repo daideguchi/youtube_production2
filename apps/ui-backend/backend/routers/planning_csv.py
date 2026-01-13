@@ -11,10 +11,12 @@ from backend.app.planning_csv_store import (
     _read_channel_csv_rows,
     _write_csv_with_lock,
 )
-from backend.main import (
+from backend.app.planning_models import (
     PlanningCreateRequest,
     PlanningCsvRowResponse,
     PlanningSpreadsheetResponse,
+)
+from backend.main import (
     _load_channel_spreadsheet,
     _load_planning_rows,
     build_planning_payload_from_row,
