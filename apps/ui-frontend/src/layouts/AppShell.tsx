@@ -59,6 +59,7 @@ export type WorkspaceView =
   | "dashboard"
   | "publishingProgress"
   | "audit"
+  | "archives"
   | "workflow"
   | "studio"
   | "channel"
@@ -258,6 +259,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/audit", pathname)) {
     return "audit";
   }
+  if (matchPath("/archives", pathname)) {
+    return "archives";
+  }
   if (matchPath("/publishing-progress", pathname)) {
     return "publishingProgress";
   }
@@ -362,6 +366,10 @@ const PLACEHOLDER_COPY: Record<
   audit: {
     title: "監査（欠損チェック / Precheck）",
     description: "チャンネル監査とPrecheckをまとめて確認し、欠損や詰まりを先に潰します。",
+  },
+  archives: {
+    title: "書庫（Archive Vault）",
+    description: "gh_releases_archive（manifest/index）から、退避済みアセット（例: Episode Asset Pack）を検索・確認します。",
   },
   studio: {
     title: "Episode Studio",
@@ -1430,6 +1438,7 @@ export function AppShell() {
         title: "運用/設定",
         items: [
           { key: "ssot", label: "SSOT", icon: "📌", path: "/ssot" },
+          { key: "archives", label: "書庫", icon: "🗄️", path: "/archives" },
           { key: "research", label: "リサーチ", icon: "🧪", path: "/research" },
           { key: "benchmarks", label: "ベンチマーク", icon: "📚", path: "/benchmarks" },
           { key: "remotion", label: "Remotion（実験）", icon: "🎞️", path: "/video-remotion" },
