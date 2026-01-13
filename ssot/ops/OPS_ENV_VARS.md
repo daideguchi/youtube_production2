@@ -37,7 +37,7 @@
 - `YTM_SLACK_NOTIFY_AGENT_TASKS`（default: `1`）: THINK MODE の agent task（`./ops agent claim/complete`）も通知する（スパムが嫌なら `0`）
 
 通知フォーマット（agent_task; 固定）:
-```text
+````text
 [agent_task] COMPLETE task=tts_reading episode=CH27-001
 
 何が終わった？
@@ -49,8 +49,8 @@
 - summary: ok=4 ng=0 skip=0
 
 次にやること
-- 元の実行を再開する → 下の invocation を再実行
-- invocation: python packages/audio_tts/scripts/run_tts.py --channel CH27 --video 001 --input workspaces/scripts/CH27/001/content/assembled.md
+- 元コマンドを再実行（resultsを拾って続行）
+- 再実行コマンド: 下の「再実行コマンド」をコピー
 
 参照（困ったらここを見る）
 - runbook: `ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md`
@@ -58,7 +58,12 @@
 - pending: `workspaces/logs/agent_tasks/pending/tts_reading__<hash>.json (moved to completed)`
 - completed: `workspaces/logs/agent_tasks/completed/tts_reading__<hash>.json`
 - queue: `workspaces/logs/agent_tasks`
+
+再実行コマンド
+```bash
+./scripts/with_ytm_env.sh python3 packages/audio_tts/scripts/run_tts.py --channel CH27 --video 001 --input workspaces/scripts/CH27/001/content/assembled.md
 ```
+````
 
 備考:
 - `--llm think` で pending が出た場合は「失敗」ではなく `PENDING` として通知される（task埋め→再実行で続行）。

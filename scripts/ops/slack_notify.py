@@ -1009,13 +1009,24 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
 
     def _format_invocation(obj: Optional[Dict[str, Any]]) -> str:
         inv = obj.get("invocation") if isinstance(obj, dict) else {}
+        python_exe = str(inv.get("python") or "").strip() if isinstance(inv, dict) else ""
         argv = inv.get("argv") if isinstance(inv, dict) else None
         toks = _sanitize_argv(argv)
         if not toks:
             return "-"
-        # Prefer repo-relative script path for readability (sys.argv does not include the interpreter).
-        pretty: list[str] = ["python"]
-        for t in toks[:19]:
+        if re.match(r"^python(3(\\.\\d+)?)?$", str(toks[0] or "").strip()):
+            toks = toks[1:]
+        if not toks:
+            return "-"
+        # Prefer `with_ytm_env` wrapper so "rerun" works from repo root.
+        python_cmd = "python3"
+        if python_exe:
+            try:
+                python_cmd = Path(python_exe).name or python_cmd
+            except Exception:
+                python_cmd = "python3"
+        pretty: list[str] = ["./scripts/with_ytm_env.sh", python_cmd]
+        for t in toks[:17]:
             try:
                 p = Path(t)
                 if p.is_absolute():
@@ -1024,7 +1035,7 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
                     pretty.append(t)
             except Exception:
                 pretty.append(t)
-        if len(toks) > 19:
+        if len(toks) > 17:
             pretty.append("...")
         return " ".join([shlex.quote(x) for x in pretty])
 
@@ -1096,7 +1107,7 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
         title_bits.append(f"episode={episode}")
     title = " ".join(title_bits)
 
-    agent_display = agent if agent != "-" else "<unset> (set LLM_AGENT_NAME)"
+    agent_display = agent if agent != "-" else "LLM_AGENT_NAME未設定"
     headline = [
         "何が終わった？" if ev == "COMPLETE" else "何が起きた？",
         f"- task: {task}" + (f"（{human}）" if human and human != task else ""),
@@ -1104,7 +1115,7 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
         f"- episode: {episode}" if episode != "-" else "- episode: -",
         f"- agent: {agent_display}",
     ]
-    next_line = "PENDINGで止まっていた元コマンドがある場合: 同じコマンドを再実行（resultsを拾って続行）"
+    next_line = "元コマンドを再実行（resultsを拾って続行）"
     if ev == "CLAIM":
         next_line = f"runbook+messagesに従って結果を作成 → `python scripts/agent_runner.py complete {task_id} --content-file ...`"
 
@@ -1123,7 +1134,7 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
             "",
             "次にやること",
             f"- {next_line}",
-            f"- invocation: `{invocation}`" if invocation != "-" else "- invocation: -",
+            "- 再実行コマンド: 下の「再実行コマンド」をコピー" if invocation != "-" else "- 再実行コマンド: -",
             "",
             "参照（困ったらここを見る）",
             f"- runbook: `{runbook_path}`（手順/前提）" if runbook_path != "-" else "- runbook: -",
@@ -1133,6 +1144,17 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
             f"- queue: `{queue_dir}`（pending/results/completed のルート）",
         ]
     )
+
+    if invocation != "-":
+        lines.extend(
+            [
+                "",
+                "再実行コマンド",
+                "```bash",
+                invocation,
+                "```",
+            ]
+        )
 
     return title + "\n\n" + "\n".join([x for x in lines if x is not None])
 
