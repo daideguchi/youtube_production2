@@ -18,7 +18,7 @@ def normalize_channel_code(channel: str) -> str:
     if not raw or Path(raw).name != raw:
         raise HTTPException(status_code=400, detail="Invalid channel identifier")
     channel_code = raw.upper()
-    if not re.match(r"^CH\\d+$", channel_code):
+    if not re.match(r"^CH\d+$", channel_code):
         raise HTTPException(status_code=400, detail="Invalid channel identifier")
     if (DATA_ROOT / channel_code).is_dir():
         return channel_code
@@ -39,4 +39,3 @@ def normalize_video_number(video: str) -> str:
     if not raw.isdigit():
         raise HTTPException(status_code=400, detail="Video identifier must be numeric")
     return raw.zfill(3)
-
