@@ -9384,29 +9384,6 @@ def assign_thumbnail_library_asset(
     )
 
 
-@app.get(
-    "/api/workspaces/thumbnails/history",
-    response_model=List[ThumbnailQuickHistoryEntry],
-)
-def get_thumbnail_quick_history(
-    channel: Optional[str] = Query(None, description="CHコード（例: CH06）"),
-    limit: int = Query(20, ge=1, le=200),
-):
-    channel_code = normalize_channel_code(channel) if channel else None
-    return _read_thumbnail_quick_history(channel_code, limit)
-
-
-@app.post(
-    "/api/workspaces/thumbnails/{channel}/library/{asset_name}/describe",
-    response_model=ThumbnailDescriptionResponse,
-)
-def describe_thumbnail_library_asset(channel: str, asset_name: str):
-    raise HTTPException(
-        status_code=400,
-        detail="thumbnail library describe is disabled: LLM API is not used for thumbnails",
-    )
-
-
 def _resolve_a_text_display_path(channel: str, video: str) -> Path:
     """
     Aテキスト（表示用）用に解決するパス。

@@ -17,9 +17,11 @@ from backend.main import (
     ThumbnailChannelBlockResponse,
     ThumbnailChannelSummaryResponse,
     ThumbnailChannelVideoResponse,
+    ThumbnailDescriptionResponse,
     ThumbnailOverviewResponse,
     ThumbnailProjectResponse,
     ThumbnailProjectUpdateRequest,
+    ThumbnailQuickHistoryEntry,
     ThumbnailVariantResponse,
 )
 from backend.app.channel_info_store import refresh_channel_info
@@ -445,3 +447,25 @@ def download_thumbnail_zip(
     filename = f"{channel_code}_thumbnails_{mode_norm}_{ts}.zip"
     headers = {"Content-Disposition": f'attachment; filename=\"{filename}\"'}
     return StreamingResponse(buffer, media_type="application/zip", headers=headers)
+
+
+@router.get("/history", response_model=List[ThumbnailQuickHistoryEntry])
+def get_thumbnail_quick_history(
+    channel: Optional[str] = Query(None, description="CHコード（例: CH06）"),
+    limit: int = Query(20, ge=1, le=200),
+):
+    from backend import main as backend_main
+
+    channel_code = normalize_channel_code(channel) if channel else None
+    return backend_main._read_thumbnail_quick_history(channel_code, limit)
+
+
+@router.post(
+    "/{channel}/library/{asset_name}/describe",
+    response_model=ThumbnailDescriptionResponse,
+)
+def describe_thumbnail_library_asset(channel: str, asset_name: str):
+    raise HTTPException(
+        status_code=400,
+        detail="thumbnail library describe is disabled: LLM API is not used for thumbnails",
+    )
