@@ -13,6 +13,7 @@ from backend.app.channel_info_store import refresh_channel_info
 from backend.app.channels_models import (
     ChannelAuditItemResponse,
     ChannelProfileResponse,
+    ChannelProfileUpdateRequest,
     ChannelRegisterRequest,
     ChannelSummaryResponse,
 )
@@ -92,6 +93,20 @@ def get_channel_profile(channel: str):
 
     channel_code = normalize_channel_code(channel)
     return _build_channel_profile_response(channel_code)
+
+
+@router.put("/{channel}/profile", response_model=ChannelProfileResponse)
+def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
+    """
+    Update channel profile.
+
+    Keep implementation in backend.main for now (milestone move: routing only),
+    to avoid widening the diff and risking behavior changes.
+    """
+
+    from backend.main import update_channel_profile as impl
+
+    return impl(channel, payload)
 
 
 @router.post("/register", response_model=ChannelProfileResponse, status_code=201)

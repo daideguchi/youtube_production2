@@ -6239,7 +6239,6 @@ def update_planning_channel_progress(channel_code: str, video_number: str, paylo
     )
 
 
-@app.put("/api/channels/{channel}/profile", response_model=ChannelProfileResponse)
 def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
     channel_code = normalize_channel_code(channel)
     info_path, info_payload, channel_dir = _load_channel_info_payload(channel_code)
