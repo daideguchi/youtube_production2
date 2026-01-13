@@ -37,7 +37,7 @@ code {
 }
 
 .app {
-  max-width: 1100px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 16px;
   display: flex;
@@ -47,7 +47,7 @@ code {
 
 .workspace {
   display: grid;
-  grid-template-columns: 1fr minmax(320px, 440px);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
   gap: 12px;
   align-items: start;
 }

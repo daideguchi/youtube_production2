@@ -81,6 +81,8 @@ function setupEpisodeDescriptionCopy(){
 
   const status=document.getElementById("descStatus");
   const studioLink=document.getElementById("descStudioLink");
+  const titleTa=document.getElementById("ytTitle");
+  const tagsTa=document.getElementById("ytTags");
   const fullTa=document.getElementById("descFull");
   const epTa=document.getElementById("descEpisode");
   const chTa=document.getElementById("descChannel");
@@ -117,9 +119,13 @@ function setupEpisodeDescriptionCopy(){
       setStatus("iframe読み込み中…（しばらく待ってください）");
       return false;
     }
+    const title=textOrEmpty(doc.getElementById("ytTitlePre"));
+    const tags=textOrEmpty(doc.getElementById("ytTagsPre"));
     const full=textOrEmpty(doc.getElementById("ytFullDescPre"));
     const ep=textOrEmpty(doc.getElementById("ytEpisodeDescPre"));
     const ch=textOrEmpty(doc.getElementById("ytChannelDescPre"));
+    if(titleTa)titleTa.value=title;
+    if(tagsTa)tagsTa.value=tags;
     if(fullTa)fullTa.value=full;
     if(epTa)epTa.value=ep;
     if(chTa)chTa.value=ch;
@@ -127,7 +133,7 @@ function setupEpisodeDescriptionCopy(){
     const studioHref=String(doc.getElementById("openYtStudio")?.href||"").trim();
     setStudioHref(studioHref);
 
-    const hasAny=!!(full||ep||ch);
+    const hasAny=!!(title||tags||full||ep||ch);
     if(hasAny)setStatus("準備OK（コピーボタンを押してください）");
     else setStatus("概要欄が未生成/未表示です（Script Viewer側の「YouTube貼り付け」を確認）");
     updateCopyButtons();
@@ -139,7 +145,7 @@ function setupEpisodeDescriptionCopy(){
       const id=String(btn.getAttribute("data-copy-target")||"").trim();
       const ta=document.getElementById(id);
       const text=String(ta?.value||"");
-      const labelById={descFull:"全文",descEpisode:"動画ごと",descChannel:"チャンネル固定"};
+      const labelById={ytTitle:"タイトル",descFull:"概要欄(全文)",ytTags:"タグ",descEpisode:"概要欄(動画ごと)",descChannel:"概要欄(チャンネル固定)"};
       const label=labelById[id]||id;
       try{
         const ok=await copyText(text);

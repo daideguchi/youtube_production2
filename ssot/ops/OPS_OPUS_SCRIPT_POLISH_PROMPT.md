@@ -9,12 +9,14 @@ Codex が「下地調整」した台本を、Opus（文章清書）で **より�
 
 ## Opus への入力
 - 対象台本（プレーンテキスト）
+- もしくは **対象ファイルパス**（Opus がローカルファイルを読める環境で実行する前提）
 - 区切りとして `---` が含まれる場合は維持
 
 ## Opus への出力（必須）
 - **清書後の台本本文のみ**（解説・メモ・箇条書きの提案は出さない）
 - 形式はプレーンテキスト
 - `---` 区切りは維持（必要なら段落内の改行は増減して良い）
+- 入力ファイルは上書きしない（安全のため **別ファイルに出力**する）
 
 ---
 
@@ -50,5 +52,21 @@ Codex が「下地調整」した台本を、Opus（文章清書）で **より�
 
 ---
 
-【ここに台本本文を貼る】
+### 入力の場所（貼らない運用）
+台本本文は貼りません。代わりに、次の場所から読み込んで清書してください。
 
+- 対象ファイル（優先順）:
+  1) `workspaces/scripts/{CHANNEL}/{VID}/content/assembled_human.md`
+  2) `workspaces/scripts/{CHANNEL}/{VID}/content/assembled.md`
+
+- 出力ファイル（上書き禁止）:
+  - `workspaces/scripts/{CHANNEL}/{VID}/content/assembled_opus.md`
+
+### 対象例（CH02 未投稿）
+- `CHANNEL=CH02`
+- `VID=042..091`（`042`〜`091` の各ディレクトリ）
+- 入力: `workspaces/scripts/CH02/042/content/assembled.md` … `workspaces/scripts/CH02/091/content/assembled.md`
+- 出力: `workspaces/scripts/CH02/042/content/assembled_opus.md` … `workspaces/scripts/CH02/091/content/assembled_opus.md`
+
+### 実行単位
+1本ずつでも、複数本まとめても構いません。ただし「出力は本文のみ」を守ってください。

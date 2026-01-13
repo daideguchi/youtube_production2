@@ -51,7 +51,7 @@ VIDEO_RE_3 = re.compile(r"^\d{3}$")
 
 # Cache-bust for docs/ep static assets (styles/app).
 # Bump this string when updating /docs/ep UX.
-EP_ASSET_VERSION = "20260113_07"
+EP_ASSET_VERSION = "20260113_09"
 
 
 def _now_iso_utc() -> str:
@@ -334,6 +334,8 @@ function setupEpisodeDescriptionCopy(){
 
   const status=document.getElementById("descStatus");
   const studioLink=document.getElementById("descStudioLink");
+  const titleTa=document.getElementById("ytTitle");
+  const tagsTa=document.getElementById("ytTags");
   const fullTa=document.getElementById("descFull");
   const epTa=document.getElementById("descEpisode");
   const chTa=document.getElementById("descChannel");
@@ -370,9 +372,13 @@ function setupEpisodeDescriptionCopy(){
       setStatus("iframe読み込み中…（しばらく待ってください）");
       return false;
     }
+    const title=textOrEmpty(doc.getElementById("ytTitlePre"));
+    const tags=textOrEmpty(doc.getElementById("ytTagsPre"));
     const full=textOrEmpty(doc.getElementById("ytFullDescPre"));
     const ep=textOrEmpty(doc.getElementById("ytEpisodeDescPre"));
     const ch=textOrEmpty(doc.getElementById("ytChannelDescPre"));
+    if(titleTa)titleTa.value=title;
+    if(tagsTa)tagsTa.value=tags;
     if(fullTa)fullTa.value=full;
     if(epTa)epTa.value=ep;
     if(chTa)chTa.value=ch;
@@ -380,7 +386,7 @@ function setupEpisodeDescriptionCopy(){
     const studioHref=String(doc.getElementById("openYtStudio")?.href||"").trim();
     setStudioHref(studioHref);
 
-    const hasAny=!!(full||ep||ch);
+    const hasAny=!!(title||tags||full||ep||ch);
     if(hasAny)setStatus("準備OK（コピーボタンを押してください）");
     else setStatus("概要欄が未生成/未表示です（Script Viewer側の「YouTube貼り付け」を確認）");
     updateCopyButtons();
@@ -392,7 +398,7 @@ function setupEpisodeDescriptionCopy(){
       const id=String(btn.getAttribute("data-copy-target")||"").trim();
       const ta=document.getElementById(id);
       const text=String(ta?.value||"");
-      const labelById={descFull:"全文",descEpisode:"動画ごと",descChannel:"チャンネル固定"};
+      const labelById={ytTitle:"タイトル",descFull:"概要欄(全文)",ytTags:"タグ",descEpisode:"概要欄(動画ごと)",descChannel:"概要欄(チャンネル固定)"};
       const label=labelById[id]||id;
       try{
         const ok=await copyText(text);
@@ -720,7 +726,7 @@ def _ep_index_html(
         "        <button class=\"btn btn--accent\" type=\"submit\">開く</button>\n"
         "      </form>\n"
         "      <div class=\"muted\" style=\"margin-top:10px\">URLルール: <code>/ep/CH27/001/</code> / <code>/ep/CH27/001/thumb/</code> など</div>\n"
-        "      <div class=\"muted\" style=\"margin-top:10px\">※ /ep は共有用（綺麗URL）。制作作業（台本/概要欄コピー・チャンネル情報確認・企画/進捗）は Script Viewer を使ってください。</div>\n"
+        "      <div class=\"muted\" style=\"margin-top:10px\">※ /ep は共有用（綺麗URL）。台本閲覧と YouTube貼り付け（タイトル/概要欄/タグ）は /ep で完結する。検索・企画/進捗・詳細作業は Script Viewer を使う。</div>\n"
         "    </div>\n"
         "  </div>\n\n"
         "  <div class=\"panel\">\n"
@@ -915,27 +921,37 @@ def _episode_viewer_page_html(
         desc_panel = (
             "  <div class=\"panel\" id=\"descPanel\">\n"
             "    <div class=\"panel__head\">\n"
-            "      <div><strong>概要欄</strong> <span class=\"muted\">YouTube貼り付け用</span></div>\n"
+            "      <div><strong>YouTube貼り付け</strong> <span class=\"muted\">タイトル/概要欄/タグ</span></div>\n"
             "      <div class=\"copy-actions\">"
             "<a class=\"btn\" id=\"descStudioLink\" href=\"#\" target=\"_blank\" rel=\"noreferrer\">YouTube Studio</a>"
-            "<button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\" disabled>全文コピー</button>"
+            "<button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\" disabled>概要欄コピー</button>"
             "</div>\n"
             "    </div>\n"
             "    <div class=\"panel__body\">\n"
-            "      <div class=\"muted\">手順: 「全文コピー」→ YouTube Studio の説明欄へ貼り付け</div>\n"
+            "      <div class=\"muted\">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>\n"
             "      <div class=\"copy-grid\" style=\"margin-top:10px\">\n"
+            "        <div class=\"copy-block\" data-kind=\"title\">\n"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">① タイトル</div>"
+            "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"ytTitle\" disabled>コピー</button></div></div>\n"
+            "          <textarea id=\"ytTitle\" class=\"textarea\" rows=\"3\" readonly placeholder=\"読み込み中…\"></textarea>\n"
+            "        </div>\n"
             "        <div class=\"copy-block\" data-kind=\"full\">\n"
-            "          <div class=\"copy-head\"><div class=\"copy-title\">全文（動画 + チャンネル固定文）</div>"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">② 概要欄（全文）</div>"
             "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\" disabled>コピー</button></div></div>\n"
             "          <textarea id=\"descFull\" class=\"textarea\" rows=\"10\" readonly placeholder=\"読み込み中…\"></textarea>\n"
             "        </div>\n"
+            "        <div class=\"copy-block\" data-kind=\"tags\">\n"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">③ タグ（comma）</div>"
+            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"ytTags\" disabled>コピー</button></div></div>\n"
+            "          <textarea id=\"ytTags\" class=\"textarea\" rows=\"4\" readonly placeholder=\"—\"></textarea>\n"
+            "        </div>\n"
             "        <div class=\"copy-block\" data-kind=\"episode\">\n"
-            "          <div class=\"copy-head\"><div class=\"copy-title\">動画ごと</div>"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">概要欄（動画ごと）</div>"
             "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descEpisode\" disabled>コピー</button></div></div>\n"
             "          <textarea id=\"descEpisode\" class=\"textarea\" rows=\"8\" readonly placeholder=\"—\"></textarea>\n"
             "        </div>\n"
             "        <div class=\"copy-block\" data-kind=\"channel\">\n"
-            "          <div class=\"copy-head\"><div class=\"copy-title\">チャンネル固定</div>"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">概要欄（チャンネル固定）</div>"
             "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descChannel\" disabled>コピー</button></div></div>\n"
             "          <textarea id=\"descChannel\" class=\"textarea\" rows=\"8\" readonly placeholder=\"—\"></textarea>\n"
             "        </div>\n"
