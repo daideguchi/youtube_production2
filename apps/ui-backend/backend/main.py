@@ -162,6 +162,7 @@ from backend.routers import health
 from backend.routers import healthz
 from backend.routers import lock_metrics
 from backend.routers import batch_tts
+from backend.routers import episode_files
 from factory_common.publish_lock import (
     is_episode_published_locked,
     mark_episode_published_locked,
@@ -5756,6 +5757,7 @@ app.include_router(health.router)
 app.include_router(healthz.router)
 app.include_router(lock_metrics.router)
 app.include_router(batch_tts.router)
+app.include_router(episode_files.router)
 try:
     from backend.routers import prompts
 
@@ -12290,39 +12292,6 @@ def get_batch_workflow_log(task_id: str, tail: int = Query(200, ge=1, le=2000)):
         raise HTTPException(status_code=404, detail="log file not found")
     lines = log_path.read_text(encoding="utf-8", errors="ignore").splitlines()
     return BatchWorkflowLogResponse(task_id=task_id, lines=lines[-tail:])
-
-
-@app.get("/api/channels/{channel}/videos/{video}/audio")
-def get_audio(channel: str, video: str):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    status = load_status(channel_code, video_number)
-    audio_path = resolve_audio_path(status, video_base_dir(channel_code, video_number))
-    if not audio_path:
-        raise HTTPException(status_code=404, detail="Audio not found")
-    return FileResponse(audio_path, media_type="audio/wav", filename=audio_path.name)
-
-
-@app.get("/api/channels/{channel}/videos/{video}/srt")
-def get_srt(channel: str, video: str):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    status = load_status(channel_code, video_number)
-    srt_path = resolve_srt_path(status, video_base_dir(channel_code, video_number))
-    if not srt_path:
-        raise HTTPException(status_code=404, detail="SRT not found")
-    return FileResponse(srt_path, media_type="text/plain", filename=srt_path.name)
-
-
-@app.get("/api/channels/{channel}/videos/{video}/log")
-def get_audio_log(channel: str, video: str):
-    channel_code = normalize_channel_code(channel)
-    video_number = normalize_video_number(video)
-    status = load_status(channel_code, video_number)
-    log_path = resolve_log_path(status, video_base_dir(channel_code, video_number))
-    if not log_path:
-        raise HTTPException(status_code=404, detail="Log not found")
-    return FileResponse(log_path, media_type="application/json", filename=log_path.name)
 
 
 @app.get("/api/audio/integrity", response_model=List[AudioIntegrityItem])
