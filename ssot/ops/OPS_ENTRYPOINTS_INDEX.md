@@ -283,6 +283,10 @@
     - 自動運用（macOS / launchd; ローカル専用）:
       - `python3 scripts/ops/install_slack_pm_launchagent.py --channel <C...> --thread-ts <...> --dd-user <U...> --interval-sec 1800 --post-digest --process --errors --triage-ops-errors --flush-outbox`
         - オプション: `--git-push-if-clean`
+  - Slack→ローカル操作（スレ経由 / ローカル専用）:
+    - SSOT: `ssot/ops/OPS_SLACK_OPS_GATEWAY.md`
+    - 手動実行（まず dry-run で確認）: `python3 scripts/ops/slack_ops_loop.py run --channel <C...> --thread-ts <...> --dd-user <U...> --dry-run`
+    - 常駐（macOS / launchd）: `python3 scripts/ops/install_slack_ops_launchagent.py --channel <C...> --thread-ts <...> --dd-user <U...> --interval-sec 1800`
   - PID稼働状況（「いつから/何をしているか」）:
     - まとめ（自動検出→Slack）: `python3 scripts/ops/process_report.py --auto --slack --channel <C...> --thread-ts <thread_ts>`
     - 詳細（目的/コマンド含む）: `python3 scripts/ops/process_report.py --auto --include-command --slack --channel <C...> --thread-ts <thread_ts>`

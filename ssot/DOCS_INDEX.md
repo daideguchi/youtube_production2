@@ -90,6 +90,7 @@
 - `ops/OPS_LLM_MODEL_CHEATSHEET.md`: LLMモデル使い分け（正本: `configs/llm_router.yaml` + codes/slots）。
 - `ops/OPS_CHANNEL_MODEL_ROUTING.md`: チャンネル別モデルルーティング（slot/codes/画像コードの運用正本）。
 - `ops/OPS_ENV_VARS.md`: 環境変数・キー管理の固定ルールと必須一覧。
+- `ops/OPS_SLACK_OPS_GATEWAY.md`: Slack→ローカル `./ops` 実行（スマホ運用/事故防止; ローカル専用）。
 - `ops/OPS_LLM_RUNTIME_OVERRIDES.md`: 設定ファイルを編集せずに「この実行だけ」LLMを調整する（lockdown + emergency override）。
 - `ops/OPS_CONFIRMED_PIPELINE_FLOW.md`: 現行フローの確定ロジック/確定処理フロー（フェーズ別I/O正本）。
 - `ops/OPS_ARTIFACT_DRIVEN_PIPELINES.md`: THINK/API共通のartifact駆動設計（型→処理継続の固定ルール）。
