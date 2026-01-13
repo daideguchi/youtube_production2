@@ -79,7 +79,8 @@
 | 2z | Settings endpoints（`/api/settings/llm`, `/api/settings/codex`, `/api/settings/image-model-routing`）を `routers/settings.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-11） |
 | 2aa | Channels register/audit（`/api/channels/register`, `/api/channels/audit`）を `routers/channel_registry.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
 | 2ab | Channels list（`/api/channels`）を `routers/channel_registry.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
-| 2ac | Channels profile/branding refresh（`/api/channels/{channel}/profile`, `/api/channels/{channel}/branding/refresh`）を `routers/channel_registry.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
+| 2ac | Channels profile GET + branding refresh（GET `/api/channels/{channel}/profile`, POST `/api/channels/{channel}/branding/refresh`）を `routers/channel_registry.py` に移設し、`include_router` へ接続 | dd | - | Done（2026-01-13） |
+| 2ad | Channels profile PUT（PUT `/api/channels/{channel}/profile`）を `routers/channel_registry.py` に移設し、`include_router` へ接続（挙動互換） | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
