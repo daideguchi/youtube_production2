@@ -2,22 +2,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query
 
-from backend.main import (
-    SRTVerifyResponse,
-    TextUpdateRequest,
-    current_timestamp,
-    ensure_expected_updated_at,
-    load_status,
-    normalize_channel_code,
-    normalize_video_number,
-    resolve_audio_path,
-    resolve_srt_path,
-    safe_relative_path,
-    save_status,
-    verify_srt_file,
-    video_base_dir,
-    write_text_with_lock,
-)
+from backend.app.datetime_utils import current_timestamp
+from backend.app.episode_store import load_status, resolve_audio_path, resolve_srt_path, video_base_dir
+from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.scripts_models import TextUpdateRequest
+from backend.main import SRTVerifyResponse, ensure_expected_updated_at, safe_relative_path, save_status, verify_srt_file
+from backend.main import write_text_with_lock
 
 router = APIRouter(prefix="/api", tags=["srt"])
 
@@ -74,4 +64,3 @@ def verify_srt(
     if not srt_path.exists():
         raise HTTPException(status_code=404, detail=f"SRT not found: {srt_path}")
     return verify_srt_file(wav_path, srt_path, tolerance_ms=tolerance_ms)
-
