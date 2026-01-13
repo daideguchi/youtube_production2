@@ -65,6 +65,7 @@ LLM Judge は「内容品質」を見るのが役割だが、**数え間違い**
 位置づけ:
 - `script_validation` の最後に、必要な場合だけ **最大1回**走らせる（常時ではない）。
 - 出力は必ず `validate_a_text` に通し、かつ入力の `---` 本数/順序を維持できた場合だけ採用する（事故を混入させない）。
+- 外部清書（Opus）で本文を磨く場合の依頼プロンプト: `ssot/ops/OPS_OPUS_SCRIPT_POLISH_PROMPT.md`
 
 制御（Env）:
 - `SCRIPT_VALIDATION_FINAL_POLISH=auto|0|1`
