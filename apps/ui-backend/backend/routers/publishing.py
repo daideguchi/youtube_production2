@@ -7,6 +7,14 @@ from typing import Dict, List, Optional, Tuple
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.channel_info_store import refresh_channel_info
+from backend.app.channel_catalog import _channel_sort_key, list_known_channel_codes
+from backend.app.datetime_utils import current_timestamp, parse_iso_datetime
+from backend.app.normalize import (
+    normalize_channel_code,
+    normalize_optional_text,
+    normalize_planning_video_number,
+    normalize_video_number,
+)
 from backend.app.publish_sheet_client import PublishSheetClient, PublishSheetError
 from backend.app.publishing_models import (
     PublishLockRequest,
@@ -15,16 +23,6 @@ from backend.app.publishing_models import (
     PublishingScheduleChannelSummary,
     PublishingScheduleOverviewResponse,
     PublishingScheduleVideoItem,
-)
-from backend.main import (
-    _channel_sort_key,
-    current_timestamp,
-    list_known_channel_codes,
-    normalize_channel_code,
-    normalize_optional_text,
-    normalize_planning_video_number,
-    normalize_video_number,
-    parse_iso_datetime,
 )
 from factory_common.publish_lock import mark_episode_published_locked, unmark_episode_published_locked
 

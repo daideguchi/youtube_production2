@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any, Optional
 
 from fastapi import HTTPException
 
@@ -39,3 +40,37 @@ def normalize_video_number(video: str) -> str:
     if not raw.isdigit():
         raise HTTPException(status_code=400, detail="Video identifier must be numeric")
     return raw.zfill(3)
+
+
+def normalize_optional_text(value: Any) -> Optional[str]:
+    """Return a stripped string or None when empty/undefined."""
+
+    if value is None:
+        return None
+    if isinstance(value, str):
+        text = value.strip()
+    else:
+        text = str(value).strip()
+    return text or None
+
+
+def normalize_planning_video_number(value: Any) -> Optional[str]:
+    """
+    Best-effort normalization for Planning SoT columns ("動画番号" etc).
+
+    - Extract digits (so inputs like "1", "001", "第1話" do not crash the API).
+    - Return `None` when no numeric token is found.
+
+    This is intentionally more permissive than `normalize_video_number`, which validates
+    user-provided path params strictly.
+    """
+
+    if value is None:
+        return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    digits = "".join(ch for ch in raw if ch.isdigit())
+    if not digits:
+        return None
+    return digits.zfill(3)
