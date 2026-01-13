@@ -27,7 +27,6 @@ from backend.main import (
     _collect_disk_thumbnail_variants,
     _derive_effective_stages,
     _derive_effective_video_status,
-    _load_thumbnail_projects_document,
     _stage_status_value,
     build_planning_payload,
     build_planning_payload_from_row,
@@ -318,7 +317,11 @@ def _build_video_images_progress_map(channel_code: str, video_numbers: set[str])
 def _build_thumbnail_progress_map(channel_code: str, video_numbers: set[str]) -> Dict[str, ThumbnailProgressResponse]:
     project_map: Dict[str, dict] = {}
     with THUMBNAIL_PROJECTS_LOCK:
-        _, document = _load_thumbnail_projects_document()
+        # Avoid circular import during app.include_router(): the helper is defined after
+        # router wiring in backend.main, so import it lazily at runtime.
+        from backend import main as backend_main
+
+        _, document = backend_main._load_thumbnail_projects_document()
     projects = document.get("projects") if isinstance(document, dict) else None
     if isinstance(projects, list):
         for project in projects:

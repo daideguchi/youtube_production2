@@ -9,7 +9,6 @@ from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.main import (
     AudioReviewItemResponse,
     DATA_ROOT,
-    _resolve_channel_title,
     get_audio_duration_seconds,
     list_channel_dirs,
     list_video_dirs,
@@ -77,7 +76,10 @@ def list_audio_review_items(
         if not channel_dir.is_dir():
             continue
         channel_code = channel_dir.name.upper()
-        channel_title = _resolve_channel_title(channel_code, channel_info_map)
+        # Avoid circular import during app.include_router(): helper is defined after router wiring in backend.main.
+        from backend import main as backend_main
+
+        channel_title = backend_main._resolve_channel_title(channel_code, channel_info_map)
 
         for video_dir in list_video_dirs(channel_code):
             video_number = video_dir.name
@@ -207,4 +209,3 @@ def list_audio_review_items(
 
     items.sort(key=lambda item: item.audio_updated_at or "", reverse=True)
     return items
-
