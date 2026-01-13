@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260113_02" />
-    <script defer src="./app.js?v=20260113_02"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260113_03" />
+    <script defer src="./app.js?v=20260113_03"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -13,7 +13,7 @@
         <div>
           <h1>Script Viewer</h1>
           <p class="muted">
-            制作オペ用: 企画/進捗・サムネDL・台本/チャンネル情報・概要欄コピー<br />
+            初心者: Searchで台本を開く → 「YouTube貼り付け」でコピー → YouTube Studioへ貼る<br />
             共有URLは /ep（綺麗URL） を使う（「共有リンクをコピー」）
           </p>
         </div>
@@ -150,13 +150,17 @@
 
         <section class="assets" aria-label="YouTube/音声/サムネ/画像">
         <details id="youtubeMetaDetails" class="details" open>
-          <summary>YouTubeメタ（タイトル/概要欄/タグ）</summary>
+          <summary>YouTube貼り付け（タイトル/概要欄/タグ）</summary>
           <div class="details__body">
+            <div class="assets__note muted">
+              貼り付け順: ①タイトル → ②概要欄（貼り付け用） → ③タグ。各「コピー（…欄へ）」を押して YouTube Studio に貼り付け。
+            </div>
             <div class="assets__grid">
               <div class="asset-card" style="grid-column: 1 / -1">
                 <div class="asset-card__head">
-                  <div class="asset-card__title">チャンネル情報</div>
+                  <div class="asset-card__title">チャンネル情報（リンク/設定）</div>
                   <div class="asset-card__actions">
+                    <a id="openYtStudio" class="btn btn--ghost" target="_blank" rel="noreferrer">Studio</a>
                     <a id="openYtChannel" class="btn btn--ghost" target="_blank" rel="noreferrer">YouTube</a>
                     <a id="openVoiceConfig" class="btn btn--ghost" target="_blank" rel="noreferrer">音声設定</a>
                     <a id="openChannelPrompt" class="btn btn--ghost" target="_blank" rel="noreferrer">台本プロンプト</a>
@@ -166,36 +170,45 @@
               </div>
               <div class="asset-card">
                 <div class="asset-card__head">
-                  <div class="asset-card__title">タイトル</div>
+                  <div class="asset-card__title">① タイトル（YouTube Studio）</div>
                   <div class="asset-card__actions">
-                    <button id="copyYtTitle" class="btn btn--ghost" type="button">コピー</button>
+                    <button id="copyYtTitle" class="btn btn--ghost" type="button">コピー（タイトル欄へ）</button>
                   </div>
                 </div>
                 <pre id="ytTitlePre" class="pre pre--small muted"></pre>
               </div>
               <div class="asset-card">
                 <div class="asset-card__head">
-                  <div class="asset-card__title">タグ（候補）</div>
+                  <div class="asset-card__title">③ タグ（YouTube Studio）</div>
                   <div class="asset-card__actions">
-                    <button id="copyYtTags" class="btn btn--ghost" type="button">コピー</button>
+                    <button id="copyYtTags" class="btn btn--ghost" type="button">コピー（タグ欄へ）</button>
                   </div>
                 </div>
                 <pre id="ytTagsPre" class="pre pre--small muted"></pre>
               </div>
               <div class="asset-card" style="grid-column: 1 / -1">
                 <div class="asset-card__head">
-                  <div class="asset-card__title">概要欄（この動画）</div>
+                  <div class="asset-card__title">② 概要欄（貼り付け用: この動画 + 定型）</div>
                   <div class="asset-card__actions">
-                    <button id="copyYtEpisodeDesc" class="btn btn--ghost" type="button">コピー</button>
+                    <button id="copyYtFullDesc" class="btn btn--ghost" type="button">コピー（説明欄へ）</button>
+                  </div>
+                </div>
+                <pre id="ytFullDescPre" class="pre pre--small muted"></pre>
+              </div>
+              <div class="asset-card" style="grid-column: 1 / -1">
+                <div class="asset-card__head">
+                  <div class="asset-card__title">概要欄（この動画だけ）</div>
+                  <div class="asset-card__actions">
+                    <button id="copyYtEpisodeDesc" class="btn btn--ghost" type="button">コピー（説明欄へ・この動画）</button>
                   </div>
                 </div>
                 <pre id="ytEpisodeDescPre" class="pre pre--small muted"></pre>
               </div>
               <div class="asset-card" style="grid-column: 1 / -1">
                 <div class="asset-card__head">
-                  <div class="asset-card__title">概要欄（チャンネル定型）</div>
+                  <div class="asset-card__title">概要欄（定型: 全動画共通）</div>
                   <div class="asset-card__actions">
-                    <button id="copyYtChannelDesc" class="btn btn--ghost" type="button">コピー</button>
+                    <button id="copyYtChannelDesc" class="btn btn--ghost" type="button">コピー（説明欄へ・定型）</button>
                   </div>
                 </div>
                 <pre id="ytChannelDescPre" class="pre pre--small muted"></pre>

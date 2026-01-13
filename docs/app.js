@@ -9,7 +9,7 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260113_01";
+const SITE_ASSET_VERSION = "20260113_03";
 
 function $(id) {
   const el = document.getElementById(id);
@@ -620,15 +620,18 @@ const thumbBody = $("thumbBody");
 const videoImagesBody = $("videoImagesBody");
 const youtubeMetaDetails = $("youtubeMetaDetails");
 const ytChannelInfoPre = $("ytChannelInfoPre");
+const openYtStudio = $("openYtStudio");
 const openYtChannel = $("openYtChannel");
 const openVoiceConfig = $("openVoiceConfig");
 const openChannelPrompt = $("openChannelPrompt");
 const ytTitlePre = $("ytTitlePre");
 const ytTagsPre = $("ytTagsPre");
+const ytFullDescPre = $("ytFullDescPre");
 const ytEpisodeDescPre = $("ytEpisodeDescPre");
 const ytChannelDescPre = $("ytChannelDescPre");
 const copyYtTitle = $("copyYtTitle");
 const copyYtTags = $("copyYtTags");
+const copyYtFullDesc = $("copyYtFullDesc");
 const copyYtEpisodeDesc = $("copyYtEpisodeDesc");
 const copyYtChannelDesc = $("copyYtChannelDesc");
 
@@ -848,6 +851,13 @@ function buildEpisodeDescription(it) {
   return [lead, body].filter(Boolean).join("\n");
 }
 
+function buildFullDescription(it) {
+  const episodeDesc = buildEpisodeDescription(it);
+  const channelDesc = buildChannelDescription(it?.channel);
+  if (episodeDesc && channelDesc) return `${episodeDesc}\n\n${channelDesc}`.trim();
+  return (episodeDesc || channelDesc || "").trim();
+}
+
 function buildChannelDescription(channelId) {
   const ch = String(channelId || "").trim();
   if (!ch) return "";
@@ -888,6 +898,7 @@ function renderYoutubeMeta(it) {
   const tags = buildYtTags(it);
   const episodeDesc = buildEpisodeDescription(it);
   const channelDesc = buildChannelDescription(it?.channel);
+  const fullDesc = buildFullDescription(it);
 
   const ch = normalizeChannelParam(it?.channel || "");
   const meta = ch ? channelMetaById.get(ch) || {} : {};
@@ -909,6 +920,7 @@ function renderYoutubeMeta(it) {
   const handle = cleanText(yt?.handle || branding?.handle || "");
   const youtubeChannelId = cleanText(yt?.channel_id || "");
   const youtubeUrl = cleanText(yt?.url || branding?.url || (handle ? `https://www.youtube.com/${handle.replace(/^@?/, "@")}` : ""));
+  const youtubeStudioUrl = youtubeChannelId ? `https://studio.youtube.com/channel/${youtubeChannelId}/videos` : "";
   const voiceConfigPath = cleanText(meta?.production_sources?.voice_config_path);
   const promptPath = cleanText(meta?.template_path);
   const voiceConfigUrl = voiceConfigPath ? (gitTreeBase ? `${gitTreeBase}${voiceConfigPath}` : joinUrl(rawBase, voiceConfigPath)) : "";
@@ -921,17 +933,20 @@ function renderYoutubeMeta(it) {
     (voiceConfigPath ? `\nvoice_config: ${voiceConfigPath}` : "") +
     (promptPath ? `\nscript_prompt: ${promptPath}` : "") ||
     "—";
+  setLink(openYtStudio, youtubeStudioUrl);
   setLink(openYtChannel, youtubeUrl);
   setLink(openVoiceConfig, encodeURI(voiceConfigUrl));
   setLink(openChannelPrompt, encodeURI(promptUrl));
 
-  ytTitlePre.textContent = title || "—";
-  ytTagsPre.textContent = tags.length ? tags.join(", ") : "—";
-  ytEpisodeDescPre.textContent = episodeDesc || "—";
-  ytChannelDescPre.textContent = channelDesc || "—";
+  ytTitlePre.textContent = title || "（未設定）";
+  ytTagsPre.textContent = tags.length ? tags.join(", ") : "（未設定）";
+  ytFullDescPre.textContent = fullDesc || "（未設定）";
+  ytEpisodeDescPre.textContent = episodeDesc || "（未設定）";
+  ytChannelDescPre.textContent = channelDesc || "（未設定）";
 
   copyYtTitle.disabled = !title;
   copyYtTags.disabled = !tags.length;
+  copyYtFullDesc.disabled = !fullDesc;
   copyYtEpisodeDesc.disabled = !episodeDesc;
   copyYtChannelDesc.disabled = !channelDesc;
 }
@@ -2804,28 +2819,35 @@ function setupEvents() {
     const text = cleanText(selected?.title);
     if (!text) return;
     const ok = await copyText(text);
-    setCopyStatus(ok ? "タイトルをコピーしました" : "コピーに失敗しました", !ok);
+    setCopyStatus(ok ? "コピーしました → YouTube Studio の「タイトル」に貼り付け" : "コピーに失敗しました", !ok);
   });
 
   copyYtTags.addEventListener("click", async () => {
     const tags = buildYtTags(selected);
     if (!tags.length) return;
     const ok = await copyText(tags.join(", "));
-    setCopyStatus(ok ? "タグをコピーしました" : "コピーに失敗しました", !ok);
+    setCopyStatus(ok ? "コピーしました → YouTube Studio の「タグ」に貼り付け" : "コピーに失敗しました", !ok);
+  });
+
+  copyYtFullDesc.addEventListener("click", async () => {
+    const text = buildFullDescription(selected);
+    if (!text) return;
+    const ok = await copyText(text);
+    setCopyStatus(ok ? "コピーしました → YouTube Studio の「説明」に貼り付け" : "コピーに失敗しました", !ok);
   });
 
   copyYtEpisodeDesc.addEventListener("click", async () => {
     const text = buildEpisodeDescription(selected);
     if (!text) return;
     const ok = await copyText(text);
-    setCopyStatus(ok ? "概要欄（この動画）をコピーしました" : "コピーに失敗しました", !ok);
+    setCopyStatus(ok ? "コピーしました（この動画だけ）→ YouTube Studio の「説明」に貼り付け" : "コピーに失敗しました", !ok);
   });
 
   copyYtChannelDesc.addEventListener("click", async () => {
     const text = buildChannelDescription(selected?.channel);
     if (!text) return;
     const ok = await copyText(text);
-    setCopyStatus(ok ? "概要欄（チャンネル定型）をコピーしました" : "コピーに失敗しました", !ok);
+    setCopyStatus(ok ? "コピーしました（定型）→ YouTube Studio の「説明」に追記" : "コピーに失敗しました", !ok);
   });
 
   $("copyPath").addEventListener("click", async () => {
