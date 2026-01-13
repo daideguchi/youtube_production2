@@ -39,13 +39,25 @@
 通知フォーマット（agent_task; 固定）:
 ```text
 [agent_task] COMPLETE task=tts_reading episode=CH27-001
-- what: TTS読み監査（VOICEVOXの読みOK/NG判定）
+
+✅ 何が終わった？
+- task: tts_reading（TTS読み監査（VOICEVOXの読みOK/NG判定））
+- episode: CH27-001
 - agent: dd-tts-01
+
+🧾 サマリ
 - summary: ok=4 ng=0 skip=0
-- next: 元の実行を再開する → 下の invocation を再実行
-- runbook: ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md
-- result: workspaces/logs/agent_tasks/results/tts_reading__<hash>.json
-- invocation: python scripts/ops/ops_cli.py audio --channel CH27 --video 001
+
+▶ 次にやること
+- 元の実行を再開する → 下の invocation を再実行
+- invocation: python packages/audio_tts/scripts/run_tts.py --channel CH27 --video 001 --input workspaces/scripts/CH27/001/content/assembled.md
+
+📄 参照（困ったらここを見る）
+- runbook: `ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md`
+- result: `workspaces/logs/agent_tasks/results/tts_reading__<hash>.json`
+- pending: `workspaces/logs/agent_tasks/pending/tts_reading__<hash>.json (moved to completed)`
+- completed: `workspaces/logs/agent_tasks/completed/tts_reading__<hash>.json`
+- queue: `workspaces/logs/agent_tasks`
 ```
 
 備考:
