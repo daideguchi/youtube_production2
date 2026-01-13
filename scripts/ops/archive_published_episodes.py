@@ -18,6 +18,7 @@ Artifacts covered (opt-in per domain; default: all):
 - thumbnails assets dirs
 - video input files
 - video runs dirs
+- capcut local draft dirs
 """
 
 from __future__ import annotations
@@ -46,6 +47,7 @@ from factory_common.paths import (  # noqa: E402
     logs_root,
     repo_root,
     thumbnails_root,
+    video_capcut_local_drafts_root,
     video_input_root,
     video_runs_root,
     workspace_root,
@@ -74,6 +76,8 @@ def _allowed_root_for_domain(domain: str) -> Optional[Path]:
         return video_input_root()
     if domain == "video_runs":
         return video_runs_root()
+    if domain == "capcut_drafts":
+        return video_capcut_local_drafts_root()
     return None
 
 
@@ -242,6 +246,19 @@ def _video_input_candidates(ch: str, video: str) -> list[Path]:
     return unique
 
 
+def _capcut_draft_candidates(ch: str, video: str) -> list[Path]:
+    root = video_capcut_local_drafts_root()
+    if not root.exists():
+        return []
+    key = f"{ch}-{video}"
+    out: list[Path] = []
+    for entry in sorted(root.iterdir()):
+        if key not in entry.name:
+            continue
+        out.append(entry)
+    return out
+
+
 def _run_episode_key(run_dir: Path) -> Optional[tuple[str, str]]:
     tm = run_dir / "timeline_manifest.json"
     if tm.exists():
@@ -284,6 +301,7 @@ def main() -> int:
     ap.add_argument("--thumbnails", action="store_true", help="Target domain: workspaces/thumbnails/assets/**")
     ap.add_argument("--video-input", action="store_true", help="Target domain: workspaces/video/input/**")
     ap.add_argument("--video-runs", action="store_true", help="Target domain: workspaces/video/runs/**")
+    ap.add_argument("--capcut-drafts", action="store_true", help="Target domain: workspaces/video/_capcut_drafts/**")
     ap.add_argument("--dry-run", action="store_true", help="Dry-run (default).")
     ap.add_argument("--run", action="store_true", help="Actually move/delete artifacts.")
     ap.add_argument("--delete", action="store_true", help="Delete artifacts instead of moving them to _archive (dangerous).")
@@ -299,8 +317,8 @@ def main() -> int:
     channels = sorted({_normalize_channel(c) for c in (args.channel or [])})
     videos_filter = _parse_videos(args.video)
 
-    requested_domains = {k for k in ("audio", "thumbnails", "video_input", "video_runs") if getattr(args, k, False)}
-    domains = requested_domains or {"audio", "thumbnails", "video_input", "video_runs"}
+    requested_domains = {k for k in ("audio", "thumbnails", "video_input", "video_runs", "capcut_drafts") if getattr(args, k, False)}
+    domains = requested_domains or {"audio", "thumbnails", "video_input", "video_runs", "capcut_drafts"}
 
     do_delete = bool(args.delete)
     if do_delete and not requested_domains:
@@ -377,6 +395,18 @@ def main() -> int:
                 else:
                     # not an error: many episodes have no runs on disk
                     missing.append({"domain": "video_runs", "channel": ch, "video": vid, "src": str(video_runs_root())})
+
+            if "capcut_drafts" in domains:
+                drafts = _capcut_draft_candidates(ch, vid)
+                if drafts:
+                    for src in drafts:
+                        dest = workspace_root() / "video" / "_archive" / stamp / ch / "capcut_drafts" / src.name
+                        items.append(
+                            WorkItem(action=action, domain="capcut_drafts", channel=ch, video=vid, src=src, dest=None if do_delete else dest)
+                        )
+                else:
+                    # not an error: some channels may not use local CapCut drafts
+                    missing.append({"domain": "capcut_drafts", "channel": ch, "video": vid, "src": str(video_capcut_local_drafts_root())})
 
     moved: list[dict[str, Any]] = []
 

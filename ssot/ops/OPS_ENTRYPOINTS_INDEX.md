@@ -19,6 +19,10 @@
   - 終了: `./ops session end --name dd-<area>-01`（Slack digestは `--slack auto` が既定）
   - 未完セッション一覧: `./ops session list --agent dd-<area>-01 --open-only`
   - 記帳ログ: `workspaces/logs/ops/sessions/<session_id>/{start.json,end.json}`
+- 書庫/容量対策（archive / delete）:
+  - Episode Asset Pack（画像束）書庫化: `./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --run`
+  - 投稿済み（進捗=投稿済み）削除: `./ops archive published --channel CHxx --audio --video-runs --delete --run --yes`
+  - 正本: `ssot/ops/OPS_VIDEO_ASSET_PACK.md` / `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md` / `ssot/ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`
 - 迷子/復帰:
   - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
   - “最新の実行” ポインタ（keep-latest）: `./ops latest --channel CHxx --video NNN`

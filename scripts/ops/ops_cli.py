@@ -934,6 +934,10 @@ def _print_list() -> None:
     print("    ./ops snapshot workspace -- --write-report")
     print("    ./ops snapshot logs")
     print("")
+    print("  Archive (capacity / restore helpers):")
+    print("    ./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --run")
+    print("    ./ops archive published --channel CHxx --audio --video-runs --delete --run --yes")
+    print("")
     print("  Agent queue helpers:")
     print("    ./ops agent list|show|prompt|chat|bundle|claim|complete ...")
     print("")
@@ -1070,6 +1074,24 @@ def cmd_session(args: argparse.Namespace) -> int:
         return _run(["python3", "scripts/ops/ops_session.py", "list", *forwarded])
 
     print(f"unknown session action: {action}", file=sys.stderr)
+    return 2
+
+
+def cmd_archive(args: argparse.Namespace) -> int:
+    """
+    Capacity / offload helpers (explicit, CLI-only).
+    """
+    action = str(getattr(args, "action", "") or "").strip()
+    forwarded = [str(x) for x in (getattr(args, "args", None) or [])]
+
+    if action == "episode-asset-pack":
+        return _run(["python3", "scripts/ops/archive_episode_asset_pack.py", *forwarded])
+    if action == "published":
+        return _run(["python3", "scripts/ops/archive_published_episodes.py", *forwarded])
+    if action == "release":
+        return _run(["python3", "scripts/ops/release_archive.py", *forwarded])
+
+    print(f"unknown archive action: {action}", file=sys.stderr)
     return 2
 
 
@@ -2122,6 +2144,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("action", choices=["workspace", "logs", "caches"], help="cleanup operation")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying cleanup tool (use '--' before flags)")
     sp.set_defaults(func=cmd_cleanup)
+
+    sp = sub.add_parser("archive", help="archive/offload helpers (capacity + restore)")
+    sp.add_argument("action", choices=["episode-asset-pack", "published", "release"], help="archive operation")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying archive tool (no '--' needed)")
+    sp.set_defaults(func=cmd_archive)
 
     sp = sub.add_parser("clear-brain", help="clear Antigravity 'memory' artifacts (safe by default)")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/antigravity_clear_brain.py (use '--' before flags)")

@@ -87,15 +87,15 @@ python3 scripts/ops/video_assets_pack.py sync-to-run --run <run_dir> --channel C
 # - `--offload` を使う場合は `YTM_OFFLOAD_ROOT` を設定する
 #
 # dry-run（計画だけ表示。何も書かない）
-./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push --offload
+./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload
 
 # 実行（Asset Pack確定 → tgz生成 → (optional) Releasesへpush → (optional) 外部SSDへ退避）
 ARCHIVE_REPO="OWNER/REPO" \
-./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push --offload --run
+./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --run
 
 # 容量対策（ローカルpackを削除）:
 ARCHIVE_REPO="OWNER/REPO" YTM_OFFLOAD_ROOT="/Volumes/SSD/ytm_offload" \
-./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push --offload --delete-pack-dir --run
+./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --delete-pack-dir --run
 
 # 注意: pack_dir に git 追跡ファイルがある場合、誤削除防止のため `--delete-pack-dir` は停止する。
 #       容量のために意図的に消す場合のみ `--force-delete-pack-dir` を追加する（repoがdirtyになる）。
@@ -115,7 +115,7 @@ tar -C workspaces/video/assets/episodes -czf /tmp/episode_asset_pack__CHxx-NNN.t
 3-A) GitHub Releases 書庫へ投入（manifestで検索できる形）:
 ```bash
 ARCHIVE_REPO="OWNER/REPO" \
-./scripts/with_ytm_env.sh python3 scripts/ops/release_archive.py push /tmp/episode_asset_pack__CHxx-NNN.tgz \
+./ops archive release push /tmp/episode_asset_pack__CHxx-NNN.tgz \
   --note "episode asset pack (images) CHxx-NNN" \
   --tags "type:episode_asset_pack,channel:CHxx,video:NNN"
 ```

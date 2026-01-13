@@ -9,14 +9,15 @@
   - 追加ガードが必要な場合は `status.json: metadata.published_lock=true` を併用する（ただし一次判定はPlanning）。
 
 実行スクリプト（入口）:
-- `python3 scripts/ops/archive_published_episodes.py --help`
+- 統一入口: `./ops archive published --help`
+- 実体: `python3 scripts/ops/archive_published_episodes.py --help`
 
 標準運用（容量対策; 投稿済み）:
-- 音声（`workspaces/audio/final/**`）と CapCut run_dir（`workspaces/video/runs/**`）は **削除**する（台本/進捗/監査ログは保持）。
+- 音声（`workspaces/audio/final/**`）と動画編集データ（run_dir + CapCut drafts）は **削除**する（台本/進捗/監査ログは保持）。
 - dry-run:
-  - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --audio --video-runs --delete --dry-run`
+  - `./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --dry-run`
 - 実行:
-  - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --audio --video-runs --delete --run --yes`
+  - `./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --run --yes`
 
 ## 1. 何をアーカイブするか（ドメイン別）
 
@@ -34,6 +35,9 @@
 - video runs:
   - `workspaces/video/runs/<run_id>/` のうち、`timeline_manifest` 等から当該エピソードに紐づくもの
   - 退避先: `workspaces/video/_archive/<timestamp>/<CH>/runs/<run_id>/`
+- capcut drafts:
+  - `workspaces/video/_capcut_drafts/**` のうち、ディレクトリ名に `CHxx-NNN` を含むもの
+  - 退避先: `workspaces/video/_archive/<timestamp>/<CH>/capcut_drafts/<dir>/`
 
 固定ルール:
 - 標準（容量対策; 投稿済み）: `--delete --audio --video-runs` を使う（台本/進捗は保持）。

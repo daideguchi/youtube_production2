@@ -22,9 +22,8 @@
 
 ## 1) 実行入口（CLI）
 
-- `python3 scripts/ops/release_archive.py --help`
-- 入口固定（`.env` 読み込み + PYTHONPATH整備）:
-  - `./scripts/with_ytm_env.sh python3 scripts/ops/release_archive.py ...`
+- 統一入口: `./ops archive release --help`
+- 実体: `python3 scripts/ops/release_archive.py --help`
 
 必要条件:
 - `gh` がインストール済みでログイン済み: `gh auth status`
@@ -40,14 +39,14 @@
 
 ```bash
 # まず dry-run（分割/ハッシュ計算まで。Releases/manifest は触らない）
-./scripts/with_ytm_env.sh python3 scripts/ops/release_archive.py push "/path/to/file" \
+./ops archive release push "/path/to/file" \
   --note "CH23 最終レンダー" \
   --tags "channel:CH23,type:movie,stage:final" \
   --dry-run
 
 # 実行（Releases に upload → manifest 追記 → index 更新）
 ARCHIVE_REPO="OWNER/REPO" \
-./scripts/with_ytm_env.sh python3 scripts/ops/release_archive.py push "/path/to/file" \
+./ops archive release push "/path/to/file" \
   --note "..." \
   --tags "..."
 ```
@@ -61,15 +60,15 @@ ARCHIVE_REPO="OWNER/REPO" \
 入口固定（1コマンド）:
 ```bash
 # dry-run（計画だけ表示。何も書かない）
-./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push
+./ops archive episode-asset-pack --channel CHxx --video NNN --push
 
 # 実行（Asset Pack確定 → tgz生成 → Releasesへpush）
 ARCHIVE_REPO="OWNER/REPO" \
-./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push --run
+./ops archive episode-asset-pack --channel CHxx --video NNN --push --run
 
 # 容量対策（Releasesへpush後、ローカルpack/bundleを削除）:
 ARCHIVE_REPO="OWNER/REPO" \
-./scripts/with_ytm_env.sh python3 scripts/ops/archive_episode_asset_pack.py --channel CHxx --video NNN --push --delete-pack-dir --delete-local-bundle --run
+./ops archive episode-asset-pack --channel CHxx --video NNN --push --delete-pack-dir --delete-local-bundle --run
 
 # 注意: pack_dir に git 追跡ファイルがある場合、誤削除防止のため `--delete-pack-dir` は停止する。
 #       容量のために意図的に消す場合のみ `--force-delete-pack-dir` を追加する（repoがdirtyになる）。
