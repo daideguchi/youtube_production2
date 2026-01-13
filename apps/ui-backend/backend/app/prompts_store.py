@@ -21,25 +21,17 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field, field_validator
 
 from backend.app.channel_info_store import CHANNELS_DIR
+from backend.app.path_utils import safe_relative_path
 from backend.core.portalocker_compat import portalocker
-from factory_common.paths import repo_root, script_pkg_root
+from factory_common.paths import script_pkg_root
 
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = repo_root()
 SCRIPT_PIPELINE_ROOT = script_pkg_root()
 SCRIPT_PIPELINE_PROMPTS_ROOT = SCRIPT_PIPELINE_ROOT / "prompts"
 PROMPT_TEMPLATES_ROOT = SCRIPT_PIPELINE_PROMPTS_ROOT / "templates"
 
 LOCK_TIMEOUT_SECONDS = 5.0
-
-
-def safe_relative_path(path: Path) -> Optional[str]:
-    try:
-        return str(path.relative_to(PROJECT_ROOT))
-    except ValueError:
-        return str(path) if path.exists() else None
-
 
 def _relative_prompt_path(path: Path) -> str:
     rel = safe_relative_path(path)

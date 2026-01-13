@@ -157,6 +157,7 @@ from backend.app.normalize import (
     normalize_planning_video_number,
     normalize_video_number,
 )
+from backend.app.path_utils import safe_relative_path
 from backend.app.episode_store import (
     _detect_artifact_path,
     get_audio_duration_seconds,
@@ -1301,13 +1302,6 @@ def initialize_stage_payload(initial_stage: Optional[str] = None) -> Dict[str, d
                 status = "pending"
         stages[stage] = {"status": status}
     return stages
-
-
-def safe_relative_path(path: Path) -> Optional[str]:
-    try:
-        return str(path.relative_to(PROJECT_ROOT))
-    except ValueError:
-        return str(path) if path.exists() else None
 
 
 def resolve_project_path(candidate: Optional[str]) -> Optional[Path]:
