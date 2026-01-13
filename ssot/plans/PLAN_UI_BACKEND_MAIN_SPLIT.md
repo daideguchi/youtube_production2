@@ -107,6 +107,7 @@
 | 2bb | Planning routers（`routers/planning_csv.py`, `routers/planning_channel.py`, `routers/video_planning.py`）の入力正規化（`normalize_*`）を `app/normalize.py` に寄せ、`backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-13） |
 | 2bc | Planning CSV helper（`_normalize_video_number_token`, `_maybe_int_from_token`, `_read_channel_csv_rows`, `_write_csv_with_lock`）を `app/planning_csv_store.py` に移設し、planning routers はそこから参照（`backend.main` 依存と重複を削減） | dd | - | Done（2026-01-13） |
 | 2bd | Planning models（`Planning*Request/Response` 等）を `app/planning_models.py` に移設し、planning routers はそこから参照（`backend.main` 依存を削減） | dd | - | Done（2026-01-13） |
+| 2be | Planning payload/queries（`build_planning_payload*`, `_load_planning_rows`, `_load_channel_spreadsheet`）を `app/` に移設し、`main.py` から削除（planning_csv router の `backend.main` 依存も減らす） | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
