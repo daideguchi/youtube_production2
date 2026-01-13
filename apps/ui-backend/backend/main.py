@@ -10431,22 +10431,6 @@ def _resolve_a_text_display_path(channel: str, video: str) -> Path:
     raise HTTPException(status_code=404, detail=f"A-text not found: {channel}-{video}")
 
 
-@app.get("/api/channels/{channel}/videos/{video}/a-text", response_class=PlainTextResponse)
-def api_get_a_text(channel: str, video: str):
-    """
-    Aテキスト（表示用原稿）を返す。優先順位:
-    content/assembled_human.md -> content/assembled.md
-    """
-    channel_code = normalize_channel_code(channel)
-    video_no = normalize_video_number(video)
-    path = _resolve_a_text_display_path(channel_code, video_no)
-    try:
-        text = path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="A-text not found")
-    return text
-
-
 @app.post("/api/audio-tts/run-from-script")
 def api_audio_tts_run_from_script(
     channel: str = Body(..., embed=True),

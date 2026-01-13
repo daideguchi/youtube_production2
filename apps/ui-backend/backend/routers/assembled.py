@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import PlainTextResponse
 
 from backend.app.scripts_models import TextUpdateRequest
 
@@ -65,3 +66,20 @@ def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
     sv["details"] = details
     save_status(channel_code, video_number, status)
     return {"status": "ok", "updated_at": timestamp}
+
+
+@router.get("/channels/{channel}/videos/{video}/a-text", response_class=PlainTextResponse)
+def get_a_text(channel: str, video: str):
+    """
+    Aテキスト（表示用原稿）を返す。優先順位:
+    content/assembled_human.md -> content/assembled.md
+    """
+    from backend.main import _resolve_a_text_display_path, normalize_channel_code, normalize_video_number
+
+    channel_code = normalize_channel_code(channel)
+    video_no = normalize_video_number(video)
+    path = _resolve_a_text_display_path(channel_code, video_no)
+    try:
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="A-text not found") from exc
