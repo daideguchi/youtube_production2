@@ -4887,6 +4887,12 @@ except Exception as e:
     logger.error("Failed to load video_state router: %s", e)
 
 try:
+    from backend.routers import planning_csv
+    app.include_router(planning_csv.router)
+except Exception as e:
+    logger.error("Failed to load planning_csv router: %s", e)
+
+try:
     from backend.routers import video_planning
     app.include_router(video_planning.router)
 except Exception as e:
@@ -6034,17 +6040,6 @@ def _build_channel_summary(code: str, info: dict) -> ChannelSummaryResponse:
         video_workflow=_resolve_video_workflow(info),
         genre=infer_channel_genre(info),
     )
-
-
-@app.get("/api/planning", response_model=List[PlanningCsvRowResponse])
-def list_planning_rows(channel: Optional[str] = Query(None, description="CHコード (例: CH06)")):
-    channel_code = normalize_channel_code(channel) if channel else None
-    return _load_planning_rows(channel_code)
-
-@app.get("/api/planning/spreadsheet", response_model=PlanningSpreadsheetResponse)
-def get_planning_spreadsheet(channel: str = Query(..., description="CHコード (例: CH06)")):
-    channel_code = normalize_channel_code(channel)
-    return _load_channel_spreadsheet(channel_code)
 
 
 @app.post("/api/planning", response_model=PlanningCsvRowResponse, status_code=201)
