@@ -16,12 +16,8 @@ from backend.app.planning_models import (
     PlanningCsvRowResponse,
     PlanningSpreadsheetResponse,
 )
-from backend.main import (
-    _load_channel_spreadsheet,
-    _load_planning_rows,
-    build_planning_payload_from_row,
-    current_timestamp,
-)
+from backend.app.planning_payload import build_planning_payload_from_row
+from backend.app.planning_queries import _load_channel_spreadsheet, _load_planning_rows, current_timestamp
 from backend.tools.optional_fields_registry import FIELD_KEYS
 from script_pipeline.tools import planning_requirements
 
