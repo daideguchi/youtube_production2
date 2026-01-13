@@ -1100,10 +1100,11 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
     headline = [
         "何が終わった？" if ev == "COMPLETE" else "何が起きた？",
         f"- task: {task}" + (f"（{human}）" if human and human != task else ""),
+        f"- task_id: {task_id}",
         f"- episode: {episode}" if episode != "-" else "- episode: -",
         f"- agent: {agent_display}",
     ]
-    next_line = "元の実行を再開する → 下の invocation を再実行"
+    next_line = "PENDINGで止まっていた元コマンドがある場合: 同じコマンドを再実行（resultsを拾って続行）"
     if ev == "CLAIM":
         next_line = f"runbook+messagesに従って結果を作成 → `python scripts/agent_runner.py complete {task_id} --content-file ...`"
 
@@ -1125,11 +1126,11 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
             f"- invocation: `{invocation}`" if invocation != "-" else "- invocation: -",
             "",
             "参照（困ったらここを見る）",
-            f"- runbook: `{runbook_path}`" if runbook_path != "-" else "- runbook: -",
-            f"- result: `{rel(result_abs) if result_abs else result_path}`",
-            f"- pending: `{pending_display}`",
-            f"- completed: `{rel(completed_abs) if completed_abs else '-'}`",
-            f"- queue: `{queue_dir}`",
+            f"- runbook: `{runbook_path}`（手順/前提）" if runbook_path != "-" else "- runbook: -",
+            f"- result: `{rel(result_abs) if result_abs else result_path}`（AIの出力/正本）",
+            f"- pending: `{pending_display}`（AIへの入力/未完了ならここ）",
+            f"- completed: `{rel(completed_abs) if completed_abs else '-'}`（完了済み入力の写し）",
+            f"- queue: `{queue_dir}`（pending/results/completed のルート）",
         ]
     )
 
