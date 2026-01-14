@@ -166,6 +166,11 @@ from backend.app.planning_payload import build_planning_payload, build_planning_
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_constants import THUMBNAIL_SUPPORTED_EXTENSIONS
+from backend.app.thumbnails_projects_store import (
+    THUMBNAIL_PROJECTS_LOCK,
+    _load_thumbnail_projects_document,
+    _write_thumbnail_projects_document,
+)
 from backend.app.thumbnails_templates_store import (
     THUMBNAIL_TEMPLATES_LOCK,
     _load_thumbnail_templates_document,
@@ -298,11 +303,7 @@ CHANNEL_PLANNING_DIR = ssot_planning_root() / "channels"
 # Legacy single-file planning CSV override (kept for older tests/tooling).
 PLANNING_CSV_PATH: Path | None = None
 SPREADSHEET_EXPORT_DIR = EXPORTS_DIR / "spreadsheets"
-THUMBNAIL_PROJECTS_CANDIDATES = [
-    ssot_thumbnails_root() / "projects.json",
-]
 THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
-THUMBNAIL_PROJECTS_LOCK = threading.Lock()
 VIDEO_CHANNEL_PRESETS_PATH = VIDEO_PIPELINE_ROOT / "config" / "channel_presets.json"
 VIDEO_CHANNEL_PRESETS_LOCK = threading.Lock()
 IMAGE_MODEL_KEY_BLOCKLIST = {
@@ -5033,42 +5034,6 @@ def _resolve_channel_title(channel_code: str, info_map: Dict[str, dict]) -> Opti
         if isinstance(yt_title, str) and yt_title.strip():
             return yt_title.strip()
     return None
-
-
-def _resolve_thumbnail_projects_path() -> Path:
-    for candidate in THUMBNAIL_PROJECTS_CANDIDATES:
-        if candidate.exists():
-            return candidate
-    return THUMBNAIL_PROJECTS_CANDIDATES[0]
-
-
-def _load_thumbnail_projects_document() -> tuple[Path, dict]:
-    path = _resolve_thumbnail_projects_path()
-    payload: dict
-    if path.exists():
-        try:
-            with path.open("r", encoding="utf-8") as fh:
-                payload = json.load(fh)
-        except json.JSONDecodeError as exc:
-            logger.warning("Failed to parse %s: %s. Recreating file.", path, exc)
-            payload = {}
-    else:
-        payload = {}
-    if not isinstance(payload, dict):
-        payload = {}
-    payload.setdefault("version", 1)
-    projects = payload.get("projects")
-    if not isinstance(projects, list):
-        projects = []
-    payload["projects"] = projects
-    return path, payload
-
-
-def _write_thumbnail_projects_document(path: Path, payload: dict) -> None:
-    payload["updated_at"] = datetime.now(timezone.utc).isoformat()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as fh:
-        json.dump(payload, fh, ensure_ascii=False, indent=2)
 
 
 def _get_or_create_thumbnail_project(payload: dict, channel_code: str, video_number: str) -> dict:

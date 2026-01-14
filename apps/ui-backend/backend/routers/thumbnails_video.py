@@ -15,6 +15,11 @@ from PIL import Image
 import backend.main as backend_main
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
+from backend.app.thumbnails_projects_store import (
+    THUMBNAIL_PROJECTS_LOCK,
+    _load_thumbnail_projects_document,
+    _write_thumbnail_projects_document,
+)
 from backend.app.thumbnails_editor_models import (
     THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
     ThumbnailCommentPatchRequest,
@@ -49,7 +54,6 @@ router = APIRouter(tags=["thumbnails"])
 PROJECT_ROOT = backend_main.PROJECT_ROOT
 THUMBNAIL_ASSETS_DIR = backend_main.THUMBNAIL_ASSETS_DIR
 THUMBNAIL_TEMPLATES_LOCK = backend_main.THUMBNAIL_TEMPLATES_LOCK
-THUMBNAIL_PROJECTS_LOCK = backend_main.THUMBNAIL_PROJECTS_LOCK
 
 # Late-bound helpers defined in backend.main after router wiring.
 # (Keep wrappers to avoid circular-import ordering issues.)
@@ -72,14 +76,6 @@ def _elements_spec_stable_path(channel_code: str, video_number: str, stable: str
 
 def _load_thumbnail_templates_document():
     return backend_main._load_thumbnail_templates_document()
-
-
-def _load_thumbnail_projects_document():
-    return backend_main._load_thumbnail_projects_document()
-
-
-def _write_thumbnail_projects_document(path: Path, payload: dict) -> None:
-    backend_main._write_thumbnail_projects_document(path, payload)
 
 
 def _get_or_create_thumbnail_project(payload: dict, channel_code: str, video_number: str) -> dict:

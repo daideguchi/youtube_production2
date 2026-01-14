@@ -12,12 +12,12 @@ from backend.app.episode_store import get_audio_duration_seconds
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
 from backend.app.scripts_models import NaturalCommandRequest, NaturalCommandResponse
+from backend.app.thumbnails_projects_store import THUMBNAIL_PROJECTS_LOCK
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
 from backend.main import (
     PROJECT_ROOT,
     PlanningInfoResponse,
-    THUMBNAIL_PROJECTS_LOCK,
     THUMBNAIL_PROJECT_STATUSES,
     VideoDetailResponse,
     VideoCreateRequest,
@@ -328,11 +328,9 @@ def _build_video_images_progress_map(channel_code: str, video_numbers: set[str])
 def _build_thumbnail_progress_map(channel_code: str, video_numbers: set[str]) -> Dict[str, ThumbnailProgressResponse]:
     project_map: Dict[str, dict] = {}
     with THUMBNAIL_PROJECTS_LOCK:
-        # Avoid circular import during app.include_router(): the helper is defined after
-        # router wiring in backend.main, so import it lazily at runtime.
-        from backend import main as backend_main
+        from backend.app.thumbnails_projects_store import _load_thumbnail_projects_document
 
-        _, document = backend_main._load_thumbnail_projects_document()
+        _, document = _load_thumbnail_projects_document()
     projects = document.get("projects") if isinstance(document, dict) else None
     if isinstance(projects, list):
         for project in projects:

@@ -33,6 +33,12 @@ from backend.app.thumbnails_overview_models import (
     ThumbnailOverviewResponse,
 )
 from backend.app.thumbnails_project_models import ThumbnailProjectResponse, ThumbnailProjectUpdateRequest
+from backend.app.thumbnails_projects_store import (
+    THUMBNAIL_PROJECTS_LOCK,
+    _load_thumbnail_projects_document,
+    _resolve_thumbnail_projects_path,
+    _write_thumbnail_projects_document,
+)
 from backend.app.thumbnails_specs_models import (
     THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1,
     THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1,
@@ -54,9 +60,7 @@ router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
 
 @router.get("", response_model=ThumbnailOverviewResponse)
 def get_thumbnail_overview():
-    from backend import main as backend_main
-
-    projects_path = backend_main._resolve_thumbnail_projects_path()
+    projects_path = _resolve_thumbnail_projects_path()
 
     try:
         with projects_path.open("r", encoding="utf-8") as fh:
@@ -313,8 +317,8 @@ def update_thumbnail_project(channel: str, video: str, payload: ThumbnailProject
     if not updates:
         return {"status": "ok"}
     now = datetime.now(timezone.utc).isoformat()
-    with backend_main.THUMBNAIL_PROJECTS_LOCK:
-        path, document = backend_main._load_thumbnail_projects_document()
+    with THUMBNAIL_PROJECTS_LOCK:
+        path, document = _load_thumbnail_projects_document()
         project = backend_main._get_or_create_thumbnail_project(document, channel_code, video_number)
 
         def _apply_text(field: str, value: Optional[str]) -> None:
@@ -350,7 +354,7 @@ def update_thumbnail_project(channel: str, video: str, payload: ThumbnailProject
                 project.pop("selected_variant_id", None)
 
         project["updated_at"] = now
-        backend_main._write_thumbnail_projects_document(path, document)
+        _write_thumbnail_projects_document(path, document)
     return {"status": "ok"}
 
 
@@ -849,7 +853,7 @@ def download_thumbnail_zip(
     if mode_norm not in {"selected", "all", "two_up"}:
         raise HTTPException(status_code=400, detail="mode must be 'selected', 'all', or 'two_up'")
 
-    projects_path = backend_main._resolve_thumbnail_projects_path()
+    projects_path = _resolve_thumbnail_projects_path()
     try:
         with projects_path.open("r", encoding="utf-8") as fh:
             payload = json.load(fh)
