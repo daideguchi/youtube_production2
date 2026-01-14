@@ -135,6 +135,7 @@
 | 2cd | Thumbnails layer-spec models（layer-spec responses + image model info + param catalog entry）を `app/` に移設し、`routers/thumbnails_specs.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2ce | Thumbnails templates models（template response/payload + channel templates response/update request + channel style）を `app/` に移設し、`routers/thumbnails_templates.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2cf | Thumbnails templates store（`THUMBNAIL_TEMPLATES_LOCK`, `_load_thumbnail_templates_document`, `_write_thumbnail_templates_document`）を `app/thumbnails_templates_store.py` に移設し、`routers/thumbnails_templates.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
+| 2cg | Thumbnails projects store（`THUMBNAIL_PROJECTS_LOCK`, `_load_thumbnail_projects_document`, `_write_thumbnail_projects_document`）を `app/thumbnails_projects_store.py` に移設し、thumbnail系 router の `backend.main` 依存を削減（挙動互換） | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
