@@ -5,13 +5,16 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.tts_models import TTSValidateRequest, TTSValidateResponse
-from backend.main import (
-    AudioManager,
-    PROJECT_ROOT,
+from backend.app.tts_models import (
+    TTSValidateRequest,
+    TTSValidateResponse,
     TtsReplaceRequest,
     TtsReplaceResponse,
     TtsUpdateRequest,
+)
+from backend.main import (
+    AudioManager,
+    PROJECT_ROOT,
     _compose_tagged_tts,
     _parse_tagged_tts,
     _persist_tts_variants,
