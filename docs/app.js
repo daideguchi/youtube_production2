@@ -1033,12 +1033,27 @@ function isNarrowView() {
   }
 }
 
-function isCoarsePointer() {
+function isTouchDevice() {
   try {
-    return Boolean(window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+    const n = Number(navigator?.maxTouchPoints || 0);
+    if (Number.isFinite(n) && n > 0) return true;
+  } catch (_err) {
+    // ignore
+  }
+  try {
+    return "ontouchstart" in window;
   } catch (_err) {
     return false;
   }
+}
+
+function isCoarsePointer() {
+  try {
+    if (window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return true;
+  } catch (_err) {
+    // ignore
+  }
+  return isTouchDevice();
 }
 
 function getSavedLayout() {
