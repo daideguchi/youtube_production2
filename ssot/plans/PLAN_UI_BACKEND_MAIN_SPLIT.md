@@ -158,7 +158,7 @@
 | 4d | LLM model catalogs（OpenAI/OpenRouter model list + pricing/generation fetch）を `app/llm_catalog_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4e | YouTube uploads cache（`YOUTUBE_UPLOAD_CACHE_*`, `_load_cached_uploads`, `_save_cached_uploads`, `YOUTUBE_CLIENT` 等）を `app/youtube_uploads_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4f | Video channel presets store（`channel_presets.json` の I/O: `VIDEO_CHANNEL_PRESETS_LOCK`, `_load_video_channel_presets_document`, `_write_video_channel_presets_document`）を `app/video_channel_presets_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
-| 4g | Image model routing policy（`IMAGE_MODEL_KEY_BLOCKLIST`, `_image_model_key_blocked`）を `app/image_model_routing_policy.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
+| 4g | Image model routing policy（`IMAGE_MODEL_KEY_BLOCKLIST`, `_image_model_key_blocked`）を `app/image_model_routing_policy.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
