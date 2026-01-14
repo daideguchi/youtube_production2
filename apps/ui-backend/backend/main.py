@@ -219,6 +219,11 @@ from backend.app.youtube_uploads_store import (
     _load_cached_uploads,
     _save_cached_uploads,
 )
+from backend.app.video_channel_presets_store import (
+    VIDEO_CHANNEL_PRESETS_LOCK,
+    _load_video_channel_presets_document,
+    _write_video_channel_presets_document,
+)
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_constants import (
     THUMBNAIL_LIBRARY_MAX_BYTES,
@@ -329,7 +334,6 @@ from factory_common.paths import (
     thumbnails_root as ssot_thumbnails_root,
     video_input_root as ssot_video_input_root,
     video_runs_root as ssot_video_runs_root,
-    video_pkg_root,
 )
 from factory_common.youtube_handle import (
     YouTubeHandleResolutionError,
@@ -362,7 +366,6 @@ REPO_ROOT = ssot_repo_root()
 PROJECT_ROOT = REPO_ROOT
 # 旧 commentary_01_srtfile_v2 から script_pipeline へ移行済み
 SCRIPT_PIPELINE_ROOT = script_pkg_root()
-VIDEO_PIPELINE_ROOT = video_pkg_root()
 DATA_ROOT = ssot_script_data_root()
 EXPORTS_DIR = SCRIPT_PIPELINE_ROOT / "exports"
 CHANNEL_PLANNING_DIR = ssot_planning_root() / "channels"
@@ -370,8 +373,6 @@ CHANNEL_PLANNING_DIR = ssot_planning_root() / "channels"
 PLANNING_CSV_PATH: Path | None = None
 SPREADSHEET_EXPORT_DIR = EXPORTS_DIR / "spreadsheets"
 THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
-VIDEO_CHANNEL_PRESETS_PATH = VIDEO_PIPELINE_ROOT / "config" / "channel_presets.json"
-VIDEO_CHANNEL_PRESETS_LOCK = threading.Lock()
 IMAGE_MODEL_KEY_BLOCKLIST = {
     # Policy: Gemini 3 image models are blocked for video images, but allowed for thumbnails.
     "gemini_3_pro_image_preview",
@@ -3604,35 +3605,6 @@ def _list_planning_channel_codes() -> List[str]:
         seen.add(code)
         uniq.append(code)
     return uniq
-
-
-def _load_video_channel_presets_document() -> tuple[Path, dict]:
-    path = VIDEO_CHANNEL_PRESETS_PATH
-    payload: dict
-    if path.exists():
-        try:
-            with path.open("r", encoding="utf-8") as fh:
-                payload = json.load(fh)
-        except json.JSONDecodeError as exc:
-            logger.warning("Failed to parse %s: %s. Recreating file.", path, exc)
-            payload = {}
-    else:
-        payload = {}
-    if not isinstance(payload, dict):
-        payload = {}
-    channels = payload.get("channels")
-    if not isinstance(channels, dict):
-        channels = {}
-    payload["channels"] = channels
-    return path, payload
-
-
-def _write_video_channel_presets_document(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload["updated_at"] = datetime.now(timezone.utc).isoformat()
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    tmp.replace(path)
 
 
 def _resolve_image_model_key_info(
