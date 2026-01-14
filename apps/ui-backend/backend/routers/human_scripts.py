@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 
 from backend.app.scripts_models import HumanScriptResponse, HumanScriptUpdateRequest
 from backend.app.path_utils import safe_relative_path
+from backend.app.status_models import ensure_expected_updated_at
 
 router = APIRouter(prefix="/api", tags=["scripts"])
 
@@ -75,7 +76,6 @@ def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
 def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateRequest) -> Dict[str, Any]:
     from backend.main import (
         current_timestamp,
-        ensure_expected_updated_at,
         load_or_init_status,
         normalize_channel_code,
         normalize_video_number,

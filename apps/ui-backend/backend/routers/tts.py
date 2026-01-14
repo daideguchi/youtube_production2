@@ -12,6 +12,7 @@ from backend.app.tts_models import (
     TtsReplaceResponse,
     TtsUpdateRequest,
 )
+from backend.app.status_models import ensure_expected_updated_at
 from backend.main import (
     AudioManager,
     PROJECT_ROOT,
@@ -21,7 +22,6 @@ from backend.main import (
     analyze_tts_content,
     append_audio_history_entry,
     current_timestamp,
-    ensure_expected_updated_at,
     load_status,
     logger,
     normalize_channel_code,

@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 
 from backend.app.scripts_models import TextUpdateRequest
+from backend.app.status_models import ensure_expected_updated_at
 
 router = APIRouter(prefix="/api", tags=["scripts"])
 
@@ -12,7 +13,6 @@ router = APIRouter(prefix="/api", tags=["scripts"])
 def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
     from backend.main import (
         current_timestamp,
-        ensure_expected_updated_at,
         load_status,
         normalize_channel_code,
         normalize_video_number,

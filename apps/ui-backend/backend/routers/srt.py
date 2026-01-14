@@ -8,8 +8,8 @@ from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
 from backend.app.srt_models import SRTVerifyResponse
 from backend.app.scripts_models import TextUpdateRequest
-from backend.main import ensure_expected_updated_at, save_status, verify_srt_file
-from backend.main import write_text_with_lock
+from backend.app.status_models import ensure_expected_updated_at
+from backend.main import save_status, verify_srt_file, write_text_with_lock
 
 router = APIRouter(prefix="/api", tags=["srt"])
 

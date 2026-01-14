@@ -12,6 +12,7 @@ from backend.app.episode_store import get_audio_duration_seconds
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
 from backend.app.scripts_models import NaturalCommandRequest, NaturalCommandResponse
+from backend.app.status_models import ensure_expected_updated_at
 from backend.app.thumbnails_projects_store import THUMBNAIL_PROJECTS_LOCK
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
@@ -35,7 +36,6 @@ from backend.main import (
     build_planning_payload,
     build_planning_payload_from_row,
     build_status_payload,
-    ensure_expected_updated_at,
     get_planning_section,
     interpret_natural_command,
     list_video_dirs,

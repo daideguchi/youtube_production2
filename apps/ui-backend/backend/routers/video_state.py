@@ -5,8 +5,13 @@ from fastapi import APIRouter
 from backend.app.datetime_utils import current_timestamp, current_timestamp_compact
 from backend.app.episode_store import load_status
 from backend.app.normalize import normalize_channel_code, normalize_video_number
-from backend.app.status_models import ReadyUpdateRequest, StageUpdateRequest, StatusUpdateRequest
-from backend.main import ensure_expected_updated_at, save_status
+from backend.app.status_models import (
+    ReadyUpdateRequest,
+    StageUpdateRequest,
+    StatusUpdateRequest,
+    ensure_expected_updated_at,
+)
+from backend.main import save_status
 
 router = APIRouter(prefix="/api", tags=["status"])
 
