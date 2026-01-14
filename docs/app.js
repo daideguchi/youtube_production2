@@ -9,10 +9,11 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260113_23";
+const SITE_ASSET_VERSION = "20260114_01";
 const URL_ASSET_VERSION = readAssetVersionFromUrl();
 const ASSET_VERSION = URL_ASSET_VERSION || SITE_ASSET_VERSION;
 const EMBED_MODE = detectEmbedMode();
+const LAYOUT_KEY = "ytm_script_viewer_layout_v1"; // "auto" | "single"
 
 function detectEmbedMode() {
   try {
@@ -614,6 +615,7 @@ const searchInput = $("searchInput");
 const searchResults = $("searchResults");
 const browseDetails = $("browseDetails");
 const browseSummary = $("browseSummary");
+const toggleLayout = $("toggleLayout");
 const reloadIndexButton = $("reloadIndex");
 const metaTitle = $("metaTitle");
 const metaSub = $("metaSub");
@@ -1029,6 +1031,69 @@ function isNarrowView() {
   } catch (_err) {
     return false;
   }
+}
+
+function isCoarsePointer() {
+  try {
+    return Boolean(window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+  } catch (_err) {
+    return false;
+  }
+}
+
+function getSavedLayout() {
+  try {
+    const raw = String(window.localStorage?.getItem(LAYOUT_KEY) || "").trim().toLowerCase();
+    if (raw === "single") return "single";
+    if (raw === "auto") return "auto";
+  } catch (_err) {
+    // ignore
+  }
+  return "";
+}
+
+function setSavedLayout(layout) {
+  try {
+    const v = String(layout || "").trim().toLowerCase();
+    if (!v) {
+      window.localStorage?.removeItem(LAYOUT_KEY);
+      return;
+    }
+    window.localStorage?.setItem(LAYOUT_KEY, v);
+  } catch (_err) {
+    // ignore
+  }
+}
+
+function applyLayout(layout) {
+  const v = String(layout || "").trim().toLowerCase();
+  if (v === "single") {
+    appRoot.dataset.layout = "single";
+    toggleLayout.textContent = "表示: 自動（戻す）";
+  } else {
+    appRoot.removeAttribute("data-layout");
+    toggleLayout.textContent = "表示: 1カラム（スマホ）";
+  }
+}
+
+function setupLayoutToggle() {
+  const saved = getSavedLayout();
+  if (saved) {
+    applyLayout(saved);
+  } else if (isCoarsePointer()) {
+    // Some mobile browsers can be in "desktop site" mode with a wide viewport.
+    // Force a readable single-column layout by default on touch devices.
+    applyLayout("single");
+  } else {
+    applyLayout("auto");
+  }
+
+  toggleLayout.addEventListener("click", () => {
+    const current = appRoot.getAttribute("data-layout") || "";
+    const next = current === "single" ? "auto" : "single";
+    setSavedLayout(next);
+    applyLayout(next);
+  });
 }
 
 function closeBrowseIfNarrow() {
@@ -3113,6 +3178,7 @@ function setupEvents() {
   });
 }
 
+setupLayoutToggle();
 setupEvents();
 try {
   browseDetails.open = !EMBED_MODE && isNarrowView();

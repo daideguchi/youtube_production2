@@ -107,6 +107,24 @@ code {
   }
 }
 
+/* Manual override: force single-column layout even on desktop-sized viewports. */
+.app[data-layout="single"] .workspace {
+  grid-template-columns: 1fr;
+}
+
+.app[data-layout="single"] .workspace > .content,
+.app[data-layout="single"] .workspace > .assets {
+  grid-column: 1;
+}
+
+.app[data-layout="single"] .workspace > .assets {
+  grid-row: 1;
+}
+
+.app[data-layout="single"] .workspace > .content {
+  grid-row: 2;
+}
+
 /* Embed mode (used by /ep wrapper iframes). */
 .app[data-embed="1"] {
   max-width: none;

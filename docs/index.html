@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260113_23" />
-    <script defer src="./app.js?v=20260113_23"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260114_01" />
+    <script defer src="./app.js?v=20260114_01"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -27,6 +27,7 @@
               <a class="btn btn--ghost" href="./archive/">書庫（GitHub Releases）</a>
               <a id="openFixedLogic" class="btn btn--ghost" target="_blank" rel="noreferrer">確定ロジック</a>
               <a id="openContactBox" class="btn btn--ghost" target="_blank" rel="noreferrer">CONTACT_BOX</a>
+              <button id="toggleLayout" class="btn btn--ghost" type="button">表示: 1カラム（スマホ）</button>
               <button id="reloadIndex" class="btn btn--ghost" type="button">データ再読み込み</button>
             </div>
           </details>
@@ -177,7 +178,7 @@
                 <div class="asset-card__head">
                   <div class="asset-card__title">① タイトル（YouTube Studio）</div>
                   <div class="asset-card__actions">
-                    <button id="copyYtTitle" class="btn btn--ghost" type="button">コピー（タイトル欄へ）</button>
+                    <button id="copyYtTitle" class="btn btn--primary" type="button">コピー（タイトル欄へ）</button>
                   </div>
                 </div>
                 <pre id="ytTitlePre" class="pre pre--small muted"></pre>
@@ -186,7 +187,7 @@
                 <div class="asset-card__head">
                   <div class="asset-card__title">② 概要欄（貼り付け用: この動画 + 定型）</div>
                   <div class="asset-card__actions">
-                    <button id="copyYtFullDesc" class="btn btn--ghost" type="button">コピー（説明欄へ）</button>
+                    <button id="copyYtFullDesc" class="btn btn--primary" type="button">コピー（説明欄へ）</button>
                   </div>
                 </div>
                 <pre id="ytFullDescPre" class="pre pre--small muted"></pre>
@@ -195,7 +196,7 @@
                 <div class="asset-card__head">
                   <div class="asset-card__title">③ タグ（YouTube Studio）</div>
                   <div class="asset-card__actions">
-                    <button id="copyYtTags" class="btn btn--ghost" type="button">コピー（タグ欄へ）</button>
+                    <button id="copyYtTags" class="btn btn--primary" type="button">コピー（タグ欄へ）</button>
                   </div>
                 </div>
                 <pre id="ytTagsPre" class="pre pre--small muted"></pre>
