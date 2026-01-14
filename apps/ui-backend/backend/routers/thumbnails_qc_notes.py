@@ -5,9 +5,9 @@ from typing import Dict
 
 from fastapi import APIRouter, HTTPException
 
+from backend.app.normalize import normalize_channel_code
+from backend.app.thumbnails_models import ThumbnailQcNoteUpdateRequest
 from backend.core.tools import thumbnails_qc_notes as qc_notes
-from backend.main import ThumbnailQcNoteUpdateRequest
-from backend.routers.ssot_docs import normalize_channel_code
 from factory_common.paths import thumbnails_root as ssot_thumbnails_root
 
 router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
@@ -61,4 +61,3 @@ def upsert_thumbnail_qc_note(channel: str, payload: ThumbnailQcNoteUpdateRequest
             document.pop(channel_code, None)
         qc_notes.write_thumbnail_qc_notes_document(document)
         return document.get(channel_code, {})
-

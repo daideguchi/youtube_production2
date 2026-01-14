@@ -3497,12 +3497,6 @@ class ThumbnailLibraryImportRequest(BaseModel):
     url: str = Field(..., min_length=1)
     file_name: Optional[str] = None
 
-
-class ThumbnailQcNoteUpdateRequest(BaseModel):
-    relative_path: str = Field(..., min_length=1)
-    note: Optional[str] = None
-
-
 class ThumbnailDescriptionResponse(BaseModel):
     description: str
     model: Optional[str] = None

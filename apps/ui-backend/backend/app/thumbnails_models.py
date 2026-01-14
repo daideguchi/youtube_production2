@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ThumbnailOverrideRequest(BaseModel):
@@ -16,3 +16,7 @@ class ThumbnailOverrideResponse(BaseModel):
     thumbnail_path: Optional[str] = None
     updated_at: str
 
+
+class ThumbnailQcNoteUpdateRequest(BaseModel):
+    relative_path: str = Field(..., min_length=1)
+    note: Optional[str] = None
