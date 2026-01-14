@@ -152,6 +152,7 @@ from backend.app.status_models import (
     StatusUpdateRequest,
     ensure_expected_updated_at,
 )
+from backend.app.status_store import default_status_payload as _default_status_payload
 from backend.app.image_model_routing_models import (
     IMAGE_MODEL_ROUTING_SCHEMA_V1,
     ChannelImageModelRouting,
@@ -1606,16 +1607,6 @@ def verify_srt_file(
         diff_ms=diff_ms,
         issues=issues,
     )
-
-
-def _default_status_payload(channel_code: str, video_number: str) -> dict:
-    return {
-        "script_id": f"{channel_code}-{video_number}",
-        "channel": channel_code,
-        "status": "pending",
-        "metadata": {},
-        "stages": {stage: {"status": "pending", "details": {}} for stage in STAGE_ORDER},
-    }
 
 
 def load_or_init_status(channel_code: str, video_number: str) -> dict:
