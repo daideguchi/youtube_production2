@@ -1125,6 +1125,20 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
 
     lines = [*headline]
     summary = _summarize_result(task, result_obj, response_format)
+    if ev == "COMPLETE" and task == "tts_reading" and summary:
+        ng = None
+        for s in summary:
+            m = re.search(r"\\bng=(\\d+)\\b", str(s))
+            if m:
+                try:
+                    ng = int(m.group(1))
+                except Exception:
+                    ng = None
+                break
+        if ng is not None and ng > 0:
+            next_line = "ng_items を修正（辞書/overrides）→ 同じコマンドを再実行"
+        elif ng == 0:
+            next_line = "同じコマンドを再実行（次工程: TTS生成へ続行）"
     if summary:
         lines.append("サマリ")
         lines.extend([f"- {x}" for x in summary])
