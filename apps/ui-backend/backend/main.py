@@ -167,6 +167,7 @@ from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
 from backend.app.srt_models import SRTIssue, SRTVerifyResponse
+from backend.app.tts_models import TTSIssue
 from backend.app.normalize import (
     normalize_channel_code,
     normalize_optional_text,
@@ -3192,22 +3193,6 @@ class VideoDetailResponse(BaseModel):
     youtube_description: Optional[str] = None
     warnings: List[str] = Field(default_factory=list)
     artifacts: Optional[ArtifactsSummaryResponse] = None
-
-
-class TTSIssue(BaseModel):
-    type: str
-    line: Optional[int] = None
-    detail: Optional[str] = None
-
-
-class TTSValidateRequest(BaseModel):
-    content: str
-
-
-class TTSValidateResponse(BaseModel):
-    sanitized_content: str
-    issues: List[TTSIssue]
-    valid: bool
 
 
 class ThumbnailProgressResponse(BaseModel):

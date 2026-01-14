@@ -5,14 +5,13 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from fastapi import APIRouter, HTTPException
 
+from backend.app.tts_models import TTSValidateRequest, TTSValidateResponse
 from backend.main import (
     AudioManager,
     PROJECT_ROOT,
     TtsReplaceRequest,
     TtsReplaceResponse,
     TtsUpdateRequest,
-    TTSValidateRequest,
-    TTSValidateResponse,
     _compose_tagged_tts,
     _parse_tagged_tts,
     _persist_tts_variants,
@@ -300,4 +299,3 @@ def validate_tts(channel: str, video: str, payload: TTSValidateRequest) -> TTSVa
         issues=issues,
         valid=len(issues) == 0,
     )
-
