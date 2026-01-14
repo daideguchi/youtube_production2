@@ -142,6 +142,14 @@ from backend.app.scripts_models import (
     ScriptTextResponse,
     TextUpdateRequest,
 )
+from backend.app.status_models import (
+    MAX_STATUS_LENGTH,
+    VALID_STAGE_STATUSES,
+    ReadyUpdateRequest,
+    StageStatus,
+    StageUpdateRequest,
+    StatusUpdateRequest,
+)
 from backend.app.image_model_routing_models import (
     IMAGE_MODEL_ROUTING_SCHEMA_V1,
     ChannelImageModelRouting,
@@ -357,8 +365,6 @@ from backend.app.planning_csv_store import (  # noqa: E402
 PROGRESS_STATUS_PATH = DATA_ROOT / "_progress" / "processing_status.json"
 AUDIO_CHANNELS_DIR = SCRIPT_PIPELINE_ROOT / "audio" / "channels"
 LOCK_TIMEOUT_SECONDS = 5.0
-VALID_STAGE_STATUSES = {"pending", "in_progress", "blocked", "review", "completed"}
-MAX_STATUS_LENGTH = 64
 LOCK_METRICS = {"timeout": 0, "unexpected": 0}
 LOCK_HISTORY: deque[dict] = deque(maxlen=50)
 LOCK_DB_PATH = LOGS_ROOT / "lock_metrics.db"
@@ -3002,42 +3008,6 @@ def ensure_channel_branding(
 refresh_channel_info(force=True)
 init_lock_storage()
 CONTENT_PROCESSOR = ContentProcessor(PROJECT_ROOT)
-
-
-class StageStatus(BaseModel):
-    status: str = Field("pending")
-
-    @field_validator("status")
-    @classmethod
-    def validate_stage_status(cls, value: str) -> str:
-        if value not in VALID_STAGE_STATUSES:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid stage status: {value!r}",
-            )
-        return value
-
-
-class StageUpdateRequest(OptimisticUpdateRequest):
-    stages: Dict[str, StageStatus]
-
-
-class ReadyUpdateRequest(OptimisticUpdateRequest):
-    ready: bool
-
-
-class StatusUpdateRequest(OptimisticUpdateRequest):
-    status: str
-
-    @field_validator("status")
-    @classmethod
-    def validate_status(cls, value: str) -> str:
-        normalized = value.strip()
-        if not normalized:
-            raise HTTPException(status_code=400, detail="status は空にできません。")
-        if len(normalized) > MAX_STATUS_LENGTH:
-            raise HTTPException(status_code=400, detail="status が長すぎます。64文字以内にしてください。")
-        return normalized
 
 
 class VideoGenerationInfo(BaseModel):
