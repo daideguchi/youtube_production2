@@ -171,6 +171,7 @@ from backend.app.planning_models import (
     PlanningUpdateResponse,
 )
 from backend.app.planning_payload import build_planning_payload, build_planning_payload_from_row
+from backend.app.datetime_utils import current_timestamp, current_timestamp_compact, parse_iso_datetime
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_constants import THUMBNAIL_SUPPORTED_EXTENSIONS
@@ -1209,20 +1210,6 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         planning_template_headers=planning_template_headers,
         planning_template_sample=planning_template_sample,
     )
-
-
-def current_timestamp() -> str:
-    """Return an ISO8601 UTC timestamp with ``Z`` suffix."""
-
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-
-
-def current_timestamp_compact() -> str:
-    """Return a compact UTC timestamp used by existing metadata fields."""
-
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-
-
 def load_json(path: Path) -> dict:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -1821,19 +1808,6 @@ def build_status_payload(
 
     payload["metadata"] = metadata
     return payload
-
-
-def parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
-    if not value:
-        return None
-    try:
-        if value.endswith("Z"):
-            value = value[:-1] + "+00:00"
-        return datetime.fromisoformat(value)
-    except ValueError:
-        return None
-
-
 def _normalize_status_token(value: Any) -> str:
     """
     Normalize various runner/UI status tokens into the small set the UI can reason about.

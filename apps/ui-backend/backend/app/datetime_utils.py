@@ -10,6 +10,12 @@ def current_timestamp() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def current_timestamp_compact() -> str:
+    """Return a compact UTC timestamp used by existing metadata fields."""
+
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
 def parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
     if not value:
         return None
@@ -19,4 +25,3 @@ def parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
         return datetime.fromisoformat(value)
     except ValueError:
         return None
-
