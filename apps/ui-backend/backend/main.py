@@ -152,7 +152,11 @@ from backend.app.status_models import (
     StatusUpdateRequest,
     ensure_expected_updated_at,
 )
-from backend.app.status_store import default_status_payload as _default_status_payload
+from backend.app.status_store import (
+    PROGRESS_STATUS_PATH,
+    default_status_payload as _default_status_payload,
+    save_status as _save_status_impl,
+)
 from backend.app.image_model_routing_models import (
     IMAGE_MODEL_ROUTING_SCHEMA_V1,
     ChannelImageModelRouting,
@@ -384,7 +388,6 @@ from backend.app.planning_csv_store import (  # noqa: E402
 )
 
 
-PROGRESS_STATUS_PATH = DATA_ROOT / "_progress" / "processing_status.json"
 AUDIO_CHANNELS_DIR = SCRIPT_PIPELINE_ROOT / "audio" / "channels"
 
 def _fetch_openrouter_model_ids_via_rest(api_key: str) -> List[str]:
@@ -1443,22 +1446,13 @@ def load_or_init_status(channel_code: str, video_number: str) -> dict:
 
 
 def save_status(channel_code: str, video_number: str, payload: dict) -> None:
-    status_path = DATA_ROOT / channel_code / video_number / "status.json"
-    write_json(status_path, payload)
-    # 同じ script_id の processing_status.json も同期する
-    if PROGRESS_STATUS_PATH.exists():
-        progress = load_json(PROGRESS_STATUS_PATH)
-        status_script_id = payload.get("script_id")
-        if progress.get("script_id") == status_script_id:
-            # 特定のフィールドのみ更新
-            progress.update({
-                "status": payload.get("status"),
-                "stages": payload.get("stages", {}),
-                "metadata": payload.get("metadata", {}),
-                "updated_at": payload.get("updated_at"),
-                "completed_at": payload.get("completed_at"),
-            })
-            write_json(PROGRESS_STATUS_PATH, progress)
+    _save_status_impl(
+        channel_code,
+        video_number,
+        payload,
+        data_root=DATA_ROOT,
+        progress_status_path=PROGRESS_STATUS_PATH,
+    )
 
 
 def run_ssot_sync_for_channel(channel_code: str, video_number: str) -> None:
