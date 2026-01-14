@@ -154,6 +154,7 @@ from backend.app.status_models import (
 from backend.app.status_store import (
     PROGRESS_STATUS_PATH,
     default_status_payload as _default_status_payload,
+    load_or_init_status,
     save_status as _save_status_impl,
 )
 from backend.app.image_model_routing_policy import IMAGE_MODEL_KEY_BLOCKLIST, _image_model_key_blocked
@@ -922,33 +923,6 @@ def analyze_tts_content(raw: str) -> Tuple[str, List[TTSIssue]]:
     sans_tags_text = "\n".join(sanitized_lines)
     sanitized = ContentProcessor.sanitize_for_tts(sans_tags_text)
     return sanitized, issues
-
-
-def load_or_init_status(channel_code: str, video_number: str) -> dict:
-    status = load_status_optional(channel_code, video_number)
-    if status is not None:
-        return status
-
-    payload = _default_status_payload(channel_code, video_number)
-    # Best-effort: bootstrap title from planning CSV (if available).
-    try:
-        for row in planning_store.get_rows(channel_code, force_refresh=True):
-            if not row.video_number:
-                continue
-            if normalize_video_number(row.video_number) != video_number:
-                continue
-            title = row.raw.get("タイトル") if isinstance(row.raw, dict) else None
-            if isinstance(title, str) and title.strip():
-                meta = payload.setdefault("metadata", {})
-                meta.setdefault("sheet_title", title.strip())
-                meta.setdefault("title", title.strip())
-                meta.setdefault("expected_title", title.strip())
-            break
-    except Exception:
-        pass
-
-    save_status(channel_code, video_number, payload)
-    return payload
 
 
 def save_status(channel_code: str, video_number: str, payload: dict) -> None:

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from backend.app.episode_store import load_status_optional
+from backend.app.normalize import normalize_video_number
 from backend.app.status_models import STAGE_ORDER
 from backend.app.json_store import load_json, write_json
 from factory_common.paths import script_data_root as ssot_script_data_root
@@ -59,3 +61,33 @@ def save_status(
         }
     )
     write_json(progress_path, progress)
+
+
+def load_or_init_status(channel_code: str, video_number: str) -> dict:
+    status = load_status_optional(channel_code, video_number)
+    if status is not None:
+        return status
+
+    payload = default_status_payload(channel_code, video_number)
+
+    # Best-effort: bootstrap title from planning CSV (if available).
+    try:
+        from script_pipeline.tools import planning_store
+
+        for row in planning_store.get_rows(channel_code, force_refresh=True):
+            if not row.video_number:
+                continue
+            if normalize_video_number(row.video_number) != video_number:
+                continue
+            title = row.raw.get("タイトル") if isinstance(row.raw, dict) else None
+            if isinstance(title, str) and title.strip():
+                meta = payload.setdefault("metadata", {})
+                meta.setdefault("sheet_title", title.strip())
+                meta.setdefault("title", title.strip())
+                meta.setdefault("expected_title", title.strip())
+            break
+    except Exception:
+        pass
+
+    save_status(channel_code, video_number, payload)
+    return payload
