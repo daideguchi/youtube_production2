@@ -133,7 +133,7 @@
 | 2cb | Thumbnails spec models（thumb/text-line/elements spec + schema IDs）を `app/` に移設し、thumbnail系 router の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2cc | Thumbnails editor/preview models（editor context / preview / comment patch + schema const）を `app/` に移設し、`routers/thumbnails_video.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2cd | Thumbnails layer-spec models（layer-spec responses + image model info + param catalog entry）を `app/` に移設し、`routers/thumbnails_specs.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
-| 2ce | Thumbnails templates models（template response/payload + channel templates response/update request + channel style）を `app/` に移設し、`routers/thumbnails_templates.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Draft |
+| 2ce | Thumbnails templates models（template response/payload + channel templates response/update request + channel style）を `app/` に移設し、`routers/thumbnails_templates.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
