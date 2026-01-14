@@ -3,6 +3,8 @@
 - 入口固定（セッション記帳; 途中で落ちても復旧できる）:
   - 開始: `./ops session start --name dd-<area>-01 --role worker --doing "..." --next "..."`
   - 終了: `./ops session end --name dd-<area>-01`（Slack digestは `--slack auto` が既定）
+  - 必須: `LLM_AGENT_NAME` を `--name` と一致させる（ロックの自己無視/記帳の正本）
+    - 例: `export LLM_AGENT_NAME=dd-<area>-01`（または `LLM_AGENT_NAME=dd-<area>-01 ./ops ...`）
   - 途中で落ちた/中断した場合:
     - 未完セッション一覧: `./ops session list --agent dd-<area>-01 --open-only`
     - 記帳ログ: `workspaces/logs/ops/sessions/<session_id>/{start.json,end.json}`
