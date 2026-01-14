@@ -45,7 +45,7 @@ from backend.app.thumbnails_video_models import (
     ThumbnailVariantPatchRequest,
 )
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
-from factory_common.paths import ssot_assets_root, ssot_thumbnails_root
+from factory_common.paths import assets_root as ssot_assets_root, thumbnails_root as ssot_thumbnails_root
 from script_pipeline.tools import planning_store
 
 router = APIRouter(tags=["thumbnails"])
