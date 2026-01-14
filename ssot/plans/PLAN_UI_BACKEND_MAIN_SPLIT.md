@@ -162,6 +162,7 @@
 | 4h | Codex settings store（`CODEX_*_PATH`, `CODEX_SETTINGS_LOCK`, codex_exec config/sources.yaml の I/O, TOML profile parse/update 等）を `app/codex_settings_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4i | SRT verify util（`verify_srt_file`, timestamp parse など）を `app/srt_verify.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4j | Status init（`load_or_init_status`）を `app/status_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
+| 4k | SSOT guard（`run_ssot_sync_for_channel`, `SSOT_SYNC_LOG_DIR`）を `app/ssot_sync_guard.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
