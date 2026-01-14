@@ -27,3 +27,16 @@ class RedoSummaryItem(BaseModel):
     redo_audio: int
     redo_both: int
 
+
+class RedoUpdateRequest(BaseModel):
+    redo_script: Optional[bool] = None
+    redo_audio: Optional[bool] = None
+    redo_note: Optional[str] = None
+
+
+class RedoUpdateResponse(BaseModel):
+    status: str
+    redo_script: bool
+    redo_audio: bool
+    redo_note: Optional[str] = None
+    updated_at: str

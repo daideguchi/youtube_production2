@@ -164,6 +164,7 @@ from backend.app.planning_models import (
 )
 from backend.app.planning_payload import build_planning_payload, build_planning_payload_from_row
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
+from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.normalize import (
     normalize_channel_code,
     normalize_optional_text,
@@ -3189,20 +3190,6 @@ class VideoDetailResponse(BaseModel):
     youtube_description: Optional[str] = None
     warnings: List[str] = Field(default_factory=list)
     artifacts: Optional[ArtifactsSummaryResponse] = None
-
-
-class RedoUpdateRequest(BaseModel):
-    redo_script: Optional[bool] = None
-    redo_audio: Optional[bool] = None
-    redo_note: Optional[str] = None
-
-
-class RedoUpdateResponse(BaseModel):
-    status: str
-    redo_script: bool
-    redo_audio: bool
-    redo_note: Optional[str] = None
-    updated_at: str
 
 
 class ThumbnailOverrideRequest(BaseModel):

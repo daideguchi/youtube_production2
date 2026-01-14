@@ -116,6 +116,7 @@
 | 2bk | routers 側の `safe_relative_path` 参照を `app/path_utils.py` に統一し、`backend.main` 依存をさらに削減（挙動互換） | dd | - | Done（2026-01-13） |
 | 2bl | Natural command models（`NaturalCommandAction/Request/Response`）を `app/scripts_models.py` に移設し、`backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bm | Image model routing models（`IMAGE_MODEL_ROUTING_SCHEMA_V1`, `ImageModel*`, `ChannelImageModelRouting`, `ImageModelRouting*`）を `app/image_model_routing_models.py` に移設し、`routers/settings.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
+| 2bn | Redo update models（`RedoUpdateRequest/Response`）を `app/redo_models.py` に移設し、`routers/redo_flags.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 

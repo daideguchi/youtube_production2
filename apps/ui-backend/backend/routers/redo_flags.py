@@ -4,15 +4,10 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 
-from backend.main import (
-    RedoUpdateRequest,
-    RedoUpdateResponse,
-    current_timestamp,
-    load_status,
-    normalize_channel_code,
-    normalize_video_number,
-    save_status,
-)
+from backend.app.datetime_utils import current_timestamp
+from backend.app.episode_store import load_status
+from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from factory_common.publish_lock import is_episode_published_locked
 
 router = APIRouter(prefix="/api", tags=["redo"])
@@ -20,6 +15,8 @@ router = APIRouter(prefix="/api", tags=["redo"])
 
 @router.patch("/channels/{channel}/videos/{video}/redo", response_model=RedoUpdateResponse)
 def update_video_redo(channel: str, video: str, payload: RedoUpdateRequest):
+    from backend.main import save_status
+
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     if is_episode_published_locked(channel_code, video_number):
@@ -48,4 +45,3 @@ def update_video_redo(channel: str, video: str, payload: RedoUpdateRequest):
         redo_note=redo_note,
         updated_at=updated_at,
     )
-
