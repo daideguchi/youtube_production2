@@ -123,6 +123,7 @@
 | 2br | Audio review models（`AudioReviewItemResponse`）を `app/audio_review_models.py` に移設し、`routers/audio_review.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bs | TTS validate models（`TTSIssue`, `TTSValidateRequest`, `TTSValidateResponse`）を `app/tts_models.py` に移設し、`routers/tts.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bt | Video progress models（`ThumbnailProgressResponse`, `VideoImagesProgressResponse`）を `app/video_progress_models.py` に移設し、`routers/channel_videos.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
+| 2bu | Thumbnail variant model（`ThumbnailVariantResponse`）を `app/thumbnails_variant_models.py` に移設し、thumbnail系 router の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 

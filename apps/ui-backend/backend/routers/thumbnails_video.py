@@ -15,6 +15,7 @@ from PIL import Image
 import backend.main as backend_main
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
+from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.main import (
     ThumbnailAssetReplaceResponse,
     ThumbnailCommentPatchRequest,
@@ -36,7 +37,6 @@ from backend.main import (
     ThumbnailVariantCreateRequest,
     ThumbnailVariantGenerateRequest,
     ThumbnailVariantPatchRequest,
-    ThumbnailVariantResponse,
 )
 from factory_common.paths import ssot_assets_root, ssot_thumbnails_root
 from script_pipeline.tools import planning_store
@@ -1755,4 +1755,3 @@ async def replace_thumbnail_video_asset(
         image_path=rel_path,
         public_url=public_url,
     )
-

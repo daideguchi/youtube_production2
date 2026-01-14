@@ -17,6 +17,7 @@ from fastapi.responses import PlainTextResponse, StreamingResponse
 
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
+from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.main import (
     ThumbnailChannelBlockResponse,
     ThumbnailChannelSummaryResponse,
@@ -40,7 +41,6 @@ from backend.main import (
     ThumbnailElementsSpecResponse,
     ThumbnailElementsSpecUpdateRequest,
     ThumbnailElementStrokePayload,
-    ThumbnailVariantResponse,
 )
 from backend.app.channel_info_store import refresh_channel_info
 

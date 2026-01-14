@@ -166,6 +166,7 @@ from backend.app.planning_payload import build_planning_payload, build_planning_
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
+from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.srt_models import SRTIssue, SRTVerifyResponse
 from backend.app.tts_models import TTSIssue
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
@@ -3213,26 +3214,6 @@ class VideoSummaryResponse(BaseModel):
     youtube_description: Optional[str] = None
     thumbnail_progress: Optional[ThumbnailProgressResponse] = None
     video_images_progress: Optional[VideoImagesProgressResponse] = None
-
-class ThumbnailVariantResponse(BaseModel):
-    id: str
-    label: Optional[str] = None
-    status: Optional[str] = None
-    image_url: Optional[str] = None
-    image_path: Optional[str] = None
-    preview_url: Optional[str] = None
-    notes: Optional[str] = None
-    tags: Optional[List[str]] = None
-    provider: Optional[str] = None
-    model: Optional[str] = None
-    model_key: Optional[str] = None
-    openrouter_generation_id: Optional[str] = None
-    cost_usd: Optional[float] = None
-    usage: Optional[Dict[str, Any]] = None
-    is_selected: Optional[bool] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
-
 
 class ThumbnailProjectResponse(BaseModel):
     channel: str

@@ -12,13 +12,13 @@ from backend.app.episode_store import get_audio_duration_seconds
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
 from backend.app.scripts_models import NaturalCommandRequest, NaturalCommandResponse
+from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
 from backend.main import (
     PROJECT_ROOT,
     PlanningInfoResponse,
     THUMBNAIL_PROJECTS_LOCK,
     THUMBNAIL_PROJECT_STATUSES,
-    ThumbnailVariantResponse,
     VideoDetailResponse,
     VideoCreateRequest,
     VideoFileReferences,
