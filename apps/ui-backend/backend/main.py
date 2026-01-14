@@ -166,6 +166,7 @@ from backend.app.planning_payload import build_planning_payload, build_planning_
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
+from backend.app.thumbnails_project_models import ThumbnailProjectResponse
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.srt_models import SRTIssue, SRTVerifyResponse
 from backend.app.tts_models import TTSIssue
@@ -3153,27 +3154,6 @@ class VideoSummaryResponse(BaseModel):
     youtube_description: Optional[str] = None
     thumbnail_progress: Optional[ThumbnailProgressResponse] = None
     video_images_progress: Optional[VideoImagesProgressResponse] = None
-
-class ThumbnailProjectResponse(BaseModel):
-    channel: str
-    video: str
-    script_id: Optional[str] = None
-    title: Optional[str] = None
-    sheet_title: Optional[str] = None
-    status: Optional[str] = None
-    owner: Optional[str] = None
-    summary: Optional[str] = None
-    notes: Optional[str] = None
-    tags: Optional[List[str]] = None
-    variants: List[ThumbnailVariantResponse]
-    ready_for_publish: Optional[bool] = None
-    updated_at: Optional[str] = None
-    status_updated_at: Optional[str] = None
-    due_at: Optional[str] = None
-    selected_variant_id: Optional[str] = None
-    audio_stage: Optional[str] = None
-    script_stage: Optional[str] = None
-
 
 class ThumbnailChannelVideoResponse(BaseModel):
     video_id: str
