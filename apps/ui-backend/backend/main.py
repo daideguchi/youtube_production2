@@ -206,6 +206,19 @@ from backend.app.lock_store import (
 )
 from backend.app.json_store import load_json, write_json
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
+from backend.app.youtube_uploads_store import (
+    YOUTUBE_BRANDING_BACKOFF,
+    YOUTUBE_BRANDING_TTL,
+    YOUTUBE_CLIENT,
+    YOUTUBE_UPLOAD_BACKOFF,
+    YOUTUBE_UPLOAD_CACHE,
+    YOUTUBE_UPLOAD_CACHE_DIR,
+    YOUTUBE_UPLOAD_CACHE_TTL,
+    YOUTUBE_UPLOAD_FAILURE_STATE,
+    YOUTUBE_UPLOADS_MAX_REFRESH_PER_REQUEST,
+    _load_cached_uploads,
+    _save_cached_uploads,
+)
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_constants import (
     THUMBNAIL_LIBRARY_MAX_BYTES,
@@ -398,69 +411,6 @@ AUDIO_CHANNELS_DIR = SCRIPT_PIPELINE_ROOT / "audio" / "channels"
 CHANNEL_PROFILE_LOG_DIR = LOGS_ROOT / "regression"
 THUMBNAIL_QUICK_HISTORY_PATH = LOGS_ROOT / "regression" / "thumbnail_quick_history.jsonl"
 THUMBNAIL_QUICK_HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-YOUTUBE_UPLOAD_CACHE_DIR = DATA_ROOT / "_cache" / "youtube_uploads"
-YOUTUBE_UPLOAD_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-YOUTUBE_UPLOAD_CACHE: Dict[str, tuple[datetime, list["ThumbnailChannelVideoResponse"]]] = {}
-YOUTUBE_UPLOAD_CACHE_TTL = timedelta(
-    hours=float(os.getenv("YOUTUBE_UPLOAD_CACHE_TTL_HOURS", "6"))
-)
-YOUTUBE_UPLOAD_BACKOFF = timedelta(
-    hours=float(os.getenv("YOUTUBE_UPLOAD_BACKOFF_HOURS", "12"))
-)
-YOUTUBE_UPLOADS_MAX_REFRESH_PER_REQUEST = int(
-    os.getenv("YOUTUBE_UPLOADS_MAX_REFRESH_PER_REQUEST", "2")
-)
-YOUTUBE_UPLOAD_FAILURE_STATE: Dict[str, datetime] = {}
-YOUTUBE_BRANDING_TTL = timedelta(
-    hours=float(os.getenv("YOUTUBE_BRANDING_TTL_HOURS", "24"))
-)
-YOUTUBE_BRANDING_BACKOFF: Dict[str, datetime] = {}
-
-if not os.getenv("YOUTUBE_API_KEY"):
-    _load_env_value("YOUTUBE_API_KEY")
-
-def _parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
-    if not value:
-        return None
-    try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        return None
-
-def _load_cached_uploads(channel_key: str) -> tuple[Optional[datetime], list["ThumbnailChannelVideoResponse"]]:
-    path = YOUTUBE_UPLOAD_CACHE_DIR / f"{channel_key}.json"
-    if not path.exists():
-        return None, []
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception as exc:  # pragma: no cover - tolerate cache corruption
-        logger.warning("Failed to read thumbnail cache for %s: %s", channel_key, exc)
-        return None, []
-    fetched_at = _parse_iso_datetime(payload.get("fetched_at"))
-    videos_payload = payload.get("videos") or []
-    videos: list[ThumbnailChannelVideoResponse] = []
-    for item in videos_payload:
-        try:
-            videos.append(ThumbnailChannelVideoResponse.model_validate(item))
-        except Exception:
-            continue
-    return fetched_at, videos
-
-def _save_cached_uploads(channel_key: str, fetched_at: datetime, videos: list["ThumbnailChannelVideoResponse"]):
-    payload = {
-        "fetched_at": fetched_at.replace(tzinfo=timezone.utc).isoformat(),
-        "videos": [video.model_dump() for video in videos],
-    }
-    path = YOUTUBE_UPLOAD_CACHE_DIR / f"{channel_key}.json"
-    try:
-        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    except Exception as exc:  # pragma: no cover - disk issues
-        logger.warning("Failed to persist thumbnail cache for %s: %s", channel_key, exc)
-
-YOUTUBE_CLIENT = YouTubeDataClient.from_env()
-if YOUTUBE_CLIENT is None:
-    logger.warning("YOUTUBE_API_KEY が設定されていないため、YouTube Data API からのサムネイル取得をスキップします。ローカル案のプレビューにフォールバックします。")
 
 
 def _resolve_channel_dir(channel_code: str) -> Path:
