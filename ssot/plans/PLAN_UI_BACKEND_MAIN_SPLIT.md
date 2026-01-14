@@ -156,7 +156,7 @@
 | 4b | Thumbnails project statuses（`THUMBNAIL_PROJECT_STATUSES`）を `app/thumbnails_constants.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4c | Thumbnails library const（`THUMBNAIL_LIBRARY_MAX_BYTES`, `THUMBNAIL_REMOTE_FETCH_TIMEOUT`）を `app/thumbnails_constants.py` に移設し、router は `backend.app` 参照へ寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4d | LLM model catalogs（OpenAI/OpenRouter model list + pricing/generation fetch）を `app/llm_catalog_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
-| 4e | YouTube uploads cache（`YOUTUBE_UPLOAD_CACHE_*`, `_load_cached_uploads`, `_save_cached_uploads`, `YOUTUBE_CLIENT` 等）を `app/youtube_uploads_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
+| 4e | YouTube uploads cache（`YOUTUBE_UPLOAD_CACHE_*`, `_load_cached_uploads`, `_save_cached_uploads`, `YOUTUBE_CLIENT` 等）を `app/youtube_uploads_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
