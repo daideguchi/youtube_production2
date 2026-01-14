@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 from fastapi import APIRouter, HTTPException
 
 from backend.app.episode_store import get_audio_duration_seconds
+from backend.app.datetime_utils import parse_iso_datetime
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
 from backend.app.scripts_models import NaturalCommandRequest, NaturalCommandResponse
@@ -43,7 +44,6 @@ from backend.main import (
     load_status_optional,
     normalize_planning_video_number,
     normalize_audio_metadata,
-    parse_iso_datetime,
     planning_store,
     planning_hash_from_row,
     iter_thumbnail_catches_from_row,
