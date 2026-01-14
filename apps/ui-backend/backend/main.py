@@ -144,6 +144,7 @@ from backend.app.scripts_models import (
 )
 from backend.app.status_models import (
     MAX_STATUS_LENGTH,
+    STAGE_ORDER,
     VALID_STAGE_STATUSES,
     ReadyUpdateRequest,
     StageStatus,
@@ -529,21 +530,6 @@ def _save_cached_uploads(channel_key: str, fetched_at: datetime, videos: list["T
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception as exc:  # pragma: no cover - disk issues
         logger.warning("Failed to persist thumbnail cache for %s: %s", channel_key, exc)
-STAGE_ORDER = [
-    "topic_research",
-    "script_outline",
-    "script_draft",
-    "script_enhancement",
-    "script_review",
-    "quality_check",
-    "script_validation",
-    "script_polish_ai",
-    "script_tts_prepare",
-    "audio_synthesis",
-    "srt_generation",
-    "timeline_copy",
-    "image_generation",
-]
 
 YOUTUBE_CLIENT = YouTubeDataClient.from_env()
 if YOUTUBE_CLIENT is None:

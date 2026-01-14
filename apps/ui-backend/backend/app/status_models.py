@@ -9,6 +9,21 @@ from backend.app.scripts_models import OptimisticUpdateRequest
 
 VALID_STAGE_STATUSES = {"pending", "in_progress", "blocked", "review", "completed"}
 MAX_STATUS_LENGTH = 64
+STAGE_ORDER = [
+    "topic_research",
+    "script_outline",
+    "script_draft",
+    "script_enhancement",
+    "script_review",
+    "quality_check",
+    "script_validation",
+    "script_polish_ai",
+    "script_tts_prepare",
+    "audio_synthesis",
+    "srt_generation",
+    "timeline_copy",
+    "image_generation",
+]
 
 
 class StageStatus(BaseModel):
