@@ -188,6 +188,11 @@ from backend.app.video_registry_models import (
 )
 from backend.app.planning_payload import build_planning_payload, build_planning_payload_from_row
 from backend.app.datetime_utils import current_timestamp, current_timestamp_compact, parse_iso_datetime
+from backend.app.script_text_utils import (
+    _character_count_from_a_text,
+    _fallback_character_count_from_files,
+    _resolve_a_text_display_path,
+)
 from backend.app.status_payload_builder import build_status_payload, initialize_stage_payload
 from backend.app.ssot_sync_guard import run_ssot_sync_for_channel
 from backend.app.codex_settings_store import (
@@ -1041,52 +1046,6 @@ def _summarize_video_detail_artifacts(
 
     return {"project_dir": project_dir_label, "items": items}
 
-
-def _fallback_character_count_from_files(
-    metadata: Dict[str, Any], channel_code: str, video_number: str
-) -> Optional[int]:
-    """
-    Fallback: count characters from assembled files when metadata is missing or zero.
-    """
-    candidates: List[Path] = []
-    assembled_path = metadata.get("assembled_path")
-    script_meta = metadata.get("script")
-    if not assembled_path and isinstance(script_meta, dict):
-        assembled_path = script_meta.get("assembled_path")
-    if assembled_path:
-        path = Path(assembled_path)
-        if not path.is_absolute():
-            path = (PROJECT_ROOT / assembled_path).resolve()
-        candidates.append(path)
-    base_dir = video_base_dir(channel_code, video_number)
-    candidates.append(base_dir / "content" / "assembled.md")
-    candidates.append(base_dir / "content" / "assembled_human.md")
-
-    for path in candidates:
-        try:
-            if path.exists() and path.is_file():
-                text = path.read_text(encoding="utf-8")
-                if text:
-                    return len(text)
-        except Exception:
-            continue
-    return None
-
-
-def _character_count_from_a_text(channel_code: str, video_number: str) -> Optional[int]:
-    """
-    Prefer accurate count by reading the current Aテキスト (assembled_human/assembled → audio_prep/script_sanitized).
-    """
-    try:
-        path = _resolve_a_text_display_path(channel_code, video_number)
-    except HTTPException:
-        return None
-    try:
-        text = path.read_text(encoding="utf-8")
-        # Match UI display semantics: count without line breaks.
-        return len(text.replace("\r", "").replace("\n", ""))
-    except Exception:
-        return None
 
 def replace_text(content: str, original: str, replacement: str, scope: str) -> Tuple[str, int]:
     if scope == "all":
@@ -3637,22 +3596,6 @@ def _text_line_spec_stable_path(channel_code: str, video_number: str, stable: st
 
 def _elements_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
     return THUMBNAIL_ASSETS_DIR / channel_code / video_number / f"elements_spec.{stable}.json"
-
-
-def _resolve_a_text_display_path(channel: str, video: str) -> Path:
-    """
-    Aテキスト（表示用）用に解決するパス。
-    優先: content/assembled_human.md -> content/assembled.md
-    """
-    base = DATA_ROOT / channel / video
-    candidates = [
-        base / "content" / "assembled_human.md",
-        base / "content" / "assembled.md",
-    ]
-    for cand in candidates:
-        if cand.exists():
-            return cand
-    raise HTTPException(status_code=404, detail=f"A-text not found: {channel}-{video}")
 
 
 def parse_cli_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
