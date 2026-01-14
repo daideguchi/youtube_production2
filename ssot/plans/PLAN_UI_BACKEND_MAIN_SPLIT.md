@@ -119,6 +119,7 @@
 | 2bn | Redo update models（`RedoUpdateRequest/Response`）を `app/redo_models.py` に移設し、`routers/redo_flags.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bo | Thumbnail override models（`ThumbnailOverrideRequest/Response`）を `app/thumbnails_models.py` に移設し、`routers/thumbnails_overrides.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bp | Thumbnail QC note model（`ThumbnailQcNoteUpdateRequest`）を `app/thumbnails_models.py` に移設し、`routers/thumbnails_qc_notes.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
+| 2bq | SRT verify models（`SRTIssue`, `SRTVerifyResponse`）を `app/srt_models.py` に移設し、`routers/srt.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 

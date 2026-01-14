@@ -166,6 +166,7 @@ from backend.app.planning_payload import build_planning_payload, build_planning_
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
+from backend.app.srt_models import SRTIssue, SRTVerifyResponse
 from backend.app.normalize import (
     normalize_channel_code,
     normalize_optional_text,
@@ -3235,22 +3236,6 @@ class TTSValidateResponse(BaseModel):
     sanitized_content: str
     issues: List[TTSIssue]
     valid: bool
-
-
-class SRTIssue(BaseModel):
-    type: str
-    detail: str
-    block: Optional[int] = None
-    start: Optional[float] = None
-    end: Optional[float] = None
-
-
-class SRTVerifyResponse(BaseModel):
-    valid: bool
-    audio_duration_seconds: Optional[float]
-    srt_duration_seconds: Optional[float]
-    diff_ms: Optional[float]
-    issues: List[SRTIssue]
 
 
 class ThumbnailProgressResponse(BaseModel):
