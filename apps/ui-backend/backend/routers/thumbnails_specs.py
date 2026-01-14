@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 from fastapi import APIRouter, HTTPException
 
 from backend.app.normalize import normalize_channel_code, normalize_video_number
-from backend.main import (
+from backend.app.thumbnails_layer_specs_models import (
     ThumbnailChannelLayerSpecsResponse,
     ThumbnailLayerSpecPlanningSuggestionsResponse,
     ThumbnailLayerSpecRefResponse,
@@ -171,4 +171,3 @@ def get_thumbnail_param_catalog():
             )
         )
     return items
-

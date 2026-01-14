@@ -8,12 +8,12 @@ import yaml
 from fastapi import APIRouter, HTTPException
 
 from backend.app.normalize import normalize_channel_code
+from backend.app.thumbnails_layer_specs_models import ThumbnailImageModelInfoResponse
 from backend.main import (
     PROJECT_ROOT,
     ThumbnailChannelStyleResponse,
     ThumbnailChannelTemplatesResponse,
     ThumbnailChannelTemplatesUpdateRequest,
-    ThumbnailImageModelInfoResponse,
     ThumbnailTemplateResponse,
 )
 
