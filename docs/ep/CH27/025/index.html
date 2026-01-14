@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-025 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-025 — script</h1>
           <div class="muted">「ありがとう」が言えない旅…帰りの沈黙が全てだった</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,276 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>「ありがとう」が言えない旅…帰りの沈黙が全てだった</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, 噂, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-025</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-025&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">電車の窓ガラスに、夕日が茜色の光を投げかけていました。
+オレンジ色に染まった畑が、ゆっくりと後ろへ流れていきます。
+向かい合わせの座席で、房子さんは何も言わずに、ただ外を見つめています。
+その横顔は、何かを考え込んでいるようにも、何も考えていないようにも見えました。
+私たちの間には、重苦しい沈黙が横たわっていました。
+二泊三日の温泉旅行の帰り道。
+足元には、二人分のお土産が入った紙袋が置いてあります。
+温泉まんじゅう、漬物、地元の銘菓。
+行きの電車の中では、これ、孫に買っていこうかしらと楽しそうに話していた房子さんが、今は石のように黙り込んでいます。
+楽しかったはずの思い出が、今はすべて色褪せて見えます。
+露天風呂から見た満天の星空も、朝の散歩で見つけた野の花も、夕食の豪華な懐石料理も。
+ありがとう
+その一言が、最後まで彼女の口から出ることはありませんでした。
+今夜は、五十年来の友情が、たった一度の旅行で終わりを迎えた物語をお話しします。
+帰りの沈黙の中で、私は静かに覚悟を決めていました。
+長い関係が、ひとつの節目を迎えること。
+それは悲しいことですが、避けられないこともあるのだと思います。
+
+---
+
+房子さんとは、高校の同級生でした。
+入学式の日、たまたま隣の席だったことから、私たちの友情は始まりました。
+彼女は地方から出てきたばかりで、方言が残っていて、少し恥ずかしそうにしていました。
+よかったら、お弁当一緒に食べない？
+私が声をかけると、彼女の顔がぱっと明るくなったのを覚えています。
+それから五十年以上。
+卒業後も途切れることなく、付き合いが続いていました。
+お互いに就職し、結婚し、子供を育て、夫を見送り。
+人生の節目節目を、二人で分かち合ってきました。
+彼女の結婚式では涙を流し、私の夫が倒れたときは真っ先に駆けつけてくれました。
+子供たちの受験の時期には、励まし合い、慰め合いました。
+そんな五十年です。
+最近は年に一度、近場の温泉に行くのが恒例になっていました。
+今年はどこにする？去年は草津だったから、今年は伊香保にしようか
+そんな会話を毎年重ねて、もう十五回目くらいになります。
+今年もそのつもりで、私が宿を手配し、電車の切符を取り、旅のしおりを作りました。
+房子さんは膝が悪いので、できるだけ歩く距離が短くなるように、宿から駅までの送迎があるところを選びました。
+食事も、彼女がアレルギーを持っている食材を外してもらえるように、事前に連絡を入れておきました。
+房子さんは甲殻類がダメですので、エビやカニは抜いてください
+電話口で何度も確認しました。
+私としては、当然のことをしたつもりでした。
+長年の友人なのですから。
+彼女のことを思って、最善を尽くすのは当然のことだと思っていたのです。
+
+---
+
+旅行の一日目は、穏やかに過ぎていきました。
+電車の中では昔話に花が咲き、車窓から見える景色に歓声を上げ、駅弁を分け合って食べました。
+このお煮しめ、美味しいわね「うん、味がしみてて」
+そんな何気ない会話が、心地よかったのです。
+宿に着いてからも、のんびりと過ごしました。
+部屋に入ると、窓からは山々が見渡せて、遠くに小さな滝が見えました。
+「わあ、きれいな景色ね」
+房子さんも嬉しそうでした。
+大浴場に行き、露天風呂に浸かり、夕食を楽しみ、布団に入る頃には、二人とも満足そうな顔をしていました。
+「来て良かったわ。ありがとう」
+その夜、房子さんはそう言ってくれました。
+私はこちらこそと答えて、幸せな気持ちで目を閉じたのです。
+けれど、二日目の朝から、少しずつ空気が変わり始めました。
+
+---
+
+朝食の席で、房子さんが突然こう言ったのです。
+「あなたって、何でも自分で決めちゃうのよね」
+一瞬、何のことかわかりませんでした。
+彼女は茶碗を持ったまま、どこか険しい表情をしていました。
+「旅行の計画も、全部あなたが決めて。私の意見なんて聞いてないでしょう」
+心臓がどきりとしました。
+確かに、私が主導して計画を立てました。
+宿選び、日程調整、列車の時刻、すべて私が決めました。
+けれどそれは、彼女の体調を考えてのことでした。
+「膝のことを考えて、歩かなくていいようにしたのよ。それに、アレルギーのことも宿に伝えておいたわ」
+私がそう説明すると、房子さんの眉間のしわが深くなりました。
+「そうやって、いつも私を年寄り扱いするのも、正直疲れるの」
+思いがけない言葉に、私は何も言い返せませんでした。
+箸を持つ手が、小刻みに震えていました。
+気づかないふりをして、味噌汁をすすりましたが、味はわかりませんでした。
+
+---
+
+その日は、ぎこちない空気のまま過ぎていきました。
+予定していた展望台に行っても、絶景を前にしても、会話は弾みませんでした。
+きれいねうん
+それだけ言って、また沈黙が戻ります。
+お土産屋に寄っても、彼女は一人で店内を回り、私とは別行動でした。
+レジで会計をしているとき、ふと彼女を探すと、店の隅で一人、携帯電話を見つめていました。
+誰かに連絡でも取っているのだろうか。
+それとも、私から離れたかっただけなのだろうか。
+胸がチクリと痛みました。
+夕食の時、私は思い切って謝りました。
+「勝手に決めてしまって、不快にさせたならごめんなさい。あなたのことを思って、良かれと思ってしたことなの」
+房子さんは少し黙ってから、別にいいわよとだけ言いました。
+けれど、そのいいわよには、明らかに棘が含まれていました。
+いいわよと言いながら、目を合わせてくれませんでした。
+その夜、布団の中で私は考え続けました。
+隣の布団から、房子さんの寝息が聞こえてきます。
+私が良かれと思ってしたことが、彼女を傷つけていたのだろうか。
+五十年もの間、私はずっと気づかずに、彼女を年寄り扱いしてきたのだろうか。
+自分では親切のつもりだったことが、上から目線に見えていたのだろうか。
+答えは出ませんでした。
+ただ、天井を見つめながら、涙だけがこぼれていました。
+
+---
+
+最終日の朝、私はもう一度、感謝の言葉を伝えました。
+チェックアウトの前、荷物をまとめながら言いました。
+「一緒に来てくれて、ありがとう。楽しかったわ」
+本心でした。
+初日は、本当に楽しかったのですから。
+房子さんは、かすかに頷いただけでした。
+ありがとうの言葉は、返ってきませんでした。
+彼女の口元は引き結ばれていて、何か言いたいことを飲み込んでいるように見えました。
+チェックアウトを済ませ、駅へ向かう送迎バスに乗り込んでも、彼女は沈黙を続けていました。
+バスの中では、他の乗客の楽しそうな会話が聞こえてきます。
+良い旅行だったねまた来ようね
+そんな声が、今の私たちには遠い世界の出来事のようでした。
+そして、電車に乗ってからも、この重い静寂は続いていたのです。
+窓の外を流れていく景色を眺めながら、私は少しずつ、ある結論に近づいていきました。
+もしかすると、私たちはもう、一緒にいるべきではないのかもしれない。
+五十年の歴史があっても、今の私たちは、お互いを苦しめ合っているだけなのかもしれない。
+悲しいけれど、それを認める時が来たのだと。
+
+---
+
+人間関係には、寿命があるのかもしれません。
+どれだけ長く続いた関係でも、永遠に同じ形を保ち続けることはできない。
+私たちは変わっていく。環境も、体力も、価値観も。
+十七歳の頃の私と房子さんと、六十代の私たちは、もう別の人間なのです。
+若い頃は気にならなかったことが、年を重ねるにつれて、引っかかるようになることもある。
+房子さんが私に感じていた不満は、きっと長い間、少しずつ積み重なっていたのだと思います。
+私が気づかなかっただけで、彼女はずっと我慢していたのかもしれない。
+いつも決めるのはあなた私は従っているだけ
+そんな気持ちを、五十年間、心の奥に押し込めていたのかもしれません。
+それは私の鈍感さのせいでもあり、彼女が本音を言ってくれなかったせいでもある。
+どちらが悪いという話ではないのです。
+ただ、私たちはもう、かつての私たちではなくなっていた。
+それだけのことなのだと思います。
+線路の継ぎ目を通過するたびに、小さな振動が体に伝わります。
+ガタン、ゴトン、ガタン、ゴトン。
+そのリズムが、まるで私たちの五十年を刻んでいるようでした。
+
+---
+
+電車を降りて、改札で別れるとき、私たちは形式的な挨拶だけを交わしました。
+「お疲れ様。気をつけてね」
+あなたもね
+それだけでした。
+握手もなければ、ハグもない。
+次にいつ会うかという話は、出ませんでした。
+改札を出て、振り返ると、房子さんの後ろ姿が人混みに消えていくところでした。
+少しだけ足を引きずっている。
+膝が痛むのだろう。
+声をかけようかと思いましたが、やめました。
+今の私に、彼女を追いかける資格はない気がしたのです。
+家に帰ってから、私はしばらくソファに座ったまま、動けませんでした。
+荷物を置くこともせず、コートを脱ぐこともせず、ただジッと座っていました。
+五十年という歳月が、こんな形で終わるなんて。
+涙は出ませんでした。
+もう、泣く気力もなかったのかもしれません。
+ただ、胸の奥に、鈍い痛みがありました。
+これでよかったのだろうか。
+もっと他に方法はなかったのだろうか。
+その夜は、何度も自問自答を繰り返しました。
+
+---
+
+あれから二週間が経ちました。
+房子さんからの連絡はありません。
+私も、特に連絡はしていません。
+スマートフォンを手に取り、彼女の名前を見て、また置く。
+そんなことを何度か繰り返しました。
+何を書けばいいのか、わからないのです。
+この前はごめんなさいと書こうとして、やめました。
+私が謝ることが、正しいのかどうかもわからなかったからです。
+彼女の不満は本物だったのでしょう。
+けれど、私の好意も本物だったのです。
+どちらも本物なのに、ぶつかってしまった。
+そういうこともあるのだと、今は思っています。
+
+---
+
+夜が深くなり、街の音が遠くなっていきます。
+窓の外には、街灯の明かりがぽつぽつと見えます。
+こうして一人で夜を過ごすことに、少しずつ慣れてきた気がします。
+友がいなくなることは寂しい。
+けれど、無理をして一緒にいることは、もっと辛い。
+私は、房子さんを責めたいわけではありません。
+彼女には彼女の言い分があるはずです。
+五十年分の言い分が、きっとあるのです。
+ただ、今の私には、それを受け止める余裕がありませんでした。
+
+---
+
+今夜の一手。
+今夜は寝るを最優先にする。
+起きたことを何度も反芻しても、答えは出ません。
+あの時ああしていれば、こうしていれば。
+そう考え始めると、眠れなくなります。
+過去を変えることはできません。
+だから今夜は、何も考えずに、ただ眠ることだけに集中してみてください。
+枕に頭を預けて、体の力を抜いて。
+布団の温もりを、ゆっくりと感じてみてください。
+明日になれば、少しだけ違う角度から物事が見えるかもしれません。
+五十年の思い出は、消えることはありません。
+房子さんと笑い合った時間、支え合った時間、それは確かに私の中にあります。
+けれど、これからの人生は、これからの人生として、新しく始めることができるはずです。
+新しい出会いがあるかもしれない。
+今までとは違う形の友情が生まれるかもしれない。
+何もかもが終わったわけではないのです。
+おやすみなさい。
+今夜も、最後まで聞いてくださって、ありがとうございました。
+</pre>
     </div>
   </div>
 </main>

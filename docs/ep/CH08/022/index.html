@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH08-022 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH08-022 — script</h1>
           <div class="muted">この才能を持つ人は普通に生きられない 危険な知覚</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH08</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH08</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,414 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCUPj4bRwrMUfHHuy1knBDIQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>この才能を持つ人は普通に生きられない 危険な知覚</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この才能を持つ人は普通に生きられない 危険な知覚で迷うときに。考え方と、今日からできる一歩を整理します。
+・この才能を持つ人は普通に生きられない 危険な知覚で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩
+
+この動画は、「静かな夜の心理図書室」の長時間コンテンツです。
+心理とスピリチュアルを静かにほどく夜の朗読室。眠れない夜に、呼吸と小さな気づきで心をゆるめます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>朗読, 昔ばなし, 童話, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>この才能を持つ人は普通に生きられない 危険な知覚で迷うときに。考え方と、今日からできる一歩を整理します。
+・この才能を持つ人は普通に生きられない 危険な知覚で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「静かな夜の心理図書室」の長時間コンテンツです。
+心理とスピリチュアルを静かにほどく夜の朗読室。眠れない夜に、呼吸と小さな気づきで心をゆるめます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH08-022</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH08-022&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">こんばんは。深夜の偉人ラジオへようこそ。
+今日は「安心の一冊」を手がかりに、ある才能について静かにお話しします。
+
+その才能は、表向きには誰も褒めてくれません。
+名前も付けづらい。
+けれども、持っている人は、だいたいこう感じています。
+
+普通に生きているだけなのに、なぜか人より疲れる。
+人と会った日の夜は、体よりも神経のほうがぐったりする。
+誰も気にしていないような一言や視線が、自分には刺さって抜けない。
+
+もし今、少しでも心当たりがあるなら、あなたは「危険な知覚」の持ち主かもしれません。
+今日は、その才能を呪いとしてではなく、扱い方次第で武器にもなるものとして捉え直していきます。
+そして、その才能を守るためのひとつの技として、「同じ本を何度も読む」という、地味だけれど強力な方法をお届けします。
+
+---
+
+まず、この「危険な知覚」というものが何なのか。
+少し言葉にしてみます。
+
+たとえば、ある人の話し声を聞いたとき。
+多くの人は、内容だけを聞き取ります。
+ところが、あなたは、声のわずかな揺れも感じ取ってしまう。
+言葉の選び方の癖や、間の取り方、ほんの少しのため息。
+
+「あ、この人、表では笑っているけれど、内側はだいぶ疲れているな」
+「この一言には、ちょっとした棘が混ざっていたな」
+
+そんなことが、直感的に分かってしまう。
+
+部屋に入った瞬間にもそうです。
+空気が妙に重い。
+さっきまで、誰かが言い争っていたような気配が残っている。
+壁に貼られた紙切れや、机に置きっぱなしのカップから、その場にいた人たちの性格まで何となく見えてしまう。
+
+科学の言葉で言えば、外からの刺激に対する感受性が高い、ということになります。
+視覚、聴覚、身体感覚、そして他人の感情に対する共感性。
+そのどれもが平均よりも強く反応しやすい。
+
+心理学では、こうした人を繊細な気質として説明することがあります。
+脳の内部では、危険を察知したり、人の顔色を読み取ったりする領域が、つねに高めの音量で働いている状態です。
+
+もう少し静かな言葉で言うなら、
+世界のノイズまで拾ってしまうアンテナを持っている、ということです。
+
+このアンテナは、使い方次第でとても頼もしい。
+空気を読む力として、コミュニケーションの才能として、企画力として、芸術的な感性として、仕事や人生に活かすことができます。
+
+しかし一方で、このアンテナは「危険」でもあります。
+何もかも拾ってしまうからです。
+
+他人の怒り。
+ため込まれた不満。
+言葉にはされていないけれど、場に漂っている重さ。
+
+それらを、意図せず全身で受けてしまう。
+そして夜になっても、脳の中ではその情報が回り続けます。
+
+「あの人、わたしのことを嫌っていたのかな」
+「さっきの沈黙には、どういう意味があったんだろう」
+
+相手本人は、もう忘れているかもしれません。
+でも、危険な知覚を持つ人の脳内では、まだ会議が続いているのです。
+
+---
+
+ここに、現代ならではの要因が重なります。
+それが「情報過多」と「選択疲れ」です。
+
+画面を開けば、世界中のニュース、他人の生活、価値観のぶつかり合いが流れてきます。
+ある人は成功を語り、別の人は正しさを主張し、どこかでは誰かが炎上しています。
+
+普通の感受性の人でも、これには疲れます。
+危険な知覚を持つ人にとっては、ほとんど「世界の悲鳴を実況で聞かされている」ような状態です。
+
+さらに、選ぶべきものも増えました。
+仕事の選び方、住む場所、人間関係、趣味、健康法。
+ひと昔前なら、自動的に決まっていた選択も、今は自分で決めなければならない。
+
+選択をするとき、人は未来のシミュレーションをします。
+「こうしたらどうなるか」「ああしたらどうなるか」。
+危険な知覚を持つ人は、ここでも能力を発揮してしまう。
+大量の未来パターンを、立体的に感じ取ってしまうのです。
+
+だから、普通の人よりも「決めること」に疲れます。
+選んだあとでさえ、「他の可能性」をずっと気にしてしまう。
+気づけば頭の中は、選ばなかった道のことばかり考えている。
+
+一日の終わりには、体ではなく、神経のほうがすり減っています。
+これが、「この才能を持つ人は普通に生きられない」と言われる理由の一つです。
+
+才能があるからこそ、世界を受け取りすぎてしまう。
+その結果、普通の生活のはずなのに、普通の負荷では済まなくなる。
+
+では、この危険な知覚を守るにはどうすればいいのか。
+鈍感になる？
+何も感じないふりをする？
+
+それは、あなたの一番の武器を自分で折るようなものです。
+必要なのは、鈍感になることではありません。
+「どの情報と付き合うか」を、自分の側から選び直すことです。
+
+ここで出てくるのが、「安心の一冊」という考え方です。
+
+---
+
+「安心の一冊」と聞いて、何か思い浮かぶ本はあるでしょうか。
+
+ストーリーをほぼ覚えてしまっているのに、なぜかときどき読み返したくなる小説。
+好きな作家のエッセイ集。
+昔、救われた言葉が書かれていた自己啓発の一冊。
+静かな思想家の日記。
+
+ジャンルは何でもかまいません。
+大事なのは、読み終えたときに、自分を責める気持ちよりも、少しだけ「ほっとする感覚」が増えている本です。
+
+この本を、危険な知覚を守るための「シェルター」にしていきます。
+
+新しい本は、脳にとって「未知の世界」です。
+結末がどうなるか分からない。
+途中で心をえぐられるような展開が待っているかもしれない。
+読む前から、無意識の緊張が生まれます。
+
+それに対して、安心の一冊は「結果が分かっている世界」です。
+悲しい場面が来ても、「ここで終わらない」と知っている。
+一時的に胸が締め付けられても、この先に救いの一文があると知っている。
+
+予測できる世界は、神経にとって安全です。
+危険な知覚を持つ人にとって、この「先が読める物語」は、まるで静かな湖のような役割を果たします。
+その湖のほとりに座っているあいだだけ、外のノイズから距離を取ることができる。
+
+さらに、再読には、もう一つの大きな意味があります。
+
+同じ本を何度も読むと、物語のほうではなく、自分のほうが変わっていきます。
+同じ場面、同じ一文を読んでいるのに、感じ方が変わる。
+
+以前はただ悲しいだけだった場面が、今読むと少し優しく感じられる。
+昔はイラッとした登場人物に、今は妙に共感している。
+前回読み飛ばしていた一文が、今回は胸にずしんと響く。
+
+このとき、外の世界は変わっていません。
+変わっているのは、自分の心の構造です。
+
+危険な知覚を持つ人は、どうしても「世界が自分に何をしてくるか」に意識が向きがちです。
+あの人がこう言った。
+あの場がこうだった。
+このニュースが怖かった。
+
+再読は、その矢印の向きを、そっと内側に戻してくれます。
+世界は同じ物語を語り続けている。
+けれど、その物語をどう受け取るかは、少しずつ変えられるのだと教えてくれるのです。
+
+---
+
+では、安心の一冊とどう付き合えばいいのか。
+具体的な場面として、いくつかイメージしてみます。
+
+一つ目は、夜、寝る前の時間です。
+
+その日一日、あなたの危険な知覚は、ひっきりなしに働いています。
+人の機嫌を読み、言葉の裏を読み、行間を読み、画面の向こうの世界さえも読み続けている。
+
+寝る前まで同じことを続けてしまうと、頭はいくら時間がたっても「仕事中」のままです。
+そこで、外側の世界を読むのを一度やめて、「すでに知っている物語」を読むほうに切り替えます。
+
+安心の一冊を手に取り、その日の自分にしっくりくる章だけを開きます。
+最初から読まなくてもかまいません。
+何度も読み返しているなら、「あの場面が載っているあたりだな」と、だいたいの位置は分かるはずです。
+
+数ページでいいのです。
+内容を理解しようと肩に力を入れる必要もありません。
+ただ、「ああ、ここ、前にも読んだな」と感じながら、その世界に浸ります。
+
+読みながら、ふとこう問いかけてみます。
+
+この場面を、前に読んだときの自分は、どう受け取っていただろう。
+今の自分は、何を感じているだろう。
+
+答えを言葉にできなくてもかまいません。
+ただ、「何かが違う」「前と同じではない」と気づくだけで十分です。
+
+それは、自分の危険な知覚が、ただ世界を受け取っているだけではなく、
+世界の見方そのものを、少しずつ熟成させている証拠でもあります。
+
+---
+
+二つ目の場面は、「選択疲れ」に押しつぶされそうなときです。
+
+やるべきこと、やりたいこと、やらなければならないこと。
+選択肢が多いほど、危険な知覚を持つ人の脳は、あらゆる可能性を細かくシミュレーションしてしまいます。
+
+その過程で浮かんでくるのは、
+「もし失敗したら」
+「もし嫌われたら」
+「もしこれが間違いだったら」
+といった不安のシナリオばかりです。
+
+決めようとしているのに、決めれば決めるほど、不安が増える。
+これが、選択疲れの正体です。
+
+そんなときこそ、安心の一冊の出番です。
+
+もちろん、本を読んだからといって、現実の決断が自動的に済むわけではありません。
+ただ、「決める自分」と「決められない自分」が混線している状態を、一度ほどき直すことができます。
+
+安心の一冊の中で、主人公が何かを選ぶ場面を探してみます。
+それは、人生の大きな決断ではなくてもかまいません。
+小さな選択のシーンでもいいのです。
+
+その場面を読みながら、主人公が何を基準に選んでいるかを眺めます。
+損得か。
+恐怖か。
+ささやかな喜びか。
+誰かを守りたい気持ちか。
+
+読み終えたあと、世界のことではなく、自分の中を見ます。
+
+わたしが今、この選択を前にしているとき、
+一番大きくなっている感情は何だろう。
+
+恐れか。
+期待か。
+義務感か。
+諦めか。
+
+安心の一冊は、正解を教えてくれる本ではありません。
+「こう選べ」と指示してくる本でもありません。
+ただ、他人の選択の物語を通して、自分の中で何が一番強く鳴っているかを教えてくれる鏡になります。
+
+危険な知覚を持つ人は、他人の感情にはすぐ気づきますが、自分の感情には案外鈍感だったりします。
+安心の一冊は、その向きを少しだけ内側に戻す手伝いをしてくれるのです。
+
+---
+
+三つ目の場面は、「何も読みたくないけれど、何かにすがりたい夜」です。
+
+本当は、ページを開く気力もない。
+文字を追うだけで疲れてしまう。
+でも、スマホの画面を眺めていると、余計に心がざわつく。
+
+そんな夜があります。
+
+そのとき、再読を「しっかり読むこと」とは切り離して考えます。
+安心の一冊を、ただそばに置くだけでもかまいません。
+
+表紙を眺める。
+背表紙のタイトルに、そっと目をやる。
+以前、救われた場面を思い出してみる。
+
+ページを開かなくても、その本の世界観が、心の中に薄く立ち上がってきます。
+それだけでも、「世界のノイズ」から、「自分が選んだ物語」へと、意識の向き先が変わります。
+
+危険な知覚を持つ人にとって、一番つらいのは、向こうから押し寄せてくる情報を止められないことです。
+安心の一冊は、「今はここを見る」と自分で決められる対象です。
+自分で選んだものに意識を預ける感覚を、少しずつ取り戻すことができます。
+
+その夜、ページを一行も読まなくても構いません。
+大事なのは、「この一冊があれば、いつでも戻ってこられる」という感覚です。
+それがあるだけで、世界との距離の取り方が、少し変わっていきます。
+
+---
+
+ここまで、「危険な知覚」と「安心の一冊」の関係を見てきましたが、
+最後に一つだけ、大事な警告も添えておきます。
+
+この才能を持つ人は、「安全な場所」を手に入れると、そこにとどまり続けたくなることがあります。
+安心の一冊の世界は、現実よりもはるかに扱いやすい。
+登場人物の行動は、何度読んでも同じ。
+裏切られることも、急に態度を変えられることもありません。
+
+それは、とても大切な避難所です。
+けれども、永住する場所ではありません。
+
+本の中だけに住んでしまうと、現実の中で使えるはずだった危険な知覚が、
+完全な「内向きのセンサー」になってしまいます。
+世界を読む力が、自分を責めるためだけに使われてしまう。
+
+だから、安心の一冊は、「行き来する場所」として扱ってください。
+現実に出て行くための準備をする前室のような場所。
+世界に疲れたら戻ってきて、少し静けさを取り戻し、また外に出ていくための充電スポットです。
+
+危険な知覚そのものは、消す必要はありません。
+むしろ、そのまま持っていて大丈夫です。
+ただ、その才能が外のノイズで傷つき続けないように、あなたの側から「安心の世界」との行き来を設計していく。
+そのための具体的な道具として、安心の一冊を選んでほしいのです。
+
+---
+
+最後に、一つの情景を思い浮かべて、この話を締めくくります。
+
+暗い夜の中、あなたは一人で、心の図書館に立っています。
+棚には、これまでに出会った本が並んでいます。
+背表紙の中には、まだ一度も開いていない新しい本もあり、
+ボロボロになるまで読み込んだ本もあります。
+
+その中から、手が自然と伸びる一冊があります。
+中身はもうほとんど覚えている。
+でも、不思議と手放せない本。
+
+あなたは、その本を静かに手に取り、表紙に触れます。
+ページを開く。
+文字が目に飛び込んでくる前に、その世界観がふわりと心に広がる。
+
+ああ、この感じだ。
+この物語に救われたことがあった。
+この一文に、あの日泣かされた。
+
+あなたの危険な知覚は、その本の世界もまた細かく読み取ります。
+登場人物の心の揺れ。
+場面の空気。
+作者が言葉にしきれなかったニュアンス。
+
+でも、それは傷つけるための情報ではありません。
+あなたの共感性が、痛みではなく、理解として働く世界です。
+
+現実の世界では、あなたのアンテナはしばしば「危険な知覚」として自分を疲れさせます。
+けれど、この本の中では、そのアンテナは物語を深く味わうための才能です。
+
+あなたは、その世界の中でしばらく過ごします。
+時間の速度が変わります。
+現実の騒音は遠のき、文字のリズムだけが残る。
+
+読み終えたとき、世界は何も変わっていないかもしれません。
+けれど、世界を受け取るあなたの状態は、ほんの少し変わっています。
+
+「全部を受け取らなくていい」
+「全部に反応しなくていい」
+「わたしは、自分で見る世界を選んでいい」
+
+その感覚が、心のどこかに静かに残ります。
+
+本を閉じ、棚に戻しながら、あなたは気づきます。
+この才能はたしかに危険だ。
+でも同時に、世界を誰よりも深く味わうための鍵でもある。
+
+その鍵を守るために、安心の一冊をそばに置いておく。
+それだけで、「普通に生きること」が少しだけ楽になります。
+
+今夜、もし眠る前に、頭の中がざわざわしていたら、
+新しい情報を探す代わりに、
+あなたの安心の一冊を、そっと思い出してみてください。
+
+ページを開いてもいいし、背表紙を見るだけでもいい。
+その一冊は、危険な知覚を持つあなたに向けた、静かな避難灯のようなものです。
+
+世界のノイズから少し離れて、
+自分のペースで世界を受け取る感覚を、またじわじわ取り戻していきましょう。
+</pre>
     </div>
   </div>
 </main>

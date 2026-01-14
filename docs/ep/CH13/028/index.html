@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-028 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-028 — script</h1>
           <div class="muted">【境界線】境界線は冷たさではない｜慈悲の技術</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,427 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【境界線】境界線は冷たさではない｜慈悲の技術</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>境界線, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-028</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-028&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">境界線を引くと冷たい人だと思われそう。
+断ると嫌われそう。
+だから言いなりになってしまう。
+自分のことより、いつも相手を優先してしまう。
+
+でも、境界線は冷たさではないのです。
+むしろ、自分と相手の両方を守る、慈悲の技術なのです。
+
+今日は、人間関係で疲弊しないための境界線の引き方と、なぜそれが本当の優しさなのかについて、禅の視点からお話しします。
+
+---
+
+まず、境界線が引けない日常を思い浮かべてみてください。
+
+休日の朝、やっとゆっくりできると思っていたら、友人から電話が来る。
+「今日、暇？ちょっと付き合ってほしいんだけど」
+本当は一人で過ごしたかった。でも、「いいよ」と言ってしまう。
+
+電話を切った後、後悔が押し寄せてくる。
+なんで断れなかったんだろう。
+せっかくの休日が、また人のために消えていく。
+
+職場で、自分の仕事が山積みなのに、同僚から「これ、お願いできる？」と頼まれる。
+断りたい。でも、「分かりました」と引き受けてしまう。
+
+帰りの電車で、ぐったりしながら思う。
+今日も残業になってしまった。
+自分の仕事が終わらなかったのは、人の仕事を引き受けたから。
+でも、断れなかった。
+
+親戚の集まりで、「お盆は帰ってくるでしょ？」と当然のように言われる。
+本当は別の予定があった。でも、「はい」と答えてしまう。
+
+帰宅して、カレンダーを見ながらため息をつく。
+自分のやりたかったことは、また先延ばしになった。
+いつも人の予定が優先される。
+自分の人生なのに、自分のために使えない。
+
+心の中には不満が溜まっている。
+でも表には出さない。
+ニコニコと「いい人」を演じ続ける。
+そして、どんどん疲れていく。
+
+ある日、限界が来る。
+些細なことで爆発してしまったり、急に人と会いたくなくなったり。
+「なんであの人があんなに怒ったんだろう」と周りは驚く。
+でも本当は、長年積み重なった不満が溢れ出しただけなのです。
+
+この悪循環、あなたにも心当たりがありませんか。
+
+---
+
+なぜ、私たちは境界線を引けないのでしょうか。
+問題の正体を見てみましょう。
+
+まず、嫌われることへの恐怖があります。
+
+「断ったら、相手が怒るかもしれない」
+「もう声をかけてもらえなくなるかもしれない」
+「冷たい人だと思われるかもしれない」
+
+人から好かれたい、嫌われたくない。
+この気持ちが、「NO」という言葉を喉の奥に押し戻してしまいます。
+
+特に日本では、和を重んじる文化があります。
+「空気を読む」「波風を立てない」「みんなに合わせる」
+断ることは、この暗黙のルールに反するように感じてしまう。
+
+次に、「良い人でいたい」という自己イメージへの執着があります。
+
+「あの人は優しい」「頼りになる」「何でもやってくれる」
+そう思われることで、自分の価値を確認している。
+断ると、その「良い人」というイメージが崩れる気がして怖い。
+
+自分の存在価値を、人からの評価に依存させてしまっているのです。
+だから、評価が下がることを恐れて、断れない。
+
+そして、罪悪感があります。
+
+「断ることで相手を傷つけてしまうのではないか」
+「困っている人を見捨てることになるのではないか」
+相手の期待に応えられないことに対する申し訳なさ。
+
+優しい人ほど、真面目な人ほど、責任感が強い人ほど、この罪悪感に苦しめられます。
+でも、その優しさが、自分自身を静かに壊していっているのです。
+
+---
+
+境界線がないと、どうなるでしょうか。
+
+まず、あなた自身が疲弊します。
+
+常に人の要望に応え続けると、エネルギーが枯渇していきます。
+自分のことをする時間がなくなる。
+趣味の時間、休息の時間、自分と向き合う時間。
+すべてが他人のために消えていく。
+
+体は動いているのに、心が空っぽになっていく。
+何のために生きているのか分からなくなる。
+これは、静かな自己喪失です。
+
+次に、不満が溜まります。
+
+無理をしていると、必ず不満が生まれます。
+「なんで私ばかり」「あの人はずるい」「報われない」
+その不満は、いつか爆発するか、あるいは相手との関係を完全に断ちたくなるか、どちらかになります。
+
+小さな「NO」が言えなかったがために、最終的には大きな爆発や断絶を招いてしまう。
+これは悲しい皮肉です。
+
+そして、相手からナメられます。
+
+「この人は何でも言うことを聞く」と思われると、要求はエスカレートしていきます。
+最初は小さなお願いだったものが、だんだん大きくなる。
+断らないことが、相手をわがままにさせてしまうのです。
+
+相手も悪気があるわけではありません。
+でも、境界線がないと、どこまで頼んでいいか分からない。
+知らないうちに、あなたを踏み越えてしまうのです。
+
+境界線がないことは、実は関係を悪くすることにつながるのです。
+
+---
+
+仏教では「慈悲」を重視しますが、それは自己犠牲のことではありません。
+
+お釈迦様は、慈悲と智慧を両輪として説かれました。
+智慧のない慈悲は、時に害になる。
+何でも言うことを聞くことが慈悲ではない。
+相手のためにならないこともあるのです。
+
+子供にお菓子をいくらでも与えることは、優しさでしょうか。
+違います。健康を害するからです。
+「もうおしまい」と言うことこそ、本当の愛情です。
+
+同じように、相手の要求を何でも受け入れることは、相手を甘やかし、自立を妨げることがあります。
+あなたが代わりにやってあげることで、相手は自分でできるようになる機会を失っているかもしれません。
+
+本当の慈悲とは、相手のためになることをすること。
+そのためには、時に断ることも必要なのです。
+
+また、仏教には「自利利他」という考え方があります。
+自分を利することと、他者を利することは、分けられないという教えです。
+
+自分が疲弊して倒れてしまったら、誰も助けられません。
+自分を守ることは、結果的に周りの人を守ることにもつながるのです。
+
+境界線を引くことは、自分への慈悲であり、同時に相手への慈悲でもあるのです。
+
+---
+
+禅には、こんなお話があります。
+
+ある僧侶が、托鉢に出かけました。
+道で出会う人々に、次々と持ち物を分け与えていきました。
+袈裟を求められれば袈裟を、草鞋を求められれば草鞋を。
+
+やがて僧侶は、裸同然の姿になって、師匠のもとに帰ってきました。
+「すべてを施してまいりました」
+
+師匠は首を振りました。
+「お前は何も分かっておらん。自分の命まで施すつもりか。命がなくなれば、もう誰も救えぬぞ。自分を守ることも、修行のうちだ」
+
+この話は、極端な自己犠牲が必ずしも正しくないことを示しています。
+すべてを与え尽くすことが美徳ではない。
+自分を保つことで、長く人を助け続けられるのです。
+
+また、禅では「放下着」という言葉があります。
+執着を手放せという教えです。
+
+「良い人でいなければ」「期待に応えなければ」「嫌われてはいけない」
+これらもまた、執着です。
+この執着を手放すことで、本当に自由な人間関係が築けるのです。
+
+もう一つ、禅の公案に「無門関」というものがあります。
+その中に「趙州の狗子」という有名な話があります。
+
+ある僧が趙州禅師に尋ねました。
+「犬にも仏性はありますか」
+趙州は一言、「無」と答えました。
+
+この「無」は、否定ではありません。
+執着を超えた境地を表しています。
+
+境界線を引くことも、この「無」の精神に通じます。
+「良い人でなければならない」という執着を超える。
+「嫌われてはいけない」という恐怖を超える。
+その先に、本当の自由があるのです。
+
+---
+
+では、具体的に境界線をどう引けばいいでしょうか。
+三つのステップをお伝えします。
+
+第一のステップ：自分の限界を知る
+
+まず、自分の限界を明確にしてください。
+
+体力の限界。今日はもう動けない。
+時間の限界。この時間は自分のために使いたい。
+感情の限界。これ以上は心が持たない。
+
+どこまでなら「はい」と言えて、どこからは「無理」なのか。
+その境界線を、自分自身で知っておくことが第一歩です。
+
+静かな時間に、自分と向き合ってみてください。
+何をされると嫌なのか。何を頼まれると辛いのか。
+どこまでなら気持ちよく協力できて、どこからは無理なのか。
+
+紙に書き出してみるのもいいでしょう。
+「休日は午前中は一人の時間」
+「夜九時以降は電話に出ない」
+「急な予定変更には応じない」
+「自分の仕事が終わるまでは人の仕事を引き受けない」
+
+自分のルールを作っておくと、判断が楽になります。
+その場で悩まなくても、「これは私のルールに反するから断る」と決められる。
+
+第二のステップ：シンプルに伝える
+
+次に、そのラインを相手に伝えます。
+言葉にして伝える。これが大切です。
+
+「それは難しいです」
+「今日は無理です」
+「申し訳ないですが、できません」
+
+シンプルに。言い訳を長々としなくていい。
+理由を詳しく説明する必要もありません。
+
+長い言い訳は、かえって弱さを見せることになります。
+「理由があるから断れる」と思われると、理由がなければ断れなくなる。
+理由なく断ってもいいのです。「できません」それだけでいい。
+
+「できません」と言い切るのが難しければ、代替案を出します。
+「今日は無理ですが、来週なら対応できます」
+「全部は難しいですが、ここまでなら」
+
+完全に断るのではなく、条件付きで応じる。
+これなら、相手も受け入れやすくなります。
+
+第三のステップ：罪悪感を手放す
+
+断った後、罪悪感が湧いてくるかもしれません。
+「悪いことをした」「相手を傷つけた」
+
+でも、ここで自分を責めないでください。
+
+あなたには、自分を守る権利があります。
+相手が怒ったとしても、それは相手の問題です。
+あなたの「NO」は、正当なものです。
+
+「自分を守っただけ」
+「これは必要な境界線」
+「私には私の人生がある」
+
+そう自分に言い聞かせてください。
+最初は難しくても、繰り返すうちに自然になっていきます。
+
+罪悪感は、長年の習慣から来ています。
+新しい習慣を作るには、時間がかかります。
+焦らず、少しずつ慣れていけばいいのです。
+
+---
+
+この実践をする時の注意点があります。
+
+まず、境界線を引くことと、すべてを断ることは違います。
+
+相手を助けることも大切です。
+困っている人に手を差し伸べることは、美しいことです。
+問題は、自分を犠牲にしてまで助け続けること。
+
+バランスが大切です。
+助けられる範囲で助ける。
+でも、限界を超えたら断る。
+その判断ができるようになることが目標です。
+
+次に、相手によって境界線を変えてもいいということ。
+
+大切な家族と、あまり親しくない知人では、引く線が違って当然です。
+すべての人に同じ対応をする必要はありません。
+相手との関係性に応じて、柔軟に調整してください。
+
+そして、いきなり大きな境界線を引こうとしないこと。
+
+今まで何でも「はい」と言ってきた人が、急に「全部無理」と言い出したら、周りは驚きます。
+まずは小さな「NO」から始めてください。
+
+「今日はちょっと疲れているから、遠慮しておくね」
+「その日は予定があるから、また今度」
+
+小さな断りを積み重ねることで、相手も「この人にも限界がある」と理解していきます。
+
+---
+
+具体的な場面での断り方も、いくつか例を挙げておきましょう。
+
+急な誘いを断る時。
+「ありがとう、でも今日はちょっと予定があるんだ。また誘ってね」
+感謝を伝えつつ、次につなげる言葉を添える。
+
+仕事を頼まれた時。
+「今、手一杯で。来週なら対応できるんですけど、それでも大丈夫ですか？」
+代替案を出すことで、協力の姿勢は示しつつ、今は無理だと伝える。
+
+親戚からの要求を断る時。
+「ごめんなさい、今年はちょっと難しくて。また別の機会に」
+謝罪と、将来の可能性を残す言い方。
+
+どれも、相手を否定せず、でも自分の境界線は守る言い方です。
+最初は不自然に感じるかもしれません。
+でも、練習すればするほど、自然に口から出るようになります。
+
+---
+
+境界線を引くと、一時的に関係がぎくしゃくすることがあるかもしれません。
+今まで「何でもやってくれた人」が変わったのですから、戸惑う人もいるでしょう。
+
+でも、本当にあなたを大切に思っている人は、あなたの境界線を尊重してくれます。
+「そうだよね、無理しなくていいよ」と言ってくれます。
+
+逆に、あなたの境界線を無視して、「冷たくなった」「付き合い悪い」と責めてくる人は、実はあなたの「便利さ」を利用していただけかもしれません。
+そういう人とは、距離を置いてもいいのです。
+
+境界線は、本当に大切な関係と、そうでない関係を見分けるリトマス試験紙でもあります。
+
+実際、境界線を引いてから関係が良くなったという人は少なくありません。
+
+「断れるようになってから、かえって人間関係が楽になった」
+「無理をしなくなったから、相手と会うのが楽しくなった」
+「本当の友達が誰か、分かるようになった」
+
+そんな声をよく聞きます。
+
+境界線は、関係を壊すものではありません。
+むしろ、関係をより健全に、より長続きするものにしてくれるのです。
+
+無理をしていた時は、表面上は仲が良くても、心の中には不満がありました。
+でも、境界線を引いてからは、心から相手と付き合えるようになった。
+それが、本当の意味での良い関係なのです。
+
+---
+
+境界線は冷たさではありません。
+自分を守り、関係を健全に長く保つための知恵です。
+
+相手を拒絶することではなく、相手と自分の両方を大切にすることです。
+
+お釈迦様は、修行者たちにこう説かれました。
+「自らを灯明とせよ、自らを拠り所とせよ」
+
+他人に頼り切るのではなく、まず自分を大切にすること。
+それが、真の自立であり、そこから本当の意味での助け合いが生まれるのです。
+
+今日から、小さな「NO」を練習してみませんか。
+
+「ごめんね、今日は無理なんだ」
+その一言が、あなたを救う最初の一歩になります。
+
+最初は怖いかもしれません。
+相手がどう思うか、心配になるかもしれません。
+でも、一度断ってみると、思ったより大丈夫だと気づくはずです。
+そして、その一歩が、次の一歩を楽にしてくれます。
+
+あなたには、境界線を引く権利があります。
+それは冷たさではなく、自分を大切にするということ。
+そして、自分を大切にできる人だけが、本当の意味で人を大切にできるのですから。
+</pre>
     </div>
   </div>
 </main>

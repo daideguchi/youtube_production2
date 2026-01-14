@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH21-012 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH21-012 — script</h1>
           <div class="muted">阿蘇の朝霧｜広い空で眠る</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH21</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH21</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,73 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCiFKsVVkWZb1O2fR7wBVqYg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>阿蘇の朝霧｜広い空で眠る</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>眠れない夜に、音だけで旅へ。
+・静かな旅の気分&lt;br&gt;・眠りの着地
+
+この動画は、眠る前に聞ける“ゆる旅案内”です。
+情景を言葉で静かに描くので、画面を見ずに音だけで楽しめます。
+
+【おすすめ】
+・寝落ち用／作業用／読書のお供
+・音量は小さめ推奨
+・途中で眠ってもOK（長時間でゆっくり進みます）
+
+【音声】VOICEVOX：青山流星
+【ご注意】運転中・危険作業中の視聴はお控えください。
+
+#旅 #寝落ち #作業用BGM</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>疲れ, ストレス, 旅, 旅行, 風景, 紀行, トラベル, 癒し, 睡眠用BGM, 寝落ち, 安眠, 作業用BGM, 勉強用BGM, 環境音, 自然音, 海, 森, 夜景, 散歩, バーチャル旅行, リラックス, 長時間動画, 睡眠用, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>眠れない夜に、音だけで旅へ。
+・静かな旅の気分&lt;br&gt;・眠りの着地</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、眠る前に聞ける“ゆる旅案内”です。
+情景を言葉で静かに描くので、画面を見ずに音だけで楽しめます。
+
+【おすすめ】
+・寝落ち用／作業用／読書のお供
+・音量は小さめ推奨
+・途中で眠ってもOK（長時間でゆっくり進みます）
+
+【音声】VOICEVOX：青山流星
+【ご注意】運転中・危険作業中の視聴はお控えください。
+
+#旅 #寝落ち #作業用BGM</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH21-012</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH21-012&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <div class="muted">台本本文は未生成です（assembled_human.md / assembled.md がありません）。</div>
     </div>
   </div>
 </main>

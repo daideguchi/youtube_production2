@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-005 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-005 — script</h1>
           <div class="muted">「どうでもいい」と思うと心が軽くなる理由</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,108 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>「どうでもいい」と思うと心が軽くなる理由</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>「どうでもいい」と思うと心が軽くなる理由で迷うときに。考え方と、今日からできる一歩を整理します。
+・「どうでもいい」と思うと心が軽くなる理由で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>「どうでもいい」と思うと心が軽くなる理由で迷うときに。考え方と、今日からできる一歩を整理します。
+・「どうでもいい」と思うと心が軽くなる理由で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-005</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-005&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">どうでもいいという言葉には、どこか投げやりな響きがあるかもしれません。しかし、ここでお伝えしたいのは、無責任に全てを放棄するという意味ではないのです。むしろ、必要以上に自分を苦しめている執着から、一時的に距離を置くための合図として捉えてみてはいかがでしょうか。特に人間関係の中で、つい深く考え込んでしまい、気持ちが重くなる経験はありませんか。相手の何気ない一言が頭から離れず、自分を責めたり、反芻したりするうちに、最初の出来事自体よりも大きな苦しみを抱え込んでしまうことがあります。この追加の苦しみにこそ、注目していただきたいと思います。
+
+---
+
+この第二の苦しみは、私たちの心が作り出すものであり、その発生のメカニズムは、ある種の習慣的な思考パターンにあります。例えば、誰かから批判的な言葉を投げかけられた時、私たちは反射的にその言葉の真偽を検証しようとします。それは自然な反応ですが、問題はその先にあります。検証の過程で、過去の似たような失敗や、自分に対する否定的な信念が呼び起こされ、最初の一言がきっかけで、まるで雪だるま式に苦しみが膨れ上がっていくのです。このプロセスは自動的で、無意識のうちに進行することが多いため、気づいた時には深い落ち込みの中にいることも少なくありません。どうでもいいと思うことは、この自動的な思考の連鎖が始まる瞬間、あるいはすでに始まっていることに気づいた瞬間に、一時停止ボタンを押すようなものです。思考を完全に止める必要はありません。ただ、その思考が事実に基づいているのか、それとも推測や憶測、過去の傷に基づいた誇張なのかを、一呼吸置いて見極めるための間を作るのです。この間が、第二の苦しみを増大させるかどうかを選ぶための、ほんのわずかだが大切な余地となります。
+
+この追加の苦しみは、まるで小さな傷口を自分で広げていくようなものです。例えば、職場で同僚から少し厳しい意見を言われたとします。その瞬間の不快感は、最初の痛みとして避けがたいものかもしれません。しかし、その後、家に帰ってもその言葉が頭を離れず、なぜあんなことを言われたのだろう、自分は嫌われているのではないか、と延々と考え続ける。あるいは、過去の似たような失敗を次々と思い出し、自分は本当にダメな人間だという結論にたどり着く。これが第二の苦しみです。この苦しみは、出来事そのものではなく、私たちの心が作り出すものです。そして、この苦しみを大きくするのは、他ならぬ自分自身なのです。どうでもいいと思うことは、この自分自身が苦しみを増幅させようとしていることに気づき、その手を止めるための最初の一歩です。それは、出来事を無視することではなく、出来事に対する自分の反応を観察し、必要以上に大きくしない練習だと言えるでしょう。
+
+私たちは往々にして、一つの出来事に対して二重の苦しみを味わっていることがあります。最初の苦しみは、例えば仕事上の指摘や家族からの言葉など、現実に起きた出来事そのものによる痛みです。これはある程度、避けることが難しいものです。しかし問題は、その後に続く第二の苦しみです。あの時ああ言えば良かった、自分はダメな人間だ、なぜあんなことを言われなければならないのか、と際限なく考え続けることです。この反芻思考や自己批判が、最初の傷に塩を塗り込むように、苦しみを増幅させ、長引かせます。どうでもいいと一度心の中でつぶやくことは、この第二の苦しみが大きく育つのを止めるための、とても現実的な手段なのです。感情そのものを無理に消し去ろうとするのではなく、それ以上、苦しみを大きくしないという選択です。
+
+---
+
+この『どうでもいい』という心のつぶやきは、単なる現実逃避ではありません。むしろ、自分自身の心の動きを冷静に見つめる、つまり『メタ認知』を働かせるためのきっかけとなります。例えば、誰かに批判された時、『あ、今私は傷ついているな』『この怒りの感情が湧いているな』と、少し高い視点から自分を観察してみるのです。すると、『傷ついている私』と、『それを観ている私』の間に、わずかな距離が生まれます。この距離こそが、感情に流されず、自動的な思考の連鎖を断ち切るための最大の武器です。感情そのものは否定せず、そのまま感じさせておく。しかし、その感情を元に、『だから私はダメなんだ』『世の中は不公平だ』といった、新たな物語を創作する作業だけを停止する。これが『どうでもいい』の本質です。この態度は、問題を無視することとは全く異なります。むしろ、問題をより客観的に、冷静に見極めるための準備状態と言えるでしょう。
+
+この第二の苦しみを生み出す心の動きは、しばしば問題解決モードと深く結びついています。私たちは問題に直面すると、原因を特定し、解決策を見つけなければと焦ります。これは仕事や日常生活では有効な能力です。しかし、人間関係や自分自身の感情といった、明確な答えや即効性のある解決策が存在しない領域では、このモードが逆効果になることがあります。例えば、なぜあの人は私を嫌うのかという問いは、相手の心の中を完全に知ることができない以上、確実な答えが出ません。それにも関わらず、心は答えを求め続け、あらゆる可能性を探り、時に自分を責める方向に思考が傾きます。この解決できない問題を解決しようとする状態そのものが、持続的なストレスと苦痛を生み出します。ブッダの教えが示すのは、この問題解決モードそのものを一旦保留にする視点です。どうでもいいという心のつぶやきは、この問いには今、私に答えが出せないと認め、無理に答えを探す活動を停止する合図です。それは思考を放棄することではなく、思考が堂々巡りを始めていることに気づき、そのエネルギーを、今ここで実際にできること、例えば自分の呼吸に意識を向けるといった別の方向へ向けるための、現実的な選択なのです。
+
+では、なぜ私たちはこの第二の苦しみを大きくしてしまうのでしょうか。それは、多くの場合、自分を守ろうとする心の働きが関係しています。痛みを感じた時、私たちはその原因を究明し、二度と傷つかないように対策を立てようとします。これは本来、生存のために必要な本能です。しかし、人間関係のような複雑な領域では、原因が単純ではなく、完全な対策も見つかりにくいものです。それでも心は答えを求め続け、あらゆる可能性を考え、自分や他人を責める方向に進みがちです。このプロセス自体が、さらなる苦痛を生み出します。ブッダの教えは、この本能的な反応に気づき、そこに別の選択肢があることを示しています。つまり、原因究明や対策を一旦保留にし、今ここにある苦しみそのものにただ気づき、それ以上に燃料をくべないという選択です。どうでもいいと思うことは、この保留を宣言するシンプルな言葉です。
+
+昼間は気に留めなかった小さな言葉や表情が、時間が経つにつれて大きく膨らんで見えることはありませんか。それは、心が自由になる時間を持てた反面、過去の出来事を反芻するための材料を集め始めてしまうからです。この反芻のプロセスは、まるで同じ道を何度もぐるぐると歩き回るようなもので、新しい発見は何もなく、ただ疲れと苦しみだけが蓄積されていきます。どうでもいいと心の中でつぶやくことは、このぐるぐる巡りをしている自分に気づき、そこで立ち止まるための合図です。立ち止まることで初めて、別の道、例えばその日の小さな良かったことや、明日やるべき具体的なことに意識を向ける余地が生まれます。感情を無理に消す必要はありません。ただ、その感情に飲み込まれ、それが全てであるかのように振る舞うことを、一時的に中断するのです。
+
+かつてブッダは、苦しみを二本の矢にたとえました。一本目は避けにくい出来事の痛みで、二本目は心の反芻や自責が撃つ追加の痛みです。感情を消すのではなく、増やさない。ここに焦点を当てます。ブッダの教えの核心は、一本目の矢の痛みは誰にでもあるものだが、二本目の矢は自分で放つかどうかを選べるという点にあります。どうでもいいと思うことは、この二本目の矢を握る手を休める行為に他なりません。感情を否定したり無理に消したりするのではなく、ただ、それ以上に苦しみを増やす思考の連鎖にストップをかけます。例えば、誰かに嫌なことを言われたという事実は変えられなくても、その言葉を何度も思い出して自分を傷つけるかどうかは、自分の内側で選択できる余地が残されているのです。
+
+---
+
+二本の矢のたとえを、もう少し日常的なレベルで考えてみると、その実践的な意味がより明確になります。一本目の矢、つまり避けがたい出来事とは、単に大きな不幸だけを指すのではありません。むしろ日常生活のささいな摩擦、例えばスーーパーのレジで横入りされた、SNSで自分とは異なる意見を見た、家族が片付けを手伝わないといった、小さなイライラのほとんどがこれに当たります。これらの出来事自体は、一瞬の不快感や不便を生むだけで、時間とともに消えていく性質のものです。しかし、ここで第二の矢が放たれると、状況は一変します。なぜあの人はマナーが悪いのか世の中はどんどん冷たくなっている私の家族は私を尊重していないといった、出来事を一般化し、自分の世界観や存在価値に結びつける解釈が始まります。この解釈のプロセスが、小さな出来事を巨大な苦しみに変容させ、何時間も、時には何日も心を占拠し続けるのです。どうでもいいと思うことは、この解釈のプロセスが自動的に起動するのを妨げる、最初の防波堤のようなものです。このイライラは、今ここで起きた小さな事実に過ぎない。これを私の人間性や世界の全てを証明する材料にする必要はないと、心の中で区別をつける練習です。この区別がつけば、イライラという感情そのものはすぐには消えなくても、それが無限に膨張して心を支配することを防げます。感情を感じることは自然なことですが、その感情を基に壮大な物語を創作し、自分をその主人公兼被害者にしてしまうかどうかは、別の選択が可能なのです。
+
+外的な出来事に対する自分の反応について考えてみましょう。他人の発言や評価、自分ではコントロールできない結果というのは、突然降り出す雨のようなものです。ここで重要なのは、それに対する自分の反応です。嫌なことが起きてしまったことを何時間も、あるいは何日も悔やみ続け、その不快感に浸りきってしまうのか。それとも、起きた事実を受け入れ、必要なら対処し、次の行動に移るのか。後者の選択は、事実を受け入れつつ、それによって生じた状態に対処し、必要以上の苦しみを増やさない生き方です。どうでもいいと思うことは、この次の行動に移るという心の切り替えスイッチを入れる行為に近いのです。
+
+では、このどうでもいいという考え方は、具体的にどのような場面で役立つのでしょうか。それは、自分ではどうにもならない結果や、他人の考えや評価に対して心が執着していると感じた時です。例えば、自分が精一杯やった仕事に対して、どうしても納得のいかない評価をされたとします。その評価そのものを変えることは難しいかもしれません。しかし、その評価によって自分の価値が決まると考え、くよくよと悩み続けるかどうかは別問題です。ここでどうでもいいと一度心に区切りをつけることで、必要以上に落ち込むことを防げます。ただし、これは自分の責任から逃れる言い訳としては機能しません。やるべきことを放棄する許可を与えるものではないのです。あくまで、自分でコントロールできない領域への執着を手放し、心の平静を取り戻すための手段として用いることが大切です。一方で、自分が直接改善できる問題、例えば仕事のスキルを磨くことなどに対しては、どうでもいいと考えるのは適切ではないでしょう。線引きが重要なポイントです。
+
+---
+
+線引きが重要だという点について、もう少し具体的に考えてみます。自分でコントロールできる領域とできない領域を見分けることは、一見簡単そうですが、実際にはとても難しいものです。特に人間関係では、相手の感情や考えは完全にはコントロールできませんが、自分の伝え方や態度には影響を与えられます。この曖昧な境界線で、私たちはしばしば混乱します。どうでもいいという考え方は、この混乱した状態で、一旦コントロールできない側に分類することを助けてくれます。例えば、子どもが親の言うことを聞かない時、親はイライラします。子どもの行動そのものを完全にコントロールすることは不可能です。ここでどうでもいいと考えるのは、子どもを放任するのではなく、今この瞬間、私のイライラで子どもの行動が変わるわけではないと認めることです。それは、イライラという第二の苦しみを増大させることをやめ、代わりに、どのように声をかけるかという自分がコントロールできる部分に意識を向けるためのスペースを作ります。
+
+この考え方を日常に活かすには、習慣が効果的です。朝、一日が始まる前に、今日一日、自分がコントロールできないことには執着しすぎないようにしよう、と静かに心に言い聞かせてみてください。具体的な目標として、例えば、イライラすることが起きたら、まず一呼吸置いて、これはどうでもいいカテゴリに入るかどうかを考えてみるのです。夜、寝る前に今日一日を振り返る時間を作りましょう。その際、どうでもいいと思えたこと、つまり第二の苦しみを増やさずに済んだ瞬間を一つでも思い出せれば、それは大きな進歩です。もしも嫌な出来事が頭をよぎったら、それを紙に一行だけ書き留め、物理的に机の引き出しや棚にしまうという行為も有効です。これにより、頭の中から一時的にその思考を外に出すことができます。これを毎日の小さな習慣として積み重ねることで、次第に心の軽さを感じられるようになるでしょう。
+
+---
+
+紙に書き出す習慣の効果は、思考を客観視する点にあります。頭の中でぐるぐる回っている考えは、時に巨大な怪物のように感じられます。しかし、それを一字一句、紙に書き出してみると、意外にも単純な言葉の羅列であることに気づくことがあります。あの時、部長が私の提案を無視した、それで自分は無能だと思った。書き出された文章は、頭の中の感情とは切り離された、ただの事実や解釈です。これを机の引き出しにしまう行為は、この思考は今、私が処理する必要のない書類だと心に宣言する儀式のようなものです。物理的にしまうことで、心理的にも一段落つける効果があります。重要なのは、書き出した内容を分析したり、正しいか間違っているか判断したりすることではありません。ただ外に出すこと、それ自体に意味があります。この習慣を続けることで、嫌な考えが浮かんだ時に、すぐに反芻モードに入るのではなく、あ、これは書き出してしまおうと一歩引いて見られるようになるのです。
+
+一日の終わりに、ほんの一分でも良いので、今日どうでもいいと思えたこと、執着を手放せた瞬間を思い返してみてください。たとえ小さなことでも構いません。その積み重ねが、やがて心の習慣を変えていきます。全てを投げ出すのではなく、ただ、必要以上の苦しみから自分を解放するための、優しい合図として、どうでもいいという言葉を捉え直してみませんか。
+</pre>
     </div>
   </div>
 </main>

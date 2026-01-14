@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH29-002 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH29-002 — script</h1>
           <div class="muted">「お母さんだから」…その言葉が一番苦しかった</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,223 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="#" class="btn" aria-disabled="true" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>「お母さんだから」…その言葉が一番苦しかった</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>恐れ, 当然扱い, 老後, シニア, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH29-002</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH29-002&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夜のキッチン。
+窓の外には星ひとつ見えない曇り空が広がり、時折遠くで車のエンジン音が聞こえてきます。
+換気扇の低い唸り音だけが、ひっそりと静まり返った部屋に響いています。
+壁に掛けられた時計の秒針が、規則正しく時を刻んでいます。
+私はシンクの前に一人で立ち、使い古したグラスに注いだ冷めた麦茶を、一口だけゆっくりと喉に流し込みました。
+グラスの表面には水滴がついていて、私の指先を冷たく濡らしています。
+喉を通るわずかな温もりが、今の自分の心境をそのまま映し出しているようで。
+私は誰にも聞かれないよう、胸の奥に溜まった重い澱を吐き出すような、小さく深い溜息を一つつきました。
+ふと、ダイニングテーブルの上で沈黙しているスマートフォンに目をやると。
+そこには数時間前に届いた娘からのメッセージが、青白く光りながらまだ消えずに残っています。
+「お母さんだから、お願い。お母さんなら、私の大変さ、全部わかってくれるよね」
+その「お母さん」という言葉。
+かつては何よりも誇らしく、輝かしい宝物のような響きを持っていたはずのその言葉が。
+いつから私にとって、肺を強く締め付け、自由な呼吸を奪い去る、重くて冷たい鎖のようになってしまったのでしょうか。
+今夜は、母という聖域のような役割の影で自分を見失い、出口のない暗い霧の中を一人で彷徨い続けたあの日々のことを。
+そして、そこからどのようにして、自分自身を救い出すための一歩を踏み出したのか。
+その物語を、少しだけお話しさせてください。
+あなたがもし今、何かの役割や誰かの期待に縛られ、生きていくことさえ苦しく、夜の闇の中で立ち尽くしているのなら。
+この物語が、あなたの強張った心をほんの少しだけ解きほぐし、安らかな眠りへと導くための、静かな希望の灯火になればと願っています。
+
+---
+
+三十年ほど前、そこには今とは違う、生命力に満ち溢れた私がいました。
+髪は黒く艶やかで、瞳は希望に輝いていました。
+結婚し、まだ幼い子供たちの成長を支え、家庭という小さな城を守ること。
+それが私の人生のすべてであり、存在する意義であり、何よりの誇りでした。
+「お母さん」と初めてあの小さな口から呼ばれた日の、魂が震えるような喜びは。
+今も目を閉じれば、昨日の出来事のように鮮明に蘇ります。
+病院のベッドで、初めて我が子を腕に抱いたあの瞬間。
+この小さな命を守り育てることが、私の使命なのだと感じました。
+子供の柔らかな頬に触れる感触、雨の日に泥だらけで持ち帰ってきた運動靴。
+「美味しいね」と言って、私の作った料理を夢中で食べてくれる、あの無垢な笑顔。
+その一瞬一瞬のためだけに、私は朝の暗い時間から星が瞬く夜更けまで、自分の疲れなど忘れて働き続けていました。
+当時、私が口にする「お母さんだから」という言葉には、自分を誇らしく奮い立たせる、どこまでも明るい響きがありました。
+家族の笑顔を守るためなら、少しくらいの無理や、自分の夢を後回しにすることなんて、全く平気。
+若い頃に憧れていた旅行も、趣味の編み物も、すべて後回しにしていました。
+むしろ、その自己犠牲こそが、母親としての愛情の深さの証明なのだと、本気で信じて疑わなかったのです。
+そう、私は「理想の母親」という役を完璧に演じ切ることで。
+自分の心の奥底にある孤独や渇きを、見ないふりをして蓋をしていたのかもしれません。
+けれど月日は流れ、子供たちはいつの間にか翼を広げて、賑やかだった家を一人ずつ巣立っていきました。
+静まり返った家で、ようやく私は一人の人間として、本当の自由を手にするはずでした。
+それなのに、私に染み付いた「お母さん」という役割は、形を変えて続いていったのです。
+
+---
+
+変化は、真綿で首を締めるように、静かに忍び寄ってきました。
+最初は気づかないほどゆっくりと、けれど確実に。
+子供たちが独立し、自らの家庭を持った後も、私への頼み事は絶えることはありませんでした。
+むしろ、増えていくようにさえ感じられました。
+「お母さん、急ぎなんだけど。これ、仕事で手が回らないから、代わりにやっておいてくれない？」
+「お母さん、明日の夕飯、孫がお母さんの料理を食べたいって言ってるから、届けてよ」
+最初は、そんな子供たちの役に立てることが嬉しくて、私は二つ返事でその重荷を肩に担いでいました。
+必要とされているという実感が、私の心を満たしてくれたのです。
+「いいわよ、お母さんなら時間があるんだから、任せなさい」
+自分でも気づかないうちに、私は「暇」という言葉を自分に突きつけて、自分の時間を価値のないもののように扱っていたのです。
+違和感が決定的な形となって現れたのは、ある秋の週末のことでした。
+久しぶりに夫と二人で温泉宿へ旅行に行く計画を、何ヶ月も前から大切に温めていた時のことです。
+パンフレットを何度も眺め、どの料理を食べようか、どの観光地を回ろうかと楽しく話し合っていました。
+出発の前日、娘から電話がありました。
+「明日、孫を三日間預かっておいて。急用ができちゃって。お母さんなら、どうせ家でゆっくりしてるだけでしょ？」
+私は戸惑いながらも、今回は自分たちの大切な予定があることを、震える声で告げました。
+すると娘の声は、露骨に不快感を混ぜて返ってきたのです。
+「えっ、孫より、遊びの旅行の方が大事なの？ お母さんなのに、冷たいんだね」
+その「お母さんなのに」という言葉。
+それが氷の礫となって、私の胸を何度も打ち据えました。
+私は結局、罪悪感に耐えられず、夫に深く頭を下げて、楽しみだった旅行をキャンセルしました。
+宿にはキャンセル料を払い、楽しみにしていた夫の落胆した顔を見ることになりました。
+そして、孫の世話という「正しい母親」の選択を選びました。
+孫を抱きながら、私は自分の心の奥底で、何かが砕け散るような音を聞いていました。
+自分の人生の楽しみを優先させることへの、あの烈しい罪悪感。
+それこそが、私を何十年も縛り続けてきた鎖の正体だったのです。
+
+---
+
+さらに追い打ちをかけるような、小さな「棘」が私の心を削り取っていきました。
+その棘は、毎日少しずつ、確実に私の精神を蝕んでいきました。
+ある日、娘の家で孫の面倒を見ていた時のことです。
+朝から晩まで、私は休む間もなく働き続けていました。
+娘に頼まれた掃除と洗濯を完璧にこなし、夕食の準備まで整えていました。
+冷蔵庫にあるもので、孫が好きそうな献立を考え、買い出しにも行きました。
+夜遅くに帰宅した娘は、私の尽力に感謝するどころか、キッチンのシンクの隅にわずかに残った水滴を見て、深い溜息をついたのです。
+「ねえ、お母さん。せっかくやってくれるなら、最後まで丁寧にやってよ。私は仕事で疲れ切って帰ってきてるんだから。お母さんは一日中家にいるんだからいいけど、私たちは一分一秒を争って生きてるんだから」
+その「お母さんは一日中家にいるんだからいいけど」という言葉。
+それが、私のこれまでの人生そのものを、価値のない暇つぶしのように切り捨てられたように感じられました。
+私が一日かけて必死にこなした仕事は、彼女の目には何も映っていなかったのでしょうか。
+私は彼女たちの人生を、影で回すための潤滑油に過ぎなかったのでしょうか。
+自分の存在が、娘たちの人生の「背景」に完全に同化してしまったような虚しさが、私の全身を包み込んでいきました。
+私は自分が一人の人間としてではなく、磨り減っても取り替えれば済む部品として扱われていることを、悟らざるを得なかったのです。
+
+---
+
+決定的な出来事は、私が激しい高熱を出し、起き上がることさえできなくなった冬の朝に起こりました。
+身体は燃えるように熱く、関節が悲鳴を上げ、頭は割れるように痛んでいました。
+私はただ静かに休みたいと願っていました。
+医者にかかる気力さえなく、布団の中でただ目を閉じていたかったのです。
+それなのに、息子が当然のような顔をして訪ねてきたのです。
+玄関の鍵を勝手に開けて入ってきた息子は、私の枕元に立ちました。
+「あ、母さん。これさ、明日までに直しておいてほしいんだけど。お母さんならパパッとできるでしょ。少しくらいの無理、してくれてもいいじゃない」
+私が熱にうなされながら拒絶の意思を示しても、息子の瞳には、病に倒れている私ではなく、都合に合わせて動く装置の幻影しか映っていませんでした。
+「熱があるから、今日は無理よ」
+かすれた声でそう答えると、息子は露骨に不満そうな顔をしました。
+「えー、困るなあ。他に頼める人いないんだよ。お母さんしか」
+その言葉を聞いた瞬間、私の中で完全に何かが切れました。
+「お母さんだから」という言葉は、彼らにとって便利な呪文だったのです。
+その呪文を唱えれば、私は自分の健康さえも犠牲にして動くと思われていたのです。
+私は震える声で、初めてはっきりと拒絶の言葉を発しました。
+「今日は無理。帰って」
+息子は驚いた顔をして、何か言いかけましたが、私はそのまま目を閉じました。
+それからしばらくの間、私の中で何かが大きく変わり始めていました。
+
+---
+
+私はその日から、自分という一人の人間を救い出すための境界線を、意識して引き始めました。
+まず、すべての頼みごとに対して、すぐに返事をしないことを決めました。
+「今日は返事は明日にします」
+その一言を言うだけで、どれほど勇気が必要だったかわかりません。
+最初は娘も息子も戸惑い、時には怒りをぶつけてきました。
+「なんで？ 前はすぐにやってくれたのに」
+「お母さん、変わったね。冷たくなった」
+けれど私はもう、その言葉に振り回されることをやめました。
+自分の体調を、自分の予定を、何よりも優先させることを決めたのです。
+少しずつ、本当に少しずつですが、私の生活は変わり始めました。
+断ることへの罪悪感は、最初は耐えられないほど重かったのですが、日を追うごとに軽くなっていきました。
+そして不思議なことに、子供たちの態度も少しずつ変わっていきました。
+頼みごとをする前に「今、大丈夫？」と聞いてくれるようになったのです。
+
+---
+
+今、私の生活には、静かで穏やかな時間が戻ってきています。
+キッチンには以前と同じ換気扇の音が響いていますが、その音はもう私を追い詰めることはありません。
+スマートフォンの通知音が鳴っても、すぐに飛びつく必要はないと知っています。
+返事は、自分の準備が整ってからすればいいのです。
+「お母さん」という言葉は、今でも私の耳に届きます。
+けれどその言葉は、もう鎖ではありません。
+私を縛るものではなく、ただの呼びかけに過ぎないのです。
+応えるかどうかは、私が決めることなのです。
+自分を大切にすることは、誰かを愛することと矛盾しません。
+むしろ、自分を大切にできてこそ、本当の意味で誰かを愛することができるのだと、私はようやく学びました。
+
+もしあなたが今、「お母さんだから」「妻だから」「娘だから」という言葉に縛られ、自分を見失いかけているのなら。
+どうか今夜は、その役割を一度だけ脇に置いてください。
+あなたは役割である前に、一人の人間なのです。
+疲れたら休んでいいのです。
+断ってもいいのです。
+自分を優先してもいいのです。
+
+今夜は、誰かに何かを言われても、すぐに答えを出すのをやめてみてください。
+「今日の返事は明日にしよう」
+そう自分に許可を出して、温かな布団に身を委ねてください。
+明日の朝、目覚めた時のあなたが、今夜のあなたよりも少しだけ自由でありますように。
+その小さな一歩が、あなたの人生を変える始まりになるかもしれません。
+
+最後まで私の言葉に耳を傾けてくださり、本当にありがとうございます。
+あなたの今夜の眠りが、穏やかな安らぎに満たされますように。
+あなたが追いかけることをやめた時、本当の平和が訪れますように。
+今夜はこれでお別れです。
+どうぞ、ゆっくりとお休みください。
+おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

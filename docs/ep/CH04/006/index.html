@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH04-006 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH04-006 — script</h1>
           <div class="muted">【閲覧注意】なぜか“お金に嫌われる人”の共通点。あなたの無意識に潜む「貧乏マインド」を根こそぎ浄化する方法</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH04</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH04</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,214 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCzHniXbE1_IfaRDHVFI4zwg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【閲覧注意】なぜか“お金に嫌われる人”の共通点。あなたの無意識に潜む「貧乏マインド」を根こそぎ浄化する方法</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「隠れ書庫アカシック」の長時間コンテンツです。
+心理学と好奇心をテーマにした知的コンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「隠れ書庫アカシック」の長時間コンテンツです。
+心理学と好奇心をテーマにした知的コンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH04-006</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH04-006&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">お金で解決できないことは、ほとんどありません。
+
+この言葉を聞いて、どう感じましたか。「そうだ」と思いましたか。それとも「お金がすべてじゃない」と反発しましたか。
+
+その反応こそが、あなたのお金に対する「ブロック」を示しているかもしれません。
+
+今回の動画では、なぜ多くの人がお金を引き寄せられないのか、そのメンタルブロックの正体と解除の方法について、心理学とスピリチュアルの両面からお伝えします。
+
+まず、お金に対するブロックとは何かを理解しましょう。
+
+お金のブロックとは、お金を稼ぐこと、持つこと、使うことに対する無意識の抵抗です。意識的には「もっとお金が欲しい」と思っていても、無意識レベルでは「お金は悪だ」「自分にはお金を持つ資格がない」「お金を持つと何か悪いことが起きる」と信じている状態です。
+
+この無意識の信念が、行動を制限します。チャンスが来ても見逃す、稼いでもすぐに使ってしまう、価格を低く設定してしまう、お金の話を避ける。こうした行動パターンの背後に、ブロックがあります。
+
+では、このブロックはどこから来るのでしょうか。多くの場合、幼少期の経験から来ています。
+
+「お金は汚い」「金持ちは悪い人だ」「お金でもめ事が起きる」「うちはお金がないから」。親や周囲の大人がこうしたメッセージを発していると、子供はそれを吸収します。
+
+また、お金で嫌な経験をした場合も、ブロックが形成されます。借金で家庭が崩壊した、お金のために両親が喧嘩した、お金がなくて恥ずかしい思いをした。こうした経験が、「お金は問題の元」という信念を作ります。
+
+宗教的な影響もあります。「清貧こそ美徳」「金持ちが天国に入るのは難しい」といったメッセージは、豊かさへの罪悪感を植え付けることがあります。
+
+ヨガナンダは言いました。「お金は単なるエネルギーである。良いも悪いもない。それをどう使うかが問題なのだ」と。
+
+スピリチュアルな視点から、お金とは何かを考えてみましょう。
+
+お金は、エネルギーの一形態です。すべてはエネルギーであり、お金もその例外ではありません。お金は、価値の交換を可能にする媒介です。自然界にも、エネルギーの循環があります。お金も、循環するものです。
+
+豊かさは宇宙の本質です。宇宙は無限に豊かで、絶えず創造し、与え続けています。星の数、植物の種、生命の多様性。欠乏ではなく、豊富が宇宙の特徴です。
+
+人間だけが「足りない」という幻想を抱いています。競争、比較、恐怖から「足りない」と信じていますが、これは真実ではありません。豊かさは本来のあり方であり、欠乏は信念が作り出した幻想です。
+
+仏陀は言いました。「あなたが考えるように、あなたはなる」と。お金について何を考えるかが、お金とのあなたの関係を決めます。
+
+ある男性の話をしましょう。彼は長年、お金に苦労していました。どれだけ働いても貯金がたまらない、入ってきてもすぐに出ていく、お金の心配が絶えない。
+
+彼は「もっと稼げば解決する」と思い、より多く働きました。しかし、収入が増えても、支出も増え、状況は変わりませんでした。
+
+あるとき、彼は自分のお金に対する信念を探り始めました。すると、驚くべきことが分かりました。
+
+彼の父親は、お金があると浪費して失敗するタイプでした。そして、彼は無意識に「お金を持つと失敗する」と信じていたのです。だから、お金が入ってくると、無意識にそれを手放そうとしていた。
+
+また、母親は「お金持ちは冷たい人だ」とよく言っていました。彼は心の奥で「お金を持つと、愛される人間ではなくなる」と信じていました。
+
+これらのブロックに気づいたとき、彼は解放が始まったのを感じました。これらは親の信念であり、真実ではなかった。自分は違う信念を選べる。
+
+彼は意識的に信念を書き換え始めました。「お金は良いことに使える」「豊かでも愛情深くいられる」「自分は豊かさを受け取る価値がある」。
+
+一年後、彼の資産状況は劇的に改善していました。同じ収入でも、管理できるようになった。新しいチャンスが見えるようになった。お金がこわくなくなった。
+
+お金のブロックを解除する具体的な方法をお伝えします。
+
+まず、自分の信念を特定してください。「お金は~だ」と続く文を十個書き出してみてください。「お金は汚い」「お金は争いの元」「お金は稀少だ」など。書き出したものを見て、それがどこから来たか考えてください。
+
+次に、その信念を書き換えてください。「お金は汚い」なら「お金は中立で、使い方で価値が決まる」に。「金持ちは悪い人」なら「金持ちで善良な人もたくさんいる」に。新しい信念を毎日唱えることで、古い信念を上書きしていきます。
+
+お金に感謝する習慣をつけてください。支払いをするとき「ありがとう」と言う。給料が入ったとき「ありがとう」と言う。お金が出ていくときも、それが価値と交換されていることに感謝する。感謝は豊かさを引き寄せます。
+
+お金と友好的な関係を築いてください。お金の管理を避けず、定期的に残高を確認する。お金を丁寧に扱う。お金について話すことを避けない。お金を敵視せず、味方として扱う。
+
+豊かさを受け取ることを許可してください。「自分は受け取る価値がある」とアファメーションする。プレゼントを断らず受け取る。割引やサービスを遠慮せず受け入れる。受け取ることへの抵抗を減らす。
+
+カルマの視点からも考えてみましょう。
+
+過去世で豊かさに関するネガティブな経験があったかもしれません。富を持って堕落した過去世、富を失って苦しんだ過去世、富のために争った過去世。こうした記憶が、今世でのブロックになっている可能性があります。
+
+しかし、カルマは変えられます。今世で豊かさと健全な関係を築くことで、過去世のパターンを解消できます。お金を善のために使い、感謝し、健全に管理する。これが新しいカルマを創造します。
+
+また、豊かさを循環させることには、カルマ的な意義があります。持てる者が分かち合い、循環させることで、全体が豊かになる。溜め込むのではなく、流すこと。それがお金のエネルギーの本質です。
+
+ヨガナンダはこう語りました。「与えれば与えるほど、あなたのもとに戻ってくる。川の流れを止めれば、川は淀む。流せば、新鮮な水が入ってくる」と。
+
+日常で実践できることをお伝えします。
+
+お金をネガティブに語るのをやめてください。「お金がない」「高い」「買えない」という言葉を減らす。代わりに「今は優先順位がある」「価値を見出せない」「今回は選ばない」など、力のある表現を使う。
+
+豊かさに目を向けてください。持っていないものではなく、持っているものを見る。足りない部分ではなく、満たされている部分を見る。豊かさを認識することで、豊かさの波動を発する。
+
+お金持ちを憎まないでください。嫉妬や批判は、お金を遠ざけます。彼らの成功を祝福することで、あなた自身もその波動に乗ることができます。
+
+そして、与える習慣を持ってください。少額でも定期的に寄付する、誰かにおごる、価値を無料で提供する。与えることは、「自分には与えるだけの余裕がある」というメッセージを潜在意識に送ります。
+
+この動画をここまで見てくださったあなたへ。
+
+お金のブロックは、見えない檻のようなものです。その中にいると、自分が閉じ込められていることすら分かりません。しかし、気づけば、そこから出ることができます。
+
+あなたは豊かさを受け取る価値があります。それは宇宙があなたに与えたいものです。ブロックを解除し、その流れを受け入れてください。
+
+お金と健全な関係を築いている人々の特徴についてお話しします。
+
+彼らは、お金について考えることを避けません。むしろ、定期的に財務状況を確認し、計画を立て、学び続けます。お金を怖がらず、友人のように扱います。
+
+彼らは、お金を稼ぐことに罪悪感を感じません。自分の価値を適正に認め、その対価を受け取ることに抵抗がありません。安売りせず、かといって法外な値段をつけるわけでもなく、正当な対価を堂々と受け取ります。
+
+彼らは、豊かさを楽しむことを許可しています。質の良いものを買う、旅行する、経験にお金を使う。罪悪感なく、お金を楽しむことができます。
+
+彼らは、分かち合います。持てる余裕を、必要な人や価値あるところに流します。お金を循環させることで、さらなる豊かさを受け取ります。
+
+彼らは、お金に支配されていません。お金を大切にしつつも、お金のために魂を売らない。お金を手段として使いこなしており、目的化していません。
+
+あなたも、この特徴を身につけることができます。お金との関係は、意識的に変えることが可能です。
+
+お金に関するよくある誤解を解いておきましょう。
+
+誤解の一つ目は、「お金さえあれば幸せになれる」です。お金は幸福の必要条件ではありますが、十分条件ではありません。基本的な生活が満たされた後は、お金と幸福の相関は弱くなります。お金だけを追い求めても、心は満たされません。
+
+誤解の二つ目は、「お金持ちは悪いことをしている」です。もちろん不正に富を得る人もいますが、正当な価値を提供して豊かになった人も大勢います。すべての富を悪と結びつけるのは、事実に反します。
+
+誤解の三つ目は、「スピリチュアルな人はお金を求めるべきではない」です。お金を求めることと、スピリチュアルに生きることは矛盾しません。お金は、より多くの人を助け、より大きな影響を与えるためのツールになりえます。
+
+誤解の四つ目は、「お金がなければ幸せになれない」です。お金がなくても幸せな人はたくさんいます。幸せの根源は内側にあり、お金は外側の条件にすぎません。
+
+バランスの取れた見方は、「お金は重要だが、すべてではない」です。お金を軽視せず、かといって執着もしない。この中道が、最も健全なアプローチです。
+
+具体的なお金のブロック解除のエクササイズをお伝えします。
+
+エクササイズ1：お金の自叙伝を書く。あなたのお金に関する最初の記憶から現在まで、時系列で書き出してください。どんな経験があったか、両親はお金についてどう語っていたか、お金でどんな感情を経験したか。書き出すことで、パターンが見えてきます。
+
+エクササイズ2：信念の書き換え。ネガティブな信念を特定したら、対になるポジティブな信念を作ってください。そのポジティブな信念を、毎日二十一日間唱え続けてください。繰り返しが、新しい神経回路を作ります。
+
+エクササイズ3：豊かさの証拠を集める。毎日、自分の人生における豊かさの証拠を三つ書き出してください。お金に限らず、健康、人間関係、才能、経験、何でも。豊かさに意識を向けることで、豊かさの波動を発します。
+
+エクササイズ4：お金の瞑想。静かに座り、お金を光として想像してください。その光があなたに流れ込み、あなたを満たし、そしてあなたから流れ出して世界を照らす。この循環のイメージが、お金の流れを良くします。
+
+エクササイズ5：感謝の支払い。支払いをするたびに、その対価で得られるものに感謝してください。電気代を払うなら、電気が使える恵みに感謝。食費を払うなら、食べ物がある恵みに感謝。感謝とともに支払うことで、お金がネガティブなものでなくなります。
+
+お金を増やすための実践的なアドバイスもお伝えします。
+
+収入を増やすことと、支出を最適化すること、両方が大切です。収入を増やすためには、スキルを磨き、価値を高め、より多くの対価を得られる立場を作ることです。
+
+支出を最適化するためには、本当に価値あるものにお金を使い、価値のないものには使わないこと。見栄や衝動ではなく、本当の満足に繋がるお金の使い方を心がけることです。
+
+そして、お金を働かせることを学んでください。貯金だけでなく、適切な投資を通じて、お金がお金を生む仕組みを作る。時間を切り売りするだけでなく、資産を構築することで、真の経済的自由を得ることができます。
+
+最後に、お金を超えた豊かさについてお話しします。
+
+お金は豊かさの一形態ですが、すべてではありません。健康、愛情、友情、知恵、経験、目的、平和。これらもまた豊かさです。お金だけを追い求めて、これらを失わないように注意してください。
+
+真の豊かさとは、これらのバランスが取れた状態です。お金があっても健康がない、お金があっても孤独、お金があっても心が空虚。これは真の豊かさではありません。
+
+お金を大切にしつつ、それ以外の豊かさも育ててください。すべてのバランスが取れたとき、真に豊かな人生が実現します。
+
+お金のブロック解除は、一度で終わるものではありません。長年かけて形成されたブロックは、少しずつ解除していくものです。今日気づいたブロックを一つ手放す。明日また一つ手放す。その積み重ねで、お金との関係は確実に変わっていきます。
+
+あなたがこの動画を見ているということは、変化への準備ができているということです。お金との関係を改善したい、豊かさを受け取りたい。その願いが、あなたをここに導きました。
+
+今日から、お金について違う考え方をしてみてください。お金を敵ではなく味方として見る。お金を汚いものではなくエネルギーとして見る。お金を恐れるのではなく感謝して受け取る。
+
+少しずつ、確実に、あなたの経済状況は変わっていきます。外側の変化は内側の変化の反映です。内側が変われば、外側も変わります。
+
+高評価、チャンネル登録をお願いします。コメント欄であなたのお金に関する気づきを共有してください。どんなブロックに気づきましたか。ぜひ教えてください。
+
+では、またお会いする日まで。経済的な豊かさが、あなたの人生に流れ込みますように。そして、その豊かさが、あなたを通じて世界に広がりますように。あなたは豊かさを受け取る価値があります。
+
+
+</pre>
     </div>
   </div>
 </main>

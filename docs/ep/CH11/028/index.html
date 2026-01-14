@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-028 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-028 — script</h1>
           <div class="muted">【なぜか惹かれる人の雰囲気】あなたの「人相」が変わり、運気が上がるブッダの習慣</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,140 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【なぜか惹かれる人の雰囲気】あなたの「人相」が変わり、運気が上がるブッダの習慣</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-028</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-028&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">「あの人、なぜか感じがいい」。言葉にしにくい惹きつける雰囲気があります。顔立ちではなく、人相の温度が違う。人相は生まれつきだけで決まりません。日々の習慣と言葉が、顔に刻まれ、雰囲気を作ります。仏教は「顔は心の鏡」と教えます。今日は、人相を柔らかくし、自然に運を呼び込む習慣を、平易な言葉でお伝えします。美容グッズよりも効く、心の整え方です。
+
+人相を変える第一の習慣は、朝の顔の整え方です。起きてすぐ鏡を見るとき、眉間に力が入っていないかを確認します。眉間のしわは、心の硬さが映ります。指の腹で眉間を軽く撫で、息を吐きながら力を抜きます。同時に口角を少し上げる。たったこれだけで、目元と頬の印象が柔らかくなります。仏教の「和顔愛語」は、和やかな顔と優しい言葉で人を迎えよという教えです。和顔は、朝の三十秒から作れます。
+
+次に、言葉の整え方です。口にする言葉は、表情筋を動かし、人相を形づくります。「疲れた」「面倒だ」を毎日言うと、口角は下がり、目元が曇ります。代わりに「助かった」「ありがたい」を意識的に使います。仏教の「正語」は、嘘をつかず、粗い言葉を避け、意味のある言葉を選ぶこと。正しい言葉は、話し相手だけでなく、自分の顔も整えます。言葉を変えると、運が変わるのは、表情と雰囲気が変わるからです。
+
+目の使い方も人相に直結します。スマホやテレビを長く見続けると、目の周りの筋肉が固まり、まばたきが減ります。まばたきが少ないと、視線がきつく見えます。二十分に一度、遠くを見て大きく二回まばたきします。遠くを見ると目が潤み、瞳が柔らかくなります。瞳の潤みは、人に安心感を与えます。仏像の目が半分閉じているのは、穏やかな視線を示すためです。穏やかな視線は、周りを惹きつけます。
+
+姿勢も雰囲気を左右します。背中が丸まり、肩が前に出ると、首や顔の筋肉が下がり、暗い印象になります。椅子に座るときは、腰を少し立て、肩を落とし、顎を引きます。これだけで首が長く見え、顔の血流がよくなります。血流がよくなると、肌の色が明るくなります。仏教の修行でも、姿勢を整えることが心を整える第一歩とされます。姿勢を整えると、人相も整います。
+
+心の癖は、顔に刻まれます。怒りや不満を抱えたままだと、眉間や口元に固さが残ります。仏教の「念」は、今の心の状態に気づくことです。怒りが湧いたら「今、怒っている」と心で呟き、ゆっくり息を吐く。気づくだけで、怒りのエネルギーが少し弱まります。弱まれば、顔に刻まれる前に流れていきます。流れる心は、柔らかい顔を作ります。
+
+食べる習慣も人相を作ります。早食いは顔の緊張を生み、口元が荒くなります。よく噛むと、顎周りの筋肉が整い、血行がよくなり、顔色が明るくなります。一口ごとに箸を置き、舌で味を感じる。ゆっくり食べる姿は、それだけで品を感じさせます。品は、雰囲気の根です。
+
+夜の習慣は、翌朝の人相に直結します。寝る前に、今日の感謝を三つ思い出し、心の中で「ありがとう」と言います。感謝の言葉は、寝ている間に表情筋を緩めます。緩んだ筋肉は、翌朝の顔に柔らかい線を描きます。寝不足と心配は、目の下の影を濃くします。早めに灯りを落とし、静かな音に耳を澄ます。静かな夜は、穏やかな人相を育てます。
+
+身だしなみは、人相の額縁です。派手にする必要はありませんが、清潔であること、整っていることが大切です。髪を整え、服にアイロンをかけ、靴を磨く。小さな手入れが、顔の印象まで整えます。仏教の僧侶が衣を大切に畳むのは、心を整えるためです。身の回りを整えると、心が整い、顔が整います。
+
+惹かれる雰囲気の人は、場の空気を受け取るのが上手です。相手の話を遮らずに聞き、表情で「聞いています」と伝えます。相づちは短く、穏やかな笑みを添える。聞く姿勢は、顔全体に現れます。仏教の「聞法」は、教えを聞くことを重んじます。人の話を丁寧に聞く人は、自然と人相が穏やかになり、運も人も集まります。
+
+運を上げるには、目に見えない「徳」を積むことも大切です。仏教の「布施」は、お金だけでなく、時間や言葉を分けること。席を譲る、ゴミを拾う、困っている人に声をかける。小さな布施を続けると、自分の表情が変わります。人は、優しいことをした後の顔が、一番柔らかくなります。その顔が、周りを惹きつけ、運を呼び込みます。
+
+人相を変えたいとき、鏡に向かって無理に笑顔を作るのは疲れます。代わりに、心が温まる記憶を一つ思い出します。誰かにありがとうと言われた瞬間、子どもが笑った顔、夕焼けに感動した時。記憶の温度が、自然に表情を緩めます。自然な緩みが、惹かれる雰囲気を作ります。
+
+健康も人相を支えます。適度な睡眠、十分な水分、軽い運動。難しいことは要りません。仏教の中道は、極端を避けること。無理な若作りも、無頓着も避け、中庸を選ぶ。中庸は、顔に穏やかさを刻みます。
+
+最後に、「今日も生きている顔」を自分に見せてください。鏡の前で、「今日もよくやっている」と声をかける。労いの言葉は、顔に安堵を刻みます。安堵の人相は、周りの人に安心を与えます。安心を与える人には、人も運も集まります。人相は、毎日の小さな習慣で変わります。今日から一つだけでも始めてみてください。顔が変わり、雰囲気が変わり、あなたの周りの世界が少しずつ優しくなります。
+
+ここからは、人相が変わった具体例を紹介します。六十代の女性は、長年眉間にしわが寄り、周囲から「怒っているの？」と言われがちでした。彼女は毎朝、眉間を撫でる習慣と、感謝の言葉を三つ口にする習慣を始めました。さらに、散歩中にすれ違う人に微笑んで会釈するようにしました。三か月後、久しぶりに会った友人から「顔が柔らかくなったね」と言われました。何か特別な美容をしたわけではありません。表情を作る筋肉と言葉を整えただけです。筋肉と言葉が変われば、人相は変わります。
+
+七十代の男性は、引退後に無表情になり、家族から近寄りがたいと言われていました。彼は仏教の法話で「顔は心の看板」という話を聞き、看板を描き直すことにしました。毎日、鏡に向かって小さく笑い、夜は孫に短いメッセージを送りました。孫から返信が来ると、自然と笑顔が増えました。数か月で、家族が「最近、近く感じる」と言い始めました。看板を描き直すのに高価な道具はいりません。小さな笑みと短い言葉で十分です。
+
+人相を整える上で、怒りの扱い方は重要です。怒りは顔に最も早く刻まれます。怒りを感じたときは、その場で深呼吸し、手のひらを胸に当てます。胸の温度を感じながら、「今、怒りが来た」と認めます。認めると、怒りは少しずつ収まります。収まれば、眉間や口元に刻まれる前に流れます。仏教の修行者も、怒りをなくすのではなく、来たことに気づき、流す練習をします。流れれば、顔も流れるように柔らかくなります。
+
+笑顔を作るとき、口だけで笑うと目が笑いません。目が笑わない笑顔は、かえってぎこちなく見えます。目を笑わせるには、心を動かす必要があります。そこで役立つのが「ありがとうの箱」です。小さな箱に、その日にあった小さな感謝を書いた紙を入れます。箱を開けると、感謝の記憶が蘇り、目が自然に緩みます。目が緩むと、顔全体が緩み、人相が温かくなります。
+
+運を上げると言うと、開運グッズが思い浮かぶかもしれませんが、日常の清潔が最も簡単な開運です。顔を洗うときは、ぬるま湯で優しく。タオルで押さえるように拭く。寝具を清潔に保ち、枕カバーをこまめに替える。清潔は、肌だけでなく心の清潔にもつながります。清潔な環境は、心の濁りを減らし、表情を澄ませます。
+
+人は、話し方よりも「聞き方」で雰囲気を判断します。相手の言葉にゆっくり頷き、途中で口を挟まず、最後に一言だけ感想を返す。「それは大変だったね」「そう感じたんですね」。短い言葉が、相手の心を緩めます。相手の心が緩むと、こちらの表情も緩みます。双方向に緩んだ空気が、人を惹きつける雰囲気を作ります。
+
+光の使い方も、人相を左右します。蛍光灯の白い光は顔を硬く見せがちです。朝は自然光を浴び、夜は暖色の柔らかい灯りに切り替える。光が柔らかいと、顔の陰影も柔らかくなります。仏像が柔らかい光の中に置かれるのは、穏やかさを際立たせるためです。自分の顔にも、柔らかい光を当ててみてください。
+
+香りも雰囲気を作ります。強い香水ではなく、石鹸のような清潔な香りや、ほのかなお茶の香り。香りは記憶と結びつきやすく、あなたの印象を決めます。穏やかな香りは、穏やかな人相を支えます。
+
+表情を育てるために、言葉の「間」を意識します。早口で話すと、相手は緊張します。言葉と言葉の間に、ほんの少しだけ間を置きます。間に呼吸を入れると、声が落ち着き、顔の筋肉も落ち着きます。落ち着いた声と顔は、周りを安心させ、惹きつけます。
+
+最後に、「今の顔を好きになる」練習をします。完璧な顔を目指すのではなく、「今日の自分の顔、悪くない」と受け入れる。受け入れると、表情が自然になり、無理のない雰囲気が出ます。仏教の「自受用法」は、自分の状態をそのまま受け取り、味わうことです。自分を受け入れた顔には、優しさが宿ります。優しさが宿った人相は、必ず誰かを惹きつけます。
+
+ jawの力みも人相を硬くします。口を閉じたまま上下の歯を離し、舌を上あごに軽くつける。これを一日に何度か思い出します。力みが抜けると、口元が柔らかくなり、ほほが上がります。力みを抜く小さな習慣が、顔全体の印象を変えます。
+
+孤独を感じると、顔は沈みます。人相を明るくするには、短い交流でも十分です。コンビニの店員に「ありがとう」と目を見て言う。隣人に「おはよう」と声をかける。短い交流が、顔に血色を戻します。血色が戻ると、雰囲気が明るくなります。
+
+怒りや不安で眠れない夜は、枕元で「慈悲の文句」を唱えます。「すべての存在が穏やかでありますように」。唱えると、顔の筋肉が緩み、眠りにつきやすくなります。眠りは翌朝の人相を決めます。眠りを大切にすることは、人相を大切にすることです。
+
+人相は、見る人に「この人と一緒にいると安心できそうだ」と感じさせる力です。安心を与える顔には、特別な装飾は必要ありません。落ち着いた目、柔らかい口元、整えられた姿勢、清潔な香り。これらはすべて、今から手に入るものです。今日の一つの習慣が、明日の顔を作ります。顔が変われば、雰囲気が変わり、運も人も静かに寄ってきます。
+
+ 笑いの力も侮れません。無理に声を上げる必要はありませんが、小さな可笑しさを見つけて微笑む習慣を持ちます。朝のニュースで犬が失敗する映像、漫画の一コマ、友人の何気ない言葉。笑いは顔の血行を促し、緊張を解きます。笑い皺は、優しさの刻印です。
+
+ 環境も雰囲気を作ります。散らかった部屋では、表情もどこか曇りがちです。机の上に花を一輪置き、窓辺を拭き、好きな布を一枚敷く。少し整えるだけで、心の景色が変わり、顔に映ります。仏教の寺院が清潔に保たれているのは、心を静めるためです。自分の小さな空間を整えると、人相も整います。
+
+ 色の力も借ります。肌に合う柔らかな色の服や小物を一つ身につけるだけで、顔色が明るく見えます。特に、首元に明るい色を持ってくると、光が顔に反射し、印象が柔らかくなります。色は簡単に変えられる雰囲気のスイッチです。
+
+ 人と目が合ったときの「最初の一秒」も意識します。目が合ったら、ほんの少しだけ目尻を緩め、顎を下げます。これだけで、「敵ではありません」というサインが伝わります。サインが伝われば、相手の表情も緩みます。緩んだ顔同士が向き合うと、雰囲気は一気に穏やかになります。
+
+運を上げるという言葉に抵抗がある人も、雰囲気が変われば人との縁が変わることは実感できるはずです。縁は運の形です。仏教の縁起は、良い縁を紡げば良い結果が生まれると教えます。穏やかな人相は、穏やかな縁を呼び込みます。穏やかな縁は、穏やかな日常を作ります。
+
+一日の流れに小さな所作を入れます。朝は眉間を撫で、四つ吸い六つ吐きながら口角を上げ、今日の「ありがとう」を一つ決める。昼は遠くを見てまばたきを二回、大きく肩を回す。夕方は水をゆっくり飲み、「ここでリセット」と心で言う。夜は湯気の飲み物を持ち、感謝を三つ書き、眉間と顎の力を抜く。区切りがあると、表情が戻る場所ができます。
+
+七日間の練習を置きます。1日目：眉間を撫でて呼吸。2日目：感謝の言葉を五回増やす。3日目：遠くを見るまばたきを意識する。4日目：誰かに穏やかな相づちを返す。5日目：口角を上げる鏡の時間を一分。6日目：夜の感謝三つを紙に書く。7日目：自然の中で深呼吸をする。七日が過ぎるころ、顔の筋肉に「戻る場所」ができます。
+
+二十一日続けると、眉間・口角・視線・姿勢のリセットが自動化し、目の周りの固さが抜けます。三十日を過ぎるころには、言葉と表情が揃い、周囲の反応が柔らかくなります。九十日を超えると、穏やかな人相が「素顔」になり、努力せずとも縁が温かくなります。
+
+科学の視点も添えます。長い吐息は迷走神経を刺激し、顔面筋の緊張を緩めます。感謝を書く習慣は前頭前野を活性化し、ポジティブな表情を作りやすくします。まばたきと遠くを見る習慣は眼精疲労を減らし、瞳の潤みを保ちます。姿勢を整えると頸動脈の流れがよくなり、顔色が明るくなります。理屈を知ると、続ける理由がはっきりします。
+
+最後に、今日から始めるための一歩を決めます。眉間を撫でる、感謝を三つ言う、遠くを見てまばたきする、誰かに笑みで会釈する。この中から一つだけ選び、明日の朝に実行します。一つの習慣が、あなたの人相を変え、周りの空気を変え、静かな運を招きます。ゆっくりで大丈夫です。顔は、少しずつ、確実に変わります。
+
+ 人相を柔らかくするために、耳も使います。人の声に耳を澄ませ、音の高さや速度から感情を感じ取る練習をします。耳を開くと、表情も開きます。耳が閉じていると、顔も閉じます。仏教で「聞く」ことが重んじられるのは、心を開く入口だからです。耳を開けば、顔に開放感が宿り、雰囲気が軽くなります。
+
+ 自然の中で過ごす時間も、人相を整えます。公園の緑や川の流れを見るだけで、顔の緊張がほどけます。木漏れ日の下で深呼吸をすると、瞳に光が入り、頬に血色が戻ります。自然は、無料の美容液です。自然に触れると、人相は自然な方向に戻ります。
+
+ 「惹かれる人」は、完璧ではありません。シワも白髪もあります。それでも惹かれるのは、顔ににじむ安心と誠実さがあるからです。誠実さは、毎日の小さな約束を守ることで顔に刻まれます。自分との約束を守り、他人との約束を守る。その積み重ねが、信頼の顔を作ります。信頼の顔には、人も運も集まります。
+</pre>
     </div>
   </div>
 </main>

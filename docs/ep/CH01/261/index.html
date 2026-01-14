@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-261 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-261 — script</h1>
           <div class="muted">小さな「ありがとう」が人生を変える理由｜幸せな人がやっているたった一つの習慣</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,143 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>小さな「ありがとう」が人生を変える理由｜幸せな人がやっているたった一つの習慣</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【自己肯定感】で苦しいあなたへ──感謝を習慣にする話。
+・感謝で脳が変わる理由・今日からできる習慣
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>自己肯定感, 感謝, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【自己肯定感】で苦しいあなたへ──感謝を習慣にする話。
+・感謝で脳が変わる理由・今日からできる習慣</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-261</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-261&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">他人の目や言葉に振り回されて、心がすり減ってしまうことはありませんか。将来の老後やお金の不安が頭をよぎり、夜な夜な眠れない日々を送っているあなたへ。真面目で優しいがゆえに、誰かの期待に応えようと頑張りすぎて、心が張り詰めてしまっているのかもしれません。そんなあなたの心を軽くする、仏教の知恵があります。
+
+仏教には「四恩」という教えがあります。これは私たちが生きる上で、父母、衆生、国王、三宝という四つの大きな恩恵を受けていることを知ることです。私たちは普段、自分の力だけで生きていると思いがちですが、実際は多くの見えない支えによって成り立っています。感謝とは単なるお礼の言葉や綺麗事ではありません。足りないものを探すのをやめて、今ある事実をあるがままに受け入れる心の整理術です。この視点を持つことで、他人の評価や物質的な不足に対する過度な執着が自然と薄れていくのです。
+
+古く伝えられる物語に、目連尊者という弟子の話があります。彼は亡き母が苦しみの世界で飢え渇いている姿を見てしまいました。彼は必死に母を助けようと、自分の力で食べ物を届けようとしますが、母の執着心は強く、その食べ物は灰となって消えてしまったのです。自分の力だけではどうにもできない絶望の中で、彼は仏陀の教えに従い、多くの修行者たちに食べ物を供養する行動を起こします。すると、その功徳によって母の苦しみは消え、心が安らぎを取り戻したと伝えられています。これは、自分の執着だけで解決しようとせず、大きな恩恵とつながることで救われることを示しています。
+
+さて、私たちの日常に戻りましょう。
+
+今夜からできることはとてもシンプルです。寝る前に、今日一日あった「当たり前」の中で良かったことを一つだけ思い出してください。朝の一杯の温かい飲み物でも、無事に過ごせた健康な体でも構いません。そして、その事実に心の中で「ありがとう」と唱えてみてください。無理にポジティブになる必要はありません。ただ、あったことに気づくだけで十分です。
+
+感謝は執着を手放し、今の自分を肯定する第一歩です。あなたの心が、今夜少しだけ穏やかに休まりますように。
+
+---
+
+かつて一人の修行者が、母を救うために見出した感謝の力。それは現代の科学でも証明されている驚くべきメカニズムです。私たちが普段何気なく口にしているありがとうという言葉には、脳の構造そのものを変えてしまうほどの力が秘められています。どうしてそんなことが起きるのかのでしょうか。
+
+その昔、目連尊者という優れた修行者がいました。彼には亡くなった母がいました。ある時、彼は神通力を使って母の行方を探しました。すると母は、飢えと渇きに苦しむ世界に落ちていたのです。喉はカリカリに枯れ、腹はペチャンコに凹んでいる。あまりの痩せ衰えぶりに、目連は胸を痛めました。彼はすぐに食べ物を捧げようとしました。しかし、不思議なことに、その食べ物は母の口に入る瞬間に燃え盛る炎へと変わってしまうのです。自分の力ではどうすることもできない。その絶望の中で、彼はあることに気づきました。個人の力だけでは救えない。多くの僧侶たちの供養という、感謝の力を借りるしかないと。彼は精一杯の食事を用意し、多くの人々の感謝と共に捧げました。すると、ついに母は苦しみから解放されたと言われています。この物語は、盂蘭盆会の由来としても知られています。
+
+この物語が示唆しているのは、感謝が単なる内面の感情ではないということです。現代の脳科学の視点から見ても、感謝の気持ちが芽生える時、脳内ではドーパミンやオキシトシンといった物質が分泌されます。ドーパミンは行動への意欲を高め、オキシトシンは心を落ち着かせ、人とのつながりを感じさせる物質です。私たちの脳は、不足や不満に目を向け続けると、そこに固定されてしまいます。しかし、感謝というフィルターを通すことで、脳の注意が変わり、これらの物質が分泌されやすくなるのです。これは単なる気休めではなく、脳の回路そのものを使いやすく変える、科学的なメカニズムなのです。目連尊者が行動を起こし、結果を変えたように、私たちの脳も感謝によって変わり、人生の状況を動かすエネルギーを生み出します。
+
+さて、私たちの日常に戻りましょう。この知恵は、現代の私たちの不安を解消するどう活かせるのでしょうか。
+
+---
+
+老後の資金や人間関係の悩みは、感謝したからといって、すぐに消えてなくなるものではありません。
+無理にポジティブになろうとして、かえって苦しくなることだってありますよね。
+でも、ここで大切なのは、現実の問題そのものを魔法のように消すことではありません。
+その問題に向き合うあなたの心の状態を変えることです。
+
+---
+
+私たちが老後の生活や人間関係の些細なことで強い不安を感じる時、実は脳の奥底にある生存本能が過剰に働いてしまっていることがあります。本来、命の危険から身を守るために備わった重要なスイッチですが、現代のような複雑で情報が溢れる社会では、目に見えない未来への恐怖に対しても、そのスイッチがいつまでも入りっぱなしになってしまうのです。その結果、常に何かに追われるような緊張状態が続き、心がすり減っていくだけでなく、物事をネガティブに捉えてしまう悪循環に陥りやすくなります。感謝の気持ちを抱くという行為は、この過剰に緊張した糸を意識的に緩める強力な働きを持ちます。自分の周りには、生きるために必要な支えがすでにたくさんあると認識することで、脳は「今は安全だ」と再確認し、過剰な警戒モードからリラックスしたモードへと確実に切り替わるのです。これは単なる精神論や気休めではなく、脳の誤作動を正し、本来の冷静な判断力を取り戻すための、非常に理にかなったメンテナンス作業だと言えるでしょう。
+
+私たちが不安を感じる時、心は「欠乏のマインドセット」という状態に陥りがちです。
+足りないもの、失うもの、できないことばかりに意識が向いてしまい、常に何かに追われているような感覚に苛まれます。
+これは脳にとって、常に危険信号が出ているような状態です。
+思考が硬くなり、視野が狭くなって、本来持っている知恵や判断力が働きにくくなってしまうのです。
+不足感に支配されていると、どんなに良いアドバイスを聞いても、ネガティブなフィルターを通して受け取ってしまいます。
+
+---
+
+一方で、感謝の習慣は「充足のマインドセット」へと意識を切り替えるスイッチになります。
+今あるもの、できていることに目を向けることで、脳はリラックスし、張り詰めていた糸が少しずつ緩んでいきます。
+心が落ち着くと、不思議と冷静な判断力が戻ってきます。
+不安で凝り固まっていた脳が解放されると、困難な問題に対しても、最適な行動を選び取れるようになるからです。
+恐怖が薄れると、物事の本質が見え、本当に必要な対策が自然と浮かび上がってくるのです。
+
+---
+
+実は多くの不安は、心が張り詰めているために生まれる迷いでもあります。
+視点が変われば、これまで絶望的に見えた壁も、乗り越えられる高さの段差に見えてくることがあります。
+このマインドセットの転換は、特別な修行が必要なわけではありません。
+日常の些細な瞬間に意識を向けるだけで、誰でも実践できます。
+この心の持ち方を日常生活にしっかりと定着させるために、今夜から無理なく始められる具体的な方法があります。
+
+---
+
+特別な修行は必要ありません。難しいことをするわけでもありません。今日は寝る前に、たった一つの「当たり前」に気づくだけで十分です。あなたが今、無理なく始められる方法をお伝えします。
+
+一日が終わり、ベッドに入る前の静かな時間を想像してください。心が疲れているとき、私たちはつい、うまくいかなかったことや足りないものばかりを数えてしまいがちです。そんな思考のループから抜け出すために、今夜は少し視点を変えてみましょう。
+
+今日一日の中で、一つだけ良かったことを探します。大きな成果である必要はありません。誰かに褒められたことでも構いません。朝に飲んだ一杯のコーヒーの温かさかもしれません。夕食の味が良かったことかもしれません。あるいは、自分の手足が動いて、今日も一日動けたことかもしれません。
+
+当たり前すぎて見過ごしていたことの中に、必ず一つはあるはずです。その一つを選んでください。そして、心の中で静かに「ありがとう」と唱えます。これだけです。ノートに書き留める必要もありません。無理にポジティブになろうとして、作り笑いをする必要もありません。
+
+ただ、そこにあった事実に気づいて、心の中で言葉にする。たったそれだけの行為が、あなたの心の部屋の空気を少しずつ入れ替えていきます。欠けているものではなく、すでにそこにあるものに目を向ける時間です。この習慣は、脳が安心するための小さな合図にもなります。
+
+柔らかい枕に頭を預けながら、その一つだけの光を感じてみてください。
+
+小さな灯火は、積み重なることで大きな明かりへと変わっていきます。
+
+---
+
+心を日々暮らす部屋に例えてみましょう。もし、ずっと窓を閉め切って埃を積もらせていたら、部屋の空気はどうなるでしょうか。重苦しく、呼吸もしにくくなってしまいます。感謝の習慣は、この窓を開けて新鮮な空気を入れる換気のようなものです。毎朝、少しずつ換気を続けることで、部屋の空気は驚くほどきれいに澄んでいきます。心の中の淀みが消えていくのを、あなたはきっと実感できるはずです。
+
+小さな「ありがとう」という気づきを積み重ねていくと、不思議と自分への見方が変わってきます。今まで足りないものばかりを探して不安だった視点が、あるがままの今を認める視点へと静かにシフトしていくのです。これが自己肯定感の確かな土台となります。他人の評価や言葉に振り回されていた心が、今ある自分の足元でしっかりと立つことができるようになるでしょう。自分を大切にできるようになると、人間関係も驚くほどスムーズに運び始めます。
+
+内面が整うと、目の前の現実も穏やかに変化していきます。同じ出来事に出会っても、以前なら落ち込んでいたことが、今は小さな気づきや学びに感じられるようになるからです。あなたが世界を敵ではなく、味方として見るようになれば、世界もまた静かにあなたに優しくなっていきます。これは決して魔法ではなく、心の持ち方が現実を映し出す鏡のようなものです。不安で凝り固まっていた脳がリラックスし、最適な選択ができるようになるのです。
+
+一つの灯火は小さくても、暗闇を照らす力は確かにあります。今夜始めたその小さな気づきが、やがて大きな希望の光となってあなたの未来を照らし続けるでしょう。どうか、ご自身の心の声を信じてあげてください。あなたのこれからの人生が、穏やかで満たされたものとなりますように。最後までお聴きいただき、本当にありがとうございました。
+</pre>
     </div>
   </div>
 </main>

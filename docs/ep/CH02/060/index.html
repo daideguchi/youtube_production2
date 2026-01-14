@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH02-060 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH02-060 — script</h1>
           <div class="muted">【偽りの同意】断れない人の心理</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,301 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【偽りの同意】断れない人の心理</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH02-060</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH02-060&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">本当は嫌なのに、笑顔で頷いてしまう。
+本当は分からないのに、知ったかぶりをしてしまう。
+本当はもう限界なのに、「大丈夫です」と元気なふりをする。
+職場で、家庭で、友人関係の中で。
+場の空気を乱さないように、相手を不快にさせないように、自分という存在を透明な水のように薄めてやり過ごす。
+
+そうして一日を終えて家に帰ると、どっと疲れが押し寄せます。
+それは心地よい運動の疲れとは違う、身体の芯から気力が吸い取られたような、鉛のように重たい疲労感です。
+洗面台の鏡の向こうに映る自分が、誰なのか分からなくなるような感覚。
+あるいは、自分の顔が能面のように張り付いて、剥がれなくなってしまったような恐怖。
+
+今日考えるのは、「本音を隠し続けることで、自分の輪郭が消えてしまいそうな不安」についてです。
+自分を殺して生きる辛さを、どうすれば手放していけるのか。
+そのための、小さくて優しいリハビリを始めましょう。
+いきなり仮面を脱ぎ捨てる必要はありません。
+まずは、仮面の裏側で、小さく深呼吸をする練習から始めていきましょう。
+
+---
+
+心理学者のカール・ロジャーズは、「内側の感情（本当の気持ち）」と「外側の表現（言動）」のズレが大きければ大きいほど、人は深い疲労感を感じ、メンタルヘルスを損なうと説きました。
+これを「自己不一致」と呼びます。
+
+あなたが日々感じているその得体の知れない疲れは、体力的なものではありません。
+車で言えば、アクセル（本音）とブレーキ（建前）を同時に踏み込みながら走っているようなものです。
+エンジンは唸りを上げ、ガソリンは激しく消耗し、タイヤは焦げ付いているけれど、車体は一歩も前に進んでいない。
+自分自身であろうとするエネルギーが、内部での葛藤によって漏電してしまっているのです。
+
+とはいえ、明日から突然「ありのままの自分」をさらけ出すなんてことは、現実的ではありませんし、怖くてできませんよね。
+「嫌われるかもしれない」「居場所がなくなるかもしれない」。
+その恐怖はとてもリアルなものです。
+だから、目指すのは完全な一致ではありません。
+そのズレを、1ミリずつ、縮めていくことです。
+あちこちで起きている「小さな不一致」を、少しずつ「小さな一致」に変えていく。
+それだけで、エンジンの唸りは静まり、漏電は止まっていくはずです。
+
+---
+
+そもそも、私たちが本音を隠すのは、私たちが弱いからではありません。
+それは、あなたが過去に生き延びるために身につけた、高度な「防衛技術」であり、生存戦略だったのです。
+
+幼い頃、親の顔色を伺わなければならなかったかもしれません。
+学校という閉鎖的な社会で、仲間はずれにされないように必死だったかもしれません。
+争いを避け、誰かを傷つけず、円滑に集団の中に溶け込むために、あなたは自分を精密に調整し続けてきました。
+その優しさと、空気を読む賢さを、まずは認めてあげてください。
+「私は弱虫だから言えないんだ」と責めるのではなく、「私は平和を守るために、こんなにも頑張ってきたんだ」と労ってあげてください。
+
+ただ、問題なのは、その「調整機能」が過剰になりすぎて、今、あなた自身の心を圧迫してしまっていることです。
+鎧はあなたを守るものですが、重すぎて動けなくなってしまっては本末転倒です。
+戦場だった過去はもう終わり、今はもう少し安全な場所にいるはずです。
+そろそろ、少しだけ留め金を外して、風を通してあげてもいい頃合いかもしれません。
+
+---
+
+ここで少し、深い部分に触れてみましょう。
+あなたが仮面をつけるようになった原因は、幼少期の記憶にあるかもしれません。
+私たちは子供の頃、親や大人たちから無意識のメッセージを受け取ります。
+「いい子にしていないと愛されない」
+「わがままを言うと迷惑がかかる」
+「空気が読めないと仲間外れにされる」
+
+生きるために、愛情をもらうために、子供だったあなたは必死で「求められる自分」を演じました。
+自分の欲求を押し殺し、大人の期待という型に自分をはめ込んだ。
+その成功体験が、大人になった今でも「成功法則」として脳に刻まれたままになっているのです。
+「自分を殺せば、平和が保たれる」という、古くて強力な呪文です。
+
+でも、今のあなたはもう、無力な子供ではありません。
+誰かに嫌われても生きていけますし、親の期待に応えなくても自分の足で立つことができます。
+あの頃必要だった鎧は、今のあなたにはもう、サイズが合わなくなっているのです。
+「あの時は守ってくれてありがとう。でも、もう大丈夫だよ」
+子供の頃の自分にそう声をかけて、古い契約を解除してあげましょう。
+あなたはもう、誰かの顔色を伺って命を繋ぐ必要はないのですから。
+
+---
+
+人間には「現状維持バイアス」という厄介な心理作用があります。
+本音を言って関係が変わるリスクを冒すくらいなら、たとえ苦しくても、今のまま自分が我慢して現状を維持するほうが「安全」だと感じてしまうのです。
+脳は変化を嫌います。
+「我慢すれば丸く収まる」という慣れ親しんだ地獄のほうが、「何が起きるか分からない」という新しい天国よりも安心なのです。
+
+でも、その安全は、あなたの魂を削り続けることで保たれている、非常にコストの高い安全です。
+このバイアスを乗り越えるには、変化のリスクを極小化することです。
+いきなり「私はこう思う！」と会議で机を叩く必要はありません。
+ほんの少しの「余白」を言葉に持たせるだけでいいのです。
+
+たとえば、会話の終わりに「少しだけ気になったのですが」と添える。
+あるいは、「これは私の個人的な感想なのですが」と前置きをする。
+短い一文、クッションのような言葉を挟むだけで、関係が壊れるリスクはほとんどなくなります。
+「言っても大丈夫だった」「誰も怒り出さなかった」「世界は終わらなかった」。
+そういう小さな成功体験を脳に積ませていくことで、「本音＝危険」という誤った公式は書き換えられていきます。
+
+---
+
+まずは、誰にも見せない「秘密の日記」の中で、感覚を取り戻す練習をしましょう。
+用意するのは、誰の目にも触れない黒いノートです。
+そこに、今日飲み込んだ言葉、隠した感情を、すべて吐き出してください。
+
+「あの時の部長の言い方は、本当に腹が立った」
+「笑っていたけれど、本当は傷ついていた」
+「あの集まりには、実は行きたくなかった」
+
+紙の上でだけは、誰にも気を使わず、良い人ぶる必要もありません。
+真っ黒な本音も、ドロドロした妬みも、あるいは子供のような無邪気な喜びも、全て許されます。
+文字にすることで、「ああ、私はこう感じていたんだ」と、自分の輪郭を再確認できます。
+自分が何を感じているかさえ分かれば、それを外に出すか出さないかは、その時のあなたが自由に選べます。
+
+一番怖いのは、自分が何を感じているか分からなくなってしまうことです。
+「私は怒っているのか？ 悲しいのか？ それとも何とも思っていないのか？」
+感情の不感症になってしまうと、自分を守るためのSOSさえ出せなくなってしまいます。
+日記は、麻痺した心のリハビリテーション施設です。
+
+---
+
+心を回復させるもう一つのアプローチとして、「感覚のリハビリ」も試してみてください。
+自分を殺して他人に合わせ続けていると、思考だけでなく、五感さえも鈍っていきます。
+「みんなが美味しいと言うから、美味しい気がする」
+「流行っているから、良いものなのだろう」
+自分の感覚よりも、世間の評価や他人の反応を優先して感じようとしてしまう。
+これでは、自分が何が好きで、何が嫌いなのか、本当に分からなくなってしまいます。
+
+だから、一人の時間に、五感のチューニングを行いましょう。
+コーヒーを飲むとき、スマホを置いて、じっくりとその香りや苦味を味わってみる。
+「私は、この酸味が好きだろうか？ それとも苦手だろうか？」
+音楽を聴くとき、歌詞やメロディに耳を傾け、自分の心がどう震えるかを感じてみる。
+「この曲は、今の私の気分に合っているだろうか？」
+肌触りの良いタオル、風の匂い、夕焼けの色。
+一つ一つの刺激に対して、「私はどう感じるか」を丁寧に問いかけていくのです。
+
+「これは好き」「これは嫌い」「これは心地よい」「これは不快」。
+そんな原始的な感覚を取り戻していくことは、自分という木の根っこに水をやる作業です。
+根っこさえしっかりしていれば、多少の風（他人の意見）が吹いても、幹まで折れることはありません。
+あなたの「好き」という感覚は、誰にも侵すことのできない聖域です。
+その聖域を大切に守り育てることで、薄くなった自分の輪郭は、内側から再び色濃く発光し始めます。
+
+---
+
+本音を伝えるとき、「クッション言葉（アイ・メッセージ）」があなたの心を守るエアバッグになります。
+主語を「あなた」にすると、相手は攻撃されたと感じます。
+「（あなたは）なんでそんなことを言うの？」
+これでは喧嘩になります。
+主語を「私」に変えてみてください。
+
+「（私は）そういう言い方をされると、少し悲しいです」
+「（私は）この部分は不安を感じています」
+「（私は）今は少し疲れています」
+
+これなら、誰も否定していません。
+ただ、あなたの内側の状態をレポートしているだけです。
+「私」を主語にする限り、それは事実であり、誰にも反論できない領域になります。
+そして、伝える内容は具体的に絞ります。
+「あなたの全部がダメ」ではなく、「このスケジュールの、この部分が不安です」。
+具体的であればあるほど、それは人格攻撃ではなく、建設的な「情報の共有」になります。
+
+---
+
+長く演じてきた「役割」から降りるのが怖いなら、時間を区切って降りる練習をします。
+一週間のうち一時間だけ、仕事の肩書きも、家族の中での役割も忘れて、「ただの自分」に戻る時間を作る。
+
+一人で映画館の暗闇に座る。
+古い友人と会って、昔の話をする。
+誰も知り合いのいない、少し遠くの街の喫茶店に行く。
+そこでは、あなたは「課長」でも「お母さん」でも「良い妻」でもありません。
+ただのコーヒーを飲む人、ただの映画を見る人です。
+
+役割のない時間を呼吸することで、役割の中にいるときの息苦しさも、少しだけ和らぎます。
+深海魚が海面に上がって息継ぎをするように、あなたにも「役割という水圧」から解放される時間が必要です。
+その一時間が、残りの一週間を生きるための酸素になります。
+
+---
+
+哲学的な視点に立てば、「自分」とは固定された岩のようなものではなく、関係性の中で揺れ動く「川の流れ」のようなものです。
+相手が変われば自分も変わるし、時間とともに変わっていくのが自然です。
+だから、「一貫性のある自分でなければならない」と思い詰める必要はありません。
+
+昨日の自分と今日の意見が違ってもいい。
+職場での自分と、家での自分が違ってもいい。
+どれも、その時々の環境に適応しようとした、本物のあなたの側面です。
+「キャラがブレる」ことを恐れないでください。
+その揺らぎさえも、人間らしい奥行きであり、魅力の一部なのです。
+多面体である自分を許してあげましょう。
+
+---
+
+自分を隠し続けていると、身体も正直に反応して縮こまります。
+猫背になり、肩が上がり、声帯が締まり、呼吸が浅くなる。
+これは「防御の姿勢」です。
+逆説的ですが、身体を先に開いてしまうのも有効です。
+
+胸を張り、肩甲骨を寄せて、深く息を吸う。
+少しだけ顔を上げて歩く。
+人と話すとき、おへそを相手の方に向ける。
+身体が堂々としていれば、心もつられて少しだけ強気になれます。
+「私はここにいていい」「私は隠れなくてもいい」。
+そんなメッセージを、姿勢を通じて脳に送り返すのです。
+姿勢を変えるだけで、言葉の出口が広がり、本音がつっかえずに外に出やすくなります。
+
+---
+
+そして忘れないでほしいのは、あなたがこれまで「空気を読みすぎてしまった」のは、それだけあなたが「他人の痛みに敏感で、優しい心」を持っていたからです。
+その繊細なセンサーは、けっしてあなたを苦しめるための呪いではありません。それは、深く感じる心を持ったあなただけに、神様から与えられた特別なギフトなのです。
+ただ、これまではそのセンサーを「地雷を探して自分が傷つかないようにするため」だけに使っていたから、疲れてしまったのです。
+これからは、その性能の良いセンサーを、「誰かの小さな悲しみに気づき、寄り添うため」に使ってみてください。
+「あの人、少し元気がないな」「無理して笑っているな」。
+それに気づけるのは、あなたしかいません。
+自分の身を守るためではなく、誰かを愛するためにその力を使ったとき、あなたの繊細さは最大の武器になります。
+痛みを知る人だけが、本当の意味で誰かを救えるのですから。
+
+---
+
+もし本音を言えなかったとしても、夜に自分を責めないでください。
+「言えなかった」のではなく、「言わないという選択をして、平和を守った」のです。
+それはあなたの理性が選んだ、立派な戦略です。
+その代わり、ノートに一言だけ書き残しておきましょう。
+「本当は、こう言いたかった」。
+
+その一行があれば、あなたの想いはなかったことにされず、ちゃんとこの世界に存在したことになります。
+自分の声を、自分だけは聞いてあげる。
+それこそが、自尊心を守る最後の砦です。
+世界中があなたを無視したとしても、あなただけは、あなたの最大の理解者でいてあげてください。
+
+---
+
+最後に。
+明日、誰かとの会話の中で、たった一つだけ、あなたの「本当の感覚」を混ぜてみてください。
+
+「このお茶、美味しいですね」
+「その話、面白いですね」
+「今日はちょっと、疲れましたね」
+
+肯定でも否定でもない、ただのシンプルな感想で構いません。
+お天気の話をするように、あなたの心の色を一色だけ、会話というキャンバスに落としてみる。
+その小さな本音は、世界を壊したりしません。
+むしろ、無機質だった会話に血が通い、あなたの周りの空気を少しだけ温かく、色鮮やかなものに変えてくれるはずです。
+
+あなたは、誰かの期待を満たすための舞台装置ではありません。
+心臓を持ち、血が通い、独自の感情を持った、かけがえのない物語の主人公です。
+薄くなってしまった輪郭を、自分の言葉というペンでゆっくりとなぞり、もう一度濃く描き直していきましょう。
+
+大丈夫。
+世界はあなたが思うほど狭量ではなく、あなたのその一言を、案外待ち望んでいるものなのですから。
+
+
+あなたの思考の、静かな伴走者として。『静寂の哲学』では、これからも物事の本質を探求していきます。よろしければ、チャンネル登録で、また次の思索の時間にお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

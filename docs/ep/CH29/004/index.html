@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH29-004 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH29-004 — script</h1>
           <div class="muted">家族LINEが地獄…既読の圧から抜けた</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,171 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="#" class="btn" aria-disabled="true" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>家族LINEが地獄…既読の圧から抜けた</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>苦しさ, 比較, 老後, シニア, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH29-004</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH29-004&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夜の部屋。
+スマートフォンの画面が不意に白く光りました。
+静まり返った部屋の中で、その振動音が威圧感を持って響きます。
+家族LINE。
+子供たちからの、他愛のない、けれど絶え間ないメッセージ。
+「今日のお昼はこれでした」「孫が歩けるようになりました」
+一見すれば微笑ましい風景。けれど画面を見つめる私の指は強張っていました。
+既読の二文字が表示されるたび、早く何か言わなければと追い立てられ。
+底なしの沼のようなやり取りの中で、私は穏やかな夜をどこかに置き忘れていました。
+今夜は、家族LINEの中で私がどのように心をすり減らし。
+そして、どのように本当の静寂を取り戻したのか。
+その物語を、少しだけお話しさせてください。
+あなたが今、スマートフォンの光に追いかけられ心が窒息しそうになっているのなら。
+この物語が、あなたの休息のためのしおりになればと願っています。
+
+---
+
+数年前、家族のLINEグループを作った時、私は心から喜んでいました。
+離れて暮らす子供たちの近況がリアルタイムで伝わってくる。
+孫の成長を眺め、美味しいものを報告し合う。
+それこそが新しい時代の家族の絆なのだと、疑いもなく信じていたのです。
+スタンプ一つを送るのにも楽しく悩んでいたのを覚えています。
+グループに流れる会話は、果てしなく続く小川のようなもの。
+そこに自分も参加している感覚が、独りで暮らす心の隙間を埋めてくれました。
+私は誰よりも早く確認し、温かな言葉を返そうと努めていました。
+通知音が鳴るたびに家事の手を止め、食事の最中でも画面を覗き込み。
+それは家族からの愛情を確認する、最も手軽な儀式になっていったのです。
+けれどその小川は、生活すべてを飲み込む激流へと変わっていきました。
+
+---
+
+変化は、私の些細な遅れに対する、子供たちの反応から始まりました。
+ある日、私は充電が切れていることに気づかず、数時間ほど確認できませんでした。
+夜、電源を入れた瞬間に目に飛び込んできたのは、驚くほど沢山のメッセージ。
+「お母さん、見てる？」「無視しないでよ」
+最初は心配してくれているのだと思い、申し訳なさで胸がいっぱいになりました。
+けれどそれからも、返信を渋ったり、既読のまま時間を置いたりすると。
+「お母さんはいつもそう」「みんな待ってるんだよ」
+無言の圧力が、画面越しに私の部屋を侵食し始めたのです。
+家族LINEは楽しい場から、監視し合う逃げ場のない檻へと成り果てていました。
+不自由な糸で手足を縛られているような、じわじわとした束縛でした。
+
+---
+
+決定的な出来事は、私が孫の病気の報告を見逃してしまった夜に起こりました。
+その夜、私は珍しく通知を切って、本に没頭していました。
+それは私にとって、何ヶ月ぶりかの至福の時間でした。
+けれど翌朝に画面を開くと、娘からの激しい罵倒。
+「大変だったのに何をしてたの。既読にさえならないなんて親だと思えない」
+実は婿がすぐに駆けつけ、大した事態ではなかったことが後からわかりました。
+けれどその瞬間に娘の不安の矛先となったのは、スマートフォンを置いていた私でした。
+「ごめんなさい。でも、もう大丈夫だったんでしょ」
+私が精一杯の言葉を返しても、娘の怒りは収まりませんでした。
+「言い訳なんか聞きたくない。私たちは命がけで使ってるんだよ」
+命がけで、LINEを使う。
+その言葉の歪んだ響きに、私は深い絶望を感じました。
+私たちの関係は、指先一つの操作でこれほどまでにあっけなく、破壊されるものだったのか。
+写真の中の私の笑顔は、家族を繋ぎとめる道具に魂を切り刻まれている惨めなものでした。
+
+---
+
+私はその日から自分の人生を取り戻すために、既読の魔力から抜ける決断をしました。
+まず、家族LINEの通知を永久に消音。
+次に、子供たちに対して一つの宣言をしました。
+「これからは、夜の八時以降はスマートフォンを見ません。急ぎの用なら電話をしてください」
+最初は案の定、激しい反発。
+「冷たすぎる」「寂しいじゃない」
+けれど私は屈することはありませんでした。
+既読にならないことで責められ、返信が遅いことで失望されるなら。
+その失望を、私は甘んじて受け入れる。そう自分に言い聞かせました。
+私は、いつでも繋がっていることを証明し続けることに、疲れ果てていたのです。
+机の引き出しに仕舞い、鍵をかける。
+それだけで、部屋に流れる時間は驚くほどゆっくりと、透明に変わっていきました。
+続けるうちに、私は気づいたのです。
+繋がっていない時間こそが、私が呼吸を整えるために最も必要な贅沢だったのだと。
+
+---
+
+今、私の夜の部屋には本当の静寂が戻ってきました。
+テーブルの上には読みかけの本と、一杯のティー。
+家族LINEは今でも賑やかに動いています。
+けれど今の私は、それを一日に一度だけ確認するようにしています。
+大切な報告があれば喜び、愚痴があればそっと画面を閉じる。
+すべての言葉に心を明け渡すことは、もうしません。
+面白いことに、私が捕まる相手ではなくなったことで、子供たちも敬意を持って接してくれるようになりました。
+「お母さん、忙しい時にごめんね」
+その一言が、かつての弾幕よりもずっと深く心に届くのです。
+家族の絆とは既読の数で決まるものではありません。
+一人の人間として適度な距離を保ち、それぞれの時間を尊重し合うこと。
+本当の糸を強くしていくのだと知りました。
+もしあなたが今、画面越しに家族の機嫌を伺うことに疲れ果てているのなら。
+どうか一度その画面から目を離して、深い呼吸をしてみてください。
+あなたは、いつでも答える機械ではありません。
+
+今夜は、これまであなたを縛り付けてきた見えない糸を緩めてみてください。
+通知の音、既読の文字。
+それらをすべて夜の闇に溶かして、あなたはあなたの時間を生きてください。
+今夜はメッセージが来ても、一度だけ短く返して。
+それ以上は深追いをしてはいけません。その一回で、今日のあなたの仕事はすべておしまいです。
+「あとは明日、陽が昇ってから考えよう」
+そう自分に許可を出して、灯りを消してください。
+その暗闇こそが、あなたを内側から優しく抱きしめ、本当の安らぎへと導いてくれるはずです。
+
+最後まで耳を傾けてくださり、感謝いたします。
+あなたの夜が、穏やかな夢で満たされますように。
+おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

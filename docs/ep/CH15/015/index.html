@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-015 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-015 — script</h1>
           <div class="muted">【忍耐】耐えるほど壊れる｜耐え方を変えろ</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,453 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【忍耐】耐えるほど壊れる｜耐え方を変えろ</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>忍耐, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-015</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-015&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">耐える。我慢する。黙って堪える。
+それが美徳だと思っていませんか。
+歯を食いしばって耐える。
+弱音を吐かずに頑張る。
+辛くても顔には出さない。
+そうすることが立派だと教わってきませんでしたか。
+
+でも、耐えるほど壊れていく人がいます。
+今日は、耐え方を変える方法をお伝えします。
+健やかに生きるための知恵を、お釈迦様の教えからお話しします。
+無理な耐え方をやめて、自分を守る方法を学んでいきましょう。
+
+---
+
+日本には、忍耐は美徳という考え方があります。
+
+苦しくても耐える。辛くても我慢する。弱音を吐かない。それが立派な人だと。
+文句を言わず黙々と働く。辛くても笑顔を見せる。それが評価されると。
+
+でも、耐え続けることで心身を壊している人がたくさんいます。
+限界を超えても耐え続けて、ある日突然倒れてしまう。
+うつ病になる。体を壊す。燃え尽きてしまう。
+
+耐えることが必ずしも正解ではないのです。
+耐えることで壊れてしまっては、何のために耐えたのか分かりません。
+自分を守ることも、大切なことなのです。
+
+耐えることが美徳なのではなく、健やかに生き続けることが美徳なのです。
+この視点の転換が、今日お伝えしたいことです。
+
+私たちは、耐える美徳を教わってきました。
+でも、耐えることの危険性は教わってこなかった。
+だから、限界を超えても耐え続けてしまう。
+今日は、その考え方を変えていきましょう。
+
+---
+
+お釈迦様のお話をご紹介しましょう。
+
+お釈迦様が悟りを開く前、厳しい苦行をしていた時期がありました。
+断食をし、体を痛めつけ、極限まで自分を追い込んでいました。
+苦しみに耐えれば悟りに近づける。そう信じて、ひたすら耐えていたのです。
+
+しかしある日、お釈迦様は気づきました。
+このまま苦行を続けても、悟りには至れない。
+体も心も弱り果てて、何も得られないまま死んでしまうだけだ。
+
+そしてお釈迦様は苦行をやめました。
+体を回復させ、心を整えて、瞑想に入りました。
+その結果、悟りを開くことができたのです。
+
+お釈迦様は後に、こう教えられました。
+
+極端な苦行は悟りへの道ではない。極端な快楽もまた道ではない。
+中道を歩むことが大切だ。
+無理に耐えることは苦行である。それは健全な道ではない。
+適度に休み、適度に助けを求め、バランスを取ることが大切だ。
+
+この教えは、中道と呼ばれています。
+極端を避け、バランスを取ること。
+それが健やかに生きる道なのです。
+
+お釈迦様でさえ、無理な苦行をやめたのです。
+私たちが無理に耐える必要はありません。
+限界を超えた忍耐は、自分を傷つけるだけ。
+それは悟りへの道ではなく、自己破壊への道なのです。
+
+この話から学べることは大きいです。
+耐えることそのものに価値があるのではない。
+目的を達成するために、適切な方法を選ぶことが大切。
+耐えることが目的を遠ざけるなら、耐え方を変えるべきなのです。
+方法を変える勇気を持つこと。
+それが、本当の強さなのかもしれません。
+
+---
+
+なぜ耐えることが壊れることにつながるのでしょうか。
+
+まず、ストレスが蓄積するからです。
+耐えるとき、ストレスは消えません。
+どこかに溜まっていく。心の奥底に沈殿していく。
+それがある日、爆発します。
+些細なことで激怒したり、急に涙が止まらなくなったり。
+溜め込んだストレスが、一気に噴き出すのです。
+
+ストレスは目に見えないから、気づきにくい。
+でも確実に蓄積しています。
+コップに水を注ぎ続けるようなもの。
+いつか必ず溢れます。
+
+次に、声を上げないから問題が解決しないからです。
+耐えているだけでは状況は変わりません。
+むしろ悪化することもある。
+問題を放置すればするほど、解決が難しくなります。
+早めに対処していれば小さな問題だったものが、手遅れになってしまう。
+
+そして、自分のサインを無視しているからです。
+体や心が、もう限界だよ、と言っているのに無視して耐え続ける。
+体の痛み、心の苦しみ、それは大切なサインです。
+サインを無視して耐え続けると、結果として病気になります。
+体も心も、限界を超えると壊れてしまうのです。
+
+さらに、助けを求めないからです。
+一人で抱え込んで、誰にも言わない。
+でも人間は、一人で耐えられる量には限界があります。
+助けを求めれば楽になれることでも、一人で耐えようとして苦しみ続ける。
+それは美徳ではなく、自己犠牲です。
+
+また、体が悲鳴を上げているからです。
+ストレスは体にも影響します。
+頭痛、肩こり、胃痛、不眠。
+体があなたに警告を送っている。
+でも、耐えることに意識が向いていると、体の声が聞こえなくなる。
+体が壊れてから気づくのでは遅いのです。
+
+このように、耐えることには多くのリスクがあります。
+耐えれば耐えるほど、壊れるリスクが高まる。
+それを理解した上で、耐え方を考える必要があります。
+
+---
+
+耐えることが美徳とされるのは、それが役に立つ場面もあるからです。
+
+一時的な困難を乗り越えるとき、少しの忍耐が必要なとき、耐えることには意味があります。
+試験期間中の勉強、プロジェクトの締め切り前、病気の回復期間。
+こうした時期を乗り越えるには、ある程度の忍耐が必要です。
+終わりが見えている困難は、耐える価値があります。
+
+でも、終わりの見えない苦しみを無限に耐えることは、美徳ではありません。
+それは自己破壊です。
+いつ終わるか分からない。何年も続いている。状況は良くならない。
+そんな苦しみに耐え続けることは、自分を傷つけているだけです。
+
+耐えることと、壊れることは紙一重です。
+乗り越えられる困難なのか、離れるべき害なのか。
+その見極めが大切なのです。
+
+大切なのは、自分の状態を客観的に見ることです。
+私は今、大丈夫だろうか。
+この状況は、乗り越えられるものだろうか。
+冷静に判断してください。
+
+見極めのポイントがあります。
+終わりが見えるかどうか。
+あとどれくらい耐えれば終わるのか、分かっているか。
+終わりが見えるなら、耐える価値がある。
+終わりが見えないなら、耐え方を変えた方がいい。
+
+もう一つのポイント。
+状況は改善に向かっているか。
+少しずつでも良くなっているなら、耐える意味がある。
+悪化しているなら、耐えても無駄です。
+
+この二つのポイントで、自分の状況を判断してみてください。
+終わりが見えない、状況が改善しない。
+そういう場合は、耐えることをやめる時期かもしれません。
+
+---
+
+では、耐え方を変えるための具体的な方法をお伝えします。
+五つのポイントです。
+
+第一のポイント。耐えなければならないという思い込みを疑う。
+
+本当に耐えなければならないのでしょうか。
+別の選択肢はありませんか。
+そう自分に問いかけてみてください。
+
+仕事が辛いなら、辞めてもいい。
+関係が苦しいなら、離れてもいい。
+環境が合わないなら、変えてもいい。
+無理に耐える必要はありません。
+
+耐えなければ、と思い込んでいることの多くは、実は耐えなくてもいいことです。
+自分で自分を縛っているだけかもしれません。
+その縛りを解いてみてください。
+
+なぜ耐えなければならないと思っているのか。
+誰かに言われたからですか。社会の常識だと思っていますか。
+でも、その常識は本当でしょうか。
+耐えなくていい、という選択肢もあるのです。
+
+第二のポイント。適切に声を上げる。
+
+辛いと言ってもいいのです。
+助けてと言ってもいいのです。
+弱音を吐いてもいいのです。
+
+黙って耐えていると、周りも気づきません。
+困っていることを伝えなければ、助けてもらえません。
+あなたが黙っていると、周りは問題ないと思っています。
+
+助けを求めることは恥ずかしいことではありません。
+強い人こそ、適切に助けを求められるのです。
+一人で抱え込まず、周りの力を借りてください。
+
+声を上げることで、状況が変わることもあります。
+上司に相談したら、仕事の分担が変わった。
+家族に話したら、協力してもらえた。
+言わなければ、何も変わりません。
+言うことで、変わる可能性があるのです。
+
+第三のポイント。休むことを許す。
+
+疲れたら休む。
+当たり前のことですが、できていない人は多い。
+休んではいけない、まだ頑張らなければ、と思っていませんか。
+
+休むことは怠けることではありません。
+回復するために必要なこと。
+長期的に頑張るために必要なこと。
+休まずに頑張り続けると、効率は下がり、ミスが増え、結局は成果も出ません。
+
+適度に休んで、エネルギーを回復させる。
+それが長く続けるコツです。
+休むことに罪悪感を感じないでください。
+
+休むことを、投資と考えてみてください。
+今日休むことで、明日のパフォーマンスが上がる。
+今週休むことで、来週もっと良い仕事ができる。
+休むことは、将来の自分への投資なのです。
+
+第四のポイント。限界のサインに気づく。
+
+体が疲れやすい、眠れない、食欲がない、イライラする、涙が出る。
+これらは限界のサインです。
+体と心が、もう限界だと教えてくれているのです。
+
+サインに気づいたら、耐えるのではなく対処してください。
+休む、相談する、環境を変える。
+サインを無視して耐え続けると、もっと大きな問題になります。
+早めに対処すれば、軽く済むことも多いのです。
+
+自分の体と心の声に耳を傾けてください。
+サインを見逃さないでください。
+サインは、あなたを守ろうとする大切な警告なのです。
+
+具体的なサインを覚えておいてください。
+朝起きるのが辛い。仕事に行きたくない。楽しいことが楽しくない。
+人に会いたくない。何もする気が起きない。
+これらは、心が限界に近づいているサインです。
+
+体のサインもあります。
+慢性的な疲労、頭痛、胃腸の不調、肌荒れ。
+病院に行っても原因が分からない不調。
+それはストレスが原因かもしれません。
+
+サインを無視せず、早めに対処してください。
+早く気づけば、早く回復できます。
+
+第五のポイント。逃げてもいいと知る。
+
+逃げることは負けではありません。
+戦略的撤退です。
+合わない環境から離れることで、新しい環境で力を発揮できることがあります。
+
+無理に耐えて壊れるより、逃げて生き延びる方が賢明です。
+今の場所がすべてではありません。
+別の場所、別の環境、別の人間関係がある。
+そこでなら、あなたは輝けるかもしれません。
+
+逃げることを選択肢に入れてください。
+逃げる勇気を持ってください。
+自分を守るための撤退は、恥ずかしいことではありません。
+
+逃げた先に、新しい人生が待っているかもしれません。
+今いる場所では発揮できなかった力が、別の場所では活きるかもしれない。
+今の環境に合わないからといって、あなたがダメなわけではありません。
+合う環境を探すことも、大切な選択なのです。
+
+---
+
+この実践をする時、気をつけていただきたいことがあります。
+
+まず、すべての困難から逃げろ、と言っているのではありません。
+すべての困難から逃げていては成長しません。
+乗り越えることで強くなれる困難もあります。
+
+見極めが大切です。
+乗り越えるべき困難か、避けるべき害か。
+短期の困難なら乗り越える価値がある。
+長期の害なら避けた方がいい。
+その判断を、冷静にしてください。
+
+判断が難しい時は、時間を区切ってみてください。
+あと三ヶ月だけ頑張ってみる。
+三ヶ月後に状況が改善していなければ、別の道を考える。
+期限を決めることで、判断がしやすくなります。
+
+次に、周りに相談することをお勧めします。
+一人で判断すると、偏った見方になることがあります。
+これくらい耐えられる、と思い込んでいることが、実は危険な状態かもしれません。
+信頼できる人に、自分の状況を話してみてください。
+客観的な視点からアドバイスをもらえることがあります。
+
+また、専門家の助けを借りることも大切です。
+心身の不調が続いているなら、医師やカウンセラーに相談してください。
+専門家は、あなたの状態を客観的に見て、適切なアドバイスをくれます。
+一人で判断しないでください。
+
+さらに、自分を責めないでください。
+耐えられなかった自分はダメだ、と思わないで。
+限界は人それぞれです。
+耐えられる量も人によって違います。
+自分の限界を認めることは、弱さではありません。
+自分を守る賢さです。
+
+世の中には、もっと頑張れと言う人もいます。
+そういう人の言葉に惑わされないでください。
+あなたの体と心は、あなたにしか分かりません。
+他人が、あなたの限界を判断することはできないのです。
+
+自分の感覚を信じてください。
+もう無理だと感じたら、それが限界です。
+まだ大丈夫と他人が言っても、あなたが無理なら無理なのです。
+自分を信じる勇気を持ってください。
+
+---
+
+耐えるほど壊れていく人へ。
+
+あなたは十分に頑張ってきました。
+これ以上頑張らなくていいのです。
+
+耐えることは美徳ではありません。
+健やかに生き続けることが美徳です。
+
+耐え方を変えてください。
+
+思い込みを疑う。
+声を上げる。
+休むことを許す。
+限界のサインに気づく。
+逃げることを許す。
+
+この五つを覚えておいてください。
+すべてを一度に変える必要はありません。
+一つだけでいいから、意識してみてください。
+
+まずは、自分の状態に気づくことから始めてください。
+今、自分は大丈夫だろうか。
+体は疲れていないか。心は苦しんでいないか。
+正直に自分と向き合ってみてください。
+
+気づいたら、次は行動してください。
+小さな一歩でいいのです。
+今日は早めに寝る。今日は少し休む。今日は誰かに話してみる。
+その小さな行動が、あなたを守ります。
+一歩ずつで大丈夫です。
+
+この五つを意識してください。
+あなたは、壊れるまで耐えなくていいのです。
+
+今日から、自分の状態に正直になってみませんか。
+体は疲れていませんか。心は苦しんでいませんか。
+限界のサインを見逃していませんか。
+もし心当たりがあるなら、今日から少しだけ自分に優しくしてみてください。
+
+自分を大切にしてください。
+自分を守ってください。
+あなたが壊れてしまったら、誰が悲しむでしょうか。
+あなたを大切に思う人がいます。
+
+長く健やかに生きるために、耐え方を変えてください。
+無理をしないでください。
+自分に優しくしてください。
+
+耐えることをやめることは、諦めることではありません。
+別の方法を選ぶことです。
+無理な耐え方をやめて、健やかな生き方を選ぶ。
+それは前向きな選択です。
+
+あなたには、幸せに生きる権利があります。
+苦しみ続ける義務などありません。
+耐えることが当たり前だと思わないでください。
+楽になっていいのです。
+笑って生きていいのです。
+幸せを感じていいのです。
+
+今この瞬間から、耐え方を変えてみませんか。
+小さな変化から始めてください。
+今日は少し早く休んでみる。
+今日は誰かに少しだけ弱音を吐いてみる。
+その小さな一歩が、大きな変化につながります。
+
+あなたが心身ともに健やかでありますように。
+あなたが自分を守る勇気を持てますように。
+苦しみから解放されますように。
+
+今日も最後まで聞いてくださって、ありがとうございました。
+あなたの毎日が、少しでも楽になりますように。
+無理をせず、自分を大切にしてください。
+
+皆様の心が、穏やかでありますように。
+</pre>
     </div>
   </div>
 </main>

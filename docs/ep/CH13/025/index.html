@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-025 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-025 — script</h1>
           <div class="muted">【噂】噂話に巻き込まれる｜抜ける一手</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,272 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【噂】噂話に巻き込まれる｜抜ける一手</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>噂, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-025</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-025&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">ねえ、知ってる？あの人の家のこと。
+ここだけの話だけど。
+
+その声を聞くと、なんとなく胸がザワザワしませんか。
+興味がないわけではない。むしろ、少し知りたい気もする。
+でも、話が進むにつれて、どんどん空気が重く、粘り気のあるものになっていく。
+
+「はい、はい」と相槌を打ちながら、心のどこかで警報が鳴っている。
+この会話に入ってはいけない。
+でも、抜けると今度は私が標的になるかもしれない。
+
+そうやって、噂話という泥沼から足を抜け出せずに、靴を汚し続けていませんか。
+今日は、この厄介な噂の輪から、角を立てずに、かつ上品に抜け出すための護身術について、禅の知恵をお話しします。
+
+---
+
+まず、噂話が始まる瞬間を思い出してみましょう。
+
+近所の集まりで、誰かがこう切り出す。
+「あそこのお宅、最近なんだか様子がおかしいのよ」
+途端に、周りの目が輝き始める。
+
+ランチの席で、友人がスマホを見せてくる。
+「ねえ、この人のSNS見た？なんか変じゃない？」
+話題に乗らないと、ノリが悪いと思われそうで、つい覗き込んでしまう。
+
+親戚の集まりで、誰かの離婚話が始まる。
+「あの家、やっぱりうまくいってなかったのよね」
+詳細を知らなくても、なんとなく頷いてしまう。
+
+こうした場面で、あなたはどう振る舞っていますか。
+積極的に参加することは少ないかもしれません。
+でも、その場にいて、相槌を打つだけでも、あなたは噂話の共犯者になっているのです。
+
+---
+
+では、噂話の正体を見てみましょう。
+なぜ人は、他人の不幸や秘密を好むのでしょうか。
+それは安心したいからです。
+
+あの人はあんな失敗をした。
+あの家はうまくいっていない。
+そう語ることで、「自分はまともだ」「自分は安全だ」という優越感を確認しているのです。
+噂話とは、自信のない人たちが集まって行う、一種の傷の舐め合いであり精神安定剤の服用会です。
+
+あなたがその輪に巻き込まれるのは、あなたが優しいからです。
+「聞いてあげないと悪い」という優しさにつけ込まれています。
+しかし、その優しさは危険です。
+噂好きな人は、聞いた人を共犯者にします。
+あなたがただ同意を示すように頷いただけでも、次の場所ではこう言われます。
+「〇〇さんもそう言ってたよ」
+
+あなたは何も言っていないのに、いつの間にか悪口を言っていた人にされてしまう。
+これが噂話の恐ろしい感染力です。
+
+---
+
+問題の正体は、噂話をする人の心理にあります。
+
+噂話をする人は、自分自身の人生に満足していないことが多いのです。
+自分の人生に興味深いことがないから、他人の人生に首を突っ込む。
+自分に自信がないから、他人を下げることで相対的に自分を上げようとする。
+自分が退屈だから、刺激を求めて他人のドラマを観察する。
+
+つまり、噂話は、心の空虚さを埋めるための代替行為なのです。
+
+また、噂話には「仲間意識を確認する」という機能もあります。
+「私たち」と「あの人」を分けることで、グループの結束を強める。
+共通の敵を作ることで、自分たちの絆を確認する。
+これは原始的な部族心理の名残です。
+
+しかし、こうした絆は脆いものです。
+共通の敵がいなくなれば、今度は仲間内から敵を探し始めます。
+今日一緒に噂話をしている人が、明日はあなたの噂をしているかもしれないのです。
+
+---
+
+仏教には「両舌」という戒めがあります。
+二枚舌のことです。
+あちらでこっちの悪口を言い、こちらであっちの悪口を言う。
+これは、人間関係を最も深く破壊する行為とされています。
+
+また、「綺語」という戒めもあります。
+中身のない、飾り立てた無益な言葉のことです。
+噂話はまさにこれです。
+事実かどうかも分からないことを、面白おかしく語る。
+それは聞く人の時間を奪い、話す人の品格を汚します。
+
+お釈迦様は、「人の過ちを見るなかれ。自分の行いの正不正のみを見よ」と説かれました。
+他人の家の庭が荒れているのを笑う暇があったら、自分の庭の草をむしりなさい、ということです。
+他人のことに過剰に関心を持つのは、自分の人生を生きていない証拠です。
+暇なのです。
+
+---
+
+ここで、古代ギリシャの哲学者、ソクラテスの有名なエピソードを紹介しましょう。
+これは「三つのふるい」と呼ばれる話です。
+
+ある時、知人がソクラテスの元へ駆け寄ってきました。
+「ソクラテス！君の友人について、面白い話を聞いたんだ！」
+
+ソクラテスは静かに手を挙げて制しました。
+「待ちなさい。話す前に、その話が三つのふるいを通るかどうか、確かめさせてもらおう」
+
+「三つのふるい？」
+
+「そうだ。第一のふるいは真実だ。その話は、絶対に真実だと確信が持てるのかね？」
+知人は首を振りました。
+「いや、噂で聞いただけだから、確かかどうかは…」
+
+「では、第二のふるいは善意だ。その話は、友人にとって良い話なのかね？」
+「いや、どちらかというと悪い話だ…」
+
+「では、最後のふるいは有益だ。その話を聞くことは、私にとって役に立つのかね？」
+「いや…役に立つとは言えないな」
+
+ソクラテスは微笑んで言いました。
+「真実かどうかも分からず、良い話でもなく、役にも立たない。そんなゴミのような話を、なぜ私が聞かなければならないのかね？」
+
+痛快ですね。
+現代の噂話の九割は、この三つのふるいに通りません。
+真実ではない憶測、悪意がある批判、役に立たない時間の無駄。
+そんな毒入りの泥水を、わざわざ飲み込む必要はないのです。
+「飲みません」とグラスを伏せる権利が、あなたにはあります。
+
+---
+
+では、実際に噂話の輪に巻き込まれた時、どうやってグラスを伏せればいいのでしょうか。
+角を立てずにスッと消える、三つのステップをお伝えします。
+
+第一のステップ：中立の反応をする
+
+噂好きな人は、同意を求めています。
+「ひどいよね？」と言われた時、「ひどいね」と言えば同意です。
+「そうなんだ」と言えば受容ですが、これも同意と取られかねません。
+
+鉄則は、感情を込めないことです。
+「へえ、そうなんですか」
+「そういう話があるんですね」
+ただの事実確認として返します。
+「私はそう思いません」と反論する必要はありません。反論すると、面白がってさらに攻撃してきます。
+暖簾に腕押しのように、何の反応も返ってこなければ、相手は話す張り合いをなくします。
+
+魔法の言葉は、「よく分かりませんが」です。
+「真相はよく分かりませんが、大変そうですね」
+これで、あなたはどちらの側にも立っていないことを示せます。
+
+第二のステップ：物理的に距離を取る
+
+話が盛り上がってきたら、一番いいのはその場を離れることです。
+「あ、ごめんなさい。お手洗いに」
+「ちょっと電話が」
+理由はなんでもいいのです。
+大切なのは、「この話には付き合いません」という行動を示すことです。
+
+噂話は、その場にいるだけで座席料を取られます。
+立ってしまえば、座席代はかかりません。
+忙しい人というキャラを演じてください。
+「あの人はいつも忙しそうだから、噂話なんてしている暇はないよね」
+そう思われることが、最高のバリアになります。
+
+第三のステップ：話題を変える
+
+逃げられない状況なら、強引にハンドルを切ります。
+「そういえば、ここにあるお菓子、すごく美味しいですね」
+「あ、昨日のドラマ見ました？」
+全く関係のない、明るい話題を投げ込みます。
+
+噂話という暗い流れを、日常の明るい流れで断ち切るのです。
+空気が読めないふりをして構いません。
+「この人は噂話に乗ってこないな」と相手に悟らせることが目的です。
+何度か話題を変えれば、相手も「この人に話してもつまらない」と諦めてターゲットを変えます。
+
+---
+
+注意してほしいのは、絶対に正義感を出さないことです。
+「人の悪口はやめましょうよ」
+「本人に聞かないと分からないじゃないですか」
+これは正論ですが、噂好きな人にとっては宣戦布告です。
+「何好子ぶってるの」と、今度はあなたが標的にされてしまいます。
+
+ソクラテスのように論破する必要はありません。
+あれは哲学者だからできたことです。
+私たちは、もっと静かに、霧のように消えればいいのです。
+戦わないことが、最大の防御です。
+
+また、噂話を完全に避けることは難しいかもしれません。
+社会生活を送る以上、どこかで遭遇することはあります。
+大切なのは、「参加しない」「同意しない」「広めない」という三原則を守ることです。
+聞いてしまったとしても、それを他の場所で話さない。
+それだけで、あなたは噂話の連鎖から外れることができます。
+
+---
+
+噂話の輪から抜け出すと、一時的に仲間外れにされたような気分になるかもしれません。
+でも、安心してください。
+噂でしかつながれないような関係は、友情ではありません。
+ただの共犯関係です。
+
+その輪から抜けたあなたは、とても清潔です。
+泥の中から咲く蓮の花のように、周りが汚れていても、あなただけは凛としていればいい。
+その清潔さは、必ず誰かが見ています。
+「あの人は、人の悪口を言わない人だ」
+その信頼こそが、泥沼からあなたを守る、一番の味方になってくれるはずです。
+
+そして、噂話から解放された時間を、もっと有意義なことに使ってください。
+自分の趣味、自分の成長、自分の大切な人との時間。
+他人の人生を覗き見する暇があったら、自分の人生を豊かにすることに集中する。
+それが、本当の意味での「いい人生」ではないでしょうか。
+
+今日からは、噂が聞こえたら、心の中でソクラテスのふるいを思い出してください。
+そして、静かに、優雅に、その場を離れましょう。
+あなたの耳も、口も、心も、もっと美しいもののために使うべきなのですから。
+</pre>
     </div>
   </div>
 </main>

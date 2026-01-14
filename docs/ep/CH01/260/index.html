@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-260 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-260 — script</h1>
           <div class="muted">【警告】完璧主義は心を壊します。自信がない人ほど自分を追い詰める理由</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,224 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【警告】完璧主義は心を壊します。自信がない人ほど自分を追い詰める理由</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【自己肯定感】で苦しいあなたへ──完璧を手放す話。
+・完璧主義の正体・力を抜く3ルール
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>自己肯定感, 不安, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【自己肯定感】で苦しいあなたへ──完璧を手放す話。
+・完璧主義の正体・力を抜く3ルール</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-260</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-260&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">なぜあなたは、これほどまでに自分を責め続けてしまうのでしょうか。
+朝起きてから夜眠るまで、少しのミスも許せずに心を締め付けている。
+他人の目を気にして、ふとした瞬間に湧き上がる自己嫌悪に押しつぶされそうになっている。
+仕事でも家事でも、満足のいく結果が出たと思っても、すぐに次の不安が頭をもたげる。
+そんな息苦しさを感じてはいませんか。
+
+多くの人は、完璧主義を「真面目で努力家な証拠」だと思い込みがちです。
+褒められるべき美徳だと思いながら、今日も懸命に頑張っている。
+しかし、その正体は少し違います。
+実はそれ、自信の裏返しという防衛本能なのです。
+あなたがこれほどまでに頑張っているのは、単に物事を成し遂げたいからではなく、今の自分に自信がないからなのです。
+
+---
+
+あなたが身にまとう完璧主義は、分厚い鋼の鎧のようなものです。
+他人の批判や失敗という矢から身を守るための、頑丈で重たい防具です。
+その鎧のおかげで、あなたはこれまで、他人の冷たい視線や傷つく言葉から身を守ってきました。
+「私は完璧にやっている」という鎧があれば、誰にも指図されずに済む気がするからです。
+でも同時に、その重さで息ができず、心が疲れ果ててしまっているのです。
+
+「完璧でなければ愛されない」「間違えたら終わりだ」。
+そんな思い込みが、あなたに鎧を着せ続けさせています。
+今のままの自分には価値がないと感じているからこそ、少しの隙も見せまいとして必死になるのです。
+100点を取らなければ、自分の存在を守れないと思い込んでいる。
+
+本当は自信がないからこそ、完璧に振る舞おうとする。
+その矛盾が、あなたを追い詰めているのです。
+鎧を脱ぐ勇気を持てないのは、脱いだら自分が壊れてしまうと恐れているからかもしれません。
+でも、その鎧こそが、あなたの心を壊しているのだとしたらどうでしょう。
+
+---
+
+この心を縛る仕組みは、仏教が説く「執着」と深く関係しています。
+
+---
+
+理想と現実のギャップに苦しむのは、なぜなのでしょうか。それは、私たちが心の中で「こうあるべきだ」という絶対的なルールを作り上げているからです。仏教では、この強いこだわりを「執着」と呼び、あらゆる苦しみの根本原因として説いています。
+
+私たちが抱く執着の中で、特に心を強く縛り付けるのが「完璧な自分」への執着です。自分は常に優しくあらねばならない、仕事はミスなくこなさねばならない、誰からも好かれなければならない。そんな理想の姿を心の中に描いていませんか。それは一見、真面目な努力の目標に見えます。しかし、実はそれは失敗や批判から自分を守るための、分厚い不安の鎧のようなものなのです。
+
+この鎧を着ていると、現実の自分の弱さや不完全さを素直に認めることができなくなります。現実の自分が理想に届かない時、私たちはそのギャップを埋めようとして、自分自身を激しく責めてしまいます。「なぜできないのだろう」「もっと頑張るべきだ」と、心の中で何度も鞭を打つことになります。これが、自己肯定感を削り取り、心を深く疲れさせていく正体です。
+
+完璧でなければ自分には価値がないという思い込み。それが執着の正体です。理想という見えない基準に振り回され、今の自分を否定し続けること。それが仏教の説く苦しみのメカニズムです。この執着が心に小さな穴を開け、あなたの大切なエネルギーを日々漏らしてしまっているのです。
+
+では、この苦しみの輪から抜け出し、本当の安らぎを取り戻すにはどうすればよいのでしょうか。その答えを、ある人物が身をもって示しました。
+
+---
+
+完璧であろうとしすぎて、心がすり減っていませんか。
+もっと頑張れば、もっと我慢すれば報われると思い込んでいるあなたへ。
+実は、かつて一人の偉人が、まさにその落とし穴にはまったのです。
+
+---
+
+仏教の開祖、シッダールタの物語です。
+彼は悟りを開くために、とてつもない苦行を選びました。
+食事を断ち、息をするのもやっとという状態まで自分を追い込みました。
+骨と皮ばかりになり、目は窪み、歩くのも危ういほどに衰弱していきました。
+当時の彼は、これほど極限まで耐えれば、必ず真理にたどり着くと信じて疑いませんでした。
+しかし、どれだけ体を痛めつけても、心の安らぎは訪れませんでした。
+ある時、彼は川辺で流れる琴の音を聞いたと伝えられています。
+張りすぎた糸は切れ、緩すぎた糸は音が出ない。
+ちょうど良い張り具合こそが、美しい音を奏でるのだと。
+その瞬間、彼はハッとしました。
+自分の心もまた、張り詰めすぎて切れそうになっていることに気づいたのです。
+彼は苦行を捨てる決断をしました。
+そして、供養された乳粥を一口飲みました。
+その行為は、当時の仲間からは堕落だと言われましたが、彼にとっては真実への第一歩でした。
+心身のバランスを整える、中道という道がそこに開けたのです。
+
+---
+
+シッダールタが脱ぎ捨てたのは、過酷な苦行という名の鎧でした。
+そして今、その話を私たちの日常に重ねてみましょう。
+
+---
+
+私たちもまた、何かの鎧を身に着けていませんか。
+完璧でなければ愛されないという不安を隠すための、頑張りすぎの鎧です。
+他人の目を気にして、無理をして笑顔を作る。
+将来の不安から、休むことさえ罪悪感に感じる。
+それは、シッダールタが張り詰めすぎた琴の糸と同じです。
+いつ切れてもおかしくないほど、あなたの心は疲れ果てているのです。
+その鎧は、あなたを守っているのではなく、あなたを締め付けているだけかもしれません。
+
+---
+
+だからこそ、今夜は少しだけ力を抜いてみてください。
+まずは、自分がこれ以上は無理だと感じている場所に意識を向けてみましょう。
+そして、そこで手を止める勇気を持ってください。
+完璧に終わらなくても、今日はもう寝てしまってもいいのです。
+もし何かを我慢しているなら、それを一度手放してみましょう。
+甘いものを一口食べるのも、早めに電気を消すのも、構いません。
+大切なのは、自分を許すという小さな一歩を踏み出すことです。
+
+---
+
+やりすぎをやめることは、弱さではありません。
+自分を守るための、賢い選択です。
+シッダールタのように、あなたもまた、バランスの取れた穏やかな心を取り戻せます。
+どうか、今夜はゆっくりとお休みください。
+
+---
+
+あなたのカバンの中に、見えない重い荷物は入っていませんか。
+背中が痛いわけでも、肩が凝っているわけでもないのに、ふとした瞬間に心がずっしりと重くなる。
+それは現代の私たちが無意識に背負い続けている、完璧主義という名の荷物です。
+
+では、その教えを、あなたの暮らしの場面に置き換えてみましょう。
+シッダールタが極限の苦行を捨てたように、私たちもまた、日常の中で知らず知らずのうちにやりすぎていることがあります。
+彼が悟りを求めて心身をすり減らしたのと同じように、私たちは一体何のために、ここまで自分を追い込んでいるのでしょうか。
+
+その正体は、メールの返信一つ、家事の手順、そして漠然とした将来への不安です。
+もっと丁寧に書かなきゃ、もっと完璧にこなさなきゃ、少しの失敗も許されない。
+そう思い込んで、心の中に次々と荷物を積み上げていませんか。
+返信ボタンを押す前の一瞬の躊躇い、家事が終わった後のふとした虚無感、夜中にふと蘇る過去の失敗の記憶。
+それらはすべて、あなたが自分に課してしまった無理なノルマなのです。
+
+これは実は、他人の目を気にして自分を守ろうとする、不安の鎧なのです。
+完璧であれば誰にも批判されない、間違えなければ愛される、そう思うことで不安を紛らわせているだけなのかもしれません。
+しかし、その鎧は重すぎて、あなたの心を動かすことさえできなくしてしまいます。
+他人の基準が作り出した重荷に、あなたが縛られているだけかもしれません。
+
+シッダールタが苦行という重い荷物を下ろして中道へ進んだように、私たちも気づくことができます。
+この重さは、あなたが本来歩むべき道のためにあるのではなく、ただの不安の塊だということ。
+荷物を下ろせば、あなたはもっと軽やかに、自分の足で歩き始めることができるのです。
+
+では、この見えない荷物を下ろすために、今夜、私たちにできることがあります。
+
+---
+
+今夜、寝る前にできる小さな変化を想像してみてください。
+完璧を手放すことは、決して諦めることではありません。
+それは、長い間自分を縛り付けてきた責めの鎖を、少しだけ緩める作業です。
+シッダールタが極限の苦行を捨てて中道へ進んだように、私たちも今、やりすぎをやめる選択ができます。
+では、ここからは今夜できる小さな実践に移りましょう。
+
+何か一つ、60点でいいと決めてみてください。
+いつもは100点を目指して張り詰めていること、例えば家事の仕上げや明日の準備。
+今日はこれで十分だと、自分に許可を出してみましょう。
+完璧でなくても、誰もあなたを責めません。
+むしろ、少し隙間のあるあなたの方が、周りの人にとっても安心できる存在かもしれません。
+60点で手を止めること、それが心を守るための賢い逃げ道であり、中道の実践です。
+
+自分への言葉も、少しだけ優しく変えてみましょう。
+何かミスをした時、つい心の中で自分を責めていませんか。
+その厳しい言葉を、まあいいか、今日は疲れただけだという優しい言葉に置き換えてください。
+自分を追い詰めるのではなく、自分を抱きしめる言葉を選ぶ。
+たったそれだけで、胸のつかえが取れていくのを感じられるはずです。
+
+今夜、布団に入る前に、一日の荷物を下ろしてください。
+不安の鎧を脱ぎ捨てて、素の自分のまま眠るのです。
+やらなかったこと、できなかったことは、もう今日のことではありません。
+あなたは今日も、精一杯生きてきました。
+その事実だけを認めて、深呼吸をして目を閉じてください。
+
+完璧主義は、あなたを守るための偽物の鎧でした。
+その重い鎧を脱ぐことで、初めて本当の自分自身と向き合えます。
+中道という歩き方は、急がず、焦らず、自分のペースで進む穏やかな道です。
+あなたの心が、これから先、穏やかで軽やかな時間を過ごせることを心から願っています。
+ありがとうございました。
+</pre>
     </div>
   </div>
 </main>

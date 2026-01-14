@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-009 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-009 — script</h1>
           <div class="muted">親友が“孫の自慢”を止めない…私の話は消えていった</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,343 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>親友が“孫の自慢”を止めない…私の話は消えていった</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>不信, 羞恥, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-009</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-009&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">旅館の夕食の席は、静かに始まりました。
+窓の外には、夕日に染まった山並みが広がっています。
+目の前には、色とりどりの料理が美しく並べられた木製の膳。
+久しぶりの友人三人との旅行。
+私は、心からこの時間を楽しみにしていました。
+久しぶりね、みんなで旅行なんて
+私がそう言うと、向かいに座った京子がにっこりと笑いました。
+本当よね。定年してから体力もなくなってきたし、こういう機会、大事にしなきゃね
+隣の敏子も頷きます。
+そうそう。来年はどこにしようかしら
+そんな和やかな空気の中、三人目の友人、美恵子が口を開きました。
+そういえばね、うちの孫、今度発表会に出るのよ
+その一言から、夜の空気は一変しました。
+まだ三歳なのに、すごいでしょう？ 先生にね、この子は筋がいいって言われたの
+美恵子は嬉しそうに語り始めました。
+私たちは最初、微笑みながら聞いていました。
+まあ、すごいわね
+将来が楽しみね
+社交辞令としては十分な反応です。
+でも、美恵子の話は止まりません。
+それでね、衣装がまた可愛くてね。ピンクのチュチュを着てね…
+料理が運ばれてきても、話は続きます。
+この間の運動会でもね、うちの孫だけずば抜けてたの。ビデオ見せてあげたいわ
+スマートフォンを取り出し、動画を再生し始めました。
+私は心の中で小さくため息をつきました。
+また始まった。
+彼女と会うたびに、必ずこうなる。
+話題の中心は常に彼女の孫であり、私たちは聞き役に徹することを求められる。
+今夜もまた、同じパターンが繰り返されようとしていました。
+京子がふと話題を変えようとしました。
+そういえば、私、最近絵手紙を始めたのよ
+でも、美恵子はそれを聞いていませんでした。
+あ、それでね、来月はね…
+京子の言葉は、彼女の孫の話の波に飲み込まれ、跡形もなく消えていきました。
+京子は少し寂しそうな顔をして、箸を動かすだけになりました。
+私は内心、これではまずいと思いました。
+せっかくの旅行なのに、まるで美恵子のワンマンショーのよう。
+でも、彼女を止める術を、私は持っていませんでした。
+今夜は、そんな旅館の夕食の席で感じた、ある消失感についてお話しします。
+自分の存在が透明になっていく感覚から、あなたを守るために。
+
+---
+
+美恵子との付き合いは、もう四十年以上になります。
+若い頃は、私たちは対等な友人でした。
+仕事の愚痴を言い合い、恋愛の相談をし合い、時にはお互いの夢を語り合う。
+そこには、与えることと受け取ることのバランスがありました。
+変化が始まったのは、彼女に孫が生まれてからでした。
+最初の孫が生まれた時、彼女は本当に幸せそうでした。
+おばあちゃんになったのよ！ 信じられる？
+私たちも心から祝福しました。
+写真を見せてもらい、成長の話を聞き、一緒に喜びました。
+でも、その喜びは、いつしか過剰になっていきました。
+会うたびに、話題は孫のことばかり。
+最初の言葉を発した話。
+歩き始めた話。
+幼稚園に入った話。
+発表会で活躍した話。
+それ自体は、決して悪いことではありません。
+孫を愛おしく思う気持ちは、自然なことです。
+でも、問題は、彼女が聞くことを忘れてしまったことでした。
+私の夫が病気で入院した時も、彼女は見舞いに来てくれました。
+大変ねえ、大丈夫？
+そう言ってくれたのは最初の五分だけ。
+その後は、お見舞いの品と一緒に持ってきた孫の写真を見せながら、延々と孫の話を始めました。
+病室のベッドで横になっている夫の前で。
+私は複雑な気持ちで聞いていました。
+彼女に悪気がないのは分かります。
+ただ、自分の幸せを共有したいだけなのでしょう。
+でも、それは共有ではありませんでした。
+一方的な押し付けでした。
+私の心配や不安を受け止める余裕は、彼女にはなかったのです。
+彼女の頭の中は、孫のことでいっぱいで、私の入る隙間がなかったのです。
+その時から、私は少しずつ彼女との間に見えない壁を感じるようになりました。
+会話をしているようで、していない。
+一緒にいるようで、一人ぼっち。
+旅館の夕食の席で、私は再びその透明化の感覚に襲われていました。
+美恵子が孫の話をしている間、私は箸を動かしながら、ふと思いました。
+私がここにいなくても、彼女は同じように話し続けるのだろうな、と。
+私は、聞き手としてすら、必要とされていないのかもしれない。
+壁に向かって話しているのと、何も変わらない。
+いいえ、壁ならまだいい。
+壁は反論もせず、ただ静かに聞いてくれます。
+でも、美恵子のそれは、私の声が届く前に自分の声で上書きしてしまう、能動的な沈黙の強要でした。
+愛情という名の、逃げ場のない洪水。
+彼女自身がその濁流に飲まれていることに気づいていない。
+それが、一番の悲劇であり、私たちの疲労の正体でした。
+その考えは、思った以上に私の心を冷たくさせました。
+煮え立つ鍋の湯気が、私の視界をさらに不透明にしていくような、そんな夜の始まりでした。
+
+---
+
+夕食が終わり、部屋に戻る廊下で、京子が私の袖を引きました。
+ちょっと、別の部屋で話さない？
+美恵子には少し散歩してくると言い残し、私たちは旅館のロビーに降りていきました。
+自動販売機でお茶を買い、誰もいない休憩スペースのソファに腰を下ろしました。
+疲れたわね
+京子が静かに言いました。
+何十年も付き合ってるけど、最近ちょっとキツくない？ 美恵子の孫トーク
+私は黙って頷きました。
+私もそう思ってたの
+正直、会うたびに憂鬱になるのよ。だって、私たちの話、全然聞いてくれないでしょう？
+うん。今日も、絵手紙の話、完全にスルーされたものね
+京子は苦笑いしました。
+そうなの。頑張って習ってるのに、誰も興味持ってくれないのかなって思っちゃった
+そんなことないわよ。私は聞きたかったのに
+ありがとう。でも、あの場の空気じゃ無理よね
+私たちは、しばらく黙ってお茶を飲みました。
+窓の外には、星が瞬いていました。
+ねえ、私たち、何も悪くないわよね？
+京子がぽつりと言いました。
+美恵子が悪いわけでもない。ただ、ちょっと…バランスが崩れてるだけ
+うん。たぶん、彼女は気づいてないのよ。自分がどれだけ話してるか
+だよね。言わないと分からないのかな
+言えないわよ、四十年の付き合いで今さら
+そうね…
+私たちは、再び沈黙しました。
+その沈黙の中で、私は一つの決心をしました。
+ねえ、京子。私たち、美恵子を変えることはできないけど、自分たちを守ることはできるわよね
+守る？
+うん。全部聞かなくてもいい。適当に流すスキルを身につけるの
+京子は目を丸くしました。
+流すって、どうやって？
+例えば、心の中でカウントする。『孫の話が始まったな、三分経ったら話題を変えよう』って
+三分ルール？
+「そう。三分聞いたら、強引にでも自分の話を挟む。それでも無視されたら、もう諦める。でも、少なくとも自分は発言したという事実が残る」
+京子は少し考え込んでから、ふふっと笑いました。
+面白いわね。試してみようかしら
+それから、もう一つ。こうやって二人でガス抜きの時間を作る。旅行の時は、必ずどこかで美恵子抜きの時間を確保する
+裏で愚痴大会？
+愚痴っていうより、リセット。美恵子のことを嫌いになりたくないから。こうやって発散して、また笑顔で向き合えるように
+京子は大きく頷きました。
+いいわね。そうしましょう
+私たちは、お互いの手を握りました。
+その手は温かく、私たちの間には、言葉にしなくても通じ合う何かがありました。
+美恵子を変えることはできない。
+でも、私たちは私たち自身を守ることができる。
+そして、その守りがあるからこそ、彼女との付き合いを続けていける。
+長い友情を維持するためのサバイバル術。
+それが、この夜、私たちが見つけた小さな知恵でした。
+
+---
+
+部屋に戻ると、美恵子はすでに布団に入って眠っていました。
+その寝顔は、まるで子供のように無邪気です。
+私は彼女のタオルケットをそっと直してやりました。
+眠っている彼女を見ながら、私は思いました。
+彼女は決して悪い人ではない。
+ただ、愛情の表現の仕方が、少し不器用なだけなのかもしれない。
+孫の話をするのは、彼女にとって最大の幸せを共有しているつもりなのでしょう。
+でも、共有には、相手の受け取る余裕が必要です。
+それを忘れてしまうと、愛情は暴力に変わる。
+私もまた、反省しました。
+本当に嫌なら、ちょっと待ってと言えばよかったのです。
+それより、さっき京子が言いかけたことを聞きたいなと。
+でも、私たちは空気を読みすぎて、言えなかった。
+その沈黙が、美恵子を増長させてしまったのかもしれません。
+明日からは、少し変わってみよう。
+言えないことを、無理にでも言ってみよう。
+たった一言、ちょっと待ってと言うだけで、会話の流れは変わるかもしれない。
+それは美恵子のためでもあり、私たち自身のためでもある。
+窓から差し込む月明かりの中、私は静かに目を閉じました。
+明日の朝食は、もう少し会話のバランスが取れるといいな。
+そんな小さな希望を胸に、私も眠りにつきました。
+
+---
+
+私たちは、親しい人であればあるほど、我慢を美徳だと思いがちです。
+相手を傷つけたくない。
+空気を壊したくない。
+長年の関係を守りたい。
+その優しさは尊いものです。
+でも、我慢は無限にはできません。
+積もり積もった言わなかったことは、やがて大きな壁となり、友情そのものを崩壊させてしまうこともあります。
+だからこそ、小さなできないを言う練習が必要なのです。
+今日はちょっと聞く元気がないの
+その話、また今度聞かせてね
+そんな一言を、勇気を出して言ってみてください。
+言われた方も、最初は驚くかもしれません。
+でも、本当の友人なら、きっと理解してくれます。
+ごめんね、私ばかり話しすぎてた？
+そう言って、あなたの話を聞こうとしてくれるでしょう。
+もし、あなたのできないを無視するような人がいるなら。
+それは、友人ではなく、観客を求めているだけの人です。
+あなたは聴衆ではありません。
+対等な会話のパートナーです。
+その自覚を、どうか忘れないでください。
+
+翌朝、朝食の席で、私は小さな実験をしてみました。
+美恵子がまた孫の話を始めた時、私は思い切って声を上げました。
+ちょっと待って。京子、昨日言いかけてた絵手紙の話、聞かせてくれない？
+美恵子は少し驚いた顔をしました。
+でも、京子は嬉しそうに話し始めました。
+えっとね、最近、野菜を描くのにハマってて…
+美恵子は最初、少し不満そうな顔をしていましたが、やがて京子の話に耳を傾け始めました。
+へえ、野菜ねえ。どんな野菜を描くの？
+トマトとかナスとか。赤と紫のコントラストがきれいなのよ
+私も見てみたいわ
+美恵子が自然と京子に興味を示し始めました。
+私の一言が、会話の流れを変えたのです。
+それは小さな、本当に小さな一歩でしたが、私にとっては大きな勝利でした。
+自分の声が、この世界の空気を震わせ、誰かの耳に届く。
+そんな当たり前のことが、これほどまでに誇らしく、そして安堵をもたらすものだとは思いませんでした。
+できないを言う代わりに、ちょっと待ってと言っただけ。
+それだけで、透明人間だった私たちが、再び鮮やかな色彩を取り戻したのです。
+京子の瞳に宿った、ささやかな輝き。
+それが、私の勇気への何よりの報酬でした。
+朝食が終わった後、美恵子が私の所に来て言いました。
+ねえ、私って話しすぎてた？ 昨日の夜から、なんか考えてたんだけど
+どうやら、彼女も気づき始めていたようです。
+私たちが話題を変えようとしたこと、部屋を抜け出したこと、朝食で話を遮ったこと。
+それらが、彼女に小さなシグナルとして伝わっていたのかもしれません。
+ちょっとだけね
+私は正直に答えました。
+でも、あなたが孫のこと大好きなのはみんな知ってるから。ただ、たまには私たちの話も聞いてくれると嬉しいな
+美恵子は少し考え込んでから、頷きました。
+「そうね。ごめんね。つい嬉しくて、止まらなくなっちゃうのよ」
+「分かるわよ。でも、これからは三人で順番に話しましょう。私たちも聞きたい話、いっぱいあるんだから」
+美恵子は照れくさそうに笑いました。
+「分かった。努力するわ」
+その約束がどこまで守られるかは分かりません。
+でも、少なくとも彼女に伝えたという事実が、私の心を軽くしました。
+言わなければ、何も変わらない。
+言っても変わらないかもしれない。
+でも、言ったことで、自分自身は確実に変わる。
+それが、この旅で学んだ一番大きな教訓でした。
+
+帰りのバスの中で、京子が小声で言いました。
+「ねえ、今度は二人だけで旅行しない？ 絵手紙の里とか、行ってみたいの」
+私は思わず笑いました。
+「いいわね。美恵子には内緒でね」
+「ふふ、裏切り者のレッテルを貼られるかしら」
+「いいのよ。自分を守るためには、時には裏切り者にもなるの」
+二人で顔を見合わせて笑いました。
+それは、共犯者の笑いでした。
+友情を守るために、時には距離を置くこともある。
+全員が常に一緒でなくてもいい。
+それぞれが心地よいと感じるペースで付き合えばいい。
+そんな当たり前のことに気づくまで、私たちは長い時間を費やしてしまいました。
+でも、遅すぎることはありません。
+今日という日は、常に一番若い日なのですから。
+
+今夜の一手。
+今夜はできないを一つ言ってみる。
+小さなできないで構いません。
+今日は電話に出られない
+その予定は合わせられない
+そんな些細な断りから始めてみましょう。
+言ってみると、案外、世界は壊れないことに気づくはずです。
+むしろ、自分を守る力がついて、心が軽くなるかもしれません。
+おやすみなさい。
+あなたの明日が、誰かの独演会ではなく、あなたも主役になれる会話で満たされますように。
+窓の外を見上げてみてください。
+月は、誰の話も遮らずに、静かに輝いています。
+あなたもまた、そんな静けさの中で、自分の声を大切にしてください。
+
+思い返せば、あの旅館での夕食は、私にとって大きな転機でした。
+長年黙って聞き役に徹していた自分から、一歩踏み出すきっかけになったのです。
+できないを言うことは、相手を拒絶することではありません。
+むしろ、相手との関係を長く続けるための、健全な自己防衛なのです。
+私たちはしばしば、断ることを自分勝手だと勘違いします。
+でも、自分の心を守ることができなければ、やがて相手を恨むようになってしまいます。
+それこそが、友情を壊す本当の自分勝手だと、私は思うのです。
+だから、今夜から少しずつ練習してみてください。
+「ごめんね、今日はちょっと」
+たったその一言が、あなたの心に風穴を開けてくれるはずです。
+その風穴から、新鮮な空気が入ってきて、あなたは再び深く呼吸ができるようになるでしょう。
+友情は、お互いが息をしていられる関係であってこそ、長続きするものなのですから。
+どうか今夜は、穏やかな眠りにつけますように。
+温かいお茶を一杯飲んで、布団に入りましょう。
+明日はきっと、今日よりも少し、あなたらしい一日になるはずです。
+そして、誰かの話を聞きすぎて疲れたら、いつでもここに戻ってきてください。
+私はいつでも、あなたの話を聞く準備ができていますから。
+なぜなら、あなたの人生もまた、誰かに聞いてもらう価値のある、素晴らしい物語だからです。
+夜の静けさの中で、あなたの心臓の音に耳を澄ませてみてください。
+その鼓動こそが、あなたが生きている証です。
+どうか安心して、深呼吸をして、眠りについてください。
+それでは、また。
+</pre>
     </div>
   </div>
 </main>

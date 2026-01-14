@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-017 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-017 — script</h1>
           <div class="muted">【生活】生活が乱れると心も乱れる｜先に整える</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,474 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【生活】生活が乱れると心も乱れる｜先に整える</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>生活, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-017</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-017&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">生活が乱れている。寝る時間がバラバラ。食事も適当。部屋も散らかっている。
+
+そして心も乱れている。イライラする。集中できない。なんとなく落ち込む。
+
+生活の乱れと心の乱れは、つながっています。先に生活を整えましょう。
+
+---
+
+お釈迦様の弟子に、修行がうまくいかない若い僧侶がいました。
+
+瞑想をしても心が落ち着かない。すぐに雑念が湧いてくる。
+集中しようとしても、イライラしてしまう。
+自分には修行の才能がないのではないか。そう悩んでいました。
+
+お釈迦様はその僧侶に尋ねました。
+どのような生活を送っているのか。
+
+僧侶は答えました。
+夜遅くまで経典を読み、朝は眠くて起きられない。
+食事は時間がもったいないので、急いで済ませる。
+部屋の掃除もおろそかになっている。
+でも修行には一生懸命取り組んでいます。
+
+お釈迦様は静かに言いました。
+まず生活を整えなさい。
+決まった時間に寝て、決まった時間に起きなさい。
+食事はゆっくり味わいなさい。
+部屋を清潔に保ちなさい。
+修行はそれからです。
+
+僧侶は最初、戸惑いました。
+それでは修行の時間が減ってしまう。
+でもお釈迦様の言葉に従って、生活を整えることから始めました。
+
+三週間後。
+僧侶の瞑想は見違えるほど深くなっていました。
+心が落ち着き、集中できるようになった。
+イライラもなくなった。
+
+お釈迦様は微笑んで言いました。
+心を整えるには、まず生活を整える。
+土台が安定していなければ、何も積み上げられない。
+あなたは今、そのことを理解したのです。
+
+その僧侶はその後、修行を深めて立派な僧侶になりました。
+後に弟子たちに教える立場になった時、必ず最初に教えたことがあります。
+それは生活を整えることの大切さでした。
+
+瞑想の技術を教える前に、まず生活習慣を整えさせる。
+規則正しく寝て、規則正しく食べて、清潔に暮らす。
+それができてから、はじめて本格的な修行に入らせたのです。
+
+彼は身をもって知っていました。
+どんなに良い教えも、どんなに優れた技術も、生活が整っていなければ身につかない。
+土台こそが、すべてを支えているのだと。
+
+---
+
+心が乱れているとき、多くの人は心を直接なんとかしようとします。
+
+ポジティブに考えよう。気持ちを切り替えよう。落ち込まないようにしよう。
+
+でもそれは難しいことが多い。なぜなら、心は目に見えないし、直接コントロールしにくいから。
+
+イライラしているとき、イライラするなと思ってもイライラは止まりません。
+落ち込んでいるとき、元気を出そうと思っても無理に元気は出せません。
+心を直接変えようとするのは、とても難しいのです。
+
+でも生活を整えることは、具体的で実行可能です。
+早く寝る。ご飯を食べる。部屋を片づける。
+これなら、今日からできます。
+
+そして生活が整うと、自然に心も整っていく。
+心を直接変えようとするより、ずっと簡単で効果的なのです。
+
+代わりに、生活を整える方が簡単で効果的です。
+
+---
+
+なぜ生活の乱れが心の乱れにつながるのでしょうか。
+
+まず、睡眠不足はメンタルに直接影響するから。
+睡眠が足りないと、脳の感情を司る部分が過敏になります。
+些細なことでイライラする。小さなことで落ち込む。
+睡眠不足の状態では、感情のコントロールが難しくなるのです。
+
+研究によると、一晩眠れないだけで、感情反応が60%も増幅されることが分かっています。
+十分に眠っていれば平気なことが、睡眠不足だと大きなストレスになる。
+睡眠は、心の安定に不可欠なのです。
+
+次に、食事の乱れは体調に影響するから。
+栄養が偏ると、体がだるくなる。頭が働かなくなる。
+体調が悪いと、やる気が出ない。何もしたくなくなる。
+すべてが面倒に感じられるようになります。
+
+特に朝食を抜くと、午前中の集中力が大幅に下がります。
+血糖値が不安定になり、イライラしやすくなる。
+食事は、心と体のエネルギー源なのです。
+
+そして、環境の乱れは心を反映しているから。
+散らかった部屋にいると、心も落ち着かない。
+視界に入る物が多いと、脳は常に情報処理をしている。
+それが無意識のストレスになっているのです。
+
+逆に、片づいた部屋にいると、心も整う。
+視界がすっきりすると、思考もすっきりする。
+環境を整えることは、心を整えることなのです。
+
+生活と心は深く連動しています。
+生活が乱れれば心も乱れる。
+生活が整えば心も整う。
+この法則を知っておいてください。
+
+---
+
+仏教の修行では、生活を非常に規律正しくします。
+
+禅寺では、朝は4時か5時に起床します。
+決まった時間に食事をします。朝食、昼食。夕食はありません。
+食事の後は必ず作務、掃除をします。
+夜は9時には就寝します。
+
+この規律正しい生活は、苦行ではありません。
+心を整えるためです。
+規律正しい生活が、心の安定を支えている。
+生活のリズムが整っているから、心も乱れないのです。
+
+ある禅僧は言いました。
+修行の9割は、規律正しい生活だと。
+残りの1割が、瞑想や読経だと。
+それほど、日常の生活が重要なのです。
+
+逆に言えば、生活が乱れると修行も乱れる。
+どんなに瞑想をしても、生活が乱れていては心は整わない。
+土台である生活が、すべてを支えているのです。
+
+お釈迦様は、弟子たちに細かい生活の規則を定めました。
+それは弟子たちを縛るためではなく、守るためです。
+規律正しい生活が、心の安定を生み出すことを知っていたからです。
+
+---
+
+心が乱れているとき、先に整える生活習慣は3つあります。
+
+まず、第一のポイント。睡眠を整える。
+
+何よりまず睡眠を整えてください。
+理想は6〜8時間。でも時間より大切なのは、リズムです。
+毎日同じ時間に寝て、同じ時間に起きる。
+このリズムが、心を安定させます。
+
+寝る前の1時間が重要です。
+スマホを見ないでください。ブルーライトが睡眠を妨げます。
+テレビも避けた方がいい。刺激が強すぎます。
+
+代わりに、静かに過ごす。
+本を読む。お風呂に入る。ストレッチをする。
+リラックスする時間を作ってください。
+
+部屋を暗くすることも大切です。
+真っ暗にするのが理想。明かりがあると、睡眠の質が下がります。
+カーテンをしっかり閉めて、電気を消す。
+暗闇が、深い眠りを作ります。
+
+朝は、日光を浴びてください。
+カーテンを開けて、光を取り入れる。
+これが体内時計をリセットします。
+日光を浴びることで、その夜の睡眠の質も上がるのです。
+
+休日も同じ時間に起きてください。
+平日は7時、休日は10時。これでは体内時計が乱れます。
+休日も平日と同じ時間に起きる。
+最初は辛いかもしれませんが、1週間続けると体が慣れます。
+
+昼寝をするなら、15分から20分まで。
+長く寝すぎると、夜の睡眠に影響します。
+午後3時以降の昼寝は避けてください。
+夜眠れなくなります。
+
+睡眠が整うと、心は驚くほど安定します。
+イライラが減る。落ち込みにくくなる。
+何事にも前向きに取り組めるようになる。
+睡眠こそが、心の土台なのです。
+
+---
+
+次に、第二のポイント。食事を整える。
+
+三食しっかり食べる。
+特に朝食が大切です。朝食を食べることで、体と脳にエネルギーが入ります。
+朝食を抜くと、午前中ずっとエネルギー不足の状態になる。
+それが心の不安定さを生むのです。
+
+できれば同じ時間に食べてください。
+規則正しい食事時間が、体のリズムを作ります。
+リズムが整うと、心も安定します。
+
+バランスの良い食事を心がける。
+野菜、タンパク質、炭水化物。この3つをバランスよく。
+完璧でなくていい。意識するだけで変わります。
+
+ジャンクフードばかりだと、体が重くなり、心も重くなる。
+添加物や脂質が多いと、体が疲れやすくなります。
+体が疲れると、すべてが億劫になる。
+心のエネルギーも下がってしまうのです。
+
+水分も忘れないでください。
+脱水状態になると、集中力が下がり、イライラしやすくなる。
+1日にコップ6杯から8杯程度。
+こまめに水を飲む習慣をつけましょう。
+
+難しければ、まず一日三食規則正しく食べるところから。
+それだけでも、心は安定します。
+食事のリズムが、生活のリズムを作るのです。
+
+ゆっくり食べることも大切です。
+急いで食べると、消化に悪いだけでなく、心も落ち着きません。
+よく噛んで、味わって食べる。
+これが心を落ち着かせる時間になります。
+
+食事の時間は、スマホを見ないでください。
+食事に集中する。味を感じる。
+これが今この瞬間に意識を向ける練習になります。
+マインドフルネスの実践でもあるのです。
+
+---
+
+そして、第三のポイント。環境を整える。
+
+部屋を片づける。
+すべてを完璧にする必要はありません。
+最低限、自分のいる場所だけでも整えてください。
+
+まず、机の上を片づける。
+作業する場所が散らかっていると、集中できません。
+机の上に物がない状態。それだけで心がすっきりします。
+
+次に、床の物を片づける。
+床に物があると、視界に入る度にストレスになります。
+床に何も置かない状態を目指してください。
+
+そして、ゴミを捨てる。
+ゴミが溜まっていると、部屋の空気が淀みます。
+ゴミを捨てるだけで、部屋の雰囲気が変わります。
+
+目に入る範囲が整っているだけで、心が落ち着きます。
+視界がすっきりすると、思考もすっきりする。
+環境の整理は、心の整理なのです。
+
+片づけは一度に全部やろうとしない。
+一気にやろうとすると、疲れて続きません。
+毎日15分だけ。タイマーをセットして、15分間だけ片づける。
+少しずつでいいのです。
+
+15分の積み重ねが、1週間後には部屋を変えます。
+1か月後には、見違えるほど整った部屋になります。
+焦らず、毎日少しずつ。それが確実な方法です。
+
+片づけのコツは、使ったら元に戻すことです。
+使ったものを放置すると、積み重なって散らかります。
+使ったら、すぐに元の場所に戻す。
+この習慣が、部屋をきれいに保つのです。
+
+物を減らすことも効果的です。
+物が少なければ、片づけるのも簡単になります。
+1年使っていないものは、手放すことを考えてください。
+物が減ると、心も軽くなります。
+
+---
+
+この3つを整えるときのコツがあります。
+
+一気にやろうとしないこと。
+生活習慣を一度に全部変えようとすると、失敗します。
+変化は少しずつ。一つずつ、確実に。
+
+まず睡眠だけを2週間整える。
+それが習慣になったら、次は食事を整える。
+食事も習慣になったら、環境を整える。
+順番に、一つずつ取り組んでください。
+
+人間の脳は、変化を嫌います。
+急激な変化は、ストレスになります。
+だから少しずつ変える。脳が気づかないくらい、ゆっくりと。
+それが習慣化の秘訣です。
+
+最初の1週間が一番大変です。
+体が慣れていないから、違和感があります。
+でも2週間続けると、だんだん楽になってきます。
+3週間続けると、習慣になり始めます。
+
+焦らず、着実に。
+三ヶ月かけて変えるくらいのつもりで。
+三ヶ月後には、見違えるほど整った生活になっています。
+それは一生の財産になります。
+
+小さな変化を侮らないでください。
+毎日1%だけ改善すれば、1年後には37倍良くなる計算です。
+大きな変化は、小さな積み重ねから生まれるのです。
+
+---
+
+もうひとつのコツは、ルーティン化すること。
+
+同じことを同じ時間にやると、考えなくても体が動くようになる。
+それが習慣の力です。
+
+朝のルーティンを作る。
+起きたらまずカーテンを開ける。水を一杯飲む。顔を洗う。朝食を食べる。
+決まった順番で、毎日同じことをする。
+それが自動化されると、意志力を使わなくなります。
+
+夜のルーティンも作る。
+22時になったらスマホを充電器に置く。お風呂に入る。ストレッチをする。23時に寝る。
+このルーティンが、心を落ち着かせます。
+
+ルーティンを守ることで、生活にリズムが生まれます。
+リズムが生まれると、心が安定します。
+毎日が予測可能になると、不安が減るのです。
+
+習慣になれば、意志力を使わずにできるようになります。
+朝起きるのが辛くなくなる。片づけるのが苦にならなくなる。
+自動的にできるようになるのです。
+
+---
+
+注意点があります。
+
+完璧を求めすぎないでください。
+毎日完璧に整っている必要はありません。
+人間ですから、崩れる日もあります。
+
+夜更かししてしまう日もある。ジャンクフードを食べてしまう日もある。
+部屋が散らかってしまう日もある。
+それは当然のことです。
+
+大切なのは、乱れてもまた戻すこと。
+一日崩れても、翌日また整える。
+完璧を目指すのではなく、整える方向に戻り続ける。
+それが習慣なのです。
+
+崩れることを責めないでください。
+自分を責めると、余計に心が乱れます。
+崩れたら、また静かに戻す。
+それだけでいいのです。
+
+また、生活を整えても心が晴れない場合があります。
+生活を整えているのに、2週間以上ずっと気分が沈んでいる。
+何もやる気が起きない。眠れない。食欲がない。
+そういう場合は、うつなどの可能性があります。
+
+その時は、専門家に相談してください。
+心療内科や精神科を受診する。
+それは弱さではありません。必要なケアを受けることです。
+一人で抱え込まないでください。
+
+生活を整えることは、心の健康の土台です。
+でも、それがすべてではありません。
+専門的な治療が必要な時もあります。
+それを見極めることも、大切な知恵なのです。
+
+また、周りの人のサポートも重要です。
+一人で頑張ろうとしないでください。
+家族や友人に話す。助けを求める。
+それは勇気のある行動です。
+
+---
+
+生活が乱れると心も乱れる。
+これは誰にでも起こることです。
+
+心を整えたいなら、先に生活を整える。
+心を直接変えようとするより、ずっと簡単で効果的です。
+
+睡眠。食事。環境。この3つから。
+まず一つだけ選んでください。
+一つずつ、確実に整えていきましょう。
+
+どれから始めてもかまいません。
+一番気になることから始めてください。
+一番できそうなことから始めてもいい。
+大切なのは、今日から始めることです。
+
+今日から、一つだけ始めてみませんか。
+今夜は23時に寝る。それだけでもいい。
+今日は三食食べる。それだけでもいい。
+今日は机の上を片づける。それだけでもいい。
+
+完璧にできなくても大丈夫です。
+途中で崩れても、また始めればいい。
+大切なのは、整える方向に向かい続けることです。
+迷ったら、また戻ればいい。
+それを何度でも繰り返してください。
+
+生活を整えることは、自分を大切にすることです。
+自分に安定した土台を与えることです。
+あなたには、整った生活を送る権利があります。
+あなたには、心穏やかに過ごす権利があります。
+その権利を、遠慮なく使ってください。
+
+小さな一歩が、大きな変化の始まりです。
+一つの習慣が、人生を変えることもあります。
+生活が整えば、心も自然と整っていきます。
+土台が整えば、すべてが整い始めるのです。
+焦らず、ゆっくりと。
+
+どうか、あなたの生活が少しずつ整いますように。
+あなたの心が日々穏やかになりますように。
+あなたが心地よく過ごせる日が増えますように。
+あなたが安心して眠れますように。
+あなたが毎日を健やかに過ごせますように。
+
+今日も最後まで聞いてくださって、ありがとうございました。
+
+皆様の心が穏やかでありますように。
+</pre>
     </div>
   </div>
 </main>

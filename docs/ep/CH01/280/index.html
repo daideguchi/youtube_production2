@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-280 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-280 — script</h1>
           <div class="muted">人に期待するほど怒りが増えます。期待を捨てると心が静かになる理由</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,328 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>人に期待するほど怒りが増えます。期待を捨てると心が静かになる理由</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【怒り】で苦しいあなたへ──期待を手放す話。
+・怒りの根にある期待・手放す3つの方法
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>怒り, 期待, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【怒り】で苦しいあなたへ──期待を手放す話。
+・怒りの根にある期待・手放す3つの方法</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-280</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-280&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">期待していたのに、裏切られた。その怒りと悲しみは、言葉にできないほど辛いものです。
+
+---
+
+伊達政宗。
+
+戦国時代から江戸時代初期を生きた武将である。
+
+政宗は、期待と向き合い続けた人生を送った。
+
+父からの期待。家臣からの期待。自分自身への期待。
+
+その期待に応えようとして苦しみ、期待を手放すことで自分の道を見つけた。
+
+独眼竜と呼ばれたこの男の生涯は、期待との付き合い方を教えてくれる。
+
+---
+
+伊達政宗は、永禄十年に出羽国米沢に生まれた。
+
+伊達家は、奥州の名門だった。政宗は、その嫡男として生を受けた。
+
+幼名は梵天丸。聡明な子どもだったと伝えられている。
+
+しかし、五歳の時、天然痘にかかり、右目を失った。
+
+---
+
+片目を失うという身体的な苦痛だけが問題だったわけではない。当時の世間一般の常識として、欠けた体を持つ者は家督を継ぐのに不向きだと見なされる風潮が強かった。周囲の冷ややかな視線や、母親からの拒絶は、幼い政宗の心に深い孤独と不安を刻み込んだに違いない。その孤独を埋め合わせるように、父・輝宗は「天下を取れ」と、誰にも負けないほど過酷な期待を突きつけ続けた。政宗にとって、その期待は希望というより、自分の存在を証明するための重い足枷のように感じられていたかもしれない。愛されるためではなく、期待に応えることだけが自分の存在価値だと信じ込まされていた可能性がある。その重圧が、後の政宗の激しい行動や、他者への警戒心の原動力になったとも言える。私たちもまた、過去の傷やコンプレックスを埋めるように、他人からの評価や成果に縛られ、本来の自分を見失うことがある。しかし、そのような外部からの期待に応え続けることは、心をすり減らさせるだけで、本当の安心にはたどり着けないのだ。
+
+片目の跡継ぎ。
+
+これは、戦国時代において大きなハンディキャップだった。
+
+母の義姫は、政宗を嫌ったと言われている。弟の小次郎を跡継ぎにしようとした。
+
+政宗は、幼い頃から周囲の冷たい視線にさらされていた。
+
+---
+
+しかし、父の輝宗は違った。
+
+輝宗は、政宗に大きな期待をかけた。
+
+いつか天下を取れ。
+
+輝宗は、政宗にそう言い続けた。
+
+政宗は、父の期待を背負った。
+
+---
+
+十八歳で家督を継いだ政宗は、猛烈な勢いで領土を拡大した。
+
+会津を攻め、周辺の大名を次々と従えた。
+
+政宗の軍事的才能は、父の期待を超えるものだった。
+
+しかし、その過程で、悲劇が起きた。
+
+---
+
+父の輝宗が突きつけた天下取りという期待は、政宗にとって希望というより、逃れられない重い呪いのようなものだったに違いない。右目を失い、最も身近な母からさえ拒絶された少年にとって、自分の存在価値を証明するための唯一の方法が、誰も成し遂げられないような偉業を成し遂げることだと信じ込まされていたからだ。もし天下を取れなければ、自分はただの欠陥品に過ぎず、生きる価値がないという強烈な恐怖が、常に彼の心を蝕んでいた。その恐怖が、彼の行動を過激にし、他者への容赦ない攻撃性へと変えていった。期待に応えることこそが愛されることだと錯覚し、自分の心の声よりも父の声を優先して生きることは、自分自身を犠牲にして他人の理想を満たすという、苦しみの始まりでもあった。周囲が彼を見る時、そこには恐れしかなく、本当の安らぎはどこにもなかった。このように、過度な期待は、相手を成長させるのではなく、心を縛り付け、本来の穏やかさを奪ってしまうのだ。私たちが他人に期待を押し付ける時もまた、無意識のうちに相手の自由を奪い、同じような苦しみを与えていないか振り返る必要がある。
+
+天正十三年、父の輝宗が敵の手で命を落とした。
+
+畠山義継という敵将が、和睦の席で輝宗を人質に取った。政宗は、父もろとも義継を射殺させた。
+
+父を見殺しにしたのか。それとも、父の意志を尊重したのか。
+
+真相は分からない。しかし、政宗の心に深い傷が残ったことは間違いない。
+
+---
+
+父を失った政宗は、さらに激しく戦った。
+
+しかし、時代は変わろうとしていた。
+
+豊臣秀吉が天下統一を進めていた。
+
+政宗は、秀吉に臣従せざるを得なくなった。
+
+---
+
+秀吉に臣従した時、政宗は二十三歳だった。
+
+すでに奥州の大半を支配していた。あと少しで、天下に手が届くところだった。
+
+しかし、秀吉の前に膝を屈した。
+
+父の期待、天下を取れ、は果たせなかった。
+
+---
+
+政宗は、秀吉の家臣となった。
+
+秀吉は、政宗を警戒していた。いつか反乱を起こすのではないか、と。
+
+政宗の領地は削られ、米沢から岩出山に移された。
+
+---
+
+政宗は、この時期、深く苦悩したと言われている。
+
+父の期待を裏切った。天下は遠のいた。自分は何のために生きているのか。
+
+政宗は、自問自答した。
+
+---
+
+領地を削がれ、見知らぬ土地へ移された時、政宗は絶望の淵に立たされたはずだ。これまで猛スピードで進み続けてきた道が突如閉ざされ、自分の人生がすべて無意味に感じられた瞬間だったかもしれない。しかし、このどん底の状況こそが、彼を変える重要な契機となった。父の期待という強烈なフィルターを通して世界を見ていた限り、自分の本当の価値は決して見えてこないからだ。天下を取れという他人の物差しではなく、自分自身の手で新しい物差しを作る必要があった。彼は静かに、しかし確かに内なる声に耳を傾け始めた。それは、失ったものを嘆くのではなく、今ある自分に何ができるかを問う姿勢へと変わっていった。この内なる転換こそが、後の仙台藩繁栄の種となったのだ。
+
+しかし、政宗は変わった。
+
+父の期待ではなく、自分自身の道を歩き始めた。
+
+天下は取れなかった。しかし、自分にできることがある。
+
+政宗は、そう考えるようになった。
+
+---
+
+秀吉の死後、徳川家康が台頭した。
+
+関ヶ原の戦いで、政宗は家康に味方した。
+
+その結果、仙台に六十二万石の大領を与えられた。
+
+政宗は、仙台藩の基礎を築くことに専念した。
+
+---
+
+政宗は、仙台を一大都市に育て上げた。
+
+城下町を整備し、産業を興し、文化を育てた。
+
+支倉常長をスペインに派遣し、海外との交易を目指した。
+
+これらは、天下を取ることとは違う道だった。しかし、政宗にしかできない道だった。
+
+---
+
+政宗は、晩年、こう語ったと伝えられている。
+
+若い頃は、父の期待に応えようと必死だった。天下を取らなければ、と思い詰めていた。しかし、今は違う。自分なりの道を歩けばいい。それが分かった。
+
+期待を手放した時、政宗は自分自身の道を見つけた。
+
+---
+
+仏教には、「執着が苦しみの原因」という教えがある。
+
+期待もまた、執着の一つである。
+
+相手がこうしてくれるはずだ、という執着。状況がこうなるはずだ、という執着。
+
+その「はずだ」が裏切られた時、怒りが生まれる。
+
+政宗は、父の期待という執着から解放されることで、苦しみから脱した。
+
+---
+
+政宗の母、義姫との関係も、期待と執着の物語である。
+
+義姫は、政宗を嫌っていた。弟の小次郎を愛していた。
+
+ある時、義姫は政宗を毒殺しようとしたと言われている。
+
+政宗は、小次郎を殺し、義姫を実家に追放した。
+
+---
+
+この事件は、政宗にとって深い傷となった。
+
+母に愛されなかった。母に殺されかけた。
+
+政宗は、母への期待を捨てなければならなかった。
+
+---
+
+しかし、晩年、政宗と義姫は和解した。
+
+義姫は仙台に戻り、政宗のそばで暮らした。
+
+政宗は、母を許した。
+
+かつての怒りは、消えていた。
+
+---
+
+政宗は、期待を手放すことで、怒りから解放された。
+
+母への期待。父への期待。天下への期待。
+
+それらを手放した時、政宗の心は穏やかになった。
+
+---
+
+仏教には「自灯明」という教えがある。
+
+自らを灯火としなさい、という意味である。
+
+他人に期待して、その人が自分を照らしてくれることを待つのではなく、自分で自分を照らす。
+
+政宗は、この教えを体現した。
+
+父の期待ではなく、自分の道を歩く。母の愛を求めるのではなく、自分で自分を認める。
+
+それが、政宗を独眼竜と呼ばれる偉人にした。
+
+---
+
+政宗の生涯から、期待との付き合い方を学ぶことができる。
+
+一つ目は、期待を言葉にすること。
+
+心の中に留めておくのではなく、相手に伝える。こうしてほしい、と具体的に頼む。
+
+期待が外れるのは、多くの場合、伝えていないからである。
+
+二つ目は、期待通りにならなくても受け入れること。
+
+思い通りにならないことは、人生にはたくさんある。政宗も、天下は取れなかった。
+
+しかし、それを受け入れることで、別の道が開けた。
+
+三つ目は、自分の道を歩くこと。
+
+他人の期待に応えようとするのではなく、自分が何をしたいかを考える。
+
+政宗は、父の期待ではなく、自分の道を選んだ。
+
+---
+
+私たちの日常生活においても、他人の期待を自分の灯火としてしまうことがよくある。特に親しい家族や職場の人間関係では、相手がこう思ってくれるはずだという先入観が、私たちの心を縛り付ける。相手が期待通りの行動をとってくれた時だけ心が安らぎ、そうでない時には激しく動揺してしまう。これはまるで、他人の持っている提灯の明かりを頼りに暗い道を歩くようなものだ。提灯を持っている人が離れてしまえば、あるいは火を消してしまえば、私たちは途端に闇の中で立ち尽くすことになる。しかし、自灯明の教えは、自分自身の中に灯りをともすことを勧めている。相手の行動や評価に左右されず、自分の足元を自分で照らす強さを持つこと。それこそが、どんな状況でも心を穏やかに保つための確かな道なのだ。
+
+政宗は、寛永十三年に七十歳でこの世を去った。
+
+その生涯は、波乱に満ちていた。しかし、晩年の政宗は穏やかだったと言われている。
+
+期待を手放した人だけが得られる、静かな境地だった。
+
+---
+
+仏教は教える。
+
+期待を捨てれば、怒りは消える。
+
+怒りの多くは、期待が裏切られたことから生まれている。
+
+期待を手放せば、裏切られることもなくなる。裏切られなければ、怒る必要もなくなる。
+
+心が穏やかになる。人間関係も楽になる。
+
+政宗のように、期待を手放す勇気を持ってほしい。
+
+その先に、あなた自身の道が待っている。
+
+---
+
+本日も最後までご覧いただきありがとうございます。
+
+高評価とチャンネル登録も励みになります。
+
+それでは、また次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

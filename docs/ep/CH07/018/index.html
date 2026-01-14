@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-018 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-018 — script</h1>
           <div class="muted">【話しすぎ注意】言葉が多いと不幸になる</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,102 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【話しすぎ注意】言葉が多いと不幸になる</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>言葉が多いと不幸になるで迷うときに。考え方と、今日からできる一歩を整理します。
+・言葉が多いと不幸になるで苦しくなる理由
+・心を守る考え方
+・今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>話しすぎ注意, 仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>言葉が多いと不幸になるで迷うときに。考え方と、今日からできる一歩を整理します。
+・言葉が多いと不幸になるで苦しくなる理由
+・心を守る考え方
+・今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-018</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-018&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">相手に正しいことを言われて、胸が刺さった経験はありませんか。言っていることは間違っていない、むしろ正論なのに、なぜか苦しくなる。そんな矛盾を感じたことがある方は少なくないでしょう。例えば、職場でミスを指摘されたとき、あるいは家族からアドバイスという形で意見をされたとき、内容自体は納得できるのに、言われ方やタイミングによっては、ただ責められているように感じてしまう。その瞬間、私たちはどんな反応をするでしょうか。反論すれば角が立つ、かといって黙っていればもどかしい。そんなジレンンマに陥りがちです。ここで一つ、問いかけたいのです。その正論は、果たして今、相手のためになっているでしょうか。役に立つ言葉なのでしょうか。
+
+---
+
+では、なぜ私たちはこのような言い方をしてしまうのでしょうか。その背景には、自分自身の不安や焦りが隠れていることが少なくありません。相手の誤りを早く正さなければ、という焦り。あるいは、自分が正しいことを証明したいという承認欲求。もしくは、ただ単にその場の感情に任せて、思ったことをすぐに口に出してしまう癖。いずれにせよ、その根底にあるのは、相手を本当の意味で助けたいという純粋な気持ちではなく、自分自身の内側から湧き上がるネガティブな感情であることが多いのです。そうした感情が言葉に乗ると、たとえ内容が正しくても、それは相手の心に素直に入っていくことが難しくなります。むしろ、相手の心の防御壁を厚くする結果につながりかねません。つまり、言葉が多いと不幸になるという現象は、単に情報量の問題ではなく、適切でない心の状態から発せられた言葉の量が、関係性を悪化させる要因となっているのです。
+
+この感覚は、単なる気のせいではありません。なぜなら、言葉には二つの側面があるからです。一つは、言葉そのものが伝える内容、つまり何を言うかです。もう一つは、その言葉を発するときの話し手の心の状態、つまりどのように言うかです。私たちは何を言うかにばかり気を取られがちですが、実はどのように言うかの方が、相手の心に届く印象を大きく左右することがあります。例えば、同じここが間違っているという内容でも、相手を非難するような冷たい口調で言われるのと、一緒に改善策を考えようという温かい態度で伝えられるのとでは、受け取り方が全く異なります。前者は攻撃として感じられ、後者は助言として受け入れられる可能性が高いでしょう。この違いを生み出すのは、言葉の数や正しさではなく、その背後にある話し手の意図や思いやりの有無なのです。私たちが日常で経験する正論で傷つく瞬間の多くは、このどのように言うかが欠けている場合に起こります。
+
+正しさが刃になる理由は、いくつか考えられますが、特に大きな要因は一つです。それは、相手の今の状態や、その言葉を聞くタイミングを考慮していない点にあります。私たちは往々にして、自分が正しいと信じることを、そのまま伝えれば良いと考えがちです。しかし、相手が疲れ切っていたり、傷ついていたり、あるいはまったく別のことで頭がいっぱいのときに、たとえ真実を伝えても、それは単なる批判として響くだけです。正論は、しばしば一方的なコミュニケーションになりがちです。こちらが一方的に正しさを投げつけ、相手はそれを受け止めるしかない。そこには、相手の気持ちを汲み取るゆとりや、その言葉が本当に必要とされているかを見極める間が抜け落ちています。言葉が多すぎる、つまり、言うべきことと、言わなくてもいいことの区別がつかず、とにかく正しいことを並べ立ててしまう。その結果、相手を追い詰め、関係をぎくしゃくさせてしまうのです。
+
+---
+
+また、私たちは無意識のうちに、言葉で自分自身の価値を確認しようとしている部分もあります。私の言うことは正しいということを相手に認めさせることで、自分の存在意義を確かめているのかもしれません。しかし、それは相手にとっては負担でしかありません。コミュニケーションの目的は、相手を言い負かすことや、自己の正当性を主張することではなく、お互いの理解を深め、より良い関係を築くことにあるはずです。その本来の目的を見失い、ただ正しさを振りかざすことは、会話のキャッチボールを止め、一方的な投げつけ合いにしてしまいます。キャッチボールが成立するためには、相手がボールを受け取れる態勢であることが前提です。それと同じで、言葉が通じ合うためには、相手の心が受け取り可能な状態であるかを見極めることが、何よりも重要な第一歩となります。
+
+この相手の状態を考慮しないという点は、家族間の会話でも顕著に表れます。例えば、子どもが試験に失敗して落ち込んで帰宅したとき、親がだからもっと勉強しなさいと言ったでしょうと即座に正論を返す場面を想像してみてください。親の側には心配や愛情があるかもしれません。しかし、子どもにとってその瞬間は、ただでさえ傷つき、自信を失っている状態です。そこにたとえ真実であっても、自分の失敗を改めて指摘されることは、さらなる追い打ちに感じられるかもしれません。ここで必要なのは、まずは子どもの悔しさや悲しみに寄り添い、その感情を受け止めることです。悔しかったねつらかったねという共感の言葉が先にあれば、その後で次はどうしたらいいかなとアドバイスをすることも、子どもは前向きに受け止められる可能性が高まります。このように、言葉が役に立つかどうかは、その内容の正しさ以前に、相手がその言葉を受け取れる状態にあるかどうかに大きく依存しているのです。
+
+この問題について、仏教には示唆に富む逸話が伝えられています。ある王子が、ブッダのもとを訪れ、質問をしました。自分が知っている真実を、たとえそれが相手を傷つけることになっても、言うべきでしょうか。それとも、たとえ真実であっても、相手を傷つけるならば、言わない方がよいのでしょうか。ブッダは、単に正しいか間違っているかではなく、その言葉が役に立つかどうかで判断することを説いたとされます。たとえ真実であっても、それが相手を傷つけ、何の役にも立たないのであれば、そうした言葉を口にする意味はない。一方で、その言葉が相手のためになり、役に立つものであれば、しかし、それをすぐに口にするのではなく、適切な時を選び、慈しみの心を持って伝えることが大切だ、と教えました。これは、正しいことを言う権利を主張するのではなく、その言葉がもたらす影響に責任を持つという姿勢です。私たちはともすれば、自分が正しいという立場にしがみつき、その正しさを盾に相手を責めてしまいがちです。しかし、この逸話が示すのは、正しさそれ自体が目的ではなく、それがどのように相手の役に立つかが問われるべきだということです。言葉は、それを使う人の心の状態を映し出します。怒りや焦りから発せられた正論は、たとえ内容が正しくても、鋭い刃となって相手の心に突き刺さります。一方で、相手を思いやる気持ちから発せられた言葉は、たとえ厳しい内容であっても、受け入れられる余地が生まれます。この違いは、言葉の数や正しさの度合いではなく、それを発する際のこころのあり方にかかっているのです。
+
+---
+
+この王子の逸話は、私たちが日常で陥りがちなコミュニケーションの落とし穴を、非常に明確に映し出しています。私たちは往々にして、自分が正しいと思うことを伝えること自体に意義を見出しがちです。しかし、ブッダの教えは、その意義を相手のためになるかどうかという一点に移し替えます。ここに大きな視点の転換があります。つまり、コミュニケーションの評価基準が、自分がどれだけ正しいことを言えたかから、相手がどれだけその言葉を役立てられたかへと変わるのです。この転換は、言葉を発する前の心構えを根本から変えます。何かを言おうとするとき、私たちはまずこれは正しいかと自問します。しかし、それだけでは不十分です。その次に、あるいはそれ以上に重要な問いとして、『この言葉は、今、この相手に役立つか』と自分に問う必要があります。この二つ目の問いを忘れたとき、正しさは独り歩きを始め、刃となってしまうのです。では、役に立つとは具体的にどういうことでしょうか。それは、相手の状況や心の状態を考慮した上で、その人が前に進むための一歩を後押しするような言葉です。あるいは、混乱している相手の気持ちを整理する手助けとなる言葉。あるいは、傷ついている相手の心を少しでも軽くするような言葉。逆に、たとえ事実であっても、相手をさらに追い詰め、動けなくするような言葉は、たとえ内容が正しくても役に立たないと言えるでしょう。この判断は、相手の立場に立って考える想像力が不可欠です。自分が言いたいことではなく、相手が今、必要としていることは何か。この想像力を働かせるほんの少しの間が、言葉を発する前に生まれるかどうか。そのわずかな隙間が、言葉が刃になるか、手助けになるかの分かれ目となります。さらに、この逸話が『時を選び、慈しみの心を持って』と説く点も重要です。『時を選ぶ』とは、単に待つということではありません。相手がその言葉を受け取れる心の準備が整うまで、あるいは、こちらの伝え方に思いやりが伴う状態になるまで、言葉を保留にする知恵です。焦りや怒りが込み上げているとき、その感情のままに言葉を発すれば、それはたとえ正論でも攻撃としてしか伝わりません。まずは自分自身の心を落ち着かせ、慈しみの心、つまり相手の幸せを願う気持ちを育む時間を持つ。そのプロセスを経て初めて、言葉は『伝える』という行為から、『届ける』という行為へと昇華するのです。この一連の流れ――正しさの確認から、役立つかどうかの判断へ、そして時を選び慈しみの心で伝えることへ――は、まるで丁寧な手仕事のようです。荒削りの素材（言いたいこと）を、相手の形に合わせて削り（役立つか考える）、磨き（心を整え）、適切な時に手渡す（時を選んで伝える）。この手間を惜しむとき、私たちの言葉は粗雑で傷つけるものになってしまいます。逆に、この手間をかける習慣が身につけば、言葉は少なくても、確実に相手の心に届く贈り物となるでしょう。
+
+さらに、この逸話が教える役に立つ言葉とは、必ずしも相手を喜ばせる言葉や、ご機嫌を取る言葉を意味するわけではありません。時には、相手の過ちを正すための厳しい指摘も、役に立つ言葉たり得ます。その決定的な違いは、『誰のため』の言葉なのか、という点にあります。それは『相手のため』を純粋に思って発せられているか。それとも、『自分自身の感情やエゴを満たすため』に発せられているのか。私たちは往々にして、後者を前者だと錯覚しがちです。自分の正しさを主張したいという気持ちが、いつの間にかあなたのためを思ってという仮面を被って現れることがあるからです。自分が正しいと思うことを伝えること自体は悪いことではありません。しかし、その動機がどこにあるのかを常に自分に問いかけることが、ブッダの教えを実践する上での核心となります。動機が純粋であれば、たとえ言葉少なであっても、その真心は相手に伝わるものです。逆に、動機が不純であれば、どれだけ多くの言葉を並べても、それは空虚な響きに終始してしまうでしょう。
+
+王子の質問とブッダの答えは、単なる対人術以上の深い意味を持っています。それは、私たちの言葉が、自分自身の心の在り方を如実に映し出す鏡であるということを示唆しているからです。怒りやイライラから発せられた言葉は、たとえそれが真実であっても、相手の心を閉ざす方向に働きます。一方、慈しみや思いやりの心から発せられた言葉は、たとえそれが厳しい指摘であっても、相手の心を開くきっかけとなることがあります。つまり、言葉を選ぶという行為は、同時に自分自身の心の状態を整える作業でもあるのです。何かを言おうとする前に、一度自分の内側に意識を向ける。今、自分はどんな気持ちでこの言葉を発しようとしているのか。焦りや怒りは混じっていないか。この内省のプロセス自体が、不用意な言葉を抑制し、より建設的なコミュニケーションへと導く礎となります。外に向かう言葉の前に、内なる心の声に耳を澄ませる習慣が、人間関係の質を根本から変えていくのです。
+
+では、この教えを日常でどう活かせばよいのでしょうか。まず、何か言おうとした瞬間、一呼吸置く習慣をつけることです。その言葉は、今、このタイミングで伝える必要があるのか。それは相手のためになるのか、それとも単に自分の意見を押し付けようとしているだけなのか。自分自身に問いかけてみる。この一瞬の間が、不用意な言葉を抑えるブレーキになります。次に、言う、言わない、後で言う、という判断を明確にすることです。すべてを言葉にしなければならないという思い込みを手放す。特に、相手が感情的になっているとき、疲れているときは、たとえ正しいことでも、一旦保留にする勇気を持つ。その代わり、落ち着いた頃合いを見計らって、短く、穏やかな口調で伝えてみる。あるいは、場合によっては、一切口にしないという選択もあり得ます。それは無関心ではなく、相手の状態を尊重する姿勢です。職場で同僚のミスを指摘する場合でも、その場で即座に正すのではなく、少し時間を置いてから、「あの件について、よろしければ一緒に考えませんか」と声をかけるだけで、受け止められ方は大きく変わります。家族に対しても、食事中の険悪な空気の中で意見をぶつけるのではなく、落ち着いた時間に「あの話、少し聞いてもらえるかな」と切り出す。このような細かい心遣いの積み重ねが、言葉の重みを変えていくのです。
+
+---
+
+こうした心がけを習慣にするために、一日の始まりと終わりに、短い時間を設けてみるのは有効です。朝、玄関を出る前や洗面所で顔を洗うとき、今日一日、どんな言葉を選んで話そうかと少しだけ意識する。特に、気がかりな会話が予想されるときは、その言葉が役に立つものかどうか、自分に問いかけることを思い出す。夜、枕元で一日を振り返るとき、今日発した言葉で、誰かを不必要に傷つけてしまわなかったか、あるいは、役に立つ言葉を選べたか、静かに省みる。その際、長々と反省するのではなく、ほんの一言、心の中で今日の言葉はどうだっただろうと確認する程度で十分です。この短い振り返りが、無意識のうちに言葉を発してしまう癖を整え、次第に言葉の一つ一つに対する感覚を研ぎ澄ましていきます。習慣とは、大きな決意ではなく、ごく当たり前の行動の積み重ねです。朝と夜のわずかな所作に、言葉を見つめる瞬間を組み込むことで、普段の会話の中でも自然とブレーキがかかるようになっていくでしょう。
+
+---
+
+結局のところ、私たちが目指すのは、相手を打ち負かすことでも、自分が正しいことを証明することでもありません。お互いを傷つけず、より良い関係を築くための言葉を選ぶことです。正しさを武器にしないという選択は、時に弱さと誤解されるかもしれません。しかし、それはむしろ、自分にも相手にも誠実であろうとする強さの表れです。言葉が多いと、どうしても不用意な一言が混じり、関係にひびが入ってしまう。だからこそ、一つ一つの言葉を大切にし、それが果たして役に立つものかどうかを確かめる。その一歩が、人間関係の悩みを軽くし、自分自身の心の平安にもつながっていくのです。
+</pre>
     </div>
   </div>
 </main>

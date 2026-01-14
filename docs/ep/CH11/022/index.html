@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-022 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-022 — script</h1>
           <div class="muted">【老いるのが楽しくなる考え方】シワや白髪は「醜い」のではなく「美しい」ブッダの智慧</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,146 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【老いるのが楽しくなる考え方】シワや白髪は「醜い」のではなく「美しい」ブッダの智慧</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-022</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-022&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">鏡に映るシワや白髪を見るたびに、ため息をついていませんか。若い頃はなかった線が一本増えるたびに「もう終わりだ」と思う人もいます。けれど、その線や色の変化は、あなたが歩いてきた道の証拠であり、誰にも真似できない勲章です。老いることを「劣化」ではなく「熟成」として眺められたら、毎日の景色が少し柔らかくなります。今日は、シワや白髪を美しく見るための視点を、仏教の智慧とともにお話しします。
+
+まず知っておきたいのは、老いは全員に平等に訪れるということです。諸行無常という言葉は、世界が絶えず変わることを示します。変わらないものはありません。変わるものを嫌うと、毎日が戦いになります。反対に「変わるのが当たり前」と受け入れると、肩の力が抜けます。シワや白髪は、変化を可視化したものです。抵抗するより、受け入れて活用する方が、心が軽くなります。
+
+シワは時間の地図です。額の横線は考えた証、目尻の線は笑った証、眉間の線は踏ん張った証。一本一本に「この時期がんばった」「この時期よく笑った」という物語が刻まれています。古い木の年輪を眺めると美しいように、顔の年輪もまた美しい。自分のシワをじっと見て、その物語を思い出してみてください。物語が見えると、嫌悪より誇りが湧いてきます。
+
+白髪は、光を柔らかく反射する糸です。黒い髪がすべてだった頃より、光をふんわりと受け止め、表情を優しく見せます。仏像の髪は黒く描かれますが、光背や衣の色は歳月を重ねてくすみ、味わい深くなります。白髪はあなた自身の光背です。光を跳ね返すのではなく、柔らかく散らす役割を担います。
+
+老いを「醜い」と感じる背景には、若さが価値だと刷り込まれた社会の視線があります。しかし、仏教は美しさを「姿形」よりも「心の状態」に見ます。優しい眼差し、穏やかな口元、落ち着いた声。それらは年齢を重ねた人にしか出せない美です。心の静けさが表情ににじみ、シワや白髪を含めて全体を美しく見せます。
+
+「鏡を見るのが嫌だ」という人は、鏡を見る時間と目的を変えてみます。朝、用事の前に二分だけ鏡を見て、必ず一つ感謝を口にする。「今日も目が見える」「今日も歩ける」「今日もご飯が食べられる」。感謝を言葉にすると、鏡に映る自分への否定が和らぎます。自分への優しい言葉は、顔の筋肉を緩め、表情を柔らかくします。
+
+仏教には「色即是空」という考え方があります。形あるものは空であり、固定された実体ではないという意味です。肌の張りも髪の色も、固定されたものではありません。今ある状態は流れの中の一瞬です。「これが私のすべてだ」と決めつける必要はありません。流れの一場面として眺めると、執着が少し溶けます。
+
+老いを楽しむためには、他人の視線を正面から受け止めないことも大切です。仏教の教えに「他人の目は風、心は旗」という譬えがあります。風が吹いて旗が揺れるように、人の視線が心を揺らします。しかし旗を支える柱がしっかりしていれば、強い風でも折れません。柱とは、自分が何を大切にするかという軸です。自分の大切にしたい生き方を決めると、周りの視線はただの風になります。
+
+老いの中に美を見出すために、光を味方にします。朝日や夕日が当たる時間に、窓際でお茶を飲み、自分の手や髪に当たる光を眺めます。柔らかな光がシワや白髪を包むと、意外なほど穏やかに見えます。写真家が好んで使う「ゴールデンアワー」は、すべてを柔らかく見せます。自分の姿を責めるより、光を上手に選びましょう。
+
+人は、他人の表情に自分の表情を映します。あなたが自分の老いを嫌悪していると、それが目に映り、周りも「老いは嫌なものだ」と感じます。逆に、あなたが自分のシワを撫でながら「この線はよく笑った証だよ」と話せば、周りも笑い返します。自分の老いをどう扱うかで、周りの老いの景色も変わります。
+
+身体のケアも、美しさに直結します。十分な睡眠、水分、軽い運動。難しいことではありませんが、これらは血色と表情を整えます。仏教の八正道の一つ「正精進」は、怠けすぎず、やりすぎず、中道を歩む努力を指します。体を酷使せず、怠けすぎず、淡々と整えることが、穏やかな美をつくります。
+
+心の毒を減らすと、顔つきが変わります。悪口を言う時間を減らし、愚痴を紙に書いて捨てる。恨み言を心に留め続けると、眉間が固くなり、口元が下がります。仏教の「正語」は、優しい言葉を選ぶだけでなく、心に毒を溜めない練習でもあります。毒を減らせば、表情筋は緩み、シワの刻み方も柔らかくなります。
+
+装いも、老いの美しさを引き出します。派手に若作りをする必要はありません。肌に合う色、柔らかい布、軽いアクセサリー。少しだけ光るものを身につけると、白髪の光と混ざり、全体が上品に見えます。「自分には似合わない」と決めつけず、試す好奇心を持つと、表情にも遊びが出ます。
+
+「老いを楽しむ」とは、毎日の小さな変化に気づくことです。昨日より髪が少し増えた白、昨日より深くなった線。日々の小さな変化をカレンダーに一言残してみます。「今日は白髪が光って見えた」「今日は笑い皺が増えた」。記録は、変化を味わう手助けになります。味わえば、恐れが薄れます。
+
+人と会う回数を意識的に増やします。人の前に出ると、身だしなみを整え、表情も整えます。誰とも会わずにいると、鏡に映る自分を厳しく見てしまいがちです。短い散歩で挨拶をする、店員さんと少し話す。小さな交流が、心に「私はまだここにいる」という安心をくれます。安心は顔に表れます。
+
+仏教の修行僧は、頭を剃ります。これは美しさのためではなく、執着を減らすためです。髪型にこだわらないことで、心の自由を得ます。私たちは髪を剃る必要はありませんが、「髪型やシワに完璧を求めない」と決めるだけで、心の自由度が上がります。完璧を目指すのではなく、今を整える。整った今は、美しい今です。
+
+家族や友人に、自分のシワや白髪にまつわるエピソードを話してみてください。「この線はあの時、子どもが受験で大変だった時についたね」「この白髪は、初孫が生まれた時に増えたね」。エピソードとともに語られる老いは、ただの変化ではなく、物語として共有されます。共有された物語は、周りの人も大切にしてくれます。
+
+最後に、老いを楽しむための合言葉を持ちましょう。「今日も熟成中」「この線は私の履歴書」。声に出すと、表情がほぐれます。楽しむ姿勢は、どんな美容液よりも速く表情を変えます。老いは止められませんが、味わい方は選べます。選んだ味わいが、そのままあなたの美しさになります。
+
+老いることは、終わりではなく深まりです。時間という名の職人が、あなたの顔と髪に丁寧に刻んだ模様です。その模様を嫌うか、味わうかは、あなた次第です。仏教の智慧は「今あるものに気づき、感謝する」ことを教えます。シワも白髪も、今ここにある贈り物です。手で触れ、光に当て、物語として語ってみてください。老いの景色が、少しずつ美しいものに変わっていきます。
+
+ここからは、老いを楽しんでいる人の具体例を見てみましょう。七十代の女性は、毎朝庭の花を一輪切って、鏡の前に飾ります。鏡を覗く時間を「花を見る時間」に変えたことで、自分の顔を責める癖が薄れました。花の色や形が日々変わるように、自分の表情も日々変わると気づいたのです。変化を楽しむ目を持つと、シワも白髪も「今日の景色」として愛でられます。
+
+別の男性は、白髪を隠さず、むしろ楽しむようにカットを変えました。短く整え、光を受けると、周りから「その髪、素敵ですね」と言われるようになりました。それまで白髪を帽子で隠していた彼は、「隠すと縮こまるけれど、見せると胸が開く」と語ります。見せ方を変えるだけで、心の姿勢も変わるのです。
+
+老いを美しくする習慣として、肌に触れるときの動きをゆっくりにすることをおすすめします。洗顔も保湿も、できるだけゆっくり、優しく。仏教の行鉢（食事の作法）のように、一つ一つの動作を丁寧にすると、心が静まり、表情も穏やかになります。急いでいるときほど、動きをゆっくりに。ゆっくりな動きは、シワを刻む手を優しくします。
+
+言葉もまた、老いの美しさを決めます。「もうダメだ」「汚い」という言葉は、顔を硬くします。「今日も生きた」「ここまで来た」という言葉は、顔を緩めます。仏教で「正語」が大切にされるのは、言葉が心と表情を作るからです。自分にかける言葉を少し変えるだけで、鏡に映る顔が変わります。
+
+食べ物も、美しさに影響します。塩分と糖分を少し控え、野菜と水分を増やすだけで、むくみが減り、肌が落ち着きます。難しいことをする必要はありません。中道というように、極端に走らず、できる範囲で続けることが大切です。食卓に感謝を添えると、眉間の力が抜けます。抜けた眉間は、深いシワを柔らかい線に変えます。
+
+老いを受け入れる過程で、怒りや悲しみが湧くこともあります。その感情を否定せず、紙に書き出し、声に出して読み上げてみます。仏教の懺悔のように、心に溜めず、外に出す。感情を外に出すと、顔の緊張がほどけ、シワの刻み方も変わります。感情を抱え込むより、流す方が美しい顔を作ります。
+
+自然の中に身を置くことも、老いの美を感じる助けになります。古い樹皮、枯れた草、石の色。自然は老いを「味」として見せてくれます。公園のベンチに座り、木の幹を眺めてみてください。ひび割れや苔が美しく見えます。自分の顔や髪も、自然の一部です。自然に見える美しさを、自分にも許してあげてください。
+
+シワや白髪をきっかけに、新しい出会いが生まれることもあります。「素敵な白髪ですね」と声をかけられることもあれば、「その笑い皺、いいですね」と言われることもあります。褒められたら素直に「ありがとう」と返す。感謝の言葉は、頬を柔らかくし、次の笑い皺を刻みます。受け取る姿勢も、美しさの一部です。
+
+老いの美しさを語るとき、必ず出てくるのが「余白」です。若い頃の顔は力強く、張りで満ちています。年を重ねると、余白が生まれます。余白は余裕です。余裕は他人を受け入れる余地を作ります。余白のある顔は、人を安心させます。シワや白髪が作る余白を、誇りに思ってください。
+
+最後に、老いを楽しむ仲間を作りましょう。同世代でも、違う世代でも構いません。お互いの変化を笑い合い、褒め合う場があれば、鏡に向かう気持ちが軽くなります。「今日のあなた、素敵だね」と言い合うたびに、老いの景色が明るくなります。仏教の僧たちが一人で修行しないのは、共に歩む仲間が心を保つからです。老いもまた、誰かと共有すると優しくなります。
+
+一日の終わりに、自分の顔と髪に感謝を伝える時間を作ります。「今日も笑わせてくれてありがとう」「今日も世界を見せてくれてありがとう」。感謝を口にすると、眉間の筋肉が緩み、口元が上がります。そのまま眠りにつけば、翌朝の顔は柔らかくなります。小さな感謝の習慣が、長い時間をかけて表情を形づくります。
+
+老いを「失うこと」だけで捉えると、心は萎みます。「得たもの」を数えてみてください。経験、人との縁、判断の速さ、ゆっくり待てる心。若い頃にはなかったものが、今はたくさんあります。得たものに目を向けると、シワや白髪が「得たものの印」に見えてきます。
+
+白髪やシワは、誰かの安心材料にもなります。若い人が不安を抱えたとき、年上の落ち着いた表情を見ると「自分もきっと大丈夫だ」と感じます。あなたの顔は、誰かの未来のモデルです。モデルとしての顔を意識すると、自然と背筋が伸び、表情に落ち着きが宿ります。
+
+仏教の教えでは、「今この瞬間」を大切にします。過去の肌を取り戻そうとするより、今の肌を丁寧に扱う方が、心は満たされます。クリームを塗るとき、髪を梳かすとき、一本一本の毛先と一本一本のシワに「お疲れさま」と声をかける。声をかけられた部分は、必ず返事をします。その返事が、柔らかな光となって現れます。
+
+時には周囲から心ない言葉を浴びることもあるでしょう。「老けたね」「白髪が増えたね」。その言葉をすべて受け取る必要はありません。仏教の「贈り物の譬え」にあるように、受け取らなければ相手に返っていきます。「その言葉は受け取りません」と心で静かに唱え、ゆっくり息を吐く。吐く息とともに、余計な言葉を手放します。手放せば、顔に余計な力は入りません。
+
+老いの美しさは、暮らしのリズムにも表れます。朝は静かな光を浴び、昼は体を少し動かし、夜は早めに灯りを落とす。規則正しいリズムは、肌と髪に一定のサイクルを与えます。仏教の僧院でも、鐘の音で一日が区切られます。リズムに身を委ねると、心と表情が整い、シワや白髪も整って見えます。
+
+何歳になっても、新しい学びを始めると、顔つきが変わります。筆ペン、俳句、英会話、パソコン。新しい知識は脳を刺激し、目に光を宿します。光はシワや白髪を美しく照らします。「もう遅い」は、顔を曇らせる言葉です。「今からでも面白い」は、顔を明るくする言葉です。
+
+自分より年上の人の顔を観察してみてください。八十代、九十代の人の笑い皺や白髪には、若い頃には出せない深い味わいがあります。「こんな顔になりたい」と思える先輩を見つけると、老いの道のりに楽しみが増えます。仏教では師を持つことを重んじます。顔の師を持つのも、老いを楽しむ一つの知恵です。
+
+最後に、老いを「誰かを安心させる力」として受け取ってみてください。孫や若い友人が悩んでいるとき、あなたの落ち着いた表情と柔らかな髪が、そっと背中を押します。あなたの顔と髪は、誰かの灯台です。灯台は派手ではありませんが、確かに人を導きます。灯台であろうと決めた瞬間、シワや白髪は頼もしい光になります。
+
+一日の流れに優しい区切りを置きます。朝はカーテンを指一本分開け、四つ吸い六つ吐いて「今日も熟成中」と心で唱える。白湯を一口飲み、鏡の前で一つ感謝を言う。昼は光を浴び、肩を回し、短い散歩で血の巡りを整える。夕方は水をゆっくり飲み、「ここでリセット」と呟く。夜は湯気の飲み物とともに、今日見つけたシワや白髪の物語を一行書き、肌に触れる手をゆっくりにする。区切りがあると、変化をやさしく受け止められます。
+
+七日間の練習を置きます。1日目：鏡の前で感謝を一つ。2日目：白髪やシワを一本選び、その物語を思い出す。3日目：光の時間を五分とり、手や髪に当たる光を眺める。4日目：悪口や愚痴を紙に書いて捨てる。5日目：新しい装いを一つ試す。6日目：誰かの顔の良さを一つ褒める。7日目：寝る前に感謝を三つ書き、ゆっくり呼吸する。七日が過ぎるころ、鏡への視線が柔らかくなります。
+
+二十一日続けると、感謝とゆっくりの動きが習慣になり、眉間の力が抜けやすくなります。三十日を過ぎるころには、光の使い方や装いの遊びが板につき、周囲の視線を風として受け流せるようになります。九十日を超えると、リズムと余白が整い、老いの変化を「今日の景色」として穏やかに眺められます。眺められる人の顔は、自然に柔らかくなります。
+
+具体例を三つ置きます。七十代の女性は、毎朝鏡に花を一輪飾り、光の中で感謝を言う習慣を続けた。三十日で鏡を見る時間が楽しみになり、表情が緩んだ。六十代の男性は、白髪を隠さず短く整え、ゴールデンアワーに散歩をするようにした。二十一日で周囲から「その髪、素敵ですね」と声をかけられ、自信が戻った。八十代の祖母は、寝る前に「今日の線と今日の光」を一行書くようにした。九十日で夜のため息が減り、朝の挨拶が明るくなった。
+
+科学の視点も添えます。朝の光は体内時計を整え、睡眠と肌のリズムを整える。長い吐息は迷走神経を刺激し、表情筋の緊張を和らげ、眉間の力を抜く。皮膚や髪に触れるゆっくりした動きは、副交感神経を優位にし、血流を改善して肌の色を整える。理屈を知ると、続ける理由が増えます。
+
+眠る前に、手の甲をもう片方の手で包み、心で唱えます。「今日も熟成中。ありがとう」。四つ吸い、六つ吐く。吐くたびに余計な言葉が床に落ち、吸うたびに静かな光が胸に入る。静かな光が、明日の表情をやさしく照らします。
+</pre>
     </div>
   </div>
 </main>

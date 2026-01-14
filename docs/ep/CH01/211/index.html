@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-211 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-211 — script</h1>
           <div class="muted">【人間関係の整理】「縁を切るべき人」の特徴５選｜あなたの運気を吸い取る疫病神</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,310 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【人間関係の整理】「縁を切るべき人」の特徴５選｜あなたの運気を吸い取る疫病神</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【運気】で苦しいあなたへ──ブッダの視点で心を整える話。
+・流れを整えるの捉え方・情に流されず 悪縁を断ち切る勇気を持たせるの実践
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>運気, 手放し, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【運気】で苦しいあなたへ──ブッダの視点で心を整える話。
+・流れを整えるの捉え方・情に流されず 悪縁を断ち切る勇気を持たせるの実践</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-211</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-211&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あなたの運気を吸い取る人がいるかもしれません。
+
+このチャンネルでは、
+仏教の教えを紐解きながらあなたの人生に役にたつ知恵をお伝えします。
+ぜひゆっくりと癒されながらお聞きください。
+
+今日は、「今すぐ縁を切るべき人」
+の特徴５選についてお話しします。
+この動画を見終わった後、
+あなたはスマホのアドレス帳を整理したくてたまらなくなるでしょう。
+
+ブッダは言いました。
+「愚かな友と歩むなら、むしろ一人で歩め。
+孤独は、悪い仲間より優れている」
+
+これは、「嫌な人とも仲良くしましょう」
+という生ぬるい教えではありません。
+「腐ったミカンは箱から出せ」という、
+非常に実践的で冷徹な警告です。
+
+箱の中に一つでも腐ったミカンがあると、
+周りの新鮮なミカンまであっという間に腐ります。
+人間関係も同じです。
+たった一人の「悪縁」が、あなたの運気、
+時間、そして精神を驚くべきスピードで腐らせていくのです。
+
+「でも、縁を切るなんて冷たい」
+そう思っていませんか？
+その優しさが、あなたを不幸にしている原因です。
+
+縁切りは、冷血な行為ではありません。
+自分自身を守るための、
+慈悲の行為なのです。
+
+では、具体的にどんな人を捨てるべきなのか？
+今すぐ離れるべき「５つの疫病神」の特徴を、
+単刀直入にお伝えします。
+
+１つ目は、「否定ばかりする人（ドリームキラー）」です。
+
+あなたが何か新しいことを話すと、
+「どうせ無理だよ」
+「やめたほうがいいよ」
+「現実を見なよ」
+と、条件反射で否定する人。
+
+彼らには、「カニのバケツ理論」が当てはまります。
+バケツに入ったカニは、
+一匹が這い上がろうとすると、
+他のカニが足を引っ張って引きずり下ろそうとするのです。
+彼らはあなたを心配しているフリをしていますが、
+本心は違います。
+あなたが成功して、
+自分より上のステージに行ってしまうのが怖いのです。
+自分という薄暗いバケツの中に、
+あなたを道連れにしておきたいだけなのです。
+彼らの言葉は呪いです。
+「お前は無力だ」という呪いをかけられる前に、
+耳を塞いで逃げてください。
+
+２つ目は、「自分の話しかしない人（時間泥棒）」です。
+会えば最初から最後まで自分の愚痴、
+自慢、噂話。
+あなたが口を挟もうとすると、
+「あ、そういえば私もね」と話を強奪する。
+
+会話のキャッチボールではありません。
+彼らが求めているのは、
+自分の汚い感情を吐き出すための「ゴミ箱」です。
+そして恐ろしいことに、
+彼らはあなたの時間を奪っているという自覚が全くありません。
+彼らと会った後、
+どっと疲労感に襲われませんか？
+それは、
+あなたの「気（エネルギー）」をごっそり吸い取られた証拠です。
+時間は命そのものです。
+あなたの命を削ってまで、
+彼らのゴミ箱になる必要はありません。
+
+３つ目は、「『でも』『だって』が口癖の人（エネルギー漏れ）」です。
+「変わりたい」と相談してくるのに、アドバイスをすると
+「でも、お金がないから」
+「だって、あの人が悪いから」
+「私には才能がないから」
+と、全ての解決策に言い訳で返してくる人。
+
+彼らは、問題を解決したいのではありません。
+「かわいそうな自分」に酔い、
+あなたに構ってほしいだけです。
+底の抜けたバケツに水を注ぐようなものです。
+あなたの親切心は、
+永遠に満たされることなく垂れ流されます。
+今すぐ蛇口を閉めてください。
+
+４つ目は、「恩を仇で返す人（テイカー）」です。
+あなたが助けても、
+お礼の一つもない。
+やってもらって当たり前。
+もっとくれ、もっと助けてくれと要求してくる。
+
+ハッキリ言います。
+彼らはあなたを「友達」とは思っていません。
+「便利な道具」
+あるいは「財布」としか見ていません。
+道具が壊れたら、修理もせずに捨てて、
+新しい道具を探すだけです。
+ギブアンドテイクが成立しない関係は、
+友情ではなく搾取です。
+「私がいないとこの人はダメになる」
+なんて思わないでください。
+あなたが離れても、
+彼らはすぐに次の寄生先を見つけるだけです。
+
+５つ目、これが最も重要です。
+「一緒にいて『違和感』を感じる人」です。
+
+言葉では説明できないけれど、
+なんとなくモヤモヤする。
+会う前になると気が重くなる。
+メッセージが来るとドキッとして嫌な気分になる。
+
+その直感は、
+１００％正しいです。
+あなたの脳は、
+相手の微細な表情、
+目の動き、言葉の裏にある悪意を無意識にキャッチし、
+「コイツは危険だ」「関わるな」
+とサイレンを鳴らしているのです。
+本能が危険信号を出しているのに、
+理屈で「でも、悪い人じゃないし…」
+と打ち消してはいけません。
+違和感の正体は、
+あなたの魂からのSOSです。
+そのSOSを無視し続けると、
+いずれ大きなトラブルに巻き込まれます。
+
+しかし、ここまで聞いても、
+あなたはまだ迷っているかもしれません。
+頭では「離れるべきだ」とわかっていても、
+心がブレーキをかける。
+なぜでしょうか？
+それは、
+あなたの心に「３つの呪い」がかかっているからです。
+
+１つ目は、
+「サンクコスト（埋没費用）の呪い」です。
+「１０年の付き合いだから」「昔は仲が良かったから」
+費やした時間の長さを理由に、
+未来を犠牲にしてしまう心理です。
+しかし、賞味期限の切れた缶詰を
+ずっと持っていたからという理由で食べますか？
+食べませんよね。お腹を壊すだけです。
+人間関係も同じです。
+重要なのは「過去の長さ」ではなく「今の質」です。
+
+２つ目は、「孤独への恐怖」です。
+「この人を切ったら、
+一人ぼっちになってしまうのではないか」
+そう思って、泥船にしがみついてしまう。
+しかし、
+安心してください。
+ブッダは
+「孤独は、悪い仲間より優れている」と言いました。
+質の悪い人間関係に囲まれている方が、
+魂にとってはよほど孤独で、
+危険なのです。
+
+３つ目は、「いい人でありたいというエゴ」です。
+「冷たい人だと思われたくない」「嫌われたくない」
+これは優しさではありません。
+ただの保身です。
+万人に好かれようとする人は、
+誰からも大切にされません。
+自分を大切にしない人を、
+他人が大切にするはずがないのです。
+
+この３つの呪いを解かない限り、
+あなたは一生、搾取され続けることになります。
+では、呪いを解き、
+実際に縁を切るにはどうすればいいのか？
+
+いきなり「絶交だ！」
+と宣言する必要はありません。
+そんなことをすれば、
+逆上して攻撃してくる可能性があります。
+最もスマートで、
+相手に気づかれない「フェードアウト戦略」を使いましょう。
+
+ポイントは、
+「相手にとって『つまらない人間』になること」です。
+
+１つ目は、反応を遅らせ、
+薄くすること。
+LINEの返信を、即レスから１時間後に、
+次は半日後に、その次は翌日に遅らせる。
+返信内容も、「そうなんだ」「大変だね」
+とスタンプ一つで済ます。
+感情を込めない「業務的な対応」
+を徹底するのです。
+相手は暖簾に腕押しだと感じ、面白くなくなります。
+
+２つ目は、「忙しい」をバリアにすること。
+誘われても、「最近仕事が立て込んでいて」
+「体調が優れなくて」
+「家族の用事が」と断り続ける。
+具体的な日程は絶対に言わない。
+「落ち着いたらこっちから連絡するね」と言って、
+二度と連絡しない。
+これで察しない相手はいません。
+
+相手は徐々に
+「あ、この人はもう自分を受け入れてくれないんだな」
+「利用価値がなくなったな」
+と感じます。
+そして、新しいターゲットを探して自ら去っていきます。
+これが、
+お互いに傷つかずに縁を切る極意です。
+
+罪悪感を持つ必要は微塵もありません。
+ブッダも「自らを灯明とし、自らを拠り所とせよ」
+と言いました。
+あなたの人生の主導権は、
+あなたが握るのです。
+誰かの機嫌を取るために使っている時間を、
+自分を幸せにするために使ってください。
+
+人間関係には「空白の法則」があります。
+手放してスペースを作らない限り、
+新しいものは入ってきません。
+腐った縁で埋め尽くされた部屋に、
+良縁が入る隙間はないのです。
+
+勇気を出して、
+スマホのアドレス帳を開いてください。
+そして、
+あなたの人生に不要な名前を、
+静かに、
+しかし断固として消去しましょう。
+
+その瞬間、
+あなたの背中から重たい荷物が一つ消えます。
+そして空いたスペースには、
+あなたを本当に大切にしてくれる、
+素晴らしい出会いが必ず飛び込んできます。
+
+本日も最後までご覧いただきありがとうございます。
+皆様が幸せでありますように。
+</pre>
     </div>
   </div>
 </main>

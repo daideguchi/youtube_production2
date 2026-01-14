@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-020 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-020 — script</h1>
           <div class="muted">【沈黙】言い返せないなら沈黙でいい｜沈黙は最強の返答</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,278 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【沈黙】言い返せないなら沈黙でいい｜沈黙は最強の返答</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>沈黙, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-020</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-020&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">言い返せない自分が嫌いだ。
+何か言われた時、頭が真っ白になって、言葉が出なくなる。
+相手の勢いに押されて、ただ頷くことしかできない。
+そして、家に帰ってから、「あの時、ああ言えばよかった」と悔しさが込み上げてくる。
+「自分はなんて弱いんだろう」
+「だから舐められるんだ」
+
+そうやって、夜遅くまで自分を責めていませんか。
+布団の中で、何度も脳内シミュレーションをして、相手を論破する自分を想像しては、現実の無力さに溜息をつく。
+
+でも、今日ここでお伝えしたいのは、全く逆の真実です。
+言い返せないことは、弱さではありません。
+むしろ、言い返さないことこそが、相手に対する最強の反撃になり得るのです。
+
+今日は、「沈黙」という、誰も傷つけず、かつ誰も侵入できない鉄壁の守り方について、禅の視点からお話しします。
+
+---
+
+まず、なぜ私たちは言い返せないのでしょうか。
+それはあなたが弱いからでも、頭の回転が遅いからでもありません。
+あなたの心が、平和を愛しているからです。
+争いの空気を敏感に察知し、これ以上火に油を注がないように、無意識にブレーキをかけているのです。
+それは生存本能としての、高度な知恵です。
+
+想像してみてください。
+怒鳴っている相手に、あなたが正論で言い返したとします。
+相手はどうなるでしょうか。
+「なるほど、私が間違っていました」と謝るでしょうか。
+いいえ、逆です。
+さらに顔を真っ赤にして、もっと大きな声で、もっと酷い言葉を投げてくるでしょう。
+売り言葉に買い言葉。泥仕合です。
+その泥を浴びるのは、相手だけではありません。あなたもまた、泥だらけになって傷つくのです。
+
+言い返せなかった時、あなたの心はフリーズしたように感じたかもしれません。
+でも実は、あなたの魂が「この土俵には乗らない」と判断したのです。
+同じレベルに落ちることを拒否したのです。
+その判断は、決して間違っていません。
+
+---
+
+仏教には、「聖なる沈黙」という言葉があります。
+お釈迦様は、無意味な論争や、悪意のある罵倒に対しては、徹底して沈黙を守りました。
+これを「無記」とも言います。
+答える価値のない問い、徳にならない議論には、あえて反応しない態度です。
+
+有名なエピソードがあります。
+何か嫌味を言われた時、とっさに言葉が出なくて、後で悔しい思いをしたことはありませんか。
+あの時、こう言い返せばよかった。
+なんでヘラヘラ笑って誤魔化してしまったんだろう。
+家に帰ってからも、その場面が何度も頭の中で再生され、自分を責めてしまう。
+
+言い返せない自分は、弱い人間だ。
+そう思っているあなたに、朗報があります。
+実は、言い返さないことこそが、最強の反撃になることがあるのです。
+
+今日は、無理に戦わずに相手を黙らせる、大人の沈黙力について、禅の視点からお話しします。
+
+---
+
+まず、なぜ言い返せないのか。その原因を知ることから始めましょう。
+あなたが言い返せないのは、頭の回転が遅いからでも、気が弱いからでもありません。
+あなたが優しいからです。
+
+相手の言葉を受け止め、その場の空気を壊さないように配慮し、相手を傷つけない言葉を選ぼうとする。
+その高度な情報処理を瞬時に行っているあまり、言葉が詰まってしまうのです。
+つまり、あなたの沈黙は、優しさというブレーキが作動した結果なのです。
+
+しかし、相手はその優しさを弱さと勘違いして、さらに攻撃してきます。
+だんまりかよ。
+図星だから何も言えないんだろう。
+そう言われると、カッとなって何か言わなきゃと焦りますが、焦れば焦るほど、思考は停止します。
+
+ここで発想を変えましょう。
+言い返せないのではなく、言い返さない選択をしているのだと。
+相撲で言えば、相手が突っ張ってきた時、まともに押し返すのではなく、スッと体をかわして、相手を空転させる。
+それが、これからお話しする沈黙の技術です。
+
+---
+
+仏教には無記という態度があります。
+意味のない問いかけには、答えないという姿勢です。
+お釈迦様は、悪口や挑発に対して、徹底して沈黙を守りました。
+
+ある時、男がお釈迦様を激しく罵りました。
+しかしお釈迦様は一言も言い返さず、ただ静かに座っていました。
+罵り疲れた男が、なぜ言い返さない！俺に負けたのが悔しくないのか！と叫びました。
+
+お釈迦様は静かに口を開きました。
+もし、あなたが誰かに贈り物をしようとして、相手がそれを受け取らなかったら、その贈り物は誰のものになりますか？
+男は答えました。
+そりゃあ、贈ろうとした俺のものに戻るさ。
+お釈迦様は言いました。
+同じことです。私は、あなたの罵詈雑言という贈り物を受け取りません。ですから、その言葉はそのまま、あなたのものになります。
+
+これが、最強の沈黙です。
+言い返すということは、相手の言葉というボールを受け取り、投げ返すキャッチボールに参加することです。
+しかし、沈黙は、ボールを受け取らずに地面に落とす行為です。
+相手は、投げたボールを自分で拾いに行かなければなりません。これは疲れます。そして、虚しいです。
+言い返さないことは、負けではなく、試合放棄の宣言、つまりキャッチボールの拒否なのです。
+
+---
+
+では、具体的にどうすれば、この最強の沈黙を実践できるのでしょうか。
+ただ黙っているだけでは、いじけているように見えてしまいます。
+毅然とした沈黙を作る三つのステップをマスターしましょう。
+
+第一のステップ：反応を遅らせる
+
+何か言われた瞬間、カッとなってすぐに反応しようとしないでください。
+人間の脳は、攻撃されると六秒で怒りのピークに達します。
+この六秒間をやり過ごせば、理性的な脳が動き出します。
+
+嫌味を言われたら、まずはゆっくりと深呼吸を一つ。
+そして、相手の目ではなく、相手の眉間や鼻のあたりをぼんやりと見つめます。
+心の中で、いち、に、さん…と数を数えてもいいでしょう。
+これだけで、相手の言葉の毒が、あなたの心に浸透するのを防ぐ呼吸の盾ができます。
+この間は、相手にとっては不気味なほどの落ち着きに見えます。
+
+第二のステップ：分析者の目を持つ
+
+沈黙している間、ただ耐えるのではなく、相手を観察します。
+まるで、珍しい昆虫を見る科学者のような目で。
+
+ああ、この人は今、顔を真っ赤にして怒っているな。
+声が震えているな。
+家庭で何か嫌なことがあったのかな。
+可哀想な人だな。
+
+相手を同じ人間として見るのではなく、観察対象として見ることで、感情的な巻き込まれを防ぐことができます。
+あなたが観察モードに入ると、その冷徹な視線を感じ取った相手は、居心地が悪くなります。
+あれ？怖がっていない？なんでそんな冷静なんだ？
+相手のペースが乱れ始めます。
+
+第三のステップ：決定的な一言、または微笑み
+
+そして、十分に間を取った後、短く一言だけ返します。
+そうですか。
+なるほど。
+あなたの意見は分かりました。
+
+感情を一切込めず、ただ事務的に事実だけを確認する言葉です。
+反論もしないし、同意もしない。
+ただ、聞きましたよという合図だけを送る。
+
+あるいは、言葉すら発さずに、薄く微笑むだけでも効果抜群です。
+モナリザのような、意味深な微笑みです。
+相手は、その微笑みの意味を勝手に深読みし始めます。
+馬鹿にされているのか？
+何か奥の手があるのか？
+不気味な沈黙と微笑みは、どんな罵詈雑言よりも相手の不安を煽ります。
+
+---
+
+この沈黙戦術を使う時の注意点は、絶対に不貞腐れた態度をとらないことです。
+下を向いたり、涙目になったりすると、相手の加虐心を煽ってしまいます。
+あくまでも、背筋を伸ばし、堂々とした態度で黙るのです。
+私はあなたの言葉には傷つきませんというオーラを出すのです。
+
+これを、聖なる沈黙と呼びましょう。
+弱さからの沈黙ではなく、強さからの沈黙です。
+台風が来ても動じない大木のように、ただそこに在る。
+
+最初は怖いかもしれません。
+でも、一度やってみてください。
+言い返そうと必死になっていた時よりも、はるかに楽に、そして優位に立てることに気づくはずです。
+
+言い返せない自分を責める必要はありません。
+あなたは、無駄な戦いをしない賢い人なのです。
+沈黙という最強の武器を懐に忍ばせて、これからは涼しい顔で世の中を渡っていきましょう。
+ただ聞こえましたよという事実だけを伝える。
+まるで上司が部下の報告を聞くように、あるいは医者が患者の訴えを聞くように。
+淡々と返すのです。
+
+もし余裕があれば、最後に薄く微笑んでみてください。
+「あんなに怒鳴ったのに、この人は全く動じていない」
+「自分の言葉が全く通じていない」
+その事実は、相手のプライドを粉々にします。
+言葉で論破するよりも、はるかに深く相手にダメージを与えるのです。
+
+---
+
+この沈黙戦法を使う時の注意点があります。
+それは、「ふてくされ」と「沈黙」を混同しないことです。
+
+ふてくされた沈黙は、相手を無視しようとしたり、睨みつけたりする、受動的な攻撃です。
+心の中では「うるさいな」「バカじゃないの」と悪態をついています。
+これは相手に伝わります。結局、同じ土俵で戦っていることになります。
+そうすると、相手は「無視された！」と逆上して、攻撃を強めるかもしれません。
+
+聖なる沈黙は、違います。
+心の中は静かです。
+「この人も大変なんだな」「可哀想な人だな」という、ある種の憐れみや慈悲すらあるかもしれません。
+相手を敵だと思わず、ただ通り過ぎる暴風雨だと思っている状態。
+その心の静けさが、外側にも滲み出るような沈黙。
+これこそが、相手を圧倒する沈黙です。
+
+---
+
+もし、言い返せない自分を責めてしまう夜があったら、こう考えてみてください。
+「私は今日、争いの種を蒔かなかった」
+「私は今日、平和を守った」
+「私は今日、相手の毒を受け取らなかった」
+
+言い返して勝てるのは、その場限りの小さな優越感だけです。
+しかし、沈黙して自分を守り抜いた時に得られるのは、揺るぎない尊厳です。
+
+言い返せないのは、あなたが弱いからではありません。
+あなたが、言葉のナイフで人を刺すことを選ばない、気高い魂を持っているからです。
+その優しさを、誇りに思ってください。
+
+次回、誰かがあなたに攻撃してきたら。
+言い返そうと焦る必要はありません。
+ただ深く呼吸をして、静かに相手を見つめ、心の中でこう呟いてください。
+「その贈り物は、受け取りません」
+
+沈黙は、金です。
+雄弁に語るどんな言葉よりも、あなたの沈黙は重く、そして美しいのです。
+堂々と、黙っていてください。
+それが、あなたの勝利です。
+</pre>
     </div>
   </div>
 </main>

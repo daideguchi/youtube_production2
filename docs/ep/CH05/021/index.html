@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH05-021 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH05-021 — script</h1>
           <div class="muted">【料理教室】「味が濃すぎる！」と私の料理を酷評した料理研究家の先生。でも、教室の後「君の作る肉じゃが、オフクロの味に似てる」と照れながら言った。</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,174 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCNxC0Q2xDoofIClGNurUcIg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【料理教室】「味が濃すぎる！」と私の料理を酷評した料理研究家の先生。でも、教室の後「君の作る肉じゃが、オフクロの味に似てる」と照れながら言った。</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉
+
+この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>再婚, 家族の距離, 老後, シニア, 恋愛, シニア恋愛, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH05-021</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH05-021&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">ワイン講座の教室は、少し落とされた照明と、芳醇な葡萄の香りに包まれていた。
+重厚なオークのテーブルに、磨き上げられたグラスが整然と並んでいる。
+「グラスを持つ手、もう少し力を抜いて」
+背後から、低い声が落ちてくる。
+田中美和子、六十七歳。夫を見送って七年。
+夫は焼酎派で、ワインなんて気取った飲み物は好まなかった。安酒をあおって、すぐに寝てしまう人だった。
+でも、私はずっと憧れていた。ワイングラスを傾けながら、香りを語り合うような大人の時間を。
+ふと立ち寄ったワインショップで香りの世界に魅了され、市民大学の心理学講座の傍ら、このワイン教室に通い始めた。
+
+講師の高橋慎司さん、七十歳。白髪をオールバックにし、蝶ネクタイが似合う彼は、グラスを持つ手をそっと直してくれた。
+「肩を少し落として。香りを取る前に、まずは息を整えるんです。慌てないで、ワインと対話するように」
+耳元で囁かれるアドバイス。彼の手が私の手に触れることはないが、グラスの縁をなぞる彼の指の動きがあまりにも美しく、胸の奥がわずかに熱くなるのを感じた。
+「……はい」
+緊張で指先が震える。
+
+グラスを回し、立ち上る香りを吸い込む。スワリング。空気に触れさせることで、ワインは眠りから覚める。
+「……蜂蜜と、枯れ葉の匂いがします」
+「いいですね。熟成が進んでいます。このワインは、あなたが生まれる前に作られたものですよ」
+彼が微笑む。「あなたの声は、琥珀色ですね」
+「え？」
+「深みがあって、透き通っている。あなたの声は果実のようだ。少し熟れてきた果実。甘くて、少し酸っぱい」
+言葉遊びのような、けれど艶を含んだその指摘が、香りの粒と混ざり合い、教室の空気に湿度を宿らせた。
+
+講座の後、彼からテイスティングノートを手渡された。
+「感じた香りを、自由に書いてみてください。正解はありません。あなたが感じたものが、全てです」
+受け取る時、彼の指先が紙を撫でた。「香りは、寝かせると育つんです。ワインも、人の想いも。時間をかけるほど、味わい深くなる」
+意味深な言葉に、私は紙に鼻を寄せた。インクの匂いに、彼の声の温度が混ざっている気がした。
+
+別の日、畑での実習があった。太陽が降り注ぐブドウ畑。
+彼は未熟なブドウの葉を指で潰し、その青い香りを私に嗅がせた。
+「これが、若さの香りです」
+「青くて、少し酸っぱいですね」
+「その香りを指に移して……その指でグラスを持つと、香りが混ざるかもしれません」
+彼が私の指先を見つめながら囁く。頭の中で、指先の青い香りと、グラスの中の赤ワインの香りが重なり合う。
+「香りのマリアージュですね」
+頬がカッと温かくなった。
+
+帰り道、駅まで並んで歩いた。夕焼けが街を赤く染めている。
+「本を読みながら、行間からワインの香りを探すのが好きなんです」彼が言った。
+「素敵ですね。心理学の論文にも、香りがあると集中できる気がします」
+「今度、図書館で一緒に読みませんか？ ワインは持ち込めませんが、言葉に香りを乗せることはできますから」
+休日の図書館。無香の空間で、私たちは紙に書いた例文を交互に読んだ。
+息を含んだ声が、乾燥した紙を柔らかくしていく。
+「あなたが読むと、言葉に艶が出ますね。まるでデキャンタージュしたようだ」
+「あなたの低音も、以前より響きが増しました。樽の香りがします」
+声と紙だけが寄り添い、行間の余白が甘く湿っていくようだった。
+
+ある日、彼が小さな小瓶を持ってきた。「これ、オーク樽のチップです」
+蓋を開けて嗅がせてくれる。「弱いですが、舌に残る香りでしょう？」
+差し出されたチップに指で触れると、木の粉が微かについた。
+「木の香り……落ち着きます。森の中にいるみたい」
+「あなたに似合う香りだ。自然で、飾らない」
+
+昼下がりのワインバー。窓際の席で、一杯だけを時間をかけて味わった。
+家族の話は浅く流し、香りの感想だけを深く共有する。それが私たちの流儀だった。
+お互いの過去に踏み込みすぎない。今の香りだけを楽しむ。
+「君の声を、長く聴いていたい」
+高橋さんの喉が少し掠れ、彼が笑うと、コーヒーの湯気が二人の間を霞ませた。
+「酔いましたか？」
+「あなたの声にね」
+
+講座のない日には、音声メモが届くようになった。
+『今日の空の匂い。湿った土と、アプリコット』
+彼の低音が、耳の奥で香りを広げる。
+私も録音ボタンを押す。『ベランダのハーブと、雨の匂い』
+声だけで、互いのいる場所の空気を運び合う。
+
+校外学習で訪れたワイナリー。土を踏みしめると、日差しと乾いた土の匂いが立ち上った。
+巨大な樽が並ぶ貯蔵庫。ひんやりとした空気。
+「この匂い、あなたの声に似ています」
+私が言うと、樽の蓋を閉めようとしていた彼の手が止まり、視線が絡み合った。香りと視線が溶け合う瞬間。
+帰りのバスで、彼が紙片を渡してきた。「今日の香りを三つ書きました。君も書いて」
+『葡萄の皮、湿った石、胸の熱』
+私はその下に書き足した。『樽の木、あなたの声、帰り道の風』
+紙が、今日という日の温度を閉じ込めた。
+
+冬の喫茶店。温かいカップを挟んで座る。
+「香りの感じ方が、変わりましたね」彼が言った。
+「あなたの声が、形にしてくれるからです。一人で飲むワインより、二人で語り合うワインの方が美味しい」
+年末、「この一年の香りを書いてください」と新しいノートを渡された。
+『あなたの声、熟したプラム。今日の香り、焦がしたキャラメル』
+記すと、「いい書き出しだ」と彼が笑い、紙がわずかに湿った。
+
+新年。「今年はどんな香りを重ねますか」
+「あなたの声に似合うものを」
+息を整え、香りが立ち上る瞬間に声を重ねる。喉が柔らかく鳴った。
+信号待ちの風の中、彼がポケットから出した柑橘の皮を捻り、香りを指に移した。
+「柑橘と、木と、声」
+ノートに彼が書き込む。文字が香りの代わりになり、紙がしっとりと温まる。
+散歩の終わりに、「今日はこのまま帰ります。香りも声も、持ち帰ると熟しますから」と彼が笑った。夜の時間が静かに温まった。
+
+ある夜、私が赤ワインをこぼしてしまった。白いクロスに染みが広がる。
+「ああ、すみません！ どうしよう」
+「大丈夫。染みも記憶になります」
+彼が布巾を渡し、二人でテーブルを拭いた。「この色、あなたの声に似ています。深紅のベルベット」と彼が囁く。失敗さえも、艶やかな記憶に変わると知った。
+
+春、桜の日。彼が枝を優しく撫で、薄い香りを指に移した。
+「この香り、声には似合います」
+グラスを持たず、桜色の声を重ねる。花びらが舞い、私たちのリズムを映しているようだった。
+
+講座の終盤。「次はどんな香りで、声を染めましょうか」と彼が聞いた。
+「あなたが選ぶ香りで」
+私が微笑むと、鼻先に微かな甘さが残り、喉を潤した。
+彼はポケットから、ワインのコルクを取り出した。
+「これ、記念にどうぞ。今日飲んだワインのコルクです」
+「……ありがとうございます」
+受け取ると、コルクはまだ湿っていた。ワインの香りと、彼の手の匂いが染み込んでいる。
+「大切にします」
+夜、自宅でグラスを棚に戻す。柑橘、樽、木漏れ日、桜、そして高橋さんの低い声。それらをそっと思い出す。
+スマホを伏せて、「明日も、香りの声で」と呟く。
+湿った余韻を抱きしめながら、私は眠りに落ちた。枕元のコルクから、微かに葡萄の香りが漂っていた。
+</pre>
     </div>
   </div>
 </main>

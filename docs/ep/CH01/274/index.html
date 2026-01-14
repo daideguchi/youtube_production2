@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-274 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-274 — script</h1>
           <div class="muted">去る者は追うな。縁が切れた時こそ運が上がる理由｜ブッダの教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,132 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>去る者は追うな。縁が切れた時こそ運が上がる理由｜ブッダの教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【人間関係】で苦しいあなたへ──追わない勇気の話。
+・去る人を追うほど苦しい理由・追わないための3ルール
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 執着, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【人間関係】で苦しいあなたへ──追わない勇気の話。
+・去る人を追うほど苦しい理由・追わないための3ルール</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-274</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-274&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">なぜ関係が終わると、私たちはそれを不幸だと決めつけてしまうのでしょうか。去ってしまった人を追いかけたり、過去の思い出に浸って涙したり。そんな経験をお持ちではないでしょうか。大切なものを失った喪失感は、誰にとっても深く痛いものです。しかし、仏教の視点で心の奥底を見つめると、その苦しみの本当の正体は、相手ではなく、もっと別の場所にあります。
+
+実は、私たちが今感じている痛みの多くは執着という心の働きから生まれているのです。執着とは、移り変わっていく現実を受け入れず、こうあるべきだという自分の思いにしがみつく状態を指します。相手が去ったから苦しいのではなく、変化を拒むあなたの心そのものが、苦しみという迷いを作り出していると言えるでしょう。まるで、流れる川の水を無理にせき止めようとして、自分自身が押し潰されそうになっているようなものです。
+
+ここで大切にしたいのが諸行無常という言葉です。これは、この世のすべてのものが絶えず変化し続けており、同じ状態では一瞬たりとも留まらないという真理を表しています。季節が巡り、花が咲いて散るように、人の縁もまた巡り、形を変えていくのが自然な姿なのです。若さも、健康も、そして人間関係も、すべては刻一刻と変化していくのです。それなのに、私たちは変わらないものを求め、永遠に続くと信じてしがみついてしまいます。
+
+もし私たちがこの自然な流れに逆らわず、変化をあるがままに受け止めることができればどうなるでしょうか。別れは単なる終わりではなく、次の新しいステージへ進むための準備期間だと気づくことができます。失ったことではなく、変化を拒もうとする執着こそが、私たちを苦しめていた正体だったのです。このことに気づけば、心は少しずつ穏やかになっていきます。
+
+この手放すということが、いかに難しく、そして人生を軽くするために重要なことなのか。それを教えてくれる、ある僧侶の逸話があります。
+
+---
+
+川を渡って終わったはずの出来事を、なぜ私たちは何キロも歩き続けて背負い続けるのでしょうか。これは、私たちの心が作り出す不思議で、そして少し滑稽な習性についての話です。
+
+昔、二人の僧侶が長い旅の途中で、川のほとりに立ちました。流れは速く、一人の女性がどうやって渡ればいいか途方に暮れていました。彼女は高価な着物を濡らしたくないと、岸でただ立ち尽くしています。
+
+その時、年上の僧侶は迷わず女性の声をかけました。そして、彼女を背負い、流れに足を踏み入れたのです。向こう岸に着くと、彼は女性を優しく下ろしました。女性はお礼を言って去っていきました。僧侶は少しも気にする様子を見せず、濡れた袖を絞りながら、何事もなかったかのように歩き出しました。
+
+一方、もう一人の若い僧侶は、その光景を見て驚きと怒りを感じていました。彼らの戒律では、異性に触れることは固く禁じられていたからです。彼は何も言いませんでしたが、心の中ではあんなことをしていいはずがない「先輩は破戒僧だ」という思いが渦巻いていました。
+
+二人は山道を何キロも黙って歩き続けました。日が傾き、疲れもピークに達した頃、若い僧侶はついに我慢できなくなりました。彼は立ち止まり、年上の僧侶に詰め寄りました。「先輩、あれは間違っていました。私たちは女性に近づいてはいけない決まりです。なぜあんなことをしたのですか」。
+
+すると、年上の僧侶は静かに微笑んで、こう言いました。「私は向こう岸で彼女を降ろしましたよ。だが、あなたはまだ彼女を背負っているのです」。
+
+この一言に、若い僧侶は言葉を失いました。物理的には、誰もその女性を背負っていません。しかし、心の中では、一人の僧侶だけがずっと重い荷物を背負い続けていたのです。年上の僧侶にとって、その出来事は川を渡り終えた瞬間に「終わりました」。しかし、若い僧侶にとっては、その出来事が何時間も経った後も、まだ「続いていた」のです。
+
+若い僧侶が背負っていたのは、女性そのものではありません。自分の中の正しさ、あるいは戒律という言葉への執着でした。彼は「正しいこと」をしたいという思いで、自分自身を縛り付けていたのです。私たちが日々、心の中で抱え続けている重荷もまた、実はよくよく見てみれば、過去の事実そのものではなく、その事実に対する「あるべきではない」という執着や、「なぜこうなった」という問いかけなのかもしれません。
+
+私たちは、この若い僧侶と同じことを繰り返していませんか。去っていった人、終わってしまった関係、過ぎ去った失敗。それらは、もう川の向こう岸に置いてきたはずの出来事です。物理的には、もうそこにはいません。それなのに、私たちは頭の中で何年も、何十年もその人や出来事を背負い続けて、自分の心を重くしています。私たちもまた、去った人や過去の出来事を、いつまでも心の中で背負い続けてエネルギーを浪費してしまっているのです。川を渡ったら、そこで荷物を下ろす。それが、心を軽くするための唯一の方法なのです。
+
+---
+
+枯れた枝をそのままにしておいて、立派に新しい芽が育つ庭木を見たことがありますか。もし剪定をしなければ、木は限られた栄養を、もう役目を終えた枯れた枝に送り続けてしまいます。その結果、本来なら花を咲かせるはずの新しい芽に十分な栄養が行き渡らず、木全体が徐々に弱っていくのです。
+
+私たちの心も、実はこれとまったく同じ仕組みを持っています。去ってしまった人や終わってしまった関係を追いかけ続けることは、あの枯れた枝にエネルギーを注ぎ込むようなものです。過去の縁に執着して心を留めておけばおくほど、あなたの貴重な人生のエネルギーはそこへ吸い取られていき、心は次第に重く、暗くなっていきます。
+
+まるで失くした荷物を探して何時間も同じ場所を歩き回るような行為です。探せば探すほど足取りは重くなり、疲れ果ててしまいます。そうなれば、目の前に広がる美しい景色や、新しいチャンスが訪れていることに気づくことさえできません。追う手を止めない限り、あなたの心は常に過去に向いたままで、未来への準備を始めることができないのです。
+
+しかし、手放す勇気を持てば状況は一変します。枯れた枝を思い切って切り落とした瞬間、木は残ったエネルギーを新しい芽へと使えるようになります。あなたが執着を手放せば、それまで無駄に費やされていたエネルギーが、自然とあなた自身の心に戻ってくるのです。戻ってきたそのエネルギーは、あなたを生き生きとさせ、次のステージへと歩み出させる力になります。
+
+手放すことで空いた心のスペース、そここそが新しい幸運が入ってくる唯一の入り口になります。空っぽになった器でなければ、どんなに美味しい新しいお茶を注ぐこともできません。過去を手放すことは、決して何かを失うことではなく、より良い未来を受け入れるための大切な準備なのです。
+
+では、具体的にどのようにしてこの心の荷物を下ろし、スペースを空けていけばよいのでしょうか。次は、今夜からすぐにできる心の整理術についてお話しします。
+
+---
+
+今夜、寝る前にスマホを置くとき、あなたはどのアプリを開きますか。無意識に指が動いて、気になってしまうあの人の投稿を確認していないでしょうか。画面越しに相手の今を探ろうとするその行為は、実は自分自身の心の傷を何度もえぐり返すことと同じです。期待して画面を見れば、そこには自分を傷つける言葉や、孤独を感じさせる写真があるかもしれません。そんな辛いループから抜け出すために、まずはこの指の動きを意識的に止めることから始めましょう。
+
+具体的な行動として、その人のSNSやニュースフィードを意図的に見ないようにすることをお勧めします。アプリの通知をオフにするのも効果的です。見ないと決めるだけで、あなたの心はあの人の言動に振り回される時間から物理的に解放されます。つい見てしまった自分を責める必要はありません。ただ、今日からは自分の心を守るために見ないと選択するだけで十分です。情報を遮断することは、執着の鎖を一本ずつ解いていく作業になります。
+
+そうして生まれた貴重な時間を、今度は自分のために使ってください。好きな趣味に没頭したり、これまで興味がなかった新しい出会いの場に少しだけ足を運んだりしてみましょう。大切なのは、過去を追うエネルギーを、今の自分を楽しむエネルギーに変えることです。例えば、散歩に出て季節の花を眺めたり、美味しいお茶を飲んでゆっくり本を読んだりするだけでも構いません。あなたが自分を大切にして笑顔で過ごしていると、不思議と良い縁が引き寄せられてくるものです。
+
+そして最後に、心の中でその人に感謝を伝えてさよならを告げてください。無理に憎んだり、急に忘れようとしたりする必要はありません。ただ、今までお世話になったことへの感謝と、ここで関係を終えるという決断を、静かに自分に言い聞かせます。もし可能なら、紙に気持ちを書き出して燃やしたり、川に流したりするのも一つの方法です。こうした心の作業を丁寧に行うことで、執着という重い荷物は自然と手から離れていきます。
+
+整理を終えたあなたの心には、すでに変化の準備が整っているはずです。
+
+---
+
+もし、去っていった人が、あなたにとって最高の運を運んでくれたとしたらどう思いますか。大切にしていた関係が終わる時、私たちは喪失感に苛まれ、自分を責めたり相手を追いかけたりして苦しみます。しかし、ブッダの教えに照らせば、それは終わりではなく、あなたにふさわしい新しい縁が入ってくるための準備期間なのです。手放す勇気を持つことで、あなたの人生は大きく好転していきます。
+
+仏教では、すべての物事は移り変わるという「諸行無常」の真理を説きます。誰かが去っていくのは、あなたの人生から合わないものが自然と離れていくサインです。空いた器にしか、新しい水を注ぐことはできません。執着を手放して心のスペースを空けること、それこそが新しい幸運を招き入れる唯一の方法なのです。無理に縋り付く必要はありません。
+
+平安時代、西行という武士がいました。彼は高い地位と恵まれた環境にありながら、ある日突然すべてを捨てて出家し、旅に出ることを選びました。家族や地位という古い縁を断つことは、並大抵の覚悟ではなかったはずです。しかし、彼が過去の栄光に執着せず、静かに手放したことで、彼の心は深い平安で満たされました。その結果、彼は美しい歌を詠み、自然と一体化した生き方を通じて、後世まで愛される存在となりました。もし彼が去るべき縁に縋り付いていたら、あのような素晴らしい運命は開けなかったでしょう。去る者は、彼を本来の自分へと導いてくれたのです。
+
+さて、私たちの日常に戻りましょう。
+
+今夜からできる具体的な一歩は、まず去った人のことを思い出したら、心の中で「ありがとう」と唱えることです。感謝で手放すことで、未練が浄化されていきます。次に、その人のために使っていた時間やエネルギーを、自分の好きな趣味や、美味しい食事、あるいは十分な休息といった自分へのご褒美に充ててください。そして、新しい出会いやチャンスがすでに向かってきていることを信じて、今日を穏やかに過ごします。
+
+去る者は運を運んでくれる使者です。手放した先には、必ずあなたを必要としてくれる新しい人間関係やチャンスが待っています。どうか、過去の縁に感謝しながら、新しい運を信じて一歩を踏み出してください。あなたの心が、軽やかで満たされることを願っています。
+</pre>
     </div>
   </div>
 </main>

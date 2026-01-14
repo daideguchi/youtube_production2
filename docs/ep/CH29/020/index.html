@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH29-020 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH29-020 — script</h1>
           <div class="muted">“会いに行く”のをやめたら、関係が戻った</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,224 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="#" class="btn" aria-disabled="true" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>“会いに行く”のをやめたら、関係が戻った</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>罪悪感, 同居, 老後, シニア, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH29-020</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH29-020&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">スマートフォンを握りしめたまま、私は窓の外の暗闇を見つめています。
+通話が終わってから、もう何分が経ったでしょうか。
+画面には息子の名前が表示されたままで、たった今交わした会話の余韻が、まだ胸の奥深くでくすぶり続けています。
+カーテンの隙間から差し込む街灯の光が、床に薄い線を描いています。
+時計の秒針が規則正しく時を刻む音だけが、静まり返った部屋に響いています。
+「お母さん、最近あんまり連絡くれないね。寂しくないの」
+息子のその言葉に、私は驚きながらも嬉しさを隠せませんでした。
+久しぶりに聞く息子の声は、どこか柔らかく、以前とは違う温かさを帯びていました。
+けれどその直後に続いた言葉が、私の心を複雑な色で染め上げたのです。
+「でもまあ、お母さんが来なくなってから、なんか嫁とうまくいってるんだよね。ありがとう」
+私が「会いに行く」のをやめたことで、息子の家庭に平和が訪れている。
+その事実を突きつけられた時、私は複雑な感情の渦の中に立ち尽くしていました。
+嬉しいような、悲しいような、そして少しだけ誇らしいような気持ち。
+今夜は、「会いに行く」のをやめたことで、逆に家族との関係が戻っていった私の物語を少しだけお話しさせてください。
+あなたがもし今、家族との距離感に悩み、もっと会いたい、もっと役に立ちたいと焦っているのなら。
+この物語が、あなたの心を少しだけ軽くするための静かなベンチになればと願っています。
+
+---
+
+息子が結婚してから数年間、私は毎週のように息子の家を訪ねていました。
+孫の顔を見たい、息子の様子を知りたい、何か手伝えることがあるはずだと、自分に言い聞かせながら。
+日曜日の朝、私は早起きをして手作りの惣菜を詰め込んだ保冷バッグを抱え、電車を二本乗り継いで息子の家に向かいました。
+玄関のチャイムを鳴らすと、孫が走り出てきて「おばあちゃん」と笑顔で迎えてくれる。
+その瞬間のために、私は生きていると感じていました。
+孫の小さな手が私の指を握る温もり、無邪気な笑い声、「おばあちゃんのご飯おいしい」という一言。
+それらが私の存在価値を証明してくれるような気がしていたのです。
+けれど同時に、嫁の表情がわずかに曇ることにも気づいていました。
+「いつもありがとうございます」と嫁は言いますが、その声には疲れが混じっていました。
+キッチンに立つ私の背中を、嫁がため息とともに見つめていることにも気づいていました。
+私の訪問を心から喜んでくれているわけではない。
+そう薄々感じながらも、私はその事実から目を背け続けていました。
+だって孫に会いたいのだから。だって息子を心配しているのだから。
+「良いおばあちゃん」でいるためには、頻繁に顔を出すことが必要なのだと、私は信じて疑わなかったのです。
+
+---
+
+違和感が決定的になったのは、ある日曜日の午後のことでした。
+いつものようにアポイントなしで息子の家を訪ねると、玄関で嫁と鉢合わせになりました。
+嫁は外出着を身にまとい、孫は既に靴を履いていました。
+「あら、今日は予定があったのかしら」
+「ええ、家族で出かけようと思っていたところだったんです」
+嫁の声は丁寧でしたが、そこには隠しきれない困惑がありました。
+私が来ることで、彼女たちの予定が狂ってしまったのだと、すぐに分かりました。
+息子も後ろから現れ、やはり困った顔をしていました。
+「お母さん、来るなら連絡してくれれば」
+「だって、近くまで来たから寄っただけよ。あなたたちの負担にはならないわ」
+私がそう言った瞬間、嫁の表情がわずかに強張りました。
+孫は私の手を引いて「おばあちゃん、お出かけ行こう」と言いましたが、嫁は静かに首を横に振りました。
+「今日はまた今度ね。おばあちゃん、せっかく来てくれたんだから、お茶でも飲んでいって」
+その言葉の裏にある「帰ってほしい」という本音を、私は聞き取ってしまいました。
+けれどその時の私には、それが何を意味するのか正面から受け止める勇気がありませんでした。
+私は自分が「負担」になっているなど、一ミリも認めたくなかったのです。
+
+---
+
+数週間後、息子から珍しく真剣な電話がありました。
+「お母さん、ちょっと話があるんだけど」
+息子の声には、普段の明るさがありませんでした。
+電話の向こうから、孫が騒ぐ声やテレビの音が聞こえていました。
+息子は声を潜めるようにして続けました。
+「実は、嫁がちょっと疲れてて。毎週お母さんが来ると、こう、準備とか気を遣うみたいで」
+私の心臓が止まりそうになりました。
+「私、そんなに迷惑かけてた」
+「迷惑とかじゃないんだけど。でも、少し間を空けてもらえると助かるかなって」
+息子の言葉は優しかったけれど、その内容は私の胸を深く抉りました。
+私は電話を握りしめたまま、何も言えずにいました。
+私が良かれと思って続けていた訪問が、実は息子の家庭に負担をかけていた。
+愛情のつもりで行っていたことが、重荷になっていた。
+その事実を認めるのに、私はしばらくの時間が必要でした。
+電話を切った後、私はしばらく椅子に座ったまま動けませんでした。
+窓の外では夕日が沈もうとしていて、部屋がオレンジ色に染まっていきました。
+
+---
+
+電話を切った後、私は何日も考え続けました。
+夜、布団の中で天井を見つめながら、これまでの自分の行動を振り返りました。
+私は孫に会いたかった。息子の顔を見たかった。
+けれどそれは本当に、孫や息子のためだったのでしょうか。
+正直に自分の心を見つめると、そこにあったのは「必要とされたい」という自分自身の渇きでした。
+夫が亡くなってから、独りで過ごす時間が長くなりました。
+仕事を引退し、社会との接点が減っていく老後。
+友人と会う機会も減り、一日中誰とも話さない日が増えていきました。
+息子の家族との時間だけが、自分がまだ価値ある存在だと確認できる場だったのです。
+私は自分の寂しさを埋めるために、息子の家庭に通い続けていたのかもしれない。
+そう気づいた時、深い恥ずかしさと悲しみが込み上げてきました。
+私は知らず知らずのうちに、自分の孤独を息子の家族に押し付けていたのです。
+
+---
+
+それから私は、意識して「会いに行く」ことをやめました。
+最初は本当に辛かったのです。
+日曜日になると、体が勝手に支度を始めようとしました。
+孫の写真を見ては涙が止まらなくなり、息子からの連絡を待ちわびる夜が続きました。
+スマートフォンを何度も確認し、通知が来ていないかと気にする自分がいました。
+けれど一週間、二週間と時間が経つにつれて、不思議なことが起こり始めたのです。
+自分の時間を自分のために使うことの心地よさに気づきました。
+長年放置していた趣味の編み物を再開し、近所の友人と久しぶりにお茶を楽しみました。
+一人で映画を観に行き、帰りにカフェでゆっくりコーヒーを飲む時間を持ちました。
+そして一ヶ月、二ヶ月と月日が流れた頃、もっと不思議なことが起こったのです。
+息子の方から「今度の日曜日、遊びに来ない」と連絡が来るようになりました。
+嫁からも「お義母さん、孫が会いたがっています」というメッセージが届くようになったのです。
+私が追いかけるのをやめた途端、向こうから近づいてきてくれる。
+それは私にとって、大きな発見でした。
+
+---
+
+久しぶりに訪れた息子の家で、私は以前とは違う空気を感じました。
+嫁の表情が柔らかくなっていて、孫も心からの笑顔で私を迎えてくれました。
+「おばあちゃん、待ってたよ」
+孫が私の足に抱きついてきた時、その温もりがいつもよりも特別に感じられました。
+息子も「久しぶりだね、お母さん」と言いながら、どこかホッとした顔をしていました。
+夕食の席で、嫁がぽつりと言いました。
+「お義母さんが少し距離を置いてくれて、正直助かりました。でも、会えないと寂しくなるものですね」
+その言葉を聞いた時、私は初めて「距離」の意味を理解しました。
+近すぎれば息苦しくなり、遠すぎれば寂しくなる。
+ちょうどいい距離を保つことの大切さを、私はこの歳になってようやく学んだのです。
+嫁が淹れてくれたお茶を飲みながら、私は穏やかな時間の流れを感じていました。
+以前のように「もっと何かしなければ」という焦りはありませんでした。
+ただそこにいること、それだけで十分なのだと、やっと分かったのです。
+
+---
+
+今、私は月に一度か二度、息子の家を訪ねるようになりました。
+必ず事前に連絡を入れ、相手の都合を確認してから出かけます。
+そして何より、「呼ばれたら行く」というスタンスを心がけています。
+寂しさは今でもあります。
+もっと頻繁に孫の顔を見たい、もっと息子と話したいという気持ちは消えません。
+けれど私は、自分の寂しさを家族に埋めてもらうことをやめました。
+代わりに、自分の時間を自分で満たす努力を始めたのです。
+久しぶりに公民館の編み物教室に通い始め、新しい友人もできました。
+近所の図書館に通い、読みたかった本を次々と読破しています。
+一人で美術館に行き、若い頃に好きだった絵画を眺める時間も持てるようになりました。
+自分の人生を自分で豊かにすることで、息子の家族と会える時間がより特別なものになりました。
+追いかけないことで、かえって関係が深まる。
+それは逆説的ですが、真実なのだと今では分かります。
+会いたい気持ちを抑えることは、愛情がないことではありません。
+むしろ、相手の人生を尊重する最も深い愛情の形なのだと、私は学びました。
+
+もしあなたが今、家族にもっと会いたい、もっと関わりたいと焦っているのなら。
+どうか一度、その手を緩めてみてください。
+追いかけることをやめた時、向こうから歩み寄ってくれることがあるのです。
+あなたの愛情は、距離を置いても消えません。
+むしろ距離があるからこそ、その愛情の深さが伝わることもあるのです。
+会えない時間は、次に会える時間をより輝かせてくれます。
+待つことは、信じることでもあるのです。
+
+今夜は、会いたい気持ちをぐっと抑えて、自分自身を労わる時間を過ごしてください。
+「今夜は追わないことを選んで寝る」
+そう自分に優しく言い聞かせて、温かな布団に身を委ねてください。
+明日また、新しい気持ちで家族のことを想えばいいのです。
+焦る必要は、どこにもありません。
+あなたの愛情は、時間が経っても色褪せることはないのですから。
+
+最後まで私の言葉に耳を傾けてくださり、本当にありがとうございます。
+あなたの今夜の眠りが、穏やかな安らぎに満たされますように。
+あなたの明日が、今日よりも少しだけ軽やかなものでありますように。
+今夜はこれでお別れです。
+どうぞ、ゆっくりとお休みください。
+おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

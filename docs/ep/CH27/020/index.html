@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-020 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-020 — script</h1>
           <div class="muted">貸したお金より重かったのは“感謝ゼロ”の返事</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,288 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>貸したお金より重かったのは“感謝ゼロ”の返事</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, 羞恥, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-020</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-020&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夜の部屋に、スマートフォンの通知音がひとつ、ぽつりと落ちました。
+時計の針は、もう十時を回っています。
+窓の外からは、遠くを走る車の音がかすかに聞こえるだけで、あとは静寂が部屋を満たしていました。
+画面に浮かび上がったのは、三ヶ月前に貸したお金についての、ようやく届いた返事。
+私は息を止めて、その文面を読み込みました。
+ありがとうの文字は、どこにもありませんでした。
+代わりにあったのは、にっこり笑った猫のスタンプがひとつだけ。
+その瞬間、私の胸の奥で、何かがぷつりと切れる音がしました。
+テーブルの上の湯のみは、とっくに冷めきっていて、私はそれを両手で包んだまま、しばらく動けませんでした。
+たった数万円のお金よりも、ずっとずっと重かったのは、感謝のかけらもない、その返事の軽さだったのです。
+今夜は、長年の友情が、ひとつのスタンプで音もなく崩れ落ちていった物語をお話しします。
+貸したものを返してほしいと言えず、胸の奥にモヤモヤを抱えている、あなたへ。
+夜の静けさの中で、一緒に心を整えていきましょう。
+
+---
+
+美代子さんとは、地域のコーラスサークルで知り合いました。
+もう十五年ほど前のことになります。
+当時の私は、夫を亡くしてまだ二年で、毎日をどう過ごせばいいのかわからずにいました。
+友人に誘われて、半ば強引に連れてこられたのが、あのサークルだったのです。
+歌なんて何年も歌っていなかったし、人前で声を出すことにも抵抗がありました。
+けれど、美代子さんは、そんな私に最初に話しかけてくれた人でした。
+初めての方ですね。難しい顔してらっしゃるけど、大丈夫ですよ。私も最初はそうだったから
+彼女は明るくて社交的で、いつもグループの中心にいるような人でした。
+声がよく通って、笑い声も華やかで、彼女がいるだけで場の空気が明るくなるような、そんな存在でした。
+私はどちらかというと人見知りで、輪の端っこにいることが多かったのですが、美代子さんはそんな私にも気さくに話しかけてくれました。
+練習の後、椅子を片付けていると、隣に来て今日のソプラノ、よく出てましたよと声をかけてくれる。
+うまくいかなかった日には、私も昔はひどかったのよと笑い飛ばしてくれる。
+そんな小さな気遣いの積み重ねが、少しずつ私の心を溶かしていきました。
+今度、一緒にランチでもどう？
+彼女の屈託のない笑顔に誘われて、私たちは少しずつ親しくなっていきました。
+サークルの後に喫茶店でおしゃべりをしたり、たまには一緒に買い物に出かけたり。
+彼女といると、私の地味な日常に、華やかな色が添えられるような気がしていました。
+夫を亡くして以来、誰かと笑い合うことを忘れかけていた私に、もう一度人と繋がることの温かさを教えてくれたのは、美代子さんだったのです。
+
+---
+
+そんなある日、美代子さんが深刻な顔をして、私に相談を持ちかけてきたのです。
+サークルの練習が終わった後、いつもなら軽くお茶でもと誘ってくる彼女が、その日は黙って立っていました。
+ちょっと、二人で話せないかしら
+声のトーンがいつもと違っていました。
+近くの喫茶店に入り、窓際の席に座ると、彼女はなかなか本題を切り出しませんでした。
+コーヒーをかき混ぜる手が、かすかに震えているように見えました。
+実はね、今月だけどうしても苦しくて。少しだけ、助けてもらえないかしら
+彼女は、息子さんの事業がうまくいっておらず、急な出費が重なったのだと説明しました。
+息子さんが始めた小さな店が赤字続きで、このままでは閉店しなければならないこと。
+その穴埋めのために、どうしても今月中にまとまったお金が必要なのだということ。
+恥ずかしい話なんだけど、頼れる人が他にいなくて
+普段あれほど明るい彼女が、こんなにも困っている。
+テーブルの上に置かれた彼女の手は、組み合わされたまま、小刻みに動いていました。
+私は、自分にできることがあるなら助けたいと、素直にそう思いました。
+「来月には必ず返すから。本当に、今月だけなの」
+その言葉を信じて、私は自分の貯金から、決して少なくはない金額を彼女に渡しました。
+封筒を受け取った美代子さんは、目に涙を浮かべて「ありがとう、絶対に返すから」と言いました。
+その涙を見て、私は助けることができてよかったと、心から思ったのです。
+
+---
+
+ところが、約束の月になっても、美代子さんからは何の連絡もありませんでした。
+サークルで顔を合わせても、彼女はいつも通りの明るい笑顔で、まるでそんな話などなかったかのように振る舞っています。
+「今日のハーモニー、よかったわよね」
+練習後にそう話しかけてくる彼女の声には、何の後ろめたさも感じられませんでした。
+私の方から切り出すのは、なんだか催促しているようで気が引けました。
+あの日、あんなに真剣に頼んできた彼女のことです。
+忘れているはずがありません。
+もう少し待てば、きっと向こうから言ってくれるはず。
+そう自分に言い聞かせて、私は口をつぐんでいました。
+けれど、一ヶ月が過ぎ、二ヶ月が過ぎても、状況は変わりませんでした。
+それどころか、美代子さんは新しいバッグを持ってサークルに現れました。
+真新しい革の光沢が、照明を受けてきらりと輝いていました。
+「これ？ 先週セールで見つけたの。掘り出し物だったのよ」
+仲間たちに嬉しそうに話す彼女の笑顔を見ながら、私の心に、小さな棘がひとつ刺さりました。
+その翌週には、娘と箱根に行ってきたのと、お土産の温泉まんじゅうを配っていました。
+お金がないはずなのに、旅行には行けるのだろうか。
+新しいバッグを買う余裕があるのに、私への返済は後回しなのだろうか。
+返すと言ったお金は、私の存在と一緒に、彼女の記憶から消えてしまったのだろうか。
+そんな疑念が、じわじわと心を蝕んでいきました。
+けれど、私は何も言えませんでした。
+せっかく築いた十五年の友情を壊したくない。
+お金のことで揉めるなんて、みっともない。
+周りの仲間に知られたら、どう思われるだろう。
+そんな思いが、私の口を縫い付けていたのです。
+
+---
+
+ある日のサークルの後、美代子さんに「ちょっと時間ある？」と声をかけられました。
+一瞬、もしかしてお金の話かと期待しましたが、違いました。
+「今度ね、みんなで日帰り旅行に行こうって話が出てるの。あなたも来るでしょ？」
+当然のように参加を促す彼女の様子に、私は複雑な気持ちになりました。
+旅行に行くお金はあるのに。
+私に返すお金はないのに。
+その優先順位が、彼女にとっての私の位置を物語っているようで、胸が苦しくなりました。
+ちょっと考えさせて
+そう答えるのが精一杯でした。
+帰り道、駅のホームでひとり電車を待ちながら、私は自分の情けなさに打ちひしがれていました。
+なぜ、はっきり言えないのだろう。
+「その前に、あのお金を返してくれませんか」
+たった一言、それだけのことなのに。
+電車が入ってくる音が、やけに大きく響きました。
+
+---
+
+意を決して、私は美代子さんに短いメッセージを送りました。
+何度も何度も文面を書き直しました。
+強すぎる言い方になっていないか。
+相手を責めているように聞こえないか。
+三十分以上かけて、ようやく送信ボタンを押したメッセージはこうでした。
+「この前のこと、覚えてるかしら。そろそろ助かるんだけど」
+できるだけ軽い調子で、角が立たないように言葉を選びました。
+そして、返ってきたのが、あの猫のスタンプだったのです。
+文章は一切なし。
+謝罪もなければ、いつ返せるかの説明もない。
+ただ、にっこり笑った猫のイラストが、画面の中央にぽつんと鎮座していました。
+私は、しばらくその画面を見つめたまま、動くことができませんでした。
+時計の秒針が、静かに時を刻んでいます。
+これが、私への返事なのか。
+三ヶ月間、言い出せずに悩んで、ようやく勇気を出して送ったメッセージへの答えが、これなのか。
+怒りよりも先に、深い虚しさが、胸の底を冷たく満たしていきました。
+私は彼女にとって、スタンプひとつで片付けられる程度の存在だったのだ。
+十五年の付き合いが、この程度の重さしかなかったのだ。
+そう思い知らされた瞬間でした。
+その夜、私は布団に入っても、なかなか眠れませんでした。
+天井を見つめながら、これまでの彼女との日々を思い返していました。
+あの笑顔は、あの優しさは、すべて本物だったのだろうか。
+それとも、私が勝手に美代子さんという人を美化していただけなのだろうか。
+答えは出ませんでした。
+ただ、心の奥で何かが静かに冷えていくのだけは、はっきりと感じていました。
+
+---
+
+あの日以来、私の中で、美代子さんへの信頼は、枯れ葉のようにかさかさと崩れ落ちていきました。
+サークルで顔を合わせても、以前のように自然に話せなくなりました。
+彼女が話しかけてくるたびに、あの猫のスタンプが脳裏をよぎります。
+笑顔で返事をしながら、心は少しずつ距離を置いていきました。
+私たちは時に、友情という言葉に縛られて、言うべきことを言えなくなります。
+「お金のことを言ったら、関係が壊れてしまうのではないか」
+そう恐れて、自分の気持ちに蓋をしてしまうのです。
+けれど、本当の友情とは、お金の話をしたくらいで壊れるような、そんな脆いものなのでしょうか。
+むしろ、相手の誠意が試されるのは、こうした場面なのかもしれません。
+美代子さんには、感謝を伝える機会がありました。
+「ごめんね、もう少し待って。今こういう状況で」と、正直に話す選択肢もありました。
+けれど彼女は、スタンプひとつで、その責任を曖昧にしてしまった。
+それは、私との関係を、その程度のものとして扱っている証拠だったのです。
+私の心がすり減っていたのは、お金が返ってこないことよりも、彼女の態度に誠意を感じられなかったから。
+尊重されていないと感じたから。
+私は、彼女にとって都合の良い存在でしかなかったのだと、思い知らされたから。
+あのスタンプは、私たちの関係の本質を、残酷なまでに映し出していたのです。
+
+---
+
+サークルを辞めようかと、何度も考えました。
+美代子さんの顔を見るたびに、あの猫のスタンプが脳裏をよぎる。
+練習中も、彼女の声が聞こえると、胸がざわつきます。
+心から歌を楽しめなくなっている自分がいました。
+けれど、私は辞めませんでした。
+なぜなら、サークルには美代子さん以外にも、大切な仲間がいたからです。
+一緒にパートを練習してくれる田中さん。
+休憩時間におしゃべりを楽しむ佐々木さん。
+発表会の後、みんなで打ち上げに行くのを楽しみにしている私がいる。
+私がここにいる理由は、美代子さんだけではない。
+私自身が、歌うことを楽しみたいから、ここにいるのだ。
+そう思い直したとき、少しだけ心が軽くなりました。
+美代子さんとの関係は、以前のように親しくはできないけれど、それでいいのです。
+挨拶はする。練習では普通に接する。でも、それ以上の深入りはしない。
+二人きりでお茶に行くこともない。個人的な相談に乗ることもない。
+彼女が何を言ってきても、もう心の内側には入れない。
+私は、自分の心を守るための境界線を、静かに引き直しました。
+それは、彼女を恨むことでも、争うことでもありません。
+ただ、これ以上傷つかないように、適切な距離を保つこと。
+そうすることで、私は自分自身を大切にすることができると、ようやく気づいたのです。
+
+---
+
+あれから数ヶ月が経ちました。
+貸したお金は、結局戻ってきていません。
+美代子さんからは、あれ以来、一度もそのことに触れる言葉はありませんでした。
+まるで、あの出来事自体がなかったかのように、彼女はサークルで変わらず明るく振る舞っています。
+けれど、不思議と、以前のようにそのことで悩むことは減りました。
+夜、布団に入っても、あのスタンプのことを思い出して眠れなくなることはなくなりました。
+あのお金は、友情の本質を見極めるための授業料だったのだと、今は思っています。
+高い授業料だったけれど、それに見合う学びがありました。
+人を信じることは大切です。
+困っている人に手を差し伸べることも、悪いことではありません。
+けれど、信じた相手がその信頼に応えてくれるかどうかは、また別の話。
+応えてくれない人には、無理に期待を続けなくていい。
+追いかけなくていい。
+責めなくてもいい。
+ただ、静かに距離を置けばいい。
+自分の心を守ることは、わがままではない。
+相手を傷つけることでもない。
+私はようやく、そのことを心から理解できるようになりました。
+今夜、もし誰かへの期待と失望の間で、心が揺れている方がいたら。
+その気持ちは、とても自然なものだと伝えたいのです。
+傷ついて当然の出来事だったのですから。
+自分を責めなくていいのです。
+
+---
+
+窓の外では、夜が静かに深まっています。
+遠くで犬の鳴く声が一度だけ聞こえて、また静寂が戻ってきました。
+昼間の喧騒が遠のき、世界が眠りに向かう時間。
+今夜は、明日のことは考えなくていいのです。
+美代子さんへの返信も、明日で構いません。
+むしろ、今夜は何も返さなくていい。
+感情が高ぶっているときに送るメッセージは、後で後悔することが多いものです。
+対処が必要なことは、すべて明日の自分に任せましょう。
+今夜の一手。
+今夜は返事は明日を選んで寝る。
+誰かからのメッセージに、すぐに答えなければと焦る必要はありません。
+特に、心がざわつく内容であればなおさらです。
+感情が落ち着いてから、冷静に対処すればいい。
+それは、相手を無視することではなく、自分を守るための賢明な選択なのです。
+スマートフォンを、枕元から少し離れた場所に置いてみてください。
+手を伸ばせばすぐに届く場所ではなく、あえて少しだけ遠くに。
+そうすることで、夜中に通知が気になっても、すぐには見なくて済みます。
+布団に入ったら、深く息を吸って、ゆっくりと吐き出してみてください。
+今日一日、あなたはよく頑張りました。
+誰に感謝されなくても、あなたの誠実さは、あなた自身が一番よく知っています。
+自分の心を大切にできる人は、本当の意味で強い人です。
+どうか、安心して目を閉じてくださいね。
+明日の朝、少しだけ軽くなった心で目覚められますように。
+おやすみなさい。
+今夜も、最後まで聞いてくださって、ありがとうございました。
+</pre>
     </div>
   </div>
 </main>

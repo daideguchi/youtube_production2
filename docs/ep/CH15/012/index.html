@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-012 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-012 — script</h1>
           <div class="muted">【言葉】自分に刺す言葉をやめろ｜言葉が心を壊す</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,421 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【言葉】自分に刺す言葉をやめろ｜言葉が心を壊す</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>言葉, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-012</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-012&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">自分に対して厳しい言葉を使っていませんか。
+ダメだ。できない。どうせ無理。
+また失敗した。自分はダメな人間だ。
+なんでこんなこともできないんだ。
+心の中で、そんな言葉を繰り返していませんか。
+
+その言葉が、知らず知らずのうちに、あなたの心を傷つけているのです。
+毎日何度も自分に投げかける言葉が、あなたの心を蝕んでいるのです。
+
+今日は、自分への言葉を変えるお話をします。
+自分に厳しくすることが良いことだと思っていませんか。
+実は、自分に優しくした方が、うまくいくのです。
+
+---
+
+自分自身への言葉は、思っている以上に影響力があります。
+
+また失敗した。自分はダメだ。何をやっても無駄だ。どうせ自分なんか。
+こうした言葉を、心の中で繰り返していませんか。
+
+外から言われたら傷つく言葉を、自分で自分に言っている。
+他人には絶対に言わないようなひどい言葉を、自分には平気で言っている。
+友人には優しい言葉をかけるのに、自分には厳しい言葉しかかけない。
+それが日常になっている人は、実はとても多いのです。
+あなただけではありません。
+
+朝起きて、今日も頑張れるかな、と不安になる。
+仕事でミスをして、やっぱり自分はダメだ、と思う。
+人前でうまく話せなくて、なんでこんなに情けないんだ、と責める。
+一日の終わりに、今日も何もできなかった、と落ち込む。
+
+こうした自己批判が、当たり前になっていませんか。
+自分に厳しい言葉をかけることが、習慣になっていませんか。
+
+もしそうなら、今日のお話を聞いてください。
+あなたは変われます。
+
+---
+
+お釈迦様のお話をご紹介しましょう。
+
+ある弟子が、自分を厳しく責めながら修行していました。
+修行がうまくいかないと、自分はダメだと責める。
+他の弟子と比べて、自分は劣っていると落ち込む。
+もっと厳しくしなければ、成長できない。
+そう信じて、自分を追い込んでいました。
+
+その弟子の様子を見て、お釈迦様はこう尋ねられました。
+
+琴の弦を張りすぎるとどうなるか。
+弦が切れてしまいます。
+では、緩すぎるとどうなるか。
+良い音が出ません。
+
+お釈迦様は続けられました。
+
+修行も同じだ。
+自分を責めすぎると、心が切れてしまう。
+張り詰めた弦は、いつか必ず切れる。
+かといって、緩めすぎては良い音が出ない。
+大切なのは、ちょうど良い加減を見つけることだ。
+自分を責めることは、弦を張りすぎることと同じだ。
+いつか切れてしまう。
+自分に優しく、それでいて怠けない。
+そのバランスが大切なのだ。
+
+弟子はその教えに目を覚まされました。
+自分を責めることが修行だと思っていたが、それは間違いだったのだと。
+自分を責めすぎていたから、修行がうまくいかなかったのだと。
+それからは、自分に少し優しくするようになり、修行も順調に進むようになりました。
+
+---
+
+なぜ私たちは自分に厳しい言葉を使ってしまうのでしょうか。
+その原因を見てみましょう。
+
+まず、それが習慣になっているからです。
+小さい頃から言われてきた言葉を内面化している。
+親や教師から言われた批判を、自分で繰り返している。
+もっと頑張れ。それじゃダメだ。なんでできないんだ。
+そうした言葉をたくさん浴びて育つと、それが自分の内なる声になる。
+外から言われなくなっても、自分で自分に言い続けてしまうのです。
+その声は、他の誰でもなく、過去に聞いた声の残響なのです。
+
+次に、自分を甘やかさないため、と思っているからです。
+厳しくしないと怠ける。厳しくしないと成長しない。
+そう信じている人は多いです。
+自分に優しくすることは、甘えだと思っている。
+だから、厳しい言葉で自分を追い立てる。
+それが正しいことだと信じて。
+でも、その信念が、自分を追い詰めているのです。
+
+そして、自分に優しくする方法を知らないからです。
+批判の仕方は知っている。でも、褒め方を知らない。
+自分を責める言葉はたくさん出てくる。でも、自分を認める言葉が出てこない。
+優しくしようと思っても、何と言えばいいか分からない。
+だから、つい厳しい言葉を使ってしまうのです。
+優しくする言葉のレパートリーがないのです。
+
+これらの原因を知ることで、自分を責めなくて済みます。
+あなたが悪いのではない。
+ただ、そう育てられた、そう学んできただけなのです。
+
+---
+
+でも、自分への厳しい言葉は逆効果です。
+科学的にもそれが分かっています。
+
+研究によると、自己批判は不安やうつと強く相関しています。
+自分を責めれば責めるほど、心は弱っていく。
+自分をダメだと言い続けると、脳がそれを信じ始める。
+本当にダメになっていく。
+言葉が思考を作り、思考が現実を作っていくのです。
+
+厳しくしないと成長しない、というのは思い込みです。
+実際には、自分を認めた方がパフォーマンスが上がることが分かっています。
+自分を責めると、失敗を恐れて挑戦できなくなる。
+自分を認めると、失敗しても大丈夫と思えて挑戦できる。
+挑戦すれば成長する。挑戦しなければ成長しない。
+つまり、自分を認めることが成長につながるのです。
+
+厳しくするより、優しくした方が、結果も出るのです。
+これは甘やかしではありません。
+科学的に証明された事実です。
+
+アスリートの世界でも、セルフコンパッションの効果が認められています。
+自分を責めるアスリートより、自分を認めるアスリートの方が成績が良い。
+失敗した後に自分を責めると、次も失敗しやすくなる。
+失敗した後に自分を認めると、次は成功しやすくなる。
+プレッシャーから解放されて、本来の力を発揮できるようになるのです。
+
+自分に厳しくすることが美徳だと思っている人は多いです。
+でも、科学はそれが間違いだと示しています。
+自分に優しくすることこそが、成長への近道なのです。
+
+---
+
+仏教では慈悲を重視しますが、それは他者への慈悲だけではありません。
+
+自分自身への慈悲も含まれます。
+自分を傷つける言葉を使わない。自分を認め、労う。
+それも慈悲の実践なのです。
+
+お釈迦様は、自分を愛することのできる者が、他者を愛することができる、と言いました。
+自分への優しさが、他者への優しさの基盤になる。
+自分を責め続けている人は、他者も責めてしまいやすい。
+自分を認められる人は、他者も認められる。
+
+心の器が満たされていないと、他者に与えることはできません。
+空っぽのコップからは、何も注げないのと同じです。
+まず自分の器を満たす。
+自分を優しさで満たす。
+それが、他者を愛するための第一歩なのです。
+
+自分に優しくすることは、わがままでも甘えでもありません。
+それは、健全に生きるための基盤なのです。
+
+---
+
+歴史上の偉人も、自己批判に苦しんだ人がいます。
+
+ベートーヴェンは、常に自分の才能を疑い、自分を厳しく批判していました。
+自分の作品に満足することはほとんどなく、常に不十分だと感じていた。
+その厳しさが彼の創作を支えた面もありますが、同時に彼を苦しめ続けました。
+孤独と苦悩の中で生きた彼の人生は、自己批判の代償を示しています。
+才能があっても、自分を責め続けていたら、幸せにはなれないのです。
+
+一方で、自分を認める力を持っていた偉人もいます。
+困難な状況でも自分を信じ続けた人々は、逆境を乗り越えることができました。
+自分を責めるのではなく、自分を励ますことで、困難に立ち向かう力を得たのです。
+自分を信じる力が、逆境を乗り越える力になりました。
+
+自己批判が創造性を生むこともあります。
+でも、度を超えた自己批判は、心を壊してしまいます。
+大切なのはバランスです。
+自分に厳しくなりすぎないこと。
+自分を認める力を持つこと。
+それが、長く走り続けるためのコツなのです。
+自分を追い込みすぎると、いつか燃え尽きてしまいます。
+長く続けるためには、自分を大切にすることが必要なのです。
+
+---
+
+では、自分に優しい言葉を使う方法をお伝えします。
+三つのステップです。
+
+第一のステップ。自分への言葉に気づく、です。
+
+まず、普段心の中で自分に何と言っているか観察してください。
+一日の中で、どんな言葉を自分に投げかけているか。
+朝起きた時、仕事中、寝る前。
+ミスをした時、うまくいかなかった時、人と比べた時。
+意識して観察してみてください。
+
+多くの人が驚くのは、自分がどれだけ自分に厳しい言葉を投げかけているか、ということです。
+普段は意識していないから気づかない。
+でも意識して観察すると、一日に何十回も自分を批判していることに気づきます。
+
+ネガティブな言葉が出てきたら、あ、今ひどいこと言った、と気づく。
+それに気づいた自分を褒めてあげてください。
+責めるのではなく、ただ気づく。
+気づくだけで変化が始まります。
+
+気づかないまま放置していると、自己批判は止まりません。
+まずは気づくこと。それが第一歩です。
+一日の終わりに、今日自分に何と言ったか振り返るのも効果的です。
+記録をつけると、パターンが見えてきます。
+
+第二のステップ。友人に言うように自分に言う、です。
+
+親しい友人が失敗して落ち込んでいたら、何と声をかけますか。
+大丈夫だよ。気にするな。次があるよ。
+そう言うでしょう。
+お前はダメだ、とは言わないはずです。
+何やってんだ、とも言わないはずです。
+優しい言葉をかけて、励まそうとするはずです。
+
+その言葉を、自分にもかけてあげてください。
+自分を友人のように扱う。
+自分を大切な誰かのように扱う。
+
+失敗した時、自分に何と言っているか。
+もし友人なら何と言うか。
+その視点で言葉を選んでみてください。
+自分だけに厳しくするのは不公平です。
+自分にも、友人と同じ優しさを向けてあげてください。
+
+第三のステップ。ポジティブワードを用意しておく、です。
+
+具体的な言葉を事前に用意しておきましょう。
+大丈夫。まあいいか。よくやっている。これでいい。
+十分だ。頑張っている。休んでいい。今日はこれで終わり。
+明日があるさ。一歩ずつでいい。完璧じゃなくていい。
+
+こうした言葉を、いくつか用意しておいてください。
+スマホのメモに書いておくのもいいでしょう。
+ネガティブな言葉が出そうになったら、代わりにこれらの言葉を使う。
+自動的に出てくるネガティブな言葉を、意識的にポジティブな言葉に置き換える。
+最初は不自然に感じるかもしれません。
+でも、繰り返していると習慣になります。
+新しい習慣は、古い習慣を上書きしていきます。
+時間はかかりますが、必ず変わっていきます。
+
+---
+
+もう一つ効果的な方法があります。
+これは特に効果が高いので、ぜひ試してみてください。
+それは実況を心がける、ということです。
+
+評価ではなく、実況をするのです。
+ダメだ、という評価ではなく、思ったより時間がかかったな、という実況。
+失敗した、という評価ではなく、今回はこういう結果になったな、という実況。
+
+評価は自分を傷つけますが、実況は傷つけません。
+事実をただ述べるだけ。
+良いとか悪いとか判断しない。
+ただ観察して、描写するだけ。
+
+できなかった、ではなく、今日はここまでやった。
+遅すぎる、ではなく、予定より三十分かかった。
+ダメな自分、ではなく、疲れている自分。
+
+評価を実況に変えるだけで、心への負担は大きく減ります。
+自分を責めることなく、事実を受け止められるようになります。
+そうすると、次にどうすればいいかを冷静に考えられるようになるのです。
+
+---
+
+この実践をする時、気をつけていただきたいことがあります。
+落とし穴を避けるために、知っておいてほしいことがあります。
+
+まず、自分に優しくすることと甘やかすことは違います。
+必要な努力はする。
+やるべきことはやる。
+でも、結果が出なくても自分を責めない。
+プロセスを認める。
+頑張った自分を認める。
+それが自分に優しくするということです。
+
+甘やかすというのは、やるべきことをやらないこと。
+自分に優しくするというのは、やった後に自分を責めないこと。
+この違いを理解してください。
+結果ではなく、プロセスに目を向けてください。
+頑張った自分を認めることが、自分に優しくするということです。
+
+次に、すぐには習慣は変わりません。
+長年の癖を変えるには時間がかかります。
+何十年も自分を責めてきた人が、一週間で変わることは難しい。
+少しずつ、意識的に取り組んでください。
+三ヶ月、半年、一年と続けていくうちに、少しずつ変わっていきます。
+焦らないでください。
+
+そして、過去の自分も許してください。
+今まで自分を責めていた自分を、また責めないでください。
+知らなかったんだから仕方ない、と。
+今から変えればいい、と。
+過去を責めても何も変わりません。
+過去を許して、今から変えていく。
+それが大切です。
+
+最後に、完璧を目指さないでください。
+毎回自分に優しい言葉をかけられなくても、それでいいのです。
+できた時にできた、と認める。
+できなくても責めない。
+その姿勢が大切です。
+
+---
+
+自分に刺す言葉をやめてください。
+
+言葉が心を作ります。
+心が行動を作ります。
+行動が人生を作ります。
+つまり、言葉が人生を作っているのです。
+
+だから、自分にかける言葉は大切なのです。
+あなたが毎日自分に投げかけている言葉が、あなたの人生を形作っています。
+毎日何度も自分に言う言葉が、あなたの心を形作っているのです。
+
+今日から、自分への言葉を変えてみませんか。
+ダメだ、を、大丈夫、に。
+無理だ、を、やってみよう、に。
+どうせ、を、もしかしたら、に。
+
+小さな言い換えから始めてください。
+完璧に変えようとしなくていいのです。
+一日に一回でも、自分に優しい言葉をかけられたら、それで十分です。
+それだけで、心が少しずつ軽くなっていきます。
+
+言葉の力は大きいです。
+言葉を変えれば、心が変わります。
+心が変われば、行動が変わります。
+行動が変われば、人生が変わります。
+その連鎖は、言葉から始まるのです。
+
+あなたは、自分に優しくしていいのです。
+自分を認めていいのです。
+自分を労っていいのです。
+それは甘えではありません。
+自分を大切にするということなのです。
+
+今日から、自分への言葉に意識を向けてみてください。
+ひどい言葉を自分に投げかけていることに気づいたら、止めてみてください。
+代わりに、友人に言うような優しい言葉をかけてみてください。
+最初は違和感があるかもしれません。
+でも、続けていくうちに、それが自然になっていきます。
+
+あなたは、自分に優しい言葉をかける価値があります。
+あなたは、認められる価値があります。
+あなたは、愛される価値があります。
+まずは、自分自身から、その価値を認めてあげてください。
+あなたが自分を認めた分だけ、人生は明るくなっていきます。
+自分への言葉を変えることで、あなたの世界が変わっていきます。
+
+あなたが自分に優しくなれますように。
+あなたの心が温かい言葉で満たされますように。
+自分を愛せるあなたになれますように。
+
+今日も最後まで聞いてくださって、ありがとうございました。
+あなたの心が温かい言葉で満たされる日が来ますように。
+
+皆様の心が穏やかでありますように。
+</pre>
     </div>
   </div>
 </main>

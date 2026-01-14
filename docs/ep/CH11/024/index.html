@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-024 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-024 — script</h1>
           <div class="muted">【許せない人がいるあなたへ】憎しみの連鎖を断ち切り、自分の心を守るブッダの最終手段</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,138 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【許せない人がいるあなたへ】憎しみの連鎖を断ち切り、自分の心を守るブッダの最終手段</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-024</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-024&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">「あの人だけは絶対に許せない」と心が固まると、自分の時間も固まり、眠りまで奪われます。相手は笑っているのに、自分だけが燃え続ける。憎しみは相手を罰するつもりで、自分を焦がす火です。今日は、その火を静かに消し、自分の心を守るための手立てを、仏教の知恵とともに考えます。許さないままでもいい。まず、燃え広がる火から自分を避難させることが目的です。
+
+怒りや憎しみが起こるのは自然なことです。人は傷つけられたとき、自己防衛として相手を拒絶します。ただ、その感情を長く握りしめると、心と体を蝕みます。仏教では「瞋」と呼び、心を濁らせる原因の一つとされます。消すべきは相手ではなく、心を焼く火です。火を消すには、水と風と距離が必要です。
+
+まずは「火の温度」を下げます。怒りは体に表れます。肩や顎に力が入り、呼吸が浅くなります。ゆっくり息を吐き、手を温かい湯に浸し、肩を回します。体を緩めると、火は弱まります。仏教の修行でも、座る前に呼吸を整えます。整えた体で向き合うと、怒りの波が少し静かになります。
+
+次に「火元」を見つけます。許せない相手の行動を具体的に書きます。その横に「それによって何が脅かされたと感じたか」を書きます。尊厳、自分の時間、大切な人、信頼。脅かされたものが見えると、自分が守りたいものがはっきりします。守りたいものが分かれば、怒りを燃やすより、守る行動に力を使えます。
+
+相手の顔が浮かぶたびに、心の中で距離を取る練習をします。「慈悲の距離」という考え方があります。優しさを保つためには、距離を取ることも必要です。連絡を減らす、物理的に会わない、共通の場に行かない。距離を取ることは逃げではありません。火から避難する行動です。避難すれば、火は燃え移りません。
+
+仏教の「縁起」は、出来事が多くの条件で成り立つことを示します。相手がそう動いたのも、その人の性格や環境、過去の経験が絡み合っての結果です。それは相手を擁護するためではなく、「自分が責任を背負いすぎない」ための視点です。縁起に目を向けると、「自分ばかりが狙われた」という考えが和らぎます。和らぐと、怒りの刃は少し鈍ります。
+
+許せない気持ちの裏には、期待が裏切られた悲しみがあります。「あの人なら分かってくれるはずだった」という期待が砕けたとき、怒りに変わります。悲しみを「そうだったのか」と認めると、怒りの根が見えます。根が見えれば、水をやるか抜くか選べます。水とは、悲しみを涙や言葉で外に出すことです。抜くとは、その人への期待を下げることです。どちらも、自分を守るための選択です。
+
+「許す」と聞くと、相手を免罪するようで抵抗が出ます。ここでいう許しは、相手の行為を良しとすることではなく、自分の心を自由にすることです。仏教の「放下着」は、握りしめているものを置く勇気です。相手への怒りも一つの荷物です。荷物を持ち続けるか、置いて歩くか。置く方が、歩みは軽くなります。
+
+許せない相手に直接向き合う必要はありません。紙に相手の名前を書き、言いたいことを全部書き出します。書き終えたら、その紙を小さく破り、深呼吸をします。破ることで、心の中の言葉が少し外に出ます。これを何度か繰り返すと、心の中の声が静かになります。紙は誰にも渡しません。自分の心の掃除のためだけに使います。
+
+怒りの火は、人から人へ燃え移ります。自分が受けた怒りを、別の誰かにぶつけてしまうことがあります。それが憎しみの連鎖です。連鎖を断ち切るには、自分のところで火を止めるしかありません。火を止める方法の一つが、言葉を選ぶことです。刺さる言葉を飲み込み、柔らかい言葉に置き換える。「それは困ります」「今日はここまでにします」「また後で話しましょう」。柔らかい言葉は、水のように火を鎮めます。
+
+仏教には「悪口を受け取らなければ送り主に戻る」という譬え話があります。贈り物を受け取らなければ、贈り主の元に戻るという話です。相手の暴言は、受け取らなければ相手の元に残ります。心の中で「それはあなたの荷物です」と呟き、深く息を吐きます。吐く息で、自分の周りの空気を澄ませます。自分が受け取らなければ、連鎖は止まります。
+
+時間もまた、火を弱める力があります。今は許せなくても、三日後、一か月後、一年後には、温度が変わります。温度が下がる前に決断しないことも大切です。怒りの温度が高いときは、重大な決断を避け、体を休めます。休んでいる間に、火は自然と小さくなります。小さくなってから、次の行動を選びます。
+
+許せない相手に囚われると、人生の舞台がその人中心になります。舞台の中央を別のものに移します。趣味、学び、新しい出会い。舞台の中央に置くものを変えると、照明が当たる場所が変わります。照明が当たらなくなった場所には、自然と影が増え、怒りも薄れます。自分の舞台の演出家は自分です。
+
+仏教の「慈悲」は、相手に優しくするだけでなく、自分を傷つけない距離を取ることも含みます。相手のために怒り続けるのは慈悲ではありません。自分の心を痛めつける行為です。自分を守ることを、わがままと思わないでください。自分の心が静かであってこそ、周りにも静けさを分けられます。
+
+夜、目を閉じて、自分と相手を同じ舞台に立たせてみます。舞台の上には、過去に交わした言葉や、すれ違った瞬間が浮かびます。その上から、柔らかな光が降り注ぐイメージをします。光は誰かのものではなく、ただ舞台全体を照らす光です。光を浴びせたからといって相手を許す必要はありません。光は、自分の心の陰影を整えるためのものです。
+
+許せない感情がどうしても消えないときは、プロに頼る選択もあります。カウンセラーや信頼できる僧侶に話す。専門の耳は、火を弱めるための水を持っています。自分だけで消そうとせず、助けを借りる。助けを借りることは弱さではなく、火事を大きくしないための賢さです。
+
+最後に、「許さなくてもいい」という言葉を自分にかけてください。無理に許そうとすると、心はさらに固くなります。許すかどうかは、心が落ち着いた先に自然と出る答えです。今はまず、火から離れて、水と風と距離で自分を守る。それで十分です。心が静まったとき、自分に必要な選択が見えてきます。静かな心は、あなたの財産です。
+
+ここからは、実際に憎しみの火を弱めた人の話を紹介します。六十五歳の男性は、職場で長年自分を評価してくれなかった上司を許せず、退職後も夜中に思い出しては怒りで眠れませんでした。彼はある日、友人に誘われて合気道の稽古を見学します。稽古では、力で押し返すのではなく、力を受け流す動きが繰り返されていました。それを見て、彼は「怒りも受け流せるかもしれない」と思い、自宅でゆっくり深呼吸しながら、上司の言葉を受け流すイメージを持ちました。数週間続けると、怒りの温度が下がり、夜眠れるようになりました。上司を好きになったわけではありません。ただ、自分の心に余白が戻ったのです。
+
+七十代の女性は、兄弟との遺産トラブルで心が荒れ、「もう会いたくない」と思っていました。ある日、仏教の法話で「怒りは自分の心を燃やす火」という言葉を聞き、「このままでは自分が先に燃え尽きる」と気づきました。彼女は兄弟との連絡をしばらく絶ち、代わりに自分の好きな俳句を再開しました。季語を探し、自然を眺める時間が増えると、怒りに使っていた時間が静かな言葉に変わりました。半年後、兄弟から連絡が来ても、以前ほど心が揺れなくなっていました。彼女は「許したわけではないけれど、もう心は焼けていない」と話します。
+
+許せない相手を頭から追い出そうとすると、かえって強く思い出します。代わりに、思い出したときの「儀式」を決めます。手を合わせて一礼し、「この感情はここで置きます」と心で言う。椅子から立ち上がり、水を一杯飲む。儀式を挟むと、感情の波に飲まれずに済みます。儀式は簡単で構いません。いつでもどこでもできることを一つ選びます。
+
+相手への恨み言は、信頼できる紙と火に預けます。紙に書き、読み返し、最後に燃やす。燃やせない環境なら、細かく破って水に流す。物理的に手放す動作は、心にも響きます。仏教の儀礼でも、紙や木片に願いや罪を託し、火にくべることがあります。形を通じて心を整えるのです。
+
+仏教の八正道には「正語」があります。正しい言葉を選ぶことは、心を守る盾です。許せない相手に対しても、第三者に話すときの言葉を整えます。「あの人は最低だ」と言う代わりに、「今は距離を置いています」と言う。言葉を整えると、心も整います。荒い言葉は火に油を注ぎ、整った言葉は水になります。
+
+怒りと向き合うとき、体の痛みが強くなる人もいます。胃が重い、頭が痛い、胸が締め付けられる。体の症状は心の警報です。「もう少し休んで」と知らせています。温かい飲み物をゆっくり飲み、横になる。体が落ち着くと、心も静まります。静まった心で、また距離や儀式を思い出します。
+
+許せない相手を思い浮かべたときに、「この人にも苦しみがあるかもしれない」と想像してみることがあります。これは相手を免罪するためではなく、怒りのエネルギーを変換するためです。相手の背後にある苦しみを想像できると、自分の怒りが少し別の形に変わります。変わったエネルギーは、自分の生活を整える力に使えます。使い道を変えるのです。
+
+自分の心を守る最終手段として、「距離を永久に保つ」選択もあります。関係を完全に断ち、連絡手段を遮断する。それは敗北ではなく、生命を守る判断です。仏教の僧たちも、悪影響のある場所からは離れます。離れる勇気を持つことも、慈悲の一つです。
+
+毎日の小さな行動が、憎しみの火を弱めます。朝の光を浴びて深呼吸する。昼に短い散歩をする。夜に好きな音を聞く。心地よい習慣で一日を挟むと、怒りが入り込む隙間が減ります。隙間が減るほど、火は小さくなります。
+
+許せない感情は、あなたが真剣に生きてきた証でもあります。それだけ大切なものがあったということです。その真剣さを、これからの自分の守りたいものに向け直してください。怒りの火を燃やすのをやめ、水を注ぐ。静かな心は、あなたの人生の残り時間を温めます。憎しみの連鎖を自分のところで止めると決めた瞬間から、あなたの心の炎は、ゆっくりと穏やかな灯に変わっていきます。
+
+仏教の「慈悲の文句」を活用する方法もあります。「私も幸せでありますように」「あなたも幸せでありますように」と心の中で唱えます。最初は相手に向けなくても構いません。自分に向けて唱え、少し落ち着いたら、距離のある相手に向けます。言葉に抵抗があれば「あなたも苦しみから離れますように」に置き換えます。慈悲の言葉は、心の筋肉を柔らかくするストレッチです。
+
+怒りが再燃したときの「三呼吸ルール」も役立ちます。怒りを感じたら、まず鼻から大きく吸い、二秒止め、長く吐く。これを三回繰り返します。呼吸で脳に酸素が行き渡り、衝動が弱まります。三呼吸の間に、さっき決めた距離や儀式を思い出します。呼吸はいつでも持ち歩ける消火器です。
+
+人に話すとき、相手が火に油を注ぐタイプなら、話す相手を選びます。聞く力のある人、評価やアドバイスを急がない人に話す。安心して話せる場があると、怒りは静かに流れます。仏教の僧団でも、安心して話せる仲間がいるから修行が続きます。話す相手を選ぶことは、自分を守る選択です。
+
+体を動かすことで怒りのエネルギーを別の形に変えることもできます。散歩、ストレッチ、掃除。特に掃除は、目に見える結果が出るので達成感があります。畳を拭くたびに、心の埃も少し取れたと思うと、気持ちが軽くなります。仏教の僧院でも掃除は大切な修行です。掃除の動きが、心の動きを整えます。
+
+許せない相手と距離を取った後、その空いた時間に「自分を満たすリスト」を用意しておきます。好きな本を読む、昔のアルバムを整理する、新しいレシピに挑戦する。空いた時間を怒りで埋めるのではなく、満たすもので埋めます。満たすものが増えるほど、怒りの居場所は狭まります。
+
+夜中に怒りが浮かぶときは、枕元にノートとペンを置きます。起きて書き出し、ページを閉じ、再び横になります。書くことで頭の中の火花が紙に移り、心は少し静まります。ノートは誰にも見せない、自分だけの避雷針です。
+
+許せない相手への復讐を考えてしまう日もあるでしょう。そのときは、「その計画で本当に自分は楽になるか」と問いかけます。復讐は一瞬の快感かもしれませんが、その後も心は重くなりがちです。仏教の因果の教えを思い出し、どんな種を蒔きたいかを考えます。蒔いた種は、自分が刈り取ることになります。怒りの種より、静けさの種を蒔きます。
+
+最後に、自分の心に「ここまでよく頑張ってきた」と声をかけてください。許せないほどの出来事に耐えてきた自分を、少し抱きしめる。自分への優しさが、心の火を弱めます。弱まった火のそばで、静かなお茶を一杯飲んでみてください。湯気が立ち上り、火が小さくなるのを眺めるように。あなたの心には、まだ温かい灯を守る力があります。
+
+月に一度、「怒りの棚卸し日」を作ります。その日だけは、怒りや不満を紙にまとめて可視化し、終わったら封筒に入れて封をします。封をしたら、次の棚卸し日まで開けません。封筒に入れる行為が、怒りを一時的に「棚」に置く動作になります。棚に置けば、日常のテーブルは広く使えます。
+
+許せない相手が家族や近しい人の場合、距離を取るのが難しいこともあります。そのときは「時間の距離」を使います。短い会話だけにし、深い話は避ける。食事の時間をずらす。物理的には近くても、心の深い部分を見せないように線を引く。線を引くことは冷たさではなく、自分の心を守るための工夫です。
+
+許しに近づく道は人それぞれですが、どの道にも共通するのは「自分の心を傷つけない」という軸です。怒りの火を抱えたまま生きるのは苦しいことです。火を小さくするための方法をいくつも持ち歩いてください。呼吸、距離、儀式、言葉、体の動き、音、光。どれか一つが効く日もあれば、別の何かが効く日もあります。選べる手立てが多いほど、心は安心します。
+
+七日間の実践プランを置きます。1日目、紙に怒りを書き出し、破って深呼吸する。2日目、距離を取る言葉を一つ練習し、実際に使う。3日目、夜に慈悲の文句を自分に向けて唱える。4日目、身体のどこが固まるか観察し、温かい飲み物で緩める。5日目、許せない相手に関する連絡を一つ先送りにして枠を作る。6日目、短い散歩で怒りのエネルギーを外に流す。7日目、一週間の変化をノートに書き、よくやったと自分に言う。七日を越えたら、二十一日、九十日へと続けてみてください。時間が火を小さくするのを体で感じられます。
+
+最後に、手のひらを胸に当て、四つ吸い六つ吐きながら心で唱えます。「私は私を傷つけない」。許すことより先に、自分を守ること。守られた心は、やがて静かに決められるようになります。静けさは、あなたの新しい舞台の灯りです。
+</pre>
     </div>
   </div>
 </main>

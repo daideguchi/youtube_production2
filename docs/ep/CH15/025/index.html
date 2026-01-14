@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-025 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-025 — script</h1>
           <div class="muted">【疲労】疲れてるのに休めない｜休めないが病</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,168 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【疲労】疲れてるのに休めない｜休めないが病</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>疲労, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-025</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-025&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">疲れているのに休めない。休んではいけないと思っている。休むと何かを失うと感じている。
+
+その「休めない」が、実は病なのかもしれません。
+
+---
+
+現代人は忙しい。仕事があり、家事があり、やることが山積みです。
+
+でも、やることを全部やっても、まだ休めない人がいます。
+
+休むと罪悪感がある。何もしていない自分が嫌だ。動いていないと不安になる。
+
+それは単なる忙しさではなく、「休めない病」です。
+
+---
+
+なぜ休めないのでしょうか。
+
+まず、「休む=怠け」と思っているから。休むことに後ろめたさを感じる。働いていない自分に価値がないと思う。
+
+次に、「休むと遅れる」と恐れているから。みんなは進んでいるのに、自分だけ止まると置いていかれると。
+
+そして、「休み方を知らない」から。何もしないでいると落ち着かない。リラックスが苦手。
+
+---
+
+休めないとどうなるでしょうか。
+
+まず、疲労が蓄積する。回復しないまま次の負荷がかかる。どんどん消耗していく。
+
+次に、パフォーマンスが落ちる。疲れた状態で働いても効率が悪い。同じ成果を出すのに時間がかかる。
+
+そして、いつか限界が来る。体が動かなくなる。心が折れる。燃え尽き症候群になる。
+
+休まないことの代償は大きいのです。
+
+---
+
+仏教の修行でも「休み」は重要視されています。
+
+座禅の後は歩く。修行の間に休息の時間がある。
+
+無限に頑張り続けることはありません。緩急がある。
+
+バランスが大切。努力と休息のバランス。それが「中道」の教えです。
+
+---
+
+休むことを許すにはどうすればいいでしょうか。
+
+まず、「休むのは生産性のため」と考えてください。
+
+休むから回復する。回復するからまた頑張れる。休みは努力の一部です。
+
+アスリートはトレーニングと同じくらい休息を重視します。筋肉は休んでいる間に成長する。
+
+休むことは怠けではなく、投資なのです。
+
+---
+
+次に、「休む時間」をスケジュールに入れてください。
+
+仕事の予定は入れるのに、休みは入れていませんか。
+
+「この時間は休む」と予定として確保する。そうすれば罪悪感なく休めます。
+
+週に半日でもいい。「この時間は何もしなくていい」と決める。
+
+---
+
+また、「休み方」を学んでください。
+
+何もしない、というのが難しい人もいます。
+
+軽い趣味をする。散歩する。音楽を聴く。ぼんやりお茶を飲む。
+
+「楽しいけど疲れない」活動を見つける。それが休息になります。
+
+スマホを見続けるのは休息ではありません。脳は休んでいない。画面から離れる時間を作ってください。
+
+---
+
+さらに、「休むことへの罪悪感」を手放してください。
+
+休んでいる間、他の人は頑張っているかもしれない。でもそれは関係ない。
+
+あなたにはあなたのペースがある。比較しなくていい。
+
+休むことを許可する。「今は休んでいい」と自分に言い聞かせる。
+
+---
+
+注意点があります。
+
+疲れが何日休んでも取れない場合、病気の可能性があります。慢性疲労症候群などの可能性も。専門家に相談してください。
+
+また、休みたいのに休めないのが長期間続く場合、燃え尽きの前兆かもしれません。早めに対処してください。
+
+---
+
+疲れているのに休めない。
+
+それは「休めない病」かもしれません。
+
+休むのは投資。休む時間をスケジュールに入れる。休み方を学ぶ。罪悪感を手放す。
+
+今日から、休むことを自分に許してあげてください。
+
+あなたは、休んでいいのです。
+</pre>
     </div>
   </div>
 </main>

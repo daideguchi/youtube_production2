@@ -593,7 +593,7 @@ export function CapcutDraftProgressPage() {
                   <th>タイトル</th>
                   <th>状態</th>
                   <th title="SRT解析 → キュー分割 → 画像プロンプト → 画像生成 → CapCutドラフト">ステップ</th>
-                  <th>run</th>
+                  <th title="ドラフト（run_id）をクリックすると、そのドラフトで使われている画像を表示します">ドラフト</th>
                 </tr>
               </thead>
               <tbody>
@@ -636,7 +636,8 @@ export function CapcutDraftProgressPage() {
                             ? "CapCut 作成中"
                             : "CapCut 未生成";
 
-                  const runLink = row.runId
+                  const imageLink = row.runId ? `/image-timeline?project=${encodeURIComponent(row.runId)}` : "";
+                  const capcutLink = row.runId
                     ? `/capcut-edit/production?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(row.video)}&project=${encodeURIComponent(row.runId)}`
                     : `/capcut-edit/draft?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(row.video)}`;
 
@@ -711,9 +712,20 @@ export function CapcutDraftProgressPage() {
                         </div>
                       </td>
                       <td>
-                        <Link className="capcut-draft-progress-page__link" to={runLink} title={row.runId || ""}>
-                          <span className="capcut-draft-progress-page__run">{row.runId ? row.runId : "作成へ"}</span>
-                        </Link>
+                        {row.runId ? (
+                          <div className="capcut-draft-progress-page__run-actions">
+                            <Link className="capcut-draft-progress-page__link" to={imageLink} title="このドラフトで使われている画像を見る">
+                              <span className="capcut-draft-progress-page__run">{row.runId}</span>
+                            </Link>
+                            <Link className="capcut-draft-progress-page__run-secondary" to={capcutLink} title="CapCutプロジェクト（production）へ">
+                              CapCut
+                            </Link>
+                          </div>
+                        ) : (
+                          <Link className="capcut-draft-progress-page__link" to={capcutLink} title="新規ドラフト作成へ">
+                            <span className="capcut-draft-progress-page__run">作成へ</span>
+                          </Link>
+                        )}
                       </td>
                     </tr>
                   );

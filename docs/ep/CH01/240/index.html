@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-240 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-240 — script</h1>
           <div class="muted">【無駄の効用】人生の豊かさは「無駄な時間」にこそ宿る</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,467 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【無駄の効用】人生の豊かさは「無駄な時間」にこそ宿る</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-240</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-240&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">最短ルートが、いつも正解とは限りません。
+
+早く終わらせたい。
+成果を出したい。
+「無駄なく、一直線に」。
+
+そうやってショートカットばかり探していたら、
+いつの間にか毎日が、
+チェックリストを消化するだけの作業に
+変わってしまった――
+そんな感覚はありませんか。
+
+このチャンネルでは、
+仏教の教えを紐解きながら
+あなたの人生に役に立つ知恵をお伝えします。
+
+効率ばかりを求めて疲れ切った心に、
+少しだけ「余白」を取り戻す場所です。
+どうぞ、力を抜いてお聞きください。
+
+今日は、あえて遠回りをする価値についてお話しします。
+
+寄り道、道草、無駄話。
+目標だけを見ていると
+真っ先に切り捨てられてしまうものたちの中にこそ、
+実は「人間らしさ」と「幸福」が隠れています。
+
+この動画を見終わる頃には、
+Googleマップに載っていない宝物を
+自分の目で見つけにいける感覚が
+静かに育っているはずです。
+
+---
+
+まず、仏教の視点を一つだけ共有させてください。
+
+仏教の世界では、
+物事を極端な二つに分けてしまうことを戒めます。
+
+速いか、遅いか。
+成功か、失敗か。
+役に立つか、無駄か。
+
+どちらか一方だけを
+正しいと決めつけて追いかけると、
+心はすぐにねじれてしまうからです。
+
+お釈迦さまが説いた「八正道」は、
+まさに「まっすぐでありながら、柔らかい道」です。
+
+その中に「正精進（しょうしょうじん）」という教えがあります。
+これは、「限界まで走り続けなさい」という意味ではありません。
+
+怠けるでもなく、
+自分を追い立てて潰してしまうでもなく、
+
+「怠らず、しかし無理をしない」
+ほどよい努力を続けていく姿勢のことです。
+
+最短ルートだけを信じて走ると、
+この「ほどよさ」が壊れてしまいます。
+
+---
+
+ここで、一つの物語を聞いてください。
+
+時は奈良時代。
+大和から伊勢へと続く街道に、
+一人の行商人がいました。
+
+彼は布や塩、薬草などを荷に詰め、
+村から村へと歩いて売り歩く仕事をしていました。
+
+彼の誇りは、「誰よりも早く着くこと」でした。
+
+地元の人が教えてくれる
+「ここを通ると景色がきれいですよ」という道も、
+「こっちにはおいしい茶屋がありますよ」という道も、
+すべて切り捨てます。
+
+最短距離。
+最速のルート。
+
+休まず、寄り道もせず、黙々と歩き続ける。
+それが自分の「プロ意識」だと思っていたのです。
+
+「遠回りをしている人は、甘い」
+「寄り道をしている時間があるなら、一軒でも多く回った方がいい」
+
+彼はそう信じていました。
+
+しかしある年、
+彼の体に異変が起こります。
+
+朝起きても、足が鉛のように重い。
+息は浅く、胸が苦しい。
+無理をして歩き続けているうちに、
+道端で倒れてしまい、
+近くの村人に運び込まれました。
+
+村の医者が脈を取り、
+しばらく黙ってからこう告げます。
+
+「薬も大事だが、
+　あんたに一番必要なのは、
+　『遠回り』だ」
+
+行商人は耳を疑いました。
+
+「遠回りなどしていたら、
+　稼ぎが減ってしまう」
+
+医者は静かに首を振ります。
+
+「坂を避けて、木陰を通りなさい。
+　川沿いの道で、風に当たりなさい。
+
+　最短距離は、体には一番きつい道だ。
+　遠回りが、あんたの命を守る道になる」
+
+しぶしぶ、行商人は
+いつもの街道から少し外れたルートを歩き始めました。
+
+すると、少しずつ世界が変わっていきます。
+
+山の斜面を避けて、
+田んぼのあぜ道を歩いていると、
+農作業をしていた老人が声をかけてくれました。
+
+「そんな重い荷物を背負って。
+　ちょっとお茶でも飲んでいきなさい」
+
+湯気の立つお茶と、
+漬物を少し分けてもらう。
+
+何気ない会話の中で、
+その村でよく売れるもの、
+逆に余っているものの話を聞くことができました。
+
+別の日。
+
+谷を大きく回り込む道を行くと、
+道端に小さな祠と石碑が立っているのに気づきました。
+
+石碑には、
+旅人が詠んだ古い歌が刻まれていました。
+
+「急ぐ足　ふと立ち止まり　空を見る
+　遠き雲こそ　道しるべなれ」
+
+行商人は、
+今まで空を見上げることさえ忘れていた自分に気づき、
+思わず笑ってしまいました。
+
+川沿いの道では、
+木々の間を抜ける風が、
+汗で火照った体をほどよく冷やしてくれました。
+
+足を止めて深呼吸をすると、
+胸の奥まで新しい空気が入ってくる感覚があります。
+
+不思議なことに、
+遠回りを始めてからの方が、
+体の疲れが少なくなりました。
+
+それだけではありません。
+
+村の人の話を聞くうちに、
+その土地ごとに必要とされているものや、
+まだ知られていない良い品の噂が耳に入るようになります。
+
+「この村では、こういう布が喜ばれる」
+「この薬草は、あの村の人が求めている」
+
+最短距離でただ荷物を運んでいた頃には
+見えなかった情報が、
+遠回りの道草の中で
+自然と集まるようになりました。
+
+行商人は、
+ゆっくりと気づいていきます。
+
+最短距離は、
+いつも最良ではない。
+
+遠回りの中で、
+人と出会い、
+物を知り、
+体も心も持続していく。
+
+その結果、
+自分の商いは以前よりも
+よく回り始めたのだと。
+
+---
+
+なぜ、遠回りが必要なのでしょうか。
+ここからは、三つの理由をお伝えします。
+
+一つ目。
+効率には「見えないコスト」があるからです。
+
+タスクを最短で終わらせる。
+最も速く結果が出る方法だけを選ぶ。
+
+それ自体は悪いことではありません。
+ただ、その裏側には
+こんなコストが潜んでいることがあります。
+
+・慢性的な疲労
+・人間関係の摩耗
+・心の余裕の消失
+
+最短距離を行き続けると、
+ガソリンスタンドにも寄らず、
+オイル交換もせずに
+高速道路を走り続ける車のようになります。
+
+一見、進みは早い。
+しかしある日、
+突然エンジンが止まってしまう。
+
+寄り道や道草は、
+この「見えないコスト」を回復するための
+インフラのようなものです。
+
+遠回りは、
+人生のメンテナンスなのです。
+
+二つ目。
+偶然との出会いは、
+遠回りでしか起きないからです。
+
+大事な人との出会い。
+人生を変える一冊の本。
+価値観を揺さぶる風景。
+
+振り返ってみると、
+それらはたいてい
+「ついで」や「たまたま」の中で
+起きていないでしょうか。
+
+最短ルートは、
+予定通りにゴールへ運んではくれますが、
+予定外の出会いを
+徹底的に削ぎ落としてしまいます。
+
+寄り道は、
+偶然という名の「ご縁」と
+出会うための余白です。
+
+三つ目。
+心が追いつく時間が必要だからです。
+
+体は前に進めても、
+心には速度制限があります。
+
+昇進、転職、引っ越し、目標達成。
+外から見れば順調にステージが上がっていても、
+心の中が追いついていないと、
+達成した瞬間に
+妙な虚しさだけが残ることがあります。
+
+「こんなに頑張ってきたのに、
+　なぜ嬉しくないんだろう」
+
+それは、
+心が旅に追いつくための時間が
+足りていなかったサインかもしれません。
+
+道草は、
+心が自分の旅に追いつくための
+緩衝材です。
+
+歩みを少し緩めることで、
+「自分は今、どこにいて、
+　どこへ向かおうとしているのか」を
+確かめ直すことができます。
+
+---
+
+では、実際の生活の中で
+どう遠回りを取り入れていけばいいのか。
+
+三つの実践を提案します。
+
+一つ目。
+一日のどこかに「寄り道タイム」を入れること。
+
+通勤路を、一本だけずらしてみる。
+帰り道に、公園や神社を一つはさむ。
+エレベーターではなく、
+一つ分だけ階段を使ってみる。
+
+たった五分でもかまいません。
+
+いつもと違う道を歩くと、
+見える景色、聞こえる音、
+すれ違う人が変わります。
+
+それは、
+人生のレールを大きく変えるような
+ドラマチックな変化ではないかもしれません。
+
+それでも、
+「自分で道を選んだ」という実感が、
+心の中に小さな余白を作ってくれます。
+
+二つ目。
+会話に「無駄話」を意図的に入れること。
+
+仕事の話、用件だけで終わる会話は、
+確かに効率が良いです。
+
+しかし、
+関係が「用件のためだけの線」になってしまうと、
+困ったときに、
+そこから助けが生まれにくくなります。
+
+天気の話。
+最近見た景色の話。
+好きな音楽や、子どもの頃の思い出。
+
+一見、何の役にも立たない話こそ、
+関係の潤滑油になります。
+
+無駄話ができる相手は、
+いざというとき、
+こちらの心配をしてくれる
+「味方」になりやすいものです。
+
+効率に追われているときこそ、
+あえて数分の雑談をはさむ。
+
+それは、時間の無駄ではなく、
+人間関係のインフラへの投資です。
+
+三つ目。
+学びに「寄り道読書」を混ぜること。
+
+仕事に直結する本や、
+スキルアップの情報だけを
+追いかけていると、
+
+知識は増えても、
+発想が固くなっていくことがあります。
+
+そこに一冊、
+まったく関係のない本を混ぜてみてください。
+
+詩集でもいい。
+歴史書でもいい。
+旅のエッセイでも、小説でも、絵本でもいい。
+
+直接の成果は、
+すぐには見えないかもしれません。
+
+ただ、
+思わぬタイミングで
+「そういえば、あの本にこんな話があった」と
+違う文脈を持ち込める人は、
+仕事の中でも、人生の選択の中でも、
+視野の広さを発揮できるようになります。
+
+寄り道読書は、
+思考の地図を広げる遠回りです。
+
+---
+
+仏教には、道を歩くときの比喩が
+よく出てきます。
+
+「道に迷う」ことは、
+必ずしも悪いことではありません。
+
+迷ったからこそ、
+地図を広げ、空を見上げ、
+足元を確かめる時間が生まれます。
+
+最短ルートに固執する心は、
+視野を狭めていきます。
+
+少し遠回りを受け入れる心は、
+世界を広げていきます。
+
+---
+
+最後に、心に置いておきたい三行を。
+
+最短は、いつも最良ではない。
+寄り道は、見えないインフラ。
+道草は、心の緩衝材。
+
+今日から、
+道を一本だけずらしてみてください。
+
+帰り道を少し変えてみる。
+会話にひと言だけ、無駄話を足してみる。
+興味の方向が少し違う本を手に取ってみる。
+
+そこに、
+マップにない宝物が
+静かに落ちています。
+
+本日も最後までご覧いただきありがとうございます。
+
+あなたの遠回りが、
+思いもよらない幸せと出会うための道になりますように。
+</pre>
     </div>
   </div>
 </main>

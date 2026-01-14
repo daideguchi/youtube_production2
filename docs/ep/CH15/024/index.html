@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-024 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-024 — script</h1>
           <div class="muted">【不安】不安を消そうとするな｜扱えば静まる</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,168 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【不安】不安を消そうとするな｜扱えば静まる</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>不安, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-024</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-024&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">不安がある。消したい。でも消そうとするほど大きくなる。
+
+消すのではなく、扱う方法があります。扱えば静まるのです。
+
+---
+
+不安を感じたとき、多くの人は「消さなきゃ」と思います。
+
+気を紛らわす、考えないようにする、忙しくして忘れる。
+
+でも、それで本当に消えましたか。
+
+一時的には忘れても、ふとした瞬間に戻ってくる。そしてまた消そうとする。
+
+それは不安と戦い続ける消耗戦です。
+
+---
+
+不安を消そうとすると増える理由があります。
+
+まず、「消さなければ」と思うこと自体が不安を強調するから。「これは大変なものだ」というメッセージを脳に送っている。
+
+次に、消そうとして意識を向けるから。意識すればするほど、存在感が増す。
+
+そして、消えないことで失敗感を感じるから。「消せなかった」と落ち込む。それがまた不安を生む。
+
+---
+
+では、どうすればいいでしょうか。
+
+消すのではなく「扱う」のです。
+
+不安があることを認める。敵視せず、ただの感覚として受け入れる。
+
+「ああ、不安があるな」と。それについて何かしようとしない。
+
+---
+
+仏教では「観察する」ことを教えます。
+
+感情を観察する。巻き込まれずに見る。
+
+「不安を感じている自分」を少し離れた視点から見る。不安の中にいるのではなく、不安を見ている。
+
+そうすると、不安との距離ができます。
+
+---
+
+不安を扱う具体的な方法をお伝えします。
+
+まず、不安を感じたら、体のどこにあるか探してください。
+
+胸のあたり?お腹?頭?どこにどんな感覚がある?
+
+言葉で描写する。「胸がキュッとする」「お腹がザワザワする」。
+
+体の感覚として捉えると、「不安」という大きな概念が、具体的な感覚に変わる。それだけで扱いやすくなります。
+
+---
+
+次に、呼吸を続けてください。
+
+深呼吸でなくても、普通の呼吸でいい。呼吸に意識を向けながら、不安がそこにあることを許す。
+
+不安があっても呼吸はできます。その事実が安心につながります。
+
+数分続けてみてください。多くの場合、不安は薄れていきます。
+
+---
+
+また、「不安日記」をつけてみてください。
+
+不安を感じたとき、何が不安か書く。どのくらい不安か(10段階で)書く。
+
+書くことで客観化される。「いつも同じような不安を感じている」と気づくこともある。
+
+そして翌日見返す。「あれだけ不安だったのに、結局大丈夫だった」と分かる。不安は実際よりも大きく感じていたと気づく。
+
+---
+
+もうひとつ効果的なのは「不安を友達にする」ことです。
+
+不安は敵ではありません。危険を知らせてくれるサイン。あなたを守ろうとしている。
+
+「不安よ、警告してくれてありがとう。でも大丈夫だよ」と心の中で言ってみる。
+
+敵視すると戦いになる。友達にすると共存できる。
+
+---
+
+注意点があります。
+
+不安が非常に強く、動けなくなるレベルの場合は、専門家に相談してください。パニック障害や不安障害の場合、専門的な治療が必要です。
+
+また、この方法はすぐに効くわけではありません。練習が必要。繰り返しやってみてください。
+
+そして、すべての不安が消える必要はありません。少しの不安は健全なもの。共存しながら生きていければいい。
+
+---
+
+不安を消そうとするな。
+
+扱えば、静まります。
+
+観察する。体で感じる。呼吸を続ける。書き出す。友達にする。
+
+今度不安を感じたら、試してみませんか。
+
+不安は消す必要がないのです。
+</pre>
     </div>
   </div>
 </main>

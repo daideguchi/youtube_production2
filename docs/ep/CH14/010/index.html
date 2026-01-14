@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH14-010 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH14-010 — script</h1>
           <div class="muted">【寂しさ】寂しさを埋めるほど増える｜埋め方が逆</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH14</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH14</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,187 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCoKMmvWzqZyNlgQ7YPxIGvQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【寂しさ】寂しさを埋めるほど増える｜埋め方が逆</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの教え【執着からの解放】」の長時間コンテンツです。
+後悔・恨み・比較・お金不安…ほどけない執着を、静かにほどく。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>寂しさ, ブッダ, 仏教, 執着, 後悔, 比較, お金不安, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの教え【執着からの解放】」の長時間コンテンツです。
+後悔・恨み・比較・お金不安…ほどけない執着を、静かにほどく。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH14-010</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH14-010&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">なぜ私たちは、これほどまで、独りでいること、を、まるで生命の脅威であるかのように恐れ、何としてでも埋めようとしてしまうのでしょうか。
+脳科学の視点で見れば、人間は社会的な動物として進化してきたため、集団から孤立することは、かつての過酷な自然界では、確実な死、を意味していました。
+私たちの脳の奥深く、数百万年の進化の記憶が眠る場所では、孤独を感じると、物理的な痛みと同じ神経回路でアラームが鳴り響きます。
+早く誰かと繋がらなければならない、集団の中に避難して安全を確保せよ、という、生存本能に基づく強力なストレスホルモンが全身に放出されます。
+つまり、あなたが深夜、ふとした瞬間に感じるあの胸を締め付けるような寂しさは、あなたの性格の欠陥ではなく、人類が生き延びるために刻み込んできた、生存のためのバグ、なのです。
+
+---
+
+しかし、現代における孤独の本当の正体は、物理的な孤立ではなく、心理的な、分離感、にあります。
+現代社会は、個人の生産性や効率、あるいは若さや華やかさを極端に評価します。
+そのため、私たちは、何かを成し遂げていない無力な自分、や、誰からも必要とされていない価値のない自分、を鏡の中に見つけたとき、即座に自分の存在そのものを否定してしまいます。
+ありのままの自分では受け入れられない、あるいは、社会の要求する条件を満たさないと、愛される価値も居場所もない、という、幼い頃からの自己否定の薄い膜が、いつのまにか自分と世界との間に、見えないけれど高く冷たい壁を作ってしまうのです。
+その壁のせいで、たとえ大勢のなかで笑い合っていても、あなたのエネルギーは外側へと循環せず、あなたは、自分だけの透明な檻、の中に取り残されているように感じてしまう。
+現代のテクノロジーは、一見、私たちを瞬時に繋げているように見えますが、その薄っぺらな繋がりこそが、かえって深層の孤独を浮き彫りにします。
+SNSの画面越しに他人の輝かしい生活を覗き見るたび、あなたは自分の静かな日常を「欠落」だと錯覚し、自分の魂を商業主義の荒波に投げ込んでしまいます。
+
+クリスマスを独りで過ごすのは惨めだ、週末に予定がないのは社交性のない証拠だ、という、誰かが勝手に決めた空虚なレッテルを、あなたは自分の不変の魂に貼り付けてはいませんか。
+その結果、独りで静かに安らぎを感じること、に対して、無意識のうちに罪悪感や敗北感を持ってしまっている。
+独りで寂しくないフリをしなければならない、という世間体との無益な葛藤が、さらにあなたを追い詰め、本来、悠々と流れるはずの心の平穏をせき止めてしまいます。
+しかし、本当の幸福とは、外側の誰かに心の穴を埋めてもらうという、一時的な物乞い、にあるのではありません。
+人は独りで生まれ、独りで消えていく、という、冷酷でありながらも圧倒的に公平な生命の真理に、今、あなたの脳が真っ正面から向き合い、そのなかで静かに座り続ける、という静かな勇気が必要なのです。
+
+---
+
+二千五百年前に悟りを開いたブッダは、寂しさに震え、彷徨う人々に対して、非常に凛とした、しかし深い優しさに満ちた道を示されました。
+それが、犀の角、という、人類史上もっとも美しく、もっとも知的な自立の教えです。
+ブッダは、荒野をゆく犀を眺めながら、次のように説きました。
+仲間を求め、盲目的に群れをなす心は、常に不安と争いを生む。林の中で野生の鹿が自由に、誰に束縛されることもなく餌を求めて歩き回るように、賢者は独りで歩むべきである。あたかも、犀の角がただ一本、周囲の騒音をものともせず、誇り高く天を指して立っているように。
+
+これは、決して、他人を冷酷に拒絶し、心を閉ざして生きろ、という意味ではありません。
+むしろ、自分の足で、自分の人生をダイヤモンドのように硬く自立させて立つとき、初めて他人とも、依存や損得を超えた、本当の意味での、深い魂の交流を築くことができるのだ、という厳しい慈悲を突いています。
+寂しさは、あなたの心が、自分の中心という確かな重心を見失い、外側に、寄生の宿、や、仮初の防壁、を探しているという、不安定なサインにすぎません。
+ブッダは、私たちの心が、五蘊という五つの要素が、川の流れのように一時的に集まった現象にすぎず、固定された、私、という実体なんてどこにも存在しないと喝破されました。
+寂しいという感情さえも、その日の天候や体調、不意に蘇った過去の記憶という条件によって一時的に湧き上がった、心の霧、の一種であり、あなたという存在の不変の核ではありません。
+ただ、その霧がゆっくりと形を変えて流れていくのを、岸辺から眺めるように、静かに見守ってください。
+その霧の背後には、常に変わることなく永遠に広がる、無限で静かな、あの深い、青空、があることに気づいてください。
+意識の焦点を、流れる雲から、広大な空そのものへと移していくのです。
+
+禅の歴史の中に燦然と輝く、独坐大雄峰、という言葉があります。
+独りで、ただ凛として、最高峰の頂きに座っている。
+この言葉は、孤独を、何かを失った欠落、ではなく、宇宙の全財産を独り占めする最高の贅沢、として捉えています。
+寂しさは、あなたが誰の目も気にせず、誰の期待にも応えようとせず、この広大な宇宙のなかにたった一人で、ただ「有る」という、その神聖で圧倒的な事実を再確認するための、貴重な聖域の時間なのです。
+
+---
+
+江戸時代の禅僧に、良寛さんという、子供のように澄んだ心を持ち、孤独を何よりも深く慈しんだ、稀代の師がいました。
+彼は、裕福な名主の長男という、約束された輝かしい地位と、有り余る富を、まるですり減った草鞋のようにあっさりと捨てました。
+そして、雪深い越後のボロボロの庵で、老いてなお一人きりで暮らす道を選びました。
+良寛さんの生活は、現代の私たちが最も恐れ、忌み嫌う、究極の孤独、そのものでした。
+冬は身を切るような寒風が庵の隙間から吹き込み、食事も満足に摂れない日があったといいます。
+しかし、彼の心は、常に春の陽だまりのように穏やかでした。
+
+ある静まり返った冬の夜、貧しい良寛さんの庵に、一人の泥棒が忍び込みました。
+しかし、そこには盗めるような金品も、豪華な什器も一切ありませんでした。
+良寛さんは、物音で目が覚めていましたが、泥棒が何も見つけられずに手ぶらで帰るのを気の毒に思いました。
+そこで、わざと寝返りを打って、自分が寝ていた唯一の家財道具である、蒲団、を泥棒が持ち去れるように、そっと身体をずらして差し出したといいます。
+泥棒は慌ててその古びた蒲団を抱え、闇の中へと消えていきました。
+極寒の夜、たった一枚の蒲団さえも失った良寛さんは、凍えるような夜風に裸身を晒しながら、破れた屋根越しに輝く月を眺めました。
+そして、その震える指で、盗人に取り残されし窓の月、と一句。
+自分を襲った泥棒に対してさえも、月というこの宇宙最高の贈り物を持ち去れなかったことを不憫に思う。
+良寛さんは、独りでいることを、社会からの脱落、とは微塵も捉えず、宇宙の営みと自分自身が、邪魔なノイズなしに一対一で向き合う、神聖な対話、だと全身の細胞で感じていました。
+誰からも評価される必要がなく、ただ月を眺め、風の音に耳を澄ませ、里の子供たちと日がな一日手毬をついて遊ぶ。
+その境地は、寂しい、といった瑣末な人間的な感情を遠く超越した、全体という名の巨大な愛、で最初から充満していたのです。
+寂しさは、あなたがあなたの、内なる心の月、の輝きに、今この瞬間気づくためだけに用意された、一時の優しい暗闇にすぎません。
+
+---
+
+それでは、今夜からあなたの心の穴を温かい慈悲で満たし、寂しさを、深い安らぎ、へと昇華させていくための、三つの具体的な整理ステップをお伝えします。
+
+第一のステップは、寂しさが不意に湧き上がった瞬間に、思考で分析するのをやめ、身体のなかで、その穴の正確な座標を特定することです。
+寂しさを、寂しい、という言葉だけの漠然とした、得体の知れない不安、として捉えるのを、今すぐやめてください。
+今、みぞおちのあたりに、重たい鉄球のような冷たい塊がある、とか、あるいは胸の真ん中が、乾いた砂漠のようにヒリヒリしている、というように、そのエネルギーの位置と質感を、科学者のような冷静な視点で精密に観察してみてください。
+そして、その場所に優しく片手を当てて、温泉のような温かな慈悲の呼吸を、細胞の隅々まで丁寧に送り込みます。
+ああ、今、ここに、寂しさという長旅に疲れた客人が訪ねてきているのだね、わざわざ知らせに来てくれてありがとう、と心の中で穏やかに語りかけるのです。
+寂しさは、無視されたり、無理に抑圧されたりすると、あなたの精神を食い荒らす怪物へと暴走しますが、あなたが意識の優しい光を当て、ただそこにいることを認めてあげると、それは単なる一つの肉体的な現象、一つの生命の自然な揺らぎへと、静かに着地していきます。
+
+第二のステップは、自分という存在を、世界で一番大切な、高貴な賓客として、極上の、独り遊び、でもてなすことです。
+寂しさを埋めるための衝動的な行動、例えば目的のない電話をかけまくったり、深夜のSNSを意味もなく徘徊したりすることは、すべて、自分自身からの卑怯な逃亡、にすぎません。
+そうではなく、あえてこの独りの時間を、宇宙で誰よりも愛すべき存在である、自分自身をもてなすための、神聖な儀式、に根本から作り変えてみてください。
+一番お気に入りのカップを丁寧に温め、薫り高いお茶を一口ずつ味わう。肌に触れるだけで心が緩むような上質な肌着に身を包む。あるいはただ、静寂の中で自分自身の呼吸の音、その命の脈動を、至高の旋律として聴き入る。
+独りぼっち、という哀れな受動的な状態を、自ら静寂を選び取り、その豊かさを愉しんでいる、聖なる孤高、という誇り高い能動的な状態へと、あなたの意志の力で力強く転換してください。
+
+第三のステップは、一日に一度、わずか五分間だけでいいので、完全な、沈黙、といと握手をする習慣を持つことです。
+私たちは、自分自身の内面の底から聞こえてくる、真実の声、と対峙するのが怖くて、常にテレビやスマホの音、あるいは自分の頭の中で鳴り止まない、思考の独り言、という毒性のノイズを流し続けて、自分から逃げ回っています。
+その外部のノイズを、意図的に、パチリと切ってください。
+次々と押し寄せてくる将来への不安や、他人への小さな苛立ちを、追いかけることも拒絶することもなく、ただ、あ、今、古い貨物列車が横切っていったな、と駅のホームで無関係な通行人を眺めるように、淡々と見送るのです。
+その沈黙の訓練を繰り返すことで、あなたは、寂しさという激しい感情は、あなたという無限に広がる劇場の、ごく一部の端役にすぎない、という動かしがたい事実に気づき、自分の人生の絶対的な主権を、ようやく取り戻せるようになります。
+
+---
+
+ここで、孤独と向き合い、自分を整えようとする修行の道中で、私たちが必ず陥ってしまう、一つの不健康な、精神の落とし穴、について厳しく警告しておきます。
+それは、寂しいと感じてしまう自分を未熟だと批判し、孤独を。克服すべき敵、として、自分という存在をさらに深い孤独に追いやってしまう、自己否定の罠です。
+禅を深く学んでいるのに、まだこんなに寂しいなんて、自分は修行が足りないのではないか。
+立派な大人は、常に独りで平気でいなければならないはずだ。
+そうやって、自分に対して非情で無味乾燥なルールを課し、不器用で傷つきやすい自分の心を、氷のように冷たく突き放してしまう。
+これは、真の自立、ではなく、単なる、自己虐待、にすぎません。
+寂しさを、排除すべき心の汚れ、のように扱えば、それはさらに深い呪いとなって、あなたの生命の根源を削り取ります。
+
+禅が説く真の自立とは、寂しさを一切感じなくなる超人になることではありません。
+ああ、今、私は、耐えがたいほど寂しいんだな、というその生々しい痛みを、宇宙でたった一人の理解者として、自分自身がまるごと温かく抱きしめてあげることです。
+寂しさを深く感じているそのとき、あなたは、本当は、失いたくないほど大切な何かを持っている、とても繊細で優しい人なのです。
+その美しく、尊い感受性を、無理に、克服、しようとしないでください。
+むしろ、その孤独の痛みさえも、あなたの魂を磨き上げるための、輝く砥石として歓迎してください。
+
+---
+
+いかがでしたか。
+あなたの魂を、冷たい、孤独という名の檻、に閉じ込めていた、分離感、という名の太い鎖が。
+今、この長い語らいを通じて、夜明けの霧が音もなく晴れるように、ゆっくりと、そして確実に、ハラハラとほどけ始めているのを、あなたの穏やかな呼吸のなかに感じているでしょうか。
+
+あなたは、本来、自分一人だけで、太陽のように銀河の隅々まで照らすことができる、完結した輝かしい黄金の存在です。
+誰かに認められなければならない、という強迫観念をゴミ箱に捨て、ただ、今ここで、一人の呼吸として凛として存在している自分を、誇り高く、そして誰よりも愛おしく思ってください。
+
+明日からのあなたは、もう寂しさに負けて自分を安売りしたり、他人の顔色を窺って、見捨てられないための繋がりに執着したりする必要はありません。
+良寛さんが凍える庵で見上げた、あの破れた窓の月のように。
+あなたもまた、独りで凛として、この静かな宇宙のなかで、自分だけの聖なる光を、淡々と、しかし力強く放ち続けてください。
+
+最後にもう一度、胸のどん底に溜まった、すべての過去の重荷と未来への不純な毒素を吐き出すように、大きな息を思い切り吐いてください。
+寂しい、という名の、冷たく空虚な幻影を、すべて、一滴残らず、身体の外側へと吐き出し。
+代わりに、自分は、宇宙という巨大で慈愛に満ちた永遠の命の一部であり、一瞬たりとも独りきりではない、という、不動の絶対的な安心感を、胸いっぱいに。深く深く、吸い込んでください。
+
+あなたの明日が、一分の不安も、一分の空虚さも曇らない、清々しい純粋な自尊心と静かな活気に満ちたものでありますように。
+あなたの内なる心の月が、深い休息のなかで、本来の黄金の輝きを、今夜、嘘のように完全に取り戻していきますように。
+
+最後まで、この静かな魂の物語に一途に耳を傾けていただき、本当にありがとうございました。
+どうぞ、その温まった、揺るぎない確かな自負の心で。
+今夜は安らかに、そして宇宙の誰よりも気高く眠ってください。
+どうぞ、心安らかな、最高に美しい夢を。
+</pre>
     </div>
   </div>
 </main>

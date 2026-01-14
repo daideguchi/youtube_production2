@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH02-055 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH02-055 — script</h1>
           <div class="muted">【無音の恐怖】静けさに耐えられない心</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,262 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【無音の恐怖】静けさに耐えられない心</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH02-055</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH02-055&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夜、ふとスマホを置いて部屋の灯りを落としたとき、そこにある静けさに落ち着かず、慌ててテレビをつけたり音楽で耳を埋めたりすることはないでしょうか。
+通勤電車でイヤホンを外した瞬間、周囲の喧騒がやけに大きく、冷たく感じられて、震える手ですぐに音を戻してしまう。
+誰かと絶えず繋がっていないと、足元が浮くような、所在ない不安に襲われてしまう。
+
+今日は、そんな「ひとりでいる時間が怖い」「孤独を避けようとして疲れ果てている」心の扱い方について考えます。
+孤独は果たして、私たちの敵なのでしょうか。それとも、付き合い方次第で、人生を豊かにする余白へと変えられるものなのでしょうか。
+
+---
+
+社会心理学者のエーリッヒ・フロムは、人間が孤独をこれほどまでに恐れるのは、他者と「つながりたい」という本源的で深い欲求があるからだと説きました。
+私たちは孤独を通じて、自分自身の有限性や無力さを突きつけられるのを恐れているのかもしれません。
+けれど、つながりを求めるあまりに、自分を静かに見つめるべき時間まで賑やかさで埋め尽くしてはいませんか。
+孤独を消し去ろうとするのではなく、扱いやすい、心地よい「静寂」へと形を変えていくこと。それが今日、私たちが目指す方向性です。
+
+ひとりになると不安になるのは、ある意味で生物学的な正解です。
+かつて原始の時代、群れから離れることは、捕食者に襲われる死の危険に直結していました。
+私たちの脳の奥底にはその記憶が刻まれており、独りきりになると無意識に危険信号が鳴り響く。
+つまり、その不安はあなたの心が弱いからではなく、正常な防衛システムが作動している証拠です。
+けれど、現代において、ひとりで部屋にいることはすぐさま死には繋がりません。
+過剰に鳴り続ける警報を、少しずつ緩めてあげる知恵が必要です。
+
+私たちの孤独を重くしている背景には、現代社会の「速度」も大きく関わっています。
+常にオンラインで誰かと繋がり、指先一つで誰かの近況が流れ込んでくる環境では、「静けさ」はもはや不自然な異物になってしまいました。
+その異物に触れた瞬間に生じる微かな不安から逃れるために、また通知を求めてスマホを手に取る。
+繋がりを増やすほどに、私たちは静けさに対する耐性を失い、より一層、孤独の影を大きく育ててしまうのです。
+
+---
+
+一口に孤独といっても、それは大きく二つの色に分けられます。
+一つは、「孤立（Isolation）」。
+これは、暗くて冷たい地下室に閉じ込められたような感覚です。
+壁は厚く、叫び声は誰にも届かず、窓の外の光さえ遮断されている。
+物理的に人がいない寂しさというよりは、「世界から切り離されている」という断絶の痛みです。
+そこには、焦りと、自分だけが置いていかれるような冷ややかな恐怖が漂っています。
+
+そしてもう一つは、「孤独（Solitude）」。
+これは、静かな森の奥深くにある、小さな小屋に一人でいるような感覚です。
+暖炉には火が灯り、温かいスープの香りがして、外からは木々のざわめきだけが聞こえる。
+鍵は内側からかかっていて、誰もあなたの邪魔をすることはできません。
+そこにあるのは、断絶ではなく「自立」とし「安息」です。
+自分だけの時間を味わい、自分自身と深く対話するための、守られた聖域なのです。
+
+私たちが目指すのは、冷たい地下室（孤立）から抜け出し、温かい森の小屋（孤独）へと引っ越しをすることです。
+状況は同じ「ひとり」であっても、その心のありようを変えるだけで、痛みは癒やしへと変わります。
+孤立を癒すために必要なのは、単に接する人の数を増やすことではありません。
+地下室の扉を開け、森の空気を入れ、自分自身を温かくもてなす準備をすることなのです。
+一人の人と、いかに深く、誠実に関わり合えるか。あるいは自分自身といかに深く繋がれるか。
+その「理解の深度」こそが、痛みを散らす薬になります。
+
+一方で哲学の世界では、孤独は「自己と対話するための聖域」としても大切にされてきました。
+外からの喧騒が止んだとき、初めて聞こえてくる自分の本心があります。
+刺激に満ちた日常では、内側の繊細な声は容易にかき消されてしまう。
+孤独を「自分を責める場所」ではなく、「自分を探るための道具」として捉え直すことができれば、その冷たい静寂は、あなたを支える温かな余白へと変わっていくはずです。
+
+心理学では、孤独を「心の空腹サイン」という情報として扱う視点があります。
+お腹が空けば栄養を求めるように、孤独を感じたときは「今は繋がりという栄養が足りていないよ」という自分からのシグナルです。
+シグナルを無視して我慢し続けるのではなく、「さて、どうやってこの栄養を補おうか」と、冷静な作戦会議を自分自身と開くことができるようになれば、孤独は克服すべき脅威ではなく、生活の調整因子へと姿を変えます。
+
+---
+
+孤独を埋めようとして予定をぎゅうぎゅうに詰め込みすぎると、私たちの魂は知らず知らずのうちに磨り減ってしまいます。
+予定という名の鎧で自分を固めても、その空白が怖くて、さらに重たい鎧を重ねていく。
+もしその重苦しさに気づいたなら、鎧の「量」ではなく「質」を変えてみませんか。
+数多くの浅いつながりよりも、心の奥底で反響し合えるような、深い対話。
+そんな質の高い対話ができる相手との時間を大切にするだけで、ひとりでいる時間の寂しさは、穏やかな満足感へと上書きされていくでしょう。
+
+ひとりの時間が怖いと感じる大きな理由に、頭の中の「雑音」があります。
+静寂の中に身を置くと、普段は刺激で押し流していた後悔や不安、将来の課題が、泥が沈殿するように一度に浮き上がってきてしまう。
+その濁りを見たくなくて、また賑やかさを探してしまう。
+けれど、溜まった澱（よどみ）は目を逸らしても消えはしません。
+浮かんできた感情を、一つひとつ丁寧にメモに書き写し、外へと出してあげてください。
+客観的な形を与えられた不安は、もはや頭の中で暴れ回る怪物ではなくなり、冷静に扱える課題へと変わります。
+
+17世紀の思想家ブレーズ・パスカルは、「人間の不幸は、誰も静かに一人で部屋に座っていられないことに端を発する」という有名な言葉を遺しました。
+外の世界にばかり解決を求め続けると、自分を自律的に支える心の筋肉は、いつまで経っても育ちません。
+まずは1日1回、わずか数分間だけでも、一切の音を消して、ただ静かに座る時間を自分に許してあげましょう。
+少しずつ、静けさの温度に慣れていくこと。その繰り返しが、孤独という風からあなたを遠ざけてくれます。
+
+孤独に立ち向かうとき、強い意志だけで頑張る必要はありません。
+意志の力は脆く、疲れているときほど容易に崩れてしまうものです。
+だからこそ、環境を味方につけてみてください。
+寝室にスマホを持ち込まない、温かい白湯の一杯を味わう、心地よいお香を焚く。
+五感に訴える優しい環境を整えるだけで、ささくれた孤独感は、静かな充足感へと解きほぐされていきます。
+
+---
+
+静かなひとりの時間を、少しずつ、リハビリのように延ばしていく練習をしてみましょう。
+いきなり長い時間は難しくても、最初の五分だけは、何も見ず、何も聞かず、ただ自分の呼吸を見守る。
+それに慣れてきたら、次の一週間は十分間に挑戦してみる。
+「ひとりでいても、安全だ」「静かでも、不幸ではない」。
+脳がそうした小さな成功体験を学習していくにつれ、体内の非常ベルは、次第にその音量を下げていくはずです。
+
+「孤独」と「孤立」は、似ているようで全く異なる概念です。
+孤独とは主観的な感覚であり、孤立とは客観的に社会との繋がりが絶たれている状態を指します。
+たとえ今、この瞬間に孤独を感じていたとしても、実際にはあなたを大切に思う人がどこかに必ずいる。
+自分にとって大切な人たちの顔を思い浮かべ、その繋がりを紙に書き出してみる。
+目に見える形にすることで、「私は完全に切れているわけではないのだ」という事実に気づき、心の底に温かな灯がともるのを感じられるでしょう。
+
+孤独を「自分に何かが欠けている証拠」として悪者にするのは、もうやめにしてあげませんか。
+人生には、脈打つような活動的な季節と、しんしんと降り積もる静寂の季節、その両方が必要です。
+活動ばかりでは魂は枯れ果て、静寂ばかりでは心は凍てついてしまう。
+大切なのは、そのリズムを自分らしく奏でることです。
+日常の中に、あえて「小さな静けさ」を混ぜ込んでおく。それが、大きな孤独に飲み込まれないための最良の予防薬になります。
+
+---
+
+誰かと一緒にいるのに孤独を感じるとき、その会話が薄い幕のように表面を滑ってはいませんか。
+深い心の繋がりを得るためには、まずはあなた自身の側から、微かな「本音」を差し出してみることです。
+「今日は少し、心が疲れ気味なんだ」「最近、こんなことで悩んでいて」。
+完璧な解決を求めず、ただ事実を共有する。たった一文の自己開示が、相手との間に確かな橋を架けます。
+そこを渡ってきてくれる人がいれば、孤独の呪縛は一気に解けていくでしょうし、もしそうでなくても、今の適切な距離感を測る良いきっかけになります。
+
+孤独に、自分だけの「意味」という名前を添えてみてください。
+ただの空白の時間ではなく、「内省のための時間」「新しいアイデアを育むための時間」、あるいは「魂を休息させるための儀式」。
+名付けられた時間は、そこから不安を追い出し、豊かな資源へと姿を変えてくれます。
+意味のない空白は恐ろしいものですが、目的のある場所は、あなたを優しく迎え入れてくれるはずです。
+
+孤独に心が冷え切っているとき、あなたの体もまた、凍えていることが多いものです。
+血の巡りが滞り、首筋が固まり、呼吸が浅くなっている。
+そんな時は、難しいことを考える前に、まずは物理的に体を温めてあげてください。
+湯船にゆっくり浸かる、厚手の靴下を履く、温かいスープを飲む。
+体のこわばりが解けると、心もまた不思議なほど柔らかくなり、孤独という夜の冷たさを、静かな優しさとして受け止められるようになります。
+
+---
+
+孤独を恐れるあまり、四六時中マルチタスクで脳を埋め尽くしていませんか。
+情報を詰め込んでいる間は寂しさを忘れられるかもしれませんが、その代償として心の余裕は刻一刻と削り取られていきます。
+そして余裕がなくなれば、ますますひとりでいられないという悪循環に陥ってしまう。
+この鎖を断ち切るために、意図的に「一つの作業だけに没頭する時間」を作ってみてください。
+何かに深く集中しているときは、孤独という痛みは消え、代わりに自己という感覚さえも忘れてしまうような、純粋で心地よい時間が流れます。
+
+孤独が創造の土台になるためには、相応の「準備」が必要です。
+何も持たずに静かな部屋に籠もっても、思考はただ無軌道に散らばり、不安に絡め取られるだけです。
+考えるテーマを一つだけ決め、お気に入りの筆記具を用意し、時間を短く区切って臨む。
+「孤独を作業場にする」という意識を持つことで、静寂はあなたにとって、最も贅沢な創造の空間へと姿を変えるでしょう。
+
+遠い過去の、取り残されたような孤独な記憶が、今のあなたを苦しませてはいませんか。
+けれど、かつてのあなたと、今のあなたは、もう別の存在です。
+「あの時の孤独と、今の静けさは違う」。
+そう心の中で毅然と告げ、自分を取り巻く空気の色を、今のあなたの手で塗り替えていってください。
+過去の残像を切り離すことができたとき、今の静けさはようやく、あなたを癒すための力を持ってくれます。
+
+---
+
+孤独を感じていることを、誰かに短く打ち明けてみるのも一つの方法です。
+「今日は、理由もなく寂しいんだ」「ひとりでいるのが、少し心細くなっちゃって」。
+それは決して恥ずかしいことでも、弱いことでもありません。
+ただ言葉にして外に放ってみるだけで、パンパンに膨らんでいた内側の圧力がふっと抜けていくのを感じられるでしょう。
+秘密にせず共有することで、孤独はあなた一人で抱える重荷から、二人で眺める景色へと変わっていきます。
+
+孤独という時間の中で、私たちは時の流れをいつもより残酷に長く感じがちです。
+時間がだらだらと停滞して感じられるなら、意識的に「行為」を挟み込んでみてください。
+部屋の窓を拭く、凝った料理を。あるいは丁寧に靴を磨く。
+身体を使う行為が時間の目盛りになり、間伸びしていた不安な時間を、充実した「今」という瞬間に細かく刻んでくれます。
+
+ひとりでいたいと願う心と、誰かに触れていたいと願う心。
+その矛盾は、人間であれば誰もが抱える当たり前のもので、どちらかが間違っているわけではありません。
+「今はどちらの声を優先してあげたいか」
+その時々の自分の欲求を、否定せずに優しく拾い上げる。その自己対話の繰り返しが、あなたの芯を強く、しなやかに育ててくれます。
+
+---
+
+孤独な時間は、心に溜まった「外からの声」を洗い流す、大切なデトックスの時間でもあります。
+他人の期待、社会の評価、SNSで拾った他人の物差し。
+それらに晒され続けた魂を、一度静かな場所に置き、純粋な自分自身に戻してあげる。
+あえて孤独を選ぶことは、自分自身の主権を取り戻し、自分本来の色に塗り直すための、高潔な儀式と言えるかもしれません。
+
+最後に、今日という日の終わりに、ひとりの時間でしか見つけられなかった「小さな発見」を一つだけ、メモに残してみませんか。
+庭に咲く花の色、窓を叩く風の響き、あるいは、今まで気づかなかった自分の微かな願望。
+それらは全て、孤独という沈黙があなたに贈ってくれた、かけがえのないプレゼントです。
+贈り物を受け取るたびに、あなたは孤独という季節を、もっと深く、慈しめるようになれるはずです。
+
+孤独は、あなたを滅ぼすための影ではありません。
+それは、あなたがより大きく、より高く成長していくために必要な、静かな余白なのです。
+その余白の中に、次はどんな色を置き、どんな自分を紡いでいくのか。
+深呼吸して。ゆっくりと。
+新しいあなたが目覚めるその瞬間を、孤独という静かなゆりかごの中で、大切に育んでいきましょう。
+明日は、新しい光の中にあなたが踏み出すとき、その心は今日よりもずっと、透明で力強いものになっているはずですから。
+
+---
+
+ここで、オランダに伝わる「ニクセン（Niksen）」という概念をご紹介させてください。
+それは「何もしないことのアート」とも呼ばれる、あえて何も生産的なことをしない時間の過ごし方です。
+私たちは常に「何かをしなければならない」「生産的でなければならない」という強迫観念に追われています。
+でも、ニクセンは違います。
+ただ窓の外をぼんやりと眺める。
+ソファに深く沈み込んで、天井の木目を数える。
+目的もなく、ゴールもなく、ただ「そこにいる」ことだけを楽しむ。
+
+この「意図的な怠惰」こそが、脳のデフォルト・モード・ネットワークを活性化させ、枯渇した創造性の泉を満たしてくれるのです。
+何もしないことは、サボりではありません。
+それは、次に大きく動くための、最も高度な戦略的休息です。
+だから堂々と、何もしない時間をスケジュールに書き込んでください。
+「14:00〜14:15：ニクセン」。
+その空白の時間こそが、あなたの人生を豊かに彩るためのパレットになるのです。
+
+---
+
+明日が明け、新しい光の中にあなたが踏み出すとき、その心は今日よりもずっと、透明で力強いものになっているはずですから。
+
+
+
+あなたの思考の、静かな伴走者として。『静寂の哲学』では、これからも物事の本質を探求していきます。よろしければ、チャンネル登録で、また次の思索の時間にお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

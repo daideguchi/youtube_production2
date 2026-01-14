@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-237 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-237 — script</h1>
           <div class="muted">【諦める力】夢は叶わない。だからこそ、人生は面白い</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,239 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【諦める力】夢は叶わない。だからこそ、人生は面白い</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-237</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-237&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夢を追いかけて苦しんでいませんか。
+がむしゃらに走るほど、
+胸の奥が重たくなる。
+もう戻れないところまで来てしまった気がする。
+
+このチャンネルでは、
+仏教の教えを紐解きながら
+あなたの人生に役に立つ知恵をお伝えします。
+責める場ではありません。
+肩の力を抜いて、静かに耳を傾けてください。
+
+今日は、「諦める」という言葉の本当の力についてお話しします。
+諦めるとは、明らかに極める、と書きます。
+闇雲に走り続けることではなく、
+自分の限界と道を明らかにする技です。
+
+この動画を見終わる頃には、
+手放すことへの罪悪感が薄れ、
+執着を置いた場所から、新しい道が開けるはずです。
+
+---
+
+まず、仏教における「諦め（たい）」という言葉を押さえましょう。
+四諦の諦は、真理という意味です。
+現実を、ありのままに見ること。
+そこからしか、解放の道は始まりません。
+
+釈迦は、家も地位も才能も捨てました。
+捨てたからこそ、別の道が見えた。
+手放しは、敗北ではなく、選択です。
+
+---
+
+ここで、一つの物語を聞いてください。
+
+江戸の終わり頃、ある大工がいました。
+名匠として名を馳せ、誰もが仕事を頼みたがる。
+しかし彼には、一つの夢がありました。
+自分の寺を建てること。
+
+彼は十年かけて資金を貯め、図面を描き、
+弟子たちと一緒に山を切り開きます。
+ところが、山の地盤が脆く、
+掘るたびに崩れ、怪我人が出る。
+
+周囲は言いました。
+「夢を諦めるな」
+「やりきればきっと報われる」
+しかし大工は工事を止め、山を降りる決断をします。
+
+人々は失望しました。
+自分自身も、何度も夜に泣きました。
+けれど、大工は山を降りたことで、
+新しい仕事を請け負うことになりました。
+それは、橋を架ける仕事でした。
+
+彼は、川に架かる橋をいくつも造り、
+それが人々の生活を大きく変えました。
+後年、彼は言いました。
+「山に寺を建てる夢を手放したおかげで、
+　川に橋を建てる道が見えた」
+
+諦めた場所から、別の道が始まる。
+これが、諦め＝明らかに極める、ということです。
+
+---
+
+では、なぜ私たちは手放せないのでしょうか。
+三つの執着が絡んでいます。
+
+一つ目は、 sunk cost（埋没コスト）への執着。
+ここまでかけた時間、努力、お金。
+それを無駄にしたくないという思いが、
+足を止めさせてくれません。
+
+二つ目は、評価への執着。
+夢を諦める自分を、人はどう見るか。
+周りの期待を裏切りたくないという思いが、
+本心を覆い隠します。
+
+三つ目は、自己像への執着。
+「やればできる自分」でありたい。
+折れない自分でありたい。
+理想の自己像に縛られ、苦しくなります。
+
+この三つが絡むと、
+現実を明らかに見ることが難しくなります。
+だからこそ、諦める＝明らかに極める、という視点が必要です。
+
+---
+
+ここからは、諦めるための四つの実践をお伝えします。
+
+一つ目、現実を言葉にする。
+
+紙に書いてください。
+今の自分が持っている資源。
+時間、体力、お金、仲間。
+そして、足りないもの。
+数字にするだけで、靄が晴れていきます。
+
+二つ目、目的を分ける。
+
+夢そのものが目的なのか。
+その先に得たい感情や状態が目的なのか。
+「寺を建てる」が夢でも、
+「人を助けたい」が目的なら、
+方法はいくつもあります。
+目的を一段深く言葉にして、手段を解放する。
+
+三つ目、期限を決める。
+
+あと三ヶ月で成果が出なければ、一度立ち止まる。
+タイマーを設定することで、
+無期限の埋没コスト地獄から抜け出せます。
+期限は、優しさです。
+
+四つ目、手放した後の「空白」を計画する。
+
+諦めたあと、何をするか。
+「休む」「学ぶ」「人に会う」など、
+小さくてもいいので具体的に書く。
+空白を恐れずに用意しておくと、
+手放す勇気が湧いてきます。
+
+---
+
+仏教には、川の比喩があります。
+渡し舟は、向こう岸に着いたら降りる。
+それ以上持って歩くと、ただの重荷になる。
+
+夢も同じです。
+役目を終えた舟は、岸に置いていい。
+舟にしがみついたままでは、
+次の山も、次の川も見えません。
+
+---
+
+ここで、心に置いておきたい短い言葉を三つ。
+
+明らかに極める。
+舟は岸に置く。
+空白を怖がらない。
+
+迷ったら、この三行を思い出してください。
+それだけで、胸の奥の張りつめた糸が少し緩みます。
+
+---
+
+最後に、今日からできる小さな一歩を三つ。
+
+一つ目。
+今の夢や計画の「卒業条件」を一行で書く。
+どこまで行ったら、一区切りにするか。
+
+二つ目。
+手放したときにやってみたいことを三つ書く。
+休むでも、旅でも、学び直しでもいい。
+空白を「ご褒美」に変える。
+
+三つ目。
+信頼できる人に、「一度立ち止まるかもしれない」とだけ伝える。
+理由はまだ話さなくていい。
+立ち止まる余地を、言葉で先に作っておく。
+
+---
+
+諦めることは、負けることではありません。
+舟を岸に置き、次の道具を選ぶことです。
+
+あなたが手放した場所から、
+思いもよらない橋が架かるかもしれない。
+新しい仲間に出会うかもしれない。
+
+執着を捨てた先に、
+想像もしなかった景色が広がっています。
+
+本日も最後までご覧いただきありがとうございます。
+あなたが、自分の舟を自分で選び、
+軽やかに次の岸へ進めますように。
+</pre>
     </div>
   </div>
 </main>

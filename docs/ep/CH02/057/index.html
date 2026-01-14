@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH02-057 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH02-057 — script</h1>
           <div class="muted">【三日目の壁】習慣が続かない脳の癖</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,278 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【三日目の壁】習慣が続かない脳の癖</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH02-057</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH02-057&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">新しい習慣を始めようと決意しても、三日目が過ぎる頃には息切れしてしまう。
+真新しいノートに計画を書き込み、アプリで記録をつけ、あんなに張り切って走り出したはずなのに。
+一週間もすれば今日は疲れているから、まあいいかと自分に言い訳をして、そのままフェードアウトしてしまう。
+続かなかった手帳の空白を見つめて、自分はなんて意志が弱いんだろうと深く落ち込んでしまうことはないでしょうか。
+
+今日は、続けられない自分を責めるのをやめて、自然に続く仕組みを味方につけるためのお話です。
+必要なのは、強靭な精神力ではありません。
+ちょっとした調整と、自分への優しい眼差しです。
+
+---
+
+古代ギリシャの哲学者アリストテレスは、人格は繰り返される行動によって作られると説きました。
+つまり、私たちそのものが習慣の束であるということです。
+こう聞くと、だからこそ強い意志で行動し続けなければならないと身構えてしまうかもしれません。
+でも、逆です。
+続くかどうかの勝負は、あなたの根性ではなく、環境と手順のデザインで決まるのです。
+意志の力で自分をねじ伏せるのではなく、意志を使わなくても体が動くような回路を作ってあげること。
+それが、今日目指すゴールです。
+
+多くの人が続かない理由は、意志が弱いからではありません。
+最初に設定した条件が、今の自分にとって重すぎるからです。
+意志力は、言わばガソリンのような燃料です。
+燃料は使うたびに減っていくので、満タンの状態をずっと維持することはできません。
+それなのに、高燃費なスポーツカーのように全力疾走しようとすれば、ガス欠になるのは当たり前です。
+燃料を節約しながら、長く遠くまで走るための設計図を描き直しましょう。
+
+最初に決めるべきは、なぜそれを続けたいのかという目的の北極星です。
+健康のため、新しい景色を見るため、あるいは、心の凪を得るため。
+目的が曖昧なままだと、疲れたときや雨の日に、なんでこんな辛いことをしているんだろうと迷子になってしまいます。
+目的をたった一文で書き出し、スマホの壁紙や手帳の表紙など、絶対に目に入る場所に置いてください。
+それはあなたを縛る鎖ではなく、迷ったときに帰るべき場所を指し示す羅針盤になります。
+
+---
+
+そして、最も根底にあるセルフイメージ（自己認識）の書き換えを行いましょう。
+私はランニングをしたい人ではなく、私はランナーであると定義するのです。
+私は禁煙したい人ではなく、私はタバコを吸わない人であると定義する。
+行動のレベルではなく、アイデンティティのレベルで自分を定義し直すと、行動は自然とその定義に追いつこうとします。
+ランナーなら、雨の日でも走るだろうか？ いや、ランナーなら軽くストレッチくらいはするはずだ。
+そうやって、理想の自分が選ぶであろう選択肢を、今の自分に憑依させて選んでいく。
+習慣化とは、単なる行動の反復ではなく、なりたい自分になっていくための投票行動なのです。
+一回行動するたびに、あなたは新しい自分に一票を投じている。
+票が集まれば集まるほど、そのアイデンティティは確固たるものになっていきます。
+
+---
+
+次に、目標を劇的に小さくします。
+毎日一時間勉強するという大きな目標は魅力的ですが、それは快晴の日にしか登れない高い山です。
+雨の日でも、風の日でも登れるような、小さな丘を毎日のノルマに設定してください。
+英語なら一日一文。筋トレならスクワット一回。読書なら一ページ開くだけ。
+そんなに少なくて意味があるの？と思うくらいの最小単位が、実は正解です。
+続けることさえできれば、量は後からついてきます。
+まずはゼロにしないことだけを勝利条件にしてください。
+
+いつやるかという時間の枠も、あらかじめ決めておきます。
+時間ができたらやろうという言葉は、やらないと同義語になりがちです。
+私たちの生活には、すでに強固な習慣の鎖があります。
+朝の歯磨き、帰宅後の手洗い、寝る前の照明オフ。
+その既存の鎖に、新しい習慣をそっと連結させてあげるのです。
+歯を磨いたら、スクワットを一回するお風呂が沸くまでの間に、本を開く。
+
+さらに、2分間ルールを適用してみてください。
+新しい習慣は、すべて2分以内で終わるように設計するのです。
+30分ジョギングするのではなく、靴を履いて玄関を出るまでを習慣にする。
+10ページ読むのではなく、1ページ読むを習慣にする。
+人間にとって、着手することのハードルが最も高いのです。
+一度始めてしまえば、脳の側座核が刺激され、作業興奮が生まれて、気づけば2分以上続けてしまっていることが多いはずです。
+入り口の敷居を地面スレスレまで低くして、とにかくまたぐ回数を増やすこと。
+それが、習慣化の初期段階における最重要戦略です。
+
+---
+
+そして、習慣の中にはキーストーン・ハビット（要石の習慣）と呼ばれるものがあります。
+これは、たった一つ変えるだけで、他の行動にもドミノ倒しのように良い影響を与える習慣のことです。
+例えば、朝、ベッドを整えるという行為。
+これ自体は生産性とは関係ないように見えますが、朝一番にタスクを完了したという達成感が、その後の健康的な朝食集中した仕事へと連鎖していくのです。
+逆に、夜更かしという悪習慣が、翌日のジャンクフード過食や運動不足の引き金になることもあります。
+あなたの生活の中で、他の全てのドミノを倒す力持っている最初の一枚は何か。
+それを見つけ出し、そこに全リソースを集中させることで、効率よく人生全体を底上げすることができます。
+
+---
+
+システムの一部に組み込んでしまえば、毎回さあやるぞと気合を入れる必要はなくなります。
+
+環境も、あなたを応援してくれる形に変えましょう。
+これを選択のアーキテクチャ（設計）と呼びます。
+人間の意志は環境に勝てません。
+だから、意志を使わなくても良い行動を選んでしまうような川の流れを作ってしまうのです。
+読書をしたいなら、本を棚にしまわず、机の上に開いたまま置いておく。
+ランニングをしたいなら、ウェアを寝る前に枕元に用意しておく。
+逆に、やめたい習慣（スマホやテレビ）については、リモコンを電池とバラバラにして棚の奥にしまうなど、手数を極限まで増やしてあげる。
+良い行動へのアクセスを限りなくゼロ秒に近づけ、悪い行動へのアクセスを20秒以上遠ざける。
+この物理的な距離の調整だけで、あなたの行動は劇的に変わります。
+人間は、面倒だと感じた瞬間にやめる生き物です。
+その面倒という摩擦を、良い習慣からは取り除き、悪い習慣にはたっぷりと塗ってあげるのです。
+
+---
+
+新しい習慣が定着するまでには、どうしても摩擦が起きる時期があります。
+アリストテレスが言うように、反復が性格になり、性格が行為を楽にする循環が回るまで、最初の車輪は重たいものです。
+だから、三日目で辛くなるのは、あなたが弱いからではなく、車輪がまだ重い時期だからです。
+今は摩擦の時期だなと客観的に眺めることができれば、無駄に自分を責めてエネルギーを漏らすこともなくなります。
+
+---
+
+努力しても、すぐに結果が出ないことに焦りを感じるかもしれません。
+そんな時は、ポテンシャルのプラトー（潜伏期間）という概念を思い出してください。
+氷は、気温がマイナス10度からマイナス1度になっても溶けません。
+しかし、0度を超えた瞬間に一気に溶け出します。
+あなたの努力が無駄になっているのではなく、今はまだエネルギーを蓄積している段階なのです。
+竹が何年も地下茎を伸ばしてから、ある日突然地上に急成長するように、変化はある一点（ティッピング・ポイント）を超えた瞬間に爆発的に訪れます。
+何も変わっていないのではなく、見えない地下で根を張っている。
+そう信じて、今日の一滴を注ぎ続けてください。
+その一滴が、いずれ大きなブレイクスルーへの最後の一押しになるのです。
+
+---
+
+完璧主義は、習慣の最大の敵です。
+たった一日できなかっただけで、もう記録が途切れた、全部ダメだと投げ出してしまう。
+でも、考えてみてください。たった一回のつまずきで、それまでの歩みがすべて無駄になるわけではありません。
+完璧ではなく、全体としての平均点を目指しましょう。
+週に三回できれば花丸。月に半分できれば大成功。
+そのくらいのゆるさを持っていたほうが、結果的に長く遠くまで行けるものです。
+
+---
+
+そして、あらかじめ失敗を予約しておくことも有効です。
+これをプレ・モーテム（事前検死）と呼びます。
+もし来週、サボってしまうとしたら、何が原因だろうか？と、未来の失敗をシミュレーションしてみるのです。
+きっと、急な残業が入った日だな雨が降って気分が落ち込んだ日だな。
+原因が予想できれば、対策（イフ・ゼン・プランニング）を立てられます。
+もし残業で遅くなったら（IF）、その日はスクワット1回だけにする（THEN）。
+もし雨が降ったら（IF）、家の中でストレッチをする（THEN）。
+あらかじめセーフティネットを張っておけば、想定外の事態にパニックになってもうダメだと投げ出すことを防げます。
+失敗は、予測可能なトラブルに過ぎません。
+準備さえしておけば、それは致命傷にはならないのです。
+
+---
+
+習慣には、必ず波があります。
+仕事が忙しい日、どうしても気分が乗らない日。
+そんな引き潮の日には、あらかじめ決めておいた最低ラインだけを守ってください。
+どんなに疲れていても、スクワット一回ならできるかもしれない。本を一行読むだけならできるかもしれない。
+その最低ラインさえ守れば、習慣の糸は切れません。
+細くても繋がってさえいれば、また満ち潮が来たときに、太く丈夫な糸に戻すことができます。
+
+---
+
+続けるための強力な武器として、記録を活用してみてください。
+カレンダーに小さな印をつける、アプリのボタンを押す。
+その単純な行為が、脳に達成したという快感を与え、次の行動への呼び水になります。
+印が並んでいく様子を見るのは、理屈抜きに嬉しいものです。
+その嬉しいという感覚こそが、意志の力に頼らずに体を動かす、最強のガソリンです。
+
+コメディアンのジェリー・サインフェルドが行っていたことで有名な、カレンダー法というものがあります。
+彼は、ジョークを書いた日には、壁に貼った大きな年間カレンダーに赤いマジックでXを書き込みました。
+数日続けると、そこには赤い鎖（チェーン）が出来上がります。
+そうなると、唯一の仕事はその鎖を途切れさせないこと（Don’t break the chain）だけになるのです。
+今日は気分が乗らない。でも、あの綺麗な赤い鎖が途切れてしまうのは嫌だ。
+そのもったいないという感覚が、どんなモチベーションよりも強く、あなたの背中を蹴り上げてくれます。
+過去の自分が紡いできた鎖を、今日の自分が繋ぎ、未来の自分へと渡していく。
+そのリレーの走者としての誇りが、あなたを動かし続けるでしょう。
+
+---
+
+もし途中で飽きてしまったら、それは変化を求めている合図です。
+同じルートを走るのに飽きたら、逆回りしてみる。
+同じ場所での勉強に飽きたら、カフェに変えてみる。
+習慣の骨格は守りつつ、表面の皮だけを少し着せ替えてあげる。
+飽きは怠慢ではなく、脳が新鮮さを求めている健全な反応です。
+お、飽きてきたな。じゃあ少し味付けを変えようかと、ゲームのように楽しんでみてください。
+
+哲学者たちは、習慣を自己を彫刻するプロセスと捉えてきました。
+一彫りで完成する彫像はありません。
+毎日、鑿（のみ）を入れ、少しずつ余分な部分を削ぎ落とし、形を作っていく。
+今日の地味な一回は、あなたという人間を形作るための、大切な一彫りです。
+昨日と変わらないように見えても、確実に何かが削り出されています。
+
+---
+
+続かなかった過去の経験は、あなたの汚点ではありません。
+それは、自分に合う方法を見つけるための貴重なデータです。
+夜は疲れて無理だったな、じゃあ朝の五分に変えてみよう
+一時間は多すぎたな、十五分に減らしてみよう。
+データを元に、仮説を立て、実験し、修正する。
+そのサイクルの先に、あなただけにフィットする続く仕組みが必ず見つかります。
+
+続けることは、孤独な作業になりがちです。
+でも、誰かと共有することで、その重荷は半分になります。
+友人に今日はこれをやったよと一言送る。SNSで宣言してみる。
+誰かの目があるという適度な緊張感は、背中を推してくれる良い風になります。
+
+---
+
+現代人が新しい習慣を身につけにくい背景には、ドーパミン中毒の問題もあります。
+SNS、ゲーム、動画サイト。
+これらは、何の努力もなしに脳に強烈な快楽（ドーパミン）を与えてくれます。
+それに慣れきった脳にとって、読書や運動といった地味で、報酬が遅れてやってくる行為は、あまりに退屈で苦痛に感じられてしまうのです。
+だからこそ、時々ドーパミン・デトックスを行ってみてください。
+一日、あるいは数時間だけでも、デジタルデバイスから離れ、強い刺激を脳に入れない時間を作る。
+そうして脳の感度をリセットしてあげると、活字の一行、散歩中の風の音といった、静かな刺激に対しても喜びを感じられるようになります。
+味の濃いジャンクフードばかり食べていると、素材の味がわからなくなるのと同じです。
+脳の味覚を正常に戻し、地味な習慣の中にある滋味深い喜びを味わえる土壌を整えてあげましょう。
+
+---
+
+最後に、今日から何かを始めたいと思っているあなたへ。
+どうか、壮大な計画を立てないでください。
+今のあなたが、これなら笑っちゃうくらい簡単だと思える、最小の一歩を選んでください。
+靴を揃えるだけでもいい。参考書を目次だけ読むでもいい。
+その小さな一歩が、やがてあなたを想像もしなかった遠い場所へと連れて行ってくれます。
+
+自分を信じるとは、強い自分を信じることではありません。
+弱くて、飽きっぽくて、波のある自分を、それでも大丈夫と受け入れ、何度でも調整して前に進める力を信じることです。
+積み重ねた手帳の印は、未来のあなたが今のあなたに贈る、感謝状になるはずですから。
+
+さあ、今日はどんな小さな一歩を、あなたの歴史に刻みますか。
+無理せず、焦らず。
+その一歩を、大切に愛でてあげてください。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-250 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-250 — script</h1>
           <div class="muted">【死生観】死ぬことは、宇宙に還ること。恐怖を手放すブッダの教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,432 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【死生観】死ぬことは、宇宙に還ること。恐怖を手放すブッダの教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-250</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-250&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">死んだらどうなるのか。
+きっと、元いた場所に帰るだけです。
+
+そう聞いても、すぐには腑に落ちないかもしれません。
+頭では「そうかもしれない」と思いながら、
+胸の奥ではまだ、ひやりとした怖さが残っている。
+
+「意識がなくなるのが怖い」
+「大切な人と会えなくなるのが怖い」
+「地獄に落ちたらどうしよう」
+「無になってしまうのが嫌だ」
+
+言葉にできる不安もあれば、
+言葉にできない、ただの“モヤッとした恐怖”もあります。
+
+このチャンネルでは、
+仏教の教えを紐解きながら
+あなたの人生に役に立つ知恵をお伝えします。
+
+今日は、死について真剣に語ります。
+
+この動画を見終わる頃には、
+「今こうして息をしている一瞬」を
+大事にしたくなっているはずです。
+
+静かな夜にゆっくり深呼吸をしながら聞いてみてください。
+
+―――
+
+仏教では、命はしばしば「川」や「波」にたとえられます。
+
+暗い海の上で、
+ある場所に小さなさざ波が立ちます。
+風と潮の具合で、
+それはだんだん大きくなり、
+ある瞬間にはっきりとした「波の形」になります。
+
+私たちはその一瞬を指さして、
+「あれが波だ」と呼びます。
+
+けれど、その波も、
+やがて崩れて消えていきます。
+どこかへ消えてしまったように見えるけれど、
+実際には、海そのものからどこかへ行ったわけではありません。
+
+波の形がほどけて、
+ただ「海」に戻っただけです。
+
+私たちの命も、それに似ています。
+
+生まれる前、私たちはすでに
+この世界のどこかに「材料」として存在していました。
+星や土、空気、水、無数の命の循環の中に
+ばらばらに混ざっていたものが、
+ある瞬間に集まり、一つの形をとった。
+
+それが「私」としての人生の始まりです。
+
+そして、役目を終えたとき、
+その形がほどけて、
+また全体へと帰っていきます。
+
+波が海に戻るように。
+湯飲みの水が、土に吸い込まれていくように。
+
+―――
+
+ここで、禅僧・一休さんの物語をもう少し丁寧になぞってみましょう。
+
+ある日、一人の弟子が一休に尋ねます。
+
+「師よ、人は死んだらどうなるのですか。
+暗闇に落ちるのですか。
+どこかに生まれ変わるのですか。
+それとも、すべてが消えてしまうのですか」
+
+弟子の目には、不安がにじんでいました。
+頭では教えを学んでいるつもりでも、
+心が納得していなかったのでしょう。
+
+一休は、すぐには答えませんでした。
+そっと湯飲みを取り上げ、
+井戸から汲んできたばかりの水を注ぎます。
+
+「この水は、どこから来たと思う？」
+
+弟子は少し考えてから答えます。
+「井戸から…でしょうか」
+
+一休は、ふっと笑います。
+
+「そうか。では、井戸の水はどこから来たと思う？」
+
+弟子は、すぐには答えられませんでした。
+一休はそれ以上説明せず、
+湯飲みを傾けて、
+水をその場の土の上にこぼしました。
+
+土は静かに水を吸い込み、
+やがて何もなかったように馴染んでいきます。
+
+「この水は、どこへ行ったと思う？」
+
+弟子は、土に吸い込まれていく水を
+じっと見つめながら、しばらく黙っていました。
+
+一休は、ただ一言だけ添えます。
+
+「元いたところに戻っただけだ」
+
+「人も同じだよ」
+
+この話には、詳しい解説はありません。
+ですが、弟子は
+土に消えていく水を眺めながら、
+言葉にできない何かを
+ゆっくりと理解し始めたのだと思います。
+
+私たちもいつか、
+この身体という「器」を手放し、
+元いたところへ帰っていきます。
+
+どこか遠くの、見知らぬ場所ではなく、
+すでに何度も関わってきた
+大きな流れの中へ。
+
+―――
+
+とはいえ、
+死が怖い気持ちは自然なものです。
+
+「全部なくなってしまうのが怖い」
+「自分という感覚が消えてしまうのが嫌だ」
+「大切な人と離れ離れになるのがつらい」
+
+仏教の教えを聞いて
+「なるほど」と頭では理解しても、
+心の底にある寂しさや怖さは、
+一晩で消えるものではありません。
+
+その怖さには、いくつかの理由があります。
+
+一つは、「形がなくなること」への抵抗です。
+
+私たちは、生まれてからずっと、
+この身体、この名前、この記憶とともに
+「自分」を感じてきました。
+
+それらが全部なくなったら、
+「自分がいない」ことに
+気づくことすらできないのではないか。
+そう考えると、
+底の見えない穴を覗き込むような
+怖さが湧いてきます。
+
+もう一つは、「分からなさ」に対する怖さです。
+
+行ったことがない国に引っ越すときでも、
+事前に写真や情報があれば、
+少しは心の準備ができます。
+
+けれど、死後の世界は
+誰も「確定情報」を持っていません。
+その「分からなさ」が、
+不安を大きくしている部分もあります。
+
+仏教は、この怖さに
+理屈だけで立ち向かおうとはしません。
+
+代わりに、
+命の見方そのものを
+少しずつ変えていきます。
+
+「死んだら終わり」でもなく、
+「死んだらどこか別の場所へ連れて行かれる」でもなく、
+
+今ここにある命が、
+もっと大きな流れの
+一部分として現れているのだ、
+という感覚にゆっくりと慣れていくのです。
+
+―――
+
+仏教には「五蘊（ごうん）」という教えもあります。
+
+私たちを「私」と感じさせているものは、
+一つの固まりではなく、
+いくつかの要素が寄せ集まってできている、
+という見方です。
+
+目に見える身体。
+感じている心地よさや苦しさ。
+頭の中に浮かぶイメージや記憶。
+それらに反応して動いていく習慣的な行動。
+そして、「私が感じている」と認識する働き。
+
+それぞれが、
+家を建てるときの
+木材や石や金具のように組み合わさって、
+「今のあなた」を形作っています。
+
+借りた木材で一時的に家を建て、
+役目を終えたら、また解体して返すように。
+
+身体も心も、
+本当は「預かりもの」に近いのかもしれません。
+
+借りたものは、借りた場所に返す。
+
+そう思うと、
+死は「取り上げられる罰」ではなく、
+「そろそろ返却のときが来ましたよ」という
+自然な区切りにも見えてきます。
+
+―――
+
+とはいえ、
+「じゃあ死んでも怖くないですね」と
+簡単に言う必要はありません。
+
+怖いものは、怖い。
+寂しいものは、寂しい。
+
+その正直な感覚を否定せずに、
+ただ一緒に持っていていいのです。
+
+仏教の修行僧たちも、
+死について考えるとき、
+無理に恐怖を消そうとはしません。
+
+むしろ、
+「自分も必ず死ぬ存在なのだ」と
+何度も何度も思い出すことで、
+今ここにある一瞬の有り難さを
+深く味わおうとします。
+
+死を考えることと、
+「自分で命を絶とうとすること」は別の話です。
+
+もし今、
+「もう消えてしまいたい」と感じるほど
+つらい状況の中にいるなら、
+それは死を哲学的に考えるというよりも、
+「今の痛みから逃れたい」という
+悲鳴に近いものかもしれません。
+
+そのときは、一人で抱え込まなくて大丈夫です。
+身近な人や、相談窓口や、専門家に、
+「今、苦しい」と伝えてください。
+
+仏教は、苦しみから逃げるなとは言いません。
+苦しんでいる自分を責める必要も、まったくありません。
+ただ、「一人で抱え込まないでほしい」と
+静かに願っています。
+
+―――
+
+では、死への怖さを少し緩めながら、
+今を大切に生きるために、
+日常の中でどんな小さな習慣を持てるでしょうか。
+
+難しい修行や特別な儀式である必要はありません。
+むしろ、ごく小さな「ひと呼吸分の実践」で十分です。
+
+夜、眠る前。
+布団の中で目を閉じる前に、
+今日一日を静かに振り返ってみてください。
+
+うまくいったこと。
+ちょっと失敗したこと。
+誰かの言葉に傷ついた場面。
+自分の小さな頑張り。
+
+すべてを細かく並べる必要はありません。
+ただ「今日も一日、生きてくれてありがとう」と、
+心の中で自分に声をかけてみます。
+
+世界中どこを探しても、
+今日のあなたと同じ一日は、
+二度と存在しませんでした。
+
+そう思うと、その一日が
+小さな完結した物語のように感じられます。
+
+眠りに落ちることは、
+一度、小さな死を迎えるようなものです。
+今日という物語の幕が閉じる前に、
+ひと言だけでも自分に「ありがとう」と告げてみてください。
+
+朝、目が覚めたとき。
+最初にスマホを取る前に、
+心の中で小さく「ただいま」と呟いてみます。
+
+深い眠りから帰ってきた自分を、
+自分自身が迎え入れるイメージです。
+
+昨日眠りについたとき、
+「必ず明日も目を覚ます」という保証は
+どこにもありませんでした。
+
+それでも、こうして目が開いた。
+それ自体が、一つの「帰還」です。
+
+「おかえり、自分」
+「今日も一日だけ、また一緒に歩こう」
+
+そんなふうに挨拶することで、
+生きていることを
+頭ではなく身体で感じやすくなります。
+
+そして、日中。
+大切な人の顔を見るとき、
+一秒だけいつもより長く眺めてみてください。
+
+家族でも、友人でも、恋人でも、
+職場の同僚でもかまいません。
+
+その顔が、
+いつまでもそこにあるとは限りません。
+自分の顔も、いつまでも同じ場所にはありません。
+
+だからこそ、
+「今ここに一緒にいる」という事実を
+一秒だけ、深く味わってみるのです。
+
+「この瞬間は、二度と戻ってこない」
+
+そう気づいたとき、
+死という終わりがあるからこそ、
+今が輝いて見えてきます。
+
+―――
+
+死を考えることは、
+暗いことでも、不吉なことでもありません。
+
+むしろ、
+今という波のきらめきを見逃さないための、
+大切な視点です。
+
+波がいつか海に戻ることを知っているからこそ、
+光を受けて揺れている瞬間の美しさを
+目に焼きつけようとします。
+
+あなたの命も、
+宇宙のどこかで生まれた星屑や、
+無数の命の営みの積み重ねが
+奇跡的に出会って形になったものです。
+
+星屑から生まれ、
+星屑に還る。
+その間のわずかな時間を、
+丁寧に味わうために、
+今ここに「あなた」という波が立ち上がっています。
+
+死を完全に恐れなくなる必要はありません。
+怖さがあるからこそ、
+優しくなれることもあります。
+
+ただ、少しだけ覚えていてください。
+
+死は、真っ暗な奈落の底ではなく、
+元いた場所に帰る動きの一つかもしれない、ということを。
+
+そして、その帰り道に出るその日まで、
+あなたの波が、
+できるだけ穏やかに、
+ときには大きく揺れながら、
+自分らしく輝いていけますように。
+
+本日も最後までご覧いただきありがとうございます。
+あなたの一息一息が、
+この世界に、静かな光を灯しています。
+</pre>
     </div>
   </div>
 </main>

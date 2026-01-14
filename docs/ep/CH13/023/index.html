@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-023 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-023 — script</h1>
           <div class="muted">【不公平】自分ばかり頑張ってる｜怒る前に決める線</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,267 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【不公平】自分ばかり頑張ってる｜怒る前に決める線</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>不公平, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-023</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-023&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">なんで私ばかり、こんなに動いているんだろう。
+あの人はソファで寝ているのに、なぜ私が片付けをしているの？
+仕事も家事も介護も、全部こっちもち。不公平すぎる。
+
+そんなふうに、心の中で毒づきながら、手を動かし続けていませんか。
+体は動いているけれど、心は怒りで煮えたぎっている。
+食器を洗うカチャカチャという音が、いつもより大きくなってしまう。
+背中で「気づけよ！」とオーラを出しても、相手は気にも留めずにテレビを見ている。
+
+その怒りは、もっともです。
+あなたは頑張っています。誰よりも責任感が強く、気が利き、能力があるからこそ、全ての負担があなたに集まってしまっているのでしょう。
+
+しかし、残酷な事実をお伝えしなければなりません。
+その不公平な状況を固定化させているのは、実は相手ではありません。
+文句を言いながらも、結局やってしまうあなた自身のアクションなのです。
+
+今日は、この「自分ばかり損をしている」という被害者意識の地獄から抜け出すための、心の線引きについて、禅の知恵をお借りしてお話しします。
+
+---
+
+まず、この「私ばかり」の日常風景を、もう少し詳しく見てみましょう。
+
+朝起きると、まず自分が起きて朝食の準備をする。家族はギリギリまで寝ている。
+食事を作り、片付け、洗濯機を回し、ゴミをまとめる。その間、誰も手伝おうとしない。
+
+仕事から帰ってきても同じです。
+夕食の買い物、料理、後片付け。子どもの宿題を見て、親の介護の電話をして、明日の準備をする。
+気がつくと夜11時。自分の時間なんてどこにもない。
+
+一方、夫はどうでしょうか。
+帰ってきたらソファに座り、テレビを見たり、スマホをいじったりしている。「疲れた」と言いながら、何もしない。
+
+「ねえ、ちょっと手伝ってよ」
+そう言いたいけれど、言えない。言ったところで「分かった分かった」と生返事をされ、結局動かない。
+あるいは、「そんなに大変なら、やらなくていいよ」と言われる。でも、やらなかったら回らないじゃない。
+
+そうして、「私がやるしかない」という諦めと、「なぜ私だけ」という怒りが、心の中で渦巻いている。
+
+この状況、あなたにも心当たりがありませんか。
+
+---
+
+なぜ、「私ばかり」という状況が生まれるのか、そのカラクリを見てみましょう。
+人間関係は、シーソーのようなものです。
+片方が過剰機能、つまりやりすぎになると、もう片方は必ず過少機能、つまりやらなさすぎになります。
+
+あなたが先回りして気づき、手を出せば出すほど、相手は気づく機会を失い、何もしなくなります。
+靴下が落ちているな、とあなたが拾えば、相手は「靴下は勝手に片付くものだ」と学習します。
+書類の締め切りが近いな、とあなたがリマインドすれば、部下は「誰かが管理してくれる」と安心します。
+
+あなたが優秀であればあるほど、周りは無能になっていく。
+あなたが働き者であればあるほど、周りは怠け者になっていく。
+これは皮肉な現象ですが、システムとして必然なのです。
+
+そして、あなたはこう思います。
+「私がやらなきゃ、回らないじゃない」
+「私がやらなきゃ、大変なことになるじゃない」
+
+本当にそうでしょうか？
+もしかしたら、あなたが必死に回しているから、相手が回す必要性を感じていないだけかもしれません。
+あなたが支えている手を離せば、最初はガタガタするかもしれませんが、相手は慌てて自分で支えようとするかもしれません。
+手放す勇気がないことが、あなたの首を自分で絞めているのです。
+
+---
+
+この問題の正体は、「私がやらなければ」という思い込みにあります。
+
+この思い込みには、いくつかの要素が絡み合っています。
+
+まず、「ちゃんとやらなければ」という完璧主義。
+自分の基準で家事をやらないと気が済まない。人に任せると雑になる。だから自分でやってしまう。
+
+次に、「良い妻、良い母、良い嫁でなければ」という役割への執着。
+こうあるべきという理想像に縛られて、その役割を完璧にこなそうとする。
+
+そして、「感謝されたい」「認められたい」という承認欲求。
+これだけ頑張っているのだから、誰かに認めてほしい。でも、認められないから、余計に頑張る。悪循環です。
+
+これらの思い込みが、あなたを「やらなければならない」という牢獄に閉じ込めています。
+しかし、その牢獄の鍵を握っているのは、実はあなた自身なのです。
+
+---
+
+仏教では、このような状態を「自縛」と呼びます。
+自分で自分を縛っている、という意味です。
+相手にやらされているのではなく、自分の「こうあるべき」という執着が、自分を縛り付けているのです。
+
+ある有名な禅のお話を紹介しましょう。
+二人の僧侶、タンザンとエキドが旅をしていました。
+雨上がりのぬかるんだ道で、着飾った美しい娘が困っていました。水たまりが渡れないのです。
+タンザンは、「よし、乗れ」と言って、娘を背負って水たまりを渡してやりました。
+そして向こう岸で娘を下ろし、二人はまた旅を続けました。
+
+夜になり、宿についた時、ずっと黙っていたエキドが爆発しました。
+「おいタンザン！我々修行僧は女性に触れてはいけないはずだ。なのにお前はあんな若い娘を背負うなんて、どういうつもりだ！」
+
+タンザンは涼しい顔で言いました。
+「なんだ、お前はまだあの娘を背負っているのか？俺はずっと前に、川岸で下ろしてきたぞ」
+
+この話のエキドは、誰かに似ていませんか？
+そう、「不公平だ、許せない、ルール違反だ」と怒り続けている私たちです。
+
+目の前の家事や仕事をこなすこと自体は、ただの動作です。修行と言ってもいいでしょう。
+皿を洗う、書類を作る。それ自体に苦しみはありません。
+苦しみが生まれるのは、そこに「なんで私ばかり」「あいつはズルい」という重たい荷物を乗せているからです。
+これはエキドの怒りと同じです。
+
+あなたが家事をしている時、あなたは物理的に皿を運んでいるだけではありません。
+やらない夫への恨みという、巨大な岩も一緒に運んでいるのです。
+だから疲れるのです。だから惨めになるのです。
+
+タンザンになりましょう。
+やるなら、ただやる。やらないなら、やらない。
+そこに被害者意識を持ち込まないことです。
+「私がやりたくてやっている」と腹をくくるか、「やりたくないからやらない」と決めるか。
+どちらかしかないのです。
+
+---
+
+では、「私ばかり」を終わらせるために、具体的にどうすればいいのか。
+怒るのではなく、淡々と線を引く三つのステップを実行してください。
+
+第一のステップ：隠れ家事を可視化する
+
+あなたがやっていることの多くは、相手に見えていません。
+「名もなき家事」とはよく言ったものです。
+洗剤の詰め替え、ゴミ箱の袋の交換、旅行の宿の手配、親戚への連絡。
+相手は、それが自然に湧いてくるものだと思っています。
+
+まずは、不満タラタラでやるのをやめて、「私はこれをやっています」と宣言してください。
+「今からトイレ掃除をしてくるね」
+「来月の宿、予約しておいたよ」
+恩着せがましく言う必要はありません。事務連絡として伝えるのです。
+
+相手に感謝を強要するためではありません。
+「これだけの仕事が存在している」という事実を、共有するためです。
+見えない仕事は、評価されません。まずは光を当ててください。
+
+第二のステップ：やらないことを決めて宣言する
+
+これが最も重要です。
+「相手にやってよ！」と命令すると、喧嘩になります。
+命令は相手の領域への侵入だからです。
+しかし、「私はやりません」というのは、あなたの領域の話です。誰にも止める権利はありません。
+
+「私はこれから、夜八時以降は家事をしません。自分の時間を過ごします」
+「私は、脱ぎ散らかされた服を洗濯機に入れることはしません。カゴに入っているものだけ洗います」
+
+淡々と、しかし断固として宣言します。
+理由はシンプルに「疲れるから」「自分の時間を大切にしたいから」で十分です。
+「あなたがやらないから！」と相手を責めるニュアンスを消すのがコツです。
+主語を「私」にして、自分の行動指針として伝えます。
+
+第三のステップ：空白に耐える
+
+ここが我慢のしどころです。
+あなたが手を引くと、一時的に状況は悪化します。
+服は散らかり、部屋は汚れ、旅行の計画は進まなくなります。
+
+ここで手を出してはいけません。
+「ほら、やっぱり私がやらないとダメじゃない！」と手を出した瞬間、元の木阿弥です。
+シーソーは再びあなたが重い方へ傾き、相手は空へ浮き上がりラッキーと思います。
+
+汚い部屋に耐えてください。困った状況を見守ってください。
+その空白、つまり困りごとが生まれて初めて、相手は「あれ？誰もやってくれないぞ？」と気づきます。
+空白がないと、人は動きません。
+相手が重い腰を上げて動き出すまで、じっと待つ。
+これは意地悪ではありません。相手の自立を促すための愛ある放置です。
+
+---
+
+この実践を行うとき、必ず訪れる落とし穴があります。
+それは、「こんなことをしたら、嫌われるんじゃないか」「冷たい人だと思われるんじゃないか」という恐怖心です。
+
+今までいい人を演じてきた人ほど、この恐怖は強いでしょう。
+しかし、考えてみてください。
+不満を抱えながら、不機嫌な顔で尽くしてくれる人と、
+自分のことは自分でやりながら、ニコニコと機嫌よく過ごしている人。
+どちらが、家族にとって居心地がいいでしょうか。
+
+実は、家族が一番求めているのは、完璧な家事やサポートではありません。
+あなたの笑顔と機嫌の良さなのです。
+あなたが犠牲になって不機嫌でいることは、家族にとっても最大の迷惑なのです。
+だから、罪悪感を持つ必要はありません。
+「私が笑顔でいるために、これをやめるのだ」と胸を張ってください。
+
+もう一つの落とし穴は、相手を変えようとすることです。
+「なんで分からないの」「いい加減にしてよ」と感情をぶつけると、相手は防御態勢に入り、何も変わりません。
+大切なのは、相手を変えようとするのではなく、自分の行動を変えることです。
+あなたが変われば、シーソーのバランスが変わり、相手も動かざるを得なくなるのです。
+
+---
+
+最後に。
+「私ばかり」という気持ちの裏には、「認められたい、愛されたい」という叫びが隠れていることがあります。
+「こんなに頑張っている私を見て！」という叫びです。
+
+でも、自分を犠牲にして相手に尽くしても、得られるのは「便利な人」という扱いだけです。
+本当に大切にされるのは、自分のことも大切にできる人です。
+「ここは譲れません」「ここからはやりません」と境界線を持っている人です。
+
+今日から、不公平のシーソーから降りてください。
+文句を言いながら持ち上げ続けるのは、もうおしまいです。
+あなたが手を離せば、相手も地に足がつきます。
+そこから、本当の意味での対等な協力関係、タンザンのような軽やかな旅が始まるのです。
+
+「私ばかり」を手放した時、あなたは初めて、本当の意味で自分の人生を生き始めることができます。
+その自由を、どうか手に入れてください。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-030 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-030 — script</h1>
           <div class="muted">【親の後悔】知らずにやってしまう子育ての間違い</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,106 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【親の後悔】知らずにやってしまう子育ての間違い</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>知らずにやってしまう子育ての間違いで苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。
+・【親の後悔】知らずにやってしまう子育ての間違いで起きる苦しさの正体
+・心を守る考え方と、今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>親子関係, 後悔, 仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>知らずにやってしまう子育ての間違いで苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。
+・【親の後悔】知らずにやってしまう子育ての間違いで起きる苦しさの正体
+・心を守る考え方と、今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-030</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-030&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夜、子供が寝静まった後のリビングで一人、今日一日を振り返ることがあります。今日もまた、子供に怒ってしまった。あの時、もっと違う言い方があったはずなのに。なぜあんなに声を荒げてしまったのか。明日はもっと穏やかでいよう、そう心に誓うのですが、朝が来ればまた同じことの繰り返し。この繰り返しに、自分自身が疲れ果て、そして何よりも、子供との関係が少しずつすり減っていくような気がしてならない。それは、子供のためを思って始めた子育てのはずなのに、なぜか自分が追い詰められ、子供を傷つけ、後悔だけが残る。もしあなたが今、そんなふうに感じているなら、この話はあなたのためのものです。ここでは、その苦しみを増やしている根本にある、親が知らずにやりがちな間違いについて、一緒に考えていきたいと思います。
+
+---
+
+この後悔の感情は、多くの親が共有するものです。特に、子供が小さい時期は毎日が戦いのように感じられ、自分の感情をコントロールできなくなることがあります。大切なのは、この状態が永遠に続くわけではないと理解することです。子育ての段階には必ず終わりがあり、今感じている苦しみは一時的なものである場合が多いのです。しかし、その一時的な苦しみの中で、私たちは大切な関係を傷つけてしまう可能性もあります。後悔が募る前に、なぜこのようなことが起こるのかを理解することが、変化への第一歩となります。子育ての悩みは孤立しているように感じられますが、実は多くの親が同じような経験をしています。問題は、その経験からどう学び、どう成長するかです。
+
+多くの親が経験するこの後悔のループは、単なる育児スキルの問題ではありません。その根底には、私たちが気づかずに繰り返してしまう、ある心のパターンがあります。それは、子供の行動に対して反射的に反応し、その結果に執着してしまうという癖です。例えば、子供が言うことを聞かない時、私たちはつい感情的になって叱ってしまう。あるいは、子供の失敗や遅さにイライラし、必要以上に厳しい言葉をかけてしまう。また、周囲の目を気にして、子供の本来の姿ではなく、理想の子供像に合わせようと過干渉になってしまう。これらは全て、親が知らずに陥りがちな間違いです。一見、子供のためを思っての行動ですが、実際には親自身の不安や焦り、羞恥心から出た反射的な反応であることがほとんどです。この反射が、子供との関係をすり減らし、親自身を苦しめる後悔を生み出しています。
+
+では、なぜ私たちはこのような反射的な間違いを繰り返してしまうのでしょうか。それは、心が過去の経験や未来の不安に捕らわれ、現在の瞬間に十分に在ることができていないからです。子供が騒いでいる、言うことを聞かない。その現在の事実に、過去の失敗や将来への心配が色づけされ、実際以上に重大な問題のように感じられてしまうのです。この時間軸の混乱が、適切な対応を難しくし、感情的な叱責や過干渉といった間違いを引き起こします。子育ての苦しみの本当の源は、子供の行動そのものではなく、その行動によって活性化される私たち自身の内面の混乱にあるのです。この内側の騒ぎに気づかず、外側の子供の行動だけを修正しようと努力しても、問題の本質には届きません。むしろ、親子関係をよりこじらせてしまう危険さえあります。
+
+この反射と執着のメカニズムを理解するために、一つの古い教えがヒントになります。それは、矢の喩えです。人が毒矢に射られたとします。その時、その人は誰が射たのかどんな毒が塗られているのかなぜ自分が射られたのかと、矢についてあれこれ考え始めます。考えている間に毒は回り、その人は命を落としてしまう。まずすべきことは、矢を抜き、毒の手当てをすることです。子育てにおける私たちの心も、これに似ています。子供が癇癪を起こした、言うことを聞かない、それはまさに毒矢が刺さったような瞬間です。その時、私たちの心はなぜこの子はこんなことをするのか私の育て方が悪いからかと、矢についての分析や推測、つまりなぜという問いに執着し始めます。その間にも、イライラや焦りという毒は心に広がり、私たちを苦しめ、冷静な判断を奪います。そして、反射的に出てしまう言葉や行動が、後悔を生む間違いとなるのです。教えが示すのは、まずなぜを問うことをやめ、目の前の状況そのものにただ向き合うことです。毒矢が刺さったなら、まずはそれを抜く。これが、親がやりがちな間違いを防ぐ第一歩になります。
+
+---
+
+この毒矢の喩えは、私たちの心が問題を複雑化させる仕組みを端的に示しています。子供の行動という事実に、親である自分への評価や周囲の目、過去の失敗といった様々な解釈が瞬時に結びつき、単純な出来事を巨大な問題に変えてしまうのです。
+
+この心の状態を理解するために、もう少し具体的に考えてみましょう。例えば、子供がスーパーでお菓子を欲しがって泣き出した場面を想像してください。多くの親は、周囲の目を気にして恥ずかしさを感じ、早く状況を収めようとします。この時、心は現在の子供の泣き声ではなく、他人からどう見られるかという未来の不安に捕らわれています。あるいは、過去に同じような場面で失敗した記憶がよみがえり、それによってさらにプレッシャーを感じます。現在の瞬間に十分に在るとは、このような過去や未来の思考に巻き込まれず、ただ子供が泣いているという事実だけを見つめる能力です。これは簡単なことではありませんが、訓練によって身につけることができるスキルです。
+
+この反射的な反応は、長年にわたって築かれた思考の習慣です。子供時代から大人になるまで、私たちは無意識のうちに特定のパターンで物事に対応することを学んできました。例えば、自分が子供の時に厳しく叱られた経験があると、同じように自分の子供を叱ってしまうことがあります。これは悪意からではなく、単に知っている対応方法がそれだけだからです。新しい対応方法を学ぶには、まず自分がどのようなパターンにはまっているかを自覚する必要があります。自分がどんな時に感情的になりやすいか、どんな状況で焦りを感じるかを観察することで、反射のトリガーを特定できるようになります。これが、自動的な反応から意識的な対応への移行を可能にします。
+
+このまず手を緩める姿勢は、無関心や放任とは全く異なります。むしろ、より深い関わりのための土台作りです。なぜなら、なぜを問い続けている間、私たちの心は本当の意味で子供に向き合えていないからです。心は分析や推測に忙しく、目の前の子供そのものを見ていません。子供が泣いている時、その泣き声の理由を探る前に、まずはその泣いている現実を受け止める。それが、子供との信頼関係を築く第一歩になります。子供は、親が自分の感情を真正面から受け止めてくれると感じることで、安心感を得ます。逆に、親がすぐに原因追求や説得に走ると、子供は自分の気持ちをわかってもらえないと感じ、より反抗的になることもあります。まず手を緩めることで、親子双方が一旦落ち着き、その後のコミュニケーションがずっとスムーズになるのです。これは、問題を先送りにするのではなく、より効果的に対処するための準備段階です。
+
+この考え方を、具体的な場面に落とし込んでみましょう。夕飯の支度で忙しい時間帯に、子供がおもちゃを散らかして遊び始め、注意しても全く聞かず、ついにはコップを倒して水をこぼしてしまった。この時、多くの親の心には、瞬間的にいくつもの感情が沸き起こります。イライラ、焦り、そして怒り。これが反射です。そして、その反射に従って大声を出してしまった後、またやってしまったと後悔する。これが執着です。矢の喩えに照らせば、ここでまずすべきことは、なぜこの子は私が忙しい時に限ってと原因を探ることを一旦止めることです。目の前にあるのは、こぼれた水と、散らかったおもちゃと、おそらく少し怖がっている子供の姿です。まずは、その状況を受け止める。深呼吸を一つして、こぼれた水を拭き、散らかったおもちゃには一旦目をつぶり、子供の側に行ってみる。その一連の動作そのものが、心に刺さった毒矢を抜く行為に当たります。この一呼吸の間が、感情的な叱責という間違いと、穏やかな対応との分かれ目になります。水を拭き終え、子供と目が合った時、初めて本当の対話が始まるのです。状況が落ち着けば、なぜおもちゃを出したのではなく、こぼしちゃったね、びっくりしたねと、まず子供の気持ちに寄り添う言葉を選べるようになります。これが、間違いを修正した先にある、関係性の変化です。
+
+---
+
+このアプローチの効果は、即座に現れるものではありません。最初は失敗の連続で、後で気づくことの方が多いかもしれません。しかし、それを続けることで、次第に反射と観察の間のスペースが広がっていきます。例えば、最初は怒りが爆発した後にしか気づけなかったのが、次第に怒りを感じている最中に気づけるようになります。そして最終的には、怒りが起こる前にその兆候を察知できるようになります。このプロセスは、車の運転を学ぶのに似ています。最初は一つ一つの動作を意識的に行わなければなりませんが、練習を重ねることで自然にできるようになります。大切なのは、完璧を求めず、進歩を認めることです。小さな変化も大きな成果として祝福する姿勢が、長期的な変容を支えます。
+
+この実践をさらに深めるために、具体的なステップを考えてみましょう。まず、反射が起こりそうな瞬間を認識する練習から始めます。体の感覚に注目すると、感情が高ぶる前に特定のサインが現れることがわかります。例えば、肩に力が入る、呼吸が浅くなる、胃が締め付けられる感じなどです。これらの身体的サインに気づくことで、感情に流される前に一時停止をかけることができます。次に、その瞬間に自分に問いかける簡単な質問を用意します。今、何が起きているのかと自分に尋ね、状況を客観的に把握します。これは、状況を評価したり判断したりするのではなく、ただ事実を確認するだけです。この二つのステップが、自動操縦状態から抜け出すための実用的な方法となります。
+
+このまず手を緩める実践を続けていくうちに、次第に自分自身の心の動きに対する気づきが深まっていきます。例えば、水をこぼされた瞬間に沸き起こるイライラの裏には、片付けが増えるという現実的な煩わしさだけでなく、また失敗させてしまったという無力感や、他の家族に迷惑がかかるという恥ずかしさが混ざっていることに気づくかもしれません。あるいは、単に一日の疲れが蓄積されていただけかもしれません。このように、一つの感情が単純ではなく、いくつもの要素が絡み合っていることを理解すると、自分を責める気持ちが和らぎます。イライラは悪い感情ではなく、何かしらのサインであると捉えられるようになります。そのサインに気づいたら、反射的に行動に移すのではなく、一呼吸置いて、今何が起きているのかを観察する余裕が生まれます。この観察の習慣が、自動操縦のような反応から脱し、知らずにやってしまう間違いを未然に防ぐための強力な道具となります。
+
+この姿勢を習慣にするために、一日の生活の中に組み込んでみましょう。特に、ストレスがたまりやすい朝と夜の時間帯に、意識的に取り入れることが効果的です。朝は、一日が始まる大切な時間です。目が覚めてベッドから出る前に、ほんの三十秒でいいので、今日一日、子供と接する時にまず手を緩めることを思い出す瞬間を作ります。具体的には、目を閉じたまま、今日起こりそうなハプニングを一つ想像してみてください。例えば、子供がなかなか着替えない場面です。その想像の中で、イライラが湧いてくるのを感じたら、そこでストップします。心の中で、ああ、これは毒矢が刺さる瞬間だと思い、深呼吸を一つします。次に、朝食の準備や子供の支度でバタバタしている最中、もし子供がぐずったり言うことを聞かなかったりしたら、手を止めて、一度だけ大きく息を吸い、吐きます。この一呼吸が、反射的な叱責へのブレーキになります。そして、子供を送り出す時、何か小さなトラブルがあっても、玄関先でまあいいかと一度だけ口にしてみます。このまあいいかは諦めではなく、今この瞬間のなぜへの執着を手放す合言葉です。
+
+夜は、一日の疲れと、今日の出来事への後悔が込み上げてきやすい時間です。子供が寝静まった後、今日一日を振り返る前に、ほんの一分間、何も考えない時間を作ります。ただ呼吸に意識を向け、肩の力を抜きます。これは、一日中刺さり続けたかもしれない小さな矢を、一本ずつ抜いていく作業です。次に、今日後悔している場面を一つ思い浮かべます。その時、すぐにああすればよかったと考え始めるのではなく、まずあの時、私の心にはどんな矢が刺さっていたのかと、自分自身の反応を振り返ってみます。イライラだったのか、焦りだったのか、恥ずかしさだったのか。原因追求ではなく、ただ自分の心の状態を確認するだけです。最後に、寝る前に布団の中で、明日の小さな目標を一つ決めます。明日は、子供がぐずった時、まず一呼吸置いてみようといった、具体的で実践可能な一つだけの目標です。これを習慣化することで、まず手を緩めるという姿勢が、次第に自然な反応になっていきます。
+
+---
+
+この習慣を身につける際の重要なポイントは、自分に対する優しさを忘れないことです。失敗した時は自分を責めるのではなく、それは学習プロセスの一部だと理解します。例えば、反射的に叱ってしまった後、また失敗したと落ち込むのではなく、次回はもう少し早く気づけるかもしれないと前向きに捉えます。この自己受容の態度が、変容のための安全な基盤を作ります。自分に厳しくしすぎると、かえってプレッシャーが増し、反射的な行動を強化してしまう可能性があります。ですから、この実践は競争ではなく、自分自身との協調的なプロセスとして捉えることが大切です。少しずつ、着実に、自分と子供の関係をより良いものにしていく旅なのです。
+
+ここまで、子育ての後悔を生む知らずにやってしまう間違いとは、子供の行動に対する反射的な反応と、その結果への執着であること、そして、その間違いから抜け出すためにまず手を緩めるという一つの姿勢について考えてきました。全てを一度に変えようとする必要はありません。今日一日、たった一つの場面でいいのです。子供が何かをこぼした時、あるいは言うことを聞かない時、いつもなら反射的に出てしまう言葉や行動の前に、ほんの一瞬、間を置いてみてください。深呼吸を一つするだけでいい。それが、毒矢を抜き、間違いを未然に防ぐ第一歩になります。長い子育ての時間の中で、後悔はつきものです。しかし、その後悔に執着して自分を責め続けるのではなく、今日という一日を、ほんの少しだけ手を緩めて過ごしてみる。その積み重ねが、あなたと子供の間の空気を、確実に昨日とは違ったものに変えていくはずです。
+</pre>
     </div>
   </div>
 </main>

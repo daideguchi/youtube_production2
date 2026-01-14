@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-013 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-013 — script</h1>
           <div class="muted">【迷い】迷いが多い人へ｜決断が楽になる基準</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,466 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【迷い】迷いが多い人へ｜決断が楽になる基準</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>迷い, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-013</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-013&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">迷う。どちらにするか決められない。
+選択肢を行ったり来たりして、結局決まらない。
+決めようと思っても、また迷ってしまう。
+気づけば、何時間も経っている。
+決断しなければ、と思うほど、動けなくなる。
+
+迷いが多いと疲れますよね。
+今日は、決断が楽になる基準をお伝えします。
+迷いに振り回されない心の持ち方をお話しします。
+お釈迦様の知恵を借りて、迷いを減らす方法を探っていきましょう。
+
+---
+
+決断を迫られる場面は日常的にあります。
+
+何を食べるか。何を買うか。どちらの仕事を選ぶか。どの道を進むか。
+朝起きてから夜寝るまで、私たちは無数の決断をしています。
+ある研究によると、人は一日に数千回もの決断をしているそうです。
+
+小さな決断も大きな決断も、迷うとエネルギーを消耗します。
+あれにしようか、これにしようか。
+考えれば考えるほど疲れてくる。
+そして、ますます決められなくなる。
+
+迷っている時間は、何も進んでいない時間です。
+時間も無駄にしている。
+エネルギーも無駄にしている。
+それなのに、結論は出ない。
+これほどもったいないことはありません。
+迷いは、人生の大きな損失なのです。
+
+---
+
+お釈迦様のお話をご紹介しましょう。
+
+ある弟子が、修行の道で迷っていました。
+山で修行するべきか、町で修行するべきか。
+一人で修行するべきか、仲間と修行するべきか。
+どちらが正しい道なのか、決められずに悩んでいました。
+
+弟子はお釈迦様に尋ねました。
+
+師匠、私はどちらの道を選ぶべきでしょうか。
+どちらが正しい選択でしょうか。
+間違った道を選んでしまうのが怖いのです。
+私は何日も何週間も悩んでいます。
+夜も眠れないほど迷っているのです。
+
+お釈迦様は静かに弟子の目を見つめられました。
+そして穏やかな声でこう答えられました。
+
+どちらの道を選んでも、そこに学びがある。
+どちらを選んでも、修行はできる。
+正しい道も間違った道もない。
+あるのは、選んだ道をどう歩くかだけだ。
+迷っている間は、どちらの道も歩いていない。
+迷いを手放し、一歩を踏み出しなさい。
+踏み出してから、全力で歩けばいい。
+
+弟子はその言葉に救われました。
+正解を探すのをやめて、まず一歩を踏み出すことにしたのです。
+
+結局、弟子は山での修行を選びました。
+そしてその道で懸命に修行を続けました。
+後にその弟子は、山での修行を選んでよかった、と言いました。
+ただし、町を選んでいても同じことを言っていたでしょう。
+なぜなら、選んだ道を全力で歩いたからです。
+選択の正しさは、選んだ後の歩み方で決まるのです。
+
+この話は、私たちに大切なことを教えてくれます。
+正解を探し続けて動けないより、決めて全力で歩く方がいい。
+どちらの道を選んでも、そこには学びがある。
+迷いを手放して、一歩を踏み出すことが大切なのです。
+
+---
+
+なぜ私たちは迷ってしまうのでしょうか。
+その原因を見てみましょう。
+
+まず、正解があると思っているからです。
+どちらかが正しい選択で、間違えたら大変なことになると思っている。
+正解を見つけなければ、と必死になる。
+でも、見つからない。
+だから迷い続ける。
+
+次に、失敗を恐れているからです。
+選んだ後に後悔するのが怖い。
+あっちにすればよかった、と思いたくない。
+失敗したくない、損したくない。
+その恐れが、決断を鈍らせます。
+
+そして、情報が多すぎるからです。
+調べれば調べるほど選択肢が増える。
+比較ポイントが増える。
+あれもいい、これもいい。
+でもあれにはこんなデメリットがある、これにもある。
+情報が多いほど、決められなくなるのです。
+
+さらに、完璧を求めているからです。
+最高の選択をしたい。
+後悔のない選択をしたい。
+でも完璧な選択肢なんて存在しません。
+完璧を求めるから、決められないのです。
+
+また、他人の目を気にしているからです。
+あの選択をしたら、周りからどう思われるだろう。
+失敗したら笑われるのではないか。
+そんな不安が、決断を難しくしています。
+
+加えて、決断の責任を負いたくないからです。
+自分で決めたら、結果の責任は自分にある。
+その重さから逃げたくて、決められない。
+誰かに決めてもらいたい、と思ってしまう。
+でも、自分の人生は自分で決めるしかないのです。
+
+---
+
+でも実際には、多くの決断に正解はありません。
+
+どちらを選んでも、良いことと悪いことがある。
+完璧な選択肢は存在しない。
+Aを選べばAの良さがあり、Aの問題もある。
+Bを選べばBの良さがあり、Bの問題もある。
+どちらにも一長一短があるのです。
+
+そして、選んだ後にあれで良かったと思えるかどうかは、選んだ後の行動次第です。
+同じ選択をしても、その後の行動で結果は変わります。
+良い選択だったと思える人もいれば、失敗だったと思う人もいる。
+違いは、選択の後に何をしたかです。
+
+つまり、どちらを選ぶかより、選んだ後にどうするかの方が重要なのです。
+これが分かると、決断が楽になります。
+どちらを選んでも、その後頑張ればいい。
+そう思えると、迷いが減ります。
+
+選択そのものに正解はない。
+正解は、選んだ後に自分で作るものです。
+この考え方が、決断の重荷を軽くしてくれます。
+選ぶ前ではなく、選んだ後が大切なのです。
+
+---
+
+仏教では、どちらでもいい、という境地を教えます。
+
+執着がなければ、どちらでもいい。
+どちらを選んでも幸せになれる。
+結果に執着しなければ、どちらでも大丈夫。
+
+もちろん現実には違いがあります。
+選択によって結果は変わります。
+でも、これを選ばないと不幸になる、と思うと迷いが深くなる。
+この選択で人生が決まる、と思うと動けなくなる。
+
+どちらでも大丈夫、と思えれば、楽に決められます。
+どちらを選んでも、私は幸せになれる。
+その確信があれば、迷いは消えていきます。
+
+これは投げやりになることではありません。
+どちらを選んでも、全力で取り組む覚悟を持つこと。
+その覚悟があれば、どちらでも大丈夫なのです。
+
+執着を手放すと、心が軽くなります。
+この選択で幸せになれなかったらどうしよう。
+その不安を手放す。
+どちらを選んでも、自分は幸せになれる。
+そう信じることで、迷いから解放されます。
+
+仏教では、中道という考え方も大切にします。
+極端に慎重になりすぎない。
+極端に軽率にもならない。
+適度なバランスで決断する。
+考えるべきことは考え、でも考えすぎない。
+その中道が、決断を楽にしてくれます。
+
+---
+
+歴史上の偉人も、決断に迷ったことがあります。
+
+スティーブ・ジョブズは、重要な決断を素早くすることで知られていました。
+彼は毎日同じ服を着ていました。
+黒のタートルネックとジーンズ。
+これは、小さな決断にエネルギーを使わないためだったと言われています。
+何を着るか考える時間を省き、重要な決断に集中する。
+決断を減らすことで、決断の質を上げたのです。
+
+また、多くの成功者は、決断のスピードを重視しています。
+完璧な情報を待つよりも、素早く決めて動き出す。
+間違っていたら修正すればいい。
+迷って動けないよりも、動きながら考える方が結果が出る。
+そう考えている人が多いのです。
+
+もちろん、慎重に考えるべき決断もあります。
+でも、多くの日常的な決断は、素早く決めた方がいい。
+そのバランスを知ることが大切です。
+
+オバマ元大統領も、日常の決断を減らす工夫をしていました。
+スーツはグレーか紺色だけ。
+毎朝何を着るか考えない。
+小さな決断を減らすことで、国を動かす重要な決断に集中していたのです。
+
+成功者に共通するのは、決断のスピードと、決めた後の行動力です。
+迷う時間を減らし、行動する時間を増やす。
+その姿勢が、結果につながっているのです。
+
+---
+
+決断が楽になる基準をお伝えします。
+五つのポイントです。
+
+第一のポイント。2分で決める、と決める。
+
+小さな決断は2分以内に決める。
+それ以上悩んでも、質が上がることはほとんどありません。
+2分考えて出た答えと、2時間考えて出た答えは、ほとんど同じです。
+
+ランチ何にするか。どの服を着るか。どの道を通るか。
+こうした日常の決断は、2分で決めて次に進む。
+時間をかけても、良い答えは出ません。
+むしろ、迷えば迷うほど決められなくなる。
+
+2分と決めることで、ダラダラ迷うことを防げます。
+タイマーを使うのも効果的です。
+スマートフォンのタイマーを2分にセットする。
+そのアラームが鳴ったら、その時点での答えを採用する。
+これを習慣にすると、決断が驚くほど速くなります。
+
+第二のポイント。最悪でも取り返せるか、で判断する。
+
+決断の重さを見極める基準があります。
+それは、取り返しがつくかどうか。
+
+取り返しのつかない決断には慎重になっていい。
+でも取り返せるなら、とりあえず決めて動く。
+試してダメなら変えればいい。
+失敗から学べばいい。
+そう思えると楽になります。
+
+多くの決断は、実は取り返しがつきます。
+買ったものは返品できる。
+始めたことはやめられる。
+選んだ道は変えられる。
+取り返しのつかない決断は、思っているより少ないのです。
+
+取り返しがつくと分かれば、心が軽くなります。
+失敗してもやり直せる。
+そう思えるだけで、一歩を踏み出せます。
+まずは小さな決断から、この基準を使ってみてください。
+
+第三のポイント。直感を信じる。
+
+論理的に考えても決まらないとき、直感に頼ってみてください。
+最初にこっちかな、と思った直感は案外正しいものです。
+
+なぜなら、直感は無意識の判断だからです。
+過去の経験や学習が、無意識に処理されている。
+論理では説明できないけど、なんとなくこっち、と感じる。
+その感覚を尊重してください。
+
+もちろん直感が常に正しいわけではありません。
+でも、論理で決まらないなら、直感を信じる方がいい。
+迷い続けるよりはましです。
+
+コインを投げて決める、という方法もあります。
+表が出たらA、裏ならB、と決める。
+コインを投げた瞬間、あなたは心の中で祈っています。
+表が出て欲しい、または裏が出て欲しい、と。
+その祈りこそが、あなたの本当の答えです。
+コインの結果ではなく、自分の心の反応を見るのです。
+
+第四のポイント。5年後に覚えているか、で判断する。
+
+今迷っていることは、5年後に覚えているような大事なことですか。
+そう自分に問いかけてみてください。
+
+ほとんどの日常的決断は、5年後には忘れています。
+今日のランチを何にしたか、5年後に覚えていますか。
+どの服を着たか、5年後に覚えていますか。
+覚えていないでしょう。
+
+5年後には忘れているようなことに、何時間も悩む必要はありません。
+そう思えば、気楽に決められます。
+どちらでもいいや、と思えます。
+
+この視点を持つと、今の悩みが小さく見えてきます。
+大きく見えていた決断が、実は些細なことだった。
+そう気づくと、肩の力が抜けます。
+人生を変えるような大きな決断は、実はそう多くないのです。
+
+第五のポイント。決めない、という選択を捨てる。
+
+迷うということは、どちらかに決めなければならないということです。
+決めないという選択はないのです。
+
+決めないまま先送りしても、問題は残ります。
+むしろ、選択肢が減ったり、状況が悪化したりすることもある。
+早く決めれば、早く行動できる。
+早く行動すれば、早く結果が出る。
+
+決めなきゃ、ではなく、決めよう、というマインドで臨む。
+決断を義務ではなく、チャンスと捉える。
+その姿勢が、決断を楽にしてくれます。
+
+決断できる、ということは、選択肢があるということです。
+選択肢があるのは、恵まれていることです。
+決断を負担と思わず、機会と思う。
+その発想の転換が、決断を楽にします。
+
+---
+
+この実践をする時、気をつけていただきたいことがあります。
+
+まず、本当に重要な決断には時間をかけていいです。
+結婚、転職、大きな投資、住む場所。
+これらは慎重に考えてください。
+情報を集め、人に相談し、じっくり考える価値があります。
+
+でも日常の小さな決断に時間をかけすぎると、大切な決断に使うエネルギーが減ります。
+人間の決断力には限りがあります。
+小さな決断で消耗すると、大きな決断ができなくなる。
+
+小さいことは速く、大きいことは慎重に。
+そのメリハリが大切です。
+何が大きな決断で、何が小さな決断か。
+それを見極める目を持ってください。
+
+次に、決めた後に後悔しないでください。
+決断した後に、やっぱりあっちにすればよかった、と思うことがあります。
+でも、その後悔にはあまり意味がありません。
+選ばなかった道がどうだったかは、永遠に分かりません。
+選んだ道を全力で歩くことに集中してください。
+
+そして、決断に完璧を求めないでください。
+完璧な決断なんてありません。
+どんな決断にも、良い面と悪い面がある。
+70点の決断で十分です。
+100点を目指すと、決められなくなります。
+
+また、決断を人のせいにしないでください。
+親が言ったから、上司が勧めたから、友人がそうしろと言ったから。
+そんな言い訳をしていると、いつまでも自分で決められなくなります。
+最終的に決めるのは自分です。
+結果の責任も自分が負う。
+その覚悟を持ってください。
+
+さらに、決断を先送りする癖をつけないでください。
+今日決めなくてもいいか。明日また考えよう。
+そう思っていると、いつまでも決まりません。
+決められる時に決める。
+その習慣が、決断力を高めてくれます。
+
+---
+
+迷いが多い人へ。
+
+決断が楽になる基準があります。
+
+2分で決める。
+最悪取り返せるか考える。
+直感を信じる。
+5年後に覚えているか問う。
+決めない、を選ばない。
+
+この五つの基準を意識してください。
+この基準を使えば、決断が楽になります。
+迷う時間が減り、行動する時間が増えます。
+
+今日から、小さな決断を速くしてみませんか。
+ランチを2分で決めてみる。
+着る服をすぐ決めてみる。
+小さな成功体験を積み重ねてください。
+
+最初は難しく感じるかもしれません。
+今まで何時間も迷っていたことを、2分で決める。
+勇気がいることです。
+でも、やってみると意外とできます。
+そして、2分で決めても困らないことに気づきます。
+その体験が、次の決断を楽にしてくれます。
+
+決断が楽になると、毎日が楽になります。
+迷いに使っていたエネルギーを、行動に使えるようになります。
+人生が前に進み始めます。
+
+迷いは、私たちの時間とエネルギーを奪います。
+迷っている間、私たちはどこにも進めない。
+行動している人との差がどんどん開いていく。
+だから、迷いを減らすことが大切なのです。
+
+決断が速くなると、人生が変わります。
+行動量が増える。
+経験が増える。
+学びが増える。
+そして、また次の決断ができるようになる。
+良い循環が生まれるのです。
+
+迷うことは悪いことではありません。
+迷うのは、真剣に考えている証拠です。
+でも、迷いすぎると動けなくなる。
+適度なところで決めて、前に進む。
+そのバランスを身につけてください。
+
+あなたが迷いから解放されますように。
+あなたの決断が、良い結果につながりますように。
+決めた道を、堂々と歩いていけますように。
+
+今日も最後まで聞いてくださって、ありがとうございました。
+
+皆様の心が穏やかでありますように。
+</pre>
     </div>
   </div>
 </main>

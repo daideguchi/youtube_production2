@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-009 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-009 — script</h1>
           <div class="muted">【因果応報】あなたを苦しめた人が迎える結末</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,102 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【因果応報】あなたを苦しめた人が迎える結末</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>あなたを苦しめた人が迎える結末で迷うときに。考え方と、今日からできる一歩を整理します。
+・あなたを苦しめた人が迎える結末で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>因果応報, 仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>あなたを苦しめた人が迎える結末で迷うときに。考え方と、今日からできる一歩を整理します。
+・あなたを苦しめた人が迎える結末で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-009</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-009&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あなたを苦しめた人が、どんな末路を迎えるのか。そのことを考えてしまう夜はありませんか。あの人が失敗する姿、誰にも相手にされなくなる姿、そういう想像が頭を巡って、眠れない。あるいは、いつか必ず報いを受けるはずだと信じたい。そんな気持ちになることは、誰にでもあるでしょう。しかし、その思いが、実はあなた自身をさらに縛りつけているとしたら。今日は、因果応報という言葉が本当に伝えようとしていること、そして、相手の結末を追い求めるその心から自由になるための、一つの道筋を見ていきます。大切なのは、相手がどうなるかではありません。あなたがその思いから自由になり、自分の心を取り戻すことです。
+
+---
+
+このような思いに囚われてしまう背景には、私たちが普段から抱えている無力感や、理不尽さに対するもどかしさがあるかもしれません。特に長い年月をかけて築いてきた人間関係、例えば職場の上下関係や地域の付き合い、あるいは家族の中での役割などでは、自分の気持ちを正直に言えなかったり、相手の態度を変えられなかったりという経験が積み重なります。その結果、自分自身ではどうすることもできないもどかしさが、相手への復讐願望や、因果応報という形での報いへの期待へと転じていくのです。しかし、ここで少し立ち止まって考えてみてください。その思いのエネルギーを、相手の未来を想像することに注ぎ続けることが、本当にあなたの望むことでしょうか。むしろ、そのエネルギーは、あなた自身の現在と未来を、より豊かに生きるために使うことができるのではないか。その視点の転換こそが、今日のテーマの核心です。仏教の教えは、このような心の絡まりを解きほぐすための、実践的な智慧を多く伝えています。それは決して難しい哲学ではなく、日常のさりげない気づきと選択の積み重ねによって、誰でも歩み始めることができる道なのです。
+
+因果応報というと、多くの人は、悪いことをした人が必ず罰を受ける、そういう物語を思い浮かべます。あなたを傷つけたあの人も、いつか同じ苦しみを味わうはずだ、と。それは一見、正義が実現するような気がしますし、心の支えにもなるかもしれません。しかし、その思いにしがみついている限り、あなたの心はいつまでも過去の傷と、あの人と、繋がり続けることになります。傷つけられた記憶を反芻し、相手の不幸を願い、あるいは想像することで、あなた自身の回復が遠のいてしまうのです。それは、傷口にずっと塩を塗り続けているようなものです。因果応報を復讐の物語として捉えること、それは相手への執着という、もう一つの苦しみを生み出します。その執着こそが、あなたの心を狭くし、苦しみを濃くしてしまうのです。
+
+---
+
+では、なぜ私たちはそう簡単に執着から離れられないのでしょうか。そこには、正しさを証明したいという強い欲求が関係している場合があります。自分が受けた扱いは明らかに理不尽だった、間違っていた。その正しさを世の中や、あるいは天に認めてもらいたい。その願いが、悪いことをした人は必ず罰を受けるという因果応報の物語に強く共鳴するのです。この気持ちはごく自然なもので、人間の持つ正義感の表れと言えるでしょう。問題は、その正しさの証明が、相手の不幸という形でしか想像できなくなってしまう点にあります。それは、自分の価値や正しさを、他者の状態に依存させてしまう危うい状態です。相手が幸せそうにしている限り、自分の正しさは否定されたままのように感じられ、逆に相手が不幸になれば、自分の正しさが証明されたような気がする。この構図から抜け出すためには、自分の価値や正しさを、他者とは全く別のところに根ざす必要があります。仏教の教えは、それを自分の心の在り方や今日の行いの中に見いだす道を示しています。外側の結果ではなく、内側のプロセスに目を向けること。それが執着から自由になるための、根本的な転換点となります。
+
+復讐や報いへの願望が、いかに私たち自身を消耗させるかについて、もう少し具体的に考えてみましょう。例えば、あなたを傷つけた相手のことを考えている間、あなたの心と体は、実際にその相手と対峙しているときと同じような緊張状態にあります。心拍数が上がり、筋肉に力が入り、ストレスホルモンが分泌されるかもしれません。それはつまり、物理的には離れていても、心理的にはその相手とずっと戦い続けている状態なのです。この状態が長く続けば、当然ながら心身の疲労は蓄積し、本来あなたが楽しむべき現在の生活に集中するエネルギーが奪われていきます。さらに、その思考は往々にしてループし、同じ場面を何度も繰り返し思い出し、その度に傷口をえぐり返すことになります。ここで大切なのは、このプロセスを悪いことだと責めるのではなく、ただその仕組みに気づくことです。気づくことができれば、そこに介入する余地が生まれます。傷口に塩を塗り続けるという行為を、意識的にやめる選択が可能になるのです。その第一歩は、『あ、今またあのことを考えている』と、自分自身の思考の流れを客観的に観察する習慣を持つことから始まります。
+
+ここで、仏教に伝わる一つのたとえ話を思い出してみましょう。ブッダは、同じ塩でも、水が少ない器に入れれば耐えがたいほどしょっぱくなる一方、大きな湖や川のようなたくさんの水の中なら、溶けてほとんど味を感じなくなる、と説いたと伝えられます。この話の核心は、出来事そのものの辛さや苦しさは、実は固定されたものではない、ということです。同じ塩という出来事、例えば誰かのひどい言葉や理不尽な扱いがあったとしても、それを受け止めるあなたの心の器の大きさによって、その苦しみの濃さ、感じ方は全く変わってくる。小さな器、つまり執着や怒りでいっぱいの狭い心であれば、ほんの少しの塩でも生活全体が苦い味に染まってしまいます。しかし、心の器を大きく育てることができれば、同じ出来事も、やがては溶けていくものになる。では、その器を大きくするとは、どういうことでしょうか。それは、今日、今この瞬間に、あなたが何を思い、どのような小さな行動を選ぶか、その積み重ねにほかなりません。相手への恨みや、その人の末路への執着に心を占領されるのではなく、今ここにある自分の呼吸に意識を向ける。あるいは、窓の外の空を見る、温かいお茶を一口飲む、そんな些細な選択の一つ一つが、実はあなたの心の器を、少しずつ大きくしていく行為なのです。このたとえは、出来事を変えることよりも、それを受け止める心の在り方を育てることの大切さを、静かに、しかし力強く示しています。
+
+---
+
+このたとえ話を、私たちの日常に当てはめて考えてみましょう。例えば、職場で理不尽な扱いを受けたとします。その出来事は、誰にとっても不快な塩のようなものです。しかし、その日の夜、家に帰ってからもそのことばかりを考え、怒りや悔しさで心がいっぱいになっている状態は、まさに小さな器に塩が溶けきらず、濃厚な苦味を放っている状態と言えます。一方、同じ出来事を経験しても、帰宅後は家族との団欒に心を向けたり、趣味に没頭したりすることで、その嫌な記憶が心の広がりの中に溶け込んでいく人もいます。この違いは、器の大きさの差です。では、その器の大きさは、生まれつきの性格や忍耐力だけで決まるのでしょうか。そうではありません。器は、日々の小さな選択によって、意識的に育てていくことができるのです。先ほどの例で言えば、帰宅後も怒りに囚われ続けるか、それとも意識的に別のことに注意を向けるか。その選択の積み重ねが、器の容量を決めていきます。つまり、苦しみの濃さを決定するのは出来事そのものではなく、その出来事をどのような心の状態で受け止め、その後どのように心を使い続けるかという、私たち自身の内側のプロセスなのです。この視点を持つことで、私たちは外側の相手や出来事を変えようとするエネルギーを、内側の器を育てるエネルギーへとシフトさせることができます。それは、自分自身の心の状態に対して責任を持つという、主体的な姿勢への転換でもあります。
+
+このたとえをさらに深く理解するために、水とは何かを考えてみることも有益です。器に入る水とは、あなたの日々の経験の全て、つまり出会う人、感じる感情、考えたこと、行った行動のすべての蓄積と言えるでしょう。その水が澄んでいれば、塩が入ってもすぐに溶け、味もすぐに分散します。しかし、水自体がすでに濁っていたり、別の強い味で満たされていたりすれば、少しの塩でも異物として強く感じられ、混ざり合うのに時間がかかります。つまり、日々の生活を、怒りや恨み、後悔といった感情で満たすのではなく、ささやかな喜びや感謝、他者への思いやりといったもので満たしていくこと。それが水を澄ませ、器そのものを大きくする行為に直結します。大きな器を作るというと、何か特別な能力や我慢強さが必要に思えるかもしれません。しかし、実際には、今日一日の中で、ほんの少しでも自分を責める代わりに労わる瞬間を作る、誰かにイライラする代わりに一呼吸置いてみる、そんな小さな選択の連続が、確実に水を増やし、澄ませていくのです。このプロセスには終わりがありません。だからこそ、完成を目指すのではなく、今日も少しだけ器が広がったと感じられる瞬間を積み重ねていくことが、何よりも大切なのです。
+
+器の大きさとは、具体的にはどのような心の状態を指すのでしょう。それは、一つの感情や思考に全てを支配されず、多様なものを受け入れ、流していく包容力と言い換えられるかもしれません。小さな器は、すぐに満杯になり、少しの刺激でも中身が溢れ出して周りを汚してしまいます。これが、怒りや悲しみにすぐに支配され、その感情を周囲にぶつけてしまう状態です。一方、大きな器は、同じ量の刺激が入っても、それらを静かに内包し、時間をかけて自然に溶かし、浄化していくことができます。この器を大きく育てる行為が、修行という特別なことではなく、日常生活の中の無数の選択の集積であるという点が、このたとえ話の実践的な核心です。例えば、誰かから冷たい態度を取られたとき、すぐに嫌われた攻撃されたと解釈して反撃したり、あるいは自己嫌悪に陥ったりするのではなく、一呼吸置いて『この人は今、何か別のことでイライラしているのかもしれない』『私の言葉が、違う意味に受け取られたのかもしれない』と、別の可能性の余地をほんの少しだけ心に残しておく。そのほんの少しの余地が、器の容量を広げる一歩なのです。
+
+では、具体的にどうすれば、相手の結末を追い求めるその心、つまり執着を手放せるのでしょうか。まず理解しておきたいのは、その思いの根底にあるのは、多くの場合、正義感や、理不尽さへの憤りだということです。それは決して間違った感情ではありません。むしろ、人間として自然なものです。問題は、その正義感が、いつしかあの人がどうなるかという一点に固着し、あなた自身の心の平穏を蝕む執着に変わってしまう瞬間にあるのです。その境目は、あなたの思考があの人のことでいっぱいになり、今ここにある自分の生活や喜びが見えなくなったときです。例えば、家事をしている最中も、仕事に集中しようとするときも、ふとあの人の顔や、不幸になるはずだという想像が浮かび、それに心を奪われてしまう。そうなると、それはもはや正義感ではなく、あなたを縛る鎖です。手放すとは、その人を許すことでも、忘れることでもありません。ただ、「今、この瞬間、私はこの鎖に繋がれている」と気づき、意識的にその思考のループから一歩離れてみることから始まります。正義感はそのまま胸に置きつつも、それによってあなた自身の人生が停滞することを、優しく拒絶するのです。
+
+---
+
+執着を手放すプロセスは、何かを無理やり捨てたり、忘れようとしたりするものではありません。むしろ、その執着が存在していることをまずは認め、観察することから始まります。先ほど述べた気づきがここで重要な役割を果たします。『あ、今またあの人の不幸を想像している』この怒りの感情がまた湧いてきたと気づいた瞬間、あなたはその思考や感情のただ中にいる状態から、一歩引いてそれを観察する立場に移ることができます。この『観察する自分』と『感じている自分』の間に生まれるわずかな距離が、自由への扉です。この距離の中では、その感情をすぐに行動に移さなくてもいいし、その思考が真実だと思い込まなくてもいいのです。ただ、それがそこにある事実として認める。この態度は、しばしば『あるがままに見る』と表現されます。正義感や憤りは確かにそこにあります。それを否定する必要は全くありません。しかし、それらがあなたの心全体を占領し、他のすべての感情や思考を押しのけてしまうことを、あなたは選択しなくてよいのです。心という舞台には、怒りや悲しみだけでなく、穏やかさや好奇心、いたわりやユーモアなど、多くの出演者が待機しています。執着に心を奪われているときは、怒りという主役だけがスポットライトを浴びて独り占めしている状態です。気づきは、そのスポットライトを少しずつ他の出演者にも振り分けていく、照明係の役割を果たすのです。
+
+そのための実践として、一日の始まりと終わりに、ほんの少しの所作を取り入れてみてはいかがでしょうか。朝、玄関を出る前、あるいは洗面所で顔を洗った後、ほんの数十秒で構いません。窓の外の空を見て、深く息を吸い、吐きます。そのとき、「今日一日、私は自分の心の器を育てる小さな一歩を踏み出す」と、心の中で静かに宣言してみてください。何か大きなことをする必要はありません。ただ、呼吸に意識を向けるだけでいいのです。そして夜、寝る前に枕元で、今日一日を振り返ります。そのとき、もし相手のことで頭がいっぱいになった瞬間があったなら、それを否定したり責めたりせず、「ああ、また考えていたな」とただ気づき、そっと手放します。そして、今日できた小さな良いこと、例えば誰かに優しい言葉をかけた、あるいは自分で決めた小さな約束を守れた、そんなことを一つだけ思い出してみましょう。それは、あなたが自分の人生の主役に戻るための、ごく小さな儀式です。相手の末路を想像して眠れない夜があるなら、その想像が頭に浮かんだ瞬間に、一度大きく深呼吸をしてみてください。そして、これは私の想像だと心の中で言葉にします。それだけで、思考のループは一度断ち切られます。その隙間に、ただ呼吸があること、布団の温かさがあることに意識を向け直すのです。これらは、心の器を大きくするための、具体的なトレーニングです。
+
+---
+
+今日から始められることは、とてもシンプルです。相手がどうなるかを考えるその時間を、ほんの一分でも、自分の呼吸に意識を向ける時間に置き換えてみること。それが、あなたが自分の心を取り戻すための、最初の一歩になります。因果応報とは、遠い未来の誰かの罰を待つ物語ではなく、今ここであなたがどんな心を育て、どんな選択を重ねるかという、あなた自身の物語です。その物語の主役は、他でもないあなた自身です。相手の結末を追い求める執着から少しずつ自由になることで、あなたの心の器は、確実に、静かに広がっていきます。その広がりが、かつては耐えがたかった苦しみを、やがて受け流せるほどの大きさへと変えていくのです。今日という日が、そのための小さな始まりとなりますように。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-021 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-021 — script</h1>
           <div class="muted">【期待】期待するほど苦しい｜期待は愛じゃない</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,200 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【期待】期待するほど苦しい｜期待は愛じゃない</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>期待, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-021</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-021&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">家族の頼みを断れない時、あなたの心の中では何が起きていますか。
+
+頼まれた内容そのものよりも、もっと早く、深いところで、ある反応が起きているのではないでしょうか。家族という関係だからこそ、特に強く現れる反応です。
+
+例えば、子どもから急な用事を頼まれた時。配偶者から面倒な用事を押し付けられた時。友人なら考えたり伝えたりできることも、家族に対しては、ついすぐに答えてしまう。そういう経験はありませんか。
+
+その瞬間、心の奥では義務が先に立っています。家族だから当然、という気持ちが、考える間もなく言葉を引き出してしまうのです。
+
+ここで起きているのは、単なる優しさとは少し違います。反射に近い反応と言えるでしょう。考えるよりも先に、体が、言葉が動いてしまう。長い年月をかけて築かれた、見えない約束事のようなものかもしれません。
+
+その約束とは、家族の期待には応えなければならない、断ると関係が悪くなる、自分が引き受けることが役割だ、といった思い込みです。
+
+この反射は悪いことばかりではありません。助け合うきっかけにもなります。しかし問題は、それがいつも自動的に起きてしまうことです。負担が大きくても、体調が優れなくても、同じようにはいと出てしまう。そして引き受けた後で、後悔が湧いてくる。
+
+なぜ家族に対して特に強く出るのでしょうか。家族関係は、私たちの最も古く深い絆に関わっています。子どもの頃から、期待に応えることで認められ、やがて支える立場になる。その過程で、家族の期待に応えることと、自分自身の価値が知らず知らず結びついてしまっていることがあります。断ることは、期待に応えないこと。期待に応えないことは、自分が役に立たない人間だと認めること。そんな風に極端に考えてしまう回路が、心の中にできあがっているのです。
+
+ですから、家族に振り回されると感じる時、それは相手がわがままなだけではないかもしれません。自分の中にこびりついた、反射的なはいを出す回路のせいで、自分自身を追い詰めている側面があるのです。
+
+この反射は、条件反射のように、家族からの頼みごとという刺激に対して自動的に起きます。その反応が繰り返されるほど、回路はより強固に働くようになります。
+
+ここで大切なのは、この反射が悪いということではありません。ただ、それがあなたを苦しめているなら、その仕組みに一度目を向けてみてもいいのではないか、ということです。
+
+家族ほど振り回されると感じるのは、この反射的なはいが出てしまうから。その背景には、長い時間をかけて築かれた義務感や思い込みがある。そう理解するだけでも、少し視点が変わるかもしれません。自分がただ弱いから、性格が悪いから、という自己批判から少し距離を置けるかもしれません。
+
+では、その反射的な応答が、具体的にどのように苦しみを増幅させていくのか。次にその仕組みを見ていきましょう。
+
+---
+
+頼まれた内容そのものよりも、反射的にはいと言ってしまう癖が、実は心と体を消耗させていることに気づいていますか。
+
+家族からの電話が鳴ると身構える。用事を頼まれる前に胃が重くなる。それでも口をついて出てくるのは承諾の言葉です。あるいは、親戚から面倒な役割を頼まれ、断る言葉が浮かんでも結局引き受けてしまう。その場は穏便に済んでも、帰りにはぐったりと疲れている。そんな経験はありませんか。
+
+ここで起きているのは自動反応です。頼まれごとに対する、ほとんど考えないうちのはいという返事。家族では遠慮よりも先に義務感や気遣いが働きます。断ったら関係が悪くなる、期待に応えなければ価値がない。そうした思いが、瞬時に判断を飛び越えて承諾を引き出してしまうのです。
+
+問題は、この反射が続くほど心身がすり減っていくプロセスにあります。引き受けた瞬間、少し心が沈みます。実際に行動に移す時には重い腰を上げなければなりません。用事が終わった後も晴れやかな気分にはなれず、後悔やいらだちが残ります。この一連の流れが、静かな疲れを積み重ねていくのです。
+
+さらにやっかいなのは、繰り返しによって、頼まれたこと以上に相手や関係そのものが負担に感じられ始める点です。連絡が来るだけで憂鬱になる。会話が減っていく。出来事が悪いのではなく、自分がその出来事にどう反応してきたかの積み重ねが、関係全体を重たくしている側面があるのです。
+
+つまり、苦しみを増やしているのは、頼まれごとという出来事そのものよりも、それに対する瞬間的な反射のパターンだといえます。同じ内容でも、反射的に引き受けるか、一度立ち止まってから応じるかでは、心にかかる負担は違ってきます。ここに気づくことが最初の一歩です。
+
+では、なぜこの反射から抜け出せないのでしょうか。そこには、ただの癖よりも深い執着と呼べる思いが関わっています。次にその仕組みを見ていきましょう。
+
+---
+
+家族に頼まれたとき、断ったら嫌われるんじゃないか。期待に応えないと自分に価値がないんじゃないか。そんな思いに縛られていませんか。
+
+その思いこそが、あなたの手を強く握らせているのです。頼まれごとを引き受けるとき、反射的にはいと言うその手に、知らず知らず力が入っている。それが執着の現れです。
+
+ここでいう執着とは、しがみつき、こだわりです。家族という関係に、自分がこうあるべきだという役割に、必要以上にしがみついてしまう心の動きです。
+
+例えば、子どもから急な金銭的な頼みごとをされたとき。内心では負担に感じていても、親として助けるのが当然だと思い込んでしまう。配偶者から毎日細かい指示を受けるとき。自分のペースで過ごしたいのに、良い夫、良い妻でいなければと感じて従ってしまう。
+
+そのしがみつきが反射を強くします。断る選択肢が最初から頭に浮かばない。いや、浮かんでもすぐに打ち消してしまう。嫌われたくない、期待に応えたい、関係を壊したくない。そうした思いが自動的にはいを引き出すのです。
+
+そしてその反射が続くほど、しがみつきは強まります。一度引き受けると、次も同じように応じなければという気持ちが生まれる。期待に応えた自分を保たなければ、という思いが募る。まるで手の中に握ったものを離せばすべて失われるような感覚に駆られるのです。
+
+しかし、よく考えてみてください。頼みごとを断ったからといって、すべての関係が壊れるでしょうか。一度期待に応えられなかったからといって、あなたの価値がなくなるでしょうか。おそらくそうではないはずです。
+
+執着が生むのは、そうした極端な思い込みです。すべてか無か、白か黒か。そんな二択に自分を追い込んでしまう思考の癖です。現実はもっとグラデーションがあるのに、しがみつくあまり視野が狭くなってしまう。
+
+この心理的な縛りは目に見えません。だからこそ気づきにくい。ただなんとなく苦しいと感じるだけです。でもその苦しみの背景には、しがみつきによって強められた反射の連鎖があるのです。
+
+手を強く握りしめているのは他でもない自分自身です。握っているものは恐れかもしれない。見捨てられるかもしれないという恐れ。あるいは自分はこうあるべきだという理想像。それらを離すことが自分を否定するように感じられるから、ますます強く握ってしまう。
+
+ではその執着からどうやって手を緩めればよいのでしょうか。
+
+---
+
+仏教には「放下着」という言葉があります。「放り下げよ」という意味です。
+
+禅の師匠が弟子に尋ねます。「お前は何を持っているのか」。弟子は「何も持っていません」と答える。すると師匠は「それなら、その何も持っていないということを放り下げよ」と言う。
+
+私たちが握りしめているのは、目に見える荷物だけではありません。「良い親でなければ」「良い子でなければ」「期待に応えなければ」という観念もまた、重たい荷物なのです。
+
+お釈迦様は、人間の苦しみの原因を「執着」であると説きました。欲しいものにしがみつき、嫌なものから逃げようとする。この心の働きが、私たちを苦しめる。ならば、しがみつきを緩めれば、苦しみもまた和らぐのです。
+
+ただし、ここで注意が必要です。手を緩めることは、家族を捨てることではありません。関係を断ち切ることでもありません。執着を緩めるとは、相手をコントロールしようとしないこと、そして相手からの評価に自分の価値を依存させないことです。
+
+---
+
+線を引くことが、相手を突き放すことだと思っていませんか。距離を取ることは冷たくなることだと感じてしまう。だからこそ頼まれごとを断れず、無理を重ねてしまうのです。でも少し考えてみてください。本当に冷たいのは、自分の限界を超えてまで相手に尽くし、心が擦り切れてしまったときではないでしょうか。
+
+手を緩めることは決して冷たくなることではありません。むしろ自分自身の余力を守ることで、長い目で関係を保つための工夫なのです。家族や親しい間柄だからこそ、一時の無理が後々の大きな溝を作ってしまうことがあります。少し距離を置くことは、その溝を未然に防ぐやさしい配慮でもあるのです。
+
+---
+
+例えば、介護で疲れきる前に一日だけ休息を取ると決める。親戚付き合いで、すべての集まりに出席しなくてもいいと自分に許可を出す。これらは関係を絶つことではありません。むしろこれからも続いていく付き合いを、健全な状態で長続きさせるための線引きです。
+
+誤解を生まない伝え方のコツは、相手を責めないことです。あなたのせいでではなく、私には今これくらいの余裕しかないんですと自分の状態を伝える。あるいは今回は難しいですが、また機会があればと未来への可能性を残す言い方もあります。要は関係そのものを否定するのではなく、今この瞬間の自分のキャパシティについて話すのです。
+
+これはわがままでも自己中心でもありません。自分が潰れてしまっては誰にもやさしくできなくなります。自分を守ることは結果的に関係全体を守ることにもつながるのです。
+
+---
+
+手を緩めると一時的には相手が不満に思うかもしれません。でもそれはあなたが冷たくなったからではなく、今までが無理をしすぎていたからに過ぎません。その無理が当たり前になっていただけです。少し手を緩めることで、お互いにとってちょうどいい距離が自然と見えてくることもあります。
+
+では具体的に、どの一言から始めればいいのか。反射的に出てしまうあの言葉をどう変えていけばいいのか。その最初の一歩についてお話しします。
+
+---
+
+今日から頼まれた瞬間に反射的にはいと言うのをやめてみませんか。この一言をやめるだけで心にほんの少し余白が生まれます。振り回される苦しみは頼まれた内容そのものよりもこの反射的な返事から始まることが多いのです。
+
+なぜ私たちはすぐにはいと言ってしまうのでしょう。家族からの頼みごと特に日常的な小さなことほど考える間もなく引き受けてしまう。それは遠慮というよりももう習慣のようなものです。断ると関係が悪くなる嫌われるという不安がつい口を滑らせます。
+
+でもそのはいのあとを思い出してみてください。引き受けたはいいけれど心のどこかで重たさを感じる。やる気が起きないのに約束してしまった後悔が残る。あるいは実際にやり始めてから不満や疲れがじわじわと湧いてくる。反射的なはいはその瞬間の楽さと引き換えに後で長いしんどさを連れてくるのです。
+
+ここで一つシンプルな練習を提案します。頼まれたときすぐにはいと言わない。代わりにほんの少し間を置くのです。その間に自分に問いかけてみてください。今本当にそれを受けられる状態かなと。体調はどうか気持ちに余裕はあるか予定は空いているか。ただ自分自身の内側を一瞬感じてみる。
+
+そのための一言があります。「そうですね、少し考えさせてください」「ちょっと待って、今の予定を確認してみます」「うーん、どうしようかな」。こうした言葉は拒絶ではなくただの一時停止です。相手を突き放すことなく自分に戻る時間を作る合図なのです。
+
+この「考えさせてください」には二つの大きな効果があります。ひとつはあなた自身が自動操縦を解除できること。はいと言うのはほとんど無意識の反応です。一度止まる言葉を挟むことで自分が今何をしようとしているのか立ち止まって見つめ直すきっかけになります。もうひとつは相手との間に適度な距離を作れること。すぐに答えを出さないということはあなたにも考える権利があるということを暗に示します。それはあなたがただの都合のいい人ではない一人の人間であることをお互いに思い出させる行為でもあります。
+
+もちろんこの言葉を口にするのは最初はぎこちないかもしれません。特に家族の間ではそんな堅苦しいこと言わなくてもと感じる方もいるでしょう。でもそれは丁寧な線引きの第一歩です。冷たいのではなく自分の状態を確かめてから答えを出す健全な習慣です。
+
+この練習のコツは完璧を求めないこと。今日は一回だけ明日は二回だけと小さく始めてみてください。そしてその一言を言えた自分をほんの少し褒めてあげてほしいのです。反射のブレーキをかけることは自分を大切にする練習の始まりです。
+
+---
+
+ここで注意してほしい落とし穴があります。
+
+一つ目は、断ることに罪悪感を感じすぎることです。「考えさせてください」と言った後、申し訳なさでいっぱいになり、結局「やっぱりやります」と撤回してしまう。これでは元の木阿弥です。
+
+罪悪感は自然な感情です。でも、その罪悪感は本当に正当なものでしょうか。あなたが自分の時間や体力を守ることは、罪ではありません。相手の期待に100%応えられないことは、悪いことではありません。罪悪感を感じたら、「この気持ちは長年の習慣から来ているだけ」と自分に言い聞かせてください。
+
+二つ目の落とし穴は、一気に変わろうとすることです。今日から全ての頼みごとを断る、と極端に走ると、反動で挫折しやすくなります。また、周囲との関係も急激に変化し、混乱を招くことがあります。
+
+大切なのは、小さく始めて、少しずつ慣れていくことです。まずは週に一回、「考えさせてください」と言う練習から。それができたら二回、三回と増やしていく。無理のないペースで、新しい習慣を育てていきましょう。
+
+---
+
+家族に振り回されると感じる苦しみの多くは、実は自分自身の反射的な「はい」から始まっています。
+
+その反射の背景には、長年かけて築かれた義務感や、嫌われたくないという恐れがある。それらは悪いものではありませんが、あなたを縛る鎖になっていることがあります。
+
+今日からできることは、たった一つ。頼まれた瞬間に、すぐに「はい」と言わないこと。「少し考えさせてください」の一言を挟むこと。
+
+その小さな間が、あなたの心に余白を作ります。余白があれば、本当に引き受けたいかどうかを感じ取れます。感じ取れれば、自分の意志で選ぶことができます。
+
+家族との関係は、これからも続いていきます。だからこそ、無理を重ねて関係を壊すのではなく、適度な線を引いて健全に保つ。それが、本当の意味での優しさであり、愛情なのです。
+
+今日、一つだけ、「考えさせてください」と言ってみてください。その一言が、あなたの人生を少しだけ軽くしてくれるはずです。
+</pre>
     </div>
   </div>
 </main>

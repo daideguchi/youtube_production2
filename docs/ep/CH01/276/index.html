@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-276 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-276 — script</h1>
           <div class="muted">最高の復讐は「無視」です。嫌味な人に効く仏教的な返し</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,326 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>最高の復讐は「無視」です。嫌味な人に効く仏教的な返し</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【人間関係】で苦しいあなたへ──嫌味に効く返し方。
+・嫌味に効く返し3つ・怒らず尊厳を守るコツ
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 嫌味, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【人間関係】で苦しいあなたへ──嫌味に効く返し方。
+・嫌味に効く返し3つ・怒らず尊厳を守るコツ</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-276</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-276&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">嫌味を言われた時、うまく返せなくて悔しい思いをしたことはありませんか。
+
+---
+
+その男は、偶然そこに居合わせたわけではありません。彼は意図的にブッダを探し出し、挑発するために来たのです。当時の社会では、尊敬される師を論破することは、自分の名声を高める一つの手段とされていました。その場の空気は、張り詰めた糸のように緊張感に包まれていたことでしょう。周囲の人々や弟子たちは、師匠が不当に罵倒されるのを見て、まるで自分自身が侮辱されたかのように強い屈辱を感じました。彼らの心の中では、すぐに反論してやるべきだこの男を黙らせなければならないという怒りの声が激しく渦巻いていました。これは私たちが日常で直面する場面とよく似ています。理不尽な言葉を投げつけられた時、私たちは反射的に身を守ろうとし、相手に言い返したくなる衝動に駆られます。男は、ブッダが顔を赤らめたり、怒鳴り返したりするのをじっと待っていました。ブッダが少しでも動揺を見せれば、男の攻撃は成功したことになります。しかし、そこには不思議なほどの静寂がありました。それは、負け惜しみの沈黙ではなく、相手の悪意を自分の心に入れないという、強固な意志による静けさでした。この一瞬の「間」こそが、私たちが学ぶべき最も重要なポイントです。衝動的に反応してしまう前に、心の中に一歩引く余地を作る。そのわずかな余地が、あなたの尊厳を守るための最強の砦となるのです。
+
+ブッダの時代、ある男がブッダに会いに来た。
+
+その男は、ブッダを罵倒し始めた。お前は偽物だ。人を騙している。
+
+周囲の人々は驚いた。弟子たちは怒りを感じた。
+
+しかし、ブッダは静かに座っていた。
+
+---
+
+攻撃を続ける男が次第に疲れを感じ始めたのは、彼の言葉が何の抵抗にも遭遇せず、虚しく空を切ったからです。通常、私たちが誰かを罵倒する場合、相手が怒ったり、動揺したり、あるいは言い返してくるといった何らかの反応を無意識に期待しています。その反応こそが、攻撃者にとっての燃料となり、さらに言葉を続ける力や正当性を与えてくれるのです。しかし、ブッダという存在は、まるで底なしの沼のように静寂を保っていました。投げ込まれた石は音もなく沈んでいき、水面には何の波紋さえ広がりません。何も反応しない相手に対して、自分一人だけが熱くなり、独り相撲を取っているような状況は、攻撃者にとって予想外の精神的苦痛となります。自分のエネルギーだけがどんどん吸い取られていくような感覚に陥り、次第に言葉を続ける気力さえ失われていくのです。これは、物理的な衝突をあえて避けることによって、相手の攻撃意欲そのものを自然と枯渇させる、非常に高度で実践的な防御術と言えます。
+
+男は延々と悪口を言い続けた。
+
+しかし、ブッダは何も言い返さなかった。表情も変えなかった。
+
+男は疲れてきた。ブッダが何も反応しないからだ。
+
+---
+
+ついに男は黙った。
+
+ブッダは静かに尋ねた。
+
+もし誰かがあなたに贈り物をして、あなたが受け取らなかったら、その贈り物は誰のものか。
+
+男は答えた。
+
+贈った人のものだ。
+
+ブッダは言った。
+
+その通りだ。あなたの言葉を、私は受け取らなかった。だから、それはすべてあなたのもとに残っている。
+
+男は恥じて立ち去った。
+
+---
+
+なぜ、これを「忍辱」と呼ぶのでしょうか。私たちは普段、耐え忍ぶというと、怒りを飲み込んで我慢することだと考えがちです。しかし、怒りを心の中に溜め込んでおくと、それはいつか爆発してしまいますし、あなた自身の心が傷つきます。ここで言われている忍辱は、もっと能動的で、実践的な技術です。それは、心の境界線を引くことに似ています。あなたの心を一つの家だと想像してください。誰かが汚いものを投げつけてきました。もしドアを開けていれば、その汚いものは家の中に入ってきて、床を汚してしまいます。しかし、ドアを閉ざしておけば、投げつけられたものは玄関先で止まります。ブッダは、この心のドアを堅く閉ざしていたのです。男の言葉は、ブッダという壁にぶつかって、その場に落ちただけでした。この考え方に至ると、相手との力関係が一変します。嫌味を言う人は、自分の言葉があなたを傷つけ、動揺させることで、優越感に浸ろうとしています。しかし、あなたがそれを受け取らなければ、相手の攻撃は空を切り、無力化されます。これは、相手に勝つためではなく、自分の心を守るための知恵なのです。相手の言葉を「自分への攻撃」として受け取るのではなく、「相手の感情の吐き出し」として客観的に観察する。そうすれば、あなたの心は平穏を保ったまま、その場をやり過ごすことができるのです。
+
+これが、仏教の「忍辱」という教えの核心だ。
+
+忍辱とは、耐え忍ぶことではない。
+
+相手の攻撃を受け取らない技術だ。
+
+受け取らなければ、傷つかない。
+
+---
+
+古代ローマの哲学者エピクテトスも、同じことを教えた。
+
+エピクテトスは、奴隷として生まれた。主人から虐待を受けた。
+
+しかし、エピクテトスは言った。
+
+あなたを傷つけるのは、出来事そのものではない。出来事に対するあなたの判断が、あなたを傷つける。
+
+---
+
+エピクテトスの主人は、あるとき彼の足をねじった。
+
+エピクテトスは静かに言った。
+
+そのまま続けると、足が折れますよ。
+
+主人は続けた。足は折れた。
+
+エピクテトスは言った。
+
+ほら、言った通りでしょう。
+
+エピクテトスは怒らなかった。
+
+彼は、反応をコントロールすることだけが自分にできることだと知っていた。
+
+---
+
+嫌味を言う人は、あなたの反応を見たがっている。
+
+心理学では、これを「受動的攻撃」と呼ぶ。
+
+直接的に攻撃する代わりに、皮肉や嫌味で相手を傷つけようとする行為だ。
+
+嫌味を言う人の目的は、あなたを動揺させることだ。
+
+---
+
+だから、最も効果的な対処は、動揺しないことだ。
+
+ブッダが贈り物を受け取らなかったように。
+
+エピクテトスが反応をコントロールしたように。
+
+怒らないことは、負けではない。最高の勝利だ。
+
+---
+
+研究によると、嫌味を言う人は、自分自身に問題を抱えていることが多い。
+
+自己肯定感が低い。劣等感がある。
+
+他人を下げることで、自分を上げようとしている。
+
+---
+
+つまり、嫌味を言われるのは、あなたの問題ではない。
+
+相手の問題なのだ。
+
+これを理解すると、嫌味は急に軽く感じられる。
+
+---
+
+この「熱い炭」の例えは、怒りの本質を鋭く突いています。それではなぜ、私たちは火傷を承知でその炭を掴んでしまうのでしょうか。それは、相手に言い返すことで自分の正当性を証明し、傷ついたプライドを回復しようとするからです。嫌味を言われた瞬間、私たちは自分が低い位置に引きずり下ろされたような感覚を覚え、何とかして元の高い位置へ戻ろうともがきます。しかし、怒って反撃すればするほど、あなたは相手の土俵に引きずり込まれます。相手と同じレベルで怒鳴り合っている時、そこにはもう尊厳はありません。ブッダが教えているのは、相手の土俵に乗らないことです。あなたが炭を掴まなければ、それはただの地面に落ちた石ころです。あなたがそれを「痛いもの」と認識しなければ、それはあなたを傷つけることはできません。本当に強い人とは、言い返すのが早い人ではありません。自分の心の平穏を、誰にも乱されないように守れる人のことです。相手の嫌味が、実は相手自身の苦しみの表れに過ぎないと理解できれば、その言葉を自分に向けられた攻撃だと思う必要はなくなります。あなたは、その熱い炭を拾う必要なんてないのです。ただ、そこにあるままにしておけばいい。その選択ができるようになった時、あなたはもう誰にも傷つけられることはありません。
+
+ブッダは弟子たちに教えた。
+
+怒りは、熱い炭を素手で持つようなものだ。投げつけようとしても、火傷をするのは自分だ。
+
+嫌味に怒って反撃すると、自分が傷つく。
+
+相手と同じレベルに落ちてしまう。
+
+---
+
+では、嫌味を言われた時、具体的にどう返せばいいか。
+
+三つの方法がある。
+
+一つ目は、無反応。
+
+表情を変えず、話題を変える。相手の言葉をなかったことにする。
+
+そうですか、で、さっきの話ですけど。
+
+これだけで、嫌味は力を失う。
+
+---
+
+二つ目は、オウム返し。
+
+相手の言葉をそのまま繰り返す。
+
+私、仕事遅いですか。なるほど、そう見えるんですね。
+
+肯定も否定もしない。ただ、聞いたことを確認するだけ。
+
+相手は、次の言葉に困る。
+
+---
+
+三つ目は、感謝。
+
+これは最も強力だ。
+
+ご指摘ありがとうございます。
+
+嫌味を言った相手は、完全に拍子抜けする。
+
+攻撃のつもりが、感謝で返される。相手は混乱する。
+
+---
+
+マルクス・アウレリウスは、古代ローマの皇帝だった。
+
+哲学者でもあり、「自省録」を残した。
+
+アウレリウスは書いた。
+
+朝起きたら、こう自分に言い聞かせよ。今日、私は干渉する人、感謝しない人、横柄な人に会うだろう。しかし、私は彼らに怒ることができない。彼らは、善悪を知らないのだから。
+
+---
+
+アウレリウスは、毎日自分に言い聞かせていた。
+
+嫌な人に会っても、怒らない準備をしていた。
+
+皇帝という最高権力者でも、嫌味を言う人はいた。
+
+しかし、アウレリウスは心を乱さなかった。
+
+---
+
+仏教には「慈悲」という教えもある。
+
+嫌味を言う人に対しても、慈悲の心を持つ。
+
+この人は、苦しんでいるのだ。だから、他人を攻撃するのだ。
+
+そう思えると、怒りは消える。
+
+---
+
+嫌味を言う人は、あなたより不幸なのだ。
+
+幸せな人は、他人を攻撃しない。
+
+嫌味を言う必要がないからだ。
+
+---
+
+ブッダは教えた。
+
+最高の復讐は、幸せになることだ。
+
+嫌味を言われても、あなたが幸せなら、相手の攻撃は失敗だ。
+
+あなたが傷つかなければ、相手の目的は達成されない。
+
+---
+
+エピクテトスも言った。
+
+コントロールできることに集中せよ。コントロールできないことは、受け流せ。
+
+他人が何を言うかは、コントロールできない。
+
+しかし、それにどう反応するかは、コントロールできる。
+
+---
+
+嫌味を言われた時、あなたには選択肢がある。
+
+怒って反撃するか。
+
+受け取らずに流すか。
+
+賢い人は、後者を選ぶ。
+
+---
+
+ブッダの贈り物の話を思い出してほしい。
+
+嫌味という贈り物を、受け取る必要はない。
+
+受け取らなければ、それは相手のもとに残る。
+
+あなたの心は、平和のままだ。
+
+---
+
+今日、誰かに嫌味を言われたら、試してほしい。
+
+怒らない。受け取らない。
+
+ただ、静かに微笑んで、話題を変える。
+
+それが、最高の復讐だ。
+
+---
+
+本日も最後までご覧いただきありがとうございます。
+
+高評価とチャンネル登録も励みになります。
+
+それでは、また次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

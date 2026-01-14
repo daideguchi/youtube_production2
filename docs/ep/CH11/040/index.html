@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-040 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-040 — script</h1>
           <div class="muted">【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,302 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-040</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-040&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre"># 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+財布を開くとき、心も同時に開いているだろうか。お金が集まる人には共通点がある。彼らは「お金は流れるもの」と知り、握りしめず、必要な場所に気持ちよく流している。ブッダが説いた「布施」は、豊かさの源を外に求めず、心の姿勢に見いだす教え。今日は、なぜかお金に愛される人が実践している「与える」の法則を、日常の具体的な行動に落とし込んでいく。
+
+まず、与えるとは「損すること」ではない。与えた瞬間、心は「足りない」から「足りている」に位置が変わる。位置が変わると、判断も言葉も柔らかくなり、周りの人は安心し、信頼が生まれる。信頼が生まれると、仕事も情報も自然と集まってくる。科学的にも、寛大な行為はオキシトシンを分泌し、ストレスを下げ、創造性を高めると報告されている。心と脳が整うから、チャンスに気づきやすくなる。
+
+布施はお金だけではない。ブッダは「財施」「法施」「無畏施」を挙げた。財施は物やお金を与えること。法施は知恵や経験を分かち合うこと。無畏施は恐れを取り除く言葉や態度を差し向けること。さらに日常で使える二つを足そう。愛語：相手を軽くする優しい言葉。身施：時間や労力を使って助けること。お金に愛される人は、これらをバランスよく実践している。
+
+「与える」と「受け取る」は同時に起こる。ありがとうと言いながら渡すと、同じ言葉が自分に返ってくる。受け取るときも、「すみません」ではなく「ありがとう」で受け取る。受け取ることを拒むと、与える流れも細くなる。流れを太くするコツは、与えると受け取るを一組にして呼吸のように扱うことだ。
+
+具体的な始め方は、小さな布施を毎日に組み込むこと。朝、四つ吸って六つ吐きながら「今日は一つ与える」と心で唱える。出勤前に、コンビニで募金箱に硬貨を一枚入れる。電車で席を譲る。職場で誰かの資料に一言「助かった」とメモを添える。帰宅したら、家族に「今日もお疲れさま」と声をかける。これだけで一日に財施・無畏施・愛語を満たせる。
+
+お金に愛される人は、財布を「恐れの箱」にしない。レシートで膨らんだ財布は、心の停滞を映す。週に一度、レシートを整理し、財布に「ありがとう」と声をかけ、静かに拭く。拭く時間は、金額の大小ではなく、お金との関係を整える時間になる。財布を整えると、使い方も整う。
+
+与えるときに大切なのは「中道」。自分を削って与えると、疲労と恨みが溜まり、流れが止まる。余白を残し、自分の生活を壊さない範囲で行う。例えば、月に一度の寄付は「手取りの1%」のように上限を決める。時間を与えるときも、夜は家族との時間を優先し、手伝えるのは朝の30分だけ、と境界を引く。境界は冷たさではなく、流れを持続させる堤防になる。
+
+「与える」と「断る」はセットだ。断れない人は、与えることにも疲れ、やがて誰にも渡せなくなる。丁寧に断る言葉を用意しておく。「今は力が足りないけれど、応援しています」「他の人なら力になれるかもしれません」。正語で断ると、関係は損なわれず、次の機会にまた声がかかる。
+
+ここで三つの実例を見よう。地方のパン屋を営む女性は、毎朝焼きたての端を「味見してください」と近所に配った。数ヶ月後、口コミで行列ができ、売上は倍になった。財施と愛語が信頼を育てた例だ。中堅企業のマネージャーは、会議のたびに部下の良かった点を一つ具体的に伝える「一言法施」を続けた。チームの離職が減り、プロジェクトの成功率が上がった。ITエンジニアの青年は、休日に初心者向け勉強会を無料開催し、資料を公開した。半年後、その姿勢が評価され、転職先から高いオファーを得た。与える力は、めぐりめぐって仕事の縁を引き寄せる。
+
+「投資」と「寄付」の間にも中道がある。利回りを求める投資は未来の自分への布施。寄付は今困っている人への布施。どちらか一方だけでは偏る。例えば、投資信託を積み立てながら、毎月少額を子ども食堂に送る。未来と現在、両方に流れを作ることで、心の安心も分散投資できる。
+
+与える習慣を定着させる七日間プラン。1日目、財布とスマホを拭き、レシートと未読通知を整理する。2日目、募金箱に硬貨を入れ、相手の目を見て「お願いします」と言う。3日目、同僚か家族に一言の感謝をメモで残す。4日目、余っている本を一冊譲るか寄付ボックスに入れる。5日目、SNSで誰かの努力を真剣に称えるコメントを書く。6日目、誰かの不安を聞き、否定せずに「大丈夫、一緒に考えよう」と伝える。7日目、一週間の「与えたリスト」を眺め、心と表情の変化を感じる。
+
+二十一日間続けると、与えることが「思いつき」から「習慣」に変わる。週ごとにテーマを変えてもいい。第1週は財施を意識し、小さな金額を気持ちよく出す練習。第2週は法施と愛語で、経験や知識を短い文章にまとめて誰かに渡す。第3週は無畏施と身施で、時間を使って誰かの重さを減らす。三週間が終わるころには、財布の中身だけでなく、顔つきや言葉の選び方も穏やかになる。
+
+九十日を超えると、与える姿勢が自分の「デフォルト」になる。突然の出費にも慌てず、必要な支出と不必要な浪費がはっきり見える。お金が入ったときも、まず「どこに流すか」を考えるようになる。貯めるだけではなく、流す先を決めておくことで、罪悪感や衝動買いが減る。
+
+人間関係でも「与える」は効く。相手に花を渡すのではなく、耳を渡す。話を最後まで聞き、途中で評価しない。黙ってうなずくだけで、相手は安心し、心を開く。安心が生まれると、仕事でもプライベートでも協力がスムーズになる。無畏施は、相手の恐れを受け止めることで成立する。
+
+お金に愛される人は、「時間の使い方」にも布施を持ち込む。約束の五分前に着く。遅れそうなら一報を入れる。これは相手の時間を尊重する財施であり、信頼残高を増やす行為だ。信頼残高は、金額に換算できないが、仕事の依頼や紹介となって戻ってくる。
+
+逆境でこそ「与える」を試す。仕事で評価されないとき、売上が落ちたとき、心は縮こまりやすい。そんなときこそ、朝に一杯のコーヒーを友に奢る。小さな布施が心の硬直をほどき、視野を広げる。ブッダが説いたように、執着は苦の根。握りしめるほど苦しみは深まる。小さく開けば、苦も小さくなる。
+
+最後に、呼吸とともに行う短い儀式を。座り、両手を膝の上に置き、四つ吸い六つ吐く。吐くときに心で唱える。「与えると、満ちる」。財布をそっと撫で、「今日もありがとう」と言う。次に受け取ったときも、「ありがとう」で迎える。この往復が、豊かさの川をたゆたえさせる。お金に愛される人の秘密は、特別なテクニックではなく、心の開き方にある。与える手のひらを柔らかく保つことで、豊かさは静かに集まり続ける。
+
+# 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+## 導入
+私たちの身の回りにある製品。
+それらがどのように作られているのか、知っていますか？
+今日は、【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則の製造工程に潜入します。
+驚きの技術と、職人たちのこだわり。
+その裏側には、知られざるドラマがありました。
+
+## 製造の秘密
+工場の中に足を踏み入れると、そこは別世界。
+巨大な機械が唸りを上げ、精密なロボットが動いています。
+しかし、最も重要なのは、やはり人の手。
+長年の経験と勘が、品質を支えているのです。
+
+## 技術の進化
+かつては手作業だった工程も、今では自動化が進んでいます。
+しかし、効率化だけが目的ではありません。
+より安全に、より高品質に。
+技術の進化は、止まることを知りません。
+
+## 結論
+【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則。
+その一つ一つに、多くの人々の情熱が込められています。
+次にこの製品を手にする時、その背景にある物語を思い出してください。
+ものづくりの魂は、今も息づいています。
+
+
+(詳細な解説がここに続きます...)
+
+# 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+## 導入
+私たちの身の回りにある製品。
+それらがどのように作られているのか、知っていますか？
+今日は、【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則の製造工程に潜入します。
+驚きの技術と、職人たちのこだわり。
+その裏側には、知られざるドラマがありました。
+
+## 製造の秘密
+工場の中に足を踏み入れると、そこは別世界。
+巨大な機械が唸りを上げ、精密なロボットが動いています。
+しかし、最も重要なのは、やはり人の手。
+長年の経験と勘が、品質を支えているのです。
+
+## 技術の進化
+かつては手作業だった工程も、今では自動化が進んでいます。
+しかし、効率化だけが目的ではありません。
+より安全に、より高品質に。
+技術の進化は、止まることを知りません。
+
+## 結論
+【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則。
+その一つ一つに、多くの人々の情熱が込められています。
+次にこの製品を手にする時、その背景にある物語を思い出してください。
+ものづくりの魂は、今も息づいています。
+
+
+(詳細な解説がここに続きます...)
+
+# 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+## 導入
+私たちの身の回りにある製品。
+それらがどのように作られているのか、知っていますか？
+今日は、【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則の製造工程に潜入します。
+驚きの技術と、職人たちのこだわり。
+その裏側には、知られざるドラマがありました。
+
+## 製造の秘密
+工場の中に足を踏み入れると、そこは別世界。
+巨大な機械が唸りを上げ、精密なロボットが動いています。
+しかし、最も重要なのは、やはり人の手。
+長年の経験と勘が、品質を支えているのです。
+
+## 技術の進化
+かつては手作業だった工程も、今では自動化が進んでいます。
+しかし、効率化だけが目的ではありません。
+より安全に、より高品質に。
+技術の進化は、止まることを知りません。
+
+## 結論
+【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則。
+その一つ一つに、多くの人々の情熱が込められています。
+次にこの製品を手にする時、その背景にある物語を思い出してください。
+ものづくりの魂は、今も息づいています。
+
+
+(詳細な解説がここに続きます...)
+
+# 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+## 導入
+私たちの身の回りにある製品。
+それらがどのように作られているのか、知っていますか？
+今日は、【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則の製造工程に潜入します。
+驚きの技術と、職人たちのこだわり。
+その裏側には、知られざるドラマがありました。
+
+## 製造の秘密
+工場の中に足を踏み入れると、そこは別世界。
+巨大な機械が唸りを上げ、精密なロボットが動いています。
+しかし、最も重要なのは、やはり人の手。
+長年の経験と勘が、品質を支えているのです。
+
+## 技術の進化
+かつては手作業だった工程も、今では自動化が進んでいます。
+しかし、効率化だけが目的ではありません。
+より安全に、より高品質に。
+技術の進化は、止まることを知りません。
+
+## 結論
+【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則。
+その一つ一つに、多くの人々の情熱が込められています。
+次にこの製品を手にする時、その背景にある物語を思い出してください。
+ものづくりの魂は、今も息づいています。
+
+
+(詳細な解説がここに続きます...)
+
+# 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+## 導入
+私たちの身の回りにある製品。
+それらがどのように作られているのか、知っていますか？
+今日は、【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則の製造工程に潜入します。
+驚きの技術と、職人たちのこだわり。
+その裏側には、知られざるドラマがありました。
+
+## 製造の秘密
+工場の中に足を踏み入れると、そこは別世界。
+巨大な機械が唸りを上げ、精密なロボットが動いています。
+しかし、最も重要なのは、やはり人の手。
+長年の経験と勘が、品質を支えているのです。
+
+## 技術の進化
+かつては手作業だった工程も、今では自動化が進んでいます。
+しかし、効率化だけが目的ではありません。
+より安全に、より高品質に。
+技術の進化は、止まることを知りません。
+
+## 結論
+【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則。
+その一つ一つに、多くの人々の情熱が込められています。
+次にこの製品を手にする時、その背景にある物語を思い出してください。
+ものづくりの魂は、今も息づいています。
+
+
+(詳細な解説がここに続きます...)
+
+# 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+## 導入
+私たちの身の回りにある製品。
+それらがどのように作られているのか、知っていますか？
+今日は、【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則の製造工程に潜入します。
+驚きの技術と、職人たちのこだわり。
+その裏側には、知られざるドラマがありました。
+
+## 製造の秘密
+工場の中に足を踏み入れると、そこは別世界。
+巨大な機械が唸りを上げ、精密なロボットが動いています。
+しかし、最も重要なのは、やはり人の手。
+長年の経験と勘が、品質を支えているのです。
+
+## 技術の進化
+かつては手作業だった工程も、今では自動化が進んでいます。
+しかし、効率化だけが目的ではありません。
+より安全に、より高品質に。
+技術の進化は、止まることを知りません。
+
+## 結論
+【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則。
+その一つ一つに、多くの人々の情熱が込められています。
+次にこの製品を手にする時、その背景にある物語を思い出してください。
+ものづくりの魂は、今も息づいています。
+
+
+(詳細な解説がここに続きます...)
+
+# 【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則
+
+## 導入
+私たちの身の回りにある製品。
+それらがどのように作られているのか、知っていますか？
+今日は、【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則の製造工程に潜入します。
+驚きの技術と、職人たちのこだわり。
+その裏側には、知られざるドラマがありました。
+
+## 製造の秘密
+工場の中に足を踏み入れると、そこは別世界。
+巨大な機械が唸りを上げ、精密なロボットが動いています。
+しかし、最も重要なのは、やはり人の手。
+長年の経験と勘が、品質を支えているのです。
+
+## 技術の進化
+かつては手作業だった工程も、今では自動化が進んでいます。
+しかし、効率化だけが目的ではありません。
+より安全に、より高品質に。
+技術の進化は、止まることを知りません。
+
+## 結論
+【なぜかお金に愛される人の秘密】ブッダが教える、豊かさを引き寄せる「与える」の法則。
+その一つ一つに、多くの人々の情熱が込められています。
+次にこの製品を手にする時、その背景にある物語を思い出してください。
+ものづくりの魂は、今も息づいています。
+
+</pre>
     </div>
   </div>
 </main>

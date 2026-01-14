@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH28-010 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH28-010 — script</h1>
           <div class="muted">涙が出ない夜…“泣けない自分”を許した</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH28</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH28</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,195 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UClIpFmUia69ZDU3soXJRSnQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>涙が出ない夜…“泣けない自分”を許した</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・心が折れそうな夜の整え方&lt;br&gt;・今日できる一歩
+
+※本チャンネルの物語はフィクションです。
+この動画は、「60代からの静かな救いの物語」の長時間コンテンツです。
+老後の友人関係・近所付き合いを、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, 空虚, 老後, シニア, 友人関係, 近所付き合い, 同窓会, 町内会, 人間関係, 物語, 朗読, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・心が折れそうな夜の整え方&lt;br&gt;・今日できる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「60代からの静かな救いの物語」の長時間コンテンツです。
+老後の友人関係・近所付き合いを、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH28-010</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH28-010&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">秋の気配が深まり、街路樹が鮮やかな朱色や黄金に染まり始めた頃。
+乾いた風が舗装された道をカサカサと小気味よく吹き抜け、道端に溜まった枯れ葉を踊らせる午後のひととき、私はいつものように近所にある小さくて品のあるカフェの木製の重厚な扉を、耳に心地よい鐘の音を響かせながら静かに開けました。
+扉を開けた瞬間、冷たい外気と入れ替わりに私を包み込んだのは、店主が自慢の焙煎機で丁寧に熱を入れた、ダークチョコレートのようなほろ苦い香りを孕んだ深煎り珈琲の芳醇なアロマでした。
+ここは、長年勤め上げた会社を定年退職した後の私が、週に三回、自分への大切なしつけ、あるいは最高のご褒美として通い続けてきたかけがえのない静かな「居場所」でした。
+真鍮のドアノブに残る、冬の気配を孕んだ程よい冷たさとずっしりとした重み。
+店内に一歩足を踏み入れると、磨き抜かれたカウンター越しに店主が「いらっしゃいませ」と、以前と変わらぬ穏やかな、けれどどこかこちらを気遣うような視線を向けてくれます。
+窓際の柔らかな午後の陽だまりに置かれた、長年多くの人々の背中を優しく受け止めてきたであろう、使い込まれて少し角が丸くなった革張りの琥珀色のソファー席。
+あそこに座って、琥珀色の光の中で誰にも邪魔されずに一冊の本を読み切ることが、今の私の人生で最も純度の高い至福の幸せなんだと確信していました。
+けれどそんな穏やかな日常が、一枚の、白くて冷たい見慣れない「予約済み」のプレートによって音を立てて崩れ始めたのは、つい先月の冷たい雨が降る午後のことでした。
+
+「あら、恵子さん。ごめんなさいね。今日は私たち、ここでちょっとした、けれどとても大切な打ち合わせがあるのよ」
+聞き覚えのある、けれど以前のような温かさは微塵もなく、どこか氷の粒を含んだかのように冷ややかに響く声。
+そこには三年前、あの日傘を忘れて困っていた私に「よかったら入りませんか」と優しく声をかけてくれた、親しいお茶仲間として過ごしてきたはずの陽子さんの姿がありました。
+彼女の周りには、いつの間にか仲間に加わったらしい、どこか排他的なオーラを纏った華やかな装いの女性たちが数名、まるで強固な砦を築くように座っていました。
+私が愛し、自分の魂の一部のように大切に守り続けてきたはずのあの特等席は、今や私の全く知らない「選ばれた誰かのための要塞」へと、無残に変貌を遂げていたのです。
+最も信頼し、自分もその一部だと思い込んでいたコミュニティの中で、ある日突然、見えないカミソリで切り取られるように自分の居場所を失い、冷たい疎外感の暗闇の中で独り立ち尽くしているあなたへ。
+今夜は、ある静かな物語をお話しします。
+このひとときが、あなたの張り詰めすぎた心の糸をほんの少しずつ解きほぐす、静かな救いの一滴になれば幸いです。
+
+---
+
+陽子さんとは、このカフェの月に一度のささやかな読書会を通じて知り合いました。
+最初は好きな作家の描く繊細な情景に共に涙し、ランチの後に「私たちは、いい歳の取り方をしたいわね」とお互いの人生の歩みを尊重し合える、知的な友人だと思っていました。
+彼女はリーダーシップがあり、いつも「みんなで孤独を分かち合って楽しく過ごしましょう」と太陽のような温かな笑顔を絶やさない人でしたが、その眩しすぎる笑顔の裏側に、自分の色に染まらない者を静かに排除しようとする鋭利な支配欲が潜んでいることに、私はおめでたいほど気づけずにいました。
+きっかけは、彼女が最近始めたという新しい活動に、私が「今は、ようやく手に入れた一人きりの時間を、一人の時間を大切にしたいので」と丁重にお断りをしたことだったのかもしれません。
+その日を境に、カフェでの彼女の態度は目に見えないほど少しずつ、けれど決定的に変わっていきました。
+「恵子さん。あなたは最近とてもお忙しいみたいだから。私たちは私たちの感性に合う人たちだけで、少しだけ密度を上げて進めさせてもらうわね」
+彼女が事あるごとに口にする「私たち」という言葉。
+その中に当然のように含まれていたはずの自分の存在が、ナイフで注意深く削り落とされているのを感じるのは、耐えがたいほどの心への静かな暴力でした。
+カフェに行けばいつも彼女たちが陣取っているあの窓際の席。
+かつては「恵子さん、こっちへいらっしゃい。あなたの好きな新刊の話を聞かせてよ」と朗らかに招いてくれたその聖域が、今は私を一歩近づくことさえ許さない拒絶の異界のように思えました。
+私が別の、入り口近くの落ち着かない隅っこの、空調の風が直接当たって肌寒さを感じる席で一人、すっかり冷え切って苦味の増した珈琲を啜っているとき。
+窓際からは自分たちだけを肯定し合うような華やかな笑い声と、私を完全に共同体の歴史から抹消したかのような未来の計画が、わざとらしくも、確実に私の耳に届く絶妙な音量でこれみよがしに響いてくるのです。
+それは言葉を使って直接私を追い出すよりもずっと洗練されていて、それゆえに回避することのできない残酷な精神的な排除の方法でした。
+
+---
+
+雨上がりの、湿った冷たい空気が纏わりつくある日の午後。
+私は震える手をコートのポケットに深く突っ込み、いつもの窓際の席に近づこうとしました。
+もし今日ここに座ることができれば、あの日からの違和感はすべて私の考えすぎだったと思えるかもしれないという、最後の一縷の希望を抱いて。
+「陽子さん。お隣、よろしいかしら。少しだけお話ししたくて」
+私の震える問いかけに対し、彼女は手元のスマートフォンからスローモーションのように視線を上げましたが、その瞳にはかつての親愛の情は跡形もなく消え去っていました。
+そこにあるのは、ただ「招かれざる不純物」を冷徹に選別するような、平坦で慈悲のない無機質な拒絶の色だけでした。
+「あら、ごめんなさい、恵子さん。ここはこれから、新しい活動の主要なメンバーが来る予定なの。もう、この席は私たちが予約してしまったようなものなのよ」
+そう言って彼女がまだ誰も座っていないその空席の上に置いたのは、金色の大きな金具が鈍く光る、最新のブランド物の不釣り合いに重たいバッグでした。
+そのバッグがドスンという鈍い音を立てて椅子に鎮座し、物理的な壁となって私と彼女たちの幸福な世界を分断した瞬間。
+私の胸の奥に半年間、少しずつ降り積もってきた小さな棘が、一重に束ねられた鋭い剣となって一気に深く、深く突き刺さりました。
+私はもうここに座ることさえ、呼吸をすることさえ許されていないのだという取り返しのつかない現実は、人生の後半戦を穏やかに過ごそうと願っていた私にとって、あまりにも冷たい宣告でした。
+周りの他の客たちが気まずそうに視線を逸らしていく中、私は氷を飲み込んだかのように冷え上がった身体を必死に支えながら、何も言い返せず、ただ静かにその場を立ち去ることしかできませんでした。
+店を出ようとした背後で、私には二度と向けられることのない熱烈な歓迎の声が祝福するように響き渡り、店外に吹き抜ける風は、店に入る前よりもずっと私を切り刻むように冷たく、私の頬を打ち抜くのでした。
+
+---
+
+それからは一週間以上、家の中から一歩も出ることができず、ただ自分の不備を責め続けました。
+「あの時のあの言葉がいけなかったのだろうか」「彼女の誘いを断ったのが全ての原因だったのか」
+後悔という名の泥水を飲み干すように検証し続ける終わりのない自問自答の日々。
+あんなにも愛おしく贅沢なものだと思っていた一人の静かな時間が、今は誰からも選ばれなかった惨めな敗北者のための空白にしか思えなくなっていました。
+リビングの窓から見える茜色の夕焼けを眺めながら、陽子さんたちが今頃あのカフェで親密な毒を分け合っているのではないかと想像するだけで、私の心臓は冷たい手でぎゅうぎゅうと握りつぶされるような激痛を覚えました。
+私は誰とも繋がっていない、ただの虚無の中に漂う砂粒のような存在だ。
+その絶望的な言葉が夜の暗い部屋の中に鉛のように重く降り積もり、懸命に生きて手に入れてきたはずのささやかな尊厳をじわじわと侵食していくのを、私はただ見ていることしかできませんでした。
+夜、天井の木目を数えながら、理由もなく涙がこぼれ、枕を濡らした夜は何度あったでしょうか。
+
+---
+
+そんな絶望の中で十日が過ぎた頃、あまりにも重くなった自分の心を、せめて場所を変えて置くことができないかと、ふと思い立ちました。
+「そうだ。あのカフェではなく、全く別の、誰も私を知らない場所へ行こう」
+それは最期の力を振り絞って窓を開けるような、そんな必死の覚悟でした。
+私はこれまで何年もこの街に住んでいながら、一度も降りたことのない、隣駅の裏通りにある一軒の古びた喫茶店に足を運んでみることにしました。
+きっかけをくれたのは、本棚の隅で埃をかぶっていた亡き夫が好きだった随筆集の一節でした。
+「一つの扉が乱暴に閉められたとき、世界は必ずどこかで別の扉をそっと開けて待ってくれている。けれど私たちは、閉まったばかりの冷たい扉ばかりを長い間恨めしげに見つめ続けてしまうのだ」
+私は、私の存在を拒絶して閉まったあのカフェの扉の前でいつまでも座り込み、中に入れてくださいと心の中で泣き叫んでいた自分の浅ましさに、ようやく気づくことができたのです。
+
+隣駅の裏通りで見つけたその喫茶店は、あのガラス張りのスタイリッシュなカフェとは対極にある、時間の止まったような場所でした。
+角がすり減った深い色合いの木のテーブル。
+古いゼンマイ式の柱時計がカチ、カチという一定のリズムで人生の刻みを教えてくれます。
+壁際に並ぶ背表紙が焼けた無数の古本たち。
+そこには陽子さんも取り巻きも、そして私の一挙手一投足を採点するような冷たい視線も存在しませんでした。
+店の一番奥にある、小さな一人掛けの席に腰を下ろすと、寡黙な店主が銀色のトレイに乗せた、使い込まれた陶器のカップに入った珈琲を運んできてくれました。
+それはあのカフェのものよりもずっと色が濃く深い苦味がありましたが、驚くほど心の奥底まで染み渡る澄み切った味がしました。
+その熱い一口を喉に通した瞬間、私の胸を硬く縛り付けていた疎外感という名の重い鉄鎖が、音もなくパラパラと解け落ちていくのを確かに感じました。
+
+---
+
+ここは私のことを誰も知らない、そして誰も評価しない場所なんだ。
+その事実は、私に震えるほどの圧倒的な解放感をもたらしました。
+陽子さんの用意した土俵はリーダーの顔色を伺い続けることが唯一の条件であり、一度でも逸脱すれば排除される、薄氷のような危うい居場所でした。
+私は自分自身の存在価値を、彼女たちの不確かな承認という砂上の楼閣の上に築こうとしていたのです。
+けれどこの駅裏の小さな席は、誰に許される必要もなく、私がただ居たいから居るという、独立した個人の尊厳がそのまま許される場所でした。
+窓の外にはあのカフェの矮小なルールとは一切関係のない、広大で美しい本当の世界が広がっていました。
+あんなにも自分を追い詰めていた陽子さんの言葉さえ、この静かな空間の中では遠い空想のようにリアリティを失っていくのを感じていました。
+私は鞄から、子供の頃から大切にしていた、もう何度も読み返したはずの詩集を取り出しました。
+それを開いたとき、私はようやく誰の目も気にせずに、ありのままの自分自身の時間を、自分の人生の手元にしっかりと取り戻すことができたのです。
+
+---
+
+疎外感とは、たった一つの狭い世界だけが人生のすべてなのだと自分自身で視野を狭めてしまったときに生まれる心の錯覚なのかもしれません。
+もしあなたが今、信頼していたコミュニティの中で居場所を失い、凍えるような孤独の中に立ち尽くしているのだとしたら、どうか思い出してください。
+あなたの魂を優しく包んでくれる世界は、あの人のいるカフェよりもずっと広くて深いのだということを。
+あなたが必死にしがみつこうとしているその指定席は、果たしてあなたの本来の輝きを引き出し、魂を温めてくれる場所なのでしょうか。
+それとも相手の色に染まることを強いられる、残酷な檻になってはいませんか。
+もし今の場所が苦しいと感じるのであれば、そこから静かに一歩だけ外の世界へ踏み出してみてください。
+それは敗北ではなく、あなたという尊厳を一番安全な場所へ移してあげるための、慈悲深い自分への愛なのです。
+あなたが自分の意志で別の場所を一つ見つけたとき、あなたの世界には陽子さんのような存在に決して侵されることのない、最強の盾が生まれます。
+私にはここ以外にも、私だけの席があるという静かな確信を持つこと。
+陽子さんのような人に人生の主導権を渡してはいけません。
+あなたが選び取ったその小さな居場所こそが、これからの時間を誰にも邪魔されない豊かな静寂で満たしてくれるのですから。
+
+---
+
+窓の外では夜の闇がいよいよ深い藍色へと溶け込み、静かな星々がそれぞれの場所で、誰と比較されることもなく自分の光を誇らしく放っていました。
+今夜、布団に入る前に、あなた自身という存在を守り抜くための「今夜の一手」を心の中に決めておいてください。
+明日、もしよければいつも行っているあの場所ではなく、別の店を一つだけ、時間をかけて探してみてください。
+隣駅の古い喫茶店でも、図書館の片隅のベンチでも、今まで見向きもしなかった小さな公園でもいいのです。
+「ここは私のことを誰も知らない、私の最高の自由の国なんだ」と確信できる聖域をあらかじめ心の中に用意しておく。
+もし明日またいつもの場所で冷たい視線を感じたとしても、その時あなたは心の中で呟くことができるはずです。
+「どうぞお好きなように。私にはあっちの特等席があるから」
+ただそれだけの思考の切り替えで、あなたの心は驚くほど透明に自由になれるはずです。
+他人の用意した不自由な席に、無理に自分を押し込める必要などどこにもありません。
+あなたが自分の心を最も安らかに置ける場所。
+それこそが、あなたの六十代からの本当の救いそのものなのですから。
+今夜はどうぞ心から安心してください。
+たとえ世界中の誰に席を奪われたとしても、あなたの価値は一ミリも損なわれてなどはいないのですから。
+今夜、この瞬間にあなたを包み込んでいるこの安らぎこそが、あなたの人生の本当の財産なのです。
+今夜は深い穏やかな眠りの海に、その身のすべてを幸せに委ねてくださいね。
+明日もまたあなたにとって、自分自身が人生の主権者であることを確信できる、清々しい一日になりますように。
+おやすみなさい。
+最後まで本当にお聞きくださって、ありがとうございました。
+またいつか、どこかでお会いしましょうね。
+どうぞ、お体もお心も大切に。
+あなたのどこまでも健やかで平穏な夜を、心からお祈りしています。
+</pre>
     </div>
   </div>
 </main>

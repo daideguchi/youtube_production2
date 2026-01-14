@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH05-015 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH05-015 — script</h1>
           <div class="muted">【ペットロス】愛犬を亡くし、悲しみに暮れる私。動物霊園でいつも会う彼も、愛猫を亡くしたばかりだった。「あの子たち、今頃虹の橋で友達になってるかな」</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,164 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCNxC0Q2xDoofIClGNurUcIg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【ペットロス】愛犬を亡くし、悲しみに暮れる私。動物霊園でいつも会う彼も、愛猫を亡くしたばかりだった。「あの子たち、今頃虹の橋で友達になってるかな」</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉
+
+この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>再婚, 家族の距離, 老後, シニア, 恋愛, シニア恋愛, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH05-015</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH05-015&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">冬の澄んだ空気が張り詰めるペット霊園。
+枯れ木の間から差し込む弱い光が、無数に並ぶ小さな石碑を照らしている。風が吹くたびに、供えられた花がカサカサと音を立てる。
+私はベンチに座り、愛犬「ポチ」の名前が刻まれた冷たい石を撫でていた。
+田中美和子、六十七歳。夫を見送って七年。その夫が遺してくれた愛犬も、先日天国へと旅立った。十七年という長い時間を共にした家族。
+夫を亡くした時、私はポチの温もりに救われた。ポチがいたから、朝起きることができたし、散歩に出ることもできた。
+その最後の砦が崩れ落ちた喪失感は、夫を亡くした時とはまた違う、鋭い痛みとなって胸に突き刺さっていた。
+石のざらりとした感触が指に伝わる。冷たい。生きている時の、あの温かくて柔らかい毛並みは、もうどこにもない。
+喉の奥が鳴り、涙が溢れそうになった時、視界の端に黒いスーツの男性が入ってきた。
+
+彼は少し離れた墓石の前で、猫の写真が入った額縁を胸に抱き、立ち尽くしていた。
+その背中があまりにも小さく、悲しげに見えたので、私は思わず声をかけてしまった。
+「……いつ、ですか？」
+彼は驚いたように振り返った。村上聡、七十歳。真面目そうな眼鏡の奥の瞳が、赤く腫れていた。
+「……昨日です。十九年、生きました」
+静かで、掠れた声だった。まるで、喉の奥に砂が詰まっているかのような。
+「うちは、十七年です。先週、逝きました」
+数字が重なる。冷たい空気に、小さな共感の熱が生まれた瞬間だった。
+
+彼はポケットから名刺を取り出し、震える手で差し出した。「司法書士をしています。仕事柄、遺産相続だの、終わりの書類ばかり扱ってきました。人の死には慣れているつもりでした。でも……自分の猫の終わりには、何もできなかった」
+名刺を受け取ると、紙の硬さと共に、他的指の温度が伝わってきた。
+「田中美和子です。私は……夫を見送ってからは、犬に頼りきりでした。あの子が私の支えでした。夫の生まれ変わりなんじゃないかって、本気で思っていたくらい」
+私の言葉に、村上さんの瞳から涙がこぼれ落ちた。冬の陽射しを浴びて、その涙がキラリと艶を帯びて光る。
+「猫は……法的には『物』なんですよね」彼がポツリと言った。「器物損壊、なんて言葉があるくらいだ。でも、心では家族だ。いや、それ以上かもしれない。言葉が通じない分、心で繋がっていた」
+「ええ。名前を呼ぶ人がいる限り、あの子たちは心の中で生き続けます」
+私たちは並んで花立ての水面を眺めた。水面に映る冬の空は、どこまでも高く、青かった。
+
+「写真を、嫁に行った娘に渡すべきか迷っているんです」
+彼が額縁を撫でながら言った。中には、三毛猫が日向ぼっこをしている写真が入っている。
+「娘にとっても大切な猫でしたが、今の生活の邪魔になるんじゃないかと。孫も生まれたばかりですし、死の気配を持ち込むのは……」
+「渡すのも、抱きしめるのも、両方していいと思いますよ」
+私は自然と言葉を紡いでいた。
+「形に残すことで、救われることもありますから。お孫さんにも、命の大切さを伝えるきっかけになるかもしれません」
+「……そうですか。形に残す……。そうですね、隠すことじゃない」
+彼は少し考え込み、そして小さく頷いた。彼の低い声が、石碑の冷たさを少しだけ柔らかくしていくような気がした。
+
+別の日、霊園で再会した村上さんが、小さな鈴を取り出した。
+「これ、あの子がつけていた首輪の鈴です。音がすると、まだそこにいるような気がして……寂しさが和らぐんです」
+チリン、と涼やかな音が響く。その音色は、寂寥とした霊園の空気を震わせた。
+「もしよかったら、あなたもどうですか？ 同じものを二つ買ったんです。予備として持っていたんですが、使う機会がなくて」
+「え、でも……」
+「嫌なら受け取らなくていいんですが、誰かに持っていてほしいんです。この音を知っている人に」
+私はその鈴を手に乗せた。金属の冷たさと、微かな傷跡。
+「預かります。私がこれを鳴らす時は、あなたにも知らせますね。『今、思い出しているよ』って」
+「ええ。お願いします」
+鈴をポーチに忍ばせ、帰宅してから夫とポチの遺影の前で鳴らした。「チリン」。
+「あなたと、ポチと、私。そして新しいお友達の猫ちゃん。みんなで記憶を分け合うね」と報告する。
+
+ある日、駅前の喫茶店で待ち合わせた。お互いのペットの写真を見せ合うためだ。
+彼は分厚いアルバムを持ってきた。
+「うちの子、印鑑を転がす癖があってね。大事な書類に朱肉をつけられたこともありました」彼が苦笑いしながら写真を見せる。朱肉まみれの猫の足跡がついた書類。
+「ふふ、可愛い犯人ですね。うちは靴下を集めるのが趣味でした。洗濯機の中から片方だけなくなるんです。後で掃除したら、ソファの下から大量に出てきて」
+私の話に、彼も声を上げて笑った。二人の笑い声が、コーヒーの湯気に混ざり合う。
+「亡くなった子の話をして、笑える日が来るなんて思わなかった」
+彼が目を細めて言った。
+「私もです。一人だと、どうしても泣いてしまうから」
+会計の時、私が財布を出そうとすると、彼が制した。「ここは私が」
+「いえ、支払いは各自で。形は混ぜない方がいいわ。依存したくないの」
+「……そうですね。自立した悲しみ、ですね。感謝は、言葉だけで十分ですね」
+触れずに礼を交わす。その距離感が、逆に心の温度を上げていく。
+テーブルの上、封筒に入れた猫と犬の写真を並べた。指先だけを写真に乗せ、風に当ててから戻す。「物は動かさず、温度だけ行き来させる」。それが私たちのルールになった。
+
+「手紙を書いてきました」
+ある日、彼が言った。「声に出して読むと涙が止まらなくなるから、文字で湿らせようと思って」
+私も頷き、持ってきた手紙を取り出す。互いのペットへの手紙。それを交換し、黙読する。
+『ミーコへ。君のいない部屋は広すぎる。君の毛がまだカーペットに残っていて、それを捨てられずにいるよ』
+『ポチへ。今日はあなたの好きなジャーキーを買ってしまいそうになりました。散歩の時間になると、まだ体が勝手に動いてしまうの』
+文字を追うごとに、胸が締め付けられる。でも、不思議と温かい。
+「手紙は、声よりも湿度が高いですね。インクが涙の代わりみたいだ」
+読み終えた封筒を、ベンチの真ん中にそっと置く。置くという行為で、触れない境界線を示す。
+
+村上さんから、メッセージアプリで音声データが届いた。鈴の音の録音だ。
+『寂しくなったら、これを聴いてください。一人じゃないですよ』
+私は朝、それを再生する。チリン、という音が部屋に響く。『夜は鳴らさずに、心の中で聴きます』と返信すると、彼からスタンプが一つ届いた。それだけで、心のチューニングが整う。
+
+霊園の帰り、手芸店に寄った。「鈴を入れるポーチを作ろうと思って」
+彼も付き合ってくれた。「この布、ミーコの背中の毛並みに似ている」彼がグレーのベルベットを指差す。
+「こっちは、ポチの耳の感触ね」私は茶色のフェルトを選んだ。
+布を頬に当てると、思い出の感触が蘇ってくる。「柔らかいですね」彼が私の頬に触れそうな距離で覗き込む。
+「……ええ。あの子たちも、こうして触れられるのを待っているのかしら」
+
+墓地の裏手にある小径を、並んで歩いた。石畳が足音を吸い込み、私のポーチの中の鈴が、歩くたびに微かに鳴る。
+チリン、チリン。
+手は繋がない。音だけで互いの距離を測る。
+「歩幅、合ってきましたね」彼が言った。
+「ええ。あなたと同じリズムになりました。無理をしていない、自然なリズム」
+足音が重なるたび、胸の奥が静かに震える。悲しみを共有することで生まれた絆は、恋と呼ぶには静かすぎて、友情と呼ぶには深すぎた。
+
+私は小さなノートに、今日鈴が鳴った回数や、彼と会った場所を記録し始めた。紙が温度を持ち、指がしっとりと光る。
+桜が満開の日、いつものベンチは花びらで薄く覆われていた。
+村上さんが、小さな水のボトルと紙コップを取り出した。「猫と、犬と、君と、僕に。乾杯」
+「お水ですか？」
+「ええ。一番美味しい水を持ってきました。あの子たちも、水が好きだったから」
+少しだけ水をこぼすと、花びらが水面に浮かんだ。花と水と、遠くで響く鈴の音が重なり、触れないまま胸の奥が満たされていく。
+「また、ここで会えますか」私が聞くと、彼は優しく微笑んだ。
+「ええ。その鈴が鳴り続ける限り、僕は駆けつけますよ」
+私はポーチの上から、一度だけ鈴を鳴らした。チリン。その音が、私たちの次の約束の合図だった。
+夜、鈴を枕元に置き、目を閉じる。石の冷たさ、名刺の紙の硬さ、鈴の柔らかい音。触れない距離で重ねたものが、静かな艶となって胸に残っている。
+「今日、どの音を思い出しますか。誰と重ねますか」
+自分に問いかけ、もう一度だけ心の中で鈴を鳴らしてから、私は深い眠りへと沈んでいった。
+夢の中で、ポチとミーコが仲良く遊んでいるのが見えた気がした。そして、その横で私たちも笑っている。
+悲しみは消えないけれど、共に背負うことで、少しだけ軽くなることを知った冬の終わりだった。
+</pre>
     </div>
   </div>
 </main>

@@ -23,10 +23,6 @@ function gotoEpisode(ch, video, view){
   location.href=path;
 }
 
-function textOrEmpty(el){
-  const s=String((el?.innerText||el?.textContent||"")||"").replace(/\r\n/g,"\n").trim();
-  return s;
-}
 async function copyText(text){
   const s=String(text||"");
   if(!s.trim())return false;
@@ -69,15 +65,9 @@ function setupEpJumpForm(){
   });
 }
 
-function getIframeDoc(frame){
-  try{return frame?.contentDocument||frame?.contentWindow?.document||null;}catch(_e){return null;}
-}
-
 function setupEpisodeDescriptionCopy(){
   const panel=document.getElementById("descPanel");
   if(!panel)return;
-  const frame=document.querySelector("iframe.frame");
-  if(!frame)return;
 
   const status=document.getElementById("descStatus");
   const studioLink=document.getElementById("descStudioLink");
@@ -113,39 +103,12 @@ function setupEpisodeDescriptionCopy(){
     });
   }
 
-  async function refreshFromIframe(){
-    const doc=getIframeDoc(frame);
-    if(!doc){
-      setStatus("iframe読み込み中…（しばらく待ってください）");
-      return false;
-    }
-    const title=textOrEmpty(doc.getElementById("ytTitlePre"));
-    const tags=textOrEmpty(doc.getElementById("ytTagsPre"));
-    const full=textOrEmpty(doc.getElementById("ytFullDescPre"));
-    const ep=textOrEmpty(doc.getElementById("ytEpisodeDescPre"));
-    const ch=textOrEmpty(doc.getElementById("ytChannelDescPre"));
-    if(titleTa)titleTa.value=title;
-    if(tagsTa)tagsTa.value=tags;
-    if(fullTa)fullTa.value=full;
-    if(epTa)epTa.value=ep;
-    if(chTa)chTa.value=ch;
-
-    const studioHref=String(doc.getElementById("openYtStudio")?.href||"").trim();
-    setStudioHref(studioHref);
-
-    const hasAny=!!(title||tags||full||ep||ch);
-    if(hasAny)setStatus("準備OK（コピーボタンを押してください）");
-    else setStatus("概要欄が未生成/未表示です（Script Viewer側の「YouTube貼り付け」を確認）");
-    updateCopyButtons();
-    return hasAny;
-  }
-
   panel.querySelectorAll("[data-copy-target]").forEach((btn)=>{
     btn.addEventListener("click",async()=>{
       const id=String(btn.getAttribute("data-copy-target")||"").trim();
       const ta=document.getElementById(id);
       const text=String(ta?.value||"");
-      const labelById={ytTitle:"タイトル",descFull:"概要欄(全文)",ytTags:"タグ",descEpisode:"概要欄(動画ごと)",descChannel:"概要欄(チャンネル固定)"};
+      const labelById={ytTitle:"タイトル",descFull:"概要欄",ytTags:"タグ",descEpisode:"概要欄(動画ごと)",descChannel:"概要欄(チャンネル固定)"};
       const label=labelById[id]||id;
       try{
         const ok=await copyText(text);
@@ -156,19 +119,11 @@ function setupEpisodeDescriptionCopy(){
     });
   });
 
-  let tries=0;
-  async function poll(){
-    tries+=1;
-    const ok=await refreshFromIframe();
-    if(ok)return;
-    if(tries>=60)return;
-    window.setTimeout(poll,250);
-  }
-  frame.addEventListener("load",()=>{
-    tries=0;
-    poll();
-  });
-  poll();
+  // HTML側で textarea は埋め込み済み。JSは「コピー導線」だけ担当する。
+  updateCopyButtons();
+  setStudioHref(String(studioLink?.getAttribute("href")||"").trim().replace(/^#$/,""));
+  const hasAny=!!(String(titleTa?.value||"").trim()||String(fullTa?.value||"").trim()||String(tagsTa?.value||"").trim());
+  setStatus(hasAny?"準備OK（①タイトル→②概要欄→③タグ をコピーして貼り付け）":"概要欄が空です（Planningを確認してください）");
 }
 
 document.addEventListener("DOMContentLoaded",()=>{

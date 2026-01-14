@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-023 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-023 — script</h1>
           <div class="muted">【もう執着しない】失ったものを数えるのをやめ、今あるものに感謝するブッダの心の整え方</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,138 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【もう執着しない】失ったものを数えるのをやめ、今あるものに感謝するブッダの心の整え方</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-023</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-023&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">ある日突然、失ったものばかり数える癖に気づく瞬間があります。若さ、お金、仕事、役割、家族との距離。数えるたびに心が重くなり、残りの時間まで暗くなる。けれど、本当に数えるべきものは「まだ手の中にあるもの」と「今から積み重ねられるもの」です。今日は、失ったものに縛られず、今あるものに感謝を戻すための心の整え方を、仏教の考え方も交えてお話しします。
+
+人は「失う痛み」を強く感じるようにできています。これは生き延びるための本能です。だからこそ、失ったものばかりに目が向くのは自然なことです。しかし、失ったものだけを見続けると、心の視野が狭まり、目の前にある温かさに気づけなくなります。仏教では「無常」を受け入れることが第一歩だと説きます。変わることが当たり前だと腹に落ちると、手放し方が少しずつ分かってきます。
+
+過去を手放すためには、まず「手放せない理由」を言葉にすることが大切です。紙に「何を失ったと思っているか」と書き、その横に「それに何を期待していたか」も書きます。例えば「仕事を失った」なら「自分の価値を示す場を期待していた」と書く。「健康を失った」なら「自由に動ける体を期待していた」と書く。期待が見えると、痛みの正体がはっきりします。正体が見えれば、別の形で満たす道が開けます。
+
+仏教の「苦集滅道」は、苦しみの原因を見つけ、鎮める道を示します。失ったものに執着する苦しみの原因は「取り戻せるはずだ」という思い込みです。時間は戻りません。だからこそ、戻らないものを追う苦行をやめ、「今あるものを育てる」方向に舵を切ります。舵を切るときは、長い航海の船長になったつもりで静かに決めます。
+
+感謝は単なるきれいごとではありません。脳の仕組みとして、感謝の言葉を口にすると、脳内で安心を作る物質が出ます。これが心を少し軽くします。朝起きて最初に見るものに「ありがとう」と言う練習をしてみます。カーテン越しの光でも、湯のみでも、呼吸でも構いません。小さな感謝を積み重ねると、失ったものより、今あるものが目に入りやすくなります。
+
+失ったものを嘆く時間を、誰かのために使ってみます。仏教の「布施」は、物を与えるだけでなく、時間や言葉や笑顔を分ける行いです。自分のために使っていた時間を少しだけ、誰かの話を聞く時間に回す。近所の人に声をかける。簡単な料理を分ける。与えたものが戻ってくるからではなく、与えることで「自分はまだ誰かの役に立てる」と実感できるからです。その実感が、失ったものへの執着を弱めます。
+
+執着をほどくには、体の動きも役に立ちます。深呼吸を十回する、肩を回す、手をさする。体を動かすと、頭の中の堂々巡りが少し止まります。仏教の修行でも、座っているだけでなく、歩く瞑想があります。ゆっくり歩き、足裏の感覚に注意を向けると、過去への思考から離れやすくなります。体を今に置くと、心も今に戻りやすくなります。
+
+失ったものの中には、人や関係も含まれます。亡くなった人や離れた人への執着を手放すことは簡単ではありません。仏教には「縁起」という考えがあります。すべてのものは条件が揃って生じ、条件が離れると去ります。人とのご縁も同じです。去ったご縁を嘆くより、その人がいたことで得たものに目を向けます。その人から受け取った言葉や習慣を、今の生活で活かす。活かすことで、その人の存在は別の形で生き続けます。
+
+「もう執着しない」と決めても、ふとした瞬間に心は戻ります。そのたびに自分を責めるのではなく、「今、戻ったな」と気づくだけで十分です。気づきは仏教で「念」と呼ばれます。気づくだけで、心は少し距離を取ります。距離を取れれば、また今に戻れます。戻る練習を繰り返すうちに、戻り方が上手くなります。
+
+今あるものを数える習慣を作ります。手の届くところにあるもの、体の動く部分、話せる相手。夕方、机の上で三つだけ書き出します。「今日も歩けた」「友達に電話できた」「お茶が美味しかった」。書くたびに、失ったものリストより「持っているものリスト」が増えていきます。リストが増えれば、心の重さは少しずつ軽くなります。
+
+お金を失ったときも、同じです。残ったお金をどう使うかで心の質が変わります。小さな贅沢を一つ決めて、罪悪感なく味わう。例えば、少し高い茶葉を買う、一駅だけタクシーに乗る、友人にコーヒーを奢る。使うときに「これは私が生きている証だ」と意識すると、お金が「不足の記号」から「生の確認」に変わります。
+
+健康を失ったと感じるときは、できることに光を当てます。歩く距離が短くなっても、座ってできることは増やせます。読書、手紙、写真の整理。仏教の八正道の一つ「正精進」は、やりすぎず、怠けすぎず、中道を歩む努力です。できる範囲で体を動かし、できる範囲で心を動かす。今の体に合わせた新しい日課を作ると、失ったものへの執着が薄れます。
+
+家族との距離が変わったときも、嘆くより、今できる形でつながりを作ります。頻繁に会えなくても、短いメッセージや季節の写真を送る。距離があるからこそできる「思い出し方」を工夫する。仏教の「慈悲」は、相手を思いやる心ですが、距離を取る優しさも含みます。相手に負担をかけない形で関わるのも慈悲です。
+
+情報を絞ることも、執着をほどく助けになります。ニュースやSNSは、失う恐怖を刺激しやすいものです。見る時間を決め、静かな本や音楽に置き換える。心に入れる情報を選ぶと、失ったものへの不安が静まります。静まった心には、今あるもののありがたさが自然と浮かび上がります。
+
+誰かに頼る勇気も必要です。執着を手放す過程は、時に寂しさを伴います。信頼できる人に「今、手放し中で不安だ」と伝えるだけで、心は軽くなります。仏教の僧侶たちも、仲間と共に修行します。一人で抱え込まず、誰かと分かち合う。分かち合うことで、失ったものへの執着が分散し、重さが減ります。
+
+執着を手放すことは、記憶を捨てることではありません。記憶を大切にしながら、今を生きることです。仏教の「中道」は極端に走らない道です。過去にしがみつく極端も、過去を全否定する極端も避けます。過去を尊重しつつ、今の一歩を踏み出す。両方を持つのが、中道の歩き方です。
+
+一日の流れに「戻る合図」を置きます。朝はカーテンを指一本分開け、四つ吸い六つ吐いて「あるものに戻る」と心で唱える。白湯を一口飲み、今日できる小さな布施を一つ決める。昼は光を浴びながら足裏を十歩感じ、午後に三つ「ある」を書く。夕方は水をゆっくり飲み、「ここでリセット」と呟く。夜は湯気の飲み物とともに、感謝を三つ、放下したいことを一つ書き、手で破る。区切りがあると、過去から今へ戻る道が見えやすくなります。
+
+七日間の練習を置きます。1日目：失ったと思うものと期待を書き出す。2日目：「ある」を三つ書き、口に出す。3日目：歩行瞑想十歩。4日目：誰かに短い布施（言葉や時間）を渡す。5日目：情報オフの時間を一時間作る。6日目：手放したいものを紙に書いて破る。7日目：感謝瓶に一枚入れる。七日が過ぎるころ、視線が「ない」より「ある」に傾きます。
+
+二十一日続けると、戻る合図と放下の所作が習慣になり、反芻が減ります。三十日を過ぎるころには、布施と感謝が自然に増え、失ったものより巡っているものに目が向きます。九十日を超えると、手放しと受け取りのバランスが整い、静かな心のスペースが広がります。スペースがある人は、次の縁を受け取りやすくなります。
+
+科学の視点も添えます。長い吐息は迷走神経を刺激し、心拍変動を整えて不安の波を小さくします。感謝を書く習慣は、ポジティブな記憶の想起を増やし、欠乏感を和らげることが研究で示されています。布施や親切はオキシトシンを増やし、信頼と安心感を高めます。理屈を知ると、続ける理由が増えます。
+
+最後に、心の合図を決めます。失ったものが頭に浮かんだら、湯飲みに手を置き、「今に戻る」と心で唱える。合図があると、戻るスピードが速くなります。戻るたびに、今あるものに感謝を向けます。感謝が増えるほど、執着は薄れます。薄れた先にあるのは、静かで広い心です。
+
+あなたの手の中には、まだ多くのものがあります。呼吸する体、感じる心、つながる人、そしてこれから作る時間。失ったものを数える癖を、持っているものを数える習慣に変えてみてください。心の景色が、少しずつ明るくなります。仏教が教える「今ここ」の静けさが、毎日の中に少しずつ顔を出し始めます。
+
+ここからは、実際に執着を手放した人の小さな物語を二つ紹介します。一人目は六十八歳の男性です。定年後も会社に戻れると思っていた矢先、体調を崩し、現場に立てなくなりました。彼は毎日「戻りたい」と嘆いていましたが、ある日孫に「今のじいちゃんと遊べる時間が好き」と言われます。その言葉で、失ったものではなく「今ある孫との時間」に目が向きました。彼は庭いじりを孫と始め、植物の成長を一緒に見守る日課を作りました。戻れない現場への執着は、土と芽に置き換わりました。彼は「今を育てる喜び」に気づき、心が静まったと言います。
+
+二人目は七十歳の女性です。夫を亡くし、長く続けた店も畳みました。失ったものの大きさに押され、毎日同じ写真を眺めて過ごしていました。ある日、昔からの友人が「あなたの漬物が食べたい」と訪ねてきます。彼女は久しぶりに台所に立ち、漬物を作りました。それを近所に少しずつ分けるようになり、毎週「ありがとう」と言われる時間が生まれました。失った夫と店への執着は、感謝の声に溶けていきました。彼女は「誰かに喜ばれる手がまだある」と知り、心が軽くなったと言います。
+
+執着を手放すときに役立つ合図を、生活の中に散りばめます。玄関に小石を置き、出かけるときに手に取り「今日も新しい景色を見る」と心で言う。食器を洗うときに、一枚一枚に「ありがとう」と言葉をかける。寝る前に、手を胸に置いて「今日も生きた」と囁く。合図は小さくて構いません。合図を重ねるほど、心の向きが自然と今へ戻ります。
+
+失ったものを受け入れるには、時間が必要です。急いで手放そうとすると、かえって強く握りしめます。仏教の中道は、早すぎず、遅すぎずの歩みです。今日は一歩だけ、明日は半歩でも構いません。歩みが遅い日も、自分を責めないでください。歩いている限り、道は続きます。
+
+執着の強い日には、何も決めない勇気も持ちます。心が荒れているときに大きな決断をすると、後悔が増えます。荒れた日は、温かい飲み物をゆっくり飲み、早めに休みます。休むことも行動の一つです。休んだ後に、また今あるものを見直します。
+
+感謝がどうしても湧かない日もあるでしょう。その日は、感謝を探すのをやめ、「無事」を確認します。「今日も大きな事故はなかった」「今日も雨風をしのげた」。感謝が出ない日は、無事を数えるだけで十分です。無事を数えると、心が少し落ち着きます。落ち着いたら、また感謝を探せばいいのです。
+
+仏教の「四念処」は、体、感情、心、教えの四つに気づきを向ける修行です。これを日常に取り入れてみます。体に気づくと、痛みや疲れを無視しなくなります。感情に気づくと、怒りや悲しみが暴れ出す前に手当てできます。心に気づくと、思考の渦から離れられます。教えに気づくと、無常や縁起が生活の中で息をしていることに気づきます。気づきが増えるほど、執着は弱まります。
+
+最後に、未来への小さな楽しみを用意します。来週見る映画を決める、一か月後に行く場所を一つ決める、季節の花を植える。楽しみは、失ったものとは別の方向に心を向けます。未来の小さな灯りをいくつも置けば、過去の影は少し薄れます。
+
+失ったものを数える癖を手放すのは、一朝一夕ではありません。しかし、今日からできる小さな行動を積み重ねれば、心の向きは確実に変わります。あなたの手の中には、まだ息をしている多くのものがあります。その呼吸を感じ、今ここにある温かさを少しずつ拾い上げてください。静かな感謝が、明日の心を照らします。
+
+心の荷物を軽くするために、目に見える荷物を少し手放してみます。引き出しの奥にある「いつか使うかも」の品を一つだけ外に出し、「ありがとう」と言って手放します。仏教の「放下着」という言葉は、握りしめているものを置く勇気を示します。物を一つ手放すたびに、心の中の何かも少し緩みます。無理に大掃除をする必要はありません。一日一つの「放下」で十分です。
+
+感謝を形に残す「感謝瓶」も役に立ちます。小さな紙にその日の感謝を書き、瓶に入れる。紙が増えていくのを目で見ると、失ったものではなく、得ているものが確かにあると実感できます。心が沈んだ日には瓶を開け、過去の感謝を読み返します。読み返すたびに、今日の感謝がまた一つ生まれます。
+
+後悔が強くなる夜は、「やり直せないことリスト」を作り、その横に「今できる一歩」を書きます。「親にもっと優しくすればよかった」と書いたら、その横に「誰かに優しい言葉をかける」「親の好きだった料理を作る」と書きます。過去の後悔を、今の行動に変換する練習です。仏教の教えに「因果」があります。過去の因は変えられませんが、今の因を変えれば未来の果は変わります。今できる一歩が、未来の実りになります。
+
+睡眠前の五分も、執着を手放すチャンスです。布団に入ったら、頭の中に浮かぶ不安や失ったものを、一つずつ雲に乗せるイメージをします。雲は風に乗って遠ざかっていきます。残るのは、布団の温かさと呼吸の音だけです。身体が温まる感覚に注意を向けると、心も温まります。温まった心で眠りにつくと、翌朝の目覚めが軽くなります。
+
+人との比較も、執着を強める原因です。誰かの成功や健康を見て、自分の不足を数えてしまう。比較したくなったら、「その人の背景は私とは違う」と心で一度区切ります。仏教の縁起は「すべては条件で成り立つ」と教えます。条件が違えば結果も違う。違いを受け入れると、比較の刃は鈍ります。鈍った刃は自分も他人も傷つけません。
+
+音の力も借りてみます。静かな読経や鐘の音、風の音、雨の音。音に耳を澄ますと、思考の流れが静かになり、執着が浮かんでも流れやすくなります。仏教寺院の鐘が一日を区切るように、音を使って心を区切る。区切りを作ると、過去から今へ戻る扉が見つかります。
+
+季節の移ろいを意識するのも、無常を体で理解する方法です。春の芽吹き、夏の光、秋の色、冬の冷たさ。それぞれに美しさがあります。季節が巡るように、人生も巡ります。季節を眺める時間を持つと、変化が当たり前だと体が思い出します。体が思い出すと、心も変化に優しくなります。
+
+食べることにも、感謝と手放しの練習が詰まっています。一口目をゆっくり噛み、味わいながら「この一口はどこから来たのか」と思いを巡らせます。農家、運搬する人、店の人、料理をした自分。多くの縁が集まって一口がここにあります。一口に感謝すると、失ったものより、今ここにある恵みの方が強く感じられます。
+
+人生の後半は、減っていくものも増えていくものもあります。減るのは体力や役割かもしれません。増えるのは経験、知恵、寛容さ、そして静けさです。増えているものを活かせば、減っていくものへの執着は和らぎます。静けさを楽しむ時間を、毎日の中に少しずつ入れてください。静けさは、心の奥にある感謝を浮かび上がらせます。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH03-051 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH03-051 — script</h1>
           <div class="muted">【めまい】ぐるぐる・ふわふわ…危険なめまいと、心配ないめまいの見分け方</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH03</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH03</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,139 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCu6UP0h4RBqZxdFK__R7QqQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【めまい】ぐるぐる・ふわふわ…危険なめまいと、心配ないめまいの見分け方</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>病院に行くほどではない不調を、今日の生活習慣で整えましょう。
+・膝を守る座り方・血流を促す足指ケア
+
+この動画は、「【シニアの健康】朗読図書館」の長時間コンテンツです。
+60歳以上の高齢者向け健康情報
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性2
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>血流ケア, 冷え, 老後, シニア, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性2</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>病院に行くほどではない不調を、今日の生活習慣で整えましょう。
+・膝を守る座り方・血流を促す足指ケア</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「【シニアの健康】朗読図書館」の長時間コンテンツです。
+60歳以上の高齢者向け健康情報
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性2
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH03-051</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH03-051&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">めまいは大きく二つ。「ぐるぐる回る回転性」と「ふわふわ・立ちくらみ」。回転性は寝返りや上を向く動作で数秒〜数分の発作を繰り返し、内耳の不調が多いタイプ。浮動性や立ちくらみは立ち上がりや長く立つと悪化し、脱水・血圧低下・薬の影響が関係しがちです。顔のゆがみ、ろれつ障害、片側の麻痺、強い頭痛・胸痛、意識のぼんやりがあれば脳や心臓の緊急サインですぐ救急へ。まずは危険を見逃さず、安全を確保することが大切です。
+
+回転性で多いのは良性発作性頭位めまい症（BPPV）。寝返りや布団から起き上がるとき、上を向いたときに数秒〜1分ほどぐるぐるし、吐き気を伴うことがあります。耳鳴りや難聴はないことが多く、耳石がずれて半規管を刺激するのが原因です。前庭神経炎やメニエール病は、長めの回転性めまいと耳鳴り・難聴を伴うことがあり、発熱や風邪の後に起きることもあります。浮動性や立ちくらみは、起立性低血圧、脱水、貧血、不整脈、薬の副作用が関係しやすく、心臓の病気が隠れていることもあります。動悸や胸の圧迫、息切れ、冷汗を伴うときは早めに受診を。
+
+パニックや不安が強いと「めまい感」が長引くことがあります。不安がめまいを招き、めまいが不安を強める悪循環に陥りやすいため、深呼吸や筋弛緩で体を落ち着かせ、安心できる姿勢を取ります。必要なら心療内科やカウンセリングで不安対処を学ぶと、症状の波が小さくなります。
+
+危険サインを覚えておきます。顔の片側が下がる、ろれつが回らない、片側の手足に力が入らない、突然の激しい頭痛、胸痛や圧迫感、息苦しさ、意識が遠のく。これらは脳や心臓の緊急シグナルです。時間を置かずに救急要請を検討し、服薬リストと持病を伝える準備を。めまいだけでなく、同時にどんな症状があるかが重要です。
+
+家庭での基本対処は安全最優先。めまいを感じたらその場で座るか横になり、頭を少し高く保って落ち着きます。水分は一度にコップ半分〜1杯をゆっくり。深呼吸を数回（吸4秒・吐6秒目安）して過呼吸を避けます。夜間や朝は足元灯や手すりを使い、床の散らかりや滑りをなくす。起床時は横向き→座位で30秒待ち、さらに1分座ってから立つ。立ち上がり前に足首を動かし、5秒待って歩き始める習慣で立ちくらみを減らせます。
+
+記録をつけると受診がスムーズです。いつ、どんな動作で、どれくらい続いたか、耳鳴りや難聴の有無、薬の変更や脱水の兆候をメモ。薬剤性は新規薬や増量後に立ちくらみが増えるケースが多く、睡眠薬・降圧薬・利尿薬・抗うつ薬・パーキンソン薬などが代表。心臓由来は動悸や胸の圧迫、息切れ、冷汗を伴うことが特徴です。自己判断で薬を止めず、薬名と開始時期のリストを持って医師・薬剤師に相談してください。
+
+軽度の回転性（寝返りで数秒のぐるぐる）は、枕の高さを少し変えたり、頭位を急に変えないことで和らぐことがあります。BPPVでは頭位の体操（エプリー法など）が効くこともありますが、自己流で無理せず、初回は家族がそばにいるか医療者の指導を受けてから。首や背骨に病気がある場合は、勝手に行わないでください。浮動性は水分・塩分不足や起立性低血圧が多いため、朝のコップ一杯、散歩前後の少量補給、塩分を極端に減らし過ぎない工夫が助けになります（持病で制限がある場合は医師の指示を優先）。
+
+頭位の体操を行う場合は「安全・短時間・家族の見守り」を徹底します。枕やベッドから落ちない環境で、めまいが強まったらすぐ中止。吐き気が強い、痛みが出る、視界が二重になる場合は、その日の実施をやめて受診します。体操だけで治そうとせず、診断と指導を受けた上で続けることが安全です。
+
+自宅でできる安全対策。寝返りや起き上がりは、横向きになってから腕で押して上体を起こし、座ってしばらく待ってから立つ。枕は少し高めにして、夜間の頭位変化でめまいが出にくい角度を探す。急に頭を下げる動作を避け、しゃがむときは膝を曲げてゆっくり。トイレや廊下には足元灯を設置し、手すりを使って移動する。滑りやすいマットやコードは片づけ、靴下は滑り止め付きに。外出時はスマホ見歩きを避け、段差やエスカレーターでは手すりを必ず使う。
+
+寝室の配置も見直します。ベッド周りに物を置きすぎない、起き上がる側に手すりか椅子を置く、枕元に水と連絡先を用意する。夜間トイレの動線に足元灯を置き、段差には目印テープを貼る。夜間は急に立ち上がらず、横向き→座位→足首回し→立位の手順を守ります。
+
+水分と食事。脱水や低血圧はめまいの大きな要因です。朝に200〜300mlの水、日中にこまめに水分を摂り、カフェインやアルコールのとり過ぎに注意。塩分を極端に減らしすぎると低血圧を招くこともあるので、制限がない場合は通常の量を保ちます。食事は抜かず、朝昼夕を規則的に。低血糖でふらつく人は、長時間の空腹を避け、間食に少量のナッツやヨーグルトを選ぶと安定します。
+
+食べ過ぎや早食いも血圧や血糖を乱し、ふらつきを招くことがあります。食事は15〜20分かけてよく噛み、主食を控えめにして野菜とたんぱく質を先にとります。食後30分以内のゆっくりした散歩や家事で血流を整えると、ふらつきが起きにくくなります。
+
+立ちくらみを減らす習慣。寝起きや長時間座った後は、足首を回す、ふくらはぎをポンプする動き（つま先上げ下げ10回）を入れてから立つ。立ち上がりはゆっくり、数秒待ってから歩き出す。暑い場所や風呂上がりは特にゆっくり動き、水分を少し足す。血圧を下げる薬を飲んでいる人は、服用後のふらつきがないか確認し、強い場合は主治医に相談して時間や量を調整してもらいます。
+
+首の骨や血管に持病がある人は、首を大きく反らす動作を避けます。洗濯物を干すときは背伸びをしすぎず、椅子や台を使って目線より高く上げないようにする。美容院や歯科で後ろに反らす姿勢が不安な場合は、事前に伝えて角度を調整してもらうと安全です。
+
+転倒防止の環境整備。手すりを廊下・トイレ・浴室に設置し、足元灯で夜間の動線を明るくする。床の段差には目印テープ、滑るマットは撤去、絨毯のめくれを貼る。屋内の靴やスリッパは滑り止め付きにし、かかとがホールドされるものに。屋外では溝が深い靴底で、かかとが擦り減ったら早めに交換します。
+
+外出時の注意。エスカレーターや階段では手すりを持ち、足元を見ながら一段ずつ。人混みで立ち止まるときは壁際に寄り、急にしゃがまない。電車やバスでは早めに座席を確保し、立つときは足首を動かしてからゆっくり立ち上がる。荷物はリュックにして両手を空けると、ふらついたときに支えをつかみやすくなります。
+
+薬と生活の見直し。睡眠薬、抗不安薬、抗うつ薬、降圧薬、利尿薬、パーキンソン薬はめまいを誘発することがあります。飲み始めや増量のタイミングとめまいの関係をメモし、自己判断で中断せずに主治医と調整します。アルコールや脱水、急な減塩もふらつきを悪化させるため、適度な水分と食塩を保ちます。睡眠不足や強いストレスも平衡感覚に影響するため、夜のリラックス時間と十分な睡眠を確保します。
+
+検査と治療。めまいの原因に応じて、耳鼻科での平衡機能検査、眼振検査、聴力検査、脳画像や心電図、血液検査が行われます。BPPVには頭位治療、メニエールには利尿薬や食事指導、起立性低血圧には水分・塩分調整や弾性ストッキング、薬の調整が用いられます。治療は原因ごとに異なるため、専門家の指示に従い、自己流で複数の体操や薬を併用しないでください。
+
+持病とのバランスを取ります。高血圧や心臓病で降圧薬や利尿薬を服用中の人は、めまいと血圧の関係を主治医に相談し、服用時間や量の調整を検討します。糖尿病の人は低血糖がめまいを招くことがあるため、食事のタイミングと薬の関係を確認します。複数科で診てもらっている場合は、薬の一覧を共有してもらうと安全です。
+家族や介助者と共有すること。めまいが起きたときの対処（止まる・座る・水を少し・深呼吸）、危険サイン（顔のゆがみ、ろれつ、胸痛、麻痺）、救急連絡先、服薬リストを紙に書いて冷蔵庫などに貼っておく。外出時は連絡先カードを持ち、急に立ち止まっても周囲が対応できるようにします。
+
+受診の目安を整理します。救急を考えるのは、脳や心のサインがあるとき、転倒で打撲や頭部外傷があるとき、めまいが止まらず嘔吐が続くとき。耳鳴りや難聴を伴う回転性が続く場合は耳鼻科や神経内科へ。動悸や胸部症状、血圧の変動が大きい場合は循環器や内科へ。受診時に、めまいのパターン、誘因、持続時間、耳の症状、服薬、持病を簡潔に伝えると診断が早まります。
+
+受診の際はメモが役立ちます。発作が起きた日時、動作、続いた時間、耳鳴りや難聴の有無、吐き気、薬の飲み始めや増量の有無、血圧や脈の変化、脱水の兆候を記録し、服薬リストと一緒に持参します。救急では、持病と薬、アレルギーを簡潔に伝えられると処置が早まります。
+
+日々のルーティンを整えます。朝は横向き→座位で30秒、足首回しと深呼吸をしてから立ち、水をコップ一杯。昼は1時間に一度立ち上がり、ふくらはぎを動かして血流を保つ。夜は寝室の足元灯を点け、床を片づけてから眠り、枕は少し高めで頭を急に下げない姿勢をとる。決まった手順があると、焦らずに動けます。
+
+前庭リハビリを行う場合は「安全」「短時間」「症状が軽いとき」を条件に。椅子に座り、目の高さに指を立てて指先を見たまま頭を左右に小さく10回動かす、上下に5〜10回動かす。めまいが強まったらその場で中止し、吐き気や二重視が出たらその日は行わない。医師や理学療法士に指導を受け、無理に回数を増やさないことが安全です。
+
+家事や仕事の動き方も工夫します。洗濯物を高く上げるときは台や踏み台で無理な背伸びを避け、掃除は短時間で区切り、長く下を向く作業は椅子に座って行う。料理中は足を肩幅に開き、片足を軽く前に出してふらつきに備える。長時間のパソコンや読書は休憩をこまめに入れ、首を大きく反らさないように画面の位置を調整します。
+
+外出や乗り物での予防策。電車やバスでは座れないときも手すりや吊り革を持ち、急に振り向かず目線を安定させる。車移動では水分を持参し、1〜2時間ごとに休憩を取って足首を動かす。エレベーターやエスカレーターでは上を見上げず足元を確認し、周囲が揺れて見えるときは一歩下がって壁に寄る。人混みで立ち止まるときは、壁際で姿勢を安定させてから動きます。
+
+一人暮らしや日中ひとりになる人は、安否確認の連絡先と時間を決めておきます。朝と夕方に短いメッセージを送る、連絡が取れないときに鍵を預けた人が訪ねられる体制を作る。室内でもスマホや緊急ボタンを身につけ、トイレや浴室には滑り止めマットと手すりを用意しておくと安心です。
+
+再発予防の週ごとの目標を立てると続けやすくなります。第1週は起床・就寝の手順と水分補給を固定する。第2週は足首回しとふくらはぎポンプを1日3回にする。第3週は安全な環境で片足立ちや軽いストレッチを追加する。第4週は記録を医療者に見せ、薬や生活の調整を相談する。痛みや強いめまいが出たら回数を戻し、無理に進めないことが大切です。
+
+生活習慣でできる予防。毎日同じ時間に起き、朝の光を浴び、食事と水分を規則的にとる。歩行やストレッチを無理のない範囲で続け、長時間同じ姿勢を避ける。めまいが怖くて動かないと筋力とバランス感覚が落ち、かえって転倒しやすくなるので、家族や手すりを頼りながら少しでも動きを保ちます。睡眠不足とストレスはめまいを悪化させることが多いため、寝る前のスマホ時間を減らし、就寝・起床を一定に。食事を抜かず、極端な減塩や脱水を避け、アルコールを控えめにします。
+
+今日からできる三つ。朝、起きるときに横向き→座位で30秒→1分待って立つ。日中、1時間に一度は足首回しとふくらはぎポンプを10回ずつし、200〜300mlの水をこまめに飲む。夜、足元灯と手すりを確認し、床の物を片づけてから寝る。強いめまいと一緒に麻痺・ろれつ障害・胸痛があれば迷わず救急へ。小さな習慣と早めの相談で、めまいの不安と転倒リスクは大きく減らせます。
+
+頭位によるめまい（BPPV）が疑われるときの注意。診断がついていない場合は自己流でエプリー法などを行わず、まず医師に相談します。診断後に教わった方法を家族の見守り下でゆっくり実施し、発作が強いときや吐き気が止まらないときは中止。枕の高さを少し高くし、寝返りや上を向く動作を急に行わないだけでも発作が減る人がいます。
+
+低血圧や脱水でふらつく人向けの工夫。朝にゆっくり起きてから、足を心臓より少し高く上げて1〜2分休む。弾性ストッキングはむくみと立ちくらみを減らすことがありますが、心不全や動脈疾患がある場合は医師に相談してから。長時間立つときは膝を少し曲げ、こまめに足踏みをして血流を保ちます。
+
+薬の影響を見逃さないために。新しく始めた薬、量を増やした薬、飲む時間が変わった薬がないかを確認し、めまいの前後で時間をメモ。睡眠薬や抗不安薬は翌朝のふらつき、降圧薬や利尿薬は服用後の立ちくらみ、抗うつ薬や抗ヒスタミン薬はふわふわ感を出すことがあります。自己判断で止めると危険なので、必ず処方医に相談し調整を受けます。
+
+もし頻回に起きる場合は、めまいノートを作ります。発作の時間、動作、持続、耳鳴りや難聴、吐き気の有無、血圧や脈の変化、服薬や食事の時間を一行で記録。1〜2週間分を持って受診すると、原因の絞り込みが早まります。薬の変更時期も一緒に書くと、薬剤性の見極めに役立ちます。
+
+耳が詰まる感じや難聴を伴う場合は、耳鼻科での聴力検査や平衡機能検査が役立ちます。片側の耳鳴りや難聴、耳の閉塞感がめまいに伴う場合、メニエール病や突発性難聴など早期対応が必要な疾患が隠れていることがあります。発症から時間が経つと聴力が戻りにくくなるため、速やかに受診してください。
+
+心臓や脳のリスクが高い人は、めまいを「動けないから様子を見る」で終わらせない。高血圧、糖尿病、不整脈、心不全、脳梗塞の既往がある人は、めまいと同時に胸痛や息切れ、麻痺や言葉のもつれがないかを確認し、少しでも疑わしければ救急を優先します。時間が予後を左右する場面があることを意識してください。
+
+家族に伝える情報を紙にまとめます。持病と服薬、めまいのタイプと誘因、これまでの発作の様子、救急に連絡する条件、医療機関の連絡先。緊急時に家族が迷わず動けるよう、冷蔵庫や玄関に貼って共有すると安心です。外出時は連絡先カードを携帯し、突然座り込んでも周囲に状況が伝わるようにします。
+
+長期的な予防のために。ふらつきやすい人は、週に数回の軽い有酸素運動（散歩など）とバランス運動（片脚立ち、太ももとふくらはぎの筋トレ）を、安全な環境で続けます。睡眠不足とストレスはめまいを悪化させることが多いため、寝る前のスマホ時間を減らし、就寝・起床を一定に。食事を抜かず、極端な減塩や脱水を避け、アルコールを控えめにします。歩くときは足元を見て手すりを使い、スマホ見歩きを避ける。環境と習慣の両面から平衡感覚を支えます。
+
+最後にもう一度、行動の優先順位を整理します。緊急サインがあれば即救急。なければ安全確保（座る・横になる・水・深呼吸）、記録（いつ・どの動作・どれくらい）、環境整備（足元灯・手すり・滑り止め）、医療相談（薬の影響と持病を伝える）。今日からの三つ（起床ゆっくり、水分こまめ、夜の安全確認）を続けるだけでも、めまいの不安は軽くなります。自己判断で無理をせず、必要なときは専門家に頼ってください。
+</pre>
     </div>
   </div>
 </main>

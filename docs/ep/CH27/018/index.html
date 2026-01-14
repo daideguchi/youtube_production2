@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-018 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-018 — script</h1>
           <div class="muted">仲直りの食事で分かった…謝るのはいつも私だけ</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,276 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>仲直りの食事で分かった…謝るのはいつも私だけ</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>虚しさ, 既読, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-018</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-018&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夕暮れ時のカフェ。 
+窓の外では、街灯が一つ、また一つと灯り始め、家路を急ぐ人々の影が長く伸びていました。
+カップの中で冷めかけたコーヒーを見つめながら、私は向かい側に座る佳代子さんの明るい笑い声を聞いていました。
+今日は、一週間前に電話で衝突してしまった後の、いわゆる仲直りの食事会でした。
+あの電話の時、佳代子さんの心無い一言に私は深く傷つき、珍しく感情を露わにしてしまったのです。
+今日は彼女から誘ってくれたのだから、きっと何らかの謝罪や、歩み寄りの言葉があるはず。
+そう淡い期待を抱いてここに来たのですが、佳代子さんはまるで何事もなかったかのように、最近の旅行の話や孫の自慢話に花を咲かせていました。
+私が少し沈んだ表情を見せると、彼女は「どうしたの？ せっかく美味しいケーキ食べてるんだから、もっと楽しまなきゃ損よ！」と、いつもの調子で私を急かします。
+その瞬間、私の胸の中にあったはずの、彼女へのわだかまりを解こうとする熱い想いが、音を立てて冷えていくのを感じました。
+謝るのは、いつも私だけ。
+不穏な空気を察して、自分を押し殺してまで会話を繋げようとするのも、いつも私。
+彼女にとっては、私の傷つきも、私の沈黙も、すべてはなかったこととして処理され、彼女の都合の良い世界だけが回り続けている。
+今夜は、そんな一方的な関係性に気づいてしまった夕暮れ時と、繋がりを繋ぎ止めるために自分だけが必死になっていた糸を、そっと手放した瞬間についてお話しします。
+誰かのためにばかり謝り、自分自身の心を一番後回しにしてきたあなたへ。
+今夜は、その握りしめていた重い糸を下ろして、静かな夜を迎えましょう。
+カフェの窓に映る、自分の少し疲れた、けれど静かな瞳と共に、一緒に心を整えていきましょう。
+
+---
+
+佳代子さんとは、もう二十年以上の付き合いになります。
+彼女は社交的で、常に誰かに囲まれているような、華やかな太陽のような存在でした。
+引っ込み思案な私は、彼女の明るさに何度も救われてきたと思っていたのです。
+でも、振り返ってみれば、私たちの関係は常に彼女が与える側で、私が受け取る側であるという不可視のバランスで成り立っていました。
+彼女の機嫌が良いときは、世界は輝いて見える。
+でも、彼女が不機嫌になったり、思い通りに行かないことがあったりすると、その矛先は最も近くにいて、反論をしない私に向けられました。
+一週間前の電話もそうでした。
+些細な行き違いから、彼女は私の私生活を否定するような激しい言葉をぶつけてきたのです。
+「そんな考え方だから、あなたはいつまでも変われないのよ」
+私はあまりの喉の奥を突かれるような衝撃に言葉を失い、電話を切りました。
+その後、数日間は何も手につきませんでした。 
+私が何か悪いことをしたのだろうか彼女を怒らせるような言い方をしたかしら
+気づけば、私は加害者である彼女のことよりも、自分自身の至らなさを探して、自分を責めていたのです。
+そして、彼女からの「今日、お茶に行かない？」という短いメッセージ。
+それは謝罪ではなく、単なる現状復帰の打診でした。
+私は、彼女に嫌われたくないという一心で、その不自然な招待に応じたのでした。
+でも、その嫌われたくないという気持ちの正体は、彼女への愛情ではなく、一人になることへの漠然とした恐怖に過ぎなかったことに、私はようやく気づき始めていました。
+
+---
+
+カフェのケーキは確かに美味しかった。
+でも、私の喉を通るたびに、それは砂のような味に変わっていきました。
+佳代子さんは、自分が一週間前に何を言ったのか、私がどれほど傷ついたのか、そんなことは一ミクロも考えていないようでした。
+彼女の話す楽しい物語の中に、私の心が入る余地はどこにもありません。
+私が勇気を振り絞って、「あのね、一週間前の電話なんだけど……」と切り出したとき。
+彼女は一瞬だけ面倒そうな顔をして、すぐに言いました。
+「ああ、あのこと？ 私、もう忘れちゃったわ。そんなにいつまでも根に持ってたら、体に毒よ！」
+根に持っている。
+彼女にとって、私の痛みは過去の執着であり、自分の無神経さはさっぱりした性格という言葉で正当化されていました。
+私の勇気は、彼女の不機嫌という名の冷たい壁に跳ね返され、行き場を失いました。
+その時、私は悟ったのです。
+この人は、一生謝らない。
+そして、私は一生、この人の顔色を伺いながら、自分の心を削り続けていくしかないのだと。
+私たちは、友情という名の美しい仮面を被った、単なる快適な観客と主役に過ぎなかった。
+私が観客を辞めれば、この舞台はすぐに終演を迎えるでしょう。
+その虚しさに襲われながらも、私の心はどこかで、深い安堵の溜息をついていました。
+もう、頑張らなくていい。 
+この人を繋ぎ止めるために、自分を嘘で塗り固める必要はないのだと。
+私の心は、彼女の機嫌を伺うための道具ではなく、私自身を幸せにするための神聖な庭だったのです。
+その庭を、これからは私だけの穏やかな時間で満たしていこう。 
+そう決めたとき、目の前のケーキがようやく、本来の甘みを取り戻したような気がしました。
+
+---
+
+カフェを出ると、夜の空気は驚くほど澄み切っていました。
+佳代子さんは「じゃあね、また連絡するわ！」と軽やかにタクシーに乗り込み、去っていきました。
+私は一人、自宅へと続く道をゆっくりと歩き始めました。
+これまでは、彼女との別れ際、いつも何か言い残したことがあるような、胸のざわつきを感じていました。
+でも、今は違います。
+胸の中にあるのは、ただ、静かで透明な空間だけ。
+私は鞄の中からスマートフォンを取り出し、彼女とのラインの画面を開きました。
+そこには、これまで私がいかに彼女に気を使い、返信を急ぎ、自分を卑下してきたかの記録が並んでいました。
+既読スルーを恐れ、通知が鳴るたびに心臓を跳ねさせていた自分。
+私はその画面を閉じ、通知をオフに設定しました。
+これからは、彼女からの連絡に即座に応えることはしません。
+彼女が私の時間を当然のように奪い、私の心を土足で踏み躙る権利は、もう返上してもらうことにしました。
+謝らないことで自分を保っている彼女。
+謝り続けることで自分を否定し続けてきた私。
+その歪な共依存の糸が、今、夜風に吹かれてぷつりと切れました。
+寂しさが全くないわけではありません。 
+でも、その寂しさは、自分自身をようやく取り戻したことによる、誇らしい痛みでした。
+その痛みさえも、私のこれからの自由を保証してくれる、大切な証拠品のように思えました。
+私は、自分の足音が夜の舗道に心地よく響くのを、一歩一歩確かめながら歩き続けました。
+
+---
+
+私たちは、人生のどこかで自分にとっての正義を定義し直さなければなりません。
+これまでの私の正義は、関係を壊さないこと、波風を立てないことでした。
+でも、そのために自分が崩れてしまっては本末転倒です。
+佳代子さんのような人は、他人の優しさを自分への服従と履き違えてしまいます。
+その誤解を解くためには、距離を置く方がずっと効果的です。
+謝るのは悪いことではありません。 
+でも、それは自分の非を認める勇気を持つ人だけが使える、神聖な言葉です。
+無感情に、あるいは戦略的に使われる謝罪も、謝るべき時に沈黙を決め込む傲慢さも、どちらも魂を汚す行為です。
+私はこれから、心の底から申し訳ないと思った時にだけ、相手の瞳を見て謝ることにします。
+そして、自分を不当に扱う人に対しては、毅然として沈黙を保つ。
+それが、これからの私の新しいルールです。
+夜風が私の頬を優しく撫で、耳元でそれでいいのよと囁いてくれているようでした。
+私は、自分の足取りが先ほどよりも軽くなっていることに気づきました。
+見えない糸から解放された体は、まるで重力から解き放たれたかのように、しなやかに夜の闇を突き進んでいきます。
+暗い道に浮かぶ街灯の光が、まるで私の新しい門出を祝うスポットライトのように見えました。
+私はその光の下を、誰の視線も気にせず、胸を張って通り抜けていきました。
+
+---
+
+家に着き、小さな明かり一つだけでリビングに座りました。
+部屋は静まり返っていますが、その静寂が、以前のような孤独ではなく、充溢として私を満たしてくれます。
+佳代子さんとの二十年間に、恨みはありません。 
+彼女から学んだことも、確かにあったのです。
+それは、他人のための人生を生きることの虚しさと、自分自身の味方でい続けることの尊さでした。
+彼女が私の既読に気づき、不機嫌になるかもしれません。 
+新しいターゲットを見つけて、私の悪口を吹聴するかもしれません。
+でも、それは彼女の世界の出来事であり、私の物語とは無関係です。
+私は、私の物語の主役という舵を、ようやく自分の手に取り戻しました。
+これからは、行きたい時に行き、言いたい時に言い、そして守るべき時に自分を守る。
+そんな当たり前の自由を、噛み締めるように生きていこうと思います。
+スマートフォンの画面が暗いまま、テーブルの上に置かれています。 
+その沈黙が、今の私には何よりも美しい音楽のように聞こえました。
+自分を大切にすること。 
+それは、誰かを傷つけることではなく、自分自身の神殿を汚さないことなのです。
+私は、私の神殿の扉を、今日、ようやく静かに閉じ、内なる平和を手に入れました。
+その平和は、もう誰の言葉によっても、誰の視線によっても、一ミリも揺るがされることはありません。
+この聖域の中で、私は私だけの新しい時間を、ゆっくりと育んでいくつもりです。
+
+今夜の一手。 
+今夜は『追わない』を選んで寝る。
+佳代子さんの真意を探ることも、彼女をどうやって説得するかを考えることも。 
+そして、自分が失ってしまったものへの惜別も。 
+すべて、夜の闇に預けてしまいましょう。
+答えが見つからない問いを追いかけ続けることは、あなたの貴重な生命エネルギーを枯渇させるだけです。
+今はただ、深い呼吸を繰り返し、自分の中心にある光に意識を向けてください。
+思考の糸を、一本ずつ、ゆっくりと手放して。 
+まどろみの海に、自分という存在をそっと浮かべてみる。
+そこで待っているのは、誰の承認も必要としない、純粋なあなた自身です。
+おやすみなさい。 
+今日、自分を救い出した、あなたの勇敢な魂に。
+明日のあなたが、誰の影も踏むことなく、自分自身の光だけで目覚められますように。
+輝かしい未来を信じて。 
+それでは、また。
+
+---
+
+カフェでの佳代子さんの、あの不自然なほど大きな笑い声。
+あれは、彼女自身が自分の中にある違和感や、罪悪感を消し去るための、必死の防衛本能だったのかもしれません。
+自分は悪くない。 
+周りが自分に合わせるべきだ。 
+そう信じ込まなければ立っていられないほど、彼女の自尊心もまた、実は脆い砂の城だったのではないか。
+そう思うと、彼女への憤りは消え、代わりに、果てしない砂漠を一人で歩いているような、彼女の孤独が透けて見えてきました。
+でも、その砂漠を共に歩く義務は、私にはありません。
+私は私の、水が湧き、花が咲く庭を、自分一人の手で耕していく。
+謝れないということは、他人の存在を自分と同等に認めていないということです。
+相手を道具、あるいは背景としてしか見ていない。 
+そんな貧しい認識の中に長年身を置いていた自分自身にも、私は少しだけ、深く静かな謝罪の言葉を贈ります。
+「ごめんね、私。あなたをずっと、あんな寂しい場所にいさせてしまって」
+自分の心に向けて放った、初めての、そして本当の謝罪。
+それが、カフェでの佳代子さんのどんなお世辞よりも、私の魂を深く、温かく癒やしてくれました。
+これからは、外側に謝罪を求めるのではなく、内側からの肯定を積み上げていこう。
+不毛な砂漠に雨を降らせることはできませんが、自分の庭に水を撒くことは、今この瞬間にでもできるのですから。
+庭に咲く一輪の花が、誰に褒められるためでもなく、ただそこに在るだけで美しいように。 
+私もまた、誰の許しも乞わず、ただ自分であることを全うしていきたいのです。
+
+---
+
+翌日の早朝、私は庭の古いベンチに座って、朝露に濡れた草花を眺めていました。
+佳代子さんを追わない、という決意。 
+それは、彼女との歴史を否定することではなく、その歴史を『完了』させるという能動的な行為でした。
+終わったことに、執着しない。 
+消えていく糸に、縋り付かない。
+そう決めた私の心は、朝の光を浴びて、ダイヤモンドのように硬く、澄み渡っていました。
+以前の私なら、今頃昨日はありがとうというメッセージを送るべきかどうか、一時間も悩んでいたでしょう。
+その悩みが消えた時間を使って、私は今、庭を渡る風の匂いや、鳥たちのさえずりを、全身で受け止めています。
+自分だけの時間。 
+自分だけの平穏。 
+それがいかに贅沢で、そしていかに脆いものであるかを、私は今回の出来事を通して学びました。
+佳代子さんがいなくても、世界は驚くほど美しく、そして私を待っていてくれる。
+誰かに認められることでしか確認できなかった自分の価値。 
+それを、今、この朝の静寂そのものの中に、私は見出しています。
+私は、ここに在る。 
+ただそれだけで、十分に価値があり、十分に完全である。
+この確信を、誰にも、もう二度と、明け渡したりはしません。
+朝日が昇るにつれて、庭の草木がキラキラと輝き始めました。 
+それはまるで、私の新しい人生を祝福する、数え切れないほどの宝石たちの祝祭のようでした。
+私はその輝きの中に、佳代子さんには決して見せなかった、私自身の本当の美しさを見出しました。
+誰かに謝り続けることで、曇ってしまっていた私の心の水晶。 
+それが今、自分を慈しむという名の雫によって洗われ、再び純粋な透明度を取り戻そうとしています。
+
+---
+
+散歩の途中で、川面に浮かぶ一葉の葉っぱを見かけました。 
+流れに身を任せ、右へ左へと揺れながらも、最終的には大きな海へと運ばれていく。
+その葉っぱの潔さに、私は自分のこれからの姿を重ね合わせました。
+無理に流れに逆らうことも、何かにしがみつくこともない。 
+ただ、自分本来の軽さを信じて、流れていけばいい。
+佳代子さんという大きな岩にぶつかり、一時的に停滞したこともあったけれど、もう水流は私を先へと押し進めてくれています。
+不毛な謝罪の応酬も、無意味な沈黙の駆け引きも、すべては対岸の景色として遠ざかっていきます。
+私は今、自分の心が最も欲していた、静かな自由という名の水域に辿り着きました。
+これからは、誰と出会い、どんな物語を紡ぐとしても、自分の『中心』だけは決して譲らない。
+謝る時は誇りを持って謝り、許す時は深く静かに許す。
+相手の反応をコントロールしようとする傲慢さを捨て、ただ自分自身の誠実さに立ち返る。 
+それが、これからの私の、新しい航海術です。
+そして、自分を大切にしない人からは、微笑みながら背を向ける。
+そんな、成熟した大人の品格を、一日一日、丁寧に身につけていこうと思います。
+今夜の眠りは、これまでで一番深く、安らかなものになるでしょう。 
+なぜなら、私の心の中に、もう誰に対しても、自分に対しても、後ろめたいことは何一つないのだから。
+清々しい魂と共に、星空が瞬く宇宙の懐へと、ゆっくりと沈んでいきましょう。
+あなたは自由です。 
+あなたは、あなた自身の太陽です。
+おやすみなさい。 
+愛に満ちた、あなたの、この上なく尊い夜に。
+あなたの夢が、誰かの声に汚されることなく、あなた自身の内なる光で満たされますように。
+大いなる自己に、最大限の信頼を寄せて。
+それでは、また。
+</pre>
     </div>
   </div>
 </main>

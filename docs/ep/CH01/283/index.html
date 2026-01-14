@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-283 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-283 — script</h1>
           <div class="muted">【孤独の価値】一人を楽しめる人が最後に勝つ理由｜ブッダの教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,320 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【孤独の価値】一人を楽しめる人が最後に勝つ理由｜ブッダの教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【孤独】で苦しいあなたへ──一人を楽しむ話。
+・孤独が怖くなくなる考え方・一人時間の活かし方
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, 自立, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【孤独】で苦しいあなたへ──一人を楽しむ話。
+・孤独が怖くなくなる考え方・一人時間の活かし方</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-283</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-283&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">一人でいると、寂しさに押しつぶされそうになる。そんな経験はありませんか。
+
+---
+
+現代社会では、常に誰かと繋がっていることが正解とされがちです。SNSでの更新、職場の人間関係、家族との付き合い。一人でいる時間が空くと、すぐに不安が押し寄せてきます。自分は取り残されていないだろうか。必要とされていないのではないか。そんな焦燥感に駆られます。そのため、私たちは無意識に孤独を避けようとします。スマホを手に取り、テレビをつけ、騒がしい場所へと逃げ込みます。しかし、どれだけ外の世界で賑わっていても、心の奥底にあるぽっかりと空いた穴は埋まりません。むしろ、他人の目や言葉に振り回される日々が続くほど、自分の心が疲弊していくのを感じるはずです。特に真面目な人ほど、周囲の期待に応えようとして自分を見失いがちです。本当の意味での心の休息は、外からの刺激ではなく、内側の静けさの中にしか見つからないのかもしれません。私たちは孤独を敵と思い込みがちですが、それは実は、自分自身を取り戻すための大切な時間なのです。
+
+鴨長明。
+
+平安時代末期から鎌倉時代初期を生きた歌人であり、随筆家である。
+
+長明は、孤独を受け入れた人だった。
+
+すべてを失い、世を捨て、小さな庵で一人暮らした。しかし、その孤独の中で、日本文学史に残る名作「方丈記」を書いた。
+
+その生涯は、孤独との向き合い方を、八百年経った今も教えてくれる。
+
+---
+
+鴨長明は、久寿二年に京都に生まれた。
+
+父は下鴨神社の禰宜。名門の家柄だった。
+
+長明は、幼い頃から和歌と音楽に優れていた。
+
+将来は父の後を継ぎ、神職になるはずだった。
+
+---
+
+しかし、長明の人生は思い通りにはならなかった。
+
+父が早くに亡くなった。長明は、まだ若かった。
+
+神職の地位を継ぐには、有力者の後ろ盾が必要だった。
+
+長明には、それがなかった。
+
+---
+
+長明は、神職の地位を得られなかった。
+
+親族との争いもあった。長明は、実家から離れざるを得なくなった。
+
+裕福だった長明は、次第に貧しくなっていった。
+
+---
+
+長明は、和歌の道に生きようとした。
+
+後鳥羽院に認められ、和歌所の寄人となった。
+
+しかし、ここでも長明は挫折した。
+
+河合社の禰宜の地位を望んだが、叶わなかった。
+
+---
+
+いざ、すべてを捨てて一人になると、そこに待っていたのは静寂だけではありませんでした。ふとした瞬間に、これまで押し殺してきた感情が一気に押し寄せてくるのです。若い頃の挫折、叶わなかった夢、人間関係のもつれ。誰かと話していれば紛らわせることができた悩みが、静かな庵の中では逃げ場を失いました。夜目を覚ますと、暗闇の中で自分の心の声だけが響きます。それは時に、自分を責める声のように聞こえました。本当にこれでよかったのか。逃げ出しただけではないのか。長明は、こうした心の揺れ動きと、毎日向き合わなければなりませんでした。孤独とは、単に物理的に一人になることではなく、自分の内面にある弱さや醜さと、真正面から対峙することでもあるのです。その最初の段階は、誰にとっても過酷な試練と言えるでしょう。しかし、そこから逃げずに座り続けることこそが、変化の始まりだったのです。
+
+五十歳を過ぎた頃、長明は決心した。
+
+すべてを捨てて、出家しよう。
+
+長明は、俗世を離れた。
+
+---
+
+長明は、日野山に小さな庵を建てた。
+
+方丈、つまり一丈四方の庵。畳で言えば、約四畳半の広さだ。
+
+その小さな庵で、長明は一人で暮らし始めた。
+
+---
+
+最初は寂しかった、と長明は書いている。
+
+人の声が聞こえない。話し相手がいない。
+
+夜は特に辛かった。風の音だけが聞こえる。
+
+長明は、孤独と向き合わなければならなかった。
+
+---
+
+私たちは普段、何かを手に入れることで幸せになろうとします。もっと大きな家、もっと高い地位、もっと多くの財産。しかし、欲望には限りがありません。一つ満たされれば、すぐに次の欲求が生まれます。それは、底なし沼に水を注ぎ続けるようなものです。長明は、極限まで物を減らすことで、ある重要な真理に気づきました。それは、満たされるべきは自分の心であり、外側の世界ではないということです。必要なものが少なければ、失う恐怖も少なくなります。他人の評価を気にする必要も、競争に勝つ必要もなくなります。たった四畳半の空間で、長明は誰にも依存しない、自分だけの足場を見つけたのです。これは、仏教で説く「独坐」という境地にも通じる、精神的な自立への第一歩でした。何かに縛られるのではなく、自分の心で自分を支える。その強さは、外的な環境が変わっても揺らぐことはありません。
+
+しかし、次第に長明は変わっていった。
+
+孤独は、苦しみではなくなった。
+
+むしろ、孤独の中にこそ、自由があることに気づいた。
+
+---
+
+かつて都の中心で才能を認められ、輝かしい未来を約束された男が、今や誰の目も気にする必要のない山奥に身を潜めています。昼間は忙しなく過ごせても、夜になると静寂が音を立てて響いてくるような感覚に襲われたことでしょう。かつての栄光が嘘のように遠く感じられ、自分の存在そのものが世界から忘れ去られたような孤独感に、彼は何度も膝を抱えたはずです。しかし、そのどん底にいるからこそ見えてくるものがあります。それは、他人の評価や社会的な地位といった、自分を飾る仮面がすべて剥がれ落ちた後に残る、飾らない自分自身の姿でした。
+
+長明は方丈記に書いた。
+
+世の人の、すまひの栖を見るに、分限に応じて、かず多くこれをつくる。されど、なほ心足らず。
+
+世間の人は、身分に応じて大きな家を建てる。しかし、それでも満足しない。
+
+長明は続けた。
+
+この庵は、狭いながらも、夜寝る場所があり、昼座る場所がある。一人が住むには十分だ。
+
+---
+
+長明は、孤独の中で気づいた。
+
+人は、寂しさを埋めるために、多くのものを求める。
+
+大きな家。たくさんの持ち物。多くの人間関係。
+
+しかし、それらを得ても、寂しさは消えない。
+
+本当の満足は、外にはない。自分の中にある。
+
+---
+
+方丈記には、有名な冒頭がある。
+
+ゆく河の流れは絶えずして、しかももとの水にあらず。
+
+流れる川の水は、絶えることがないが、同じ水ではない。
+
+すべては移り変わる。それが、この世の真理だ。
+
+---
+
+長明は、多くの災害を目撃していた。
+
+安元の大火、治承の辻風、養和の飢饉、元暦の大地震。
+
+京都は、何度も災害に見舞われた。
+
+多くの人が死に、多くの家が失われた。
+
+---
+
+長明は、その無常を見つめた。
+
+人も、家も、地位も、財産も、すべては消えていく。
+
+ならば、何を恐れることがあるだろう。何を惜しむことがあるだろう。
+
+孤独を恐れることさえ、意味がないのかもしれない。
+
+---
+
+仏教には「独住」という修行がある。
+
+一人で暮らし、自分と向き合う修行だ。
+
+長明の方丈生活は、まさに独住だった。
+
+孤独の中でこそ、自分の本当の姿が見える。
+
+---
+
+目の前で栄華を極めた都が焼け落ち、多くの命が儚く散っていく様を見届ける中で、長明は社会というものの脆さを痛感しました。地位や財産といった、これまで必死に追い求めてきたものが、災害の前ではあまりにも無力であるという現実は、彼の価値観を根底から覆すほどの衝撃だったはずです。外側の世界に安心の拠り所を求めても、それはいつ崩れ去るか分からない砂上の楼閣に過ぎないという事実は、逆説的ですが、彼を孤独という選択へと押し進める大きな力となりました。何もかも失う恐怖から解放されるためには、最初から何も持たない、あるいは執着しないという境地に自らを置くしかないと気づいたのです。そのことに気づいた時、彼は初めて、自分の心の内側だけが、決して揺らぐことのない真の避難所になり得ることを悟りました。激動の世の中で、何かに縛られるのではなく、すべての流れをあるがままに受け入れる心の在り方こそが、本当の意味での平穏への唯一の道だったと言えるでしょう。この心の持ち方は、単なる消極的な諦めではなく、自らの足で立つための、極めて前向きで強靭な精神の自立だったのです。
+
+長明は、孤独の中で多くのことを発見した。
+
+自然の美しさ。山の静けさ。鳥の声。月の光。
+
+人々と交わっていた時には気づかなかった美しさが、孤独の中で見えてきた。
+
+---
+
+長明は書いた。
+
+春は藤の花を見る。夏は郭公の声を聞く。秋は日暮の声に驚かされる。冬は雪を愛でる。
+
+一人でいても、寂しくない。自然が、友だった。
+
+---
+
+しかし、長明は孤独を美化しすぎてはいない。
+
+方丈記の最後に、長明は正直に書いている。
+
+心は時々、孤独に苦しむ。自分は本当に悟ったのか。それとも、ただ逃げているだけなのか。
+
+長明は、自分を疑い続けた。
+
+---
+
+それでも、長明は方丈で暮らし続けた。
+
+孤独を受け入れながらも、孤独と闘い続けた。
+
+その正直さが、方丈記を名作にしている。
+
+---
+
+長明の生涯から、孤独との向き合い方を学ぶことができる。
+
+一つ目は、孤独を恐れないこと。
+
+孤独は、必ずしも不幸ではない。孤独の中にこそ、自由がある。
+
+二つ目は、シンプルに生きること。
+
+多くのものを持たなくても、人は生きていける。方丈で十分だ。
+
+三つ目は、自然と親しむこと。
+
+人がいなくても、自然がある。自然は、最高の友になる。
+
+---
+
+孤独を感じた時、次のことを試してほしい。
+
+一人の時間を楽しむこと。
+
+読書をする。音楽を聴く。散歩をする。一人でもできる楽しみを見つける。
+
+自然に触れること。
+
+公園を歩く。空を見上げる。季節の移り変わりを感じる。
+
+自分と対話すること。
+
+孤独は、自分と向き合う時間だ。自分は何を求めているのか。何に満足しているのか。
+
+---
+
+仏教は教える。
+
+孤独は、自分自身と出会う機会である。
+
+人と一緒にいる時、私たちは他人に合わせている。自分の本当の姿は、見えにくくなる。
+
+孤独の中でこそ、本当の自分が見える。
+
+長明は、方丈の中で、自分自身と出会った。
+
+---
+
+ゆく河の流れは絶えずして、しかももとの水にあらず。
+
+すべては移り変わる。孤独もまた、永遠には続かない。
+
+今、孤独を感じていても、やがて変わる時が来る。
+
+その時まで、孤独を友として、自分と向き合ってほしい。
+
+長明のように、孤独の中に自由を見つけてほしい。
+
+---
+
+本日も最後までご覧いただきありがとうございます。
+
+高評価とチャンネル登録も励みになります。
+
+それでは、また次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

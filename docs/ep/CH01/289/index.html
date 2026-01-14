@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-289 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-289 — script</h1>
           <div class="muted">【許しの力】許せない人がいる時に知るべき仏教の教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,330 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【許しの力】許せない人がいる時に知るべき仏教の教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【人間関係】で苦しいあなたへ──許しで自由になる話。
+・許せない人がいる苦しみ・許すための3ステップ
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 許し, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【人間関係】で苦しいあなたへ──許しで自由になる話。
+・許せない人がいる苦しみ・許すための3ステップ</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-289</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-289&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">許せない人がいる。その怒りが、心を蝕んでいませんか。
+
+---
+
+私たちの日常でも、許せないという感情は、重い石のように心にのしかかってくることがあります。理不尽な扱いを受けた時、信じていた人に裏切られた時、その怒りや悲しみは簡単には消えません。むしろ、時間が経つほどに、そのネガティブな感情は自分の一部のようになってしまい、日々の生活を暗くしてしまいます。特に真面目な人ほど、自分を傷つけた相手を許せないまま、過去の出来事に囚われがちです。仏教では、この執着を「毒」になぞらえることがあります。誰かを恨むことは、自分自身の手で毒を飲み続けるようなものなのです。相手が苦しむわけでもなく、ただ自分の心が蝕まれていく。西郷隆盛という人物は、この毒を飲み続けるのではなく、どうやってそれを吐き出し、心を浄化していったのか。その生き様は、現代を生きる私たちにとって、非常に大きなヒントになります。許すという行為は、決して相手に勝つことでも、負けることでもありません。自分自身を、過去の痛みから解放するための、勇気ある選択なのです。
+
+西郷隆盛。
+
+幕末から明治時代を生きた政治家であり、軍人である。
+
+西郷は、許すことの達人だった。
+
+敵を許し、裏切り者を許し、自分を陥れた者さえも許した。その寛容さが、西郷を「大西郷」と呼ばれる存在にした。
+
+その生涯は、百五十年経った今も、許すことの意味を教えてくれる。
+
+---
+
+西郷隆盛は、文政十年に薩摩国に生まれた。
+
+下級武士の家だった。
+
+西郷は、若い頃から藩主・島津斉彬に認められた。
+
+斉彬の下で、西郷は政治の世界に入っていった。
+
+---
+
+しかし、西郷の人生は順調ではなかった。
+
+安政五年、斉彬が急死した。
+
+西郷は、後ろ盾を失った。
+
+さらに、安政の大獄が始まり、西郷は幕府に追われる身となった。
+
+---
+
+西郷は、奄美大島に島流しにされた。
+
+三年間、孤島で過ごした。
+
+普通なら、恨みに燃えるだろう。自分を島流しにした者たちを、許せないだろう。
+
+しかし、西郷は違った。
+
+---
+
+奄美大島での流刑生活は、西郷にとって失われた時間ではなく、魂を再生させるための必要な期間でした。毎日を海や山と向き合い、身分や地位を捨てて生きる島民たちの素朴な暮らしに触れるうちに、彼は人間が本来持っている強さと儚さを同時に悟りました。かつては自分を追い詰めた幕府や藩の上層部に対して激しい憎悪を抱いていましたが、広大な自然の前では、そのような人間同士の争いがいかに小さく、無意味なものかに気づかされたのです。許すという行為は、相手の悪を認めることではなく、自分の心を執着という鎖から解き放つ作業だと体感しました。怒りという炎が燃え尽き、後に残ったのは冷徹な観察眼と、誰に対しても公平に接することのできる慈愛の心だけでした。この島で培われた揺るぎない精神の基盤がなければ、後の明治維新という大きな波の中で、あれほどの決断と行動をとることはできなかったでしょう。彼はそこで、真の強さとは何かを、肌で学び取ったのです。
+
+奄美大島で、西郷は地元の人々と親しくなった。
+
+島の女性と結婚し、子どもも生まれた。
+
+西郷は、島での生活を受け入れた。
+
+恨みを抱えて過ごすのではなく、与えられた環境を楽しんだ。
+
+---
+
+彼は流刑という絶望的な状況にあっても、自分を苦しめる元凶が外部の環境や敵対する人々にあるのではなく、自分の内側にある「許せない」という執着そのものにあることに気づきました。通常ならば、理不尽な仕打ちを受けたことに対する怒りを抱え続け、その恨みを生きる糧にしてしまうところですが、西郷はその逆の選択をしました。怒りの炎を燃やす燃料を断ち切り、心の中にある澱を静かに沈殿させることで、彼は混濁した心をクリアにしていったのです。これは単なる気休めや精神論ではなく、自分の心の持ち方を根本から変えるという、非常に困難で、かつ勇敢な心理的な作業でした。その結果、彼は島流しという罰を、自分の精神を磨くための貴重な機会へと変換することに成功したのです。
+
+奄美大島での日々は、単なる流刑の苦役ではありませんでした。西郷はそこで、厳しい自然の環境と、純朴な島の人々の温かさに触れながら、人間の小さな執着がいかに儚いものかを肌で感じたのです。島の人々は、西郷の身分や過去など気にせず、ただ一人の人間として彼を受け入れました。その温かい交流の中で、西郷はあることに気づきます。自分を苦しめているのは、島の厳しい環境でも、自分を島流しにした敵でもない。それは、自分自身の心の中にある「許せない」という執着そのものだったのです。この気づきは、座って学ぶ教えではなく、過酷な現実の中で体得したものです。心の中の澱（おり）を洗い流すように、西郷の魂は日々清められていきました。そして、恨むエネルギーを、自分を成長させるための前向きなエネルギーへと変換していったのです。この変換こそが、後の偉業を成し遂げるための、揺るぎない精神的な土台となりました。
+
+西郷は後に言った。
+
+島流しは、私にとって修行だった。恨む心を捨てることを学んだ。
+
+西郷は、許すことを島で学んだ。
+
+---
+
+西郷が薩摩に戻った後、大久保利通という人物が現れた。
+
+大久保は、西郷の盟友となった。
+
+二人は、幕末の動乱を共に戦った。
+
+---
+
+しかし、明治維新後、二人の関係は変わった。
+
+大久保は、中央政府で権力を握った。西郷は、薩摩に帰った。
+
+二人の間には、溝ができた。
+
+西南戦争で、西郷は政府軍と戦うことになった。その政府軍を率いていたのは、大久保だった。
+
+---
+
+西南戦争で、西郷は敗れた。
+
+城山で、西郷は自害した。
+
+しかし、西郷は大久保を恨む言葉を残さなかった。
+
+最後まで、かつての盟友を恨まなかった。
+
+---
+
+西郷には、有名なエピソードがある。
+
+戊辰戦争の時、江戸城無血開城を実現した話だ。
+
+西郷は、幕府側の勝海舟と交渉した。
+
+多くの人は、江戸を火の海にすることを望んでいた。幕府への復讐だ。
+
+しかし、西郷は違った。
+
+---
+
+西郷は、勝海舟の提案を受け入れた。
+
+江戸城を無血で明け渡す。その代わり、徳川慶喜の命は助ける。
+
+これは、敵を許すという決断だった。
+
+---
+
+周囲は反対した。
+
+幕府は、長年、薩摩を苦しめてきた。許すべきではない。
+
+しかし、西郷は言った。
+
+恨みを晴らすために、罪のない江戸の民を犠牲にはできない。
+
+西郷は、復讐よりも民を選んだ。
+
+---
+
+この決断には、並大抵の覚悟がいったはずです。周囲の熱狂的な復讐心の中で、ただ一人、静かに声を上げる。それは、単に敵に慈悲をかけるというよりも、自分自身の内にある「殺意」や「怒り」と戦うようなものだったでしょう。もし江戸が戦火に見舞われていれば、数え切れないほどの命が失われ、日本の歴史は大きく変わっていたかもしれません。西郷は、目の前の感情の爆発ではなく、目に見えない未来の平和と、罪のない人々の命を選び取ったのです。これは、感情を無理やり押し殺すこととは違います。怒りを超えた、より高い次元の視点に立つことです。その結果として生まれた無血開城は、日本という国を守っただけでなく、後世に語り継がれる「許しの力」の証左となりました。一人の人間の正しい決断が、多くの人を救う。西郷の行動は、そのことを私たちに強く教えてくれます。
+
+西郷は、敵だけでなく、裏切り者も許した。
+
+明治政府の中には、かつて西郷を裏切った者もいた。
+
+しかし、西郷はその者たちを責めなかった。
+
+過去は過去だ。今、何ができるかを考えよう。
+
+西郷は、そう言った。
+
+---
+
+仏教には「慈悲」という教えがある。
+
+慈悲とは、すべての生きとし生けるものを愛し、苦しみから救おうとする心だ。
+
+西郷は、慈悲を体現していた。
+
+敵も、味方も、裏切り者も、すべてを包み込む大きな心。
+
+それが、西郷の強さだった。
+
+---
+
+許すことは、弱さではない。
+
+許すためには、大きな心が必要だ。
+
+恨みを抱えて生きることは、実は楽なのだ。恨みは、エネルギーになる。
+
+しかし、そのエネルギーは、自分自身を焼く。
+
+---
+
+西郷は言った。
+
+敬天愛人。天を敬い、人を愛す。
+
+これは、西郷の座右の銘だ。
+
+天を敬うとは、大きな視点で物事を見ること。
+
+人を愛すとは、敵も味方も区別なく愛すること。
+
+この姿勢が、許すことを可能にした。
+
+---
+
+許せない人がいる時、どうすればいいのか。
+
+まず、自分の怒りを認めることだ。
+
+怒っている自分を、否定しない。怒りは自然な感情だ。
+
+しかし、その怒りに支配されてはいけない。
+
+---
+
+次に、相手の立場を想像することだ。
+
+なぜ、その人はそのような行動を取ったのか。
+
+相手にも、相手の事情があったのかもしれない。
+
+想像することで、怒りは和らぐ。
+
+---
+
+そして、許すことが自分のためであると理解することだ。
+
+許すことは、相手のためではない。自分のためだ。
+
+恨みを抱えて生きることは、重荷を背負い続けることだ。
+
+許すことで、その重荷を下ろせる。
+
+---
+
+西郷の生涯から、許すことの意味を学ぶことができる。
+
+一つ目は、許すことは強さであること。
+
+弱い人は、恨みにしがみつく。強い人は、許して前に進む。
+
+二つ目は、許すことは自分のためであること。
+
+恨みは、自分を焼く炎だ。許すことで、その炎を消せる。
+
+三つ目は、大きな視点を持つこと。
+
+敬天愛人。天を敬い、人を愛す。大きな視点で見れば、許せないことも許せるようになる。
+
+---
+
+許せない人がいる時、次のことを試してほしい。
+
+その人のために祈ること。
+
+難しいかもしれない。しかし、祈ることで、心が変わる。
+
+その人の幸せを願ってみること。
+
+最初は嘘でもいい。願い続けることで、本当に願えるようになる。
+
+自分が許されたことを思い出すこと。
+
+あなたも、誰かに許されたことがあるはずだ。その恩を、今度は誰かに返す番だ。
+
+---
+
+仏教は教える。
+
+許すことは、最高の贈り物である。
+
+相手に対してではなく、自分に対しての贈り物だ。
+
+許すことで、心は軽くなる。怒りから解放される。
+
+西郷のように、大きな心で許してほしい。
+
+敬天愛人。その言葉を、胸に刻んでほしい。
+
+許すことで、あなたは本当の自由を得る。
+
+それが、西郷が私たちに教えてくれることなのだ。
+
+---
+
+本日も最後までご覧いただきありがとうございます。
+
+高評価とチャンネル登録も励みになります。
+
+それでは、また次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

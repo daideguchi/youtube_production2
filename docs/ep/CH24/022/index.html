@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH24-022 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH24-022 — script</h1>
           <div class="muted">言い返すな。黙って整えろ【弘法大師の教え】</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH24</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH24</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,302 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCfFBOz5OUoqJIE4IV3fRNeQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>言い返すな。黙って整えろ【弘法大師の教え】</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>弘法大師（空海）の教えで、心を静かに整える時間。
+・悩みの見方が1つ変わる・今夜できる一手がわかる#推奨タグ口論,損,沈黙
+
+この動画は、「叡智の扉」の長時間コンテンツです。
+弘法大師（空海）の教えで、心を静かに整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>口論, 損, 弘法大師, 空海, 仏教, 教え, 不安, 執着, 人間関係, 言葉, 心を整える, 朗読, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>弘法大師（空海）の教えで、心を静かに整える時間。
+・悩みの見方が1つ変わる・今夜できる一手がわかる#推奨タグ口論,損,沈黙</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「叡智の扉」の長時間コンテンツです。
+弘法大師（空海）の教えで、心を静かに整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH24-022</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH24-022&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あなたは今、誰かに言い返したくて仕方がない状況にいませんか。
+理不尽なことを言われた。馬鹿にされた。見下された。
+その悔しさが胸の中で煮えくり返り、次こそは言い負かしてやると拳を握りしめている。
+しかし不器用なあなたに、今日は一つの冷徹な真実をお伝えします。
+言い返すな。黙って整えろ。
+
+これは、泣き寝入りをしろという意味ではありません。
+沈黙することで、相手に勝ちを譲れという意味でもありません。
+空海の智慧に基づいた、口論に巻き込まれずに自分を守る方法についてお話しするのです。
+
+今日は、なぜ言い返さない方が勝てるのか、その「沈黙の力」の秘奥義をお話ししましょう。
+
+---
+
+まずは、今のあなたの「喉」の状態に意識を向けてみてください。
+
+言い返したい衝動を抱えている人の喉は、キュッと締まっています。
+言葉が詰まり、声が震え、喉の奥が熱くなっている。
+それは、体が戦闘モードに入っているサインです。
+
+空海が広めた密教では、喉は言葉の源であり、コミュニケーションの中心です。
+締まった喉からは、整った言葉は出てきません。
+
+今、ゆっくりと喉を開いてみてください。
+口を少し開け、喉仏のあたりをリラックスさせる。
+「私は落ち着いている。急いで言い返す必要はない」
+そう心の中で唱えながら、喉の緊張が解けていくのを観じてください。
+喉が開くと、心もまた開かれていきます。
+
+---
+
+なぜ、言い返さない方がいいのでしょうか。
+
+それは、口論に巻き込まれた時点で、あなたはすでに負けているからです。
+相手の土俵に上がり、相手のルールで戦う。
+それは、相手に主導権を握られているということです。
+
+空海は、争いを避けることを重んじました。
+争いの中には勝者はいません。両者が傷つくだけです。
+言い返して勝ったとしても、関係は壊れ、恨みが残り、後味の悪さが続きます。
+
+「争いそのものを避ける。土俵に上がらない」
+それが、本当の意味で勝つということなのです。
+
+---
+
+言い返さないことと、自分を守らないことは違います。
+
+言い返さないとは、感情的に反応しないということです。
+自分の意見を持たないことではありません。
+必要なときに、冷静に、論理的に、自分の立場を伝えることはできます。
+
+空海の智慧によれば、言葉には力があります。
+怒りに任せて発した言葉は、相手を傷つけるだけでなく、自分のカルマにも影響します。
+しかし、冷静に整えられた言葉は、相手の心に届き、状況を変える力を持っています。
+
+「言い返す」と「伝える」は違うのです。
+言い返すは感情的。伝えるは理性的。
+黙って整えろとは、「伝える」ための準備をしろ、という意味でもあります。
+
+---
+
+具体的な日常の浄化術。
+
+言い返したい衝動に駆られたとき、自分の「舌」を上あごにつけてみてください。
+これは、言葉が口から飛び出すのを防ぐ物理的なブレーキです。
+
+舌を上あごにつけたまま、三回深呼吸する。
+「私は今、言葉を選んでいる。急いで発する必要はない」
+そう心の中で唱えながら、衝動が収まるのを待ちます。
+
+三回の呼吸が終わったとき、言い返したい気持ちは少し和らいでいるはずです。
+その状態で、本当に言う必要があることだけを、静かに言葉にしてください。
+
+---
+
+黙って整える、の真意について、もう少し深くお話ししましょう。
+
+整えるとは、二つのことを指します。
+
+第一に、自分の心を整えることです。
+怒りで乱れた心を静め、冷静さを取り戻す。
+嵐が過ぎ去るのを待つように、感情の波が収まるのを待つ。
+整った心からは、整った判断が生まれます。
+
+第二に、自分の人生を整えることです。
+口論に費やすエネルギーを、自分の成長に向ける。
+相手に振り回されるのではなく、自分の幸福を追求する。
+結果として、あなたの人生は良くなり、相手はあなたの成功を見ることになる。
+
+空海が高野山で修行に専念したのは、争いよりも悟りを選んだからです。
+あなたも、口論よりも自分の成長を選んでください。
+
+---
+
+不器用なあなたが、どうしても言い返したくなってしまうとき。
+
+その衝動は、自己防衛本能から来ています。
+攻撃されたから、反撃したい。
+傷つけられたから、傷つけ返したい。
+それは自然な反応ですが、最善の反応ではありません。
+
+空海の智慧によれば、反撃は報復の連鎖を生むだけです。
+あなたが傷つけ返せば、相手はさらに攻撃してくる。
+争いは終わらず、エスカレートしていくだけです。
+
+「この連鎖を、私が止める」
+その決意を持ってください。
+あなたが止めることで、争いは終わります。
+
+---
+
+具体的な身体の智慧として、「五秒ルール」をお伝えします。
+
+言い返したい衝動を感じたら、必ず五秒待ってください。
+一、二、三、四、五と、心の中で数える。
+その五秒の間に、衝動は確実に弱まります。
+
+五秒経っても言いたければ、さらに五秒待つ。
+それでも言いたければ、言葉を選んで、静かに伝える。
+
+この五秒が、感情的な反応と理性的な対応の分かれ目です。
+たった五秒のブレーキが、あなたの人生を大きく変えることがあります。
+
+---
+
+言い返さないことで得られる勝利について、お話ししましょう。
+
+第一に、品位を保てます。
+感情的に言い返す姿は、周囲から見て美しくありません。
+しかし、挑発されても冷静さを保つ姿は、尊敬を集めます。
+
+第二に、エネルギーを温存できます。
+口論は膨大なエネルギーを消耗します。
+そのエネルギーを自分のために使う方が、ずっと賢明です。
+
+第三に、後悔を避けられます。
+怒りに任せて言った言葉は、しばしば取り返しがつきません。
+沈黙を守っていれば、「あんなこと言わなければよかった」という後悔はありません。
+
+空海の智慧によれば、言葉は一度発したら戻せません。
+沈黙は、いつでも破ることができます。
+どちらが安全かは、明らかです。
+
+---
+
+しかし、沈黙が弱さと見られることを恐れる方もいるでしょう。
+
+心配しないでください。
+本当に強い人の沈黙は、弱さではなく、余裕として伝わります。
+言い返せないのではなく、言い返さないのだ、という自信が、態度に現れます。
+
+空海は、言葉少なでありながら、圧倒的な存在感を持っていたと言われています。
+それは、彼の内なる確信が、沈黙を通じて伝わっていたからです。
+
+「私には言い返す必要がない。なぜなら、私は自分の価値を知っているから」
+その確信を持ってください。
+確信に満ちた沈黙は、千の言葉より雄弁です。
+
+---
+
+整えることの具体的な実践について、もう少しお話しします。
+
+相手から攻撃的なことを言われた後、一人になれる時間を確保してください。
+その時間に、以下のことを行います。
+
+第一に、深呼吸を十回行います。
+これで、体の緊張が解けます。
+
+第二に、何を言われたかを紙に書き出します。
+書くことで、客観的に見ることができます。
+
+第三に、なぜそれが自分を傷つけたのかを考えます。
+多くの場合、相手の言葉が刺さったのは、自分の中にある不安や劣等感に触れたからです。
+
+第四に、その不安や劣等感に対処する方法を考えます。
+相手に言い返すことではなく、自分自身を癒す方法を探します。
+
+この整理のプロセスを経ることで、相手への怒りは自己成長のきっかけに変わります。
+
+---
+
+言い返さないことを選んだとき、相手にどう見られるかを心配する必要はありません。
+
+相手がどう見るかは、相手の問題です。
+あなたがコントロールできるのは、自分の行動だけです。
+
+空海の智慧によれば、他人の評価に振り回されることは、自分を失うことです。
+たとえ相手が「言い返せなかった」と思ったとしても、あなたは自分の選択を知っています。
+「言い返さなかった」のだと。
+
+「私は自分の選択に誇りを持つ。他人の評価は気にしない」
+その姿勢を持ってください。
+
+---
+
+具体的なエネルギーの調整として、「内なる静けさの瞑想」をお伝えします。
+
+静かに目を閉じ、心の中に静かな湖を思い浮かべてください。
+その湖は、波一つなく、完全に静まり返っています。
+湖面には、周囲の山々と空が鏡のように映っている。
+
+相手からの攻撃は、その湖に投げ込まれる石です。
+しかし、石が沈んだ後、湖はまた静かになります。
+波紋は消え、元の静けさが戻ってきます。
+
+「私の心は、この湖のようだ。何が投げ込まれても、やがて静まる」
+そうイメージしながら、心の静けさを取り戻してください。
+
+---
+
+今夜、眠る前に、一日を振り返ってみてください。
+
+今日、言い返したくなった場面はありましたか。
+その場面で、あなたはどう対応しましたか。
+言い返してしまったなら、それは学びの機会です。
+言い返さなかったなら、自分を褒めてあげてください。
+
+「今日も一日、私は冷静さを保とうと努力した」
+その努力を認め、明日への決意を新たにしてください。
+
+---
+
+空海が高野山で説いた教えは、今もこの瞬間、あなたの心に響いています。
+
+言い返すな。黙って整えろ。
+争いに巻き込まれず、自分の心と人生を整えることに集中する。
+それが、本当の意味で勝つということです。
+
+あなたの沈黙は、弱さではなく、知恵の表れです。
+その沈黙を、誇りに思ってください。
+
+心から、あなたの平安と、内なる静けさを、金剛の光とともに祈っています。
+
+南無大師遍照金剛。
+
+自信を持って、冷静な心で、明日からの一歩を踏み出してください。
+あなたには、言い返さない強さがあります。
+その強さを、今日から発揮してください。
+</pre>
     </div>
   </div>
 </main>

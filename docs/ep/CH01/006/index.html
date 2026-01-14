@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-006 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-006 — script</h1>
           <div class="muted">ひとりぼっちの中の王国：孤独が教えてくれる自己発見</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,134 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>ひとりぼっちの中の王国：孤独が教えてくれる自己発見</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-006</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-006&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あのとき、こうしていればよかった。そう思い出すたびに胸が痛み、夜中に目が覚める。過去は戻らないと頭では分かっていても、心が離してくれない。ブッダは「過去は過ぎた、未来はまだ来ない。今だけが実在する」と教えました。過去に心を置いたままだと、今の手が止まります。手が止まると、未来も動きません。過去を否定するのではなく、過去から手を離し、今に戻る技を身につけること。これが、これからの心を軽くします。
+
+六十三歳の陽子さんは、若い頃に家族との約束を守れなかったことを悔やみ続けていました。「あの日、仕事を休んで息子の発表会に行けばよかった」。息子は大人になり、関係は悪くありません。それでも夜になると、あのときの校庭の風景が頭に浮かび、涙が滲みます。陽子さんは寺の座禅会に参加し、住職に相談しました。住職は静かに言いました。「過去に行けるのは思い出だけ。思い出は変えられないけれど、今の行動は変えられます。過去の自分に謝るのではなく、今の誰かに優しくしてごらん」。陽子さんは、翌日から近所の子の話を聞くようになり、息子に「最近どう？」と短いメッセージを送るようにしました。夜中に目が覚めたら、ゆっくり息を吐き、「今できることは何？」と問いかけます。問いが今に引き戻します。
+
+過去を手放す第一歩は、体を今に戻すことです。深い呼吸、足裏を床に感じる、手をこすって温度を感じる。ブッダの呼吸法「安般」は、息を見つめるだけで心を今に留めます。過去に飛びそうになったら、息を数えます。四つ吸って、六つ吐く。手を膝に置き、足の裏を床に押し当てる。体がここにあると実感できると、心も少し戻ってきます。
+
+過去の記憶が強く浮かぶとき、それは心が「整理されていない荷物がある」と教えているサインです。紙を一枚用意し、後悔している場面を短く書き出します。「あの日、行けなかった」。次に、そのとき何を大切にしたかったかを書きます。「家族の喜び」「仕事の責任」。どちらも大切だったと認めます。認めたら、今できる一つを決めます。「今日は家族に電話をする」「明日は同僚に丁寧に接する」。紙を折ってしまい、引き出しに入れます。書いてしまうことで、頭の中の荷物が机に下ろされます。
+
+ブッダは「因果」を説きました。過去の原因が今の結果を作り、今の原因が未来の結果を作ります。過去の結果は変えられませんが、今の原因は選べます。過去を悔やむ時間を、今の原因作りに少しだけ移します。悔やむたびに「今の原因は何を選ぶ？」と問いかけます。問いが、心の向きを未来に少しずらします。
+
+陽子さんは、後悔の夜に感謝の練習を始めました。寝る前に「今日助かったこと」を三つ書く。水が飲めた、足が歩いた、誰かと挨拶をした。感謝は、足るを知る心を育てます。足るを知ると、不足に引っ張られにくくなります。過去の不足ではなく、今の足りているものに目が向くと、心の重さが少し軽くなります。
+
+過去の失敗を人に話すときは、相手とタイミングを選びます。聞き手が疲れていないか、時間があるかを見ます。「今少し話してもいい？」と聞いてから話す。話すときは、失敗の痛みだけでなく、その後に得た学びを一つ添えます。「あのとき失敗したけれど、今はこうしている」。学びがある話は、聞き手にとっても価値があります。価値のある過去は、後悔ではなく、誰かへの布施になります。
+
+過去の自分を責める言葉が浮かんだら、言い換えます。「あのときの私は精一杯だった」「今の私はもう選び直せる」。言い換えは、心の方向を変える杖です。杖を持つと、立ち上がりやすくなります。立ち上がれば、歩けます。歩ければ、今を作れます。
+
+過去に結びついた物があるなら、扱い方を変えます。写真や手紙を一枚だけ残し、他は手放す。残すと決めたものには、今の言葉を添える。「この写真のとき、こんな気持ちだった。今はこう感じる」。今の自分の目で過去を見直すと、記憶が少し柔らかくなります。柔らかくなった記憶は、心を刺しにくくなります。
+
+夜中に後悔で目が覚めたら、短い儀式をします。起き上がり、水を一口飲み、窓の外の暗さを眺める。「夜は明ける」と心で言います。夜は長くても、明けます。明けることを知っていると、夜の重さが和らぎます。和らいだ心で布団に戻り、呼吸を数えます。数えているうちに、過去の声が少し遠ざかります。
+
+ブッダは「無常」を教えました。どんな痛みも、永遠ではありません。痛みが来て、滞り、やがて去る。その流れの中で、自分ができる小さなことを一つ選びます。朝になったら、散歩を五分だけする。草に触れる。陽に当たる。体に光を入れる。光は、心の陰を少し薄くします。
+
+過去を手放すことは、過去を忘れることではありません。覚えていても、握り締めないという選択です。過去の出来事は、心の棚に置きます。棚に置くと、必要なときに取り出し、学びとして使えます。握り締めたままだと、手がふさがり、今を持てません。棚に置き、今を持つ。今を持てば、未来を持てます。
+
+最後に、過去を手放すための短い言葉を持ってください。「今に戻る」「ここにいる」「もう終わった」。言葉は錨です。波に流されそうになったとき、錨を下ろします。錨があると、船は止まります。止まっている間に、空を見上げ、深呼吸をします。空は、過去にも未来にも縛られていません。空を見ると、心が少し広がります。広がった心で、「今日できる一つ」を選んでください。その一つが、過去からの自由への一歩です。
+
+ここからもう少し深めます。過去を反芻するとき、脳は同じ回路を何度も辿ります。違う回路を使うために、体を動かす工夫を入れます。机に座っているなら立ち上がり、肩を回し、手をグーパーと開閉する。体の動きが思考に割り込みます。割り込みがあると、過去の映像が薄れます。薄れた隙に、呼吸を入れます。呼吸は今の素材です。今の素材を増やすほど、過去の素材が薄まります。
+
+後悔の場面には、当時の音や匂いが結びついていることが多いです。音と匂いを上書きするために、今の好きな音と匂いを用意します。静かな音楽、お香や好きな茶の香り。後悔が浮かんだら、音を流し、香りを嗅ぎながら深呼吸をする。感覚を通して、今の記憶を体に刻みます。刻まれた今の記憶が、過去の痛みと同じ場所に重なり、痛みが和らぎます。
+
+過去の人に謝りたいと感じたら、手紙を書きます。送らなくても構いません。「あのときこうしたかった」「今はこう思っている」と書き、封をして箱に入れます。謝罪の言葉を外に出すと、心の内側の圧が下がります。下がった圧の中で、今の行動を選びやすくなります。行動は過去を癒やす最良の薬です。
+
+仏教の「正念」は、気づきを保つことです。気づきは、過去に引きずられていることに気づくことから始まります。「今、私は過去の場面を思い出している」と言葉にする。言葉にすると、心の中で起きていることを外から見る視点が生まれます。外から見られると、巻き込まれにくくなります。巻き込まれなければ、選べます。選べれば、手放せます。
+
+日常の中で「未完」を許す練習も、過去を手放す力になります。掃除を途中で終わらせて「続きは明日」と言う。手紙を書きかけで「後で仕上げる」と置いておく。完璧を求める心は、過去の後悔を強めます。未完を許す心は、過去の未完も許します。許せば、心の棘が抜けます。
+
+眠る前に、体に触れる習慣を入れます。胸に手を当て、「今日もここまで生きた」と心で言う。手の温かさが皮膚に伝わり、心拍が落ち着きます。落ち着いた心で眠ると、夢が穏やかになり、夜中の反芻が減ります。穏やかな睡眠は、翌日の言葉を柔らかくします。柔らかい言葉は、過去の痛みを触れずに通り過ぎます。
+
+もし過去の罪悪感が強いなら、仏教の「懺悔」の形を借ります。静かな場所で座り、「あのときこうしてしまった」と心で言い、次に「これからこうする」と決めます。決めたことを小さく実行します。懺悔は、自己否定ではなく、方向転換です。方向を決め、少しでも動けば、罪悪感は「行動」に変わります。行動が増えると、後悔が減ります。
+
+過去を手放すと、未来のスペースができます。スペースに何を置くかをあらかじめ決めます。朝の散歩、近所への挨拶、庭の手入れ、短い読書。具体的な予定が一つあるだけで、心は未来に少しずつ移ります。移った心は、過去に戻りにくくなります。
+
+最後に、今日の終わりに一言だけ自分に言ってください。「今に戻ってきてくれてありがとう」。過去に引っ張られながらも、戻ろうとした自分をねぎらう。ねぎらいは、自分への慈悲です。慈悲があれば、心は何度でも戻れます。戻れる心は、過去に沈みません。沈まない心で、明日の朝を迎えてください。朝は、新しい因を作る最初の時間です。そこで選ぶ小さな一歩が、過去を手放す大きな力になります。
+
+ここで、もう一人の物語を置きます。六十九歳の健一さんは、若い頃に兄と喧嘩別れをし、そのまま兄は遠方で亡くなりました。「謝りたかった」と悔やみ続け、仏壇の前で何度も頭を下げました。ある日、住職から「兄への謝罪を、今目の前の人への優しさに変えてみませんか」と言われました。健一さんは、商店街の掃除を手伝い、近所の子どもの話を聞き、妻に「ありがとう」を増やしました。誰かに向ける優しさを増やすたびに、兄に向けられなかった思いが少しずつ溶けました。健一さんは気づきました。過去の人に届かないと思っていた謝罪が、今の行動を通して誰かの心に届き、巡り巡って自分を軽くしていることに。過去を手放す力は、今の優しさの中にあります。
+
+健一さんは夜、兄に手紙を書き続けました。毎晩一通、兄への話、今の話、謝りたいこと、感謝したいこと。手紙は仏壇の引き出しに溜まりました。ある夜、手紙を書き終えて「今日も書けた」と深く息を吐いたとき、胸の重さが少し減ったのを感じました。手紙を出せなくても、書くことで手放せるものがあります。手放した空間に、今の光が入ります。
+
+過去に強く縛られたとき、誰かに話すことも大切です。同世代の友人、信頼できる家族、専門家。話す相手を選ぶことは、相手への慈悲でもあります。聞き手を疲れさせないために、時間を区切って話し、終わりに「聞いてくれてありがとう」と伝えます。感謝で終えると、過去の話が少し柔らかくなります。柔らかくなった記憶は、今の支えに変わります。
+
+五感を使って今に戻る方法も覚えておきます。冷たい水で手を洗い、その冷たさを感じる。窓を開け、風の匂いを吸い込む。鐘や風鈴の音を聴く。味わい深いお茶をゆっくり飲む。五感は心の錨です。錨を複数持つと、過去の波に揺れてもすぐに戻れます。戻れる場所が多いほど、心は安定します。
+
+過去が繰り返し浮かぶのは、脳が「危険を避けよう」としているからでもあります。ありがとうと言える今日、誰かに優しくできる今日、呼吸を整えられる今日。それらを一つずつ積み重ねることで、脳に「今は安全だ」と伝えます。安全だとわかると、警戒で過去を掘り返す回数が減ります。減った隙間に、微笑みが戻ります。
+
+過去を手放す日は、未来が少し動き出す日です。朝、カーテンを開けて光を入れ、今日できる小さな一歩を書きます。夜、布団に入る前に、今日戻れた瞬間を思い出し、「よく戻ったね」と自分を撫でます。撫でる手の温かさが、過去を手放す力になります。温かい手が増えるほど、心は軽くなります。軽くなった心で、明日を迎えてください。過去は棚に置き、今を手に持ち、未来に向けて歩き出す。その歩みが、あなたを静かな場所へ連れていきます。
+
+過去の記憶が強く浮かぶとき、それは心が「整理されていない荷物がある」と教えているサインです。紙を一枚用意し、後悔している場面を短く書き出します。「あの日、行けなかった」。次に、そのとき何を大切にしたかったかを書きます。「家族の喜び」「仕事の責任」。どちらも大切だったと認めます。認めたら、今できる一つを決めます。「今日は家族に電話をする」「明日は同僚に丁寧に接する」。紙を折ってしまい、引き出しに入れます。書いてしまうことで、頭の中の荷物が机に下ろされます。
+
+ブッダは「因果」を説きました。過去の原因が今の結果を作り、今の原因が未来の結果を作ります。過去の結果は変えられませんが、今の原因は選べます。過去を悔やむ時間を、今の原因作りに少しだけ移します。悔やむたびに「今の原因は何を選ぶ？」と問いかけます。問いが、心の向きを未来に少しずらします。
+
+陽子さんは、後悔の夜に感謝の練習を始めました。寝る前に「今日助かったこと」を三つ書く。水が飲めた、足が歩いた、誰かと挨拶をした。感謝は、足るを知る心を育てます。足るを知ると、不足に引っ張られにくくなります。過去の不足ではなく、今の足りているものに目が向くと、心の重さが少し軽くなります。
+
+過去の失敗を人に話すときは、相手とタイミングを選びます。聞き手が疲れていないか、時間があるかを見ます。「今少し話してもいい？」と聞いてから話す。話すときは、失敗の痛みだけでなく、その後に得た学びを一つ添えます。「あのとき失敗したけれど、今はこうしている」。学びがある話は、聞き手にとっても価値があります。価値のある過去は、後悔ではなく、誰かへの布施になります。
+
+過去の自分を責める言葉が浮かんだら、言い換えます。「あのときの私は精一杯だった」「今の私はもう選び直せる」。言い換えは、心の方向を変える杖です。杖を持つと、立ち上がりやすくなります。立ち上がれば、歩けます。歩ければ、今を作れます。
+
+過去に結びついた物があるなら、扱い方を変えます。写真や手紙を一枚だけ残し、他は手放す。残すと決めたものには、今の言葉を添える。「この写真のとき、こんな気持ちだった。今はこう感じる」。今の自分の目で過去を見直すと、記憶が少し柔らかくなります。柔らかくなった記憶は、心を刺しにくくなります。
+
+夜中に後悔で目が覚めたら、短い儀式をします。起き上がり、水を一口飲み、窓の外の暗さを眺める。「夜は明ける」と心で言います。夜は長くても、明けます。明けることを知っていると、夜の重さが和らぎます。和らいだ心で布団に戻り、呼吸を数えます。数えているうちに、過去の声が少し遠ざかります。
+
+ブッダは「無常」を教えました。どんな痛みも、永遠ではありません。痛みが来て、滞り、やがて去る。その流れの中で、自分ができる小さなことを一つ選びます。朝になったら、散歩を五分だけする。草に触れる。陽に当たる。体に光を入れる。光は、心の陰を少し薄くします。
+
+過去を手放すことは、過去を忘れることではありません。覚えていても、握り締めないという選択です。過去の出来事は、心の棚に置きます。棚に置くと、必要なときに取り出し、学びとして使えます。握り締めたままだと、手がふさがり、今を持てません。棚に置き、今を持つ。今を持てば、未来を持てます。
+
+最後に、過去を手放すための短い言葉を持ってください。「今に戻る」「ここにいる」「もう終わった」。言葉は錨です。波に流されそうになったとき、錨を下ろします。錨があると、船は止まります。止まっている間に、空を見上げ、深呼吸をします。空は、過去にも未来にも縛られていません。空を見ると、心が少し広がります。広がった心で、「今日できる一つ」を選んでください。その一つが、過去からの自由への一歩です。
+</pre>
     </div>
   </div>
 </main>

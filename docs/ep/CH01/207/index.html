@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-207 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-207 — script</h1>
           <div class="muted">【過去はゴミ】終わったことをクヨクヨ悩まない、ブッダの「忘れる」力</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,265 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【過去はゴミ】終わったことをクヨクヨ悩まない、ブッダの「忘れる」力</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-207</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-207&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">ブッダは言いました。
+「筏を捨てよ」、と。
+この言葉には、苦しみから解放され、人生を劇的に変える究極の秘密が隠されています。
+このチャンネルでは、仏教の教えを紐解きながら、あなたの人生に役立つ知恵をお伝えします。
+ぜひゆっくりと癒されながらお聞きになってください。
+人生が苦しい、生きるのが辛い。
+そう感じることはありませんか？
+それはあなたが「背負いすぎている」からです。
+もう終わった過去や価値観、
+それらを大事に抱え込んで歩いているから、重いのです。
+だから前に進めないのです。
+ブッダははっきりとこう言いました。
+「筏を捨てよ」。
+今回は、ブッダの有名な「筏の喩え」という物語を通して、
+あなたの人生を圧倒的に軽くする「捨てる力」についてお話しします。
+驚くほど身軽に生きられるようになるでしょう。
+ではここから、ある旅人が、行く手を阻む巨大な川に突き当たりました。
+橋も船もない。しかし、引き返すこともできない。
+彼は死に物狂いで木を集め、筏（いかだ）を組み上げました。
+激流に飲み込まれそうになりながら、命からがら向こう岸へたどり着いたのです。
+
+彼は筏に感謝しました。
+「この筏のおかげで助かった。私の命の恩人だ」
+そしてあろうことか、その重たい筏を背負って陸を歩き始めたのです。
+
+想像してください。陸の上での筏は、ただの巨大な荷物です。
+重い。歩けない。
+それでも彼は「これは恩人だ。私の努力の結晶だ」としがみつく。
+
+そこへ通りがかりの人が言いました。
+「なぜ、そんなものを背負っているんだ？」
+
+旅人は反論します。
+「これは私を助けてくれた大切な筏なんだ！」
+
+すると、その人は静かに言いました。
+「川を渡るために筏は必要だった。でも、今は陸だ。
+陸で筏は役に立たない。
+それを捨てない限り、お前は一歩も進めないぞ」
+
+その一言で、旅人はハッとしました。
+
+「そうだ。川を渡る道具は、川でしか役に立たない」
+
+彼は感謝を込めて、筏を岸辺に置きました。
+背中は羽が生えたように軽い。
+彼は軽やかに、新しい道を歩き出しました。
+そうすると今まで見えなかった景色が急に目に飛び込んできます。
+筏を担いでいた時には気づかなかった、
+道端の花、空を飛ぶ鳥、風の匂い。
+世界がこんなにも美しかったのか。
+彼は笑いました。
+物語は以上です。
+さて、この筏とは一体何のことでしょうか？
+それは、
+あなたの過去そのものです。
+過去の成功体験、過去の栄光、そして過去の失敗やトラウマ。
+それらは全て、あなたが今ここにたどり着くために必要だった筏です。
+あの時の頑張りがあったから今のあなたがいる。
+あの時の失敗があったから学べたことがある。
+それは紛れもない事実であり、否定されるものではありません。
+しかし多くの人は川を渡り終えた後も、その筏を背負い続けています。
+陸地を歩いているのに、筏を担いでいるのです。
+滑稽だと思いませんか？
+でも私たちは、これを毎日無意識にやっているのです。
+特につい背負いがちな、３つの筏があります。
+１つ目、「過去の栄光（武勇伝）」です。
+例えば、「昔は俺もすごかったんだ」という武勇伝。
+これは典型的な筏です。
+飲み会のたびに同じ話をする。
+昔の栄光をつい語ってしまう。
+わかります。
+でも過去の栄光という筏にしがみついているのは、
+今の自分に自信がないからです。
+今の自分を見てほしいのに、過去の自分ばかり見せようとする。
+周りの人は思います。
+「重そうだな」と。
+過去の話ばかりする人は魅力がなく映ってしまいます。
+その重たい筏が、今のあなたの魅力を隠してしまっているのです。
+今のあなたは素晴らしいのですから、
+今のあなたで勝負するよう気持ちをリセットしてみて下さい。
+２つ目の筏は、「過去の失敗（後悔）」です。
+「あの時あんな失敗をしなければ」という後悔。
+これもまた頑丈な筏です。
+夜中にふと目が覚めて、何年も前のことを思い出して胸が苦しくなる。
+あの時ああしていれば。
+あの時こう言っていれば。
+そんなことを何度も何度も反芻して、自分を責め続ける。
+ですが失敗という経験は、あなたを成長させるために必要でした。
+その川を渡るためには必要だったのです。
+でも、もう渡り終えました。
+教訓だけ持って行けばいいのです。
+後悔という感情まで背負い続ける必要はありません。
+教訓はポケットに入れておけばいい。
+筏ごと担ぐ必要はないのです。
+その重荷、いつまでも背負って歩きますか？
+そして、３つ目の筏は、「他人への恨み」です。
+「あの人にひどいことをされた」という恨み。
+これもまた、最も重たい筏の一つです。
+許せない。
+絶対に許せない。
+その経験があなたを強くしたかもしれない。
+人の痛みがわかる人間にしてくれたかもしれない。
+でも、その恨みを抱え続けていては、あなたは幸せになれません。
+恨みという筏は腐敗していきます。
+最初は怒りだったものが、やがて憎しみになり、最後は呪いになる。
+背負っているあなたの背中を腐らせ、悪臭を放ち、人を遠ざけます。
+相手はもうあなたのことなど忘れて幸せに暮らしているかもしれないのに。
+なのに、あなただけがその恨みに縛られ続けている。
+自分で自分を牢獄に閉じ込めているようなものです。
+それでもまだ、その恨みを背負い続けますか？
+ブッダはさらに深いことを言っています。
+「善い教えでさえ、最後は捨てなければならない。
+ましてや悪い教えである執着など、
+なおさら捨てなければならない」
+これは衝撃的な言葉です。
+仏教の教えそのものも筏だと言うのです。
+悟りという彼岸に渡るための道具に過ぎない。
+向こう岸に着いたら、仏教すら捨てなさい。
+そうブッダは言っているのです。
+何ものにも執着してはいけない。
+正義にも、真理にも。
+「自分が正しい」という思い込み。
+これこそが最も重たい筏かもしれません。
+私は正しい、あいつは間違っている。
+この正義の筏にしがみつくと、人間関係は地獄になります。
+争いが絶えず、心が休まる時がありません。
+正義という筏は時として凶器になり、人を傷つけ、
+自分も傷つく。
+正論で人を殴っても、誰も幸せになりません。
+そんな筏なら今すぐ川に流してしまいなさい。
+とブッダは説かれたんですね。
+さて、筏を捨てること。
+もちろん過去を否定することではありません。
+無駄だったと切り捨てるのではなく、
+「おかげでここまで来れた」と感謝し、手放すことです。
+過去をゴミとして捨てるのではなく、
+役割を終えたものとして卒業するのです。
+卒業証書をもらったら学校にはもう行きません。
+過去にとらわれないでください。
+あなたは今を生きているのです。
+では、どうすれば私たちはこの重たい筏を下ろすことができるのでしょうか？
+答えはシンプルです。
+「今日一日分」の荷物だけを持つのです。
+過去は変えられません。
+未来は誰にもわかりません。
+確かなのは、今この瞬間だけ。
+今日一日分の荷物だけを背負って歩けばいい。
+昨日までの筏は、感謝して川に置いてくればいいのです。
+もう一つ、大切なことがあります。
+筏を捨てることを恐れないでください。
+「また川があったらどうしよう」と心配する必要はありません。
+あなたには、一度筏を作った経験があります。
+あの激流を乗り越えた実績があります。
+その知恵と技術はあなたの体の中に刻まれている。
+筏そのものは捨てても、経験値は残っているのです。
+もしまた川が現れたら、その時にまた新しい筏を作ればいい。
+今度はもっと上手く、もっと早く作れるはずです。
+過去の道具にしがみつくのではなく、今の自分の知恵と力を信じてください。
+手ぶらでいることは無防備なことではありません。
+何にでも対応できる、最強の準備状態なのです。
+両手が空いていれば何でも掴めます。
+新しいチャンスも、新しい出会いも。
+荷物で両手が塞がっていたら、差し伸べられた手を握り返すこともできないのです。
+忘却は、神様が人間に与えた最高の鎮痛剤です。
+いつまでも覚えていることは、傷口を何度も開き直すような自傷行為です。
+意識的に忘れることを選んでください。
+許すとは、忘れることです。
+相手のためではありません。
+あなたが楽になるために忘れるのです。
+過去を悔やんでいる時、あなたの心は今にいません。
+未来を不安がっている時も、あなたの心は今にいません。
+心ここにあらず。
+それでは生きているとは言えません。
+過去という亡霊にエネルギーを吸い取られないでください。
+目の前の一歩、今日の一食、今隣にいる人。
+そこに全力を注ぐこと。
+それが過去を断ち切る唯一の方法です。
+今が充実していれば、過去を振り返る暇などなくなります。
+熱中している時、人は過去も未来も忘れます。
+ただ「今」だけがある。
+それが「生きる」ということです。
+最後に、ブッダの言葉を贈ります。
+「過ぎ去れるを追うことなかれ。
+いまだ来たらざるを念うことなかれ。
+過去はすでに捨てられたり。
+未来はいまだ至らざるなり」
+あなたの人生は博物館ではありません。
+過去の遺物を展示して、埃を被っている場合ではないのです。
+あなたは旅人です。
+背中の荷物を下ろし、顔を上げてください。
+身軽になったあなたの目の前には、
+見たこともない素晴らしい景色が広がっているはずです。
+風を感じ、光を感じてください。
+これこそ、筏を担いでいた時には見えなかった世界です。
+あの旅人のように、
+「ありがとう。
+おかげで助かったよ。
+でも、もう君の役目は終わったんだ」
+そう言って手を振って歩き出してください。
+その重たい筏はもういりません。
+川に置いていきましょう。
+さあ、手ぶらで。
+新しい冒険の始まりです。
+本日も最後までご覧いただきありがとうございます。
+皆様が幸せでありますように。
+</pre>
     </div>
   </div>
 </main>

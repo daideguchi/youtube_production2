@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-045 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-045 — script</h1>
           <div class="muted">【人生に疲れたあなたへ】何をやっても楽しくない…「空虚感」の正体と、ブッダの処方箋</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,152 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【人生に疲れたあなたへ】何をやっても楽しくない…「空虚感」の正体と、ブッダの処方箋</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-045</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-045&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre"># 【人生に疲れたあなたへ】何をやっても楽しくない…「空虚感」の正体と、ブッダの処方箋
+
+朝起きても胸が動かない。好きだったはずのものに手が伸びず、時間だけが通り過ぎる。何をしても楽しくない、心が空っぽに感じるときがあります。ブッダは、空虚感の正体を「渇愛と無明」、つまり「もっと欲しい」と「本当の姿が見えない」ことだと説きました。ただ、今の私たちに必要なのは難しい言葉ではなく、心に空気を入れ直す具体的な手立てです。今日は、空虚感の正体を優しく見つめ、日々の小さな動作で心を満たす処方箋をお届けします。
+
+空虚感は「満たされない」と「疲れ」が絡み合って生まれます。外からの刺激を増やしても埋まらず、むしろ疲れが増すばかり。まずは、体の疲れを取ることが第一歩です。ブッダが戒律で大切にした「睡眠・食事の中道」を思い出します。遅くまで光の強い画面を見ない、寝る二時間前にカフェインを控える、寝る前に四つ吸い六つ吐く呼吸を三セット。体が少し緩むと、心に空気が入るスペースができます。
+
+空虚感を埋めようとしてスマホを眺め続けると、余計に心が乾きます。心の渇きを水で潤すように、情報の摂取にも「適量」を設けます。朝と夜、各15分だけニュースやSNSを見る。それ以外の時間は、目と耳を休める。情報の水量を減らすと、心が自分の声を聞き始めます。
+
+ブッダは「無常」を説きました。すべては移ろい続ける。空虚感も永遠ではありません。今感じている重さが、明日も同じとは限らない。無常を知ると、「この空虚もいつか変わる」と希望が生まれます。希望があると、今日の一歩を出しやすくなります。
+
+具体的な一歩として、「五感を使う」時間を作ります。朝の光を浴び、手をすり合わせて温度を感じる。白湯をゆっくり飲み、舌の上の温度を味わう。窓を開けて風の匂いを嗅ぐ。五感は今ここにしかありません。五感が働き出すと、頭の中の空虚な響きが少し静まります。
+
+次に、「小さな完了」を積み重ねます。空虚感は、終わりのない未完了が積もって生まれることがあります。今日、10分だけ机の上を片づけ、終わったら大きく丸をつける。皿を一枚洗ったら、「完了」と声に出す。小さな完了が増えると、「自分は動ける」という感覚が戻ります。この感覚が、空虚を満たす最初の水です。
+
+空虚感の正体を見極めるために、紙に「本当にしたいこと」と「したくないけれどしていること」を三つずつ書きます。したいことが思いつかなくても構いません。「思いつかない」と書くこと自体が気づきです。したくないことは、可能なら一つ減らします。減らせないなら、時間を短くする。自分の時間を取り戻すことが、心の空気穴を開けます。
+
+人とのつながりも、空虚を和らげる重要な要素です。ただし、疲れを増やすつながりではなく、静かに寄り添うつながり。誰かに「今日は何もしたくない」と正直に伝え、五分だけ声を聞かせてもらう。話さなくても、声を聞くだけで満たされることがあります。仏教の「善友（善知識）」は、心を整える友のこと。善友との短い時間は、空虚感の底に温度を戻します。
+
+体を動かすのも有効です。激しい運動でなくていい。肩を回し、首をゆっくり伸ばし、足裏を押す。動きに合わせて「ここが動いている」と言葉を添える。体が動くと、心も動きます。動かない心は、動かない体と手を組みがちです。どちらかを先に動かせば、もう一方もつられて動き出します。
+
+空虚感が強いとき、未来のことを考えるとさらに疲れます。逆に「今日の中でできる一つ」に意識を絞ります。「窓を開ける」「10分歩く」「夕方に白湯を飲む」。これだけでいい。一つを終えたら、「今日はこれで十分」と言う。十分と認めることで、心は「もっと」を手放します。
+
+ブッダの瞑想には「慈悲の瞑想」があります。「私が幸せでありますように」と自分に向けて唱えます。空虚なときこそ、自分に優しい言葉をかける。最初は響かなくても構いません。毎日短く唱えるうちに、少しずつ心の内側に温かさが溜まります。温かさは、空虚を埋める土になります。
+
+夜の儀式も整えます。寝る前に、照明を少し落とし、深呼吸を三回。今日できたことを一つだけ思い出し、「ありがとう」と言う。できなかったことや不足は、明日に回す。寝る前に心を軽くすることで、翌朝の空虚感が薄れます。
+
+七日間のリセットプラン。1日目、睡眠の質を上げるために夜の光を減らし、呼吸を三セット。2日目、五感リストを作り、朝に一つずつ感じる。3日目、小さな完了を三つ作り、丸をつける。4日目、したいこと・したくないことリストを書く。5日目、善友に五分だけ声を聞かせてもらう。6日目、体を動かす時間を10分作る。7日目、慈悲の瞑想を三分。七日で心の底に空気が入り始めます。
+
+二十一日続けると、空虚感が「訪れても去るもの」だと体が覚えます。記録をつけ、空虚を感じた時間と、対処できた時間を丸で示す。丸が増えるほど、自分を扱う技が身につきます。九十日後には、空虚感は消えなくても、翻弄されずに扱える手応えが生まれます。
+
+空虚感に悩んだ三人の小さな例。五十代の男性は、定年後に空虚を感じました。彼は毎朝五分の散歩と五感リストを続け、一ヶ月後、「朝の光が前より綺麗だ」と感じるようになりました。四十代の女性は、介護と仕事の両立で心が空になりました。善友と五分の電話を週二回入れ、小さな完了を積み重ねました。三ヶ月後、「空っぽでも、少しずつ満たせる」と言います。二十代の学生は、何をしても楽しくなくなり、スマホに逃げていました。情報の時間を30分に区切り、夜の光を減らしたところ、集中力が戻り、読書が楽しめるようになりました。
+
+空虚感は、何かが壊れたサインではなく、心のタンクが一時的に空になったサインです。タンクを満たす水は、特別なイベントではなく、日々の小さな習慣から生まれます。呼吸、光、音、温度、言葉、完了。どれか一つでも続ければ、タンクはゆっくり満ちます。
+
+最後に、手の甲を包み、四つ吸い六つ吐きながら心で唱えます。「空っぽでも、息がある」。息がある限り、満たすチャンスはあります。空虚感に飲まれず、静かに満たす習慣を重ねてください。静かな習慣が、あなたの心にじんわりと灯りをともします。灯りがともれば、また歩けます。
+
+ここからさらに、心を温める具体の工夫を重ねます。朝、カーテンを指一本分開け、光を線として入れる。線が部屋を横切るのを眺める。光は「今日が始まった」という合図です。合図があると、体が「起きるモード」に切り替わり、空虚の霧が少し晴れます。
+
+昼は「手を使う時間」を入れます。野菜を刻む、布を畳む、ペンでゆっくり字を書く。手が動くと、頭の中の空虚な音が和らぎます。手の温度と感触を感じながら、「今はこの動きだけ」と心で言う。動きを限定すると、心も一点に集まります。
+
+夕方には「感覚のシャワー」を浴びます。好きな香りを一滴垂らし、湯気を吸い込みながら深呼吸。香りが鼻を通る道を意識する。香りは脳の奥に届き、疲れをほぐします。空虚感は、疲れた脳が発するノイズでもあります。香りで脳を撫でると、ノイズが小さくなります。
+
+空虚なときは、「意味」を探しすぎて疲れます。ブッダは「行いそのものにとどまる」ことを勧めました。歩くときは歩く。洗うときは洗う。意味づけを一旦脇に置き、行為に集中する。行為の中に、小さな満足が生まれます。満足は大きな意味を求めなくても、心を満たします。
+
+「できない自分」を責めない練習も必要です。空虚な日は、何もできなくて当然です。「今日は省エネモード」と宣言し、最低限の家事だけにする。省エネの日に罪悪感が湧いたら、手のひらを胸に当て、「今はこれでいい」と唱える。自分を責める言葉は、タンクの穴を広げます。責めない言葉が、穴を塞ぎます。
+
+人の温かさを受け取ることも満たし方の一つです。誰かに小さな頼みごとをする。「今日、夕方に一言声をかけてくれる？」とお願いする。頼むことは弱さではなく、つながりの循環です。頼む力がある人は、与える力も長く保てます。
+
+音楽の力も借りましょう。三分だけ好きな曲を聴き、終わったら静かに耳を澄ます。音が消えた後の静けさに意識を向ける。静けさが「満ち足りた余白」に変わる瞬間があります。余白を感じられれば、空虚は余白として扱えます。
+
+夜、布団に入ったら「今日できた三つ」を口に出す。些細なことで構いません。「起きられた」「ご飯を食べた」「メールを一通返した」。三つが思いつかなければ一つでもいい。できたことを数えると、タンクに水が一滴落ちる音が聞こえます。
+
+三か月に一度、「楽しさの棚卸し」をします。過去に楽しかったことを十個書き、そのうち一つを今週試す。楽しかったことが今は楽しくないかもしれません。それでも、試すことで「楽しいかどうか」を確かめられます。確かめる行為が、空虚への探検になります。探検は、空虚を少し面白くします。
+
+空虚感は、季節や天候に影響されることもあります。雨の日は光が少なく、心も沈みがち。そんな日は、照明を一段明るくし、暖かい飲み物を増やす。季節に合わせてケアを変える。季節とともに変わる自分を許す。許すことが、空虚を和らげます。
+
+思考が止まらないときは、紙に「今思っていること」を止めどなく書き出し、時間を決めて捨てます。捨てる前に一礼し、「ここに置きます」と心で言う。紙に移すことで、頭の中のスペースが空きます。空いたスペースに、静けさが入ります。
+
+最後に、小さな未来の楽しみをカレンダーに入れます。花を一輪買う日、好きなパンを買う日、短い散歩のコースを変える日。未来に小さな灯を点けておくと、今日の空虚に風が通ります。風が通ると、空っぽの部屋にも心地よい音が響きます。
+
+空虚感は、あなたが生きている証でもあります。感じられるのは、まだ心が働いているから。働く心に、休みと水と光を。休んで、満たして、また少し動く。その繰り返しが、空虚に静かな色をつけます。色がついた心で、今日も小さな一歩をどうぞ。
+
+二十一日を過ぎたら、九十日スパンで暮らしを点検します。季節が一つ進むごとに、睡眠・食事・光・人とのつながりのバランスを見直す。ブッダの八正道の中でも「正念」と「正精進」を意識し、やりすぎず、やめすぎず、ちょうどよく続けます。ちょうどよさは人それぞれ。自分のペースが見えたら、それを大切に。
+
+仏教の「空」は、虚無ではなく「固定した実体がない」という意味です。空虚感を「私は空っぽだ」と固定化すると、苦しみが深まります。「今、空っぽを感じている」と状態として捉える。状態は変わります。変わると知ることで、空虚に名前をつけたまま固めるのを防げます。
+
+心に少し余裕ができたら、誰かを助ける小さな布施をしてみます。コンビニの募金箱に硬貨を入れる、席を譲る、困っている人に道を教える。与える行為は、自分の内側にも温かさを流し込みます。温かさが戻ると、空虚感の底に灯りがともります。
+
+空虚なとき、完璧を目指すとさらに疲れます。ブッダの中道は「極端を避ける」道。今日は10分だけ歩く、今日は1品だけ作る。小さな目標を超えたら、余分にやらずに止める。止める勇気が、疲れを防ぎ、明日の力を残します。
+
+他人と比べる習慣も空虚を増やします。SNSで誰かの楽しそうな姿を見ると、自分の空虚が際立ちます。比べたくなったら、画面を閉じ、手を合わせて深呼吸。「私は私の時間を歩く」と心で唱える。歩幅は人それぞれ。自分の歩幅で十分です。
+
+心がどうしても重い日には、専門家の助けを借りることも大切です。カウンセラーや医師、信頼できる僧侶。第三者に話すことで、空虚感が言葉になり、扱える形になります。助けを求めることは弱さではなく、心を守る智慧です。
+
+最後の仕上げに、夜空を見上げる時間を作ります。星が見えなくても、空の広がりを感じる。空に向かって、今日できたことを一つだけ伝える。「今日は窓を開けたよ」。空は何も言いませんが、広さを返してくれます。広さを感じると、心の空虚も「広い空間」として扱えます。広さに溶けると、空虚は重さを失います。
+
+手のひらを胸に重ね、もう一度呼吸します。四つ吸い六つ吐き、「空でも、灯は消えていない」と心で唱える。灯は、あなたがこれまで積み上げてきた優しさや努力の火。空虚な日でも、火は完全には消えません。小さな火を守り、風を送る習慣を重ねてください。火が見えれば、また前を向けます。
+
+空虚感が戻ってきたら、「戻ってきたね」と声をかけます。追い出そうとすると疲れます。招かれざる客として扱い、座布団を一枚敷き、「そこにいていいけど、私はお茶を飲むね」と心で言う。客を座らせたら、自分は自分の呼吸に集中する。共存の姿勢が、空虚への緊張を解きます。
+
+週に一度、「ありがとうノート」を開きます。人、もの、出来事、体の働き。感謝を十個書き、深呼吸。感謝は、心のタンクを満たす最もシンプルな水です。書き終えたらノートを閉じ、手のひらで温める。温かさがノートに移り、次に開くときも温度を思い出します。
+
+空虚感は、人生のリズムを調整する合図でもあります。走りすぎたなら歩き、歩きすぎたなら座る。リズムを変える勇気が、空虚から抜け出す鍵です。勇気は大きくなくていい。椅子から立ち上がって窓を開ける勇気で十分です。その小さな勇気が、次の勇気を呼びます。
+
+旅の途中で荷物を置くように、空虚感も途中で置けます。置く場所は、紙でも、呼吸でも、誰かの肩でも。置いたら、一歩軽くなります。一歩軽くなったら、また光を入れ、湯気を吸い、音を聴く。行きつ戻りつで構いません。戻れる道を知っていれば、空虚は怖くありません。
+
+最後にもう一度、手の甲を包み、四つ吸い六つ吐きます。吐くときに心で唱える。「空虚は合図、私はまだここにいる」。その合図を聞き取り、静かに応える力が、あなたの中にあります。静かな応答ができれば、人生はまたじんわりと色を取り戻します。色の戻った心で、今日もおはようを言いましょう。
+
+おはようと言える日は、もう空虚だけの部屋ではありません。声が響き、光が差し、誰かと目が合う。そのささやかな瞬間のために、今日の一歩を置いてください。ブッダの処方箋は、遠い教えではなく、今の呼吸と所作の中にあります。
+
+呼吸と所作を積み重ねるうちに、心のタンクに少しずつ水が溜まります。溜まった水が、あなたの優しさをもう一度流し始めます。流れる優しさが、空虚を静かに満たしていきます。
+
+満たされた心で見る朝の光は、昨日と同じでも違って見えます。その違いが、今日を生きる力になります。
+</pre>
     </div>
   </div>
 </main>

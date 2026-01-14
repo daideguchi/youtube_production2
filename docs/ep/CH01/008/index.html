@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-008 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-008 — script</h1>
           <div class="muted">ポケットに仏陀を。日常で見つける悟りの瞬間 | 仏教の教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,128 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>ポケットに仏陀を。日常で見つける悟りの瞬間 | 仏教の教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-008</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-008&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">「あの人の頼みを断れず、いつも疲れてしまう」「善意を利用されている気がする」。そんな経験はありませんか。優しくあることと、都合よく使われることは違います。ブッダは「不殺生」「正語」「正精進」を教えました。これは、自分と他人を傷つけない線を引くための智慧です。線を引ける人は、善意を守りながら人と付き合えます。ここでは、ずるい人から身を守るサインと、静かに距離を取る方法を物語とともにたどります。
+
+六十五歳の恵子さんは、近所の知人から繰り返し頼みごとをされていました。「これ印刷して」「これ持って行って」「ついでに振り込みも」。断ると「冷たい」と言われるのが怖くて、無理を重ねました。ある日、家に帰ると腰を痛め、寝込んでしまいました。布団の中で恵子さんは「このままでは自分の生活が壊れる」と気づきました。仏壇の前で手を合わせ、「自分を守る線を引きます」と心で宣言しました。
+
+ずるい人のサインは、いくつか共通しています。謝らず、当然のように頼む。期限を守らず、遅れても謝らない。感謝がないか、言葉だけで軽い。頼み事が一方通行で、自分の困りごとは聞かない。あなたの予定や体調を気にかけない。こうしたサインに気づいたら、まず立ち止まります。立ち止まるのは、心の刹那を作るためです。刹那がないと、流されます。息を一つ吐き、体を感じます。体が重いと感じたら、それが線を引く合図です。
+
+ブッダの「正語」は、優しくもはっきりと伝える言葉を選ぶことです。恵子さんは、頼まれたときにこう言う練習をしました。「今はできません」「今日は体を休めています」「これは私には重いです」。言い訳を重ねず、短く事実を伝える。相手が不満そうでも、言い直さない。言い直さないことで、自分の線が守られます。線を守る姿勢が伝わると、相手の要求も減ります。
+
+正語を支えるのが「正精進」です。力を入れる場所を選ぶこと。善意を分けたい相手に時間と力を使い、利用する人には使わない。恵子さんは、善友との約束をカレンダーに先に書き込み、頼まれごとはその枠外で考えるようにしました。先に自分の大切な予定を守る。余白があれば手伝う。余白がなければ「今回はできません」と言う。予定を見える形にすると、断る理由が明確になり、心が揺れにくくなります。
+
+ずるい人は、あなたの「善意」という資源を無限だと思っています。資源には限りがあると自分に言い聞かせます。心も体も時間も有限です。有限だと知ると、配分ができます。配分することは、自分と善友を守ることです。守ることは、優しさの一部です。
+
+具体的な距離の取り方をいくつか。頼みごとが来たら、すぐ返事をせず「確認してから返します」と一言置く。時間を置くことで、巻き込まれずに考えられます。頼まれごとを受けるときは期限と範囲を確認します。「いつまでに？」「ここまでならできます」。曖昧な依頼は、線を曖昧にします。曖昧を減らす言葉が、あなたを守ります。
+
+電話やメッセージが頻繁に来る場合、連絡を受ける時間を決めます。「夕方以降は返信が遅れます」と伝え、通知を切ります。連絡の主導権を少し自分に戻します。主導権が戻ると、心の疲れが減ります。疲れが減ると、善意が守られます。
+
+恵子さんは、頼みごとを断った日に自分を責める癖がありました。「冷たい人だと思われたかも」。そのたびに、仏壇の前で手を合わせ、「自分を守った」と心で言いました。自分を守ることは、自分への布施です。布施は優しさです。優しさを自分にも向ける人は、他人にも長く優しくできます。
+
+ずるい人から距離を取るとき、相手の怒りや批判が返ってくることがあります。批判は相手のもの、と心で線を引きます。あなたの価値と相手の反応は別です。反応に引きずられそうになったら、呼吸をゆっくりし、足裏を感じます。体がここにあると気づけば、相手の言葉は風のように通り過ぎます。
+
+仏教の「不殺生」は、自分を殺すことも含まれます。過度の犠牲は、自分を傷つけます。自分を傷つけて続ける善意は、やがて疲れと怒りを生み、周りにも厳しくなります。善意を長持ちさせるために、自分を殺さない線を引きます。その線は、あなたの笑顔を守ります。
+
+頼みごとを受けない日の代わりに、善友のために時間を使います。茶を淹れて手紙を書く、庭の花を分ける、近所の子の話を聞く。善意を正しく使うと、心が温まります。温まった心は、ずるい人の冷たさに触れても凍りません。
+
+もう一つの物語。七十二歳の達夫さんは、兄弟からお金の無心を繰り返されていました。貸しても返ってこず、「家族だろ」と責められました。達夫さんは住職に相談し、「優しさは境界があるから保てます」と言われました。達夫さんは「今回はできません」と初めて言い、代わりに「生活相談の窓口に行ってみたら」と情報を渡しました。兄弟は怒りましたが、達夫さんは呼吸を整え、言い直しませんでした。その夜、達夫さんは胸の重さが少し減ったのを感じました。境界を引く優しさは、自分も相手も現実を見る助けになります。
+
+ずるい人との関係を整理すると、孤独感が湧くことがあります。誰かとの縁を切るときは、善友との縁を強くします。善友に「最近こういうことがあって断った」と話す。話すと、あなたの選択を確認できます。確認があると、孤独が減ります。
+
+最後に、身を守るための短い言葉を持ってください。「今はできません」「それは自分でお願いします」「今回はお手伝いできません」。短い言葉は、あなたの盾です。盾を持つと、善意が守られます。守られた善意は、必要なときに温かく使えます。ずるい人から距離を取り、善友と温かくつながる。その両方をできる人の心は、静かで強い。静かな強さで老後を歩いていきましょう。
+
+ここから、日常に落とす具体をいくつか重ねます。頼まれごとが多い人は、あらかじめ「手伝える曜日と時間」を自分で決め、手帳に書きます。それ以外の時間は「自分の予定があります」と言う。予定があると言うとき、本当に自分のための予定を入れておく。散歩でも読書でも構いません。自分の予定を守ることは、自分の価値を守ることです。
+
+ずるい人は、曖昧な言葉で要求を広げます。「ついでに」「ちょっとだけ」。曖昧さに飲まれないために、具体を確認します。「何時までに？」「どこまで？」。具体を聞いて答えが曖昧なら、「それなら今日はできません」と言います。具体を求めること自体が、相手に「境界がある」と伝えます。
+
+返事の前に「間」を作る習慣を持ちます。頼まれた瞬間に「はい」と言わず、「考えてから返します」と一言置く。間があると、感情ではなく判断で答えられます。判断で答えた返事は、後悔を減らします。後悔が減れば、心の疲労も減ります。
+
+ずるい人との接触後に、体や心が重くなるなら、その感覚を記録します。「〇月〇日、〇〇さんと話して肩が重くなった」。記録すると、相手と自分の反応のパターンが見えます。パターンが見えれば、距離の取り方を計画できます。計画は心の盾です。
+
+「頼まれたこと」と「自分の責任」を分けます。相手の忘れ物、相手の支払い、相手の都合。あなたの責任ではないことまで背負う必要はありません。仏教の「自他の別」を思い出します。自分と他人は違う。それを認めることが、優しさの第一歩です。
+
+余裕があるときは、線を示しつつ代案を出します。「今日はできませんが、〇日になら少し手伝えます」「この部分ならできますが、ここから先はできません」。代案は、相手に自分の境界を理解させつつ、関係を切らずに済みます。代案を出せないときは、無理に出さなくていい。「できません」で終えても、世界は壊れません。
+
+「ありがとう」を言わせるのも、サインになります。頼まれたことをしたら「どういたしまして」と言わず、「役に立ったなら良かったです」と伝えます。相手が感謝を言わなければ、「次は感謝してもらえる人に力を使おう」と判断する材料になります。感謝の有無は、関係を続けるかどうかの目安です。
+
+心が揺れたときは、足裏を感じる呼吸を数回。揺れたまま返事をしない。ブッダの「正念」は、今の心に気づくことです。気づけば、流されません。流されなければ、善意も流れません。
+
+ずるい人との関係を減らした分、善友に時間を使います。善友と短いお茶をする、電話で声を聞く、手紙を書く。善友との時間が増えると、善意を使う場所が増えます。善意を正しく使うと、心が温まります。温かい心は、ずるさに冷やされません。
+
+最後に、線を引けた自分を褒めてください。「今日は断れた」「今日は時間を守れた」「今日は自分を守れた」。褒める言葉は、自分への布施です。布施を受け取った心は、静かで強くなります。静かで強い心で、これからも善意を大切にしてください。善意を守れる人が、穏やかな老後を歩めます。
+
+ここに、もう一つの物語を置きます。七十六歳の雅子さんは、親戚から度々「保証人になってほしい」「名義を貸してほしい」と頼まれていました。断ると「冷たい」と責められ、罪悪感に押しつぶされそうになりました。ある日、寺の掲示板で「善意は囲う、悪意は離す」という言葉を目にしました。雅子さんは住職に相談し、「断ることは悪ではなく、自分と相手を守ることです」と言われました。次に頼まれたとき、雅子さんは深呼吸をし、「それはできません。お役に立てずすみません」と短く伝えました。親戚は怒りましたが、雅子さんは言い直しませんでした。夜、仏壇に手を合わせ、「自分を守った」と呟くと、胸の重さが少し軽くなりました。数か月後、親戚との連絡は減りましたが、雅子さんの体調は良くなり、笑顔が増えました。線を引くことで失うものもありますが、守れるものもあります。守った笑顔は、善友に向けられます。
+
+善意を守るもう一つの技は、「情報の共有」です。家族や善友に、「最近こういう頼まれ方をしている」と伝えます。味方がいると、線を引くときに心強い。味方が注意を促してくれることもあります。孤立していると、ずるい人の声だけが大きく聞こえます。味方の声を増やすことも、身を守る術です。
+
+ずるい人に出会った経験を、未来の自分のために記録します。「こう頼まれた」「こう断った」「こう反応された」。記録は、自分の盾の取扱説明書です。読み返すと、「次はもっと短く断ろう」「次は返事を翌日にしよう」と改善点が見えます。改善を重ねると、線が強くなります。
+
+仏教の「持戒」は、守るべきルールを自分で決め、それを守ることです。「お金の貸し借りはしない」「名義は貸さない」「自分の予定を優先する」。自分で決めた戒は、外からの圧力に負けない支えになります。戒を守る自分に、信頼が積み上がります。信頼がある人は、ずるい人に揺れません。
+
+最後に、あなたの善意を向ける先をもう一度選んでください。善友、家族、地域の子ども、困っている誰か。善意は貴重な資源です。貴重なものほど、使いどころを選びます。選んで使う善意は、温かさを長く保ちます。温かさを保った善意が、あなたの老後を穏やかにします。線を引く勇気と、善意を届ける優しさ。その両方を持つあなたに、静かな強さが宿ります。***
+
+ここで、日常の具体的な盾をもう少し。電話や訪問で断りにくい相手には、「家族と相談してから返事します」と一言置く。家族がいなくてもいい。相談する時間を自分に与えるための言葉です。時間ができれば、感情ではなく状況で判断できます。判断で出した答えは、後悔が少なくなります。
+
+頼まれごとが続いたら、物理的な境界も使います。玄関先で話を切り上げる、席を立って「そろそろ失礼します」と言う。体を動かすことで、会話が自然に終わります。終わらせる力は、境界の力です。
+
+ずるい人は「貸し」を積もうとします。「この前やってあげたでしょ」。貸し借りの帳簿を持たないと決めます。「あれはあれ」「これはこれ」と心で線を引きます。線を引く言葉として「今回は今回は」「前とは別の話ですね」を用意しておきます。
+
+心が弱ったときに頼られやすいので、弱いときほど「今日はできません」と言います。弱いときに断るのは勇気ですが、その勇気が善意を長持ちさせます。弱いときに無理をすると、怒りが溜まり、善友に厳しくなってしまいます。善友に厳しくならないためにも、弱いときは自分を守ります。
+
+最後に、線を引いた日の終わりに、自分をねぎらいます。「今日はうまく断れた」「今日は言葉を短くできた」「今日は自分を守れた」。ねぎらいは、自分への慈悲です。慈悲があれば、善意は枯れません。善意が枯れなければ、老後は穏やかです。あなたの善意を守るために、今日から盾と言葉を持ってください。***
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH05-006 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH05-006 — script</h1>
           <div class="muted">【朗読】深夜ラジオのDJに「40年前に別れた恋人へ」と手紙を送った。数日後、番組で私の手紙が読まれ、彼からのアンサーソングが流れた時、涙が止まらなかった。</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,172 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCNxC0Q2xDoofIClGNurUcIg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【朗読】深夜ラジオのDJに「40年前に別れた恋人へ」と手紙を送った。数日後、番組で私の手紙が読まれ、彼からのアンサーソングが流れた時、涙が止まらなかった。</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉
+
+この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>再婚, 家族の距離, 老後, シニア, 恋愛, シニア恋愛, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH05-006</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH05-006&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">深夜の静寂を切り裂くように、ラジオからDJの落ち着いたバリトンボイスが流れてくる。
+「今夜も、眠れないあなたに届きますように……」
+その声に、洗い物をしていた手がふと止まった。水音が止むと、部屋の中は再びラジオの声と、冷蔵庫のモーター音だけになった。
+
+私は美和子、六十七歳。夫を見送って五年。子供たちはそれぞれの家庭を持ち、この広い家には私一人と、夫が遺した古びたラジオだけが残された。
+昼間は市民大学で心理学を学び直したり、庭いじりをしたりして日々を埋めている。外に出れば笑顔でいられる。でも、夜の静けさは時に耐え難い重さでのしかかってくる。孤独が、闇と共に忍び込んでくるのだ。
+
+静かな台所で、淹れたての紅茶の湯気に顔を近づけた時だった。
+ラジオから流れるリクエスト曲のイントロに、心臓が跳ねた。
+それは、高校時代の初恋の相手、修一が好きだったジャズのナンバーだった。
+『いつか、王子様が』
+ビル・エヴァンスのピアノが、切なく、そして優しく響く。
+四十年前の記憶が、紅茶のベルガモットの香りと共に鮮やかに蘇る。
+制服の袖の匂い、放課後の音楽室の埃っぽい空気、そして駅のホームでの別れ。
+彼が東京へ行くと決まった日。私は「待ってる」と言えなかった。「頑張って」としか言えなかったあの日。
+
+居ても立ってもいられず、私は引き出しの奥から便箋と万年筆を取り出した。
+もう何年も使っていなかった万年筆。インクが出るか不安だったが、紙の上を走らせると、濃紺の文字が滲み出した。
+インクの鉄のような匂いを深く吸い込むと、不思議と心が落ち着いた。
+「四十年前、駅のホームで別れたあなたへ。私はまだ生きていて、今夜もこの番組を聴いています」
+震える指でペンを走らせる。宛先はラジオ局のリクエスト係。でも、本当の宛先は、日本のどこかにいるかもしれない彼だ。届くはずのない手紙。それでも書かずにはいられなかった。
+封筒に封をする時、舌に感じた糊の味と、紅茶の渋みが混ざり合った。これが、今の私の味だ。
+
+一週間後。いつも通りラジオをつけて編み物をしていると、DJの声が少し低くなった。
+「さて、次は……ラジオネーム『秋桜』さんからのお手紙です。『ホームの音を覚えていますか。あなたの声を、今も待っています』……切ないですね。届くといいな」
+
+心臓が早鐘を打つ。読まれた。私のメッセージが、電波に乗って夜空を飛んでいる。
+その直後だった。
+「さて、ここで一曲。ラジオネーム『ベース弾きのS』さんから、こんなメッセージが届いています」
+DJが紙をめくる音がした。
+「『美和子へ。君の手紙を聴いた気がした。ホームで泣いていた君の背中を、今でも鮮明に覚えている。生きていてくれて、ありがとう』」
+
+時間が止まったようだった。編み棒が手から滑り落ちた。
+修一だ。彼もまた、このラジオを聴いていたのだ。
+『ベース弾きのS』。彼が高校時代、バンドでベースを弾いていたことを知っているのは、私くらいだ。
+スピーカーから流れる古いジャズの旋律が、ベースの重低音と共に私の胸を撫でる。紅茶の湯気が、いつもより甘く感じられた。
+涙が頬を伝い、編みかけのマフラーに落ちた。毛糸が涙を吸い込み、色を濃くしていく。
+
+放送終了後、番組スタッフを通じて彼からの申し出があった。
+「連絡先を交換しますか？」
+私は迷った。会いたい。声が聞きたい。でも、今の私は、あの頃の私ではない。シワも増え、白髪も混じった老婆だ。彼の中の美しい思い出を壊したくない。
+迷った末に返信した。「はい。でも、手紙だけで続けたいんです。声も顔も見ず、文字だけで」
+彼からもすぐに了承の返事が来た。「僕もだ。直接会ってしまったら、過去の思い出にすがってしまいそうだ。手紙なら、今の自分たちの呼吸で話せる気がする」
+
+それから、奇妙で温かい文通が始まった。
+彼からの手紙は、いつも少し揺れた文字で書かれていた。
+封筒を開けると、微かに古い香水の匂いがした。ムスクとタバコが混ざったような、大人の男の香り。
+「昔つけていたものと同じだ」と気付き、胸が締め付けられる。
+「君の文字を見ると、当時の君の姿が目に浮かぶよ。ポニーテールが揺れていた、あの頃の君が」
+便箋に綴られた言葉。
+私は返事に書いた。「会わないままで、今の私で書きます。皺も白髪も増えたけれど、心だけはあの頃のままです。今の私は、庭で育てたハーブでお茶を飲むのが好きなおばあちゃんですよ」
+強がって書いたけれど、インクのシミが涙のように小さく滲んでしまった。
+
+数ヶ月が過ぎた頃、修一から提案があった。
+「君の声を、録音で聴いてみたい。電話だと緊張して話せなくなりそうだから、一方的な録音でいい。君の今の声が知りたい」
+ためらいながらも、私はICレコーダーに向かった。
+深呼吸をする。何を話せばいいのだろう。
+「……修一くん、久しぶり。今は紅茶の香りで、あなたを思い出しています」
+吹き込んだ自分の声は、歳相応に低く、少し掠れていた。でも、これが今の私だ。飾らない私だ。
+勇気を出してデータをUSBに入れ、送った。
+
+やがて届いた彼からの音声データ。
+再生ボタンを押すと、ヘッドフォンの内側で空気が震えた。
+「美和子……」
+低く、深みを増したその声。昔より少ししわがれたけれど、優しさは変わらない。
+私の名前を呼んだ瞬間、指先が痺れたような感覚に襲われた。
+「元気そうでよかった。君の声は、昔と変わらず優しいね。聴いているだけで、心が安らぐよ」
+その声を、私はUSBメモリに移し、彼の香水の小瓶と並べて机の上に飾った。
+毎晩、寝る前にその声を聴くのが日課になった。彼が私の名前を呼ぶ、たった一言を何度も繰り返して。
+
+手紙を書く時間は、私にとって儀式のようなものになった。
+万年筆が紙を走るカリカリという音。インクが紙に染み込んでいく様子。
+庭で摘んだラベンダーの葉を便箋にこすりつけ、「今夜、この手紙を頬に当てて寝てください」と書き添える。
+彼からは「君のハーブの香りが届いたよ。僕も、君の声が入ったUSBを枕元に置いて眠る。夢の中で会えるように」と返事が来る。
+唇が紙に触れそうで触れない距離。文字と香りだけが、互いの体温を運び合う。物理的な距離はあるけれど、心は誰よりも近くにいた。
+
+夏が来ると、彼から風鈴の音が録音されたデータが届いた。
+「チリン」という涼やかな音の向こうに、彼の穏やかな笑い声が入っている。
+「この音を聴きながら、君のことを考えているよ。暑いけど、無理しないように」
+私も自宅の軒先の風鈴の音を録音し、「紅茶の準備をする音と、風鈴の音を送ります」と返した。
+お湯を注ぐ音。カップとソーサーが触れる音。
+生活音の交換。それは、同じ屋根の下で暮らしているような錯覚を覚えさせた。まるで、長年連れ添った夫婦のように。
+
+手紙が十通を超えた頃、「一度、会うか決めないか？」という一文があった。
+心が大きく揺れた。会いたい。一目だけでも。
+鏡を見る。そこに映るのは、老いた自分。
+でも、会ってしまえば、この美しい距離感が壊れてしまうかもしれない。現実が、夢を壊してしまうかもしれない。
+「今はこの距離が心地いいの。手紙と声だけで、十分に艶があるわ」
+そう返信し、封を閉じた。インクの鉄の味が、胸の奥に静かな熱を宿した。
+「分かった。君がそう言うなら、僕も従うよ」
+彼の返事は優しかった。
+
+夫の遺影の前に、彼からの手紙とUSBを並べた。
+「ごめんなさい。でも、私はあなたの『誰かに頼れ』という遺言に従っているのよ。触れずに、生きる艶をもらっているの。許してね」
+そう囁くと、遺影の夫は何も言わずに微笑んでいるように見えた。夫もまた、私が幸せであることを望んでくれているはずだ。
+
+私の夜は、ラジオを二十二時で切ることから始まる。
+手紙は夕方の明るいうちに書く。夜に書くと、感情が溢れすぎてしまうから。
+そして寝る前に、修一の声を一呼吸だけ聴く。
+「美和子」
+その声だけで、私は少女に戻れる。
+香水の小瓶を開け、一滴だけ指先に落とし、枕に触れさせる。
+部屋の中に、彼の香りと声、そして紙の触感が混ざり合う。
+「今日、どの声を選びますか。どの香りを残しますか」
+鏡の中の自分に問いかける。シワの増えた顔も、悪くないと思えるようになった。誰かを想う気持ちが、私を輝かせてくれている。
+触れない距離のまま、想像力で補い合う愛。それは、若き日の情熱よりも静かで、そして深い。
+艶やかな余韻に身を沈めながら、私は今日も眠りにつく。
+夢の中でなら、きっと彼に会える。手をつなぎ、あの頃のように笑い合える。
+そんな期待を胸に、私は安らかな眠りへと落ちていった。
+</pre>
     </div>
   </div>
 </main>

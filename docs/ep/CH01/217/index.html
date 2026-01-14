@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-217 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-217 — script</h1>
           <div class="muted">【善人の末路】「いい人」をやめないと、人生は搾取され続ける</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,350 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【善人の末路】「いい人」をやめないと、人生は搾取され続ける</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-217</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-217&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">都合のいい人にされている気がする、
+と感じることはありませんか。
+
+頼まれると断れない。
+本当は疲れているのに、笑って引き受けてしまう。
+嫌われるのが怖くて、きつい一言が飲み込めない。
+
+気づいたら、いつも自分の予定が後回しになっている。
+
+家でも職場でも、
+あなたならやってくれると思って、
+その言葉がほめ言葉なのか、ただの便利屋宣言なのか、
+分からなくなってしまうときがあります。
+
+このチャンネルでは、
+仏教の教えを紐解きながら、
+あなたの人生に役立つ知恵をお届けします。
+責めるためではなく、静かに心を守るための場所です。
+ゆっくり深呼吸をしながらお聞きください。
+
+今日は、いい人をやめて
+人生の主導権を取り戻す方法についてお話しします。
+
+この動画を見終わる頃には、
+利用される恐怖よりも、
+自分で線を引けることの安心感のほうが、
+少しだけ大きくなっているはずです。
+
+---
+
+時は室町。
+山里の小さな寺に、慧玄という老僧がいたと伝えられています。
+
+寺は村人たちの拠り所でした。
+誰かが病気になれば祈祷を頼みに来る。
+葬儀があれば呼ばれ、
+子どもが生まれれば命名を相談される。
+
+それだけではありません。
+畑の手伝い、子守り、雨漏りの修理。
+お坊さんなら暇だろうと言わんばかりに、
+あらゆる頼まれごとが、
+一人の老僧のところに集まってきました。
+
+慧玄は断りませんでした。
+頼まれれば席を立ち、
+朝から晩まで山道を行ったり来たり。
+
+人々は口々に言いました。
+あの坊さんは、ほんとうにいい人だ。
+
+寺の灯はいつも遅くまでともり、
+慧玄は夜、ひとりで本堂の床に座り込みながら、
+静かにため息をつく日が増えていきました。
+
+ある年の、嵐の夜のことです。
+激しい風と雨の音が山を揺らす中、
+庄屋が数人の手下を連れて寺へやって来ました。
+
+明日の祭りも手伝え。
+お前はいい人だからな。
+断らないだろう。
+
+それは、お願いというより命令に近い言い方でした。
+慧玄の体はすでに限界に近づいていました。
+ここ数日はほとんど眠れていません。
+心のどこかで、
+このままでは、自分の修行も、寺も、
+何のためにあるのか分からなくなる。
+そんな感覚が膨らんでいました。
+
+しばらく黙って庄屋の顔を見つめたあと、
+慧玄は静かに立ち上がります。
+
+雨の中、箒を手に取り、
+境内の入口まで歩いていきました。
+そして、地面にまっすぐ、一本の線を引きます。
+
+その線の内側に、自分の足をそっと置き、
+振り返って庄屋に向かってこう告げました。
+
+ここまでが私の庭です。
+その先は、あなたの庭です。
+
+庄屋は一瞬、意味が分からずに眉をひそめます。
+やがて顔を赤くし、声を荒らげました。
+
+冷たくなったな。
+前は何でもやってくれたじゃないか。
+どうしたんだ、お前は。
+
+慧玄は、頭を下げて合掌し、
+ただ同じ言葉を繰り返したといいます。
+
+ここまでが私の庭です。
+
+それ以上、理由を足すことはしませんでした。
+言い訳も、説明も、しませんでした。
+
+庄屋は怒りを残したまま帰っていきましたが、
+嵐が過ぎた翌日、
+祭りの準備は、村人たちの手でなんとか行われました。
+
+その日の夕方、何人かの村人が寺を訪ねました。
+自分たちでやってみたら、できました。
+いつも全部抱え込ませてしまっていたのですね。ありがとう。
+
+彼らはそう言って、
+境内の線を見つめました。
+自分たちが無意識のうちに、
+どれだけこの小さな寺に頼りきっていたのかを悟ったのです。
+
+その日を境に、
+慧玄は頼まれても、褒められても、
+同じように線を守るようになりました。
+
+ここまでが私の庭です。
+
+そう決めた瞬間から、
+彼の顔からは長年の疲れが消え、
+寺の庭には、前よりも澄んだ風が通るようになったと語り継がれています。
+
+---
+
+お釈迦さまは、入滅の間際に弟子たちに
+こんな言葉を残したと伝えられています。
+
+「自らを灯明とし、自らを拠り所とせよ。
+他を拠り所とするな」
+
+自分の中の灯火を拠り所にしなさい。
+他人の評価や、他人の期待だけを基準に生きてはいけない。
+その教えは、境界線の話と深くつながっています。
+
+境界線は、自己中心ではありません。
+自分の灯火を消さないための、慈悲の線です。
+あなたの灯火が消えてしまえば、
+誰の足元も照らすことができなくなります。
+
+それなのに、なぜ私たちは線を引けないのでしょうか。
+
+---
+
+理由は、とても人間らしいものです。
+
+嫌われたくない。
+冷たいと思われたくない。
+せっかく頼ってくれたのに、と罪悪感を持ってしまう。
+
+そしてどこかで、
+ここで頑張れば、いつか報われるかもしれない。
+いい人でいれば、見ていてくれる人がいるはずだ。
+そんな期待も抱いてしまいます。
+
+結果として、
+本当はしなくていいことまで背負い込んで、
+身体も心もすり減らしてしまう。
+
+仏教の言葉で言えば、
+我慢すればいつか報われるはずだという
+執着が潜んでいます。
+
+いい人として見られたい。
+役に立つ人でありたい。
+その思い自体は、決して悪いものではありません。
+
+ただ、その優しさが自分をすり減らす形でしか
+発揮できなくなっているとしたら、
+それは少し方向を変えた方がいいサインです。
+
+---
+
+では、どうすれば「ここまで」と線を引けるのでしょうか。
+ここからは、四つの実践をお伝えします。
+
+第一の実践は、課題を分けることです。
+
+何かを頼まれたとき、心の中でひと息ついて問いかけてみてください。
+これは相手の課題だろうか。それとも自分の課題だろうか。
+
+例えば、
+子どもの宿題を、親が全部手伝ってしまう。
+部下のミスを、上司が毎回尻ぬぐいをしてしまう。
+
+一見、優しさのように見えますが、
+相手が本来自分で向き合うべき課題まで引き受けてしまうと、
+相手の成長の機会を奪ってしまいます。
+
+線を引くとは、
+ここから先はあなたの学びの領域ですと
+丁寧に返すことでもあります。
+
+それはあなたの課題ですね。私は相談には乗るけれど、解決までは引き受けません。
+心の中でそう区別できるようになると、
+肩に乗っていた重りが少しずつ軽くなっていきます。
+
+---
+
+第二の実践は、小さなNOから練習することです。
+
+いきなり大きなお願いを断るのは、とても難しいものです。
+ですから最初は、ごく小さなところから始めてみてください。
+
+今日は休みます。
+今はできません。
+今回は見送ります。
+
+理由を長々と説明する必要はありません。
+短く、静かに、言葉を置きます。
+
+その一言を口にしたあと、
+胸のあたりがざわざわするかもしれません。
+嫌われたらどうしよう。
+もう誘ってもらえなくなったらどうしよう。
+
+けれど、何度か繰り返すうちに気づきます。
+世界は意外と、その一言では壊れないのだと。
+そして、無理をして引き受け続けていた自分に、
+そっと気づけるようになります。
+
+---
+
+第三の実践は、合言葉で線を引くことです。
+
+誰かが自分の領域に踏み込んできたと感じたら、
+心の中で一言、唱えてみてください。
+
+ここまで。
+
+それだけで構いません。
+
+相手の言葉に押されそうになったとき、
+その一言を胸の中で灯りのようにともす。
+
+ここから先は、私の庭だ。
+この時間、この体力、この心の余白は、私が守る。
+
+そう確認する合図として、
+ここまでという合言葉を使ってみてください。
+
+実際に、足元に一本の線を引くイメージをしても構いません。
+慧玄が境内に引いたあの線を思い浮かべながら、
+自分の中にも、目に見えない境界線をそっと描いていきます。
+
+---
+
+第四の実践は、残る人と去る人を受け入れることです。
+
+線を引くと、離れていく人も出てきます。
+あなたを都合のいい人として扱っていた人は、
+不満そうな顔をするかもしれません。
+前はやってくれたのに、変わってしまったねと
+言われることもあるでしょう。
+
+それは、とても寂しく、怖い瞬間です。
+けれど、そのときこそ思い出してください。
+
+境界線を引いても、
+そばに残ってくれる人たちがいるということ。
+あなたの限界を尊重し、
+無理しないでねと言ってくれる人たちがいるということ。
+
+仏教では、そういう人のことを善き友と呼びます。
+あなたの境界線を踏みにじらない人こそ、
+これからも大切にしていきたいご縁です。
+
+---
+
+境界線は、冷たさではありません。
+自分の庭を整え、灯火を絶やさないための、温かい結界です。
+
+あなたの庭が荒れてしまえば、
+どれだけ人を招いても、一緒にくつろぐことはできません。
+まずは、自分の庭の土を耕し、
+休む時間を確保し、心の椅子を空けておく。
+
+そうして初めて、
+招いた人に、前よりも優しく接することができるようになります。
+
+今日から、足元に一本の線を描いてみてください。
+仕事でも、家庭でも、
+この線の内側は自分の時間と呼吸を守る場所だと決めてみる。
+
+その小さな決心が、
+「いい人」ではなく、
+自分の人生の舵を自分で握る人への、一歩になります。
+
+本日も最後までご覧いただきありがとうございます。
+あなたの灯火が、まずはあなた自身を、
+そしてその周りにいる大切な人たちを、
+静かに、温かく照らしていきますように。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-022 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-022 — script</h1>
           <div class="muted">【会話ゼロ】会話ゼロの関係｜放置が一番危険</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,286 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【会話ゼロ】会話ゼロの関係｜放置が一番危険</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>会話ゼロ, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-022</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-022&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">喧嘩もしない。言い争いもしない。
+一見、穏やかな夫婦に見えるかもしれません。
+けれど、そこには会話もありません。
+
+朝、おはようも言わずにすれ違う。
+夕食の時、聞こえるのはテレビの音だけ。
+交わす言葉といえば、ゴミ出した？、来週、宅配便が届くよといった業務連絡のみ。
+
+まあ、長年連れ添えばこんなものだろう。
+あの人とは空気みたいな関係だから。
+
+そう言って、この沈黙を平穏だと自分に言い聞かせていませんか。
+しかし、はっきり申し上げなければなりません。
+この会話ゼロの状態は、喧嘩が絶えない状態よりも、はるかに危険です。
+それは平穏ではなく、関係の静かなる死だからです。
+
+今日は、この恐ろしい沈黙の病について、そしてそこからもう一度、温かい血流を取り戻す方法について、禅の視点からお話しします。
+
+---
+
+まず、この「会話のない夫婦」の日常風景を、もう少し詳しく見てみましょう。
+
+休日の朝。夫は居間でテレビを見ている。妻は台所で何か作業をしている。二人の間に壁はないのに、見えない壁がある。話しかけようと思えば話しかけられる距離なのに、なぜか口を開く気になれない。
+
+「何か話すことあったっけ？」そう考えると、特に思いつかない。
+天気の話？今さら。子どもの話？もう成人している。仕事の話？興味を持ってくれるとは思えない。
+
+結局、何も言わずに時間が過ぎていく。二人とも同じ屋根の下にいながら、それぞれが一人の世界に閉じこもっている。
+
+外出する時も同じです。一緒に買い物に行っても、歩くペースが合わず、いつの間にか離れ離れになる。レストランで向かい合っても、スマホを見ている時間の方が長い。
+
+「昔はあんなに話すことがあったのに」
+そう思うと、胸が少し痛む。でも、その痛みもすぐに麻痺してしまう。慣れてしまったから。
+
+この状態が、あなたの日常になっていませんか。
+
+---
+
+なぜ、会話ゼロが危険なのでしょうか。
+喧嘩をしているうちは、まだ相手を変えたい、関係を良くしたいというエネルギーがあります。
+怒りエネルギーだとしても、そこには関心があります。
+
+しかし、沈黙は無関心です。
+もう期待しない、何を言っても無駄だ、関わると疲れるだけだ。
+そうやって心を閉ざし、相手を同居している他人として扱うことを決めた結果です。
+
+これは、家の柱がシロアリに食われているようなものです。
+外見は立派な一軒家に見えます。風雨もしのげます。
+しかし、中身はスカスカです。
+ある日、地震、つまり病気や介護、定年退職などの環境変化が起きた時、支え合う力が残っておらず、あっけなく倒壊します。
+熟年離婚の多くは、このシロアリ被害に気づかず、放置し続けた結果なのです。
+
+今さら話すことなんてないと思うかもしれません。
+以心伝心で分かっていると思うかもしれません。
+しかし、それは傲慢な思い込みです。
+人間は、川の水のように、刻一刻と変化し続けています。
+昨日の夫と、今日の夫は違います。
+10年前の妻と、今日の妻は、細胞レベルで別人ですし、考え方も感じ方も変わっているはずです。
+
+会話をしないということは、相手の更新データを受け取らないということです。
+あなたの頭の中にある「あの人はこういう人だ」というイメージは、もう何十年も前の、古いデータのままかもしれません。
+OSをアップデートしないパソコンがやがて動かなくなるように、会話のない夫婦関係も、やがて機能しなくなるのです。
+
+---
+
+では、なぜ会話がなくなってしまったのでしょうか。
+問題の正体を探ってみましょう。
+
+多くの場合、会話がなくなるのは、過去に何度か「話しても無駄だった」という経験が積み重なった結果です。
+
+意見を言ったら否定された。
+悩みを打ち明けたら、「そんなこと」と軽く流された。
+感情を見せたら、面倒くさそうな顔をされた。
+
+そうした小さな傷が積み重なって、やがて「話しても仕方がない」という諦めに変わる。話すことがリスクになり、沈黙が安全策になる。
+
+もう一つの原因は、役割に埋没してしまったことです。
+夫は稼ぐ人、妻は家を守る人。そうした役割分担がはっきりしすぎて、「夫婦」ではなく「同僚」のような関係になってしまう。仕事の報告はするけれど、心の交流はしない。効率的だけれど、冷たい関係です。
+
+さらに、子育てが終わった後の空洞化もあります。
+子どもという共通の話題、共通の目標があった間は、それを通じて会話が成り立っていた。しかし、子どもが巣立つと、急に話すことがなくなる。二人で向き合う時間が増えたのに、何を話していいか分からない。
+
+いずれにしても、問題の根本は「相手との関係を育てることを放棄した」ことにあります。
+関係は、放っておいても維持されるものではありません。庭の花と同じで、水をやらなければ枯れるのです。
+
+---
+
+仏教には「縁起」という教えがあります。
+この世の全てのものは、単独で存在するのではなく、関係性、つまり縁の中で成り立っているという真理です。
+
+夫婦という関係も、結婚届という紙切れで存在するものではありません。
+日々の関わり、言葉のやり取り、視線の交差、そうした無数の縁が積み重なって、初めて夫婦という現象が維持されます。
+
+関わりがなくなれば、縁は消えます。
+同じ屋根の下にいても、心が触れ合っていなければ、それはもう夫婦ではありません。
+空の容れ物があるだけです。
+
+お釈迦様の弟子に、ソーナという琴の名手がいました。
+彼は修行に熱心すぎるあまり、自分を追い込んで苦しんでいました。
+それを見たお釈迦様は、彼にこう尋ねました。
+「ソーナよ。琴の弦は、締めすぎるとどうなるか？」
+「切れてしまいます」
+「では、緩すぎるとどうなるか？」
+「音が鳴りません」
+「そうだ。修行も同じで、張り詰めすぎてもいけないし、緩みすぎてもいけない。中道が大切だ」
+
+これは夫婦関係にも当てはまります。
+喧嘩ばかりしているのは、弦を締めすぎている状態です。いつか切れます。
+しかし、会話ゼロの状態は、弦がダルダルに緩みきっている状態です。これでは音楽、つまり幸せな生活は奏でられません。
+適度な張り、つまり緊張感のある関わり合い、言葉のやり取りがあってこそ、夫婦のハーモニーは生まれるのです。
+
+沈黙を楽だからと放置するのは、楽器の手入れを放棄して、弦を緩ませ放題にしているのと同じです。
+それでは、いざという時に美しい音を鳴らすことはできません。
+
+---
+
+では、どうすればこの緩みきった弦を、もう一度張り直すことができるのでしょうか。
+いきなり愛していると言えとは言いません。
+急に深い話し合いをしようとすると、かえってギクシャクしてしまいます。
+
+リハビリのように、少しずつ、関係の筋肉を動かす三つのステップを紹介します。
+
+第一のステップ：業務連絡に感情をひとさじ加える
+
+現在、会話が業務連絡だけなら、そこに1%だけ、感情のスパイスを混ぜてください。
+
+「明日雨らしいよ」という単なる情報交換に、
+「寒くなるから嫌だね」という、あなたの感想を付け足すのです。
+「ご飯できたよ」だけでなく、
+「この大根、安かったんだ」という背景を付け足すのです。
+
+事実の伝達は、ロボットでもできます。
+でも、感情の伝達は、人間にしかできません。
+「へえ、そうなんだ」と返ってきたら、大成功です。
+それが、心の交流の第一歩です。
+無視されてもかまいません。「私は感情を持った人間としてあなたに話しかけていますよ」というサインを出し続けることが重要です。
+
+第二のステップ：第三の対象を挟んで話す
+
+真正面から向き合って「さあ、話そう」とすると、お互いに緊張します。
+尋問のようになってしまいます。
+ですから、二人で第三のものを見るようにします。
+
+一番いいのは、ペットです。
+「猫ちゃん、可愛いね。今日こんなことしてたよ」
+ペットを通してなら、会話のハードルはぐっと下がります。
+
+ペットがいなければ、テレビでも、庭の植物でも、窓の外の景色でもいいです。
+「あのニュース見た？」「桜が咲きそうだね」
+二人で同じ方向を見て、その対象について話す。
+これなら、視線がぶつからないので、素直に言葉が出やすくなります。
+自分、相手、対象物で三角形を作るのが、会話復活のコツです。
+
+第三のステップ：挨拶を儀式にする
+
+これが最も強力な特効薬です。
+「おはよう」「行ってきます」「おかえり」「おやすみ」
+この基本の挨拶を、相手の目を見て、はっきりと言うこと。
+
+多くの家庭で、挨拶が消えるか、背中越しにボソッと言うだけになっています。
+これを変えます。
+相手が新聞を読んでいても、スマホを見ていても、相手の顔をしっかり見て、「おはよう」と言う。
+返事がなくても気にしません。
+これは、あなたが行う関係への点火式だからです。
+
+挨拶は、「私はあなたの存在を認めていますよ」という最強のメッセージです。
+目を見て挨拶されると、無視するのは心理的に難しくなります。
+最初は驚かれるかもしれませんが、続けていけば、必ず相手も「おはよう」と返すようになります。
+その瞬間、切れていた配線が、もう一度つながるのです。
+
+---
+
+ここで注意してほしい落とし穴があります。
+それは、相手の反応をコントロールしようとすることです。
+
+あなたが勇気を出して話しかけたのに、相手が生返事だったり、無視したりすることがあるでしょう。
+その時、「せっかく話しかけたのに！」と怒らないでください。
+相手は、まだリハビリ中ではありません。あなただけがリハビリを始めたのです。
+寝たきりの人にすぐに走れと言っても無理なように、長く沈黙していた相手が、すぐに饒舌になるわけがありません。
+
+相手の沈黙を責めないこと。
+「今は話す気分じゃないんだな」「まだ準備運動中なんだな」と受け流すこと。
+あなたが楽しそうに、機嫌よく話しかけ続けていれば、相手の警戒心は氷が解けるように消えていきます。
+北風と太陽の話を思い出してください。
+沈黙というコートを脱がせるのは、批判の北風ではなく、笑顔の太陽です。
+
+もう一つの落とし穴は、「相手が変わるべきだ」と思い込むことです。
+「どうして向こうから話しかけてこないんだ」「なぜ私ばかり努力しなければならないんだ」
+そう思う気持ちは分かります。でも、誰かが最初の一歩を踏み出さなければ、状況は永遠に変わりません。
+あなたが先に動くことは、負けではありません。関係を大切にしているからこそできる、強さの証です。
+
+---
+
+夫婦の会話は、特別なイベントや旅行の時にだけすればいいものではありません。
+毎日の「おいしいね」「寒いね」「疲れたね」という、何気ない砂粒のような言葉の積み重ねが、
+やがて強固な信頼の地層を作ります。
+
+会話がないと、相手が何を考えているか分からなくなり、疑心暗鬼になります。
+「きっと私のことを嫌っているんだ」と悪いほうに妄想が膨らみます。
+言葉は、その暗闘に明かりを灯す唯一の手段です。
+
+長年連れ添った夫婦だからこそ、言葉が必要なのです。
+若い頃は、感情が激しく、言葉にしなくても伝わるものがあったかもしれません。
+しかし、年齢を重ねると、感情は穏やかになり、察する力も衰えてきます。
+だからこそ、言葉で補う必要があるのです。
+
+「ありがとう」「助かったよ」「今日の夕飯、おいしかったよ」
+小さな言葉を、惜しまずに伝えてください。
+恥ずかしいかもしれません。照れくさいかもしれません。
+でも、その一言が、相手の心に届きます。そして、関係に温かい血を通わせます。
+
+---
+
+今日、家に帰ったら、あるいは今すぐにでも。
+何か一つ、話しかけてみてください。
+「今日の月が綺麗だよ」でもいい。
+「お茶を淹れたよ」でもいい。
+
+その小さな一言が、止まっていた時計の針を、もう一度動かし始めます。
+音のない家から、温かい音のする家へ。
+あなたの一声から、再生は始まります。
+
+沈黙は、決して平穏ではありません。
+沈黙は、関係のゆるやかな死です。
+でも、まだ間に合います。
+今日の一言から、もう一度、夫婦という音楽を奏で始めてください。
+その音は、きっとあなたの人生を、もっと豊かにしてくれるはずです。
+</pre>
     </div>
   </div>
 </main>

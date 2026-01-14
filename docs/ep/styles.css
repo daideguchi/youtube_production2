@@ -51,5 +51,14 @@ input,select{padding:10px 12px;border-radius:10px;border:1px solid var(--border)
 .copy-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border)}
 .copy-title{font-weight:800}
 .copy-actions{display:flex;gap:8px;flex-wrap:wrap}
+.details{grid-column:1 / -1;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.02);overflow:hidden}
+.details__summary{cursor:pointer;padding:10px 12px;border-bottom:1px solid var(--border);font-weight:800}
+.details__summary::-webkit-details-marker{display:none}
+.details__body{padding:12px;display:grid;gap:12px}
 .textarea{width:100%;min-height:140px;resize:vertical;padding:12px;border:0;outline:none;background:transparent;color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.4;white-space:pre-wrap}
+.pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:14px;line-height:1.75}
+@media (max-width:720px){.textarea{font-size:14px;line-height:1.55}.pre{font-size:15px}}
 @media (min-width:960px){.copy-grid{grid-template-columns:1fr 1fr}.copy-block[data-kind="full"]{grid-column:1 / -1}}
+/* Touch devices can report a desktop-sized viewport (e.g. "デスクトップ用サイト"/in-app browsers),
+   so also force single-column layout based on pointer capabilities. */
+@media (hover: none) and (pointer: coarse){.copy-grid{grid-template-columns:1fr}.copy-block[data-kind="full"]{grid-column:auto}}

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH02-072 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH02-072 — script</h1>
           <div class="muted">【機嫌の奴隷】他人の感情に振り回される心理</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,202 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【機嫌の奴隷】他人の感情に振り回される心理</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH02-072</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH02-072&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">誰かの顔色が曇るだけで、胸がぎゅっと締め付けられる。上司の表情が硬いと、一日中びくびくする。家族の声が少し強いだけで、自分が悪いのかと胃が重くなる。周りの感情に振り回され、帰宅するとぐったり。
+
+今日は他人の機嫌に左右され、心が削られる感覚を扱います。共感は強みですが、過剰な共感は自分をすり減らします。感情の境界を作り、振り回されずに関わる方法を、平易な言葉で具体的に探ります。
+
+---
+
+他人の感情に敏感であることは、大きな力です。空気を読める人は、場を滑らかにし、衝突を和らげます。ただし、常に最大感度でいると、相手の波がそのまま自分の波になり、体も心も疲れます。力を力のまま保つには、感度のダイヤルを場面ごとに調整する必要があります。ダイヤルを持っているのは自分です。
+
+機嫌に左右されるとき、多くの場合自分のせいかもしれないという思い込みが走っています。まずはその思い込みを書き出します。上司の表情が硬い＝自分のミスかも家族の声が強い＝自分が怒らせたかも。書いたら、事実を確認します。今日ミスをしたか、指摘を受けたか。事実がなければ、想像の可能性が高い。想像と事実を分けるだけで、揺れが少し静まります。
+
+---
+
+他人の感情は、その人の体調、仕事量、家庭の事情など、多くの要因に左右されます。寝不足かもしれないし、別のトラブルを抱えているかもしれない。自分とは無関係の要因が多いと理解すると、自分への矢印が減ります。矢印が減れば、刺さる痛みも減ります。
+
+感情の境界を作るために、イメージを使います。相手の感情を透明な板で受け止めるイメージ。板に当たった感情は見えるけれど、体には入らない。イメージは簡単ですが、繰り返すと効果が出ます。板の厚さや材質を好きに設定しても構いません。厚いガラスでも、柔らかい布でもいい。自分に合うものを使います。
+
+体の反応を先に整えます。相手の機嫌が悪いと感じたら、足裏を床に押し付け、肩を一度上げて落とし、深く息を吐く。体が安定すると、感情の波に飲まれにくくなります。体の安定は、心の安定の土台です。土台が安定すれば、外の揺れが直撃しても倒れにくくなります。
+
+---
+
+相手の機嫌を変えようとするのをやめます。機嫌は相手の領域です。自分ができるのは、丁寧に接し、必要なら手を差し伸べるところまで。領域を分けると、過剰な責任感が減ります。責任が減れば、疲労も減ります。助けたいときは、何か手伝えることはありますかと短く聞く。できることだけする。できないことは相手の領域に残す。境界を守ることは冷たさではなく、健全な距離です。
+
+機嫌を取るために、自分の意見や希望を飲み込み続けると、自己肯定感が削られます。飲み込んだ言葉を紙に書き、少しずつ出す場を作ります。信頼できる一人との短い対話、日記、メモ。小さな場で出せる経験が増えると、機嫌に合わせずにいられる時間が増えます。自分の声を持つ回数が、自分の輪郭を濃くします。
+
+感情感染という現象があります。近くにいる人の感情が自分に移る現象です。感染を防ぐには、距離と時間を調整します。感情の強い場に長くいない、一度外の空気を吸う、席を少し離す。物理的な距離は、感情の距離にもなります。距離を取るのは逃げではなく、衛生です。衛生が保たれれば、心の免疫力も保たれます。
+
+ストア派のエピクテトスは他人の評価や感情は自分のコントロール外と説きました。コントロールできないものを外に置き、自分の行動と境界に集中する。線引きを意識するだけでも、巻き込まれ感は弱まります。
+
+---
+
+自分の機嫌を後回しにしないことが大切です。自分の機嫌を整える時間を毎日入れます。好きな音楽を聴く、温かい飲み物をゆっくり飲む、五分の散歩をする。自分の機嫌が安定すると、外の波に揺れにくくなります。内側の湖面が静かなら、外の風が吹いても大波にはなりません。
+
+相手の機嫌が悪いときは、短く確認するのも手です。何か気になることがありますか助けられることはありますか。確認すれば、必要以上に思い込まずに済みます。何もなければ、そうなんだと流せます。流すことは、無視ではなく、必要以上に引き受けないという選択です。
+
+境界を守る言葉を用意します。今はこれ以上できませんこの話は後で話しましょう今日はここまでにします。言葉があれば、咄嗟の場面で自分を守れます。守れれば、感情に流されずに済みます。言葉は境界線を描くペンです。
+
+---
+
+機嫌を取るために予定を変える癖があるなら、限度を決めます。今日はここまでなら対応するこの時間以降は自分の時間。限度を超えないようにすると、疲労が溜まりにくくなります。限度は自分の体力と心の余白を守るフェンスです。
+
+過去に怒鳴られたり責められたりした経験が強いと、他人の機嫌に過剰反応します。記憶と現在を分けます。あの時と今は違う人、違う状況。分けることで、過去の恐怖が現在に入り込むのを防げます。防げれば、今ここでの反応を選べます。
+
+他人の機嫌に合わせるのをやめると、衝突が怖くなることがあります。衝突を避けるために、感情ではなく事実と要望を伝えます。今、こうなっていて困っていますこうしてもらえると助かります。具体にすると、衝突が調整に変わります。調整なら、感情の爆発は起こりにくいです。
+
+---
+
+哲学では、他者の視線に縛られない自由が語られます。サルトルは、他者の視線が自己を窮屈にすると言いました。視線を完全に消すことはできませんが、視線を選ぶことはできます。信頼できる少数と深く関わり、不特定多数の反応に重きを置かない。見る人を選べば、視線の重さが減ります。重さが減れば、心の呼吸が楽になります。
+
+心理学では、境界設定が心の安定に重要だとされています。境界は壁ではなく、扉です。開くときも閉じるときも、自分が決める。決められる感覚があると、他人の感情に巻き込まれにくくなります。巻き込まれなければ、共感を力のまま使えます。
+
+ここから、日常に落とし込む具体を重ねます。朝、鏡の前で今日は自分の軸を守ると小さく言う。軸は一言で十分です。静かに話す正直に言う境界を意識する。声にすると、頭の中の言葉より強く記憶に残ります。通勤中に、今日自動的に合わせてしまいそうな場面を一つ思い浮かべ、どう振る舞うかを決めておく。決めておけば、場で迷う時間が減ります。
+
+---
+
+昼、短いチェックインを入れます。今、自分の機嫌はどうか。呼吸は浅くないか。浅かったら、深く吐く。自分の機嫌を数えるだけで、他人の機嫌の影響を見分けやすくなります。見分けられれば、必要以上に背負わずに済みます。
+
+夕方、消耗していると感じたら、五分だけ外を歩きます。外の空気と光は、内側のざわつきをリセットします。リセットの後で、相手の機嫌に触れると、反応が穏やかになります。穏やかさがあれば、境界も滑らかに引けます。
+
+夜、今日飲み込んだ本音を一行で書きます。書いたら、明日は一つ出すと決める。出す場面も一つ思い描く。思い描けば、出しやすくなります。出せた経験が増えると、合わせなくても大丈夫という実感が育ちます。
+
+---
+
+感情が強い場では、短い退出を自分に許します。トイレに行く、窓の外を見る、席を少し離す。退出は逃げではなく、クールダウンです。クールダウンした心は、戻ったときに冷静です。冷静さがあれば、波を波として眺められます。
+
+身体のサインをメモします。肩が固くなる場、胃が重くなる人、逆に呼吸が深くなる場所。体は正直です。サインを場所や人と結びつけておくと、どこで感度を下げるべきかが分かります。分かれば、先に準備ができます。
+
+SNSやニュースも、他人の機嫌を運んできます。夜に大量の怒りや不安を浴びると、翌日の感度が上がります。見る時間を決め、終わったら手を洗い、深呼吸をする。情報の入口も境界です。境界を守れば、心の中が他人の感情で溢れにくくなります。
+
+---
+
+境界を守るために、場所を分ける工夫も使えます。仕事の机には仕事のことだけ、寝室には安心するものだけ。場所を分けると、感情も分かれます。分かれれば、休むときに休めます。休めれば、明日の波にも耐えられます。
+
+他人の機嫌に合わせる癖は、いい人でいたい嫌われたくないという気持ちから生まれます。その気持ちを責めず、いい人でいることと自分を守ることは両立すると知ってください。両立のために、小さなノーを練習します。今日は難しいまた今度。ノーを一度言えれば、次も言えます。言えれば、合わせすぎは減ります。
+
+相手の怒りや不機嫌を自分を守るべき信号と捉えると、過剰反応が減ります。信号は距離を取れ時間を置けと教えてくれます。信号に従えば、危険を避けられます。避けられれば、安心が戻ります。
+
+---
+
+文化や家庭環境も、他人の機嫌への反応を形作ります。子どもの頃に空気を読めと言われ続けたかもしれません。そのルールが今の場に適用されるかを考える。合わなければ、ルールを更新する。更新は、過去を否定することではなく、今に合わせることです。
+
+距離感を数字で決めても構いません。今日はこの人と十分だけ話すこの話題は三分で切る。数字は曖昧さを減らします。曖昧さが減ると、引きずられにくくなります。数字は境界のメモリです。
+
+自分の感情も丁寧に扱います。他人の機嫌を気にしすぎる人は、自分の怒りや悲しみを後回しにしがちです。後回しにすると、心の中に未処理の感情が溜まり、他人の感情に過敏になります。未処理を減らすために、日記に短く感情を書く、信頼できる人に一言だけ話す。処理された感情は、他人の感情と混ざりません。
+
+---
+
+手を使う作業も助けになります。皿を洗う、机を拭く、植物の世話をする。手の動きは頭の緊張を和らげます。和らいだ頭は、他人の波を冷静に見られます。
+
+相手の機嫌を取るために、自分の予定を崩す癖があるなら、自分の予定も大事というメモを目につく場所に置きます。メモは境界の看板です。看板があれば、曲がる角度を自分で決められます。
+
+哲学者ブーバーは、他者をそれではなくあなたとして向き合うことで真の関係が生まれると言いました。相手をあなたとして見るなら、自分もあなたとして尊重する必要があります。自分をそれにしてまで相手に合わせない。尊重があれば、境界も自然に生まれます。
+
+---
+
+心理学では、安心安全の感覚を安全基地と呼びます。安全基地がある人は、外の揺れに強くなります。安全基地を作るために、家の一角に安心できる場所を作る。好きな本や香り、光を置き、そこでは他人の話や仕事を持ち込まない。基地があれば、揺れた後でも戻れます。戻れる場所があると知っているだけで、外での揺れに耐えやすくなります。
+
+ここからさらに、日常の中に境界を仕込む工夫を足します。朝、ポケットに小さなカードを入れ、境界深呼吸ノー一言本音と書いておく。カードに触れるたびに、今日の意図が思い出されます。意図を思い出す回数が、感度のダイヤルを自分で握る回数です。
+
+出社や外出の前に、体を整える短い儀式を入れます。手を合わせて温度を感じ、肩を回し、長く吐く。儀式は今から外に出るという合図です。合図があると、無意識に境界を上げて外に出られます。上げた境界は、帰宅時の儀式で下げます。帰宅したら手を洗い、肩を落とし、深呼吸をする。上げ下げができれば、オンとオフが混ざりません。
+
+---
+
+他人の機嫌に触れた後、短いデトックスを入れます。温かいお茶を一口飲む、窓の外を十秒見る、手を洗う。小さな動作で場を区切ると、感情が体に残りにくくなります。残らなければ、次の人に感情を持ち込まずに済みます。
+
+数字を使って距離を作る方法もあります。いつも無意識に十五分話してしまう相手には、今日は十分で切ると決める。話題を三つまでにする。数字は境界の目盛りです。目盛りがあれば、境界を測れます。
+
+感情の重さが強い相手とは、時間帯を選びます。朝一番のエネルギーがある時間に重い話をしない。夕方の疲れた時間に衝突しやすい話をしない。時間を選ぶことは、相手を避けることではなく、自分を守る工夫です。守れれば、余裕を持って向き合えます。
+
+---
+
+自分の呼び方も境界を作ります。仕事の場では苗字、一人のときは名前で自分を呼ぶ、など切り替えを作る。呼び方が変わると、役割と感情の境界が切り替わります。切り替えができれば、役割の波に飲まれにくくなります。
+
+全部感じる必要はないと自分に許可を出します。全部を受け取るのではなく、見届けるだけで十分な場面が多いです。見届けるとは、存在を認めることです。認めるだけで救われる感情もあります。救うために自分が沈む必要はありません。
+
+感情の強いメッセージを受け取るときは、読む時間と返信時間を分けます。夜に読んで心が乱れるなら、朝の光の中で読む。乱れたまま返信せず、一度深呼吸をしてから返す。時間の境界も感情の境界です。
+
+---
+
+安心を呼び戻すアンカーを持ちます。お気に入りの香り、石、ペン。触れると落ち着くものをポケットに入れておき、揺れたときに触る。アンカーは感情の揺れを一瞬止め、呼吸を戻します。呼吸が戻れば、境界も戻ります。
+
+他人の機嫌が悪い場では、声のトーンを落とし、速度をゆっくりにします。速度が落ちると、相手の感情に巻き込まれにくくなります。巻き込まれなければ、自分の感情を保てます。
+
+感情の温度を下げるために、声のボリュームも意識します。相手が強い声なら、自分は少し音量を下げ、速度を緩める。速度が緩むと、感情の波が小さくなります。波が小さくなれば、境界を引く余裕が生まれます。
+
+---
+
+もし怒られたらどうしようという予期不安は、夜に膨らみやすいです。夜に膨らむ前に、朝の光の中で紙に書き、起きたらこう対応するを一行で決める。決めておけば、夜の不安は小さくなります。小さくなれば、相手の機嫌を先回りしすぎる癖も弱まります。
+
+誰かの不機嫌を見たとき、自分も同じように不機嫌にならなくていいと自分に言います。感情の鏡になる必要はありません。鏡ではなく窓になる。窓から風景を眺めるように、相手の感情を眺める。眺めることと巻き込まれることは違います。
+
+もし感情の波に飲まれたと感じたら、短い振り返りをします。今、誰のどんな感情に飲まれたのか自分はどう反応したのか次はどうしたいか。三行で十分です。振り返りは、感情に名前をつけ、自分の行動を自分のものにします。自分のものにできれば、次は波に乗らずに済みます。
+
+---
+
+夜、布団で誰かの不機嫌を思い出して眠れないときは、その感情を紙に写し、封筒に入れ、これは明日の光で見ると書きます。光のある場所で見ると、同じ感情も小さくなります。小さくなった感情は、境界の外に置きやすくなります。
+
+長く付き合う人の機嫌に揺れやすいなら、関係の中で自分の役割を見直します。ずっと聞き役なだめ役になっていないか。一度役割を変え、提案する沈黙するを試す。役割が変われば、相手の反応も変わり、揺れ方も変わります。
+
+安心する仲間を二人だけ思い浮かべます。安心できる人の存在を思い出すだけで、他人の機嫌の重さが相対化されます。重さが軽くなれば、波を眺める余裕が生まれます。
+
+---
+
+最後に、今日一つだけ自分の機嫌を整える時間を入れてください。五分の散歩でも、静かな呼吸でも、好きな飲み物でも構いません。整えた上で、誰かと話すとどう感じるかを確かめてください。自分の湖面が静かなら、周りの波は小さく映ります。小さく映れば、あなたは場にいながら自分も守れます。感情の境界は、冷たさではなく、共感を続けるための技です。技を持てば、優しさをすり減らさずに関われます。今日から、境界を描く練習を始めてください。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-290 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-290 — script</h1>
           <div class="muted">【死の恐怖】死が怖い人が知るべき仏教の教え。恐怖を和らげる考え方</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,336 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【死の恐怖】死が怖い人が知るべき仏教の教え。恐怖を和らげる考え方</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【老後】で苦しいあなたへ──死の恐怖を和らげる話。
+・死が怖い理由・恐怖を和らげる考え方
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>老後, 死生観, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【老後】で苦しいあなたへ──死の恐怖を和らげる話。
+・死が怖い理由・恐怖を和らげる考え方</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-290</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-290&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">死が怖い。その恐怖を、どう乗り越えればいいのか分からない。そんな不安を抱えていませんか。
+
+---
+
+私たちが抱く死の恐怖は、単に命が尽きるその瞬間のことだけではありません。もっと根深いところにあるのは、自分がこの世界から消えてしまうことへの根源的な不安です。今の生活が崩れ去り、大切にしてきた人間関係や地位が失われること。誰にも相手にされなくなる孤独。そんな未来を想像すると、心は暗く重くなります。特に真面目に生きてきた人ほど、これまで積み上げてきたものを手放すことに強い抵抗を感じます。しかし、その恐怖は、実は「変化」を拒む心から生まれています。何も変わらないことを願うからこそ、終わりが怖いのです。まずは、その心の仕組みを知っておくことが大切です。恐怖の正体に気づくだけで、少し心が軽くなるはずです。これは決して特別なことではなく、誰もが抱える普遍的な感情ですから、自分を責める必要はありません。
+
+上杉謙信。
+
+戦国時代を生きた武将である。
+
+謙信は、死を恐れなかった人だった。
+
+毘沙門天の化身を自認し、戦場を駆け巡った。生涯独身を貫き、死の瞬間まで武将として生きた。
+
+その生涯は、四百五十年経った今も、死との向き合い方を教えてくれる。
+
+---
+
+私たちが死を極端に恐れる大きな原因は、死を単なる「喪失」としてしか捉えられない点にあります。大切なものを失う痛みは誰しもが避けたいものですが、仏教の視点では、失われること自体が実は新しい何かを生むための必要なプロセスであると説かれます。例えば、木の葉が枝から落ちるのは、木が冬の寒さを乗り越えるための知恵であり、落ちた葉は土に還り、やがて新たな芽吹きのための養分となります。私たちの命もまた、この自然の大きな循環の一部です。死をすべてがゼロになる終わりではなく、形を変えて次の世代や世界へとつながっていくバトンタッチだと考えれば、恐怖の質は大きく変わります。このように、変化を拒絶するのではなく、大きな流れの中に自分を預けるイメージを持つことが、不安を静める第一歩となるのです。
+
+上杉謙信は、享禄三年に越後国に生まれた。
+
+幼名は虎千代。長尾家の四男だった。
+
+幼い頃から武芸に優れ、神童と呼ばれた。
+
+七歳で林泉寺に入り、仏教を学んだ。
+
+---
+
+謙信は、若くして家督を継いだ。
+
+越後は、内乱が絶えない国だった。
+
+謙信は、次々と反乱を鎮め、越後を統一した。
+
+二十歳そこそこで、謙信は越後の支配者となった。
+
+---
+
+謙信は、毘沙門天を深く信仰した。
+
+毘沙門天は、仏教の守護神であり、戦いの神でもある。
+
+謙信は、自分を毘沙門天の化身だと信じていた。
+
+戦場では、「毘」の一字を旗印にした。
+
+---
+
+謙信の戦い方は、独特だった。
+
+多くの武将は、領土拡大のために戦った。
+
+しかし、謙信は違った。
+
+謙信は、義のために戦った。
+
+---
+
+関東管領・上杉憲政が、北条氏に追われて謙信のもとに逃れてきた。
+
+謙信は、憲政のために関東に出兵した。
+
+何の利益もない戦いだった。
+
+しかし、謙信は義を貫いた。
+
+---
+
+武田信玄との川中島の戦いは、有名だ。
+
+五度にわたって戦い、決着はつかなかった。
+
+第四次川中島の戦いでは、謙信自らが敵陣に斬り込んだと言われている。
+
+謙信は、死を恐れなかった。
+
+---
+
+死が終わりではなく、魂の旅の続きだと信じること。それは、単なる慰めやおとぎ話ではありません。生き方そのものを変える、大きな力になります。もし、死が「無」になることだとしたら、私たちはこの瞬間のすべてを必死に掴もうとするでしょう。失うことがすべてになるからです。しかし、死が変化に過ぎないとわかれば、これほどまでに執着する必要がなくなります。地位や名誉、財産でさえ、永遠に続くものではありません。それらは、ある時期に手に入り、ある時期に手放すものです。謙信はこの真理を、命がけの戦いの中で体感していました。命を懸ける瞬間にこそ、執着のない心の強さが試されるのです。私たちもまた、日々の出来事を「変化」として受け止める練習をすることで、心の重荷を下ろすことができます。
+
+なぜ、謙信は死を恐れなかったのか。
+
+それは、謙信が仏教を深く信じていたからだ。
+
+死は、終わりではない。輪廻転生があり、魂は続いていく。
+
+謙信は、そう信じていた。
+
+---
+
+戦場のど真ん中、敵の刃が飛び交う中を馬で駆け抜ける。その瞬間、普通の人間であれば、生存本能が警鐘を鳴らし、足がすくむほどの恐怖を感じるはずです。なぜなら、私たちの心は「自分という存在」を守るようにできているからです。しかし、謙信の心にはそんな迷いがなかったと伝えられています。なぜなら、彼がそこにいたのは、自分の命を守るためではなく、自分の信じる「義」を貫くためだったからです。命を守ろうとすれば、失うことが怖くなります。けれど、命を懸ける対象が、自分の外にある正義や、自分の内にある確固たる信念に向いている時、不思議なことに自分の生死ということは二の次になります。これは決して無謀な自殺行為ではありません。むしろ、究極の集中状態であり、自分を超えた何かに身を委ねる安心感と言えるかもしれません。私たちが日常で感じる不安や老いへの恐怖も、実は「自分を失いたくない」「今の状態を変えたくない」という執着から来ていることが多いのです。謙信はその執着を、戦いという極限状態において手放していました。自分の命さえも、義を成すための道具として捧げる覚悟。その境地に立った時、死はもはや恐怖の対象ではなく、使命を全うするための通過点に過ぎなくなっていたのです。この心の持ちようこそが、彼を死の恐怖から解放した真の理由だったと言えるでしょう。
+
+謙信は生涯、酒を愛した。
+
+しかし、女性との関係は持たなかった。
+
+謙信は、生涯独身を貫いた。
+
+これは、戦国武将としては異例のことだった。
+
+---
+
+謙信が独身を貫いた理由は、諸説ある。
+
+仏教の戒律を守ったという説。毘沙門天に仕える身として、俗世の欲を断ったという説。
+
+いずれにせよ、謙信は執着を断っていた。
+
+家族への執着、子孫への執着。それらを持たないことで、謙信は死を恐れずに済んだ。
+
+---
+
+謙信には、有名な言葉がある。
+
+運は天にあり、鎧は胸にあり、手柄は足にあり。
+
+運命は天が決める。覚悟は胸に秘める。結果は自分の行動で決まる。
+
+謙信は、運命を受け入れていた。
+
+死もまた、運命の一部だ。恐れるものではない。
+
+---
+
+謙信は、戦の前に必ず毘沙門堂にこもった。
+
+断食をし、祈りを捧げた。
+
+戦場に出る時、謙信は死を覚悟していた。
+
+しかし、それは悲壮な覚悟ではなかった。
+
+むしろ、清々しい覚悟だった。
+
+---
+
+謙信は言った。
+
+死なんと戦えば生き、生きんと戦えば死す。
+
+死を覚悟して戦えば生き残り、生きようとして戦えば死ぬ。
+
+逆説的だが、これは真理だ。
+
+死を恐れるから、かえって死に近づく。死を受け入れるから、かえって生きられる。
+
+---
+
+謙信は、四十九歳でこの世を去った。
+
+脳卒中だったと言われている。
+
+戦場で死ぬことはなかった。
+
+しかし、謙信は常に死を覚悟して生きていた。だから、突然の死も受け入れられたのかもしれない。
+
+---
+
+謙信の辞世の句は、こうだった。
+
+四十九年一睡の夢、一期の栄華一盃の酒。
+
+四十九年の人生は、一瞬の夢のようだった。人生の栄華も、一杯の酒のようなものだ。
+
+謙信は、人生を夢に例えた。夢は、いつか覚める。それを嘆くのではなく、受け入れる。
+
+---
+
+生と死は、コインの表裏のようなものです。生があるから死があり、死があるから生がある。この当たり前の事実を、私たちはつい忘れてしまいます。死を忌み嫌うことは、生そのものを否定することにもなりかねません。老いを怖れることは、今の自分の生を受け入れないことと同じです。しかし、生死一如の考え方に立てば、老いもまた、生の一部として肯定できます。体が思うように動かなくなっても、心の持ちようで豊かさは保てます。孤独もまた、自分と向き合う貴重な時間へと変わります。すべての変化は、死への予行演習であり、生の確認でもあります。変化を恐れずに流れに身を任せる時、私たちは不思議と安らぎを感じます。それは、自然の摂理に従った生き方だからです。
+
+仏教には「生死一如」という教えがある。
+
+生と死は、一つのものだ、という意味だ。
+
+生があるから死がある。死があるから生がある。
+
+生と死を分けて考えるから、死が怖くなる。一つのものとして受け入れれば、恐怖は消える。
+
+---
+
+謙信は、生死一如を体現していた。
+
+戦場で敵に斬りかかる時、謙信は生きることも死ぬことも考えていなかった。
+
+ただ、今この瞬間に集中していた。
+
+その境地に達した時、死の恐怖は消える。
+
+---
+
+死を恐れる人には、いくつかの共通点がある。
+
+一つ目は、死を考えることを避けていること。
+
+考えないから、いざという時にパニックになる。
+
+二つ目は、執着が強いこと。
+
+家族、財産、地位。失いたくないものが多いほど、死が怖くなる。
+
+三つ目は、人生に悔いがあること。
+
+やり残したことがあると、死にたくないと思う。
+
+---
+
+謙信の生涯から、死との向き合い方を学ぶことができる。
+
+一つ目は、死を直視すること。
+
+死から目を背けない。いつか必ず死ぬという事実を、受け入れる。
+
+二つ目は、執着を断つこと。
+
+失うものが少なければ、死は怖くない。謙信は、家族さえ持たなかった。
+
+三つ目は、今を生きること。
+
+過去を悔やまず、未来を恐れず、今この瞬間を精一杯生きる。
+
+---
+
+死の恐怖を和らげるために、次のことを試してほしい。
+
+死について考える時間を持つこと。
+
+毎日少しずつ、死について考える。避けずに向き合う。
+
+今日が最後の日だと思って生きること。
+
+もし今日が最後なら、何をするか。その答えが、本当にやりたいことだ。
+
+感謝の気持ちを持つこと。
+
+今日まで生きてこられたことに、感謝する。死は悲しみではなく、生の完成だ。
+
+---
+
+仏教は教える。
+
+死は、終わりではない。変化である。
+
+花が散っても、種が残る。種が芽吹き、また花が咲く。
+
+命は、形を変えて続いていく。
+
+謙信は、それを信じていた。
+
+---
+
+四十九年一睡の夢、一期の栄華一盃の酒。
+
+謙信は、人生を夢に例えた。
+
+夢は、いつか覚める。しかし、目覚めた後も、意識は続いている。
+
+死もまた、目覚めの一つかもしれない。
+
+死を恐れず、今を生きてほしい。
+
+謙信のように、覚悟を持って、しかし清々しく生きてほしい。
+
+その先に、本当の心の平和が待っているのだから。
+
+---
+
+本日も最後までご覧いただきありがとうございます。
+
+高評価とチャンネル登録も励みになります。
+
+それでは、また次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

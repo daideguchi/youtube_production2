@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-029 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-029 — script</h1>
           <div class="muted">最後に残ったのは“たった一人”の静かな友だった</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,318 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>最後に残ったのは“たった一人”の静かな友だった</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>不信, 既読, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-029</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-029&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">公園のベンチに、二人で並んで座っていました。
+夕暮れの空が、オレンジから紫へと、まるで水彩絵の具を滲ませたように静かに色を変えていく時間。
+風が吹くたびに、頭上のケヤキの葉がサワサワと乾いた音を立てて揺れています。
+その音だけが、私たちの間に流れる時間を満たしていました。
+隣にいるのは、加代子さん。
+五年前に知り合ったばかりの、まだ浅い付き合いの人です。
+彼女は文庫本を広げたまま、活字を目で追うでもなく、ただ遠くの空を眺めていました。
+私もまた、読みかけの本を膝の上に置き、同じ空を見上げていました。
+ふと、彼女が小さくため息をつきました。
+それは悲しいものではなく、肺の中の古い空気をすべて吐き出し、新しい空気に入れ替えるような、清々しいものでした。
+風が少し、秋の匂いがしますね
+彼女がぽつりと言いました。
+その声は小さく、風に溶けてしまいそうでした。
+そうですね。金木犀の香りが混じっているみたい
+私もそう答えて、深く息を吸いました。
+甘く、どこか懐かしい香りが鼻腔をくすぐります。
+何も話さなくても、気まずくない。
+無理に話題を探して、沈黙を埋める必要もない。
+ただ、隣に誰かがいるという温もりだけを感じていました。
+多くの友人を失ってきた末に、最後に残ったのは、たった一人の静かな友でした。
+かつては賑やかな集まりの中に私の居場所があると思っていました。
+笑い声が絶えない場所こそが、幸せの象徴だと信じていました。
+でも今は、この静けさこそが、私の本当の居場所なのだと感じています。
+今夜は、友情の形が変わっていく中で見つけた、本当の繋がりについてお話しします。
+失うことでしか手に入らないものがあることを、静かな夜にお伝えできればと思います。
+
+---
+
+三十年以上続いた友人グループが、少しずつ崩れていったのは、ここ数年のことでした。
+かつては五人、六人で集まるのが当たり前だった仲間たち。
+旅行に行ったり、誕生日会を開いたり、いつも笑い声に包まれていました。
+私たちは一生の友達ねおばあちゃんになっても、こうやって集まろうね
+有名ホテルのランチバイキングで、誰かがそう言うと、みんながワイングラスを掲げて深く頷いたものです。
+あの頃は、その言葉に何の疑いもありませんでした。
+自分たちは特別で、この絆は永遠だと信じて疑いませんでした。
+けれど、子供たちが結婚して遠くに住むようになり、それぞれの家庭環境が変わり始めました。
+夫を見送った人、親の介護が始まった人、孫の世話に追われる人。
+それぞれの生活のリズムが変わり、会う機会が減っていきました。
+最初は忙しいのねまた今度ねで済んでいたのが、いつの間にか連絡がない誘っても断られるに変わっていった。
+私の方から連絡をしても、返事が来るまでに何日もかかるようになりました。
+既読がついているのに、返事がない。
+数日後にごめん、バタバタしててという短いメッセージが返ってくるだけ。
+それが本当の忙しさなのか、それとも私への関心が薄れたのか、疑心暗鬼になることもありました。
+それでも、長年の付き合いだからと思って、関係を続けようと努力していました。
+年賀状を書き、お中元を送り、旅行のお土産を渡す。
+必死に話題を探して、こんなお店見つけたよ今度ここ行かない？とメッセージを送る。
+私だけが必死に繋ぎ止めようとしているような、そんな虚しさを感じながら。
+まるで、切れかけた糸を一人で必死に手繰り寄せているような感覚でした。
+指には糸が食い込み、血が滲んでいるのに、離すことができなかったのです。
+でも、その糸の向こう側には、もう誰もいなかったのです。
+心のどこかで感じていたのです。
+もう、以前のようには戻れないのだと。
+私たちの友情という名の糸は、もうとっくに擦り切れていたのです。
+
+---
+
+ある日のことでした。
+私は街のデパートで、かつての友人グループの二人が楽しそうに歩いているのを見かけました。
+二人は華やかな服を着て、大きな紙袋を提げ、私の知らない話題で盛り上がっていました。
+あそこのケーキ、美味しかったわね次は温泉に行きましょうよ
+そんな会話が、切れ切れに聞こえてきました。
+私は思わず、慌てて柱の陰に隠れてしまいました。
+心臓がバクバクと早鐘を打ち、冷や汗が背中を伝いました。
+声をかければよかったのかもしれません。
+久しぶり！と明るく言えば、まあ、元気だった？と話が弾んだかもしれません。
+でも、私にはその勇気がありませんでした。
+もし、迷惑そうな顔をされたらどうしよう。
+あ、どうも...と気まずい空気が流れたらどうしよう。
+あるいは、誘わなくてごめんねという、あからさまな同情を向けられたらどうしよう。
+そんな恐怖が、私をその場に釘付けにしました。
+柱の陰から、楽しそうな二人の後ろ姿を見送る私。
+その姿は、自分でも直視できないほどみじめで、哀れなものでした。
+通行人の冷ややかな視線を感じながら、私は小さくなっていました。
+私だけが過去にしがみつき、私だけが取り残されている。
+二人はもう、私がいなくても十分に楽しい時間を過ごしている。
+私という存在は、彼女たちの人生の物語から、とっくに退場していたのです。
+その事実を突きつけられたようで、胸が張り裂けそうでした。
+私は逃げるようにその場を離れ、帰りの電車の中で涙をこらえました。
+窓に映る自分の顔は、ひどく疲れて、老け込んで見えました。
+もう、潮時なのだと思いました。
+無理をして関係を続けても、傷つくだけだ。
+私が求めているのは、過去の思い出であって、今の彼女たちではないのかもしれない。
+そう気づいた時、諦めのような、あるいは解放のような感情が湧いてきました。
+重たい荷物を、ようやく地面に下ろしたような感覚でした。
+
+---
+
+それから程なくして、加代子さんと知り合いました。
+場所は、近所の図書館でした。
+家にいても気が滅入るので、逃げ込むように通っていた場所です。
+毎週火曜日の午後、同じ時間帯に、同じエッセイのコーナーの本を借りることが多かったのです。
+最初は、書棚の前ですれ違うだけの他人でした。
+グレーのカーディガンを上品に着こなした、物静かな女性。
+白髪交じりの髪をきちんと束ね、背筋を伸ばして歩く姿が印象的でした。
+会釈程度だったのが、少しずつ言葉を交わすようになりました。
+きっかけは、私が落としたしおりを彼女が拾ってくれたことでした。
+ありがとうございます
+いいえ。あ、これ、私も好きな作家さんの本です
+彼女が指差したのは、私が借りようとしていた須賀敦子さんのエッセイでした。
+この方の文章、静かで美しいですよね
+ええ、本当に。イタリアの霧の風景が目に浮かぶようで
+そんな短い会話から始まりました。
+派手さはないけれど、丁寧な言葉遣いをする人だなという印象でした。
+ある日、図書館の出口で一緒になり、急な雨が降っていました。
+私が傘を持っていなくて困っていると、彼女がそっと傘を差し出してくれました。
+よかったら、駅まで一緒に入りませんか？
+その雨の中の短い道行が、私たちの距離を縮めました。
+傘におちる雨音を聞きながら、私たちはぽつりぽつりと話しました。
+家族のことではなく、好きな本のことや、季節の移ろいのことを。
+雨の匂いって、懐かしい感じがしますね
+ええ、子供の頃を思い出します
+そんな、何でもない会話が、乾いた心に染み込んでいくようでした。
+駅に着いたとき、彼女が言いました。
+よかったら、今度お茶でもいかがですか。近くに美味しい紅茶のお店があるんです
+私は少し驚きながらも応じました。
+新しい友人を作ることに、正直、億劫な気持ちがあったからです。
+また裏切られるのではないか。
+親しくなっても、また離れていくのではないか。
+過去の経験が、私を臆病にさせていました。
+傷つくのが怖かったのです。
+でも、加代子さんの控えめな笑顔には、不思議と安心感がありました。
+無理にとは言いません。気が向いたらで構いませんから
+その押し付けがましさのない言葉に、私は救われた気がしました。
+
+---
+
+加代子さんとの関係は、以前の友人たちとは全く違います。
+グループで盛り上がることもなければ、毎日のように連絡を取り合うこともありません。
+「元気？」今度会いませんか
+そんなメッセージが、月に一度か二度あるだけ。
+そして月に一度、公園や静かなカフェで会ってお茶を飲む。
+二人で向かい合って、あるいは並んで座って、とりとめのない話をする。
+社会情勢や政治の話もしなければ、他人の噂話もしない。
+ただ、自分が最近感じたことや、美しいと思ったものについて話す。
+「庭の紫陽花がきれいに咲いたのよ。色が毎日少しずつ変わっていくの」
+「あら、素敵ね。うちはベランダのハーブが元気だわ。ミントの香りが凄いのよ」
+そんな、些細な日常の報告です。
+でも、その一言一言に、お互いへの敬意と優しさがある。
+ある時、私は思い切って、かつての友人たちのことを話しました。
+デパートで隠れてしまったこと、みじめだったこと。
+加代子さんは、黙って聞いてくれました。
+辛かったですねともひどい人たちですねとも言いませんでした。
+ただ、「そういうこと、ありますよね」と静かに頷いてくれました。
+そして、彼女自身の話もしてくれました。
+彼女もまた、ご主人を亡くされた後、多くの友人と疎遠になったそうです。
+「一人が寂しい時期もありました。でも今は、一人の時間が愛おしいんです」
+そう言って微笑む彼女の顔には、寂しさよりも強さがありました。
+「年を取ると、なかなか覚えられなくて困っちゃうわ」
+「私もよ。眼鏡をどこに置いたか、毎日探してるの」
+そう言って二人でクスッと笑い合う。
+自虐的になりすぎず、お互いの老いを肯定し合える関係。
+それだけです。
+話すことがなければ、黙って空を眺めている時間もある。
+雲が流れていくのを、二人でぼんやりと見ている。
+以前の私なら、沈黙が怖くて、必死に話のネタを探していたでしょう。
+何か面白いことを言わなきゃ楽しませなきゃと気を張っていたでしょう。
+でも、加代子さんとは、その沈黙が苦痛ではないのです。
+何か話さなきゃと焦る必要がない。
+言葉がなくても、一緒にいることで安らげる。
+沈黙さえも、温かい毛布のように私たちを包んでくれる。
+そういう関係があることを、私はこの歳になって初めて知りました。
+友情とは、賑やかさや頻繁な連絡ではない。
+お互いの存在を認め合い、尊重し合えること。
+沈黙を共有できること。
+それが本当の繋がりなのだと、今は思っています。
+
+---
+
+多くの友人を失ったことを、もう悲しんではいません。
+それぞれに事情があったのでしょう。
+私を嫌いになったわけではないのかもしれない。
+ただ、関わり続ける余裕がなくなっただけ。
+子供の世話、親の介護、自分自身の病気。
+誰もが、自分の人生を生きるのに精一杯なのだと思います。
+それは、私も同じです。
+若い頃のように、たくさんの人と付き合う体力も気力もなくなった。
+誰にでもいい顔をして、愛想を振りまくことに疲れてしまった。
+気を使って、無理をして、笑顔を作ることに疲れ果ててしまった。
+だから、去っていった人たちを責めるつもりはありません。
+ただ、今までありがとうと心の中でつぶやいて、手放すだけです。
+限られたエネルギーは、本当に大切な人のために使いたい。
+心から安らげる時間のために使いたい。
+そう思うようになりました。
+加代子さんは、そんな私を受け入れてくれる人です。
+多くを求めず、多くを与えようともしない。
+ただ、今ここにいることを共有する。
+その静けさが、私には心地よいのです。
+彼女もまた、一人暮らしの寂しさを知っている人だからかもしれません。
+同じ痛みを抱えた者同士、言葉にしなくても通じ合うものがあるのです。
+彼女の横顔を見ていると、「ああ、この人も色々なことを乗り越えてきたのだな」と感じます。
+その深みが、私を安心させてくれるのです。
+
+---
+
+公園から帰る道、いつもより足取りが軽い気がしました。
+西の空に一番星が光っていました。
+また来月ね
+別れ際に交わした言葉が、心の中で温かく響いています。
+「ええ、また来月。楽しみにしてるわ」
+彼女の笑顔が、私の心に灯りをともしてくれます。
+帰り道、私はふと空を見上げました。
+都会の空には星は少ないけれど、それでも確かに光っている星がある。
+かつては大勢の友人に囲まれていないと、自分が輝けないような気がしていました。
+でも、それは間違いでした。
+たった一つ、確かに光る星があれば、夜道は怖くないのです。
+次にまた会える日を楽しみにしている自分がいる。
+それは、長年の友人たちと会う時には、最後の方ではもう感じなくなっていた気持ちでした。
+かつては行かなくちゃ付き合わなくちゃという義務感で会っていました。
+会う前から気が重く、会った後も疲れ切っていた。
+「次はいつにする？」と聞かれるのが怖かった。
+でも今は違います。
+純粋に会いたいと思える。
+彼女と過ごす時間が待ち遠しい。
+そういう関係を、今の私は持つことができている。
+それだけで、十分幸せなことなのかもしれません。
+友達の数なんて、どうでもいい。
+友達が少ない人と思われても構わない。
+たった一人でも、本当に繋がれる人がいるなら。
+心を許せる人がいるなら。
+それは、百人の知り合いよりもずっと価値のあることだと思います。
+私は、この小さな友情を、大切に育てていきたいと思いました。
+枯れないように、水をやりすぎることもなく、適度な距離と愛情を持って。
+細く、長く、続いていくことを願いながら。
+一本の野花を慈しむように、この関係を大切にしていこうと思います。
+
+---
+
+今夜の一手。
+明日は短い挨拶だけを一つやる。
+誰かに長いメッセージを送る必要はありません。
+無理に会話を広げようとしなくていい。
+ただ、すれ違う人におはようございますと言うだけでいい。
+散歩中の犬を連れた人に会釈するだけでいい。
+いつも行くスーパーのレジの店員さんにありがとうと伝えるだけでいい。
+郵便配達の人にご苦労様と声をかけるだけでいい。
+小さな挨拶が、小さな繋がりを生む。
+その一瞬の触れ合いが、心を温めてくれます。
+相手からの返事がなくても気にしなくていいのです。
+あなたが投げかけた優しさは、必ずどこかで誰かを温めています。
+その積み重ねが、いつか誰かとの出会いになるかもしれません。
+あるいは、誰かの心を救うかもしれません。
+無理をする必要はない。
+自分のペースで、少しずつ世界と関わっていけばいいのです。
+孤独を恐れなくていい。
+世界はあなたが思っているより、ずっと優しい場所かもしれません。
+窓の外の夕空を思い出しながら、ゆっくりと眠りについてください。
+今日という一日が、静かに幕を下ろします。
+あなたは一人ではない。
+少なくともこの物語が、あなたのそばにいます。
+今日も一日、よく頑張りました。
+おやすみなさい。
+今夜も、最後まで聞いてくださって、ありがとうございました。
+それでは、また。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-010 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-010 — script</h1>
           <div class="muted">【絶対に助けてはいけない人】関わった瞬間に不幸になる相手</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,106 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【絶対に助けてはいけない人】関わった瞬間に不幸になる相手</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>関わった瞬間に不幸になる相手で迷うときに。考え方と、今日からできる一歩を整理します。
+・関わった瞬間に不幸になる相手で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>絶対に助けてはいけない人, 仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>関わった瞬間に不幸になる相手で迷うときに。考え方と、今日からできる一歩を整理します。
+・関わった瞬間に不幸になる相手で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-010</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-010&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あなたが誰かを助けようとして、かえって疲れ果ててしまったことはありませんか。頼まれるままに引き受け、時間も心の余裕も奪われ、それでも相手は一向に変わらない。そんな経験があるなら、この話はきっとあなたの役に立つはずです。善意がなぜか裏目に出て、自分ばかりが消耗してしまう。その痛みは、単なる我慢強さの問題ではありません。実は、助けるという行為そのものが、相手の依存を深め、あなた自身も重荷を背負わせてしまう構造があるのです。今日は、そんな絶対に助けてはいけない人について、仏教のたとえ話を手がかりに、深く掘り下げていきます。
+
+---
+
+では、なぜ私たちはこのような消耗する関係に陥ってしまうのでしょうか。その根底には、相手を救わなければならないという強い義務感や、見捨ててはいけないという罪悪感が潜んでいることが少なくありません。特に、長年一緒に過ごしてきた家族や、職場で頼りにされている立場の人ほど、この感覚に囚われがちです。自分が手を引いたら、相手が立ち行かなくなるのではないか。その不安が、たとえ自分が疲弊していても、助けを止められなくさせるのです。しかし、ここで考えてみてください。あなたが全てを引き受け続けることで、相手は本当に救われているのでしょうか。むしろ、自分で問題と向き合い、乗り越える力を奪われているとしたら、それは救いではなく、成長の機会を奪うことになってはいないでしょうか。この問いは、単なる我慢や忍耐の話を超えて、関係性そのものの質について考えるきっかけになります。
+
+助けたのに消耗する。その感覚は、具体的にどのようなものでしょうか。例えば、職場の同僚がいつも同じミスを繰り返し、そのたびにあなたがフォローに入る。あるいは、家族の誰かが金銭的な問題を起こし、その尻拭いをあなたが担ってしまう。最初はこれで次は大丈夫だろうと期待します。しかし、時間が経つにつれ、その期待は裏切られ続けます。むしろ、助ければ助けるほど、相手はあなたを当てにするようになり、問題は深刻化するばかりです。あなたの中には、憤りと無力感が入り混じった、複雑な疲れが溜まっていくでしょう。善意が報われないどころか、自分を苦しめる原因になっている。この矛盾こそが、私たちがまずしっかりと見つめるべき現実です。ここで間違った方向に進むと、単なる我慢比べや、相手への憎しみに発展してしまいます。大切なのは、なぜこのようなことが起きるのか、そのメカニズムを理解することです。
+
+---
+
+この構造は、助ける側と助けられる側の両方に、目には見えない歪みを生み出します。助けられる側は、自分の力で問題を解決する機会を失い、無力感や自信の喪失を深めるかもしれません。一方、助ける側は、自分の時間やエネルギーを削り取られながらも、その行為が本当に相手のためになっているのかという疑念にさいなまれます。そして、次第になぜ私ばかりがという憤りや、これでいいのだろうかという無力感が心を占めるようになる。これは、善意から始まった行為が、双方を不幸にするという皮肉な結果です。この悪循環から抜け出すためには、まず、助けるという行為がもたらす長期的な影響を、冷静に見つめる必要があります。短期的には問題が収まったように見えても、根本的な解決になっていなければ、それは単なる先送りに過ぎません。むしろ、問題を大きく複雑にしてしまうこともあるのです。
+
+では、助けるという行為が、不幸に変わる瞬間とはいつなのでしょうか。それは、あなたの助けが、相手自身が解決すべき責任を奪い取ってしまう時です。問題が起きるたびにあなたが介入する。すると、相手は考える必要がなくなります。失敗の痛みも、そこから学ぶ機会も失われてしまう。結果として、相手は自分で立つ力を育むことができず、あなたへの依存だけが深まっていく。これは、子供が転んでもすぐに抱き上げてしまう親の心情に似ています。転ぶ痛みから守りたい。その思いは自然なものです。しかし、いつまでも抱き上げ続ければ、子供は自分で立ち上がることを学べません。むしろ、転ぶことへの恐怖だけが残り、一歩を踏み出す勇気さえ失ってしまうかもしれない。大人同士の関係でも、この構造は全く同じです。あなたが責任を引き受けるほど、相手は無力になっていく。そして、あなたはその無力さを支える重荷に、いつしか押し潰されそうになるのです。
+
+---
+
+この悪循環に陥る背景には、私たちの心の癖も関係しています。一つは、自分が頼られていること、必要とされていること自体に、無意識のうちに価値を見出してしまう傾向です。特に、長年誰かの世話を焼くことが習慣になっていると、その役割が自分のアイデンティティの一部になってしまうことがあります。すると、助ける行為を手放すことは、自分自身の存在意義を失うような恐怖につながりかねません。もう一つは、相手が変わらないことへの焦りや、自分がもっと頑張れば何とかなるという過剰な責任感です。これは一見、献身的で優しい心のように見えますが、実は相手の成長を信じ切れていないことの裏返しでもあります。相手を一人の自立した人間としてではなく、いつまでも手助けが必要な存在として見てしまっている可能性があるのです。仏教では、このような執着や思い込みを『無明』や『我執』という言葉で表すことがあります。物事の本当の姿が見えず、自分や相手に対する固定観念に縛られてしまう状態です。筏のたとえで言えば、川を渡るという目的を見失い、筏そのものにしがみついている状態は、この無明に近いと言えるでしょう。目的は相手の自立であり、助けはそのための一時的な手段に過ぎません。この根本的な視点の転換がなければ、どれだけ具体的な対処法を学んでも、また同じパターンに引き戻されてしまうでしょう。大切なのは、自分の心の中にある、助けなければならないという強迫観念や、頼られることへの依存心に気づくことです。それは自分を責めるためではなく、なぜそんなにも頑張ってしまうのか、その奥にある本当の思いや恐れを理解するためです。その自己理解が深まって初めて、単なる我慢や我慢の反動としての突き放しではなく、智慧に基づいた選択が可能になるのです。
+
+この依存の構造は、時に優しさや思いやりという美名に隠れて、見えにくくなっています。相手を思っての行動が、結果的に相手の自立を妨げている。この矛盾は、私たちの心を大きく揺さぶります。特に、相手が苦しんでいる姿を見るのは耐えがたいものです。すぐに手を差し伸べて、その苦しみから解放してあげたい。それは人間として自然な感情です。しかし、ここで立ち止まって考えてみましょう。その苦しみは、相手が成長するために必要な過程なのかもしれません。転んで痛い思いをすることで、次からは注意して歩くようになる。失敗から学び、自分で工夫する力を養う。大人になっても、この原理は変わりません。問題から逃げずに直面する経験こそが、人を強くし、自立させるのです。あなたがその機会を奪い続けることは、相手の長い人生において、果たして本当の親切と言えるでしょうか。この問いかけは、単なる線引きの技術ではなく、相手に対する真の慈しみとは何かを考える深いテーマへと私たちを導きます。
+
+この難しい問題について、仏教はどのような見立てを示しているのでしょうか。ここで、一つのたとえ話を紹介します。川を渡るために筏を使い、無事に対岸に着いた旅人の話です。彼にとって筏は命綱でした。しかし、渡り終えた後もその筏を背負い続けたら、どうなるでしょう。今度はそれが重い荷物になってしまいます。目的を果たした道具は、手放すべきものなのです。この話は、私たちの助けにも通じる深い示唆を含んでいます。助けそのものは悪いことではありません。困っている人を救う筏のようなものです。しかし、その助けがいつまでも必要であり続ける状態、つまり相手が依存し続ける状態を生み出してしまった時、それはもはや救いではなく、双方にとっての重荷に変わります。仏教では、単なる情け深さだけでなく、智慧に基づいた慈悲が説かれます。それは、相手のためを思いながらも、どこで手を放すべきかを見極める力です。相手を罰したり見捨てたりすることとは違います。むしろ、相手が自分自身の力で立つことを、辛抱強く待つ姿勢です。この筏のたとえは、助けることと依存させることの、微妙でありながら決定的な違いを教えてくれます。
+
+---
+
+この筏のたとえを、私たちの日常に当てはめてみると、もう少し具体的な姿が見えてきます。例えば、あなたが誰かの金銭的な問題を肩代わりし続けているとしましょう。最初は一時的な救済措置だったはずが、それが繰り返されるうちに、相手は計画を立てたり、支出を見直したりする努力をしなくなります。あなたが筏となって川を渡らせ続けることで、相手は自分で泳ぐ力を試すことも、川の流れを読む知恵を養うこともないままです。あるいは、職場で同僚の仕事を常にカバーしている場合、その同僚はミスの原因を分析し、改善策を考える機会を失います。あなたの助けが、相手の成長を阻む堰き止めになっている可能性があるのです。ここで大切なのは、助けが必要なのは『川を渡る瞬間』だけだということです。渡る方法を教え、筏の使い方を示し、時には一緒に漕ぐことはできても、最終的に対岸に立つのは相手自身でなければなりません。もしあなたがずっと筏に乗ったまま、相手を岸まで運び続けているなら、それはもはや助けではなく、運搬です。相手は自分の足で地面を踏みしめる経験を奪われ、あなたは運び続ける重労働に疲弊します。仏教のたとえが示すのは、この『渡る』という行為の主体性です。旅人自身が川に向き合い、筏を操り、対岸を目指す。その過程そのものに学びと気づきが宿っています。私たちの助けが、この主体性を奪ってしまっていないか。
+
+筏のたとえをさらに深く読み解くと、もう一つの重要なポイントが見えてきます。それは、旅人が川を渡る目的に焦点を当てることです。旅人の目的は川を渡ることでした。筏は、その目的を達成するための手段でしかありません。もし目的を忘れ、筏そのものに執着してしまったら、本来の旅路は進めなくなってしまいます。私たちの人間関係でも同じことが言えます。助けることの目的は、相手が自立し、自分自身の人生を歩んでいくことにあるはずです。しかし、いつの間にか、助けるという行為そのものが目的化してしまうことがあります。助け続けること自体が習慣となり、それがなくなると自分自身の存在意義が揺らぐような感覚さえ生まれる。これは、助ける側が筏に執着している状態と言えるでしょう。手段が目的にすり替わった時、助けはもはや相手のためではなく、自分自身の安心のためになってしまっている可能性があります。この自己点検は、時に痛みを伴いますが、関係性を健全なものに戻すための第一歩です。あなたの行為は、相手の自立という目的に向かっているのか、それとも単なる習慣や執着に過ぎないのか。この問いを自分自身に投げかけてみることが大切です。
+
+では、実際にどのように見分け、判断すればよいのでしょうか。まず大前提として、すべてを助けないという極端な態度を勧めているわけではありません。問題は、助けることが相手の変化を生み出しているかどうかです。もしあなたの関わりが、相手に学びや気づき、少しずつでも自立への歩みをもたらしているなら、それは意味のある助けです。しかし、同じ問題が繰り返され、あなたの負担だけが増え、相手の状況に変化の兆しが見えないなら、それは依存の構造が強化されている証拠かもしれません。判断は、三つに整理できます。一つは、迷わず助ける場合。緊急性が高く、相手が明らかに一時的な困難に直面している時です。二つ目は、条件を付けて助ける場合です。全てを代わりにやるのではなく、一緒に考える、情報を提供する、最初の一歩を後押しするなど、相手自身が動く余地を残す形です。そして三つ目が、助けないという選択です。これは、あなたの関与が問題を長期化させ、双方を不幸にしていると判断された時です。この選択は、単なる拒絶ではなく、関係性の在り方そのものを見直すための、厳しいけれど必要な決断と言えるでしょう。
+
+---
+
+三つ目の「助けない」という選択は、最も難しい判断です。ここで重要なのは、それが単なる放棄や無関心ではないということです。むしろ、相手の成長を信じて、見守るという積極的な関わり方の一つです。例えば、子供が自転車の練習をしている時、転びそうになるたびに親が支えていたら、子供はいつまでも一人で乗れるようにはなりません。危ないと思っても、ぐっと我慢して手を離し、自分でバランスを取る瞬間を見守る。それは、子供の可能性を信じる行為です。大人の関係でも、この「信じて待つ」姿勢は同じです。あなたが手を引くことで、初めて相手は自分で問題と向き合わざるを得なくなります。それは一時的に苦しい局面を生むかもしれません。しかし、その苦しみを通してしか得られない気づきや力があるのです。助けない選択とは、相手を試練に放り出すことではなく、その試練を乗り越える力を相手の中に見いだし、信頼する行為なのです。この信頼こそが、依存ではない、対等な関係の土台を作ります。
+
+そうと分かっても、実際に断るのは容易ではありません。罪悪感に襲われたり、関係が悪化することを恐れたりするでしょう。そこで、具体的な実践の方法を考えてみます。まず、言い方です。責めるような口調ではなく、「私にはできません」と、自分を主語にした表現が有効です。「あなたが悪い」ではなく「私には負担が大きすぎる」と伝える。これにより、攻撃ではなく境界線の表明になります。次に、時間を区切ることです。「今月いっぱいだけは協力する」など、期限を明確に設ける。これにより、依存関係が無限に続くことを防ぎます。また、一人で抱え込まず、信頼できる第三者に相談することも大切です。客観的な意見は、あなたの判断を支えてくれます。そして何より、自分自身を整える習慣です。朝は少し早く起きて、自分のための静かな時間を持つ。夜は、今日一日の人間関係のやり取りを反芻し続けるのではなく、心を休める儀式を持つ。ほんの些細なことでも構いません。自分をケアする所作が、他者との間に健全な距離を保つ土台を作ります。これらの実践は、相手を突き放すためではなく、あなたという人間が潰れてしまわないために、どうしても必要な自己防衛なのです。
+
+---
+
+最後に、どうか自分を責めすぎないでください。誰かを助けたいと思うその心は、とても尊いものです。しかし、その尊い心が、あなた自身を消耗させる道具に変わってしまっては、本末転倒です。慈悲とは、何でも引き受けることではありません。時に、引き受けないという選択も、深い慈しみの現れなのです。それは、相手が依存から抜け出し、自分自身の人生と向き合う機会を与える行為でもあります。筏のたとえが教えるように、川を渡るためには筏が必要でした。しかし、渡り終えたら、それは重荷でしかありません。あなたの優しさという筏が、相手にとって、そしてあなた自身にとって、もはや重荷になっているなら、そっと岸に置く時が来たのかもしれません。それは関係の終わりを意味するのではなく、お互いがより自立した形で向き合う、新たな始まりでもあるのです。今日の話が、あなたがこれまで背負い続けてきた重い荷物を、そっと下ろす一つのきっかけとなれば、これほど嬉しいことはありません。
+</pre>
     </div>
   </div>
 </main>

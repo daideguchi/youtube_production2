@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH24-027 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH24-027 — script</h1>
           <div class="muted">老後に必要なのは金より習慣（孤独に強くなる）【弘法大師の教え】</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH24</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH24</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,282 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCfFBOz5OUoqJIE4IV3fRNeQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>老後に必要なのは金より習慣（孤独に強くなる）【弘法大師の教え】</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>弘法大師（空海）の教えで、心を静かに整える時間。
+・悩みの見方が1つ変わる・今夜できる一手がわかる#推奨タグ老後,不安,習慣
+
+この動画は、「叡智の扉」の長時間コンテンツです。
+弘法大師（空海）の教えで、心を静かに整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>老後, 不安, 弘法大師, 空海, 仏教, 教え, 執着, 人間関係, 言葉, 心を整える, 朗読, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>弘法大師（空海）の教えで、心を静かに整える時間。
+・悩みの見方が1つ変わる・今夜できる一手がわかる#推奨タグ老後,不安,習慣</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「叡智の扉」の長時間コンテンツです。
+弘法大師（空海）の教えで、心を静かに整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH24-027</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH24-027&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あなたは老後の準備について、お金のことばかり考えていませんか。
+年金はいくらもらえるか。貯金はどれくらい必要か。投資はしたほうがいいか。
+確かにお金は大切です。しかし不器用なあなたに、今日は一つの核心的な真実をお伝えします。
+老後に本当に必要なのは、金より習慣なのです。
+
+これは、お金がいらないという意味ではありません。
+お金の準備をしなくていいと言っているのでもありません。
+しかし、どれだけお金があっても、心が貧しければ幸せにはなれません。
+逆に、正しい習慣があれば、少ないお金でも豊かに生きることができるのです。
+
+空海の智慧によれば、人生の質は心の在り方で決まります。
+今日は、老後に本当に必要な習慣と、孤独に強くなる生き方の秘奥義をお話ししましょう。
+
+---
+
+まずは、今のあなたの「日常」に意識を向けてみてください。
+
+毎日、どんな習慣を持っていますか。
+朝起きたら何をしますか。日中はどう過ごしますか。夜はどんな時間を過ごしますか。
+その習慣が、老後のあなたの生活を形作ります。
+
+空海が広めた密教では、日々の行いが未来を決めると説きます。
+今の習慣が、老後の習慣になるのです。
+今、良い習慣を持てていなければ、老後に突然良い習慣を持つことはできません。
+
+「今の習慣が、老後の質を決める」
+その認識を持ってください。
+
+---
+
+なぜ、老後にお金より習慣が大切なのでしょうか。
+
+第一の理由は、習慣が心の健康を守るからです。
+
+老後に最も恐ろしいのは、心の健康を失うことです。
+認知症、うつ、孤独感。これらは、お金では防げません。
+しかし、良い習慣があれば、脳を活性化し、心を健やかに保つことができます。
+
+空海の智慧によれば、心は使わなければ衰えます。
+毎日、心を使う習慣を持つことで、心の健康は維持されます。
+読書、瞑想、学び、人との交流。
+そうした習慣が、老後の心を守ってくれるのです。
+
+---
+
+第二の理由は、習慣が孤独に強くなる力を育てるからです。
+
+老後は、多くの人が孤独と向き合うことになります。
+子どもは独立し、友人は減り、社会との繋がりが薄くなる。
+その孤独に耐えられるかどうかが、老後の幸福を左右します。
+
+しかし、一人で過ごす習慣がある人は、孤独を楽しめます。
+読書、趣味、散歩、瞑想。
+一人でも充実した時間を過ごせる人は、孤独を恐れません。
+
+空海は、高野山で長い時間を一人で修行に費やしました。
+孤独は、彼にとって苦痛ではなく、悟りへの道でした。
+孤独に強くなる習慣を持つことで、老後は豊かなものになります。
+
+---
+
+第三の理由は、習慣があれば生きがいが生まれるからです。
+
+お金があっても、することがなければ老後は虚しいものになります。
+毎日が空っぽで、時間を持て余す。
+そうした虚しさは、心を蝕んでいきます。
+
+しかし、習慣があれば、毎日にリズムが生まれます。
+朝起きたらこれをする、日中はこれをする、夜はこれをする。
+その繰り返しの中に、生きがいが見えてきます。
+
+空海の日々も、決まった修行のリズムで満たされていました。
+そのリズムが、彼の生命力を支えていたのです。
+
+---
+
+具体的な日常の浄化術。
+
+老後に向けて、今から一つ、新しい習慣を始めてみてください。
+何でも構いません。
+毎朝の散歩。毎晩の読書。週に一度の瞑想。月に一度の新しい学び。
+
+大切なのは、続けられることです。
+無理なく、楽しみながら、長く続けられる習慣を選んでください。
+
+「小さな習慣を、今から始める」
+その第一歩を、今日踏み出してください。
+
+---
+
+老後に持つべき習慣、第一のもの。
+それは、体を動かす習慣です。
+
+加齢とともに、体は衰えていきます。
+しかし、動かし続ければ、衰えは遅らせることができます。
+毎日の散歩、軽い体操、ストレッチ。
+そうした習慣が、体の健康を守ってくれます。
+
+空海の智慧によれば、身体は心の器です。
+器が壊れてしまえば、心も十分に機能しません。
+体を動かす習慣は、心の健康を守る習慣でもあるのです。
+
+---
+
+老後に持つべき習慣、第二のもの。
+それは、頭を使う習慣です。
+
+脳は、使わなければ衰えます。
+新しいことを学ぶ、パズルを解く、文章を書く。
+そうした知的な活動が、脳を活性化させます。
+
+空海は、生涯にわたって学び続けました。
+唐から帰国した後も、新しい知識を求め、教えを深めていきました。
+学びの習慣が、彼の知性を輝かせ続けたのです。
+
+「いくつになっても、学び続ける」
+その姿勢を持ってください。
+
+---
+
+老後に持つべき習慣、第三のもの。
+それは、人と繋がる習慣です。
+
+孤独に強くなることは大切ですが、完全に孤立することは害です。
+定期的に人と会い、話し、繋がりを保つ習慣が必要です。
+家族、友人、コミュニティ。
+どんな形でもいいので、人との繋がりを持ち続けてください。
+
+空海も、弟子たちとの交流を大切にしました。
+一人で修行しながらも、人々との繋がりを断つことはありませんでした。
+孤独を楽しみながら、繋がりも手放さない。
+そのバランスが、豊かな老後の鍵です。
+
+---
+
+不器用なあなたが、新しい習慣をなかなか続けられないとき。
+
+それは、習慣を大きく考えすぎているからかもしれません。
+毎日一時間の運動、毎日一冊の読書。
+そんな大きな目標は、続きません。
+
+空海の智慧によれば、小さな一歩が大きな変化を生みます。
+毎日五分の散歩、毎日十ページの読書。
+そのくらい小さく始めれば、続けやすくなります。
+
+「小さく始めて、徐々に広げる」
+その戦略を取ってください。
+
+---
+
+具体的な身体の智慧として、「朝のルーティン」を固めることをお勧めします。
+
+朝起きたら、必ずすること。
+布団を整える、水を一杯飲む、窓を開けて深呼吸する。
+そうした小さな行動を、朝のルーティンとして固定してください。
+
+朝のルーティンがあると、一日にリズムが生まれます。
+そのリズムが、心の安定を支えてくれます。
+
+空海も、毎朝決まった時間に起きて、決まった修行を行っていたことでしょう。
+そのリズムが、彼の生活を支えていたのです。
+
+---
+
+老後の孤独に強くなるために、もう一つ大切なことがあります。
+それは、自分との対話を楽しむ力です。
+
+一人でいるとき、自分と対話できますか。
+過去を振り返り、今を感じ、未来を思い描く。
+そうした内省の時間を楽しめる人は、孤独を恐れません。
+
+空海が瞑想を重んじたのは、自分との対話の大切さを知っていたからです。
+瞑想とは、自分の心と向き合う時間です。
+その習慣があれば、どれだけ一人でも、豊かな時間を過ごせます。
+
+---
+
+具体的なエネルギーの調整として、「感謝の習慣」をお勧めします。
+
+毎晩、今日あった良いことを三つ思い浮かべてください。
+そして、それらに感謝します。
+「今日も食べられた。今日も歩けた。今日も生きていた」
+そうした当たり前のことへの感謝が、心を豊かにします。
+
+感謝の習慣がある人は、老後も幸せです。
+なぜなら、どんな状況でも、感謝できることを見つけられるからです。
+お金があっても感謝できない人は不幸であり、お金がなくても感謝できる人は幸福なのです。
+
+---
+
+今夜、眠る前に、老後の自分を思い浮かべてみてください。
+
+その老後の自分は、どんな習慣を持っていますか。
+どんな一日を過ごしていますか。
+孤独を楽しめていますか。生きがいを感じていますか。
+
+その姿を具体的に思い描いてください。
+そして、その姿になるために、今から何の習慣を始めるべきかを考えてください。
+
+「老後は今から始まっている」
+その認識を持ってください。
+
+---
+
+空海が高野山で説いた教えは、今もこの瞬間、あなたの心に響いています。
+
+老後に必要なのは、金より習慣です。
+良い習慣があれば、心は健やかであり、孤独は楽しみとなり、毎日に生きがいが生まれます。
+今日から、老後のための習慣を始めてください。
+
+あなたの豊かな老後を、心から願っています。
+
+心から、あなたの平安と、孤独に強い生き方を、金剛の光とともに祈っています。
+
+南無大師遍照金剛。
+
+自信を持って、良い習慣を育てて、明日からの一歩を踏み出してください。
+あなたには、豊かな老後を迎える力があります。
+その力を、今日から準備してください。
+</pre>
     </div>
   </div>
 </main>

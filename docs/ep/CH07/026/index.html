@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-026 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-026 — script</h1>
           <div class="muted">嫉妬する人の特徴と対処法</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,122 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>嫉妬する人の特徴と対処法</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>嫉妬する人の特徴と対処法で苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。
+・嫉妬する人の特徴と対処法で起きる苦しさの正体
+・心を守る考え方と、今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 嫉妬, 仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>嫉妬する人の特徴と対処法で苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。
+・嫉妬する人の特徴と対処法で起きる苦しさの正体
+・心を守る考え方と、今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-026</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-026&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あなたは今、朝の通勤電車の中で、隣に立つ同僚の会話を聞いています。その内容は、昨日の会議であなたが提案した小さなアイデアについてでした。同僚は、そのアイデアをさも自分のもののように話し、周りから軽く賞賛されています。あなたは何も言えず、ただ黙って聞いているしかありません。言い出せば、小さなことのために空気を悪くするだけだ、と自分に言い聞かせます。しかし、胸の奥には、沸き上がるような不快感があります。それは、自分のものが奪われたような、不当に扱われたような感覚です。一日が始まる前から、すでに心が重たくなっているかもしれません。
+
+あるいは、夜、布団に入っても、昼間のあの一言が頭を巡ります。家族や親しい友人から、何気なく放たれた言葉です。あなたって、いつも運がいいよね私もあんな風にできればいいのに。一見、褒め言葉のようにも聞こえますが、なぜか心に刺さり、眠れなくなる。その言葉の裏に、相手の本心ではないか、と勘繰ってしまう。そして、自分がそんな風に疑ってしまうこと自体に、また自己嫌悪が募ります。このように、私たちは日々、他者との関わりの中で、ささやかな傷を積み重ねています。その傷は、時に嫉妬という形で私たちを苦しめます。しかし、その苦しみの本当の原因は、相手の言動そのものにあるのではなく、私たちの内側にある反射と執着にあるのです。ここで一度、その手を緩めることができれば、見える世界は変わっていきます。
+
+---
+
+このような日常の小さな出来事は、私たちの心に確かな傷跡を残します。それは、単なる不快感を超えて、自分という存在が否定されたような感覚をもたらすこともあります。特に、相手が親しい関係であればあるほど、その傷は深くなりがちです。なぜなら、私たちは無意識のうちに、相手から認められ、受け入れられることを期待しているからです。その期待が裏切られた時、私たちは強い孤独感や不安を覚えます。そして、その感情を処理するために、過去の類似した嫌な体験を思い出し、未来でも同じことが繰り返されるのではないかと恐れるのです。この連鎖が、心の重たさを増幅させ、日常の活力を奪っていきます。仏教では、このような心の動きを縁起として説明することがあります。一つの出来事が、過去の記憶や未来への不安といった、多くの縁（条件）と結びついて苦しみを生み出しているのです。
+
+この苦しみの正体は何でしょうか。それは、単に嫉妬しているという感情そのものではありません。感情が湧いてくること自体は、自然なことです。問題は、その感情が湧いた瞬間に、私たちが自動的にはまってしまう思考のループにあります。例えば、先ほどの電車の場面を思い出してください。同僚の言葉を聞いた瞬間、あなたの心にはあれは私のアイデアなのにずるい認めてほしいといった、いくつもの考えが、ほとんど反射的に、次から次へと浮かんできたはずです。この反射が、最初の一撃です。
+
+そして、その反射的な考えに引きずられ、私たちはその考えに執着し始めます。つまり、なぜあの人はあんなことを言うのか私のどこが悪いのかあの時、こう言い返せばよかったと、過去の出来事を延々と反芻し、未来の不安（また同じことが起きるのではないか）を膨らませてしまうのです。この執着が、小さな傷を大きく化膿させ、苦しみを持続させる第二、第三の矢となって私たちを打ち続けます。ブッダは、この仕組みを第二の矢という言葉で説きました。最初の矢（他者の言動や不運な出来事）は避けられないこともある。しかし、それによって引き起こされる怒り、悲しみ、嫉妬といった心の苦しみ（第二の矢）は、私たち自身が自分自身に射かけているのだ、と。
+
+あなたが今感じている苦しみの多くは、この第二の矢、つまり反射と執着によって増幅され、長引かせられている部分が大きいのです。出来事そのものよりも、それに対する自分の反応のパターンが、苦しみの源泉となっています。このパターンに気づくことが、最初の一歩です。
+
+---
+
+この第二の矢のメカニズムは、私たちの日常に深く根ざしています。例えば、家族からあなたって運がいいよねと言われた時、最初の矢はその言葉そのものです。しかし、多くの場合、私たちはその言葉の裏に別の意味があるのではないかと想像し、本当は私の努力を認めてくれないのかもしれない妬まれているのかもと、次々に解釈を重ねていきます。この解釈の連鎖が、すでに第二の矢となっているのです。ブッダの教えが示すのは、この矢が放たれるプロセスを、いかに早い段階で認識するかということです。具体的には、身体の感覚に注目してみてください。誰かの言葉で心が乱された時、胸が締め付けられる、胃が重くなる、顔が熱くなるといった身体の変化が、必ずと言っていいほど起こっています。この身体のサインに気づくことが、思考の自動的な連鎖を止める最初の契機となります。なぜなら、身体の感覚は、抽象的な思考よりもはるかに捉えやすく、『今、ここ』に存在するからです。嫌な感じがするという身体の感覚にただ気づく。それだけで、私たちは反射の波に飲み込まれる一歩手前で立ち止まる余地を得ることができます。この身体感覚への気づきは、過去の後悔や未来の不安といった時間を超えた思考の迷路から、現実の瞬間へと自分を引き戻す錨の役割を果たします。それは、自分が今、確かにここに存在しているという感覚を呼び覚ますことでもあります。この感覚を取り戻すことで、他者の言葉が直接的に自分の価値を決定するという錯覚から、少しずつ距離を置くことができるようになるのです。
+
+第二の矢の仕組みを理解する上で大切なのは、この反応が悪いとか間違っているということではありません。それは、長年にわたって培われてきた、自分を守ろうとする心の自然な癖なのです。問題は、その癖に気づかず、自動操縦のまま流されてしまうことです。例えば、誰かから批判された時、私たちはすぐに自分が全面的に否定されたように感じ、自己価値が揺らぎます。しかし、よく考えてみれば、その批判はあなたのほんの一部の行動や発言に対して向けられているに過ぎません。それなのに、私たちは反射的に自分全体を否定されたと捉え、必要以上に傷ついてしまう。この全体と一部の混同も、苦しみを大きくする一因です。ブッダの教えは、このような心の錯覚に気づき、現実をあるがままに見る目を養うことを促しています。
+
+では、この反射と執着のメカニズムを、もう少し日常に引き寄せて考えてみましょう。私たちは、何か不快な出来事に遭遇すると、ほぼ無意識に、その原因を外に探そうとします。あの人のせいだ環境が悪い運が悪かった。これは自然な心の動きです。しかし、仏教の教えは、ここで一度、外を見る目を内側に向けることを促します。外に原因を求める限り、私たちはその原因をコントロールできない他者や環境に、常に振り回される立場から抜け出せません。
+
+重要なのは、外側の出来事そのものではなく、それに対して自分の心がどう反応したか、その反応の質に目を向けることです。例えば、誰かがあなたを無視したとします。第一の矢は無視されたという事実です。ここで、反射的に私は嫌われている何か悪いことをしたのかと考える。そして、その考えに執着し、落ち込みや怒りが続く。これが第二の矢です。教えが示すのは、この第二の矢を射るのをやめる方法です。つまり、反射が起きて、執着が始まろうとするその一瞬を、ただ観察する習慣です。
+
+観察すると言っても、難しいことではありません。心の中に「あ、今、嫌な気分が湧いてきた」ずるいと思った「『なぜ？』と問い詰めている」と、自分自身の心の動きにラベルを貼るように気づくだけでいいのです。まるで、通り過ぎる雲を見るように。この気づきが、自動運転のように流れていた思考の流れに、ほんの一瞬の間を作ります。その間が、反射から執着へ一直線に進んでいた心の動きを、緩やかにほぐすきっかけとなります。
+
+これは、感情を否定したり、無理に押し殺したりするのとは全く違います。むしろ、自分の感情をありのままに認め、しかしそれに飲み込まれず、一歩引いたところから見つめてみる、という態度です。この態度が身についてくると、他者の言動に一喜一憂する度合いが、自然と減っていきます。なぜなら、あなたの心の平安が、他者の気まぐれや評価に完全に依存する状態から、少しずつ解放され始めるからです。
+
+---
+
+観察する習慣を身につける際のポイントは、評価を手放すことです。湧き上がった感情を良い悪いと判断せず、ただそこにある現象として認めるのです。例えば、嫉妬の感情がわいた時、嫉妬してはいけないと否定するのではなく、『ああ、今、嫉妬という感情が起こっているな』と客観的に認識します。この態度は、スポーツの試合中に一度タイムを取って流れを切り替えるようなものです。感情に流されている自分を責めるのではなく、『今、この状態なんだ』と受け止めることで、心に少し余裕が生まれます。この余裕が、次第にあなたの判断や行動を、衝動ではなく選択に基づくものへと変えていきます。それは、他者に振り回されない、自分自身の内側に確かなよりどころを見いだす作業でもあります。このプロセスは一朝一夕には進みませんが、継続することで確実に心の習慣は変わっていきます。
+
+この観察するという態度を、今日の具体的な場面でどう活かせるでしょうか。最も効果的なのは、苦しみが生まれたその瞬間に、小さな習慣を取り入れることです。先ほど例に挙げた、電車の中や夜の反芻思考がまさにその場面です。
+
+例えば、職場で同僚があなたの貢献を軽んじる発言をしたとします。胸が熱くなり、言い返したい衝動がわく。その瞬間です。そこで、いったん呼吸に意識を向けてみてください。たった一回、深く息を吸い、ゆっくり吐く。そのほんの数秒の間に、「今、私は傷つき、怒っている」と心の内側でつぶやいてみる。これだけです。いきなり感情が消えるわけではありません。しかし、この一連の小さな行動が、自動的な反射→執着の回路に風穴を開けます。
+
+この時、決してこんなことで怒る私はダメだと自分を責めないでください。責めることもまた、別の形の執着です。ただ、湧き上がった感情を、否定もせず、増幅もせず、あるがままに観察する。それが、手を緩めるという具体的な行動です。言い返すか黙るか、という二者択一ではない、第三の選択肢がここに生まれます。それは、「感情に流されずに、今ここにいる」という選択です。
+
+この実践は、相手を変えようとするものではありません。相手を変えることは、多くの場合できません。変えられるのは、その出来事に対する自分の反応の仕方だけです。このシンプルな気づきの習慣を続けることで、次第に、他者の言動があなたの内面を深くかき乱すほどの力を持たなくなるのを感じ始めるでしょう。それは、縁を切るとか、戦うとかいうことではなく、心の中にほどよい間を作り、自分自身の軸を少しずつ確かにしていく作業です。
+
+---
+
+この実践を続けていくうちに、次第に気づくことがあります。それは、他者の言動が常に変化し、一定ではないということです。今日あなたを賞賛した人が、明日は無関心かもしれない。その不確かさに気づくことで、他者の評価に一喜一憂することの虚しさにも自然と気がついていくでしょう。仏教の言葉に諸行無常があります。この世の全てのものは移り変わり、とどまることがないという教えです。この視点から見ると、他者の気まぐれな評価に自分の価値を委ねること自体が、そもそも不安定な土台の上に立とうとしていることになります。気づきの習慣は、この無常の現実を直視する力を与えてくれます。それは、変わらないものを求める執着から、変化の流れの中で自分らしく在ることを学ぶ旅でもあるのです。
+
+この気づきの習慣を、一日の流れに自然に織り込むために、朝と夜に簡単な時間を設けてみましょう。場所は、自宅の静かな一角で構いません。リビングの椅子でも、ベッドの脇でもいいのです。所要時間は、それぞれほんの三分から五分で十分です。
+
+朝、目が覚めて、まだ一日の雑事が始まる前。まずは、その日一日に起こりうる対人関係のストレスを予測しないでください。代わりに、ただ静かに座り（椅子に腰かけても構いません）、自分の呼吸が体の中を出入りする感覚に、そっと意識を向けてみます。息を吸う時、吐く時、お腹や胸がどう動くかに注意を向けるだけです。思考が浮かんできたら、思考が浮かんでいると気づき、また呼吸に意識を戻します。これを三分ほど続けます。この朝の短い時間は、心を整え、一日の出来事に対して反射的ではなく観察的でいられる下地を作ります。自動操縦ではなく、自分がハンドルを握っているという感覚を思い出させる時間です。
+
+次に、昼間、実際に誰かの言葉で心が乱された時。先ほど述べたように、その場で一度呼吸を整え、「今、私は〇〇な感情を感じている」と内側で認識します。これはその都度、数秒でできることです。これを今日の実践と決めてみてください。たった一つでいいのです。今日一日、この気づきを一回だけ実行すると決め、それを成し遂げる。
+
+そして夜、寝る前に、再び静かな場所で数分間、その日を振り返ります。この時、あの嫌な出来事を詳細に反芻するのではありません。代わりに、ただ自分自身に問いかけてみます。「今日、私は自分の感情に気づくことができただろうか」。できたなら、その瞬間を思い出し、できなかったなら、それもまた良しとします。自分を評価したり、採点したりする必要はありません。ただ、ありのままの一日を、優しい目で見つめ直す時間にします。そして、明日もまた、ほんの少しだけ、この気づきを試してみよう、と軽く心に留めてから布団に入ります。この夜の習慣は、一日の終わりに自分自身と和解する儀式となります。ぐるぐると思考が巡るのを止め、心を休ませるための区切りです。
+
+---
+
+これらの小さな習慣は、劇的に状況を変える魔法ではありません。しかし、確実にあなたの苦しみの質を変えていきます。今日、あなたにできるたった一つのことは、苦しみが生まれたその瞬間に、ほんの一呼吸置いてみることです。たったそれだけのことで、あなたは自動的に流されていた思考の流れから、一歩だけ外に出ることができます。その一歩が、長い目で見れば、あなたを消耗させる人間関係の渦の中に、自分自身の拠り所となる小さな島を作り始めます。
+
+全てを完璧にこなそうとする必要はありません。三日続けて、一日忘れ、また思い出せばいいのです。大切なのは、完全であることではなく、続けようとするその姿勢そのものです。反射と執着という長年の癖は、簡単には消えません。しかし、気づきという光を当て続けることで、その癖があなたを縛る力は、確実に弱まっていきます。あなたの苦しみが軽やかになり、日々の生活が、ほんの少しだけ息苦しくなくなるその日を、静かに信じて、今日の一歩を踏み出してみてください。
+</pre>
     </div>
   </div>
 </main>

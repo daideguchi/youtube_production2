@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH22-023 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH22-023 — script</h1>
           <div class="muted">最後に残った、たった一人の友｜孤独がほどける夜話</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,126 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCXRMfwpf27FQFJT4jBUYgpw/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>最後に残った、たった一人の友｜孤独がほどける夜話</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, 寂しさ, 老後, シニア, 友人関係, 近所付き合い, 同窓会, 町内会, 人間関係, 物語, 朗読, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH22-023</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH22-023&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">最後に残った、たった一人の友。
+
+かつての私は、人との繋がりを数で測っていたことに、ようやく気がついたのは、ある雨の午後のことでした。子供が独立し、夫も仕事で不在がちになったある日、私はふと、リビングのソファに座り、手帳の空白のページを眺めていました。かつてはびっしりと書き込まれていた予定が、今では白い余白が目立つ。その時、電話が鳴り、かつてのママ友の一人から、久しぶりにランチに誘われました。喜んで出かけたものの、会話はかつての子供の自慢話から、今は孫の話題へと移り、相変わらずの比較と競争が続いていました。帰り道、雨に濡れた道を歩きながら、私はあることに気づきました。あのランチで交わした会話は、まるで決められた台本を読んでいるようで、私の本当の気持ちや今日の小さな心配事には、一切触れられなかった。相手も私も、お互いの表面だけを撫でるような言葉を交わし、深く沈む心の底には届かない。それが、かつての多くの関係が色褪せていった理由なのだと、雨の冷たさが頬を伝う中で、はっきりと理解できたのです。
+
+---
+
+結局、私の手元に最後の一枚として残ったのは、あなただけだったわね。
+
+冬の終わりの、風がまだ少しだけ爪を立てているような午後でした。公園のベンチに座り、隣に座る良子さんの横顔を見詰めながら、私は不意にそんな言葉をこぼしていました。良子さんは、いつものように少しだけ首を傾け、柔らかい笑みを湛えたまま、静かに頷きました。60代も終わりに差し掛かり、ふとした瞬間に自分の足跡を振り返ってみると、そこに咲いていた色とりどりの交流の花が、いつの間にか一輪、また一輪と散り、最後には驚くほど静かな、凪いだ風景が広がっていることに気づいたのです。
+
+---
+
+若い頃の私は、人との繋がりの多さこそが、自分の価値を証明するものだと信じて疑いませんでした。学生時代の、あの喧騒に満ちた日々を思い出します。サークルの部室に集まれば、そこには常に20人以上の話し相手がいました。誰かが声を上げればすぐに映画を見に行き、夜の公園で将来の夢を語り合い、安酒を酌み交わしては朝まで笑い転げたものです。あの頃、私たちは一生の友だちという言葉を、まるで魔法の呪文のように安易に信じていました。卒業式のあの日、誰もが涙を流しながら、10年後も、20年後も、絶対に集まろうねと誓い合った。寄せ書きに並んだ色とりどりの応援の言葉が、人生という航海に出るための、無敵の帆のように思えていたのです。あの頃の私は、アドレス帳の名前が増えていくたびに、自分の人生が豊かになっていくような誇らしさを感じていました。誰からも誘われない金曜日なんて、この世の終わりだと思い込んでいたのです。
+
+社会に出てからも、その傾向は続きました。オフィスのデスクを並べる同僚たちとは、同じ目標を追いかけ、同じ苦労を分かち合う、戦友のような連帯感で結ばれていました。仕事が終われば、居酒屋の煙に巻かれながら、不当な評価や上司の理不尽な振る舞いの愚痴をぶちまける。その不満を、互いの同情という濾過機に通して中和し合うことで、どうにか明日への活力を得ていました。休日にわざわざ連れ立って、渋滞の中を温泉旅行に出かけたり、深夜の高速を飛ばしてスキー場へ向かったり。自分にはこんなにたくさんの仲間がいて、自分を必要としてくれる場所がある。その事実が、不安定な大人の世界で生き抜くための、何よりの防具になっていたのです。しかし、その防具が実は、他人からの評価という薄氷の上に築かれたものであることに、当時の私は気づく由もありませんでした。
+
+---
+
+当時は気づかなかったけれど、あの賑やかさの裏側には、常に「誰かの輪の中にいなければ」という強迫観念が潜んでいました。一人でいる時間が怖くて、予定を埋めることに必死になっていたのです。例えば、誰にも誘われない土曜日の午後、私はソファに座ってテレビを見ている自分を情けなく思い、無理に誰かを探して電話をかけようとしていました。その行為自体が、自分自身への信頼のなさを露呈していたのでしょう。人との繋がりを数で測ることは、自分という存在を、他人の反応という鏡に映してしか確認できない危うさをはらんでいました。鏡が曇れば自分も曇り、鏡が割れれば自分も崩れる。そんな脆さを、当時の私は必死に無視していたのです。そして、その無視が、後年の静かな孤独への耐性を育てるどころか、むしろ逆に、一人でいることへの恐怖を増幅させていったように思います。本当の安心は、誰かと一緒にいるときではなく、誰もいないときに自分がどう在るか、その根っこが揺るがないことから生まれるのだと、学ぶには長い時間が必要でした。
+
+結婚し、子供を授かれば、今度はママ友という新しい巨大な輪が、私の生活の大部分を占めるようになりました。幼稚園の送り迎えで交わす、名前も知らないお母さんたちとの立ち話。参観日の後のランチ会、子供の誕生日を祝うためのホームパーティー。情報交換という名目で行われる、終わりのないお喋り。数十人という規模で広がるそのネットワークは、子育てという暗いトンネルを歩く私にとって、確かな道標のように見えていました。その輪から外れることは、母としての落選を意味するような気がして、私は必死に愛想を振りまき、予定を詰め込んでいました。
+
+趣味のハイキングサークルに入ったときもそうでした。お揃いの装備に身を包み、月に一度、列を成して山頂を目指す。10人以上の仲間と一緒に、頂上で食べるおにぎりの格別な美味しさ。下山後の温泉で、互いの足の痛みや疲れを労い合う瞬間の充足感。自分はまだ、どこかの組織の一部でいられている。誰かと歩調を合わせ、共通の目標に向かって汗を流しているという事実に、私は言葉にできない安堵を覚えていたのです。しかし、その安堵は、山を下り、山靴を脱ぐのと同時に、どこかへ消えてしまうような、掴み所のないものでもありました。今思えば、私たちが共有していたのは、山という高い場所からの景色であって、人生という低い場所から見える景色ではなかったのかもしれません。
+
+---
+
+でも、人生の坂道を下り始める頃、その賑やかな景色は、驚くほど静かに、そして残酷なまでに色褪せていきました。それは、ある日突然、誰かが死んでしまうような劇的な別れではありませんでした。まるで、古びた壁紙が、端の方から少しずつ剥がれ落ちていくような。あるいは、夏の終わりの夕立が、いつの間にか霧雨に変わり、気づいたときには服がしっとりと濡れているような。そんな、抗いようのない時間の流れの中での、静かな風化でした。
+
+最初に消えていったのは、学生時代のあんなに熱かった誓いでした。結婚し、それぞれが家庭という別の国に旅立てば、物理的な距離は、瞬く間に心の距離へと直結しました。年に一度、義務のように出していた年賀状も、子供の成長と共に写真が消え、家族の話題が消え、文字がどんどん痩細っていき。やがてお互い、年賀状も、今年でおしまいにするわねという、どちらからともなく提案された静かな合意と共に、ぷっつりと途絶えてしまいました。あんなに夜明けまで夢を語り合った彼女たちが、今どこで、どんなシワを刻んで笑っているのか。それさえも分からないまま、思い出だけが引き出しの奥で、セピア色の埃を被っています。たまにクローゼットの奥から出てくる当時の写真を見ても、そこに写っているのは知らない誰かのようで、胸が締め付けられることがあります。
+
+職場の仲間も、退職という合図一つで、まるで煙のように消えてしまいました。時折開催される同窓会に顔を出しても、そこにあるのは過去の自分の残骸だけ。現役でバリバリと働いている人たちの、聞き慣れない業界用語や未来の話についていけず、私は自分のグラスを見つめるだけの時間が増えていきました。共有していたのは仕事であって、心ではなかった。その事実に今更ながら気づき、私はそっとその輪からフェードアウトしていったのです。
+
+ママ友たちとの縁も、子供という強力な接着剤が剥がれれば、驚くほど脆いものでした。子供が成人し、家を出ていけば、交わす言葉は底をつきました。スーパーの野菜売り場で偶然出会っても、挨拶を交わした後は、沈黙を埋めるための天気の話題しか出てきません。かつてランチ会で何時間も語り合ったあの日々は、一体何だったのか。虚しさが胸の奥を通り過ぎ、私は足早にその場を立ち去るようになりました。
+
+そして、あんなに楽しかったハイキングサークルも、私の膝が悲鳴を上げた瞬間に、居場所を失いました。山に登れなくなった私に、山歩きの報告を送り続ける残酷な友人たちはいませんでした。彼らはただ、私のいない山頂で新しい集合写真を撮り、私は未開封の通知が溜まっていく画面を眺めるだけになりました。私の存在価値は、一緒に山を歩けるという機能に依存していたのだと、痛いほど理解させられました。
+
+---
+
+60代の今。私のスマホの受発信履歴は、数人の親戚と、そしてあなた、良子さんの名前で占められています。
+
+良子さん。あなたは、私の人生が一番賑やかだった30数年前、あの混沌とした幼稚園のママ友の輪の中に、一番地味な姿で立っていましたね。他のお母さんたちが子供の習い事や偏差値、海外旅行の自慢話で血眼になっている中、あなただけは、泥遊びを終えて泥だらけになった私の手を見て、敏子さん、今日は寒いのに頑張ったわね。お子さんも楽しそうだったわと、私自身のことを案じてくれました。周囲の喧騒を消し去るような、あなたのその一言。それが、私たちが30年以上も続く長い旅の、最初の灯火だったように思います。
+
+あの日、子供が急な高熱を出して幼稚園を休んだ私に、あなたが届けてくれたのは、一房のバナナと、丁寧に畳まれた小さなメモでしたね。何もできないけれど、敏子さんが共倒れにならないように祈っています。夕食の足しにでも。あの時、私は初めて、誰かの子供の母としての私ではなく、名前を持つ一人の人間としての私を見つけ出してもらったような気がしたのです。多くのママ友たちが、子供の優秀さや可愛さを競い合う盤面の一駒として私を見ていた中で、あなただけは、その盤面から私を救い出し、ただの敏子さんとして抱きしめてくれた。あのバナナの甘さと、少し冷たかったメモの紙の感触は、今でも私の掌の中に、宝石のように残っています。
+
+それからの35年間。私たちは、お互いの人生の、光の当たる場所よりも、影の落ちる場所に、そっと寄り添い合ってきました。私の夫が長患いをしたとき、あなたは何も言わずに、週に一度、私の家の玄関先に煮物を置いていってくれましたね。余計な励ましの言葉も、同情の視線もありませんでした。ただ、食べてね。無理しないでいいからという一言だけ。その煮物の湯気の中に、どれほど多くの、言葉にできない私の悲鳴が吸い込まれ、浄化されていったことか。あなたは、私が一番みっともない姿でいるときほど、当たり前のように隣にいてくれましたね。ボロボロのパジャマのまま、玄関先で泣きじゃくる私の背中を、あなたはただ、静かに、一定のリズムで叩き続けてくれた。あの時のあなたの手の温かさが、私がこの世に繋ぎ止められるための、最後の一本の糸でした。
+
+あなたがご義母さんを看取った夜、私たちは深夜のファミレスで、冷めたコーヒーを何杯もお代わりしながら、ただ座っていましたね。解決策なんて、どこにもありませんでした。よく頑張ったわねという言葉すら、その時のあなたには重すぎるのではないかと、私は必死に言葉を選んでいました。でも、あなたはただ、窓の外に流れる夜の街の灯りを見つめながら、隣にいてくれて、ありがとうと言ってくれた。あの時、冷たい夜の空気の中で、誰かが隣にいてくれるという温度。心臓の鼓動を近くに感じるだけで、人はまた明日という、果てしない絶望に立ち向かえるのだと。私たちは、言葉という頼りない橋を介さずに、魂の深い場所で、互いの存在を確認し合っていたのです。あなたが私の孤独を支え、私があなたの沈黙を支える。そんな目に見えない貸し借りを繰り返しながら、私たちは35年という、途方もない時間を編み上げてきたのですね。
+
+---
+
+正直に言えば、昔のように、色とりどりの予定で埋まった手帳を持っていないことに、不意に足元を掬われるような、一抹の寂しさを感じる夜がないわけではありません。でも、その寂しさは、かつての、誰とも繋がっていないことへの恐怖から来る、底の抜けたバケツのような空虚な孤独とは、全く質の違うものです。今の私には、たとえ世界中の誰もが私を忘れ、私の存在が歴史の塵になったとしても、この良子さんという一人の女性だけは、私の今日の小さなしあわせを喜び、私の不器用な生き方を理解し、私の好きな紅茶の蒸らし時間を正確に覚えていてくれる。その、たった一人の確信が。私の心の根底を、どんな富や名声も及ばない、揺るぎない平安で満たしてくれています。不特定多数のいいねよりも、たった一人の分かっているよという眼差し。それが、人生の最終章において、どれほど強力な救いになるか。若い頃の私に、こっそりと教えてあげたいくらいです。
+
+友達は数ではない。それは、いかにお互いの武装を解き、剥き出しの魂で触れ合ったかという密度の問題なのです。35年という気の遠くなるような歳月をかけて、何百人、何千人と出会い、そしてさよならを繰り返してきた果てに。こうして、濁りのない目をしたあなたという、たった一人の宝石を見つけ出せたことは、私の人生において、どんな素晴らしい功績よりも、どんな成功よりも、誇らしく、慈しむべきことだと思えるのです。この一人の友がいるだけで。私の人生の貸借対照表は、いつだって、眩しいほどの黒字なのです。
+
+---
+
+良子さん、今日はここに来てくれて、本当にありがとう。あなたの隣に座っていると、私の人生も、捨てたものではなかったなと、心から思えるの。
+
+今夜の一手。今日、身近な誰かにありがとうを、たった一度だけ、言葉にして伝えてみてください。長年の付き合いだから、言わなくても分かっている。そんな甘えの裏側で、心は少しずつ乾いていくものです。照れくさいかもしれません。改まって言うのは難しいかもしれません。でも、ありがとうという言葉は、相手のためだけにあるのではありません。その言葉を発した自分の心が、一番優しく解けていくのを感じるはずです。小さな感謝の種を蒔き続けること。それが、何十年後かに、たった一人の本当の友を育む、一番確かな方法なのです。
+
+最後までご視聴いただき、ありがとうございました。あなたの周りにも、きっと、あなたという存在を静かに見守っている誰かがいるはずです。どうか、その温もりを大切になさってください。このお話を聞いて、心に浮かんだ誰かの顔がありましたら、ぜひコメント欄で教えてください。あなたの言葉が、同じように一歩を踏み出そうとしている方の背中を、優しく押してくれるかもしれません。もし、この動画があなたの心にそっと寄り添えたなら、チャンネル登録と高評価で応援していただけると嬉しいです。それでは、また次の穏やかなお話でお会いしましょう。今夜が、あなたにとって世界で一番優しい夜になりますように。おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

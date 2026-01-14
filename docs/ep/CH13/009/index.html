@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-009 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-009 — script</h1>
           <div class="muted">【謝る癖】すぐ謝るほどナメられる｜丁寧に拒否する言葉</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,212 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【謝る癖】すぐ謝るほどナメられる｜丁寧に拒否する言葉</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>謝る癖, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-009</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-009&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">何かあると、つい「すみません」と言ってしまう。
+自分が悪くないのに、場の空気を丸くするために謝ってしまう。
+相手が不機嫌だと、反射的にごめんなさいと口をついて出る。
+
+そして、後になって一人で落ち込むのです。
+江戸時代の名僧、白隠禅師の有名なエピソードです。
+
+ある時、白隠禅師が住む村の近くで、若い娘が子供を産みました。
+娘は父親が誰かを問い詰められ、困って「白隠さんの子供だ」と嘘をつきました。
+村人たちは激怒し、白隠禅師の元へ押しかけました。
+「この生臭坊主め！ よくも娘を！」
+と罵詈雑言を浴びせました。
+
+その時、白隠禅師はどうしたか。
+弁解もせず、怒りもせず、ましてや謝りもしませんでした。
+ただ一言、こう言いました。
+
+「ああ、そうか」
+
+そして、その赤ん坊を引き取り、自分の子として大切に育て始めました。
+村人たちの嘲笑を受けながら、毎日もらい乳をして回り、懸命に育てたのです。
+
+一年後。
+娘が耐えきれなくなり、「あれは嘘でした。本当は別の若者の子です」と告白しました。
+村人たちは平謝りして、白隠禅師の元へ行きました。
+「申し訳ありませんでした！ 私たちが間違っておりました！」
+
+その時、白隠禅師はどうしたか。
+「ああ、そうか」
+そう言って、赤ん坊をあっさりと返しました。
+
+この「ああ、そうか」こそが、究極の境界線です。
+彼は、赤ん坊を育てる必要があるという事実を受け入れました。
+しかし、生臭坊主というレッテルや、村人の怒りといった他人の感情は、自分の責任ではないと知っていました。
+だから、謝りもしないし、戦いもしない。
+ただ、嵐が過ぎ去るのを「ああ、そうか」と見つめていたのです。
+
+もし彼がここで「すみません、私の不徳の致すところで…」と謝っていたらどうでしょう。
+それは嘘を認めることになります。
+逆に「私はやっていない！」と必死に戦っていたらどうでしょう。
+泥仕合になり、赤ん坊の命が守れなかったかもしれません。
+
+「ああ、そうか」
+これは、肯定でも否定でもありません。
+ただ、現実をありのまま受け止める、最強の盾です。
+私たちも、理不尽な非難や、不機嫌な相手に対して、心の中で「ああ、そうか」と呟いてみる。
+「あなたは今、怒っているんだね。ああ、そうか」
+それだけで、自分の心を守ることができます。
+
+---
+
+白隠禅師の境地は高すぎるかもしれませんが、
+私たちも日常の中で、言葉を変える練習はできます。
+「謝る癖」を「断る技術」に変える、三つのステップをお伝えします。
+
+第一のステップ：3秒の沈黙、ストップ
+
+何か言われた時、反射的に「すみません」が出る回路を断ち切ります。
+言葉が出そうになったら、口を閉じて、心の中で「１、２、３」と数えてください。
+この3秒が、あなたの理性を呼び戻します。
+「今、私は謝る必要があるか？」
+「私は何か悪いことをしたか？」
+と問いかける時間です。
+
+沈黙は、怖くありません。
+白隠禅師の「ああ、そうか」の前の静けさだと思ってください。
+相手の目を見て、静かに待つ。
+これだけで、あなたは「簡単に謝らない人」という空気を纏うことができます。
+
+第二のステップ：言葉の置き換え、リフレーミング
+
+「すみません」という言葉を、別の言葉に置き換えます。
+ほとんどの場面で、「すみません」は「ありがとう」か「はい」に変換できます。
+
+店員さんが水を持ってきた時。
+×「すみません」
+○「ありがとう」
+
+相手が指摘をしてくれた時。
+×「すみません、気づかなくて」
+○「はい、教えてくれてありがとうございます」
+
+エレベーターで。
+×「すみません」
+○「乗せてくれてありがとうございます」
+
+「すみません」はマイナスの言葉です。自分を下げ、相手に負い目を感じさせます。
+「ありがとう」はプラスの言葉です。自分も相手も対等で、温かい気持ちになります。
+謝罪ではなく、感謝のボールを投げる。
+これだけで、関係性はガラリと変わります。
+
+第三のステップ：丁寧に、しかし明確に断る。アイ・メッセージ
+
+謝る癖がある人は、断るのが苦手です。
+断る＝相手を傷つける、と思っているからです。
+しかし、丁寧に断ることは、相手を尊重することでもあります。
+
+「できません」と言うのが怖いなら、「残念ですが」という枕詞をつけてください。
+「残念ですが、今は手一杯で引き受けられません」
+「お役に立ちたいのですが、都合がつきません」
+
+そして、理由はシンプルに。長々と言い訳をしない。
+言い訳をすると、相手は「説得すればいけるかも」と思います。
+「予定があります」「難しいです」と、短く言い切る。
+
+さらに、主語を「私」にする、アイ・メッセージにします。
+「あなたが無理なことを言うから」ではなく、
+「私は、それができません」と伝える。
+これなら角が立たず、しかしこちらの意思は固いことが伝わります。
+
+---
+
+この実践を始めると、必ず「落とし穴」があります。
+それは、罪悪感という名の反撃です。
+
+「謝らないなんて、偉そうじゃないか」
+「相手が気を悪くしたんじゃないか」
+そんな心の声が聞こえてくるでしょう。
+特に、今までサンドバッグ役を引き受けていた人ほど、相手の驚きや反発を感じるかもしれません。
+
+「最近、付き合いが悪くなったな」
+「変わったね」
+そう言われるかもしれません。
+
+でも、それはあなたが悪い方へ変わったのではありません。
+あなたが「本来の自分」に戻った証拠です。
+搾取しようとしていた人たちが、思い通りにならなくて文句を言っているだけです。
+その罪悪感は、成長痛のようなものです。
+「ああ、私は今、境界線を引く練習をしているんだな」
+「これは必要な痛みなんだな」
+と、客観的に眺めてください。
+
+罪悪感が湧いてきたら、白隠禅師を思い出してください。
+「ああ、そうか。私は今、罪悪感を感じているんだな」
+そうやって、ただ認めて流すのです。
+
+---
+
+あなたは、謝るために生まれてきたのではありません。
+誰かの不機嫌のご機嫌取りをするために生きているのではありません。
+
+「すみません」を減らした分だけ、あなたの背筋は伸びていきます。
+「ありがとう」を増やした分だけ、あなたの世界は明るくなります。
+
+今日から、反射的な謝罪をやめてみませんか。
+3秒待って、顔を上げて。
+必要な時は「ありがとう」と言い、
+不要な時は「残念ですが」と断る。
+
+その凛とした姿こそが、あなたを守る最強の鎧となるのです。
+言葉を変えれば、生き方が変わります。
+あなたは、もう十分に謝ってきました。
+これからは、堂々と生きていいのです。
+</pre>
     </div>
   </div>
 </main>

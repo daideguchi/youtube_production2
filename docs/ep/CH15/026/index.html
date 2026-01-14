@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-026 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-026 — script</h1>
           <div class="muted">【自己肯定】自己肯定感を上げたい人へ｜上げるほど苦しい罠</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,160 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【自己肯定】自己肯定感を上げたい人へ｜上げるほど苦しい罠</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>自己肯定, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-026</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-026&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">自己肯定感を上げたい。自分を好きになりたい。でも、上げようとするほど苦しくなっていませんか。
+
+自己肯定感には罠があるのです。
+
+---
+
+「自己肯定感が低い」という言葉をよく聞きます。
+
+自分に自信がない。自分を嫌いだ。自分には価値がないと感じる。
+
+だから、自己肯定感を上げたい。自分を好きになりたい。
+
+でも、上げようとすればするほど、うまくいかないことがありませんか。
+
+---
+
+自己肯定感を上げようとする罠があります。
+
+まず、「肯定できる自分」になろうとしてしまう。今の自分では肯定できないから、良い自分になって肯定しようとする。でもそれは条件付きの肯定であり、自己肯定ではありません。
+
+次に、「肯定しなければ」とプレッシャーになる。「自分を好きにならなければダメ」と思うと、好きになれない自分を責める結果になる。
+
+そして、肯定できないことで落ち込む。「やっぱり自分を好きになれない」「自己肯定感を上げられない」と、さらに自己否定が深まる。
+
+自己肯定感を上げようとすること自体が、苦しみの原因になっているのです。
+
+---
+
+仏教では「自己」への執着を手放すことを教えます。
+
+「良い自分」「悪い自分」という評価そのものを離れる。自分を肯定も否定もしない。ただ、そのまま受け入れる。
+
+自己肯定感を「上げる」のではなく、「評価すること」をやめる。それが本当の解放です。
+
+---
+
+では、どうすればいいでしょうか。
+
+まず、「今のままでいい」と認めてください。
+
+変わらなくていい。成長しなくていい。今のままで存在していい。
+
+「でも今の自分はダメだから」と思うかもしれません。でも、ダメなままでいいのです。ダメな自分も含めて、存在していい。
+
+---
+
+次に、「肯定しようとしない」ことです。
+
+「自分を好きにならなければ」と思わなくていい。好きでも嫌いでもない、ニュートラルでいい。
+
+無理に好きになろうとせず、ただ自分を見つめる。批判せず、称賛せず、ただ観察する。
+
+そうすると、自然と落ち着いてきます。
+
+---
+
+また、「自分に優しくする」ことから始めてください。
+
+自己肯定感より先に、自己慈悲。自分をいたわる。自分に優しい言葉をかける。
+
+失敗しても責めない。「大丈夫」「よくやった」と言ってあげる。
+
+自分を敵のように扱うのをやめる。それだけで楽になります。
+
+---
+
+もうひとつ、「自己肯定感という言葉から離れる」ことも効果的です。
+
+「自己肯定感が高い/低い」という枠組みで自分を見ると、常に評価することになる。
+
+その枠組み自体をやめてみる。「自己肯定感」という言葉を使わない。
+
+代わりに「今日を生きる」ことに集中する。評価ではなく、日常の行動に意識を向ける。
+
+---
+
+自己肯定感が高い人を観察すると、興味深いことが分かります。
+
+彼らは常に「自分は素晴らしい」と思っているわけではありません。
+
+単に、自分のことをあまり考えていない。自己評価に時間を使わず、やりたいことをやっている。
+
+自己肯定感を「上げよう」という努力をしていない。意識していないから、自然体でいられるのです。
+
+---
+
+注意点があります。
+
+自己否定が非常に強い場合、うつの症状かもしれません。専門家に相談してください。
+
+また、自己肯定感の低さの背景に、過去のトラウマやいじめの経験があることも。深い傷は専門的なケアが必要なこともあります。
+
+---
+
+自己肯定感を上げたい?
+
+上げようとするほど苦しい罠があります。
+
+代わりに、評価をやめる。今のままでいいと認める。自分に優しくする。自己肯定感という枠組みから離れる。
+
+あなたは、自分を好きにならなくてもいいのです。今のままで、存在していいのです。
+</pre>
     </div>
   </div>
 </main>

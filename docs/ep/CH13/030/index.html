@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-030 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-030 — script</h1>
           <div class="muted">【人間関係】相手を変えずに楽になる｜一気に軽くなる見方</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,434 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【人間関係】相手を変えずに楽になる｜一気に軽くなる見方</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, ブッダ, 仏教, 家族, 介護, 夫婦, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-030</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-030&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">人間関係がしんどい。
+相手を変えたいけど、変わらない。
+もうどうしていいか分からない。
+
+相手を変えなくても、楽になる方法があります。
+見方を変えるだけで、同じ状況でも心が一気に軽くなるのです。
+
+今日は、相手を変えずに自分が楽になるための「見方を変える技術」について、禅の視点からお話しします。
+
+---
+
+まず、人間関係で苦しんでいる日常を、思い浮かべてみてください。
+
+嫌いな同僚がいます。
+いつも嫌味を言ってくる。陰で悪口を言っているらしい。
+会うたびに気分が悪くなる。
+
+「なんであの人はあんなことをするんだろう」
+「あの人さえいなければ」
+「あの人が変わってくれれば」
+
+そう思いながら、毎日出勤する。
+朝起きた瞬間から、「また今日もあの人に会わなければならない」と憂鬱になる。
+
+あるいは、口うるさい姑がいます。
+何かにつけて口を出してくる。
+「もっとこうしたら」「あなたのやり方は違う」
+ありがたいお言葉のつもりかもしれませんが、言われるたびにストレスが溜まる。
+
+「もう少し黙っていてくれれば」
+「私のやり方を認めてくれれば」
+「そんなに細かいことを気にしなければ」
+
+でも、相手は変わりません。
+何年経っても、同じことを繰り返す。
+こちらが何か言っても、聞く耳を持たない。
+
+変えようとすればするほど、ストレスが溜まる。
+イライラが募る。
+そして、疲れ果てる。
+
+この悪循環、あなたにも心当たりがありませんか。
+
+夜、布団に入っても、その人のことが頭から離れない。
+「なんであんなことを言われなければならないんだろう」
+「明日もまた、あの人と顔を合わせなければならない」
+
+眠れない夜を過ごす。
+翌朝、疲れた顔で起きる。
+そして、また同じ一日が始まる。
+
+あなたの大切な時間とエネルギーが、その人のために費やされていく。
+本当は、もっと楽しいことに使いたいのに。
+本当は、もっと前向きなことを考えたいのに。
+
+相手は何も変わらない。
+でも、あなただけが消耗していく。
+これは、とても不公平なことです。
+
+---
+
+なぜ、私たちは相手を変えようとしてしまうのでしょうか。
+問題の正体を見てみましょう。
+
+まず、「相手が問題だ」と思い込んでいるからです。
+
+嫌なことがあると、原因を外に求めます。
+「あの人がああだから、私が苦しんでいる」
+「あの人さえ変われば、私は幸せになれる」
+
+確かに、相手の言動が問題なこともあります。
+でも、相手を変えることは、ほとんど不可能です。
+他人の心を変えることは、世界で最も難しいことの一つです。
+
+次に、「自分は正しい」という思いがあります。
+
+「私のやり方が正しい」「相手が間違っている」
+だから、相手を正そうとする。相手に変わってもらおうとする。
+
+でも、相手も同じことを思っています。
+「自分は正しい」「あの人が間違っている」
+だから、両者は平行線のまま、ぶつかり続けるのです。
+
+そして、期待があります。
+
+「この人はこうあるべきだ」「こうしてくれるはずだ」
+その期待が裏切られるから、苦しいのです。
+期待しなければ、裏切られることもないのに。
+
+相手を変えようとする努力は、多くの場合、徒労に終わります。
+そして、その努力の過程で、あなた自身が消耗していくのです。
+
+---
+
+仏教には、「一切は心の所産なり」という教えがあります。
+
+現実そのものより、それをどう受け止めるかが、苦しみと楽しみを決める。
+同じ状況でも、苦しむ人と苦しまない人がいる。
+違いは、心の持ち方なのです。
+
+例えば、雨が降っているとします。
+「せっかくの休日なのに最悪だ」と思えば、不快な一日になる。
+「植物が潤うなあ」「家でゆっくりできるなあ」と思えば、穏やかな一日になる。
+
+雨という事実は同じ。
+違うのは、見方だけです。
+
+人間関係も同じです。
+嫌な人がいるという事実は変わらない。
+でも、その人をどう見るか、どう受け止めるかは、あなたが選べるのです。
+
+お釈迦様は説かれました。
+「我々を苦しめているのは、出来事そのものではない。その出来事についての我々の考え方である」
+
+つまり、相手を変えることはできなくても、自分の見方を変えることはできる。
+そして、見方が変われば、現実の体験が変わるのです。
+
+---
+
+禅には「色即是空、空即是色」という有名な言葉があります。
+
+形あるものは空であり、空なるものが形となっている。
+物事には固定した実体がない、という教えです。
+
+これを人間関係に当てはめると、「嫌な人」という固定した存在はないということになります。
+「あの人は嫌な人だ」というレッテルは、あなたが貼ったものです。
+別の人から見れば、その人は素敵な人かもしれない。
+あるいは、その人にも優しい一面があるのかもしれない。
+
+一面的な見方に囚われていると、その見方が現実になってしまいます。
+「嫌な人だ」と思って見れば、嫌な面ばかりが目に入る。
+「もしかしたらいい面もあるかも」と思って見れば、いい面も見えてくるかもしれない。
+
+見方を変えることは、新しい現実を発見することでもあるのです。
+
+---
+
+ある禅のお話を紹介しましょう。
+
+ある時、一人の僧が師匠に尋ねました。
+「私は同じ寺にいる兄弟子がどうしても好きになれません。いつも偉そうで、私を見下しているように感じます。どうすればいいでしょうか」
+
+師匠は答えました。
+「お前は、その兄弟子の何を見ているのだ」
+
+僧は答えました。
+「偉そうな態度、見下すような目、冷たい言葉です」
+
+師匠は言いました。
+「それは、お前の心の中にある『見下される恐怖』を見ているのではないか。お前が怖れているものを、相手の中に見ているのではないか」
+
+僧は黙り込みました。
+
+師匠は続けました。
+「その兄弟子は、毎朝一番に起きて掃除をしている。体の弱い僧の代わりに重い荷物を運んでいる。お前はそれを見たことがあるか」
+
+僧は首を振りました。
+
+「見方を変えてみよ。お前が見たいものではなく、そこにあるものを見よ。そうすれば、同じ人が違って見えるだろう」
+
+この話は、私たちが見ているものが、実は自分の心の投影であることを示しています。
+相手の中に嫌なものを見るのは、自分の中にあるものを投影していることがあるのです。
+
+---
+
+では、具体的にどう見方を変えればいいでしょうか。
+四つのステップをお伝えします。
+
+第一のステップ：相手の事情を想像する
+
+嫌なことをしてくる人にも、事情があります。
+
+ストレスを抱えているのかもしれない。
+家庭で問題を抱えているのかもしれない。
+自信がなくて、攻撃的になることで自分を守っているのかもしれない。
+過去に傷ついた経験があって、先に攻撃することで自分を守ろうとしているのかもしれない。
+
+それは、相手の行動を正当化するわけではありません。
+でも、理解すると、許しやすくなります。
+
+「この人も、何か辛いことがあるのかな」
+「この人も、自分なりに必死なのかな」
+
+そう思えると、相手が「悪意を持った敵」から「事情を抱えた人間」に見えてきます。
+怒りが、少し和らぐのです。
+
+第二のステップ：影響を限定する
+
+嫌な人がいても、その人があなたの人生すべてを占めているわけではありません。
+
+その人と関わる時間は、一日のうちどれくらいでしょうか。
+仕事で八時間一緒にいるとしても、残りの十六時間は関係ありません。
+週末は会いません。
+その人以外にも、たくさんの人がいます。
+
+「あの人は嫌だけど、それは私の人生の一部でしかない」
+
+そう思えば、影響を限定できます。
+
+その人のことを一日中考えていると、その人に人生を支配されています。
+考える時間を減らすだけで、影響は小さくなります。
+
+嫌な人のことを考えている時間は、あなたの貴重な人生を無駄にしている時間です。
+その時間を、もっと楽しいことに使いませんか。
+
+第三のステップ：期待を手放す
+
+「この人はこうあるべき」という期待があるから、それを裏切られて苦しむのです。
+
+「同僚なんだから、もっと協力的であるべき」
+「姑なんだから、もっと優しくあるべき」
+「友人なんだから、もっと理解してくれるべき」
+
+その「べき」を手放してみてください。
+
+期待しなければ、裏切られることもありません。
+「この人はこういう人だ」と受け入れる。
+良い悪いではなく、ただそういう人として見る。
+
+「この人は、口うるさい人なんだ」
+「この人は、嫌味を言う人なんだ」
+
+それ以上でも以下でもない。
+そう思えると、いちいち傷つかなくなります。
+
+第四のステップ：別の解釈を考える
+
+嫌なことがあったら、その出来事の別の解釈を三つ考えてみてください。
+
+例えば、挨拶を無視されたと感じたとき。
+
+一つ目の解釈：自分が嫌われている
+二つ目の解釈：相手がたまたま気づかなかっただけ
+三つ目の解釈：相手が今日は体調が悪くて余裕がなかった
+
+同じ出来事に、三通りの解釈ができます。
+どれが正しいかは、実は分かりません。
+
+なら、自分が楽になれる解釈を選んでもいいのです。
+
+わざわざ辛い解釈を選ぶ必要はありません。
+「きっと気づかなかっただけだろう」と思えば、心は軽くなります。
+
+---
+
+この実践をする時の注意点があります。
+
+まず、見方を変えることは、我慢することではありません。
+
+嫌なことを「いいことだ」と思い込め、というのではありません。
+嫌なものは嫌でいいのです。
+ただ、その嫌なことに、別の角度から光を当ててみる。
+すると、見え方が変わることがある。
+
+また、本当にハラスメントを受けている場合など、対処が必要な状況はあります。
+見方を変えるだけで解決しない問題もあります。
+逃げるべき時は逃げてください。戦うべき時は戦ってください。
+
+ここで話しているのは、変えられない部分、変えるのが難しい部分についてです。
+そういう部分には、見方を変えることが効果的なのです。
+
+そして、見方を変えることは、すぐにはできないかもしれません。
+長年染みついた見方は、なかなか変わりません。
+でも、意識的に別の見方を試すことを繰り返すうちに、少しずつ変わっていきます。
+
+焦らず、少しずつ練習してください。
+
+一朝一夕には変わりません。
+でも、毎日少しずつ意識していれば、必ず変わっていきます。
+
+ある日、ふと気づくでしょう。
+「あれ、前ほどあの人のことが気にならなくなった」
+「同じ状況なのに、前より楽に感じる」
+
+その時、あなたの見方は確実に変わっています。
+そして、あなたの人生も、確実に良い方向に変わっているのです。
+
+---
+
+見方を変えると、不思議なことが起こります。
+
+相手の態度が変わったように感じることがあります。
+実際には、相手は何も変わっていません。
+でも、あなたの見方が変わったことで、相手から受け取るものが変わるのです。
+
+また、あなたの態度が変わることで、相手の態度が実際に変わることもあります。
+
+あなたがイライラして接していれば、相手もイライラして接してくる。
+あなたが穏やかに接すれば、相手も穏やかになることがある。
+
+人間関係は鏡のようなものです。
+あなたの見方が変われば、鏡に映る相手も変わるのです。
+
+---
+
+見方を変えた人たちの声を紹介しましょう。
+
+「嫌いだった同僚のことを、『この人も大変なんだな』と思うようにしたら、不思議と腹が立たなくなりました」
+
+「姑の言葉を『悪意』ではなく『心配の表れ』と解釈するようにしたら、以前ほど傷つかなくなりました」
+
+「嫌な上司のことを考える時間を減らしたら、仕事が楽しくなりました。相手は何も変わっていないのに、私の毎日が変わりました」
+
+共通しているのは、「相手は変わっていないのに、自分の体験が変わった」ということです。
+
+見方を変えることは、魔法のように現実を変えます。
+いえ、正確には、現実は変わっていません。
+でも、あなたが体験する現実は、確実に変わるのです。
+
+これが、見方を変える力です。
+お金もかからない。相手の協力も必要ない。
+あなた一人で、今日から始められる。
+
+こんなに手軽で、こんなに効果的な方法は、他にないのではないでしょうか。
+
+---
+
+人間関係で辛いとき、相手を変えようとしても変わりません。
+でも、見方を変えることはできます。
+
+相手の事情を想像する。
+影響を限定する。
+期待を手放す。
+別の解釈を考える。
+
+これだけで、同じ状況でも心の負担は軽くなります。
+
+禅の教えに「心が変われば、世界が変わる」という言葉があります。
+
+相手を変えようとするエネルギーを、自分の見方を変えることに使ってみてください。
+そのほうが、ずっと簡単で、ずっと効果的です。
+
+今日から、一つだけ見方を変えてみませんか。
+
+嫌いなあの人を、「事情を抱えた人間」として見てみる。
+苦手なあの状況を、「人生の一部でしかない」と捉えてみる。
+
+相手を変えずに、あなたは楽になれるのです。
+そして、楽になったあなたは、もっと優しく、もっと穏やかに、人と接することができるようになるでしょう。
+
+それが、見方を変える力なのです。
+
+最後に、一つ大切なことをお伝えします。
+
+見方を変えることは、自分を騙すことではありません。
+嫌なものを「いい」と思い込むことでもありません。
+
+見方を変えることは、視野を広げることです。
+一つの見方に囚われていた自分を解放すること。
+もっと多様な見方があることに気づくこと。
+
+今まで、一つの見方しか持っていなかった。
+「あの人は嫌な人だ」という見方だけ。
+でも、他の見方もあると気づいた。
+「あの人にも事情があるのかもしれない」
+「あの人は、私の人生の一部でしかない」
+「あの人に期待しなければ、傷つかない」
+
+選択肢が増えたのです。
+どの見方を選ぶかは、あなた次第。
+そして、楽になれる見方を選ぶ権利が、あなたにはあるのです。
+
+人生は、見方次第で大きく変わります。
+同じ出来事でも、苦しみにもなれば、学びにもなる。
+同じ人でも、敵にもなれば、師にもなる。
+
+あなたの見方が、あなたの人生を作っています。
+だから、見方を変えれば、人生が変わるのです。
+
+今日から、少しだけ見方を変えてみませんか。
+その小さな変化が、大きな自由をもたらしてくれるでしょう。
+
+相手を変えようとして疲れていたあなた。
+もう、その努力をしなくていいのです。
+見方を変えるだけで、あなたは今日から楽になれるのですから。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH05-024 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH05-024 — script</h1>
           <div class="muted">【朗読】69歳、詐欺に遭って全財産を失った。「もう死のう」と海に来たら、同じく、事業に失敗したという彼と出会った。「死ぬ前に、ラーメンでも食うか」</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,180 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCNxC0Q2xDoofIClGNurUcIg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【朗読】69歳、詐欺に遭って全財産を失った。「もう死のう」と海に来たら、同じく、事業に失敗したという彼と出会った。「死ぬ前に、ラーメンでも食うか」</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉
+
+この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>再婚, 家族の距離, 老後, シニア, 恋愛, シニア恋愛, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH05-024</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH05-024&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">海を見下ろす断崖絶壁。
+観光地化されているとはいえ、柵の向こう側は数十メートル下の岩場だ。
+強風が吹き荒れ、波が岩肌に砕け散る音が轟いている。空は鉛色で、今にも泣き出しそうだ。
+私は柵を乗り越えようとはしなかったが、心はその縁に立っていた。
+手には、夫の小さな遺影。
+「……もう、無理よ」
+呟いた声は風にかき消された。
+夫を見送って七年。金銭的な不安、将来への絶望、そして何より、誰にも必要とされていないという孤独感。それが潮水のように喉元まで迫っていた。
+生きている意味が分からない。ただ息をしているだけの肉の塊になった気分だった。
+その時だった。
+
+「いい眺めだな」
+隣に、いつの間にか男が立っていた。ヨレヨレのコートを着た、初老の男。
+村井浩二、七十一歳。無精髭を生やし、疲れ切った顔をしているが、目は奇妙に明るかった。
+「……そうですね」私は警戒しながら答えた。
+「村井浩二。事業で全部なくした。家も、家族も、金も。残ったのは、この身体だけだ」
+彼はあっけらかんと言った。「そっちは？」
+「田中美和子。六十七歳。夫を亡くして……生きる気力も、なくしかけています」
+つられて正直に答えてしまった。
+村井は「ハハッ」と乾いた笑い声を上げた。「似た者同士か。ここに来る奴は、みんな同じ目をしてる」
+そして、海を指差した。「ここから飛び込めば、楽になれるかな」
+「……かもしれません」
+「でもな」彼は急に真顔になった。「死ぬ前に、あの下の食堂の塩ラーメンでも食うか。あそこのは美味いらしいぞ。最後の晩餐ってやつだ」
+拍子抜けするほど軽い提案だった。自殺の名所に来て、ラーメンの誘い。
+そのあまりの不謹慎さと滑稽さに、私の口から「ふっ」と笑いがこぼれた。
+「……いいわね。塩ラーメン」
+その一言で、私の足は海から離れ、食堂へと向いた。
+
+港の寂れた食堂。
+暖簾は煤け、ガラス戸は曇っている。
+中に入ると、強烈な豚骨の匂いがした。
+湯気が充満する店内で、私たちは向かい合ってラーメンを啜った。
+「……熱い」
+「生き返るだろう？ 五臓六腑に染み渡る」
+透き通ったスープ。一口飲むと、強烈な塩気が舌を刺し、その後に濃厚な旨味が広がった。
+「塩辛いけど……艶が出る味ね」
+「命拾いの一杯だ」
+湯気が目に染みるのか、それとも別の感情か。視界が滲んだ。湯気が涙と汗を混ぜ合わせ、胸の奥が熱くなる。
+「あなたの冗談が、私を引き戻したわ」
+「君の笑い声が、俺にとっては塩より効いたよ。久しぶりに、人の声を聞いた気がする」
+村井がニカッと笑った。歯並びは悪いが、温かい笑顔だった。
+「死ぬのは、ラーメン食ってからでも遅くない」
+「そうね。お腹がいっぱいになると、悩み事も少し小さく見えるわ」
+
+食後、防波堤を歩いた。海風が私の髪を乱す。
+「塩風で、髪が艶々だ」彼がからかう。
+「ラーメンの湯気のおかげかも」
+他愛ない会話が、死へ向かおうとしていた足を、生きる方へと向けさせてくれた。
+空の雲が切れ、薄日が差してきた。海面がキラキラと輝き始める。
+「きれい……」
+「ああ。まだ、世界は捨てたもんじゃないな」
+
+別れ際、彼が折りたたんだ紙片を私の手のひらに押し付けた。
+「連絡先だ。また昼に、どこかで会おう。夜は、寝るに限る。夜に考えると、ろくなことがない」
+「ええ。夜は寝ます」
+紙の角が指先に食い込み、熱を残した。ポケットに入れると、湿ったままその形を保っていた。
+「約束だぞ。死ぬなよ」
+「あなたもね」
+翌日、私はその紙片を眺めながら、心配してくれていた娘にメッセージを送った。
+『昨日、海で一緒に塩を舐めた人がいるの。大丈夫、まだ生きるわ』
+返ってきた泣き顔の絵文字を見て、張り詰めていた胸の糸がほどけた。
+
+数日後、「散歩ついでに紙を拾おう」と彼から連絡があった。
+駅のラックから無料の求人パンフレットを抜き、公園のベンチで開く。
+「これなんてどうだ？ ビルの清掃。俺たちにぴったりだ」
+「こっちは？ 宛名書き。私、字には自信があるの」
+紙の匂いに、印刷のインクの青い匂いが混ざる。覗き込むたびに、二人の手が触れそうで触れない距離になる。
+「諦めない人、多いんだってな。この歳でも」彼が読み上げる求人広告のキャッチコピー。その低音が胸に染みた。
+「俺たちも、まだ諦めるには早いか」
+「ええ。人生百年時代ですもの」
+コンビニで買った温かいお茶で乾杯し、笑い合う。
+「対等でいたい」彼が言った。「誰かに頼るんじゃなく、自分の足で立って、その上で君と会いたい。金がないのは惨めだが、心まで貧しくなりたくない」
+その言葉に、湯気が重なった。
+
+昼の逢瀬が続いた。安くて美味しい食堂、日当たりの良い公園、静かな図書館。
+手帳には、日付と場所だけが増えていく。物は持ち帰らず、その場の温度だけを重ねていく。
+ある日、ベンチでおにぎりと梅干しを食べた。
+「……酸っぱい！」彼が顔をしかめる。
+「艶が伸びるわよ。クエン酸で疲労回復」と私が笑う。
+スーパーの無料健康測定コーナーで、彼の血圧が以前より下がっていた。
+「君の笑い声のおかげだ。薬より効く」
+彼が私の袖を軽く引いた瞬間、脈が跳ね上がった。
+
+三ヶ月目。村井さんに清掃の仕事が決まった。
+「昼に働いて、夜は寝る。完璧な生活だ。これで、ラーメンもおごれる」
+「おめでとう」
+私も在宅の短期仕事を見つけたことを報告した。
+再就職祝いに、定食屋で一番高いメニューを頼んだ。もちろん、会計は別々。
+「レシート、記念に取っておく？」彼が聞いた。
+「いいえ。紙より、手の方が温かいもの」
+私がテーブルの上に置いた彼の手の甲に、自分の指を重ねると、彼も笑って指を絡めた。
+「紙は冷たいからな。……あったかいな、美和子さんの手は」
+
+仕事が休みの昼間、私は一人であの崖に行った。
+小さな花を柵の手前に置く。あの日の私への供養だ。
+風に揺れる花びらを見つめる。
+「ここなら、落ちないね」
+波の音が、以前よりも優しく聞こえた。
+「音も、優しいわ」
+夜、ふと苦しくなることもある。でも、昼間の花の匂いと、ラーメンの湯気の温かさを思い出すだけで、胸が緩むようになった。
+
+「今日、どの一歩を選びますか」
+自分に問いかけ、紙片に小さく『生きる』と書いて、枕元に置いた。
+
+春、菜の花が咲く公園で、私たちは再び並んで歩いた。
+黄色い絨毯が広がっている。
+「十一時に会おう」
+「黄色い匂い、好きよ」
+ベンチに小さな花束を置き、写真だけを撮る。花はそこに残していく。
+触れない選択が、二人の関係の艶を優しく伸ばし、昼の光で揺れる約束が、夜の闇を静かに和らげていく。
+帰り道、村井さんが海の方を見て呟いた。
+「次は、夜明けの海も見たいな。朝日が昇るところを」
+「……朝の塩も、甘いかしら」
+私が返すと、彼は嬉しそうに頷いた。
+「甘いさ。君といればな」
+二人の声が潮風に溶け、塩の湿度が、いつまでも胸に残った。
+私たちは生きていく。泥臭く、塩辛く、そして温かく。
+</pre>
     </div>
   </div>
 </main>

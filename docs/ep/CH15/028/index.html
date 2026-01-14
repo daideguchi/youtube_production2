@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-028 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-028 — script</h1>
           <div class="muted">【睡眠】夜型が抜けない人へ｜朝型より大事なこと</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,164 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【睡眠】夜型が抜けない人へ｜朝型より大事なこと</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>睡眠, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-028</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-028&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">夜型の生活が抜けない。早く寝たいのに寝られない。朝起きられない。
+
+でも、朝型になることより大事なことがあります。
+
+---
+
+「早起きは三文の徳」と言われます。成功者は朝型が多いとも言われます。
+
+だから夜型の自分を責めていませんか。「朝型にならなければ」と。
+
+でも無理に朝型になろうとして、失敗し、また自分を責める。その繰り返しになっていませんか。
+
+---
+
+実は、朝型か夜型かは、ある程度遺伝で決まっています。
+
+クロノタイプという言葉があります。生まれつき、朝が得意な人と夜が得意な人がいる。
+
+無理に変えようとしても、体が抵抗する。だから苦しくなる。
+
+すべての人が朝型になれるわけではないのです。
+
+---
+
+朝型より大事なことがあります。
+
+それは「自分のリズムに合った生活」を送ること。
+
+夜型でも、夜型なりに規則正しい生活ができれば問題ありません。
+
+毎日同じ時間に寝て、同じ時間に起きる。それが夜遅くても、一貫していれば体は整います。
+
+---
+
+夜型の問題は「不規則」になりやすいことです。
+
+夜更かしして、朝起きられなくて、でも仕事があるから無理に起きて、疲れて、また夜更かしして…。
+
+リズムが崩れることが問題。夜型だから問題なのではありません。
+
+---
+
+夜型でも健全に生きるにはどうすればいいでしょうか。
+
+まず、「就寝時間を一定にする」ことです。
+
+夜遅くてもいい。12時でも、1時でもいい。ただし毎日同じ時間に寝る。
+
+そして同じ時間に起きる。週末も同じ時間に。体のリズムが整います。
+
+---
+
+次に、「睡眠時間を確保する」ことです。
+
+何時に寝ても、6〜8時間は確保する。睡眠不足が一番害になる。
+
+遅く寝るなら遅く起きる。それが許される生活スタイルを設計する。
+
+---
+
+また、「朝の光を浴びる」ことは効果的です。
+
+起きたら窓を開けて光を入れる。外に出なくても、明るい光を浴びる。
+
+体内時計がリセットされ、夜に眠くなりやすくなります。
+
+夜型でも、光の力は使えます。
+
+---
+
+さらに、「夜型を活かす」という発想もあります。
+
+夜の方が集中できるなら、夜に創造的な仕事をする。
+
+朝型の人に合わせる必要はありません。自分が一番パフォーマンスを出せる時間を活かす。
+
+仕事や生活の設計を、自分のリズムに合わせる。
+
+---
+
+仏教では「自然に逆らうな」という教えがあります。
+
+無理に自分を変えようとするより、自分の性質を認めて活かす。
+
+夜型なら夜型でいい。それを責めず、受け入れる。その上でできることをする。
+
+---
+
+注意点があります。
+
+夜型でも、日中に活動しなければならない仕事の人は、調整が必要です。無理のない範囲で、少しずつ早める努力はしていい。
+
+でも「完全な朝型にならなければダメ」と思う必要はありません。
+
+また、夜型だと思っていたら、実は睡眠障害だったということもあります。眠れない、起きられないが極端な場合は、専門家に相談を。
+
+---
+
+夜型が抜けない人へ。
+
+朝型になることより大事なのは、自分のリズムで規則正しく生きること。
+
+毎日同じ時間に寝起きする。睡眠時間を確保する。朝の光を浴びる。夜型を活かす。
+
+自分を責めないでください。夜型でも、健康に生きられます。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-019 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-019 — script</h1>
           <div class="muted">【手放すな】運命の縁を教えてくれる言葉</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,166 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【手放すな】運命の縁を教えてくれる言葉</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>運命の縁を教えてくれる言葉で苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。
+・【手放すな】運命の縁を教えてくれる言葉で起きる苦しさの正体
+・心を守る考え方と、今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 縁, 仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>運命の縁を教えてくれる言葉で苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。
+・【手放すな】運命の縁を教えてくれる言葉で起きる苦しさの正体
+・心を守る考え方と、今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-019</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-019&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">「手放すな」と聞いて、何もかもにしがみつくプレッシャーを感じたことはありませんか。特に人間関係で消耗しやすい方は、この言葉に重苦しさを覚えるかもしれません。全ての縁を切るべきか、全てを抱え込むべきか、その板挟みで苦しむことがあります。
+
+この誤解は、手放すなという言葉が、全てにしがみつけという強い命令のように聞こえるからかもしれません。しかし、本当の意味は違います。手放すなとは、自分を成長させ、心を安らげてくれる縁を、むやみに切り捨てないでほしいという呼びかけです。守るべき縁を見極め、それを大切に育てていく決意が、この言葉の核心です。
+
+ここで大切なのは、縁そのものと、縁への執着を分けて考える視点です。手放すべきは、縁そのものではなく、変わらないことを求める固い執着です。例えば、相手にこうあってほしいという期待や、関係が永遠に続くべきという思い込みです。これらの執着は、縁を歪め、私たちを苦しめます。
+
+執着は、現実とかけ離れた期待を生み、それが満たされない時に苦しみとなります。例えば、子供に自分の思い通りの人生を歩んでほしいと願う親の執着は、子供との関係を緊張させます。その執着を手放すことで、子供のありのままを受け入れ、関係が穏やかになることもあります。
+
+人間関係で疲れやすい優しい方は、全てを手放すべきだと誤解しがちです。それは、自分を苦しめるだけです。むしろ、守るべき縁を見極め、そこにエネルギーを注ぐことで、心が軽くなる道があります。全ての縁を平等に扱う必要はありません。自分を支えてくれる縁を優先的に守ることが、自己防衛にもなります。
+
+職場や家族の中でも、あなたの心を軽くしてくれる言葉や態度があるはずです。その小さな安らぎこそ、守るべき縁のサインです。逆に、いつも批判ばかりで消耗させる関係は、執着を手放す対象かもしれません。
+
+---
+
+守るべき縁は、どこか遠くにある特別な出会いだけを指すわけではありません。それは、今ここにある日常の中に、静かに息づいています。そして、その縁は、特別な出来事ではなく、日々の何気ない言葉や態度を通じて、そっと私たちに合図を送ってくるものです。
+
+では、その合図とはどのようなものでしょうか。一つ目のサインは、あなたのありのままを認めてくれる言葉です。例えば、何か失敗をしたとき、それを責めたり批判したりせず、まずあなたの気持ちを受け止めてくれる。あるいは、あなたの弱さや悩みを隠さずに話したとき、それを受け入れ、否定しない。そんな関係です。
+
+二つ目のサインは、一緒にいて心が落ち着き、自然体でいられる関係です。気を遣いすぎたり、言葉を選びすぎたりする必要がなく、ただそこにいるだけでホッとできる。会話が途切れても気まずくない、そんな安心感がある関係です。
+
+三つ目は、あなたを前向きな方向へと後押ししてくれる関わりです。単なるお世辞や甘やかしではなく、あなたの良さを見つけ、それを言葉にして伝えてくれる。あるいは、あなたが挑戦しようとしているとき、根拠のない不安ではなく、静かな信頼をもって見守ってくれる。そんな関わりです。
+
+これらのサインは、大げさな褒め言葉や、常にべったりと一緒にいることとは違います。むしろ、日常の小さな積み重ねの中に、さりげなく現れます。今日、誰かからかけられた一言で、ふと肩の力が抜けた経験はありませんか。あるいは、特定の人と話した後、なぜか気持ちが軽くなり、少し先を見る勇気が湧いたことはないでしょうか。
+
+その小さな気づきこそが、運命の縁が語りかけている言葉なのです。それは、耳で聞く言葉だけではなく、心で感じる温かさや安心感という形でも伝わってきます。
+
+---
+
+あなたが今日、職場や家庭で口にした一言が、目には見えない縁を、太くしたり、あるいは細く切れそうにしていたりするかもしれません。
+
+縁は、目に見える約束や、特別な儀式だけで成り立つものではありません。日々、私たちが交わす言葉そのものが、縁という目に見えない糸を紡いだり、切ったりしているのです。
+
+仏教の教えの中に、言葉についての大切な示唆があります。それは、真実であっても、相手を傷つけるならば言わない。逆に、相手の役に立つことであれば、時と場所を選んで、慈悲をもって伝える。そういう言葉の使い方を説いたと伝えられます。これは、正語と呼ばれる教えの核心です。
+
+ここに、縁を壊す言葉と、育てる言葉の違いがあります。縁を消耗させ、細くしてしまう言葉の特徴は、相手を責めたり、見下したりするものです。例えば、相手の失敗をただ指摘するだけの言葉。あなたはどうしてこうできないんだ、と人格を否定するような言い方。あるいは、陰でこっそりと悪口を言うこと。これらの言葉は、たとえそれが事実であっても、相手との間にあった信頼という縁を、少しずつ削り取っていきます。
+
+反対に、縁を太くし、育てる言葉の特徴は、相手の存在を認め、感謝を示すものです。あなたがいてくれて助かった、という一言。失敗を責める代わりに、次はこうしてみようか、と一緒に考える姿勢。あるいは、何気ない会話の中で、そっと相手の気持ちに寄り添う言葉。これらの言葉は、縁という糸に強さと柔らかさを与えます。
+
+大切なのは、正しさよりも、役に立つかどうかという視点です。自分が正しいことを言った、という満足感のために言葉を選ぶと、それは往々にして縁を壊す方向へ向かいがちです。相手が傷つき、関係がぎくしゃくするなら、その正しさは何の役にも立たないからです。守るべき縁ほど、この言葉の選び方が重要になります。家族、親友、長く付き合ってきた同僚。そういった大切な人との縁は、一度壊れてしまうと、修復に長い時間がかかります。正語の教えは、勝ち負けではなく、その縁を生かす言葉を選ぶ知恵を私たちに与えてくれます。
+
+---
+
+この言葉の選び方を実践するには、まず自分自身の内側に起こっている感情や衝動に気づくことが出発点になります。例えば、誰かの言動に腹が立った時、まずはその怒りを認め、なぜ自分がそう感じるのかを探ってみましょう。それは、自分が傷つけられたからかもしれません。あるいは、自分の正しさを認めてほしいからかもしれません。その本心に気づくだけで、反射的に傷つける言葉を返すのを防げます。次に、この言葉が相手と自分の関係をどう変えるかを想像します。一時的な感情の発散で終わるか、それとも互いを成長させる機会になるか。この二つの問いを自分に投げかける習慣が、縁を育てる言葉への自然な移行を助けてくれます。最初は難しく感じるかもしれませんが、これは訓練です。一日に一度、言葉を発する前に一呼吸置くことから始めてみてください。
+
+せっかく良い縁に気づいても、その関係が永遠に続いてほしい、あの人はこうあるべきだ、という思いが、かえって苦しみを生むことがあります。
+
+守るべき縁を見つけたはずなのに、なぜかその縁が重荷に感じられたり、息苦しくなったりする。その原因は、多くの場合、縁そのものではなく、私たちがその縁に抱く固い思い込みにあります。
+
+例えば、親しい友人との関係を考えてみてください。以前は何でも話せて、心が軽くなったはずです。しかし、いつからか、その関係が変わらないことを強く願うようになります。会うたびに以前と同じ空気感であること、相手が常に自分の理解者であることを無意識に求めてしまう。少しでも期待と違うと、がっかりしたり、不安になったりする。これが、縁への執着です。
+
+仏教では、この執着こそが苦しみの根源の一つと説かれています。縁はそもそも、移り変わるものです。人も、関係も、時とともに自然に変化していく。その流れに逆らって、変わらないことを求め続けると、心は疲れ切ってしまいます。良い縁であればあるほど、この罠にはまりやすいのです。
+
+手放すなというメッセージは、この執着を抱えよ、という意味ではありません。むしろ逆です。守るべき縁を大切にしたいなら、そこから生まれる執着こそを、そっと手放していく必要があります。
+
+変わらないでいてほしいという思い。こうあるべきだという理想。相手を自分の思い通りにコントロールしたいという無意識の欲求。これらは全て、縁を縛り、息苦しくする鎖です。
+
+では、執着が手放せた時、関係はどうなるのでしょう。それは、決して冷たくなることではありません。むしろ、もっと楽に、自然に関わることができるようになります。相手が自分の期待通りでなくても、それでいいと思える。関係性が少し形を変えても、それはそれで良い変化かもしれないと受け入れられる。縁があるがままに輝き、私たちはその光を、強要せずにただ受け取る側に回れるのです。
+
+---
+
+今日一日を終える今、あなたの心に残っているのは、誰のどの言葉でしょうか。疲れ切った一日の終わりに、ふと浮かんでくるのは、ひどく傷ついた言葉かもしれません。あるいは、ほんの一瞬、心が軽くなった誰かの何気ない一言かもしれません。この違いに気づくことが、運命の縁を見分ける実践の始まりです。
+
+頭で理解したことを、現実の生活にどう落とし込めばいいのか。それが一番難しいところです。ここでは、今夜、ベッドに入る前の数分でできる、とてもシンプルな実践をお伝えします。特別な準備も、難しい技術も必要ありません。ただ、今日一日をゆっくり振り返ってみるだけです。
+
+振り返るのは、二つの瞬間です。一つは、ホッとした瞬間。もう一つは、逆に疲れた、あるいは気持ちが重くなった瞬間です。どんな些細なことでも構いません。職場で同僚からかけられた一言、家族との何気ない会話、あるいはメールの一文でもいいのです。その時、あなたの心がどう反応したかを、ただ思い出してみてください。
+
+例えば、難しい仕事を終えた後、誰かがそっと「お疲れさま」と声をかけてくれた。その時、あなたは肩の力が少し抜けるのを感じたかもしれません。あるいは、自分が話している時、相手がじっと耳を傾けてくれていると感じた瞬間。その安心感も、立派なホッとする瞬間です。反対に、意見を言ったらすぐに否定された、細かいことを執拗に指摘された。そんな時、心が一気に萎縮してしまった感覚も、確かにあります。この二つの感覚の違いを、まずは言葉にしなくてもいいので、ただ認めてあげてください。
+
+守るべき縁は、このホッとする感覚を、日々の小さな安心感として繰り返し与えてくれる関係の中にあります。逆に、疲れや重さばかりが募っていく関係は、縁そのものが消耗しているサインであることが多いです。もちろん、どんな関係にも波はあります。一日だけの感覚で全てを判断する必要はありません。大切なのは、この感覚に意識のアンテナを向け始めることです。今まで無意識に受け流していた、心の微かな動きに気づくトレーニングです。
+
+この実践は、他人を変えようとするものではありません。あくまでも、あなた自身の内側に起こっていることに目を向ける作業です。相手が誰で、どんな言葉を言ったかよりも、その言葉があなたの内側にどんな波紋を広げたかに焦点を合わせます。
+
+---
+
+守るべき縁がわかると、心に自然と一本の穏やかな線が引かれていきます。これは、相手を拒絶する冷たい壁ではありません。自分という存在を守るための、柔らかく確かな境界です。消耗しやすい優しい人こそ、この静かな線引きの技術を手に入れる必要があります。
+
+なぜなら、それは最高の自己防衛手段になるからです。今まであなたを振り回していた無理な要求に、自然と距離を置くことができるようになります。相手の言葉にいちいち反応し、夜に悩みを反芻してしまうことも、確実に減っていくでしょう。
+
+線引きが難しいと感じるのは、それを「関係の断絶」や「冷酷な行為」と誤解しているからかもしれません。しかし、本当の線引きは、関係を切ることとは別物です。それは、自分の心の状態を自覚し、どこまでなら関わることができるのか、その範囲をはっきりさせる作業です。
+
+例えば、ある人との会話で、いつも疲れを感じるとします。その時、あなたは「この人とはもう会わない」と決断する必要は、最初はありません。まずは、「この話題になると、私はエネルギーを消耗する」と気づくだけでいいのです。その気づき自体が、最初の一本の線です。
+
+その線が引かれると、次に同じ状況に直面した時、以前とは違う反応ができるようになります。話題が変わろうとしていることに早く気づき、そっと会話の方向を変えたり、あるいはその場を離れるための穏やかな口実を、自然に思いつくことができるでしょう。これは、相手を傷つけようとする策略ではなく、自分を守るための自然な知恵です。
+
+仏教の教えには、中道という考え方があります。どちらかに偏ることなく、ちょうどよい真ん中の道を歩むという教えです。静かな線引きも、この中道の実践と言えるかもしれません。全ての縁に飛びつくのでもなく、全てを切り捨てるのでもない。自分にとって健全な関わりの範囲を見極め、その中で縁を育てていく。それが、心を消耗させない歩き方です。
+
+この線引きができるようになると、人間関係に伴う不安や緊張が、驚くほど軽減されます。なぜなら、あなたはもう、相手の言動にただ翻弄されるだけの存在ではなくなっているからです。自分の内側に確かなよりどころができ、そこから外の世界と関わることができる。その安心感が、夜、一人になった時に頭をよぎるあの堂々巡りの思考を、静かに鎮めていきます。
+
+---
+
+しかし、時に私たちは焦りから、不健全な縁にしがみついてしまうことがあります。孤独への不安や、縁がなくなるかもしれないという恐れが、視野を狭めてしまうからです。焦っている時、私たちは相手の本質ではなく、ただ「縁」というラベルだけを追いかけてしまいがちです。その結果、自分を消耗させる関係であっても、手放せなくなってしまう。
+
+ここで思い出したいのは、真の縁は焦って掴み取るものではない、ということです。むしろ、今この瞬間の自分の在り方に集中することです。自分自身の心を整え、丁寧に言葉を選び、目の前の小さな関わりを大切にすること。その積み重ねが、澄んだ水に月が映るように、ふさわしい縁を自然と引き寄せる土壌を作ります。焦って水を掴もうとすれば、かえって何も見えなくなってしまうのです。
+
+未来への不安から、今ここにある関係を粗末にしないようにしましょう。今日、誰かに向けた一言が、明日の縁を育てる種になります。守るべき縁を見極めるとは、遠くを探すのではなく、足元の土を耕すことでもあるのです。
+
+---
+
+さて、ここまでお話ししてきたことは、全て一つの気づきに向かっています。それは、あなた自身の心が、守るべき縁を教えてくれる、ということです。手放すなというメッセージは、外から与えられる規則ではなく、内側から湧き上がる感覚に耳を傾けるよう促しているのです。
+
+今日から、ほんの少しでいいので、その内なる声に意識を向けてみてください。一日の終わりに、ホッとした瞬間と重くなった瞬間を振り返る。その違いに気づくだけで、あなたの人間関係の地図は、少しずつ鮮明になっていきます。守るべき縁にエネルギーを注ぎ、執着はそっと手放す。その選択の繰り返しが、心を軽くし、毎日の歩みを確かなものに変えていくでしょう。
+</pre>
     </div>
   </div>
 </main>

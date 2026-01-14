@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH29-017 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH29-017 — script</h1>
           <div class="muted">お盆の台所…私だけ働く空気が限界</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,212 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="#" class="btn" aria-disabled="true" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>お盆の台所…私だけ働く空気が限界</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>恐れ, 当然扱い, 老後, シニア, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH29-017</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH29-017&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">お盆。
+外からはジリジリと地面を焦がすような蝉の激しい鳴き声が絶え間なく空気を震わせながら降り注いでいます。
+扇風機の生ぬるい風が狭い台所を力なくかき回していますが、ガスコンロから立ち上る激しい熱気と煮汁の湿った湯気に、私の全身は汗でじっとりと重く濡れています。
+額から滴り落ちる汗を、エプロンの裾で何度拭っても次から次へと溢れ出てきます。
+居間からは冷房のひんやりとした心地よい風に乗って、息子たちのどよめくような賑やかな笑い声、そして孫たちの縦横無尽に走り回る足音が聞こえてきます。
+テレビからは野球中継の実況が聞こえ、時折歓声が上がっています。
+「やっぱり実家は最高だな。お母さんのメシ楽しみだなあ」
+そんな無邪気で、けれどあまりにも残酷な独りよがりな言葉が、私の擦り切れた精神をどこまでも虚しく逆なでしていきます。
+この家の中で私だけが時を忘れたように一秒も休むことなく立ち続け、自分勝手な期待に一人で向き合い続けている。
+そのあまりにも不平等な空気に、私はついに魂の限界を自覚しました。
+今夜は、お盆の台所という幸福な団欒という美名の裏側で、どのようにして私が「私だけが働けばいい」という不気味な空気の檻に閉じ込められ、そしてどのようにして自分という尊厳ある人間の休息を自らの手で掴み取るに至ったのか。
+その心の内側に深く堪え続けてきた物語を少しだけお話しさせてください。
+あなたがもし今、家族のために自分の体を心を削り、自分だけが我慢すればいいのだと沈黙の中で窒息しそうになっているのなら。
+この物語があなたの明日を今日よりも一歩軽やかにするための静かなベンチになればと願っています。
+
+---
+
+数年前、子供たちが結婚しそれぞれが家庭を持った時、私は心から安堵し喜んでいました。
+結婚式で息子の晴れ姿を見た時、長年の子育てがようやく実を結んだのだと涙が止まりませんでした。
+「お母さん、お盆にはまたみんなで実家に集まるからよろしくね」
+その何気ない一言に、私は存在価値を見出したような誇らしい気持ちに包まれていました。
+子供が巣立っても、まだ私の役割は終わっていない。
+愛する子供たちが自分のもとに帰ってくる場所を守り続けること。
+その一点の曇りもない幸福を守り抜くこと。
+それこそが主婦として、母として生きてきた私の集大成なのだと、私は一ミリの疑いもなく信じ切って満足していたのです。
+お盆の一週間前から、私は足の指先までパンパンに浮腫ませながら大量の食材を買い込み、彼らの好物を完璧に振る舞おうと寝る間を削って準備に没頭しました。
+スーパーを何軒もはしごし、少しでも新鮮な野菜を、少しでも良い肉を求めて歩き回りました。
+重い買い物袋を両手に抱え、腰に痛みを感じながらも足を止めることはありませんでした。
+汗を拭う暇もなく台所に立ち続けていたあの頃。
+朝の五時に起きて下ごしらえを始め、夜の十一時まで洗い物をしていた日々。
+私は自分自身をまるで奉仕という名の陶酔の中に沈めていたのかもしれません。
+けれどその健気な献身は、いつからか彼らにとってはそこに在って当然の、管理されたサービスへと残酷に変貌を遂げていったのです。
+
+---
+
+違和感という名の棘が私の日常に現れたのは、ある猛暑のお盆の中日でした。
+その年も私は朝から一度も椅子に腰を下ろすことすら忘れ、滴り落ちる汗が目に入り痛みに顔を歪めながら十人分もの食事の仕込みを淡々と続けていました。
+まな板の上には切り分けられた野菜が山のように積み上がり、鍋からは勢いよく湯気が立ち上っていました。
+居間からはテレビの暢気な音が垂れ流され、息子やその嫁たちは自分たちの最近の買い物の話や仕事の愚痴に華を咲かせていました。
+エアコンの効いた涼しい部屋で、彼らはソファに深く体を沈め、冷たい飲み物を片手に笑い合っていました。
+一時間、二時間と時が無慈悲に過ぎていく中で、誰一人として台所を覗きにくることはありませんでした。
+「あ、お母さん、ビールなくなったわ。冷えてるの出して持ってきてよ。今いいところなんだから」
+息子からの、感謝の一ミリも含んでいない命令に近い言葉。
+私は火の元から目を離すわけにもいかず、煮こぼれそうな鍋を見守りながら、「はい、わかったわよ。今持っていくから」といつもの機械的な返事を自分を殺して放ちました。
+重いビールの缶を何本も冷蔵庫から取り出し、居間に運んでいく。
+誰も立ち上がって受け取りに来ることはなく、私がテーブルに並べていくのを当然のように見ていました。
+その時、私の後頭部を激しい衝動がよぎったのです。
+「どうして私だけがこの地獄のような暑さの中で立ち続け、彼らはその心地よい涼しさの中で私を透明な家政婦として利用し続けて恥じないのだろうか」
+けれど私はその内側の声を即座に押し殺しました。
+「波風を立ててはいけない。私が我慢すればいい。それがお母さんの務めなのだから」
+そう自分自身を虐待するかのように、罪悪感という名の劇薬を毎日自分に飲ませ続けていたのです。
+
+---
+
+さらに追い打ちをかける小さな棘の痛みが、私のすべてを奪い去っていきました。
+ある夕方、食事の後片付けをしている時のことです。
+テーブルには使い終わった皿が乱雑に積み重ねられ、食べかすがこぼれたままの座席もありました。
+居間では孫たちがテレビゲームに夢中になり、大人たちはそれを微笑ましく見守っていました。
+私は一人で山のような食器を冷たい水の感覚さえも消えるほどに没頭して洗い続けていました。
+指先がふやけ、腰が悲鳴を上げていましたが、誰も手を差し伸べに来ることはありませんでした。
+ふと顔を上げて居間を見ると、娘や息子たちがお互いに「忙しい私たちをねぎらってよ。実家なんだからゆっくりさせてよ。お母さんは一日中座ってボケッとしていられるんだからいいよね」と笑い合っていました。
+私が毎日どれほどの労力をこの家事に費やしているか、彼らには見えていないのだと思い知らされました。
+あろうことか、私の最も大切にしてきた思い出の皿を、まるで使い捨ての割り箸のように乱暴に扱って放置していたのです。
+母から譲り受けた、大切な大切な皿でした。
+「あ、お母さん、それ洗っておいて。後でまた使うからさ。当たり前でしょ」
+その「当たり前」という恐ろしい言葉。
+それが私のこれまで生きてきた命そのものを、不当な残りカスのように投げ捨てられたように感じられました。
+私は自分自身が一人の尊厳ある人間としてではなく、彼らの人生を円滑に回すための便利なパーツに過ぎないことを、夕暮れの不気味な光の中ではっきりと確信しました。
+
+---
+
+決定的な出来事は、ある豪雨の降るお盆の終わりの夜に起こりました。
+夕食を終え、後片付けも一段落した頃。
+私は疲れ切った体をようやく椅子に預け、お茶を一口飲もうとしていました。
+その時、息子が不意に私に一枚のパンフレットのようなものを投げ捨てるように見せました。
+豪華なリゾートホテルの写真が表紙に輝いていました。
+「お母さん、来年のゴールデンウィークの旅行ももう決めたからさ。もちろんお母さんの金で行くんだよ。親孝行させてやるためのコストだと思ってさ、ありがたく思いなよ」
+その「親孝行させてやるためのコスト」という汚辱に満ちた言葉。
+私の心臓が凍りつくような感覚を覚えました。
+私がこれまで一円一円を削り、自分の食事を削り、一着の服を十数年も大切に繕って用意してきた命の結晶。
+それらは彼らにとっては自分たちの贅沢な不満を埋めるためのただの預金に過ぎなかったのです。
+そこには私の孤独な将来の不安や寂しさを思いやる心など一ミリたりとも存在していません。
+嫁たちも当然の顔をしてそのパンフレットを眺め、行き先について楽しげに話し合っていました。
+私が資金源であることは、疑問の余地もない前提のようでした。
+私は何も言い返せず、そのまま冷たい雨が窓を叩くのをたった一人で見ていました。
+雨音が私の涙を隠してくれているようでした。
+愛していたのは温かな本当の家族などではなく、必要とされるために私が身を切って作り上げた滑稽な偶像だったのだと、ついに魂の底で認めざるを得ませんでした。
+
+---
+
+私はそれから、家族に対して明確な境界線を引く準備を一人で始めました。
+まず、自分の本当の気持ちに向き合う時間を作りました。
+夜、一人で布団の中で天井を見つめながら、これまでの自分の人生を振り返りました。
+私は本当にこれでいいのだろうか。
+残りの人生を、このまま透明な労働力として消費され続けていいのだろうか。
+答えは明白でした。
+次のお盆が近づいた時、私は彼らに一通の短い手紙を書きました。
+便箋を前に、何度も筆を止めては書き直しました。
+「これからはお盆の食事の準備も一切致しません」
+「宿泊も自分たちで工面してください。もう私の領域ではありません」
+「あなたたちを憎んではいません。けれどこれ以上自分を殺すことはもう一秒もできません」
+便箋を封筒に入れる時、私の指先は激しく震え続けました。
+便利という不浄な鎖だけで繋ぎ止めてきた関係が一瞬で消え失せてしまうのではないかという底知れない恐怖。
+けれどもう、自分というかけがえのない人間に嘘をつき続けることは限界を超えていたのです。
+封筒を投函した瞬間、私の手は震えていましたが、心のどこかで不思議な解放感を感じていました。
+子供たちからは案の定、怒りと侮蔑の言葉が返ってきました。
+電話が何度も鳴り、激しい言葉が機械越しに浴びせられました。
+「お母さんがそんなに冷酷で心が死んだ人だとは思わなかった。もう二度と顔も見たくないし、一生一人で寂しく死んでいけばいい」
+冷たいナイフのような言葉が何日も降り注ぎましたが、私はただ静かにやり過ごしました。
+それは彼らを憎むための戦いではなく、私が一人の自立した意志を持つ存在として再び大地を踏み締めて立つために必要な通過儀礼だったのです。
+
+---
+
+今、私の生活には嵐の後の凪のような静かで穏やかな時間がゆっくりと流れています。
+結局あれ以来、お盆に子供たちは帰りませんでした。誰一人として。
+一人きりの夏は胸を締め付けるほど寂しいものではありましたが、その寂しさは以前の自分を殺して偽りの笑顔を買い漁っていた時のあの不潔な虚しさとは全く別のものでした。
+私は初めて、自分のためだけのお盆を過ごしました。
+好きな本を読み、好きな映画を観て、好きな時間に好きなものを食べました。
+台所に立つのは自分の食事を作る時だけ。
+その静かな時間がどれほど贅沢なものか、私は初めて知りました。
+そして一年の月日が流れたある誇らしい秋の午後のこと。
+息子から、以前とは明らかに違う落ち着いた申し訳なさそうなトーンの連絡がありました。
+「お母さん、今度の休み、自分たちでお弁当作って持っていくから。少しだけ顔を見せてくれないかな。これまでごめんな」
+その「ごめんな」という言葉を、私は何年ぶりに聞いただろうかと思いました。
+やってきた息子の顔つきは、これまでよりもずっと一人の人として美しく誇らしく見えました。
+手には本当に手作りのお弁当が入った袋がありました。
+私の家を便利な無料のカフェとしてではなく、一人の尊厳ある親が大切に静かに守り慈しみながら暮らしている場所として、命をかけて尊重し始めている。
+その確かな変化を、私は五感のすべてで烈しく感じ取ることができました。
+対等な関係とは、互いの侵してはならない境界線を共に守り慈しみ合うことから始まるのだと、私はようやく命の円熟期にたどり着いて学ぶことができました。
+
+もしあなたが今、お盆や家族の集まりの中で自分だけが働けばいいと自分を虐待しすり減らして窒息しかけているのなら。
+どうかあなたを内側から殺してしまうエプロンを、勇気を持って一度潔く脱ぐ強さを持ってください。
+あなたが無理をせずに心から静かに美しく微笑めることこそが、家族という絆が本当の愛にたどり着くための唯一の光の道なのですから。
+
+今夜は、これまで無理をして支え続けてきた家族という名の重い期待を一度そっと置いてみてください。
+他人のための身勝手な責任、世間の冷たい目。
+それらをすべて夜の闇に溶かして、あなたはあなただけの時間を生きてください。
+今夜は次の誘いが来たとしても、即答せずに「まず自分に確認してから答えますね」という神聖な一呼吸を挟んでみてください。
+自分というこの世界で最も大切な一人の人間に真っ先に許可を求めて、それから外界に応えるのです。
+そのささやかなけれど烈しい一歩こそが、明日をあなたらしく軽やかに生きるための最高のギフトになるはずなのですから。
+
+最後まで私の言葉に耳を傾けてくださり、本当に心から感謝いたします。
+あなたの今夜の眠りが、穏やかな安らぎに満たされますように。
+あなたの明日が、今日よりも一分でも軽やかで誇らしいものでありますように。
+今夜はこれでお別れです。
+どうぞ、自分という世界にたった一人の人間を誰よりも大切に扱ってお休みください。
+おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

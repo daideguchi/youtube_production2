@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH26-004 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH26-004 — script</h1>
           <div class="muted">【シャノン式】重要な変数だけ残せ：全部は無理だ</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH26</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH26</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,405 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCtG7J9FrZ2phnKocR-02nkQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【シャノン式】重要な変数だけ残せ：全部は無理だ</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。
+迷いを減らす判断の型 / 翌日ひとつだけ進む手順
+
+この動画は、『拝啓、偉人より』の長時間コンテンツです。
+偉人の思考を『手紙』のように静かに届け、短い言葉（名言）から判断の型へ落とします。
+【音声】VOICEVOX：青山龍星
+【視聴スタイル】静止画＋字幕（BGMなし）
+#偉人 #思考</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>全部大事にすると, クロード・シャノン, 偉人, 思考, 判断, 習慣, 仕事, 学び, 名言, 教養, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>眠りながら、偉人から届く手紙で判断の型を静かに学ぶ時間。
+迷いを減らす判断の型 / 翌日ひとつだけ進む手順</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、『拝啓、偉人より』の長時間コンテンツです。
+偉人の思考を『手紙』のように静かに届け、短い言葉（名言）から判断の型へ落とします。
+【音声】VOICEVOX：青山龍星
+【視聴スタイル】静止画＋字幕（BGMなし）
+#偉人 #思考</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH26-004</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH26-004&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">君たちの世界では、少し堅苦しい名前で呼ばれている。「情報理論の父」と。
+君がいま手にしているスマートフォン、インターネット、デジタル放送、そして人工知能。
+これら全ての根本にある「通信」のルール、すなわち0と1で世界を記述する方法を定義したのは、私だ。
+私の論文がなければ、君たちのデジタル文明は影も形もなかっただろう。
+
+だが、私の本当の姿は、そんな教科書的な偉人ではない。
+私は、アメリカのベル研究所という世界最高の頭脳が集まる場所で、廊下を一輪車で走り回り、お手玉、つまりジャグリングに興じていた、ただの「遊び人」だ。
+私は「役に立たない機械」を作るのが大好きだった。
+例えば、「究極の機械 The Ultimate Machine」という名の箱。
+スイッチを入れると、箱の蓋が開き、中から機械の手が出てきて、そのスイッチをパチンと切って、箱に戻る。
+ただそれだけの機械だ。
+君たちは「なんて無意味な」と笑うかもしれない。
+だが、この機械には私の哲学の全てが詰まっている。
+「情報は、不要なものを捨てることで、初めて意味を持つ」ということだ。
+
+君は今、情報という名の猛烈な洪水に押し流され、呼吸困難に陥っていないか？
+朝起きればスマホの通知、通勤中はニュースアプリ、昼は大量のメール、夜はSNSのタイムライン。
+「あれも知らなきゃ、これもやらなきゃ」
+「流行に遅れてはいけない」
+「他人のリアクションが気になる」
+君の脳という「通信路、チャンネル」は、完全に容量オーバー、オーバーフローを起こしている。
+断言しよう。
+君が摂取しているその情報の99.9パーセントは、「ノイズ、雑音」だ。
+君の人生を変える本来の意味での「シグナル、信号」は、そのノイズの砂嵐の中に埋もれてしまっている。
+
+今日は、私が導き出した「この世界を最も効率的に生きるための情報理論」を、君の人生に応用しよう。
+これは、君の人生のS/N比、信号対雑音比を劇的に高め、本当に重要なシグナルだけを受け取るためのフィルタリング技術だ。
+君の脳内にある不要なビットを削除し、思考を圧縮し、クリアな回線を取り戻すための、最初で最後の講義だ。
+準備はいいかい？
+ジャグリングのボールを一つ、空に投げてみたまえ。
+
+---
+
+ゼロの教え：エントロピーと戦え
+「迷いとは、情報の乱雑さである」
+
+私は「情報エントロピー」という概念を定義した。
+これは「不確実性の尺度」、もっと平たく言えば「どれだけ予測がつかず、散らかっているか」という度合いだ。
+コインを投げて裏か表か分からない状態は、エントロピーが高い。
+結果が出て確定した状態は、エントロピーが低い、ゼロに近い。
+情報を得るとは、このエントロピー、不確実性を減らすプロセスのことだ。
+
+君が生きづらさを感じている正体は、この「エントロピーの増大」にある。
+「将来どうなるか分からない」
+「自分が何をしたいか分からない」
+「どの選択肢が正解か分からない」
+この圧倒的な「分からなさ」が、君の脳のCPUを激しく消費させている。
+熱力学の第二法則が教える通り、放置しておけば部屋が散らかるように、君の人生のエントロピーも自然に増大していく。
+カオスへの転落は、宇宙の物理法則なのだ。
+
+だからこそ、君は戦わなければならない。
+「決断」という武器を使って。
+AかBか。やるかやらないか。
+君が決断を下した瞬間、可能性の枝が切り落とされ、未来が確定し、エントロピーが減少する。
+「悩んでいる」という状態は、物理学的に言えば「何も仕事をしていない」のと同じだ。
+それは情報量ゼロの時間だ。
+エネルギーの無駄遣いだ。
+まずは、目の前の小さな乱雑さを片付けろ。
+散らかった部屋、高エントロピーを掃除しろ。
+溜まったメール、高エントロピーを処理しろ。
+秩序、オーダーを作り出せ。
+それが「生きる」ということの物理的定義だ。
+カオスに飲み込まれるな。
+秩序の守り人となれ。
+
+---
+
+第一の教え：ビットで考えろ
+「人生はYESかNOの連続だ」
+
+私は情報の最小単位を「ビット bit」と名付けた。
+Binary Digit。0か1か。
+この世界のあらゆる複雑な情報は、突き詰めればこの「二択」の莫大な組み合わせで表現できる。
+シェイクスピアの名作も、ベートーヴェンの交響曲も、君が今見ているこの動画も、全ては0と1の羅列に過ぎない。
+
+君の人生が複雑で重苦しいのは、君が「0.5」や「0.8」のような曖昧な状態、アナログを抱え続けているからだ。
+「行きたいけど、お金がないし、時間もないし...」
+「好きだけど、今の関係を壊したくないし...」
+この「はい、でも... YES, BUT」というグレーゾーンが、君の通信速度を致命的に遅くしている。
+デジタル化しろ。
+やるのか、やらないのか。
+好きか、嫌いか。
+行くか、行かないか。
+中間を許すな。
+「保留」という選択肢を捨てろ。
+全てのタスクに対して、毎秒「1」か「0」の判定を下し続けろ。
+
+コンピュータがなぜあれほど高速なのか？
+それは彼らが迷わないからだ。
+電圧が高い 1 か低い 0 か、それしか見ていない。
+君もビットになれ。
+白黒をつけろ。
+世の中の悩みの大半は、「どっちつかず」の状態が引き起こしている。
+0でも1でもない「揺らぎ」がノイズを生むのだ。
+世界を0と1に還元した時、君の思考スピードは光速になる。
+複雑な悩みを、最小単位の質問に分解しろ。
+「人生全体をどうするか」なんて考えるな。
+「今、これをやるか、やらないか」。
+その連続したビットの連なりが、君の運命というコードを描き出すのだ。
+
+---
+
+第二の教え：冗長性を削げ
+「圧縮しないと、人生は短すぎる」
+
+私は「情報源符号化定理」で、データをどこまで圧縮できるかの限界を示した。
+人間の言語には、実はものすごい無駄がある。
+英語の文章の約50パーセントは「冗長 Redundancy」だと言われている。
+文字の半分を削っても、意味は通じるのだ。
+「あー、その、えーっと」というフィラー。
+同じことの丁寧すぎる繰り返し。
+これらは情報理論的には「無駄」だ。
+
+君の生活は、非圧縮データだらけではないか？
+無意味な世間話。
+目的のないネットサーフィン。
+行かなくてもいい飲み会に、惰性で参加する時間。
+これらは君の時間と帯域幅、バンド幅を圧迫している。
+圧縮しろ。
+30分の会議は、5分に圧縮できる。
+1時間の悩みは、1行のTo-Doリストに圧縮できる。
+ダラダラ書くな。要点を書け。
+ダラダラ生きるな。密度を上げろ。
+俳句を見たまえ。
+たった17音で、季節や宇宙や心情の全てを表現している。
+あれこそが究極の圧縮だ。
+
+「Less is More、少ないことは、より豊かである」。
+これは単なるデザインの言葉ではない。
+情報理論の真髄だ。
+君のメッセージを、核、コアだけになるまで削ぎ落とせ。
+不要な贅肉を落としたアスリートのような思考を持て。
+沈黙は、情報の欠如ではない。
+最も高度に圧縮された「意味」なのだ。
+言葉数を減らせ。
+行動を減らせ。
+そうして残った「どうしても消せないもの」だけが、君の真実だ。
+
+---
+
+第三の教え：通信路容量を知れ
+「お前の帯域幅には限界がある」
+
+どんなに高性能な通信ケーブルにも、一度に送れる限界の量、「通信路容量、キャパシティ」がある。
+これを「シャノン限界」と呼ぶ。
+この限界を超えてデータを送ろうとするとどうなるか？
+データは届かないか、激しく文字化け、エラーする。
+頑張れば送れるというものではない。
+物理的な限界なのだ。
+
+君は自分のキャパシティを過信している。
+「あれもこれも、全部同時にできる」と思っている。
+それが間違いだ。
+「マルチタスク」など幻想だ。
+人間の脳は、一度に一つのことしか処理できない。
+マルチタスクをしているように見えるのは、高速でスイッチを切り替えているだけで、実際にはその度に「切り替えコスト」というロスが発生している。
+結果として、全ての作業の質が落ちる。
+
+限界を認めろ。
+「今の私には、これだけの情報しか処理できない」と割り切れ。
+一つの回線に、一つのデータだけを流せ。
+そうすれば、ノイズのないクリアな通信ができる。
+「全部やる」というのは、何も伝わらないのと同じだ。
+何かを捨てる勇気を持て。
+カクテルパーティー効果を知っているか？
+騒がしいパーティー会場でも、自分の名前や興味のある会話だけは聞き取れる現象だ。
+脳は、入力のほとんどを「捨てて」いるのだ。
+捨てる機能こそが、知性の証だ。
+帯域幅を守れ。
+それは君の命の太さだ。
+容量の8割で運転しろ。
+残りの2割は、予期せぬエラー、不測の事態のためのバッファとして空けておくのだ。
+
+---
+
+第四の教え：ノイズとシグナルを分けろ
+「雑音の中に、意味はない」
+
+通信の最大の敵は「ノイズ」だ。
+信号を送る途中で、雨や雷や他の電波が干渉し、元の情報が歪んでしまう。
+私の最大の功績の別名は、このノイズがある環境下でも、正確に情報を伝える方法、誤り訂正符号を見つけたことだ。
+
+君の周りはノイズだらけだ。
+他人の批判。
+社会の常識。
+親の期待。
+週刊誌のスキャンダル。
+そして何より、君自身の「不安」という内なるノイズ。
+これらが、君の「魂の声、シグナル」を妨害している。
+「本当はこうしたい、シグナル」のに、ノイズが混じって「でも無理かも、ノイズ」という出力になってしまう。
+S/N比、シグナル・ノイズ比を高めろ。
+シグナルを増幅し、ノイズを低減させろ。
+
+どうやって？
+「意外性」を基準にするのだ。
+情報理論において、「情報量」とは「確率の低さ、驚き」で定義される。
+毎日繰り返される「おはよう」には情報は少ない。
+だが、突然の「さようなら」には膨大な情報が含まれる。
+君の周りのノイズは、大抵「予測可能」なことばかりだ。
+「やめたほうがいいよ」「リスクがあるよ」
+そんな聞き飽きた言葉は、情報量ゼロのノイズだ。
+無視しろ。
+逆に、君が「ハッとする」ような言葉、耳の痛い指摘、予期せぬ提案。
+それこそがシグナルだ。
+快適な情報のぬるま湯、エコーチャンバーから出ろ。
+居心地の悪い場所にこそ、君を進化させるシグナルがある。
+ノイズキャンセリング・ヘッドホンのように生きろ。
+必要な音だけを聞け。
+
+---
+
+第五の教え：確率で最適化せよ
+「最も起こりうる未来に賭けろ」
+
+英語の文章で、一番多く出てくる文字を知っているか？
+「e」だ。
+逆に「z」や「q」は滅多に出てこない。
+私はこの「出現確率」の偏りを利用して、データを圧縮する方法、ハフマン符号化を考えた。
+よく出る「e」には短い符号を、滅多に出ない「z」には長い符号を割り当てる。
+これで全体の長さは劇的に短くなる。
+
+人生も同じだ。
+「よく起きること」と「滅多に起きないこと」を区別せよ。
+君は「滅多に起きないトラブル、飛行機が落ちる確率のような」を過剰に心配して、膨大なエネルギー、長い符号を割いている。
+逆に、「毎日起きること、食事、睡眠、仕事のルーチン」をおろそかにしている。
+これは非効率の極みだ。
+毎日繰り返される日常の動作こそ、徹底的に最適化し、短縮し、自動化すべきだ。
+歯磨きや服選びに悩むな。
+そこは確率最大の「e」だ。
+最短符号、すなわち「習慣」で処理しろ。
+思考停止で実行できるようにしろ。
+
+そして、浮いたリソース、脳のCPUを、人生で数回しか起きないが重要なイベント、つまり「z」や「q」にたっぷり使え。
+結婚、転職、大きな投資。
+ここぞという決断の時だけに、君の知性を使え。
+多くの人は逆をやっている。
+どうでもいいランチのメニュー選びに悩み、人生を左右する保険の契約書を読まずにサインする。
+確率分布を見極めろ。
+頻度の高いものをハックせよ。
+それが時間を生み出す錬金術だ。
+
+---
+
+第六の教え：目的のない遊びを持て
+「役に立たないものだけが、独創的になれる」
+
+私はベル研究所の廊下を、一輪車でお手玉をしながら走っていた。
+同僚の数学者たちは呆れていたが、私は真剣だった。
+なぜなら、独創的なアイデアは「目的のない遊び」からしか生まれないからだ。
+「何の役に立つのか？」という問いは、創造性の死神だ。
+役に立つこと、既知の解だけをやっていたら、既存の脳回路しか強化されない。
+全く関係ない回路同士がスパークした時、新しい情報が生まれる。
+
+私は迷路を解くネズミ型ロボット「テセウス」を作った。
+チェスをする機械を作った。
+当時はただのおもちゃだったが、それらは後のAIや機械学習の基礎となった。
+君は、真面目すぎる。
+「意味のあること」「お金になること」ばかりしすぎている。
+だから発想が貧困になり、行き詰まるのだ。
+無駄を愛せ。
+役に立たない趣味を持て。
+一見関係ないAとBをジャグリングしろ。
+私の情報理論も、実は「遺伝学」と「電気工学」という全く別の分野をジャグリングしていて生まれたものだ。
+遊べ。
+子供のように。
+脳は、楽しんでいる時が最も通信速度が速い。
+義務感という抵抗値をゼロにしろ。
+超伝導状態の君は、誰にも止められない。
+
+---
+
+第七の教え：究極の機械を作れ
+「スイッチを切る勇気」
+
+冒頭で話した私の「究極の機械 Ultimate Machine」。
+スイッチを入れると、手が出てきて、スイッチを切る。
+誰もしない、ただスイッチをオフにするだけの機械。
+これはジョークだが、現代の君たちにとっては、最も必要な機械かもしれない。
+
+君たちは「オン」にすることばかり考えている。
+もっと情報を入れろ、もっと繋がれ、もっと活動しろ。
+だが、情報を処理し続けることだけが正解ではない。
+「情報を遮断する、オフにする」こともまた、高度な情報処理機能なのだ。
+君はずっと「オン」の状態だ。
+寝る前までスマホを見ている。
+常に誰かと繋がっている。
+それでは回路が焼き切れる、バーンアウトする。
+
+意図的に「オフ」にしろ。
+情報を遮断しろ。
+「究極の機械」を心の中に持て。
+何もしない時間を持て。
+空白の時間は、情報の欠損ではない。
+思考を整理し、結晶化させるための「現像」の時間だ。
+最高の音楽には、必ず「休符」がある。
+休符のない音楽は、ただの騒音だ。
+君の人生に休符を打て。
+スイッチを切れ。
+その静寂の中でしか、君自身の内なる声、シグナルは聞こえてこない。
+デジタル・デトックスは、逃避ではない。
+脳の再起動、リブートだ。
+
+---
+
+結び：君は送信機であり、受信機だ
+「シグナルを止めるな」
+
+私は晩年、認知症を患い、記憶を失っていった。
+情報の父である私が、自分の記憶という情報を失っていく皮肉。
+だが、恐怖はなかった。
+私が生み出した理論は、世界中にコピーされ、増幅され、永遠に飛び交っているからだ。
+情報は、物質ではない。
+リンゴを分け合えば半分になるが、アイデアを分け合えば二倍になる。
+情報は共有されることで増殖し、永遠の命を得る。
+愛と同じだ。
+
+君はこの世界という巨大なネットワークの、一つのノード、中継点だ。
+君が良質なシグナルを発信すれば、それは誰かに届き、また誰かへと伝わり、増幅されていく。
+君の言葉、君の行動、君の笑顔。
+その全てが「情報」だ。
+ノイズを撒き散らすな。
+不平不満、悪口、嘘といったエントロピーの高い情報を吐き出すな。
+美しいシグナルを送れ。
+希望、真実、感謝といった、秩序ある情報を送信せよ。
+君が生きた証は、君がどれだけお金を稼いだか、物質ではなく、どれだけ豊かな情報を他人の心に残せたか、情報で決まる。
+
+さあ、一輪車に乗れ。
+ボールを投げろ。
+バランスをとりながら、カオスな世界を笑って走り抜けろ。
+人生はジャグリングだ。
+落としてもいい。また拾えばいい。
+楽しんでいる君の姿そのものが、誰かにとっての最高のメッセージになるのだから。
+
+クロード・シャノン
+
+追伸：
+もし君が、何かに煮詰まったら、ガレージに籠もって変なガラクタを作ってみるといい。
+あるいは、ボールを3つ持って、ジャグリングの練習をするのもいい。
+重力を制御しようとするあの瞬間の集中力は、座禅にも似ている。
+手と目と脳が完全に同期した時、世界からノイズが消える。
+その感覚を掴め。
+それが「フロー」だ。
+情報の波に乗れ。溺れるな。
+君ならできる。
+君は最高の通信機なのだから。
+
+</pre>
     </div>
   </div>
 </main>

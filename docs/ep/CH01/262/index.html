@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-262 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-262 — script</h1>
           <div class="muted">妬まれたら勝ちです。嫉妬された時に絶対にやってはいけない3つ｜ブッダの教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,184 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>妬まれたら勝ちです。嫉妬された時に絶対にやってはいけない3つ｜ブッダの教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【人間関係】で苦しいあなたへ──嫉妬に足を引っ張られない話。
+・嫉妬された時のNG3つ・淡々と続ける強さ
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 嫉妬, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【人間関係】で苦しいあなたへ──嫉妬に足を引っ張られない話。
+・嫉妬された時のNG3つ・淡々と続ける強さ</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-262</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-262&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">真面目に誠実に生きているのに、理不尽な嫌味を浴びせられることがあります。
+何もしていないのに、なぜこんな目に遭うのか。
+不公平だと感じて、夜も眠れないほど心が傷つくこともあるでしょう。
+でも、そんな時こそ、少し立ち止まって事実を見つめてください。
+その鋭い言葉の本当のターゲットは、あなたではないかもしれないからです。
+
+実は、嫉妬という感情の正体は、相手自身の心の「不足感」です。
+コップに水が半分しか入っていない人が、満たされたあなたを見ると、自分の欠落が痛くなる。
+その苦しさを紛らわせるために、あなたを攻撃して、自分と同じレベルまで引きずり下ろそうとする。
+つまり、相手が放つ言葉は、あなたの価値を下げるものではなく、相手自身の焦燥感の裏返しなのです。
+あなたはただ、相手の不安を映し出すスクリーンになってしまっただけ。
+
+ここでブッダの教えにある「無我」という視点が、心を守る鍵になります。
+無我とは、物事に固執しない心ですが、人間関係においては「自分と他人を切り離す」境界線のことです。
+相手が抱えている渇望や不満は、あくまで相手の課題であり、あなたが解決すべきものではありません。
+その感情を「私のせいだ」と受け取ってしまえば、あなたが勝手に相手の重い荷物を背負うことになる。
+
+だからこそ、最も強力な防御策は「無反応」でいることです。
+投げかけられた悪意に対して、怒りで返す必要もありません。
+ただ、淡々と自分の道を歩み続ける。
+まるで、ボールを投げても誰もキャッチしないように、その場にポトリと落ちさせるイメージです。
+反応しないことで、相手のネガティブなエネルギーはそこで消滅し、あなたの心には傷一つつきません。
+決して逃げや弱さではありません。自分の平穏を守るための、最も成熟した強さなのです。
+
+とはいえ、頭では分かっていても、いざ嫌な言葉を向けられると反射的に動揺してしまうものです。
+では、具体的にどうすれば、その場で心を乱さずにいられるのでしょうか。
+そこで参考になる、ブッダのとても有名な逸話があります。
+
+---
+
+もしあなたに誰かが、焼ききれた石炭を投げつけてきたらどうしますか。
+
+本能的に避けますか。それとも、拾い上げて投げ返しますか。
+
+かつてブッダが説いた有名な教えに、この熱した石炭の比喩があります。
+
+ある時、ブッダの元に一人の男が怒鳴り込んできました。
+
+ブッダの評判と人望をひどく妬んだ男は、顔を真っ赤にして聞くに堪えない悪口を浴びせ続けたのです。
+
+周囲にいた弟子たちは激しく怒り、すぐにでも男を追い払おうとしました。
+
+しかしブッダは、少しも動じることなく、まるで嵐が過ぎ去るのを待つかのように、ひたすら静かに男の言葉を聞いていました。
+
+やがて男が言い疲れて黙り込むと、ブッダは穏やかに尋ねました。
+
+もしあなたの家に客が来て、食事を出したのに客がそれを食べなかったら、その食事は誰のものになるでしょうか。
+
+男は当然のように答えます。
+
+私のものです、と。
+
+そこでブッダは言いました。
+
+あなたは私に多くの悪口を言いましたが、私はそれを一度も受け取っていません。
+
+だからその悪意は、すべてあなたに戻っている、と。
+
+贈り物を受け取らなければ、それは贈り主の手元に残るのと同じです。
+
+これはまさに、熱した石炭の話と同じです。
+
+誰かがあなたに石炭を投げつけてきたとしましょう。
+
+あなたがそれを拾い上げて、怒りで投げ返そうとすればどうなるでしょうか。
+
+あなたの手も、確実に火傷をしてしまいます。
+
+相手の悪意に怒りで応じることは、拾い上げた石炭で自分自身を焼く行為なのです。
+
+悪意を投げつけてくる人は、実は自分の手が焼けたくて必死なのかもしれません。
+
+だからこそ、拾わないことが一番の防御になります。
+
+拾わなければ、あなたの心は一つの火傷も負わずに済むのです。
+
+怒りを抱き続けることは、自分の心を焦がし続けることでもあります。
+
+この古代の知恵は、現代を生きる私たちの人間関係にもそのまま当てはまります。
+
+---
+
+私たちがつい石炭を拾い上げてしまう最大の理由は、相手の不機嫌さが自分のせいだと感じてしまうからです。特に真面目で優しい人は、周囲の空気を壊さないようにと、相手のネガティブな感情まで引き受けようとしがちです。しかし、相手が放つ冷たい視線の裏にあるのは、あなたへの評価ではなく、自分自身の人生に対する焦りや劣等感だけです。あなたがいくら誠実に説明したり、愛想笑いで場を収めようとしても、相手の心の穴が埋まることはありません。むしろ、あなたが反応してしまうことで、相手は「攻撃すれば通じる」と学習し、さらにエスカレートしてしまう可能性さえあります。ここで必要なのは、相手の感情を自分の責任だと勘違いしない強い意志です。その熱い石炭は、あなたが拾わずに地面に落としておけば、相手の手の中だけで燃え続けるだけの現象に過ぎず、あなたの平穏とは無関係なのです。
+
+長年勤めた会社で、ついに念願のポストにつけたとします。同僚にお祝いを言っても、どこか素っ気ない反応だったり、陰で嫌味を言われたりする。あるいは、子供が良い成績を収めたことを親戚に伝えたら、急に話題を変えられたりした経験はありませんか。真面目に生きてきた報酬なのに、周りの反応が冷たいと、胸が締め付けられるように痛みます。
+
+でも、どうかその足を止めないでください。相手がそのような態度をとるのは、あなたが悪いからではありません。それは彼ら自身の心の中にある焦燥感や、自分にはないものを持つあなたへの羨望が、裏返して出てきているだけなのです。光が強くなればなるほど、そこに落ちる影は濃くなります。あなたが輝いているからこそ、相手は眩しがってしまっている。そう捉え直すだけで、心の痛みはずっと和らぎます。
+
+かつての歴史の中でも、あまりにも大きな功績を上げたがゆえに、周囲の警戒心を招いてしまった人物がいました。しかし、彼らの不安や嫉妬は、あくまで彼ら自身の課題です。あなたがその感情のゴミ箱になる必要も、処理係になる必要もありません。他人の感情を自分の責任だと感じてしまいがちですが、そこを明確に切り離すことが大切です。
+
+あなたの実績は、誰が何と言おうと事実としてそこにあります。相手の言葉や態度によって、その価値が少しも下がるわけではないのです。心の中で「ああ、今、彼は焦っているんだな」と淡々と事実だけを受け止める。この距離感さえ保てれば、相手の攻撃性はあなたに届かなくなります。
+
+では、実際に嫉妬された時、私たちが絶対にやってはいけない行動とは何でしょうか。
+
+---
+
+嫉妬という感情に向けられた時、私たちは無意識に三つの大きな間違いを犯しがちです。心がざわついて、ついやってしまいがちなその行動。実はそれが、あなたの心を一番疲れさせている原因かもしれません。ここからは、嫉妬された時に絶対にやってはいけない三つの行動について、しっかりと確認していきましょう。
+
+まず絶対に避けたいのは、反論して面倒を大きくすることです。冷たい視線や陰口を感じた時、言い返したくなるのは当然の防衛本能です。しかし、そこで言葉を交わすと火に油を注ぐだけです。相手はあなたの反応を待っているので、何を言っても無駄な争いを生むだけになります。あなたの貴重なエネルギーを、相手の感情のゴミ捨て場に使う必要はないのです。
+
+次にやってしまいがちなのが、自分を偽って縮こまることです。場の空気を壊さないようにと、愛想笑いを浮かべたり、自分の成功を謙遜しすぎたりしていませんか。これは相手の不足感を、あなたが無理やり肩代わりしている状態です。あなたが小さくなることで、相手の心が満たされるわけではありません。むしろ、あなたが卑下する姿を見て、相手はさらに優越感に浸ってしまうだけなのです。
+
+そして最も恐ろしいのが、相手を恨んで自分の心を殺すことです。他人の悪意を抱え込み、夜も眠れないほど思い悩む。これは毒を飲んで自分が苦しむのと同じです。恨むという感情は、あなたの貴重な人生の時間を、相手のために浪費してしまう行為です。あなたの心は、あなたが守るべきもの。他人の感情のせいで、あなたの心が黒く濁る必要は全くありません。
+
+どの行動も、結局は相手の心の問題をあなたが背負う結果になります。嫉妬は相手の内側にある渇きから生まれるもの。あなたが何をしても、その渇きを癒やすことはできません。むしろ、あなたが反応することで、相手の執着を強めてしまうだけなのです。大切なのは、相手の感情と自分の心を切り離すことです。
+
+では、こうしたNG行動を避けた上で、私たちはこの状況をどのように捉え直せばよいのでしょうか。
+
+---
+
+妬まれる言葉が胸に刺さる時、どうしていますか。もしその嫌な言葉を、成功に対して支払う「税金」だと思えたらどうでしょう。税金を納める時に、役所の人に怒りをぶつけることはありませんよね。ただ納めて、自分の道を進むだけです。今日は、その視点の切り替え方をお伝えします。
+
+仏教の教えに「無我」という言葉があります。これは、固定された自分という実体はないという考え方です。つまり、誰かがあなたを妬む時、彼らが見ているのはあなたそのものではなく、自分の心に映した不安や不足感です。あなたのせいではないのです。だから、相手の感情に振り回される必要もありません。
+
+歴史を振り返れば、源義経の姿があります。彼は戦で功績を上げ、人々の注目を集めました。しかし、その輝きが兄・頼朝の警戒心を招いたことは伝えられています。義経が頼朝の嫉妬を消そうと必死に説明したり、過度にへりくだったりすれば、事態は好転したでしょうか。おそらく、彼の輝きが失われただけでしょう。妬まれるというのは、それだけ光が強い証拠であり、避けられない代償だったのかもしれません。
+
+さて、私たちの日常に戻りましょう。
+
+今夜からできることは二つだけです。まず、嫌な言葉を聞いたら、心の中で「これは相手のSOSだ」と唱えてください。彼らは自分の価値を保てなくて、苦しんでいるのだと受け止めるのです。次に、深く考えずにその場を離れます。反論も言い訳もせず、物理的に距離を取るだけで十分です。税金を納めたと思って、さっさと立ち去りましょう。
+
+妬みは、あなたが進んでいる証拠です。その税金を支払ってでも、あなたの道を堂々と歩んでください。どうか、穏やかな心で、あなたの人生を楽しんでいってください。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH07-012 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH07-012 — script</h1>
           <div class="muted">【正論よりも大切なもの】常識が人を傷つける理由</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH07</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,100 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCkw7-R-GI_N5grDBRN6rLzg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【正論よりも大切なもの】常識が人を傷つける理由</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>常識が人を傷つける理由で迷うときに。考え方と、今日からできる一歩を整理します。
+・常識が人を傷つける理由で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩
+
+この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>正論よりも大切なもの, 仏教, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>常識が人を傷つける理由で迷うときに。考え方と、今日からできる一歩を整理します。
+・常識が人を傷つける理由で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「仏教の心【全てうまくいく】」の長時間コンテンツです。
+因果応報・縁切り・線引き・見下しへの対処を、ブッダの教えで具体化する中高年向けチャンネル
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH07-012</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH07-012&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">相手は正しいことを言っている。それなのに、なぜか胸が痛む。そんな経験はありませんか。例えば、何か失敗をして落ち込んでいるときに、相手が正しいことを言ってくる。その内容自体は間違っていない。むしろ的を射ている。それでも、その言葉が深く刺さってしまう。正しいからこそ、反論ができない。言い返せば、自分がわがままな人間のように思えてしまう。だから黙って聞くしかない。そして後から、あの言葉が頭の中で繰り返される。正論は、時に人を傷つける刃になります。では、なぜそうなるのでしょうか。それは、正しさが相手の状態やタイミングを見ていないからです。正しいかどうかだけが優先され、その言葉が今、相手にとって役に立つかどうかが置き去りにされてしまう。私たちはつい、正しさそのものを伝えようとします。しかし、本当に必要なのは、その正しさが相手のためになるかどうかを見極めることかもしれません。今、その正しさを伝えることは、相手の役に立つでしょうか。この問いを、まず一つ置いてみたいと思います。
+
+---
+
+この感覚は、多くの人が無意識のうちに経験しているのではないでしょうか。例えば、職場で上司から業務の改善点を指摘されたとき。その内容は確かに正しく、改善すべき点かもしれません。しかし、その伝え方やタイミングによっては、単なる指摘が人格否定のように感じられ、深く傷ついてしまうことがあります。あるいは、家庭で子どもが勉強をサボっているのを見た親が、将来のためを思って厳しく叱責する。その言葉の一つ一つは、子どものためを思っての正論です。それでも、子どもはその言葉を自分が嫌われているというメッセージとして受け取り、心を閉ざしてしまう。正しさが、関係を分断する刃になってしまうのです。なぜこのようなことが起こるのでしょうか。それは、私たちが何を言うかにばかり意識が向き、「誰に、いつ、どのように言うか」という視点が抜け落ちてしまいがちだからです。相手の心の状態や置かれた状況を考慮せず、正しさという内容だけを一方的に伝えてしまう。その結果、たとえ善意から発せられた言葉であっても、相手には冷たい刃として突き刺さる。このメカニズムを理解することは、言葉による無用な傷つけ合いを減らす第一歩になります。
+
+正論が刃になる理由は、一つに絞ることができます。それは、相手の状態とタイミングを見ていないからです。私たちは、自分が正しいと思ったことを、すぐに口にしがちです。その内容が真実であればあるほど、伝えなければならないという義務感さえ覚えるかもしれません。しかし、その瞬間、相手はどんな気持ちでいるでしょうか。落ち込んでいるのか、疲れているのか、あるいはただ話を聞いてほしいだけなのか。正しさを伝える前に、そのようなことを考える余裕が、私たちにはあまりありません。正しいことを言うこと自体が目的になってしまい、その言葉が相手にどのような影響を与えるかまで考えが及ばないのです。結果として、たとえ真実であっても、それは冷たい刃のように相手の心に突き刺さります。相手は傷つき、私たちは後から後悔する。これは、家庭でも職場でも、よくある光景ではないでしょうか。例えば、家族が何か失敗をしたとき。あるいは同僚がミスをしたとき。私たちは善意から、あるいは責任感から、正しい指摘をします。しかし、その言葉が相手を追い詰め、関係をぎくしゃくさせてしまう。正しさが、むしろ溝を深めてしまうのです。ここで思い出したいのは、正しさそのものが問題なのではなく、その伝え方やタイミングが問題だということです。仏教には、このような人間の陥りがちな過ちについて、古くから考えられてきた教えがあります。
+
+---
+
+この問題を考える上で、もう一つ重要な視点があります。それは、私たちが正しさを伝えるとき、無意識のうちに自分自身の立場を守ろうとしている可能性があるということです。相手の誤りや失敗を正すことで、自分が正しい側に立っていることを確認したい。あるいは、相手を導くことで、自分の価値や存在意義を感じたい。そのような心の動きが、言葉の背後に隠れていることが少なくありません。その結果、言葉は相手のためというより、自分自身の安心のための手段になってしまう。だからこそ、その言葉が本当に相手の役に立つのかどうかを見極めることが難しくなるのです。自分が正しいことを証明したいという気持ちが先立つと、相手が今どのような状態にあるかを見る余裕が失われてしまいます。落ち込んでいる相手に追い討ちをかけるような言葉も、疲れ切っている相手に重い課題を押し付けるような言葉も、このパターンから生まれがちです。仏教の教えが私たちに問いかけるのは、まさにこの点です。あなたが今伝えようとしているその言葉は、果たして誰のためなのでしょうか。それは、相手を傷つけてまで伝えるべきものなのでしょうか。この自問が、正しさの暴力から自分も相手も守る、最初の防波堤になるのです。
+
+ある王子が、言うべきか黙るべきかをブッダに尋ねた話が伝わります。王子は、真実を知っていても、それを口にすることが相手を傷つけるかもしれないと悩んでいました。あるいは逆に、真実を言わないことが、結果的に相手を苦しめることになるかもしれないと。その時、ブッダはこう説いたとされます。真実でも相手を傷つけるなら、それは言わない方がよい。もしその言葉が役に立つのであれば、時を選び、慈悲の心を込めて伝えるべきである、と。これは、単に嘘をついてもいいという教えではありません。むしろ、何よりも優先すべきは、言葉がもたらす結果だということを示しています。正しさを振りかざすのではなく、その言葉が相手にとって本当に役に立つかどうかを第一に考える。それが正しい言葉、仏教でいう正語の在り方です。この逸話の核心は、言葉を武器にしないということです。私たちは、自分が正しいと思った瞬間、その正しさを盾にし、時には刃にして相手に迫ってしまいます。しかし、それでは結局、誰も幸せにはなりません。相手は傷つき、自分も後から罪悪感を覚える。この教えは、そのような悪循環を断つための智慧です。真実であっても、それが相手を傷つけるなら、あえて口にしない勇気。そして、相手のためになるなら、たとえ厳しい内容でも、適切な時と方法で伝える責任。この二つのバランスが、言葉を使う上で大切なのです。日常に置き換えれば、これはとても現実的な指針になります。例えば、誰かが明らかな間違いを犯したとき。私たちはすぐにそれを正したくなります。しかし、その前に一呼吸おく。今、この指摘は相手の役に立つだろうか、と自問する。それだけで、言葉の重さは変わってくるはずです。
+
+---
+
+また、この逸話が示す沈黙の勇気は、私たちが軽視しがちな重要な選択肢です。社会は、何かを言うこと、主張することを良しとする風潮が強いかもしれません。しかし、言うべきでないときにあえて言葉を飲み込むこと、それは何も考えていない消極的な態度とは全く異なります。それは、相手の状態を見極め、言葉がもたらす結果を熟慮した上での、積極的な選択です。この沈黙には、相手への配慮と、自分自身の衝動を制する自制心が込められています。一方で、役に立つなら伝える責任というもう一つの側面も、同じくらい重いものです。これは、相手のためを思って厳しいことも伝えなければならない場合がある、という現実的な覚悟を意味します。例えば、親しい人が明らかに道を誤ろうとしているとき、見て見ぬふりをすることは優しさではありません。しかし、その伝え方は、単に正しさをぶつけるのではなく、相手が受け止められる方法で、相手の成長や安全を願って行われる必要があります。この二つのバランス、つまり言わない勇気と伝える責任の間で揺れ動きながら最善を選ぶプロセスこそが、成熟した人間関係を築くための実践的な智慧なのです。この揺れ動きそのものを、私たちは日々の生活で経験していると言えるでしょう。
+
+王子の逸話をさらに深く読み解くと、ブッダの教えは単なるコミュニケーション術ではなく、言葉に対する根本的な態度の転換を求めていることがわかります。それは、言葉を所有物や武器としてではなく、関係性を育むための贈り物として扱う視点です。私たちは往々にして、自分の考えや意見を自分のものとして強く握りしめ、それを相手に「渡す」あるいは「ぶつける」ようにして伝えます。しかし、そのようにして放たれた言葉は、相手の受け取り方を無視した一方的なものになりがちです。一方、贈り物を渡すとき、私たちは相手が喜んでくれるか、役に立つかを考え、渡すタイミングや渡し方を選びます。王子への教えは、この「贈り物」としての言葉の在り方を示していると言えるでしょう。真実という贈り物が相手を傷つけるなら、それは今は渡さない。役に立つ贈り物なら、相手が心を開いて受け取れる時を見計らい、慈しみの心を込めて手渡す。この姿勢の根底には、相手を一人の独立した人間として尊重するという、深い人間理解があります。相手の心の状態や尊厳を無視して、こちらの正しさを押し付けることは、たとえ内容が真実であっても、一種の暴力になり得る。この洞察は、現代の私たちが日常的に直面する人間関係の難しさにも、そのまま当てはまるのではないでしょうか。
+
+では、この考え方を実際の生活でどう活かせばよいのでしょうか。まず、言うか言わないかの判断です。何か言いたくなったとき、一旦立ち止まります。その言葉は、相手の状態を考えた上で、今この瞬間に役に立つものか。もし役に立たない、あるいは傷つける可能性が高いなら、それは言わないという選択をします。沈黙も、立派なコミュニケーションの一つです。次に、言うべきだと判断した場合。今すぐ言う必要があるか、もう少し時を待った方がよいかを考えます。相手が心の余裕を持っている時、落ち着いて話ができる環境にある時を見計らいます。そして最後に、どのように言うか。正しさを前面に押し出すのではなく、慈悲の温度で、つまり相手を思いやる気持ちを込めて伝えます。これは、相手を責めるような言い方ではなく、あくまで共に考える姿勢です。この一連の流れは、習慣にすることで身についていきます。最初は難しく感じるかもしれません。特に、正しいことをすぐに伝えたいという衝動にかられるでしょう。しかし、それを一度抑えて、相手の立場に立って考えるクセをつける。それだけで、人間関係の摩擦は確実に減っていきます。この実践は、特別な場所や時間を必要としません。日常の些細な瞬間から始めることができます。
+
+---
+
+さらに、この考え方を発展させると、私たちは言葉だけでなく、態度や沈黙そのものも、同じように意識的に選ぶことができることに気づきます。不機嫌な沈黙は相手を傷つけますが、配慮に満ちた沈黙は相手を守ります。無関心な態度は関係を冷やしますが、耳を傾ける姿勢は信頼を築きます。つまり、言葉を選ぶという行為は、コミュニケーションの全ての側面に対する意識の向上につながっていくのです。この実践を続けるうちに、自然と「この言葉は、今、ここで、この相手に、本当に必要か」という問いが心のフィルターとして機能し始めます。それは、単に傷つける言葉を避けるだけでなく、より建設的で温かい関係を積極的に創造するためのツールになります。例えば、感謝の言葉を伝えるタイミングや、励ましの声のかけ方も、この同じフィルターを通して考えることができます。相手がそれを最も必要としているとき、最も心に響く形で伝える。このような言葉の使い方は、人間関係に潤いと深みをもたらし、お互いの絆を強めていくでしょう。正しさを超えたところにある、このような言葉の可能性に目を向けることが、仏教の教えが私たちに示す、もう一つの大きな気づきなのです。
+
+この実践を習慣化するための具体的なステップとして、もう一つ加えたいことがあります。それは、言葉を発する前に、ほんの一瞬でも「相手の立場に立ってみる」という想像力を働かせることです。自分が今言おうとしていることを、もし相手の立場で聞かされたら、どのように感じるだろうか。傷つくだろうか、それとも助けになるだろうか。この想像のプロセスは、自動的な反応を止め、より意識的な選択へと導いてくれます。特に、強い感情が湧き上がっているとき、例えば怒りや苛立ちを感じているときは、この一瞬の間を置くことが難しくなります。だからこそ、普段からこの「間」を取る練習を積んでおくことが大切です。最初は、言いたいことが喉まで出かかってからでも構いません。その瞬間に「待て」と自分に言い聞かせ、一呼吸置いてみる。それだけで、感情に任せて発せられる言葉と、少し考えて選ばれた言葉との間には、大きな違いが生まれます。この違いが、長い目で見たときの人間関係の質を決めていくのです。職場でのちょっとした意見のすれ違いから、家族との些細な口論まで、この「一呼吸」が摩擦を和らげ、お互いを尊重する空気を作り出します。それは、特別な技術ではなく、ほんの少しの意識の向け方を変えるだけの、誰にでもできる小さな実践です。
+
+朝、家を出るとき。玄関で靴を履きながら、あるいは洗面所で顔を洗いながら、今日一日を思い浮かべてみます。今日会う人、話す可能性のあること。その中で、もし何か言いたくなる場面があったら、どう伝えようか。その言葉は相手の役に立つだろうか、と予め考えてみるのです。ほんの数十秒で構いません。この朝の小さな習慣が、その日の言葉の選択に影響を与えます。そして夜、寝る前の時間。枕元で今日一日を振り返ります。今日、誰かにかけた言葉で後悔はなかったか。あるいは、言わなくてよかった言葉はなかったか。この振り返りも、短い一文で十分です。ただ事実を思い出すだけでいい。自分が相手に投げかけた言葉、そして飲み込んだ言葉。その両方を、善悪で判断せずに確認する。これを続けるうちに、自然と「今、それは役に立つか」という問いが心に浮かぶようになります。正しさを武器にしないというのは、つまり、言葉に対して責任を持つということです。それは、相手に対する責任であると同時に、自分自身に対する責任でもあります。無造作に放たれた言葉は、結局は自分に返ってきます。丁寧に選ばれた言葉は、関係を穏やかにし、自分の心も軽くしてくれるのです。
+
+---
+
+正しさは、それ自体が目的ではありません。それは、誰かを幸せにするための手段であるべきです。相手を傷つけず、自分も後悔しない言葉の選び方。その第一歩は、言う前に一呼吸おき、今その言葉が役に立つかを確かめることです。仏教の逸話が教えるように、真実でも傷つけるなら沈黙を選び、役に立つなら慈悲の心で伝える。このシンプルな原則が、家庭でも職場でも、あらゆる人間関係のストレスを和らげてくれるでしょう。正論よりも大切なもの。それは、相手の心に寄り添う誠実さかもしれません。
+</pre>
     </div>
   </div>
 </main>

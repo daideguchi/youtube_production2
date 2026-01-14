@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH02-056 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH02-056 — script</h1>
           <div class="muted">【完璧待ち】動けない完璧主義の心理</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,274 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【完璧待ち】動けない完璧主義の心理</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH02-056</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH02-056&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">何か新しいことを始めようとして、準備が「完璧」になるまで動けず、ただ時間だけが過ぎていく。
+資料を作れば、フォントやレイアウトの細部ばかりが気になり、いつまで経っても終わりの目処が立たない。
+家を出る前、鍵や財布を何度も確認し、「何か忘れているのではないか」という不安に足を止められて遅刻しそうになる。
+完璧を目指せば目指すほど、体は重く、心はすり減り、一歩も前に進めなくなってしまう。
+
+今日は、そんな「完璧主義という名の鎖」を優しくほどき、不完全なままの自分で、軽やかに動き出すための心のレッスンです。
+
+---
+
+完璧を求めてしまう心の根底には、深く根ざした「恐れ」があります。
+失敗して誰かに笑われるのが怖い。欠点を見つけられて、自分の価値が下がってしまうのが怖い。
+その恐れが強ければ強いほど、私たちは動き出す前に何度も何度も点検を繰り返し、自らの手で時間を削り取ってしまいます。
+しかし、この恐れを完全に消し去ることは不可能です。
+私たちに必要なのは、恐れをなくすことではなく、恐れを小脇に抱えたままでも、一歩を踏み出せる勇気を持つことです。
+
+そもそも「完璧」とは何でしょうか。
+この世界で、真に完璧なものを見た人は誰もいません。
+完璧とは、私たちの頭の中にある蜃気楼のような「想像の産物」に過ぎないのです。
+想像の中の理想像は、近づこうとすればするほど、さらに高く、遠くへと修正されていきます。
+永遠に届かないゴール追いかければ、「まだ足りない」という欠乏感が、常にあなたにブレーキをかけ続けます。
+そのブレーキを緩める唯一の方法は、ゴールの旗を「完璧」から「十分」という場所に立て直すことです。
+
+---
+
+ここで、有名な「パレートの法則（80:20の法則）」を思い出してみましょう。
+「成果の8割は、全体の2割の要素から生み出される」という法則です。
+完璧主義者は、残りの8割の些細な部分（フォントの微調整や、細かすぎる言い回し）に、膨大なエネルギーを注ぎ込んでしまいます。
+しかし、それが全体の成果に与える影響は、実はごくわずかです。
+重要なのは、幹となる「上位2割」をしっかりと押さえること。
+そこさえ出来ていれば、枝葉が多少不格好でも、木としての機能は十分に果たせます。
+「重要な2割はどこだろう？」と問いかける癖をつけてください。
+そうすれば、力の抜きどころが見えてきて、最小のエネルギーで最大の満足感を得られるようになります。
+
+---
+
+「十分」とは、本来の目的を達成できている状態のことです。
+目的が曖昧なままだと、ゴールの線もぼやけてしまい、つい完璧さを求めて彷徨ってしまいます。
+まずは、目的をたった一文で書き出してみてください。
+「この資料は、来月の予定を伝えるためのもの」「このメールは、感謝を伝えるためのもの」。
+目的が明確になれば、それに必要な要素だけを選び出し、過剰な装飾を削ぎ落とすことができます。
+「これで目的は果たせる」。そう思えた瞬間が、あなたのゴールです。
+
+終わりが見えない作業ほど、完璧主義は猛威を振るいます。
+だからこそ、あらかじめ「終わり」を設計してしまうのです。
+「30分で切り上げる」という時間の終わりと、「三つの条件を満たせばOK」という内容の終わり。
+枠を決めてしまえば、その中での不完全さは許容範囲になります。
+許せるものが増えるほど、あなたの体は羽が生えたように軽くなっていきます。
+
+完璧主義は、他人の評価への恐れとも深く結びついています。
+自分の価値を他人の採点に預けてしまっていると、減点を恐れて何も出せなくなります。
+評価の軸を、少しだけ自分の内側に戻してあげましょう。
+「自分が納得できるラインまでやれば、それでよしとする」。
+他人の目が全てではないこと、そして、あなたの価値は成果物の出来栄えだけで決まるものではないことを、思い出してください。
+
+---
+
+他人の目といえば、心理学に「スポットライト効果」という興味深い概念があります。
+私たちは、自分が常に舞台の上の主人公のように、周囲から注目されていると思い込んでいます。
+「今日の服、変じゃないかな」「さっきの言い方、まずかったかな」。
+しかし実際には、観客席にいる他人たちは、自分の手元の脚本（自分自身の悩み）に夢中で、あなたのことなどほとんど見ていません。
+あなたが「死ぬほど恥ずかしい」と思った失敗も、他人にとっては「昨日のランチに何を食べたか」と同じくらい、すぐに忘れ去られる些細な出来事です。
+「誰も私をそんなに見ていない」。
+この事実は、寂しいことではなく、あなたを自由にするための福音です。
+自意識過剰という檻から抜け出し、誰も見ていないからこそ、もっと自由に、もっと大胆に踊ってみてもいいのではないでしょうか。
+
+---
+
+欠点を探そうとすれば、視点の数だけ無限に見つかります。
+三人に見せれば、三通りの「もっとこうすべき」が返ってくるでしょう。
+すべての視点を網羅しようとすれば、足がすくむのは当然です。
+今はまだ必要のない視点は、勇気を持って脇に置いておく。
+「今はここまででいい」と線を引くことが、完璧の迷路から抜け出すための賢明な知恵です。
+
+動き出せないときは、作業の単位を極限まで小さくしてみます。
+最初の一行だけ書く。スライドの枠だけ作る。まずは五分だけ手を動かす。
+完璧主義は「考え抜いてから動く」ことを求めますが、実際には「動きながら考える」ほうが、はるかに精度が高まることが多いものです。
+小さな一歩が次の景色を見せ、その景色がまた次の一歩を誘う。
+動き出すことでしか得られないリズムに乗ってしまえば、迷いは自然と背後へと流れていきます。
+
+---
+
+完璧を求める心は、言い換えれば「安心したい」という切実な願いでもあります。
+でも、安心を得る方法は、品質を極めることだけではありません。
+進捗を見える化する、信頼できる誰かに途中経過を共有する。
+未完成な状態をあえて外に出すことで、「修正の余地がある」という安心感が生まれます。
+一人で抱え込まず、プロセスを開示すること。それが、肩の荷を下ろす最も早い方法です。
+
+アメリカの哲学者パースは、「真理とは、永遠に続く探究のプロセスそのものである」と考えました。
+真実でさえ、常に更新され続ける途中経過なのだとしたら、私たちが一回の成果に完全性を求めることは、むしろ不自然なことかもしれません。
+完成品を目指すのではなく、より良くなろうとする「過程」を積み重ねていく。
+プロセス志向に切り替えれば、「今はこれで十分」と、自分にOKを出せる回数が増えていきます。
+
+人間は、そもそも有限な存在です。
+時間も体力も知識も、すべてに限りがある。だからこそ、私たちには必ず「欠け」があります。
+その欠けがあるからこそ、私たちは他者と補い合い、助け合うことができるのです。
+完璧を目指して孤高の城を築くよりも、自分の不完全さを認め、他人の手を借りて橋を架けるほうが、哲学的にも、そして現実的にも、ずっと豊かな生き方だと言えるのではないでしょうか。
+
+---
+
+「後でまとめて完璧にやろう」という先送りは、一時の安らぎを与えてくれますが、それは麻酔のようなものです。
+時間が経てば経つほど、未完のタスクは巨大な圧力となって、あなたにのしかかってきます。
+その圧力を消すには、雑でもいいから、小さく終わらせてしまうこと。
+「とりあえず終わった」という小さな完了マークの積み重ねだけが、あなたの心を真に軽くしてくれます。
+
+完璧主義の人は、自分に向けられる厳しい基準を、無意識に他人にも向けてしまいがちです。
+他人に完璧を求めれば求めるほど、期待外れの現実に失望し、人間関係まで疲弊してしまいます。
+期待のバーを少し下げてみる。他人の不完全さを「人間らしい魅力」として許してみる。
+他人を許すことは、巡り巡って、自分自身の不完全さを許すことにも繋がります。
+
+欠点を晒すのが怖いなら、練習として、あえて小さな欠けを見せてみましょう。
+完璧に整っていない資料を「まだ途中なんだけど」と見せてみる。
+それでも世界は壊れないし、誰もあなたを責めたりしないという事実を、肌で感じてください。
+その小さな実験を繰り返すことで、恐れの壁は少しずつ低くなり、いつしか軽々と乗り越えられるようになっているはずです。
+
+---
+
+完璧を求めるあまり、コントロールできないものまで支配しようとしていませんか。
+結果には、自分以外の多くの要因や、偶然が絡み合っています。
+すべてを自分の手で握りしめるのではなく、「なるようになる」と委ねる余白を持つこと。
+その余白には不安も入り込みますが、同時に、想像もしなかった素晴らしい発見も舞い込んできます。
+偶然を味方につけるしなやかさが、完璧さを超えた価値を生み出します。
+
+「終わらせる力」を鍛えてください。
+文章ならここまで、動画ならこの尺と決めたら、そこで潔く筆を置く。
+足りない部分があれば、それは次の課題に回せばいい。
+終わらせて初めて、私たちは次のステージへと進めます。
+質を高めるための最短のルートは、完璧に悩み続けることではなく、終わらせた「量」を積み重ねることなのですから。
+
+細部にこだわることは美徳ですが、それが目的を飲み込んでしまっては本末転倒です。
+木を見て森を見ずになっていないか、時折顔を上げて全体を見渡してください。
+「この細部は、本当に今必要なのか？」
+そう自問し、不要なこだわりを捨てる勇気を持つ。捨てることもまた、洗練された技術の一つです。
+
+---
+
+完璧主義の背後には、過去に誰かから受けた批判の記憶が亡霊のように張り付いていることがあります。
+厳しく指摘された、あの時の悲しみ。
+でも、今のあなたはもう、あの頃の無力なあなたではありません。
+その批判は、今のあなたにとっても本当に有効なものでしょうか。
+過去の基準で今を縛るのをやめ、現在のあなたに合った、優しい基準を新しく選び直してください。
+
+完璧を手放すことは、決して仕事を雑にすることではありません。
+それは、過剰な拘束から自分を解放し、本当に大切な目的に全力を注ぐための「選択」です。
+枝葉を切り落とし、幹を太くする。
+その潔い調整こそが、あなたの成果物をより力強いものにしてくれます。
+
+「最善を尽くす」という言葉を、「今のベストを出す」と言い換えてみましょう。
+今日の体調、今の時間の中で出せる等身大の力。
+それに焦点を合わせれば、理想とのギャップに苦しむことなく、現実的な一歩を踏み出すことができます。
+
+---
+
+日々のチェックリストが長すぎて、見るだけでため息が出るとしたら。
+それはあなたが欲張りなのではなく、真面目すぎるだけかもしれません。
+どうしても外せない項目以外は、思い切って「やらないことリスト」に入れてしまいましょう。
+リストを減らすことは、逃げではありません。集中するための戦略です。
+
+自分の感情にまで完璧を求めないでください。
+いつも笑顔で、いつも前向きでなんていられなくて当たり前です。
+不安な日もあれば、イライラする日もある。
+そんな心の揺れを「人間らしくていいじゃないか」と認めてあげる。
+感情の起伏を責めなくなれば、それだけでエネルギーの漏電は止まり、必要な行動へと力を注げるようになります。
+
+---
+
+ここで、完璧主義の発作が出そうになったときに効く、小さな「セルフ・コンパッション（自分への慈しみ）」のエクササイズを紹介します。
+ミスをして「ああ、最悪だ」と自分を責めそうになったら、一度深呼吸をして、こう問いかけてみてください。
+「もし、私の大切な親友が同じミスをしたら、私はなんて声をかけるだろうか？」
+
+きっと、「バカだなあ」なんて罵倒はしないはずです。
+「まあ、そんなこともあるよ」「人間だもの、ドンマイ」と、温かい言葉をかけるのではないでしょうか。
+その優しさを、自分自身にも向けてあげるのです。
+私たちは、他人には寛容になれても、自分に対しては驚くほど残酷な暴君になりがちです。
+自分の中に「厳しい教官」ではなく、「優しい親友」を住まわせる。
+その親友に、「大丈夫、よくやってるよ」と背中をさすってもらうイメージを持つだけで、張り詰めた緊張の糸はふっと緩みます。
+自分に優しくすることは、甘えではありません。
+長く走り続けるための、必須のメンテナンス技術なのです。
+
+---
+
+哲学の視点に立てば、人間は生まれた瞬間から死ぬ瞬間まで、常に「未完成」の存在です。
+未完成であることは、欠陥ではありません。それは、まだ変われるという希望の別名です。
+完璧な完成品になろうとするのではなく、変化し続ける未完成な自分を楽しむ。
+そう腹を括ってしまえば、失敗さえも、変化の一部として愛おしく思えてくるはずです。
+
+---
+
+日本には「わび・さび（侘び寂び）」という美しい美意識があります。
+苔むした岩、欠けた茶碗、枯れゆく花。
+それらを「みすぼらしい」と否定するのではなく、経年変化や不完全さの中にこそ、奥深い美しさを見出す心です。
+完璧につるんとした大量生産のプラスチック製品にはない、歪（いびつ）で、ザラザラとした手触りのある人生。
+失敗して傷ついた跡も、迷って立ち止まった時間も、あなたという器に刻まれた固有の景色（景色）です。
+「金継ぎ」のように、割れた部分を金で修復して、傷をあえて芸術にしてしまう。
+そんな生き方のほうが、傷一つない完璧な人生よりも、ずっと味わい深く、人の心を打つのではないでしょうか。
+あなたの不完全さは、隠すべき恥ではなく、愛すべき「景色」なのです。
+
+---
+
+途中のプロセス、下書き、メモ。
+それらを捨てずに保存して、時々見返してみてください。
+試行錯誤した跡そのものが、あなたの努力の結晶であり、かけがえのない価値であることがわかるはずです。
+完成品だけが全てではない。その過程にこそ、あなたという人間性が宿っているのです。
+
+最後に、今日一つだけ、「未完成のまま」誰かに何かを手渡す練習をしてみてください。
+完璧に推敲されていないメール、ラフなアイデアスケッチ。
+「これでも大丈夫だった」という体感を、細胞の一つひとつに記憶させていく。
+それが、完璧主義という重たい鎧を脱ぎ捨てるための、最短で確実な道です。
+完璧よりも、前進を。
+不完全なままで進み続ける人の目には、完璧な場所から動かない人には決して見えない、美しい景色が映るはずです。
+
+さあ、その手の中にあるものを、少し欠けたまま、世界に差し出してみましょう。
+大丈夫。世界はあなたが思うよりずっと、不完全なものに対して寛容で、温かい場所なのですから。
+
+
+あなたの思考の、静かな伴走者として。『静寂の哲学』では、これからも物事の本質を探求していきます。よろしければ、チャンネル登録で、また次の思索の時間にお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

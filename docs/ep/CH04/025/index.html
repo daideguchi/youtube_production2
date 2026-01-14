@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH04-025 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH04-025 — script</h1>
           <div class="muted">【脳の門番】RASが現実を選別する。願いが叶う人の“フィルター設定”</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH04</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH04</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,228 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCzHniXbE1_IfaRDHVFI4zwg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【脳の門番】RASが現実を選別する。願いが叶う人の“フィルター設定”</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「隠れ書庫アカシック」の長時間コンテンツです。
+心理学と好奇心をテーマにした知的コンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「隠れ書庫アカシック」の長時間コンテンツです。
+心理学と好奇心をテーマにした知的コンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH04-025</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH04-025&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">脳は、見たいものしか見ていません。
+
+毎日、あなたの目には無数の情報が飛び込んできます。街を歩けば何千もの看板、何百もの人、数えきれない色と形。しかし、意識に上るのは、そのうちのごくわずかです。
+
+なぜでしょうか。すべてを認識していたら、脳はパンクしてしまうからです。
+
+私たちが見ている「現実」は、脳が作り上げたフィルタリングされた世界に過ぎません。そして、そのフィルターの設定は、あなた自身の信念と意図によって決まるのです。
+
+今回の動画では、RAS（網様体賦活系）という脳のフィルタリングシステムについてお伝えし、このシステムを活用して願いを現実化させる方法を探っていきます。これは科学でありながら、同時にスピリチュアルな真実とも深くつながっています。
+
+まず、RASとは何かを理解しましょう。
+
+RAS（Reticular Activating System）とは、脳幹にある神経ネットワークのことです。日本語では「網様体賦活系」と呼ばれます。この小さな神経の束が、膨大な情報の中から「重要なもの」を選び出すフィルターの役割を果たしています。
+
+私たちの感覚器官は、毎秒数百万ビットの情報を受け取っています。視覚、聴覚、触覚、嗅覚、味覚。あらゆる感覚から、途切れることなく情報が流れ込んでいます。
+
+しかし、意識が処理できるのは、そのうちのごくわずか、秒速百ビット程度と言われています。残りの九十九・九九パーセント以上は、意識に上ることなく処理されているか、無視されています。
+
+すべての情報を処理しようとすると、脳はパンクしてしまいます。コンピュータでいえば、フリーズしてしまう状態です。そこでRASが活躍します。
+
+RASは「これは重要」「これは無視してよい」と瞬時に判断し、意識に上げる情報を選別しています。いわば、脳の門番です。フィルターを通過した情報だけが、あなたの「現実」として認識されるのです。
+
+具体例を見てみましょう。
+
+新しい車を買おうとしているとき、急に街中で同じ車種が目につくようになった経験はありませんか。赤い車が欲しいと思うと、やたら赤い車が目に入る。以前はまったく気にならなかったのに。
+
+これはRASの働きです。車の数が急に増えたのではありません。あなたのRASが「赤い車は重要」と認識し、それをフィルタリングして意識に上げるようになっただけです。
+
+妊娠すると、急に妊婦さんが目につくようになるという話もあります。以前から同じ数の妊婦さんがいたのに、意識していなかっただけ。自分が妊娠したことで、RASが「妊婦」を重要な情報としてマークしたのです。
+
+ヨガナンダは言いました。「あなたが見ている世界は、あなたの心の反映である。心が変われば、見える世界も変わる」と。RASは、この真実の科学的裏付けとも言えます。
+
+このRASの仕組みを理解すると、願望実現の秘密が見えてきます。
+
+RASは「重要なもの」を選び出しますが、何が重要かは、あなたの信念と意図によって決まります。意識的に設定することもできれば、無意識に設定されていることもあります。
+
+「お金は稀少だ」「お金を稼ぐのは大変だ」と信じていれば、RASは「お金がない」証拠を集めます。請求書の額、足りない残高、買えないもの。お金がないという信念を裏付ける情報ばかりが目に入ります。
+
+「チャンスは豊富にある」「自分は恵まれている」と信じていれば、RASは「チャンス」や「恵み」を見つけ出します。偶然の出会い、思いがけない情報、小さな幸運。チャンスがあるという信念を裏付ける情報が見えてきます。
+
+つまり、信念を変えることで、RASのフィルタリング設定を変えられるのです。すると、同じ世界が違って見え始めます。以前は気づかなかったチャンスが見えるようになり、見えなかった可能性が見えるようになる。
+
+仏陀は言いました。「心は全ての現象の先駆けである。心を変えれば、世界が変わる」と。
+
+ある男性の話をしましょう。彼は長年「自分はチャンスに恵まれない」と信じていました。転職しようにも良い求人が見つからない、起業しようにも良いアイデアが浮かばない、投資しようにも良い機会がない。
+
+彼は不運だと思っていました。しかし、本当にチャンスがなかったのでしょうか。おそらく、チャンスはあったのです。ただ、彼のRASが「チャンスがない」というフィルターを設定していたため、チャンスが見えなかっただけ。
+
+あるとき、彼はRASについて学びました。もし自分のフィルターが「チャンスがない」に設定されているなら、チャンスが見えないのは当然だ。彼は意識的にフィルターを変えることを決意しました。
+
+毎朝「今日もチャンスがある」と唱え、日中も「これはチャンスかもしれない」と意識的に探すようにしました。最初は空虚に感じました。信念と実感が一致しなかったからです。
+
+しかし、続けるうちに変化が起きました。今まで無視していた情報が目に入るようになった。何気ない会話からビジネスのヒントが得られた。ある記事がきっかけで、新しい人脈につながった。同僚の一言から、新しいプロジェクトのアイデアが浮かんだ。
+
+彼を取り巻く環境は変わっていません。変わったのは、彼のRASの設定だけでした。そして、その小さな変化が、人生を大きく変え始めたのです。
+
+RASを活用して願望を実現する具体的な方法をお伝えします。
+
+まず、明確な意図を設定してください。曖昧な願望ではRASは反応しにくいです。「お金持ちになりたい」より「年収一千万円を達成する」。「健康になりたい」より「毎朝エネルギーに満ちて目覚める」。「良い出会いが欲しい」より「理想のパートナーと出会う」。
+
+具体的であるほど、RASが認識しやすくなります。曖昧な目標は、曖昧なフィルターを作ります。具体的な目標は、具体的なフィルターを作ります。
+
+次に、その意図を日常的に確認してください。朝起きたとき、寝る前、日中のすきま時間。意図を思い出すことで、RASに「これが重要だ」と伝え続けます。
+
+紙に書いて目につく場所に貼る、スマホの壁紙にする、毎日声に出して読む。方法は何でも構いません。繰り返しリマインドすることで、RASの設定が強化されます。
+
+視覚化も効果的です。願望が叶った状態をありありとイメージする。年収一千万円を達成した自分、理想のパートナーと過ごす日常、健康で活力に満ちた体。
+
+そのイメージを、単なる絵ではなく、体験として感じてください。どんな気持ちがするか、どんな景色が見えるか、どんな音が聞こえるか。五感を使ってイメージすることで、脳はそれを「現実」として認識し始めます。
+
+そのイメージが脳に定着すると、RASは現実世界でそれに関連する情報を優先的にキャッチするようになります。
+
+そして、「すでに持っている」という意識を持つことです。「欲しい」という意識は「今は持っていない」を強調します。RASは「持っていない」という情報を集めてしまいます。
+
+「すでに持っている」「自分はそういう人間だ」という意識が、RASを最も効果的に活性化させます。成功者になりたいなら、すでに成功者であるかのように考え、振る舞う。その波動が、成功につながる情報を引き寄せます。
+
+カルマの視点からも考えてみましょう。
+
+私たちの信念は、過去の経験とカルマから形成されています。子供の頃に「お金は苦労の象徴だ」と刷り込まれた人は、大人になってもその信念を持ち続けがちです。過去世から持ち越されたパターンもあるかもしれません。
+
+しかし、信念は書き換えられます。カルマもまた、今この瞬間の選択で変えられます。RASの設定を意識的に変えることは、古いカルマのパターンを解消する一つの方法なのです。
+
+過去の経験が作った制限的な信念は、新しい意識的な選択によって上書きすることができます。それには時間と継続が必要ですが、可能なのです。
+
+ヨガナンダはこう語りました。「心を変えれば、運命も変わる。過去のカルマに縛られる必要はない。今この瞬間から、新しい未来を創造できる」と。
+
+RASを活用するための日常的な実践をお伝えします。
+
+感謝日記をつけてください。毎日、感謝できることを三つ書き出す。これにより、RASは「感謝できること」を探すモードになり、ポジティブな情報をより多くキャッチするようになります。
+
+最初は「大きな感謝」を探しがちですが、小さなことでいいのです。「今日の天気が良かった」「美味しいコーヒーが飲めた」「電車が時間通りに来た」。小さな感謝を見つけることで、RASは「良いこと」を見つけるモードになります。
+
+質問の力を使ってください。脳は、投げかけられた質問に答えようとします。「なぜ私はうまくいかないのか」と問えば、失敗の理由を探します。「どうすればうまくいくか」と問えば、成功の方法を探します。
+
+質問の質が、答えの質を決めます。ネガティブな質問はネガティブな答えを引き寄せ、ポジティブな質問はポジティブな答えを引き寄せます。
+
+環境を整えてください。見えるところに目標を書いた紙を貼る、理想の状態を表す画像を置く、成功者の本を読む。視覚的なリマインダーは、RASに常にメッセージを送り続けます。
+
+そして、行動してください。意識を変えるだけでなく、その意識に基づいた行動を取る。小さな行動でも構いません。行動することで、RASはさらに関連情報を集めやすくなります。
+
+この動画をここまで見てくださったあなたへ。
+
+あなたが見ている「現実」は、脳が作り上げた世界です。そして、そのフィルター設定は、あなた自身が決められます。過去の経験や無意識の信念によって設定されたフィルターも、今日から変えることができます。
+
+今日から、RASの設定を意識してみてください。何を「重要」として見たいのか。どんな現実を認識したいのか。設定を変えることで、同じ世界が全く違って見え始めるでしょう。
+
+RASと量子物理学の関連について考えてみましょう。
+
+量子物理学では、観察者が観察対象に影響を与えることが知られています。粒子は観察されるまで、すべての可能性を同時に持っている。観察されたときに、一つの状態に収束する。
+
+これはRASの働きと似ています。無数の可能性がある現実の中から、私たちの意識がフォーカスしたものが「現実」になる。フォーカスしなかったものは、存在していても認識されない。
+
+科学とスピリチュアルが同じ真実を指し示している例と言えるかもしれません。
+
+ネガティブなRAS設定を変える方法をさらに詳しくお伝えします。
+
+多くの人は、無意識のうちにネガティブなフィルターを設定しています。「世界は危険だ」「人は信用できない」「自分にはできない」。これらの信念がRASを設定し、証拠を集め続けています。
+
+このパターンを変えるための第一歩は、自分の信念に気づくことです。「私はどんな信念を持っているか」「その信念はどこから来たか」「その信念は本当に正しいか」と問いかけてください。
+
+多くの信念は、幼少期に形成されました。親の言葉、周囲の大人の態度、経験した出来事。これらが無意識にプログラムされ、今も作動し続けています。
+
+しかし、子供の頃に形成された信念が、大人になった今も正しいとは限りません。当時は適応的だったパターンが、今は制限になっていることもあります。
+
+信念を変えるには、新しい証拠を意識的に集めることが効果的です。「人は信用できる」証拠を意識的に探す。「自分にはできる」証拠を意識的に見つける。最初は難しくても、続けることでRASの設定が変わっていきます。
+
+メンタルリハーサルについてもお伝えします。
+
+トップアスリートは、実際の試合前にメンタルリハーサルを行います。完璧に演技する自分を、詳細にイメージする。このイメージが脳に刻まれ、実際のパフォーマンスが向上します。
+
+これはRASの活用です。脳は、イメージと現実を完全には区別できません。リアルにイメージすることで、脳はそれを「現実」として処理し始めます。すると、RASはその現実に関連する情報を優先的に集め始めます。
+
+人生の目標についても、同じ方法が使えます。理想の状態を詳細にイメージする。五感を使って、ありありと体験する。そのイメージを繰り返すことで、RASがその方向に調整されていきます。
+
+言葉とRASの関係についても触れておきましょう。
+
+私たちが使う言葉は、RASに指示を送っています。「私にはできない」と言えば、RASは「できない」証拠を集めます。「私にはできる」と言えば、RASは「できる」証拠を集めます。
+
+口癖を意識してください。無意識に使っているネガティブな言葉が、RASをネガティブな方向に設定しているかもしれません。
+
+質問もRASへの指示です。「なぜ私は失敗するのか」と問えば、RASは失敗の理由を探します。「どうすればうまくいくか」と問えば、RASは成功の方法を探します。
+
+質問を変えることで、RASの方向を変えることができます。
+
+環境とRASの関係についても考えてみましょう。
+
+周囲の環境は、RASに影響を与えます。ネガティブな人に囲まれていると、RASはネガティブな情報に敏感になります。ポジティブな環境にいると、RASはポジティブな情報をキャッチしやすくなります。
+
+読む本、見るメディア、過ごす場所、付き合う人。これらすべてがRASの設定に影響しています。
+
+意識的に、自分が望む方向の環境を選んでください。成功したいなら、成功者の話を聴く、成功に関する本を読む、成功を目指す人と付き合う。RASはその環境から情報を集め、あなたを導いてくれます。
+
+継続の重要性についてお伝えします。
+
+RASの設定を変えるには、継続が必要です。一度の意図設定で変わるものではありません。繰り返し、繰り返し、新しい方向に意識を向けることで、徐々にフィルターが変わっていきます。
+
+最初は変化を感じないかもしれません。それでも続けてください。水滴が石を穿つように、小さな積み重ねが大きな変化を生みます。
+
+三週間から一ヶ月続けると、変化を感じ始める人が多いです。三ヶ月続けると、新しい設定が定着し始めます。一年続けると、人生が変わっていることに気づくでしょう。
+
+最後に、RASは道具であることを忘れないでください。
+
+RASは素晴らしいツールですが、使い方次第です。ネガティブな方向に使えば、ネガティブな現実を見続けます。ポジティブな方向に使えば、可能性に満ちた現実が見えてきます。
+
+あなたは、このツールの使い手です。どのような現実を見たいか、どのような人生を生きたいか。それを決めるのは、あなた自身です。
+
+高評価、チャンネル登録をお願いします。コメント欄であなたの気づきを共有してください。
+
+では、またお会いする日まで。あなたのRASが、最も美しい現実を映し出しますように。可能性に満ちた世界が見えますように。
+</pre>
     </div>
   </div>
 </main>

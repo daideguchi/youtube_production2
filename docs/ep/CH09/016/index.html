@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH09-016 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH09-016 — script</h1>
           <div class="muted">【絶対行くな】貧乏になる場所7選</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH09</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH09</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,466 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCSWGduuNcydherU8cQJCqHA/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【絶対行くな】貧乏になる場所7選</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>貧乏になる場所7選で迷うときに。考え方と、今日からできる一歩を整理します。
+・貧乏になる場所7選で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩
+
+この動画は、「不動の指針」の長時間コンテンツです。
+偉人本人の語りで、名言と背景を物語にし、今日の焦りを静かに整える
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>絶対行くな, 偉人, 名言, 教養, 人生, 思考, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>貧乏になる場所7選で迷うときに。考え方と、今日からできる一歩を整理します。
+・貧乏になる場所7選で苦しくなる理由
+・心を守る考え方
+・今日からできる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「不動の指針」の長時間コンテンツです。
+偉人本人の語りで、名言と背景を物語にし、今日の焦りを静かに整える
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH09-016</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH09-016&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">静かな夜だ。
+松下幸之助だ。
+
+今夜は、お金の話をしよう。
+「絶対に行ってはいけない場所」についてだ。
+
+君は、「お金持ちになりたい」と思っているだろうか。
+あるいは、少なくとも「貧乏にはなりたくない」と思っているだろうか。
+もしそうなら、今すぐ立ち入り禁止にすべき場所がある。
+
+貧乏神というのは、特定の場所に住み着いている。
+そこに行くだけで、君の運気は吸い取られ、財布の紐は緩み、思考は貧困になっていく。
+まるで伝染病のように。
+
+逆に、お金持ちが集まる場所には、福の神がいる。
+そこに行けば、自然と背筋が伸び、良い知恵が浮かび、運が開ける。
+環境というのは、それほど恐ろしいものだ。
+
+---
+
+俺は9歳で丁稚奉公に出てから、商売を通じて「場所の魔力」というものを痛感してきた。
+繁盛する店には繁盛する空気が、潰れる店には潰れる空気が漂っている。
+そして、貧乏な人は、なぜか貧乏になる場所を好んで訪れる。
+
+番頭さんがこう言っていた。
+
+「幸之助、畑を見ろ。肥えた土の畑には良い作物が育つ。痩せた荒れ地に種を蒔いても、ヒョロヒョロや。人間も同じや。どこに身を置くかで、お前という作物が実るかどうかが決まるんやで」
+
+---
+
+「畑」
+
+これが、今夜の比喩だ。
+
+君自身、そして君の人生は「畑」だ。
+お金や幸福は、そこから収穫される「作物」だ。
+
+貧乏になる場所に行くということは、わざわざ塩水を畑に撒きに行ったり、イナゴの大群を連れて来たりするようなものだ。
+そんなことをしていては、いくら努力して耕しても、作物は育たない。
+
+今夜は、君の畑を不毛の荒野にする「絶対に行ってはいけない13の場所」を教えよう。
+近づくな。逃げろ。
+そこは、君の豊かさを枯らす呪いの土地だ。
+
+---
+
+一つ目の場所。ギャンブル場
+
+最初にして最大の禁足地だ。
+ここは、君の畑に「塩」を撒く場所だ。
+塩を撒かれた土地では、ペンペン草一本生えない。
+
+「少しの気晴らしだ」「小遣いの範囲内だ」
+そう言うかもしれない。
+だが、問題は金銭的な損失だけではない。
+ここに漂う「空気」が毒なのだ。
+
+楽して稼ぎたいという欲望。
+負けた人間の悔恨と怨念。
+タバコの煙と騒音。
+思考停止した視線。
+
+この空気に浸ると、君の脳から「地道に働く」「価値を生み出す」という思考回路が焼き切れる。
+「一発逆転」という麻薬に侵される。
+汗水垂らして働くのが馬鹿らしくなる。
+これが「塩害」だ。
+
+一度塩害を受けた土地を元に戻すには、何十年もかかる。
+君の人生という貴重な畑を、不毛の地にしてはいけない。
+近づくだけで運気が落ちると思え。
+
+---
+
+二つ目の場所。深夜のコンビニエンスストア
+
+「必要なものがあるから行く」ならいい。
+だが、なんとなく行っていないか。
+
+深夜のコンビニは、誘惑の畑だ。
+煌々と光る照明。
+美味しそうなスイーツ、お酒、雑誌。
+疲れた脳は、判断力が低下している。
+「自分へのご褒美」という言い訳で、必要のないものをカゴに入れる。
+「ラテマネー」、つまりちりつも出費の温床だ。
+
+さらに悪いのは、そこで「時間を浪費する」ことだ。
+立ち読みをし、ダラダラと商品を眺める。
+その時間は、本来なら睡眠にあてて体を休めるべき時間だ。
+
+畑に「雑草」の種を蒔いているようなものだ。
+無駄なカロリー、無駄な出費、睡眠不足。
+これらが雑草のように生い茂り、君の健康と財布を蝕む。
+夜は寝ろ。店に行くな。
+
+---
+
+三つ目の場所。安居酒屋での愚痴り飲み
+
+居酒屋が悪いわけではない。
+だが、「会社の悪口」や「上司の批判」をおかずに、安い酒を飲む場所。
+ここには絶対に行ってはいけない。
+
+ここは「害虫」の養殖場だ。
+ネガティブな言葉という害虫が、ウジャウジャと湧いている。
+
+「あいつが悪い」「給料が安い」「やってられない」
+こういう言葉を浴び続けると、君の脳も害虫に侵される。
+「どうせ無理だ」「頑張っても損だ」という思考が住み着く。
+
+しかも、割り勘で3000円払って、得られるものは二日酔いと自己嫌悪だけ。
+金と時間を使って、自分の畑に害虫を放流しに行っているようなものだ。
+生産性ゼロ。いや、マイナスだ。
+
+飲みに行くなら、夢を語れる場所に行け。
+尊敬できる人と、少し高い店に行け。
+そこは、肥えた土を交換する場所になる。
+
+---
+
+四つ目の場所。目的のないウィンドウショッピング
+
+休日にショッピングモールをブラブラする。
+これを趣味にしている人は注意が必要だ。
+
+ここは「肥料の過剰投入」を促す場所だ。
+「セール中」「期間限定」「ポイント5倍」
+君の購買意欲を刺激する罠が張り巡らされている。
+
+買う予定のなかった服を買う。
+便利そうな雑貨を買う。
+家に帰れば、似たようなものが転がっている。
+
+部屋が物で溢れると、思考も散らかる。
+畑に肥料、つまりモノをやりすぎて、根腐れを起こしている状態だ。
+本当に必要なものは、ネットで指名買いすればいい。
+ブラブラするなら、公園や美術館に行け。
+物欲ではなく、感性を磨け。
+
+---
+
+五つ目の場所。他人と比べる場所
+
+物理的な場所ではないかもしれないが、SNSなどの仮想空間も含む。
+自分より裕福な人の生活を覗き見に行くこと。
+あるいは、わざわざ高級住宅街を歩いて「自分は惨めだ」と感じること。
+
+これは、畑に「酸性雨」を降らせる行為だ。
+「いいなぁ」「それに比べて私は…」
+嫉妬と劣等感。
+この酸性雨は、君の自己肯定感を溶かし、やる気を枯らす。
+
+人は人、自分は自分だ。
+他人の立派な畑を見てため息をつくくらいなら、自分の畑の草むしりをしろ。
+自分の手にある鍬を動かせ。
+比べるなら、昨日の自分の畑と比べろ。
+
+---
+
+六つ目の場所。楽して儲かる系のセミナー会場
+
+「誰でも簡単に月収100万」「クリックするだけで」
+そんな甘い言葉に誘われて、怪しげなセミナーや説明会に行ってはいけない。
+
+ここは「イナゴ」の大群がいる場所だ。
+君のなけなしの金、すなわち種籾を食い尽くそうとする詐欺師、イナゴが待ち構えている。
+
+彼らの話術は巧みだ。
+君の不安を煽り、欲望を刺激する。
+「今のままでいいんですか？」「成功者は決断が早いですよ」
+正常な判断力を奪う。
+
+そもそも、本当に儲かる話なら、わざわざ他人に教えたりしない。
+自分で独占するはずだ。
+他人を誘う時点で、君を養分にしようとしているのだ。
+楽して作物が実る魔法はない。
+あるのは、地道な耕作だけだ。
+イナゴの餌食になるな。
+
+---
+
+七つ目の場所。かつての栄光の場所
+
+意外かもしれないが、ここも要注意だ。
+同窓会や、過去の職場の集まりなど、過去の自慢話をしたり、傷を舐め合ったりするだけの場所。
+
+「あの頃は良かったな」
+「お前、昔はすごかったもんな」
+
+これは、畑の「連作障害」を起こす。
+同じ作物を植え続けると、土が痩せて育たなくなる現象だ。
+過去の栄光にしがみついていると、新しい栄養が吸収できなくなる。
+
+「今はどうなんだ？」と問われた時、胸を張れるか。
+もし張れないなら、行くべきではない。
+過去に逃げるな。
+今、この瞬間の畑を耕せ。
+新しい種を蒔け。
+
+---
+
+八つ目の場所。家のソファの上
+
+休日に一歩も外に出ず、ソファで寝転がってポテトチップスを食べながら動画を見続ける。
+ここは「沼」だ。
+君の体と精神を沈める底なし沼だ。
+
+動かないと、水は淀む。
+体力が落ち、気力が失われ、余計に動けなくなる悪循環。
+「面倒くさい」が口癖になる。
+
+沼から這い上がれ。
+靴を履いて外に出ろ。
+太陽を浴びろ。
+歩くだけで、沼の水は流れ、清流に変わる。
+運は「運ぶ」と書く。体を運んで動かすことでしか、運は巡ってこない。
+
+---
+
+九つ目の場所。ネガティブニュースのサイト
+
+コメント欄が罵詈雑言で埋め尽くされているようなニュースサイトや掲示板。
+ここは「汚染水」の貯水槽だ。
+
+日本中、世界中の不幸、怒り、悲しみが集まっている。
+そんな汚染水を進んで飲みに行くな。
+「世の中はクソだ」
+そんな認知の歪みが生じる。
+
+君の畑に撒くのは、綺麗な水でなければならない。
+希望のある話、役に立つ知識、美しい芸術。
+情報源を厳選しろ。
+蛇口に浄水器をつけろ。
+
+---
+
+十個目の場所。見切り品のワゴンセール
+
+「半額だから」「安いから」
+必要かどうかも考えずに、見切り品のワゴンに群がる。
+ここは「ゴミ捨て場」の入り口だ。
+
+安いから買ったものは、結局大切にしない。
+すぐにゴミになる。
+「安物買いの銭失い」とはよく言ったものだ。
+
+君はゴミを集めるために生きているのか？
+違うはずだ。
+本当に気に入った、良いものを少しだけ持つ。
+それが豊かな暮らしだ。
+値段ではなく、価値で選べ。
+ゴミを畑に撒くな。
+
+---
+
+十一個目の場所。「待合室」、つまり待ちの姿勢
+
+「いつか誰かが助けてくれる」「いつかチャンスが来る」。
+そう思って、何もせずにぼーっとしている心の中の場所。
+これは、畑を「放置」しているのと同じだ。
+放置された畑は、すぐに荒れ地になる。
+
+チャンスは、バスのように決まった時間に来るものではない。
+君が畑を耕し、種を蒔き、準備が整った時、初めて芽を出すものだ。
+「待つ」という行為は、人生の放棄だ。
+自分から迎えに行け。鍬を持って立ち上がれ。
+
+---
+
+十二個目の場所。「裁判所」、つまり他人を裁く場所
+
+心の中で、常に他人をジャッジしている場所。
+「あの人の服のセンスは変だ」「あの店員の態度はなってない」「政治が悪い」
+裁判官気取りで、正義の槌を振るう。
+
+だが、人を裁くことに時間を使っても、君の畑は1ミリも耕されない。
+他人の雑草を指摘する暇があったら、自分の作物を育てろ。
+批判は、何も生まない。
+収穫ゼロの無駄な労働だ。
+裁判官の服を脱ぎ、農夫の作業着を着ろ。
+
+---
+
+十三個目の場所。「自分可哀想」の部屋、被害者意識の場所だ。
+
+「なんで私ばっかり」「私は恵まれていない」
+心の中に、自分を慰めるための薄暗い部屋を作って、そこに閉じこもる。
+これは「地下牢」だ。
+日光が届かず、湿気が溜まり、カビが生える。
+
+被害者でいることは、ある意味で楽だ。
+努力しなくていいし、誰かのせいにできるからだ。
+だが、その地下牢にいる限り、君は一生、太陽の下で収穫を喜ぶことはできない。
+鍵はかかっていない。
+ドアを開けて、外に出ろ。
+君は被害者ではない。人生の開拓者だ。
+
+---
+
+さて、ここまで「行ってはいけない13の場所」を話した。
+だが、これだけでは片手落ちだ。
+逆に、「行くべき場所」、すなわち君の畑を豊かにする「黄金の土壌」についても話しておこう。
+ここに行けば、貧乏神は逃げ出し、福の神が舞い降りる。
+
+一つ目。図書館・本屋。知の土壌だ。
+ここには、先人たちの知恵、成功者の思考が詰まっている。
+数百円、数千円で彼らの人生を追体験できる。
+最もコスパの良い肥料だ。
+本に囲まれるだけで、脳は「学ぶモード」に切り替わる。
+紙の匂いは、知性の香りだ。
+
+二つ目。ジム・運動場。体の土壌だ。
+体は資本だ。
+汗を流し、筋肉を動かすことで、ネガティブな感情が排出される。
+テストステロンが出て、前向きになる。
+健康という土台がなければ、どんな作物も育たない。
+体を鍛えることは、畑そのものを広くすることだ。
+
+三つ目。自然の中。魂の土壌だ。
+海、山、森。
+人工物のない場所に行くと、人間本来のリズムを取り戻せる。
+日常の些細な悩みがちっぽけに思えてくる。
+定期的に「土」に触れることで、君の根っこが深くなる。
+デジタルデトックスをし、風の音を聞け。
+
+四つ目。一流のホテルのロビー。高地の土壌だ。
+たまには、背伸びをして一流の空気に触れろ。
+そこにいる人々の所作、サービスの質、調度品の美しさ。
+「いつかここに似合う人間になる」というモチベーションが湧く。
+高い場所の空気は薄いが、澄んでいる。
+その空気を吸うことで、君の基準値が上がる。
+
+五つ目。ご先祖様の墓前。根の土壌だ。
+自分がここに存在することへの感謝。
+命が繋がっていることへの畏敬。
+墓参りに行くと、不思議と守られている感覚になる。
+「見られている」という感覚が、君の背筋を正す。
+見えない根っこに水をやれ。
+感謝は、最強の栄養剤だ。
+
+---
+
+さて、行くべき場所、行かざるべき場所。
+君の地図は書き換わっただろうか。
+
+最後に、今夜からできる具体的なアクションを3つ授けよう。
+「場所の断捨離」だ。
+
+一つ目。通勤・通学ルートを変える。
+パチンコ屋や、誘惑の多いコンビニの前を通らないルートに変える。
+物理的に視界に入れないことが、一番の防御だ。
+「見ない」＝「存在しない」だ。
+
+二つ目。スマホのホーム画面を整理する。
+SNSアプリ、ゴシップニュース、ゲーム、ショッピングアプリ。
+これらをフォルダの奥底に隠すか、削除する。
+スマホの中も「場所」だ。
+指一本で貧乏な場所に行けないようにバリケードを築け。
+
+三つ目。週に一度、聖域に行く。
+お気に入りの落ち着いたカフェ、神社、静かな図書館。
+「ここに来ると心が洗われる」という場所を見つける。
+そして週に一回、必ずそこに行き、自分の心の畑の状態をチェックする。
+「今週も頑張ったな」「来週は何を植えようか」
+この時間が、君をお金持ちマインド、すなわち豊かな農夫に変える。
+
+---
+
+夜が明ける前に、もう一度言っておく。
+
+貧乏になる場所には絶対に行くな。
+ギャンブル、深夜コンビニ、悪口居酒屋、無駄な買い物、比較する場所、怪しげなセミナー、過去の栄光、ソファの沼、汚染ニュース、ワゴンセール、待合室、裁判所、地下牢。
+
+これらは、君の畑を殺す。
+
+君の畑は、本来もっと豊かだ。
+金のなる木が育つ可能性を秘めている。
+
+種を蒔く場所を選べ。
+身を置く場所を選べ。
+
+肥沃な大地に根を下ろせば、君は必ず大木になる。
+豊作の秋は、必ず来る。
+
+俺は信じている。君の畑は、黄金色に輝く。
+
+雑草に負けるな。
+害虫に食われるな。
+君は、君の人生という素晴らしい農園の、誇り高き園主、オーナーなのだから。
+最高の収穫を、楽しみにしている。
+太陽はいつも、君の畑だけを照らしているのだから。
+君の流した汗は、決して無駄にはならない。
+土は正直だ。
+手をかければかけるほど、それは確かな実りとなって君に返ってくる。
+雑草を抜き、石を取り除いたその畑は、君だけの聖地となるだろう。
+豊かな収穫の秋に、君が満面の笑みを浮かべている姿が、私にははっきりと見える。
+安心して耕せ。
+君の収穫を、心から祈っている。
+それでは、また会おう。
+松下幸之助だった。
+</pre>
     </div>
   </div>
 </main>

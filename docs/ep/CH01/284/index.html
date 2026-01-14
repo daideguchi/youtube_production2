@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-284 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-284 — script</h1>
           <div class="muted">【怒りの正体】カッとなる前に知っておくべき仏教の教え。冷静さを取り戻す方法</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,340 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【怒りの正体】カッとなる前に知っておくべき仏教の教え。冷静さを取り戻す方法</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【怒り】で苦しいあなたへ──冷静さを取り戻す話。
+・怒りの正体・冷静さを保つ3つの方法
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>怒り, 冷静, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【怒り】で苦しいあなたへ──冷静さを取り戻す話。
+・怒りの正体・冷静さを保つ3つの方法</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-284</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-284&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">怒りを抑えられない。カッとなって、後で後悔する。そんな経験はありませんか。
+
+---
+
+私たちは日々の生活の中で、理不尽な出来事や思い通りにならないことに直面します。その時、心の中で火がつくように怒りが込み上げてくる。それは、人間として自然な反応です。しかし、仏教ではこの怒りを、自分自身を焼き尽くす「三毒の火」の一つとして警鐘を鳴らしています。怒りに任せて行動すると、一時的にスッキリした気分になるかもしれません。ですが、その後には必ず、しこりや後悔が残ります。大切な人間関係を壊したり、取り返しのつかない失敗を犯したりするのは、冷静さを失った瞬間です。北条時宗が生きた鎌倉時代もまた、混乱と不安が満ちていました。彼の周りにも、怒りや恐怖に支配される人々はたくさんいたはずです。しかし、時宗だけが違いました。彼は、燃え盛る炎の中にいながら、その熱さに焼かれることのない、冷徹な心の目を持っていました。これは、生まれつきの性格ではありません。彼が身につけた、ある「技術」だったのです。私たちも、その技術を学ぶことで、怒りという猛獣を手懐けることができるのです。
+
+北条時宗。
+
+鎌倉時代を生きた執権である。
+
+時宗は、怒りを制した人だった。
+
+モンゴル帝国という未曾有の脅威に直面しながらも、冷静さを失わなかった。二度の元寇を退け、日本を守り抜いた。
+
+その姿勢は、七百年経った今も、怒りの鎮め方を教えてくれる。
+
+---
+
+国書を手にした時、鎌倉幕府の中枢は、恐怖と緊張に包まれていました。モンゴル軍の残虐な振る舞いは、すでに風聞として伝わっていました。従わなければ、国が滅びる。従えば、国の尊厳が失われる。板挟みになった家臣たちは、意見が割れ、議論は紛糾したことでしょう。その中で、時宗は静かに、しかし揺るぎない意志を持って対峙しました。彼が恐れたのは、モンゴルの軍勢だけではありませんでした。自分自身の心の中に湧き上がる、怒りという感情そのものだったのです。もし、彼がプライドを傷つけられ、カッとなって使者を処断していたらどうなったでしょうか。それは即座に戦争を意味し、準備不足の日本は壊滅的な打撃を受けていたかもしれません。彼は、その衝動を、理性という鎖でしっかりと縛り付けました。これは単なる忍耐ではありません。相手の意図を見抜き、最善の結果を導くための、高度な知恵です。私たちも、理不尽な扱いを受けた時、すぐに言い返したくなる衝動に駆られます。しかし、時宗のように一歩引いて全体を見ることで、事態は好転するかもしれません。
+
+北条時宗は、建長三年に生まれた。
+
+父は五代執権・北条時頼。鎌倉幕府の実質的な支配者だった。
+
+時宗は、幼い頃から次期執権として育てられた。
+
+しかし、時宗の時代は、かつてない危機の時代だった。
+
+---
+
+当時、モンゴル帝国は圧倒的な武力でユーラシア大陸を席巻し、降伏しない国や都市を容赦なく破壊し尽くしていました。その残酷な情報が鎌倉に届いた時、人々が抱いたのは当然の恐怖と、理不尽な侵略者への激しい怒りでした。しかし、時宗はその激しい感情の渦中で、怒りがいかに人間の視野を狭め、長期的な判断を誤らせるかを見抜いていました。もし怒りに任せて即座に反撃し、使者を処断すれば、一時的な気晴らしにはなっても、準備不足のまま強大な敵を迎え撃つことになり、国は滅びるでしょう。彼は、自分の心の中に湧き上がる熱い感情を、冷徹な理性で受け止め、国を守るという明確な目的のためにエネルギーを転換するという、極めて困難な選択を続けたのです。これは単なる忍耐ではなく、激流の中で舟を安定的に進めるための、高度な精神のバランス感覚でした。
+
+怒りが込み上げるその瞬間、私たちの脳内では理性を司る部分が機能を停止し、攻撃本能だけが暴走状態に陥ると言われています。時宗が見せた冷静さは、この本能的な暴走を強制的に停止させる、まさに心の危機管理術そのものでした。彼はモンゴルの脅威という強烈なストレスに晒されながらも、怒りというエネルギーを破壊的な衝動ではなく、国を守るための揺るぎない意志へと昇華させたのです。私たちが日々の生活で直面するイライラや不満も、実は同じエネルギーの源であり、扱い方を間違えれば自分を傷つける凶器になりますが、正しく向き合えば物事を好転させるきっかけにもなり得ます。感情に流されるままに反応するのではなく、その波をじっと観察する視点を持つことで、私たちは怒りという猛獣を飼い慣らす主人になれるのです。
+
+一度目の元寇を退けた後、時宗は七年という長い月日を、戦いの準備に費やしました。この期間は、実戦以上に精神的に過酷だったはずです。敵はいつ来るかわからない。その不安の中で、常に緊張を強いられる日々。多くの人は、時間が経てば危機感が薄れ、油断してしまうものです。あるいは、不安に押しつぶされ、心が病んでしまうかもしれません。しかし、時宗は違いました。彼は、この不安な時間を、心を磨く時間に変えました。博多湾の石築地という物理的な壁を作ると同時に、自分の心の中にも、揺るぎない壁を作ろうとしたのです。禅の修行に打ち込んだのは、単なる気休めではありませんでした。明日をも知れぬ命の中で、どうすれば心を乱さずにいられるか。その答えを探し求めたのです。私たちの人生にも、不確実な未来は待ち受けています。老後の不安や、病気の恐怖。それらに直面した時、私たちはどう振る舞うべきか。時宗の七年間の忍耐は、その問いに対する強力な回答を示しています。ただ待つのではなく、心を整えながら備える。それが、最大の防御策になるのです。
+
+モンゴル帝国が、世界を席巻していた。
+
+チンギス・ハンから始まったモンゴルの征服は、ユーラシア大陸全域に及んでいた。
+
+中国も、朝鮮も、モンゴルに征服された。
+
+そして、モンゴルの目は、日本に向いた。
+
+---
+
+文永五年、モンゴルから使者が来た。
+
+使者は、日本に服属を求める国書を持っていた。
+
+もし従わなければ、軍を送る。
+
+明らかな脅迫だった。
+
+---
+
+幕府の中では、意見が分かれた。
+
+ある者は言った。
+
+モンゴルには逆らえない。服属するしかない。
+
+また、ある者は言った。
+
+使者を斬れ。それで日本の覚悟を示すべきだ。
+
+---
+
+しかし、時宗は冷静だった。
+
+激昂することなく、慎重に考えた。
+
+使者を斬れば、それは宣戦布告と同じだ。準備ができていないうちに、戦争を招くことになる。
+
+かといって、服属することもできない。
+
+時宗は、使者を追い返すことにした。返書は出さなかった。
+
+---
+
+モンゴルは、何度も使者を送ってきた。
+
+その度に、時宗は同じ対応を取った。
+
+追い返す。しかし、斬らない。
+
+時間を稼ぎながら、戦いの準備を進めた。
+
+---
+
+文永十一年、ついにモンゴル軍が襲来した。
+
+元寇の始まりである。
+
+モンゴル軍は、対馬と壱岐を蹂躙し、博多に上陸した。
+
+日本は、かつてない危機に直面した。
+
+---
+
+このとき、時宗はまだ若かった。二十四歳だった。
+
+しかし、時宗は動じなかった。
+
+冷静に指示を出し、軍を動かした。
+
+御家人たちを励まし、戦いに臨ませた。
+
+---
+
+博多で激しい戦いがあった。
+
+日本軍は苦戦したが、モンゴル軍も損害を受けた。
+
+その夜、暴風雨が襲来した。
+
+モンゴル軍は、撤退を余儀なくされた。
+
+---
+
+一度目の元寇は、退けた。
+
+しかし、時宗は油断しなかった。
+
+モンゴルは、必ずまた来る。次はもっと大軍で来る。
+
+時宗は、そう確信していた。
+
+---
+
+時宗は、防備を固めた。
+
+博多湾に、石築地と呼ばれる防塁を築かせた。全長二十キロメートルに及ぶ大工事だった。
+
+御家人たちに、常に戦いの準備をさせた。
+
+七年間、時宗は待ち続けた。
+
+---
+
+弘安四年、再びモンゴル軍が来た。
+
+今度は、十四万の大軍だった。
+
+時宗は、冷静に対処した。
+
+石築地のおかげで、モンゴル軍は上陸できなかった。日本軍は、海上で戦った。
+
+---
+
+そして、再び暴風雨が来た。
+
+後に「神風」と呼ばれる台風である。
+
+モンゴル軍は壊滅し、二度目の元寇も退けられた。
+
+日本は、救われた。
+
+---
+
+時宗の強さは、怒りを制する力にあった。
+
+モンゴルの脅迫に対しても、時宗は怒りに任せて行動しなかった。
+
+使者を斬りたい衝動を抑え、冷静に判断した。
+
+その冷静さが、日本を救った。
+
+---
+
+時宗は、禅に深く帰依していた。
+
+無学祖元という禅僧に師事し、坐禅を組んだ。
+
+禅は、心を静める修行だ。
+
+時宗は、禅を通じて、怒りを制する力を身につけた。
+
+---
+
+ある時、時宗は無学祖元に聞いた。
+
+師よ、国難に際して、私はどうすればいいのでしょうか。
+
+無学祖元は答えた。
+
+驀直去。ただ真っ直ぐに行け。
+
+迷うな、恐れるな、怒るな。ただ真っ直ぐに、なすべきことをせよ。
+
+時宗は、その教えを胸に刻んだ。
+
+---
+
+仏教には「忍辱」という教えがある。
+
+忍辱とは、耐え忍ぶことだ。しかし、それは我慢して黙っていることではない。
+
+怒りに振り回されず、心を乱されずにいること。それが、忍辱の本当の意味である。
+
+時宗は、忍辱を体現していた。
+
+---
+
+怒りには、二つの種類がある。
+
+一つは、正当な怒り。不正に対する怒り、弱者を守るための怒り。これは、行動の原動力になる。
+
+もう一つは、感情的な怒り。カッとなって我を忘れる怒り。これは、判断を誤らせる。
+
+時宗は、後者を抑え、前者だけを使った。
+
+---
+
+時宗の生涯から、怒りの鎮め方を学ぶことができる。
+
+一つ目は、すぐに反応しないこと。
+
+怒りを感じても、すぐに行動しない。一呼吸置く。冷静になる時間を作る。
+
+二つ目は、長期的に考えること。
+
+今、怒りに任せて行動したら、どうなるか。長期的な結果を考える。
+
+三つ目は、心を鍛えること。
+
+坐禅でなくてもいい。深呼吸でも、散歩でもいい。心を静める習慣を持つ。
+
+---
+
+怒りを感じた時、次のことを試してほしい。
+
+六秒待つこと。
+
+怒りのピークは六秒で過ぎると言われている。六秒待てば、冷静さを取り戻せる。
+
+深呼吸をすること。
+
+怒りを感じたら、深く息を吸い、ゆっくり吐く。呼吸に集中することで、怒りから距離を取れる。
+
+その場を離れること。
+
+どうしても抑えられない時は、その場を離れる。物理的に距離を取ることで、心も落ち着く。
+
+---
+
+時宗は、三十四歳でこの世を去った。
+
+元寇を退けた後、わずか三年後のことだった。
+
+国を守るという重圧が、時宗の命を縮めたのかもしれない。
+
+しかし、時宗は最後まで怒りに支配されなかった。
+
+---
+
+仏教は教える。
+
+怒りは、自分を焼く炎である。
+
+怒りに任せて行動すると、結果として自分が傷つく。
+
+時宗のように、怒りを制することで、正しい判断ができる。
+
+驀直去。ただ真っ直ぐに行け。
+
+怒りに振り回されず、なすべきことをなす。
+
+その姿勢が、あなたを正しい道に導いてくれるのだ。
+
+---
+
+本日も最後までご覧いただきありがとうございます。
+
+高評価とチャンネル登録も励みになります。
+
+それでは、また次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

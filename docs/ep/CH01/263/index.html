@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-263 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-263 — script</h1>
           <div class="muted">【絶対に関わるな】あなたの時間を奪う人の特徴7つ。人生が静かに壊れます</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,144 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【絶対に関わるな】あなたの時間を奪う人の特徴7つ。人生が静かに壊れます</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【人間関係】で苦しいあなたへ──時間を守る話。
+・時間泥棒の特徴7つ・線の引き方
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 時間, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【人間関係】で苦しいあなたへ──時間を守る話。
+・時間泥棒の特徴7つ・線の引き方</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-263</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-263&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あなたの人生という砂時計を想像してください。上の玉は、あなたの残りの時間です。それが、あなたの意思とは関係なく、誰かの都合でどんどん落ちていく。そんな感覚、覚えがありませんか。今日もまた、断りきれずに無駄に過ごしてしまった後悔。夜になって体が重く、心がすり減っていくのを感じる。その痛みは、単に時間を失ったことへの悲しみではありません。実はもっと根源的な、命そのものが削り取られている喪失感なのです。
+
+仏教では、この世のすべてのものが移り変わる無常という真理を説きます。今この瞬間は、二度と戻ってきません。一秒前のあなたも、今のあなたも、次の一秒のあなたも、すべて違います。砂時計の砂は一度落ちたら、二度と上には戻らないのです。つまり、他人の理不尽な要求に応じて過ごしてしまった一時間は、あなたの限りある人生そのものが、物理的に削り取られたということです。それは単なるスケジュールの崩れではありません。尊い命の欠損です。自分の時間を守ることは、決してエゴではなく、尊い命を守るための大切な実践なのです。
+
+古い伝承に、アーナンダという人物の話が残されています。彼はブッダの側に仕え、教えを記憶した大切な弟子です。アーナンダは、ブッダの時間を誰よりも尊重していたと言われます。彼は自分の欲求や、どうでもいい世間話で師の時間を奪うことはしませんでした。ただひたすらに、その瞬間に流れる真実の言葉を受け止めることに集中しました。その静かな姿勢があったからこそ、彼は多くの教えを心に刻み、後世へと伝えることができました。もし彼が、師の時間を奪うような振る舞いをしていたら、貴重な教えは霧散してしまったかもしれません。彼の姿は、時間を守ることが、いかに命を守り、価値あるものを残すことに繋がるかを静かに示しています。
+
+さて、私たちの日常に戻りましょう。私たちはアーナンダのように修行僧ではありませんが、日々の生活の中で、自分の時間を奪おうとする波状攻撃にさらされています。頭では命を削られていると分かっていても、なぜ私たちはこの貴重な命を守ることを躊躇ってしまうのでしょうか。その理由を、古い教えに探ってみることにしましょう。
+
+---
+
+もし今、あなたに毒矢が刺さったとしたら、誰が射たかを知る前にまず矢を抜きますか。痛みに悶えながら犯人探しを続けるのは、あまりに非現実的ですよね。しかし私たちの日常を見渡すと、まさにこの犯人探しに時間を費やして、傷口を深くしているケースが後を絶ちません。この章では、ブッダが説いた有名な譬え話を通じて、あなたの命を守るための最優先事項をはっきりさせていきます。見終わった後には、無駄な悩みから手を離す勇気が湧いてくるはずです。
+
+---
+
+古代インドでブッダが説いた毒矢の譬えは、私たちの迷いを断つ強力なメッセージです。ある男が毒矢に射抜かれました。彼は医者を呼ぶのではなく、矢を射たのが誰か、どんな弓を使ったか、どんな羽がついているかと、次々と問い詰め始めます。答えが出ないうちに、彼はその毒で命を落としてしまいます。ブッダはこの話で、人生の苦しみに対して本質的でない問いに囚われることの危険性を鋭く指摘しました。矢を抜くこと、つまり苦しみを止めることが何よりも先決なのです。
+
+---
+
+経典には、この教えを実践した修行者たちの葛藤と選択が記されています。彼らは、悟りを妨げるあらゆる雑縁を断ち切る決断を迫られました。長年親しんだ友人であっても、自分の心を乱し、時間を浪費させるような相手であれば、付き合いを絶つ覚悟が必要でした。それは非常に辛く、孤独を感じる選択だったかもしれません。しかし彼らは、無駄な関わりという重荷を下ろすことで、かえって心が軽くなることを経験しました。結果として、彼らは深い集中力を取り戻し、真の安らぎを得ることができたと伝えられています。
+
+---
+
+さて、私たちの日常に戻りましょう。現代を生きる私たちにとって、この毒矢とは何でしょうか。それは、あなたの時間を奪い、心を消耗させる無駄な関わりそのものです。スマホの通知や、終わらない愚痴の時間もまた、現代の毒矢と言えるかもしれません。
+
+---
+
+今夜からできることをお伝えします。まず、自分の時間を奪う相手や会話を紙に書き出してみてください。そして、その相手と関わることで自分が「犯人探し」のような無意味な悩みを抱えていないか自問しましょう。もし心が削られていると感じたら、その場を離れるか、話を切り上げる勇気を持ってください。返信は翌日に回すのも一つの手です。これが、あなた自身の矢を抜く第一歩になります。
+
+---
+
+本質でないことに囚われず、自分の心を守ること。それが、あなたの人生を静かに、そして豊かにしていくのです。
+
+---
+
+電話がかかってくると決まって、あなたの話を聞かずに一方的に愚痴をこぼしてくる人はいませんか。受話器を置いた後、ふと我に返るとどっと疲れが襲ってきます。まるで体の中からエネルギーが吸い取られたような、重苦しい感覚に包まれます。それはあなたの想像通りです。実は、その瞬間、あなたの貴重な時間が奪われているのです。
+
+仏教では、本質的でない問いに時間を費やす愚かさを「毒矢の譬え」で説きました。現代におけるその毒矢とは、物理的な武器ではありません。あなたの心を疲れさせ、人生の時間をむしばむ「特定の人間関係」のことです。気づかないうちに、その矢はあなたの心に深く突き刺さっているのです。
+
+仏教には、ブッダの侍者として教えを支えたアーナンダという人物が伝えられています。彼は常にブッダの時間を尊重し、無駄に奪うことはしませんでした。対照的に、時間泥棒はあなたの時間を自分の都合のために消費します。
+
+では、その正体を見極めていきましょう。典型的なのは、感謝を知らない人です。あなたの親切を当たり前と思い込み、少しも礼を言いません。また、自分の話ばかりする人もいます。相手の話を聞く姿勢がなく、会話が完全に一方通行になるのです。さらに、境界線を侵してくる人も危険です。遠慮なくプライベートな時間に踏み込んできます。この他にも、いつでも今だけを迫る人、約束の時間を守らない人、そして謝らない人。最後に、終わらない話をする人もいます。これら七つの特徴に当てはまる人は、あなたの優しさを餌にしています。
+
+彼らは執着という名の鎖であなたを縛り付けます。断ることに罪悪感を抱かせ、逃げられないようにするのです。しかし、ここで冷静になる必要があります。これは単なる人間関係の問題ではありません。あなたの限りある命が削られているという事実です。相手の特徴を言語化することで、あなたは消耗のループから抜け出す第一歩を踏み出せます。
+
+このような人たちと関わってしまった時、仏教ではどう振る舞うべきと説いているのでしょうか。
+
+---
+
+相手を傷つけずに、かつ自分も疲れない「ノー」という言葉はあるのでしょうか。あなたはきっと、断ることへの罪悪感に長く苦しんできたはずです。電話が鳴るたびに身構え、会話のたびに心が削られていく。関係を壊したくない一心で、曖昧な「また今度」という言葉を使い、結局は自分の貴重な時間を犠牲にしてきた。そんな苦しみのループから抜け出すための、仏教の知恵があります。
+
+それは「縁を切る」のではなく、「縁を整える」という考え方です。仏教では、相手を拒絶して憎むことも、かといって無理に従って苦しむことも、どちらも正しい道とはしません。その間にある「中道」を歩むことが大切です。自分の心を乱さないための距離感を保つこと。それは、相手への慈悲の心でもあるのです。優しさとは、相手の要求を全て飲むことではありません。お互いが安らかでいられる関係性を作ることこそが、本当の優しさなのです。
+
+古くから伝わるお話に、ブッダの身の回りの世話をしたアーナンダという弟子の姿があります。彼は常にブッダのそばにあり、多くの人々の願いを取り次ぐ係でもありました。しかし、ブッダが静養が必要な時や、教えを説く準備をしている時は、会いたいという人々をきっぱりと断らなければなりませんでした。そこには、熱心な信徒を突き返すことへの葛藤もあったでしょう。それでも彼は、「今は休息の時間です」と告げ、門を閉ざしました。これはブッダの命を守るためであり、ひいては教えを長く残すための行為でした。アーナンダの断りは、決して拒絶ではありませんでした。時間を整え、場を清める慈悲の実践だったのです。
+
+さて、私たちの日常に戻りましょう。あなたもまた、長々と言い訳をする必要はないのです。
+
+今夜からできる第一歩は、曖昧な返事をやめることです。「検討します」と言う代わりに、今はできないと簡潔に伝えます。次に、理由を長く説明しすぎないこと。あなたの時間は、あなたの命そのものです。それを守るのに、長文の弁明はいりません。そして、何より大切なのは、穏やかな心で伝えることです。怒りや攻撃性を含めるのではなく、ただ事実として線を引く。それが、あなたの心を消耗させない一番の方法です。
+
+自分の時間を守り始めると、あなたの未来の景色はどのように変わっていくのでしょうか。
+
+---
+
+誰かの時間に縛られない自由な老後を、あなたは想像したことがありますか。
+
+ふと、将来のことを考えると胸が締め付けられることがあるかもしれません。自分が誰かの負担になったり、孤独に取り残されたりするのが怖いと感じる瞬間もあるでしょう。でも、時間を取り戻すことで、その不安の景色は驚くほど穏やかに変わっていきます。
+
+---
+
+自分の時間の主導権をしっかりと持つようになると、老後への漠然とした恐怖が自然と薄れていくのです。
+
+これまで他人の要求に応えるために使い果たしていたエネルギーが、ゆっくりとあなた自身に戻り始めます。心にぽっかり空いていた穴が、自分への慈しみで埋まっていくのを感じるはずです。そうして心に余裕が生まれると、一人の時間はもはや寂しいものではなくなり、自分を深く知るための豊かな瞬間へと変わっていきます。
+
+静かに過ごす午後も、好きな本に向かう時間も、誰かの言葉に振り回されない静寂は、すべてが心の栄養になります。
+
+---
+
+これは、あなたの残りの人生を誰かの期待に応えるためではなく、自分のために生きるという、穏やかな転換点です。
+
+仏教が説く無常の教えのように、今この瞬間の命を輝かせることこそが、最高の老後の準備となります。どうか、罪悪感を持たずにあなたの時間を大切に守ってください。あなたが自分を大切にすればするほど、心は軽くなり、穏やかで満ち足りた日々がそこに広がっていきます。
+
+その幸せな時間を、心から願っています。
+</pre>
     </div>
   </div>
 </main>

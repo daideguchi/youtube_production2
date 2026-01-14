@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-252 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-252 — script</h1>
           <div class="muted">【ブッダの警鐘】関わると寿命が縮みます。あなたの「精気」を吸い取る人の正体（5タイプ）</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,160 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【ブッダの警鐘】関わると寿命が縮みます。あなたの「精気」を吸い取る人の正体（5タイプ）</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【人間関係】で苦しいあなたへ──“吸われる相手”から離れる知恵。
+・エネルギー泥棒5タイプ・距離の取り方（心と現実）
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 疲労, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【人間関係】で苦しいあなたへ──“吸われる相手”から離れる知恵。
+・エネルギー泥棒5タイプ・距離の取り方（心と現実）</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-252</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-252&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">会うたびに心が暗くなる人がいませんか。
+
+話を聞いただけなのに、どっと疲れてしまう。帰り道は頭がぼんやりして、自分が何をしたかったのか思い出せない。夜になっても相手の言葉が頭から離れず、眠りが浅くなる。
+
+もしそんな経験があるなら、それはあなたの性格の問題ではありません。相手との近づき方が狂っているサインです。
+
+ブッダはこうした人を悪知識と呼びました。人生を損なう友人のことです。反対に、善き道へ導いてくれる友人を善知識と呼び、人生の宝だと繰り返し語っています。善知識はあなたの心に灯をともし、前を向く力をくれる。悪知識はその灯を静かに消していく。
+
+悪知識が恐ろしいのは、最初の少しだけで近づいてくることです。ほんの一言に耳を傾けただけ。ほんの数分だけ話を聞いただけ。それくらいなら大丈夫だと思う。しかし気づいたときには、心の灯がずいぶん小さくなっている。それが悪知識の静かな浸食です。
+
+今回は、この悪知識を五つのタイプに分けてお伝えします。そして仏教が教える距離の取り方、物理の距離、時間の距離、心の距離についてもお話しします。最後には今夜からできる小さな一歩もご紹介します。あなたの精気を守る入り口は、ここにあります。
+
+---
+
+古代インドに、阿闍世という名の王子がいたと伝えられています。
+
+父はビンビサーラ王。お釈迦様を深く敬い、仏教を篤く保護した王でした。阿闍世は正当な後継者として、いずれ穏やかに王位を継ぐはずだった。周囲からも将来を期待され、何不自由のない日々を送っていたと言われています。
+
+しかし、そこに一人の男が近づきます。提婆達多です。
+
+提婆達多はお釈迦様の従兄弟でありながら、教団の中で野心を抱いていたと諸説あります。彼は若き王子に目をつけ、少しずつ距離を縮めていきました。最初は何気ない会話だったかもしれません。王子の悩みに耳を傾け、共感を示し、信頼を得ていく。そして頃合いを見て、耳元でささやき始めます。
+
+あなたは王子なのに、なぜこれほど待たねばならないのか。父王はいつまでも王座を譲る気配がない。このままでは、あなたの才能は埋もれてしまう。あなたにはもっとふさわしい道がある。
+
+最初はほんの世間話のつもりだったかもしれません。少しだけ耳を貸しただけ。少しだけ愚痴を聞いてもらっただけ。しかしその少しだけが、阿闍世の心に静かに染み込んでいきました。
+
+提婆達多の言葉は何度も繰り返されます。会うたびに、父への不満を煽り、王位への焦りを刺激する。阿闍世は次第に、自分でも気づかないうちに判断が曇っていきました。父を敬う心より、父を疎む心の方が大きくなっていく。
+
+経典によれば、阿闍世はついに父王を幽閉し、王位を奪ったと伝えられています。父は獄中で命を落としたとも、餓死させられたとも。詳しい経緯には諸説ありますが、父を手にかけたという重い事実だけは残りました。
+
+王座を手に入れた阿闍世でしたが、その後に待っていたのは栄光ではありませんでした。激しい苦悩が彼を襲います。体には吹き出物が現れ、心は罪悪感に蝕まれていった。眠れない夜が続き、食事も喉を通らなくなったと伝わっています。
+
+手に入れたはずの王座は、彼に安らぎを与えませんでした。むしろ父を失った空虚さと、自らの行いへの後悔が、日に日に大きくなっていく。提婆達多の言葉に従った結果が、これだったのです。
+
+最初の少しだけがどこまで人を運ぶか。阿闍世の物語はそれを静かに教えてくれます。ほんの少し耳を傾けただけ。ほんの少し心を許しただけ。それが人生の方向を大きく変えてしまうことがある。
+
+さて、私たちの日常に戻りましょう。
+
+私たちの周りに王位を奪わせるような人はいません。しかし判断を曇らせ、心を蝕む人は確かにいる。会うたびにエネルギーが減っていく相手がいるなら、それは現代の悪知識かもしれません。では、どんな人が私たちの精気を吸い取っているのでしょうか。
+
+---
+
+ここからは、あなたの精気を吸い取る五つのタイプをお伝えします。
+
+一つ目は愚痴の人です。会うたびに不満を吐き出し、話の終わりが見えない。天気が悪い、仕事がつらい、あの人が気に入らない。聞いているあなたは最初、同情の気持ちで耳を傾けます。しかしその話は解決を求めていない。ただ吐き出したいだけなのです。あなたの心は相手の澱みを受け止める容器になり、気づけば自分まで重たい気持ちに沈んでいく。このタイプへの対処は、話題をそっと切り替えること。深追いせず、長居しないことです。
+
+二つ目は批判の人です。何を話しても否定から入る。あなたが楽しかった出来事を話せば、そんなことで喜んでいるのかと冷めた目で見る。新しい挑戦を報告すれば、どうせ続かないと水を差す。このタイプの前では、あなたの心は常に防御態勢に入ります。自分の言葉を選び、萎縮し、自信が少しずつ削られていく。長い付き合いの相手にこのタイプがいる場合、無意識にあなたの成長を抑え込もうとしている可能性があります。対処は意見を求めないこと。報告も最小限にとどめることです。
+
+三つ目はマウントの人です。自分の方が上だと示したくて、あなたの喜びを小さく見せようとする。あなたが何か嬉しいことがあっても、素直に喜んでくれない。自分も同じ経験があると話をすり替えたり、遠回しにけなしたりする。あなたはこのタイプの前で、自分の輝きを自ら抑え始めます。喜びを表に出すと何か言われる。だから控えめにしておこう。その繰り返しが、あなたのエネルギーを静かに奪っていくのです。対処は競わないこと。話を合わせず、適当に流すことです。
+
+四つ目は支配の人です。自分の意見を押し付け、従わなければ不機嫌になる。あなたの選択を尊重せず、自分のやり方が正しいと信じて疑わない。このタイプと長く過ごすと、あなたは自分の意思を見失っていきます。何を食べたいか、どこへ行きたいか、そんな小さなことさえ相手の顔色を見て決めるようになる。自分で決断する力が弱まり、依存的な関係に陥ってしまう。対処は物理的に距離を置くこと。そして判断は自分で下すと心に決めることです。
+
+五つ目は甘えの人です。依存し、全てを押し付け、結果の責任まであなたに求めてくる。自分では決められないからとあなたに相談し、あなたの意見通りにしたはずなのに、うまくいかないとあなたを責める。このタイプの関わりは、あなたを常に正しく強くなければならない存在に追いやります。相手の人生まで背負い込み、自分の時間と心の余白がすり減っていく。対処は線を引くこと。助けすぎないこと。相手の人生は相手のものだと、心の中で確認することです。
+
+これが五つのタイプです。彼らは必ずしも悪意を持っているわけではありません。本人も気づいていないことが多い。ただその関わり方が、結果としてあなたの心を消耗させている。あの理由のない疲れ、気力の低下は、精気が漏れているサインなのです。
+
+---
+
+では、こうした相手からどう距離を取ればいいのでしょうか。完全に縁を切れない家族や職場の関係でも、仏教が教える智慧があります。それが三つの距離です。
+
+一つ目は物理の距離です。文字通り、会う回数を減らすこと。同じ空間にいる時間を短くすること。毎週会っていたなら月に一回にしてみる。長電話が習慣なら、用件だけを手短に済ませる。職場で席が近いなら、少し離れた場所で作業する時間を作る。完全に会わなくなるわけではありません。ただ、吸い取られる時間と機会を意識的に減らしていくのです。
+
+断り方に困ることもあるでしょう。そんな時は、今日は予定があってと短く伝えるだけで構いません。理由を詳しく説明する必要はない。あなたの時間はあなたのものです。それを守ることに罪悪感を持つ必要はありません。
+
+二つ目は時間の距離です。関わりに制限を設けること。物理的に離れられない場面で特に力を発揮します。たとえば愚痴を延々と聞かされる食事の場。そんな時は、最初に自分で終わりの時刻を決めておく。今日は三十分だけ。時計を意識しながら、区切りをつける。
+
+メールやメッセージの返信も同じです。すぐに返さなくていい。あなたの時間を奪うような連絡には、わざと間を置いてから簡潔に返事をする。即レスしなければという思い込みを手放すだけで、心の余白が生まれます。
+
+三つ目は心の距離です。これが最も大切な距離かもしれません。相手の言葉や態度を、あなたの内側まで入れない工夫です。批判を浴びても、それは相手の事情だと心の中で唱える。否定されても、あなたの価値とは無関係だと言い聞かせる。
+
+雨が降っている時、私たちは雨宿りをします。しかし自分が雨になる必要はない。相手の否定的な言葉を、心の地面に染み込ませない。見えないシェルターを心の中に作るイメージです。
+
+観察者になるという方法もあります。相手の言葉を聞き流すのではなく、あえて眺めてみる。今この人は何を言おうとしているのだろう。その背景には、どんな不安や寂しさがあるのだろう。少し引いたところから見ることで、感情的に巻き込まれることから一歩退けます。
+
+もちろん、家族や長い付き合いの友人に急に冷たくする必要はありません。今まで通りに会話をし、笑顔を見せることはできる。ただその中で、あなたの心のエネルギーを一方的に引き出す話題には深く同調しない。そっと話題を変えたり、自分の気持ちを正直に短く伝えたりする。それが慈悲の境界線です。
+
+ブッダの教える慈悲とは、相手を無条件に許せということではありません。自分を守る境界線を引きながら、相手を憎まずにいること。あなたが傷つき疲れ果てていては、誰にも優しくできません。まず自分の心の灯を守ること。それが本当の慈悲の始まりなのです。
+
+---
+
+さて、学びを行動に移すために、今夜から始められる習慣をお伝えします。
+
+一つ目は書き出すことです。今夜、五分だけ時間を取ってください。紙とペンを用意して、先ほどお伝えした五つのタイプに当てはまりそうな人を書き出してみる。名前を書く必要はありません。あの人はいつも愚痴ばかり言うな。この人は会うと批判される気がする。そんな特徴を書くだけでいいのです。
+
+書くという行為には大きな力があります。頭の中でモヤモヤしていた違和感が、紙の上に現れることで初めて客観的に見えるようになる。ああ、この人といると確かに疲れるな。それだけでも、無意識に流されていた状態から一歩引いた場所に立てます。
+
+二つ目は会話を三分だけ減らすことです。完全に縁を切るのが難しい相手でも、会話の量を少しだけコントロールすることはできるかもしれません。電話なら一分早く切り上げてみる。メールの返信を一言短くしてみる。いつもなら引き受けてしまう頼みごとを、今日だけは優しく断ってみる。
+
+たった三分です。ほんの少しの時間を、あなた自身のために取り戻す。その三分が、あなたから流れ出ていくエネルギーを確実に減らしてくれます。
+
+三つ目は自分に語りかける時間を持つことです。今までのあなたは、他人の声にばかり耳を傾け、自分の心の声をないがしろにしてきたかもしれません。だから今夜から、ほんの五分でいい。静かな場所でゆっくりと呼吸を整え、自分自身に問いかけてみてください。今日一日、本当はどうしたかった。どんな言葉をかけられたら、ほっとしただろう。それは決してわがままではありません。自分を労わることは、心の灯を強くする一番の栄養です。
+
+阿闍世は最初の少しだけで提婆達多の声を受け入れ、人生の方向を狂わせました。しかし同じ少しだけは、自分を守る側にも使えます。少しだけ距離を置く。少しだけ会話を減らす。少しだけ心に線を引く。少しだけ自分を労わる。
+
+その小さな一歩が、あなたの心の灯を守る確かな始まりになります。
+
+あなたの心の灯が、これからも静かに、しかし確かに輝き続けますように。今夜の最初の少しだけを、心から応援しています。
+</pre>
     </div>
   </div>
 </main>

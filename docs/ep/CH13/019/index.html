@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-019 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-019 — script</h1>
           <div class="muted">【孤独】ひとりが怖い人へ｜孤独は敗北じゃない</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,282 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【孤独】ひとりが怖い人へ｜孤独は敗北じゃない</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-019</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-019&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">日が暮れて、部屋に明かりを灯す瞬間。
+ふと、言い知れぬ不安に襲われることはありませんか。
+ああ、今日も一日、誰とも深く話さなかったな。
+このまま誰にも必要とされずに、人生が終わっていくのだろうか。
+
+テレビの音を大きくしても、スマホの画面を眺めても、胸の奥に空いた穴は埋まらない。
+あの人に嫌われたらどうしよう。
+断ったら、付き合いが悪いと思われるかもしれない。
+もっと上手く振る舞わなきゃ。
+
+そんなふうに、常に周りの顔色を伺って、ビクビクして生きていませんか。
+家に帰るとドッと疲れが出る。
+布団の中で、今日の会話を一人反省会する。
+本当は行きたくない誘いに、笑顔でイエスと言ってしまう。
+
+あなたは優しい人です。
+でも、その優しさは、あなた自身を傷つける刃物になっていませんか。
+誰からも嫌われないように生きるということは、誰の人生も生きていないのと同じです。
+それは、あなたの人生ではありません。他人の期待を満たすための人生です。
+
+今日は、その重たい「他人軸」という鎧を脱ぎ捨て、嫌われる勇気を持って、軽やかに生きるための禅の知恵をお話しします。
+
+---
+
+まず、日常のシーンを思い浮かべてみてください。
+
+親戚の集まりで、いつも世話役を押し付けられる。
+本当は疲れているのに、今度の連休はうちに来て、と言われると断れない。
+近所の付き合いで、役員をやってほしいと言われた時、本当は引き受けたくないのに、はいと言ってしまう。
+
+あるいは、こんな場面もあるでしょう。
+友人からのLINEが来ると、すぐに返さなきゃと焦る。
+電話に出られなかった時、嫌われたかもしれないと不安になる。
+お土産を渡した相手の反応が薄いと、何か気に障ることをしただろうかと悩む。
+
+こうした日々の積み重ねが、あなたの心をジワジワと削っています。
+誰かのために良かれと思ってやったことが、報われない時の虚しさ。
+相手の機嫌を気にして、自分の本音を押し殺した時の息苦しさ。
+そして、そんな自分が嫌いになっていく悪循環。
+
+この状況から抜け出す鍵は、実はとてもシンプルです。
+嫌われることを恐れない。
+ただそれだけなのです。
+
+---
+
+では、なぜ私たちはこれほどまでに嫌われることを恐れるのでしょうか。
+
+問題の正体は、「全員に好かれなければならない」という幻想にあります。
+
+この幻想は、子供の頃から刷り込まれています。
+いい子にしていなさい。
+みんなと仲良くしなさい。
+先生の言うことを聞きなさい。
+
+そうやって育った私たちは、無意識のうちに「人から嫌われること＝悪いこと」という等式を心に刻んでいます。
+嫌われると罰を受ける。
+嫌われると居場所がなくなる。
+嫌われると自分には価値がない。
+
+しかし、冷静に考えてみてください。
+この世界に、全員から好かれている人が一人でもいるでしょうか。
+どんな聖人君子でも、必ず批判する人がいます。
+どんな優しい人でも、気に入らないと感じる人がいます。
+
+つまり、「全員に好かれる」というゴールは、最初から達成不可能なのです。
+達成不可能なゴールに向かって走り続けることは、永遠に満たされない渇きに苦しむことです。
+この無駄な戦いを、まず終わりにしなければなりません。
+
+---
+
+ユダヤ教の教えに、こんな法則があります。
+十人の人がいたら、そのうち一人は、あなたが何をしても嫌う人です。
+二人は、互いに全てを受け入れ合える親友になれる。
+残りの七人は、どちらでもない。
+
+あなたが気にしているのは、このたった一人の批判者です。
+その一人の機嫌を取るために、あなたは自分を殺し、大切な時間を費やしている。
+でも、その人は、あなたが何をしても結局は文句を言うのです。
+右を向けば左を向けといい、左を向けば右を向けという。
+そんな相手のために、あなたの貴重な人生を捧げる必要がありますか。
+
+嫌われることは、悪いことではありません。
+嫌われるということは、あなたが自分の意志を持って生きているという証拠です。
+風見鶏のようにフラフラしていれば、誰ともぶつかりませんが、誰の記憶にも残りません。
+あなたがあなたらしく堂々と立っていれば、それにぶつかる人が出てくるのは当然なのです。
+
+---
+
+禅には「主人公」という言葉があります。
+物語の主役という意味ではありません。
+本来の自分、あるがままの自分という意味です。
+
+中国の禅僧、瑞巌師彦は毎日、自分自身に向かって「主人公！」と呼びかけました。
+そして自分で「はい！」と答えます。
+さらに「目を覚ましているか？」と問い、「はい、覚めています」と答える。
+「他人に騙されるなよ」「はい、騙されません」。
+
+一見、奇妙な独り言に見えますが、これは自分の人生の主導権を他人に渡すなという強烈なメッセージです。
+あの人がどう思うか、世間がどう評価するか。
+そんな実体のない亡霊に怯えて、自分の心の声を無視していませんか。
+それは、人生というバスの運転席を、他人に譲っているようなものです。
+
+ハンドルを握るのは、あなたです。
+行き先を決めるのも、あなたです。
+乗客の顔色を伺って、行きたくもない場所にバスを走らせるのは、もうやめましょう。
+
+お釈迦様もまた、多くの批判を受けました。
+王子の身分を捨てて出家したことを、狂っていると言う人がいました。
+托鉢をして歩く姿を、乞食のようだと蔑む人もいました。
+しかし、お釈迦様はそれらの声に一切動じませんでした。
+なぜなら、自分の歩むべき道がはっきりと見えていたからです。
+
+---
+
+では、どうすればこの嫌われる勇気を持つことができるのでしょうか。
+具体的に、今日からできる三つのステップをお伝えします。
+
+第一のステップ：課題の分離
+
+アドラー心理学の有名な考え方ですが、禅の教えとも通じます。
+ある問題が起きた時、「これは誰の課題なのか」を冷徹に分けます。
+
+例えば、あなたが誘いを断った時、相手が機嫌を損ねたとします。
+あなたは申し訳ないと思います。
+しかし、断るかどうかはあなたの課題ですが、断られてどう感じるかは相手の課題です。
+相手が怒ろうが、落ち込もうが、それは相手が自分で処理すべき感情の問題であり、あなたが背負う荷物ではありません。
+
+相手の不機嫌まで背負い込むから、苦しくなるのです。
+あの人の機嫌は、あの人のもの。私の機嫌は、私のもの。
+ここで線を引くこと。
+冷たいのではありません。相手の心の領域を尊重する、自立した大人の態度です。
+
+具体的には、こう言ってみてください。
+「せっかく誘ってくれてありがとう。でも、今日は私の時間を過ごしたいの。ごめんね。」
+理由を長々と説明する必要はありません。
+「私はこうしたい」という一点だけを伝えればいいのです。
+
+第二のステップ：小さな反乱を起こす
+
+これは少し勇気が必要ですが、あえて空気の読めない発言や行動をしてみるのです。
+飲み会で最初に帰る。
+集まりで一人だけ違う意見を言う。
+LINEの返信をあえて遅らせる。
+
+小さな反乱を起こしてみてください。
+きっと心臓がバクバクするでしょう。
+でも、やってみたら分かります。
+意外と、世界は崩壊しません。
+なんだ、こんなもんか、と拍子抜けするはずです。
+
+そして、そんなあなたを見て、あの人は芯があるね、と評価する人さえ出てくるでしょう。
+嫌われることへの恐怖は、お化け屋敷と同じで、正体が分からないから怖いだけなのです。
+一度中に入ってしまえば、ああ、作り物だったんだ、と笑えるようになります。
+
+第三のステップ：大切な人に集中する
+
+最初の法則を思い出してください。
+十人のうち、二人はあなたの親友になれる人です。
+残りの一人の批判者や、どうでもいい七人のためにエネルギーを使うのをやめて、
+あなたを本当に大切にしてくれる、その二人に全力を注いでください。
+
+八方美人は、結局誰のことも大切にしていません。
+全員にいい顔をするのは、全員に薄情なのと一緒です。
+どうでもいい人には嫌われてもいい。
+その代わり、大切な人にはとことん愛を注ぐ。
+そのメリハリが、あなたの人生の密度を濃くします。
+
+具体的には、まず今のあなたにとって本当に大切な人を三人挙げてみてください。
+その三人との時間と関係を優先する。
+それ以外の人間関係は、表面的でも構わないと割り切る。
+この優先順位をつけることが、心の余裕を生み出します。
+
+---
+
+ここで一つ、落とし穴についてお話しします。
+
+嫌われる勇気を持つことと、わがままになることは全く違います。
+相手を傷つける言葉を吐くこと、礼儀を失した態度をとること、それは勇気ではなく単なる横暴です。
+
+また、嫌われてもいいと開き直りすぎて、人との関係を全て断ち切ってしまうのも問題です。
+人は一人では生きていけません。
+適度なつながりは、心の栄養になります。
+
+大切なのは、「全員に好かれようとしない」ことであって、「誰からも嫌われても平気」ということではありません。
+批判されても自分を見失わない強さを持ちつつ、大切な人との関係は丁寧に育てる。
+この両立が、本当の意味での嫌われる勇気です。
+
+また、急に態度を変えると、周囲は驚きます。
+「あの人、どうしたの？」「最近冷たくなった」と言われるかもしれません。
+そんな時は、焦らず、少しずつ変えていけばいいのです。
+一気に全ての人間関係を見直す必要はありません。
+まずは一つの場面で、小さな「NO」を言ってみる。
+その積み重ねが、やがて大きな変化になります。
+
+---
+
+嫌われる勇気とは、幸せになる勇気です。
+他人のレールを歩くのをやめて、自分の足で荒野を歩く覚悟です。
+
+最初は孤独を感じるかもしれません。
+風当たりが強いと感じるかもしれません。
+でも、その風は、あなたが自由になった証です。
+
+禅の世界には、「独坐大雄峰」という言葉があります。
+たった一人で大きな山の頂に坐る。
+誰の助けもなく、誰の評価も気にせず、ただ自分自身として在る。
+その孤高の姿こそが、真の強さであり、真の自由です。
+
+誰かのための人生は、もう終わりにしましょう。
+今日から、あなたが主人公です。
+
+嫌われることを恐れず、あなたの色で、あなたの人生を塗り替えていってください。
+その先にしか、本当の自由と安らぎはないのですから。
+
+最後に、今日からできる一歩をお伝えします。
+次に誰かから頼まれごとをされた時、すぐに「はい」と言う前に、三秒だけ間を置いてください。
+その三秒で、本当に自分がやりたいことかどうかを確かめる。
+やりたくないなら、穏やかに、しかしはっきりと断る。
+
+たった三秒の間が、あなたの人生を変え始めます。
+あなたには、嫌われる権利があります。
+そしてその権利を行使した時、初めてあなたは、本当のあなたになれるのです。
+</pre>
     </div>
   </div>
 </main>

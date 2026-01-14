@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-022 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-022 — script</h1>
           <div class="muted">良かれと思った助言が“最後の一撃”になった</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,279 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>良かれと思った助言が“最後の一撃”になった</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>後悔, 仲間外れ, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-022</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-022&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">明るい午後の、日差しがたっぷりと差し込むカフェ。 
+窓際の席に座り、私は冷めかけた紅茶のカップを両手で包み込んでいました。
+目の前には、空になったコーヒーカップ。 
+つい数分前まで、そこには私の古くからの友人である美香さんが座っていました。
+彼女は、ある悩みを抱えていました。 
+仕事のこと、家族のこと。 
+その解決策が見つからず、疲れ果てた表情で私に何気なく現状を話してくれたのです。
+私は、彼女の助けになりたい一心で、自分の経験に基づいた、精一杯のアドバイスを口にしました。
+「それはね、もっとこう考えたほうがいいわよ。私も以前、似たようなことがあったけど……」
+良かれと思った、その一言。 
+でも、私の言葉が終わるか終わらないかのうちに、美香さんの瞳から、すうっと光が消えていくのが見えました。
+彼女は力なく微笑み、「そうね、ありがとう」とだけ言って、足早に店を去っていきました。
+その背中を見送りながら、私は自分の放った言葉が、彼女の心に最後に残っていたわずかな力を、無残にも奪い去ってしまったことに気づきました。
+助言という名の、鋭い針。 
+それは時に、守ろうとした相手を、最も深く傷つける一撃になってしまうことがあります。
+今夜は、そんな良かれと思ってという優しい傲慢さが引き起こす、取り返しのつかないすれ違いについてお話しします。
+誰かの力になりたいと願うあまり、かえって相手を追い詰めてしまった経験のあるあなたへ。
+今夜は、その重い後悔を午後の光の中に溶かして、静かに自分と向き合う時間にしましょう。
+小さな針が心に刺さった痛みを、どのようになだめ、再び穏やかな眠りへと繋げていくのか。
+窓から見える、のどかな街路樹の風景と共に、一緒に心を整えていきましょう。
+
+---
+
+美香さんとは、もう十年以上の付き合いになります。 
+彼女はいつも快活で、誰に対しても気配りを忘れない、自立した女性でした。
+だからこそ、彼女が今回見せた弱々しい姿に、私はどこか慌ててしまったのかもしれません。
+「彼女を救わなければならない。私が正解を教えなければならない」 
+そんな焦りが、私の言葉を、必要以上に鋭く、そして押し付けがましいものに変えていきました。
+私は、彼女がただ『聴いてほしかった』だけだという、シンプルで最も大切なことを見落としてしまったのです。
+アドバイスをする側は、無意識のうちに優越感に浸っています。 
+「私は解決策を知っている。あなたは知らない」という、残酷な上下関係。
+私が彼女に差し出した言葉は、彼女の苦しみに寄り添うための手ではなく、彼女の無力を証明するための、最後の一撃だったのかもしれません。
+彼女がカフェのドアを開けて出ていったとき、カランというベルの音が、私の心に冷たく響きました。
+あとの祭り、という言葉が私の耳元で執拗に囁きます。 
+良かれと思ってしたことが、最も愛する友人を、最も深く孤独に突き落としてしまった。
+その事実に、私は午後の温かな光の中で、一人静かに凍えていました。
+友情を深めたいと願った自らの行為が、皮肉にも、その友情の終わりを告げる秒読みを始めてしまったのです。
+私は、彼女の去った椅子を、まるで自分の過ちの墓標のように感じながら、動けずにいました。
+カフェの賑やかな喧騒が、今の私には、遠い異国の出来事のように空々しく聞こえていました。
+
+---
+
+私は、しばらくの間、美香さんが座っていた空っぽの椅子を見つめていました。
+そこには、彼女が置いていったであろう、言葉にできない寂しさが、重く漂っているような気がしました。
+テーブルの上に残された、彼女の飲み残しのコーヒー。 
+その黒い水面を覗き込むと、自分の浅はかな表情が映っていました。
+どうしてあんなことを言ったんだろう 
+もっと別の言い方があったはずなのに
+後悔は、一度湧き出すと止まることを知りません。 
+私は、携帯電話を手に取り、彼女に謝罪のメッセージを送ろうとしました。
+でも、文字を打とうとする指が、不意に止まりました。
+今、私が送るべきなのは、さらなる謝罪という名の自己満足の言葉ではない。 
+今の私にできる唯一のことは、彼女の沈黙を、そのまま受け入れることなのではないか。
+断る、ということの難しさ。 
+それは相手からの要求を断ることだけでなく、自分の内側から湧き上がる何かをしてあげたいという衝動を、毅然と断ることでもあります。
+私が美香さんにすべきだったのは、答えを出すことではなく、彼女が答えを見つけるまで、ただ静かに隣に座り続けることでした。
+小さな針。 
+私の言葉は、彼女の心の柔らかい場所に、いつまでも深く刺さり続けていることでしょう。
+その痛みを取り除くことは、もう私にはできません。 
+それが、助言という行為の持つ、恐ろしい側面なのです。
+私の放った言葉が、彼女の誇りを、どれほど無惨に踏みにじったのかを想像するだけで、心臓が握り潰されるような思いがしました。
+自分の正義感が、相手を追い詰める凶器に変わる。 
+その恐怖を、私は今日、初めて真実として、この腕に抱きました。
+
+---
+
+カフェを出て、私はゆっくりと家路につきました。
+街は夕暮れに染まり始め、帰り道を急ぐ人々の影が長く伸びていました。
+美香さん。 
+彼女は今、どこでどんな思いでいるのでしょうか。
+私は、彼女に連絡を取ることを、今はきっぱりと断ることにしました。
+彼女にとって、今の私は自分の弱さを晒してしまった後悔と余計な助言で傷つけられた怒りの象徴でしかありません。
+そんな私から、どんなに丁寧な言葉が届こうと、それは彼女の心の負担を増やすだけです。
+私は、自分の犯した間違いの代価を、一人で静かに支払う決意をしました。
+それは、彼女との距離が、かつてのようには戻らないかもしれないという、厳しい現実を受け入れることです。
+家に着き、玄関のドアを閉めた瞬間、部屋の中の静寂が私を優しく包み込んでくれました。
+私は、カバンを置いて、大きく深呼吸をしました。
+肺の奥深くまで、冷たい夕暮れの空気を送り込む。 
+それだけで、ささくれ立っていた心が、ほんの少しだけ滑らかになっていくのを感じました。
+私が美香さんを傷つけたのは事実です。 
+でも、その罪悪感に溺れて、自分自身までも否定し続ける必要はありません。
+私は、一人の不完全な人間として、また一つ、大切なことを学んだのだ。
+そう自分に言い聞かせで、ようやく私は、自分の足で立ち上がることができたのです。
+冷たいフローリングの感触が、今の私にとって唯一の確かな現実でした。
+その現実の中に、私は一人の人間としての、新しい、けれど厳しい一歩を刻みました。
+
+---
+
+私たちは、人生のどこかで、自分の『優しさ』の正体を疑わなければなりません。
+その優しさは、本当に相手のためのものなのか。 
+それとも、相手を支配し、自分の正しさを証明するための道具になっていないか。
+良かれと思ってという言葉を吐きたくなった時こそ、私たちは自分の口を、強く閉ざさなければなりません。
+助言を断る勇気、および、介入を断る賢さ。 
+それは、冷たさではなく、相手の人生の重みを、心から尊重しているという証です。
+美香さんは、私の助言によって傷つきました。 
+でも、それは彼女が、自分の人生に対して誠実であろうとしたからこそ、その不純物に激しく反応したのです。
+私は、彼女のその繊細さと、強さを、今一度信じてみようと思います。
+私がいなくても、私の助言がなくても、彼女は必ず自分自身で、答えを見つけることができる女性なのですから。
+距離を置くことは、逃げではありません。 
+それは、お互いの魂が、再び自由に呼吸できるようにするための、最善の処置なのです。
+今夜は、その距離という名の深い海に、自分をそっと浮かべてあげてください。
+そこでは誰もあなたを責めず、あなたも誰を導く必要はありません。
+ただ、一人の独立した人間として、静かに存在しているだけでいいのです。
+孤独を恐れず、沈黙を愛する。 
+その境地に達したとき、私たちは初めて、真の意味で誰かを支えることができるようになるのかもしれません。
+自分という名の小さな舟を、誰の羅針盤にも頼らず、自分自身の波長で漕ぎ出していくのです。
+
+---
+
+夜が再びやってきました。 
+寝室の灯りを消し、私は布団の中に横たわりました。
+天井の暗闇を見つめていると、美香さんのあの悲しげな瞳が、不意に浮かんでは消えていきます。
+でも、今の私の心には、あのカフェにいた時のような動揺はありません。
+私は、今日犯した過ちを、一つの石として、自分の心の湖の底に沈めました。
+波紋はしばらく続くでしょう。 
+でも、いつかは必ず、水面は再び鏡のように静かになります。
+明日になれば、また新しい一日が始まります。 
+美香さんに会うことはないかもしれません。 
+でも、それでいいのです。
+私は、彼女という一人の人間を、私の期待や助言から解き放ち、ただの『美香さん』として存在することを許しました。
+そして同時に、自分自身の『完璧でありたいという傲慢』からも、自分を解き放つことができました。
+私たちは、不完全なまま、間違いを犯しながら、それでも前を向いて歩いていっていいのです。
+心の中に刺さっていた小さな針は、いつの間にか、私自身の成長を促すための、鋭いけれど温かな光に変わっていました。
+さあ、もう考え事はおしまいです。
+今夜は、すべての後悔を枕の下に敷いて、深く、深い眠りにつきましょう。
+あなたの犯した過ちも、あなたの流した涙も。 
+すべてが、明日のあなたをより優しく、そしてより賢くするための、大切な栄養になるのですから。
+
+今夜の一手。 
+今夜は『寝る』を最優先にする。
+どれほど悩んでも、どれほど悔やんでも、夜はその答えを教えてはくれません。
+答えは、あなたが十分に休息し、再びエネルギーを蓄えた明日の朝に、自然ともたらされるものです。
+今はただ、脳のスイッチを切り、重力に身を任せて、意識を遠くへと飛ばしてあげてください。
+夢の入り口では、誰もあなたを責める人はいません。 
+そこにあるのは、ただどこまでも続く、真っ白な平原だけです。
+吸って、吐いて。 
+負の重圧を一気に吐き出し、宇宙の柔らかな、慈しみ溢れる空気を吸い込む。 
+それを繰り返すうちに、あなたの心からトゲが抜け、再び瑞々しい命の輝きが戻ってきます。
+おやすみなさい。 
+自分の過ちを認め、それでも明日を信じようとする、あなたの美しい魂に。
+明日のあなたが、誰の助言も必要としないほど、自分自身の内なる声に従って目覚められますように。
+明日の朝には、また新しい太陽が、あなたの過ちさえも優しく照らしてくれるはずです。
+それでは、また。
+
+---
+
+あのカフェの、窓際から見えた街路樹。
+風に揺れる葉っぱが、まるで私の揺れる心を笑っているように見えた。
+美香さんは、あの時、本当は何を言いたかったんだろう。
+私が口を挟む前に、彼女の言葉をもっと最後まで、一滴も残さず受け止めてあげればよかった。
+解決策なんて、本人が一番よくわかっていること。 
+大人は、正解が欲しいのではなく、自分の歩いている道が間違っていないという、静かな肯定が欲しいだけなのです。
+私は、彼女の足元を照らすランプになるつもりが、かえって彼女の目を眩ませる、暴力的な光になってしまった。
+その恥ずかしさが、今も頬を赤く染めています。
+私たちは、他人の人生に関与しすぎることで、自分の人生の空白を埋めようとしてしまうことがあります。
+自分の助言が採用されることで、私は必要とされているという、安っぽい自己肯定感を確認したかっただけなのかもしれない。
+その醜い承認欲求が、美香さんの繊細な傷口を、さらに広げてしまったのです。
+これから先、私は何度、この後悔を思い出し、その度に唇を噛み締めることになるのでしょう。
+でも、その痛みこそが、私が他人の痛みに、より敏感になるための、不可欠なレッスンだったのです。
+美香さん、ごめんなさい。 
+あなたの沈黙を壊してしまった、私の未熟さを、どうか許してください。
+私はもう二度と、頼まれてもいない助言を、無責任に投げつけるようなことはいたしません。
+沈黙という名の重みを、私は今日、一生かかっても返しきれない代償として受け取りました。
+その代償は、私一人が、静かに背負っていくべき、愛の欠片なのです。
+
+---
+
+夕食の後、私は一人で近所を散歩しました。
+公園のベンチに座り、夜空を見上げていると、星たちが瞬いているのが見えました。
+あの星たちも、何億光年も昔の光を、ただ黙って放ち続けているだけ。
+宇宙には、アドバイスも、批判も、説教も存在しません。 
+ただ、そこにあるという事実だけが、圧倒的な肯定として存在しています。
+私も、そんな星のようになれたら。 
+誰かが苦しんでいる時、ただそこにいて、適度な距離から、静かに見守り続ける。
+余計な干渉をせず、相手の自浄能力を信じて、ただただ待つ。
+それが、真に成熟した大人の、究極の優しさではないでしょうか。
+美香さんとは、もう元の関係には戻れないかもしれない。 
+でも、その空白こそが、私たちの間に新しい『尊重』を生む場所になるはずです。
+私はベンチから立ち上がり、夜の冷たい空気をたっぷりと吸い込みました。
+足取りは、カフェを出た時よりも、ずっと軽くなっていました。
+後悔を捨てるのではなく、後悔を自分の体の一部として、大切に持ち続けていく。
+そう決めた瞬間、世界が広くなったような気がしました。
+誰かを救い、誰かを導こうとするのをやめ、ただ自分自身の平穏を守ることに集中する。
+そのエゴイズムが、結果として、周囲の人々を一番安心させることに繋がっていくのだと。
+今夜の私は、昨日までの私よりも、ほんの少しだけ、賢くなれたような気がしました。
+夜の帳が降りる頃、私は自分の心の底に、新しい平和の種が蒔かれたのを感じました。
+その種が芽吹き、花を咲かせる頃、私はもっと透明な、自分に出会えるはずです。
+
+---
+
+家に戻り、ゆっくりとお茶を淹れました。
+温かいお湯が茶葉を躍らせるのを眺めていると、心の中の澱が、少しずつ時間をかけて沈殿していくのを感じました。
+あんなに騒がしかった私の心。 
+美香さんを傷つけたという自責の念。 
+それらも、時間の経過と共に、私の人生の豊かな模様の一部になっていきます。
+良かれと思って。 
+この言葉を、私は自分の墓標に刻むつもりで、今日という日を記憶に留めることにしました。
+過ちを犯さない人間なんていない。 
+大切なのは、その過ちにどう向き合い、どうやって再び歩き出すかです。
+私はリビングの時計の音を聞きながら、自分の中にある他人の人生をコントロールしたいという傲慢な欲望が、音を立てて崩れ去るのを感じました。
+これでいい。 
+これからは、もっと身軽に、もっと淡々と、自分の人生を愛していこう。
+美香さん、あなたの未来に、幸多かれと。 
+私は私の場所で、静かに祈り続けます。
+窓から入ってくる夜風が、私の頬を優しく撫で、火照った感情を冷却してくれました。
+おやすみなさい。 
+自分自身の傲慢さを手放し、一人の孤独な旅人としての自由を手に入れた、あなたの誇らしい夜に。
+あなたの明日が、今日よりももっと、透明で、および誠実な安らぎで満たされていますように。
+大丈夫。 
+あなたはまた、新しい自分に、明日という扉の向こうで出会うことができるのですから。
+心からの慈しみを持って。 
+自分を許し、世界を許した、その静かな境地から、また一歩、歩き出していきましょう。
+その歩みは、誰のためでもない、私自身を完成させるための、静かな儀式なのです。
+それでは、また。
+</pre>
     </div>
   </div>
 </main>

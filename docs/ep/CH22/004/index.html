@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH22-004 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH22-004 — script</h1>
           <div class="muted">LINEグループで私だけ既読が付かない｜静かな仲間外れの現実</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,484 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCXRMfwpf27FQFJT4jBUYgpw/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>LINEグループで私だけ既読が付かない｜静かな仲間外れの現実</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>不安, 反すう, 老後, シニア, 友人関係, 近所付き合い, 同窓会, 町内会, 孤独, 人間関係, 物語, 朗読, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH22-004</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH22-004&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あの日から、私はスマホを見るのが怖くなりました。
+
+六十五歳。定年退職した夫と二人暮らし。子どもたちは独立して、孫もまだ生まれていない。家事をして、買い物に行って、夜はテレビを見る。そんな毎日を送っていました。
+
+唯一の楽しみは、高校時代の同級生とのLINEグループでした。
+
+華の会という名前。私を含めて五人。高校を卒業してから、四十七年。ずっと繋がってきた仲間です。
+
+でも今、そのグループを開くのが、怖いのです。
+
+---
+
+毎朝、夫と向かい合って朝食を取るが、会話は今日は雨かしらテレビで言ってたよといったやり取りだけ。昼間は家事を済ませると、リビングのソファに座り、窓の外をぼんやり眺める時間が長かった。子どもたちからの電話は、誕生日や季節の変わり目に一度か二度。孫が生まれた友人の話を聞くたび、胸の奥が少し疼いた。そんな日常で、スマホの通知音だけが、私を外の世界と繋いでくれる唯一の糸だった。LINEグループのメッセージが届くと、手元が温かく感じられ、画面の中に小さな居場所ができた気がした。返事を書く時、指先が少し震えるのは、初めてパソコンに触れた時の緊張を思い出させた。でも、この震えが、私がまだ誰かと繋がっている証だと、無理に自分に言い聞かせていた。
+
+LINEを始めたのは、五年前でした。
+
+娘に勧められて、スマホに変えました。最初は使い方がさっぱり分からなくて、何度も娘に電話して聞きました。
+
+お母さん、LINEって知ってる？
+
+何それ？
+
+メッセージが送れるアプリ。電話代もかからないし、写真も送れるのよ
+
+教えてもらって、最初に登録したのが、高校の同級生グループでした。
+
+美代子。幸恵。直子。そして、久美子。
+
+私たちは、高校時代から仲良しでした。バレーボール部で一緒だった。練習がきつくて、何度も泣いた。でも、大会で優勝した時の喜びは、今でも忘れられません。
+
+卒業してからも、年に一度は集まっていました。それが、LINEを始めてから、もっと頻繁に連絡を取るようになった。
+
+毎日のように、誰かがメッセージを送ってきます。
+
+今日、孫が歩いたの！
+
+昨日、新しいカフェ見つけたわ
+
+来週、ランチどう？
+
+写真が添えられて、スタンプが飛び交う。私も負けずに、庭の花や手作りのお菓子の写真を送りました。
+
+素敵！
+
+美味しそう！
+
+敏子さん、器用ね
+
+褒められると嬉しくて、もっと送りたくなる。LINEが、私の生活に彩りを与えてくれました。
+
+---
+
+ある春の日、庭の桜が満開になったので、写真を撮ってグループに送った。すると、すぐに美代子から『懐かしい！高校の校庭の桜もこんなだったね』と返信が来た。幸恵は『敏子さん、写真の撮り方が上手になったわね』と褒め、直子と久美子もスタンプを送ってくれた。その日は一日中、四人とのメッセージのやり取りが続き、夕方までスマホを手放せなかった。料理を作りながら、洗濯物を干しながら、常に画面を気にしていた。返信が来るたびに、軽い高揚感が胸を駆け抜け、まるで学生時代に戻ったように感じた。でも、夜になってスマホの充電が切れそうになった時、ふと我に返った。この熱中は、寂しさの裏返しではないかと。それでも、次の日もまた写真を送りたくなった。褒められることが、私の日常に少しずつ色を添えていった。
+
+変化に気づいたのは、半年ほど前からです。
+
+私がメッセージを送っても、反応が薄くなった気がしました。
+
+以前は、何か送るとすぐにスタンプが返ってきた。いいね素敵可愛い。みんなが反応してくれた。
+
+それが、少しずつ減っていった。
+
+私が送ったメッセージに、誰も反応しない。既読は付くのに、スタンプも返事もない。
+
+気のせいだと思いました。みんな忙しいのだろう。たまたまタイミングが悪かっただけ。
+
+でも、他の人のメッセージには、すぐに反応が返っている。
+
+美代子が孫の写真を送ると、可愛い！成長したわねと次々にコメントが付く。
+
+幸恵が旅行の写真を送ると、羨ましいどこ？と質問が飛ぶ。
+
+私が送った時だけ、静かなのです。
+
+---
+
+反応が薄くなり始めてから、私は無意識にメッセージの内容を変えてみた。以前は庭の花や料理の写真ばかりだったが、『最近、腰が痛くて』とかスーパーでこんなものを見つけたといった、些細な日常の悩みや発見を書き込むようにした。すると、最初のうちは『大丈夫？』それ便利そうと返ってきたが、次第に既読だけが付き、スタンプも返事もなくなっていった。ある時、久美子が旅行の計画をグループで相談し始め、私は私も行きたいなと軽く書き込んだ。既読は付いたが、誰もその発言に触れず、話は別の方向に進んでいった。その夜、布団に入っても目が冴え、スマホを枕元に置いたまま、暗闇で画面をじっと見つめていた。通知が来る気配はなく、ただ時計の数字だけが淡々と変わっていく。この沈黙が、何を意味するのか、考えれば考えるほど頭が重くなった。
+
+ある日、私は思い切って、ランチのお誘いをしました。
+
+来週の水曜日、みんなでランチしない？ 新しくできたイタリアンに行きたいの
+
+送信ボタンを押して、ドキドキしながら待ちました。
+
+一分経っても、反応がない。
+
+五分経っても、既読が付かない。
+
+十分経って、ようやく既読が付きました。四人分。
+
+でも、誰も返事をしない。
+
+三十分経っても、一時間経っても、沈黙のまま。
+
+夕方になって、ようやく美代子から返事が来ました。
+
+ごめんね、敏子さん。来週は予定が入ってるの
+
+続いて、幸恵も。
+
+私も無理だわ。また今度ね
+
+直子と久美子からは、返事すらありませんでした。
+
+---
+
+その翌週の土曜日。
+
+何気なくLINEを開いた私は、凍りつきました。
+
+グループに、写真が投稿されていたのです。
+
+四人が並んで、ワイングラスを掲げている写真。
+
+イタリアンレストランの店内。私が行きたいと言った、あの店でした。
+
+楽しかったね！
+
+美代子のメッセージ。
+
+また行こうね
+
+幸恵が続く。
+
+パスタ美味しかった
+
+直子。
+
+来月も予約しておいたわ
+
+久美子。
+
+私だけが、誘われていませんでした。
+
+---
+
+スマホを持つ手が、震えていました。
+
+なぜ。どうして。何かしただろうか。
+
+私が来週ランチしない？と誘った時、みんな予定があると断った。なのに、四人でその店に行っていた。
+
+最初から、私だけを外すつもりだったのだ。
+
+胸が締め付けられるように痛みました。涙が溢れてきました。
+
+四十七年の付き合い。高校時代からの仲間。それが、こんな形で終わるなんて。
+
+何がいけなかったのだろう。私の何が、彼女たちを遠ざけたのだろう。
+
+---
+
+最初のうちは、私のメッセージの内容が単調だからかと思い、もっと華やかな話題を選ぼうと努力した。旅行の話や流行のドラマについて調べて書き込んでみたが、反応は相変わらず薄かった。次第に、これは内容の問題ではなく、私という存在そのものがグループの中で軽く見られているのではないかと疑い始めた。高校時代は皆と同じように笑い合えていたのに、なぜ今だけがこうなのか。歳を重ねるにつれ、それぞれの人生で優先順位が変わり、共通の話題が減っていったことは理解できる。しかし、それならばなぜLINEグループを続けていたのだろう。ただ、長い付き合いという惰性で、互いに義務感からメッセージを交わしていただけなのか。その疑問が頭をよぎると、今まで温かく感じていたスタンプの数々が、むしろ空虚な儀式のように思えてきた。私は無意識のうちに、このグループでの承認を求めることで、自分の寂しさを紛らわせようとしていた。それに気づいた時、スマホの画面が突然、とても冷たく感じられた。
+
+反応が薄くなる日々が続くうちに、私はふと、LINE以前の私たちの関係を思い返すようになった。年に一度の同窓会では、いつも決まった喫茶店で二時間ほど座り、子どもの進学や孫の話、最近観たテレビドラマの感想で時間を埋め、深い話には触れずに別れていた。誰かが病気になった時も、お大事にの一言で済ませ、実際に病院に見舞いに行くことはなかった。旅行の計画が持ち上がると、日程や予算の都合でいつも同じメンバーで固まり、参加できない人には後から写真を見せるだけだった。LINEが始まってからは、その表面のやり取りが毎日のように繰り返され、スタンプや短いコメントが関係の全てのように錯覚していた。私が送る庭の花の写真に素敵と返してくれることは、彼女たちにとっては習慣的な礼儀で、私という人間への関心ではなかったのかもしれない。四十七年という長い時間は、積み重ねた理解や支え合いの歴史ではなく、単にカレンダーがめくられていっただけの年月だった。そのことに気づき始めた時、スマホの画面の明るさが急に冷たく感じられ、今まで温かく思っていた既読のマークが、むしろ無関心の証のように見えてきた。指先の震えは、繋がりへの期待から、虚しさへの戸惑いに変わっていった。そして、この気づきは、ランチに誘うという最後の試みへと私を駆り立てた。もしこれでだめなら、と心の隅で覚悟を決めながら、送信ボタンを押す指に力を込めた。
+
+その夜、眠れませんでした。
+
+布団の中で、過去の記憶を何度も掘り返しました。
+
+あの時の発言が悪かったのか。この時の態度が気に障ったのか。
+
+思い当たることがない。でも、彼女たちには何かがあったのだろう。
+
+私の知らないところで、何かが変わっていた。
+
+---
+
+翌日から、グループを見るのが怖くなりました。
+
+でも、見ないわけにはいかない。何か連絡が来るかもしれない。誤解が解けるかもしれない。そう思って、恐る恐る開く。
+
+相変わらず、四人で楽しそうに会話している。私は透明人間のように無視されている。
+
+メッセージを送っても、既読が付くだけ。返事はない。
+
+スタンプを押しても、反応がない。
+
+私は、確実に外されていました。
+
+---
+
+娘に相談しました。
+
+ママ、そんなグループ、抜ければいいじゃない
+
+でも、四十七年も付き合ってきたのよ
+
+だから何？ 今、辛いんでしょ？
+
+......うん
+
+辛い場所に、無理していなくていいんだよ
+
+娘の言葉に、涙が出ました。
+
+でも、友達がいなくなっちゃう
+
+ママ、友達って何？ ママを無視する人たちが、友達なの？
+
+---
+
+娘の問いに、答えられませんでした。
+
+友達とは何か。四十七年の付き合いとは何か。
+
+私は、その答えを探し続けました。
+
+---
+
+一週間後、夫が言いました。
+
+おい、最近スマホばかり見てるな
+
+......別に
+
+顔色悪いぞ。何かあったのか
+
+黙っていると、夫は静かに続けました。
+
+昔の友達と、うまくいってないんだろ
+
+......分かるの？
+
+分かるさ。四十年も一緒にいるんだから
+
+夫は、テレビのリモコンを置いて、こちらを見ました。
+
+なあ、その友達たち、お前に何かしてくれたか？
+
+え？
+
+お前が入院した時、見舞いに来たか。お前の誕生日、覚えてたか。お前が困った時、助けてくれたか
+
+私は、記憶を辿りました。
+
+入院した時。三年前、胆嚢の手術で入院した時。見舞いに来てくれたのは、娘だけだった。
+
+誕生日。毎年、グループでは誰かの誕生日にお祝いメッセージを送り合っていた。でも、私の誕生日には、誰も何も言わなかった。
+
+困った時。夫の定年後、お金のことで悩んでいた時。相談しようと思ったけど、結局言えなかった。聞いてくれる雰囲気がなかったから。
+
+......何もしてくれなかった
+
+だろうな
+
+夫は、淡々と言いました。
+
+四十七年の付き合いって言うけど、中身があったのか
+
+---
+
+その言葉が、胸に刺さりました。
+
+四十七年。長い時間だと思っていた。でも、その時間に何があったのか。
+
+高校時代は確かに楽しかった。でも、卒業してからは年に一度会うだけ。LINEを始めてからも、表面的なやり取りだけ。
+
+私は、彼女たちの何を知っているのだろう。彼女たちの悩み、苦しみ、本当の気持ち。何も知らない。
+
+そして、彼女たちも、私のことを何も知らない。
+
+四十七年という数字だけが、独り歩きしていた。中身は、空っぽだったのかもしれない。
+
+---
+
+その夜、私は決断しました。
+
+グループを退出しよう。
+
+指が震えました。でも、ボタンを押しました。
+
+敏子が退出しました
+
+その一行だけが、画面に表示されました。
+
+誰も、引き止めませんでした。
+
+---
+
+退出してから、最初の一週間は辛かったです。
+
+何度もLINEを開いて、グループがないことを確認してしまう。あの四人が、今何を話しているのか気になる。私の悪口を言っているのだろうか。
+
+でも、二週目になると、少し楽になりました。
+
+スマホを見る回数が減った。通知を気にしなくなった。既読が付くかどうか、もう考えなくていい。
+
+三週目。
+
+ふと気づきました。
+
+私、笑っている。
+
+テレビを見て笑っている。夫との会話で笑っている。庭の花を見て、心が和んでいる。
+
+あのグループにいた時、こんな風に笑えていただろうか。
+
+---
+
+一ヶ月後、娘が遊びに来ました。
+
+ママ、顔色良くなったね
+
+そう？
+
+うん。前は、いつもスマホ見て険しい顔してたけど
+
+......そうだったかな
+
+今は、穏やかだよ
+
+娘は、私の手を握りました。
+
+ママ、友達は選んでいいんだよ。一緒にいて楽しい人、安心できる人。そういう人だけでいいの
+
+---
+
+先日、スーパーで幸恵に会いました。
+
+レジに並んでいたら、向こうから声をかけてきた。
+
+あら、敏子さん
+
+......久しぶり
+
+気まずい沈黙が流れました。
+
+あのね、グループ、急に抜けちゃったから......
+
+うん
+
+「みんな、びっくりしたのよ」
+
+そう
+
+私は、それ以上何も言いませんでした。説明する必要も、言い訳する必要もない。
+
+「また、入らない？ みんな待ってるわよ」
+
+その言葉に、私は首を横に振りました。
+
+「ごめんね。もう、いいの」
+
+幸恵は、何か言いたそうにしていました。でも、私はそのまま会計を済ませて、店を出ました。
+
+振り返らなかった。
+
+---
+
+帰り道、空を見上げました。
+
+青い空。白い雲。冬の冷たい風が、頬を撫でていく。
+
+四十七年の友情が終わった。でも、私は不思議と清々しい気持ちでした。
+
+あれは、友情じゃなかった。ただの惰性だったのかもしれない。
+
+本当の友達は、既読を気にさせない。返事を待たせて不安にさせない。一緒にいて、心が軽くなる人。
+
+そういう人を、これから見つければいい。
+
+---
+
+今、私は新しい趣味を始めています。
+
+近所の図書館で、読書会に参加するようになりました。月に二回。好きな本について語り合う。
+
+そこで出会った人たちは、LINEグループなんて作っていません。会った時に話して、帰ったらそれぞれの生活に戻る。
+
+それが、ちょうどいい距離。
+
+先日、読書会で隣に座った女性が言いました。
+
+「私もね、昔の友達とうまくいかなくなったことがあるの」
+
+そうなんですか
+
+「でもね、離れて正解だった。心がすり減る相手といても、しょうがないのよ」
+
+その人は、にっこり笑いました。
+
+「今、こうして新しい出会いがあるじゃない」
+
+---
+
+スマホは、今も使っています。
+
+でも、もう既読を追いかけることはありません。
+
+娘とのやり取り。夫への買い物メモ。それだけで十分。
+
+LINEの通知音が鳴っても、すぐに見なくていい。返事も、自分のペースで返せばいい。
+
+スマホは道具。私を支配するものじゃない。
+
+---
+
+あなたは今、既読を追いかけていませんか。
+
+返事が来ないことを、恐れていませんか。
+
+でも、既読の向こうにいる人が、あなたを大切にしていないなら。
+
+その画面を、閉じていいのです。
+
+---
+
+今夜の一手。
+
+既読が付かなくても、あなたの価値は変わらない。
+
+心がすり減る相手より、一人の静けさを選ぶ勇気を。
+
+---
+
+最後までご視聴いただきありがとうございました。同じような経験をされた方、ぜひコメント欄でお聞かせください。よろしければ、チャンネル登録と高評価をお願いします。
+
+それではまた、次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

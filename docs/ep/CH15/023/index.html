@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-023 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-023 — script</h1>
           <div class="muted">【習慣】やめたい癖がやめられない｜やめ方が違う</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,174 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【習慣】やめたい癖がやめられない｜やめ方が違う</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>習慣, ブッダ, 仏教, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-023</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-023&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">やめたい癖がある。分かっているのにやめられない。意志が弱いと自分を責める。
+
+やめ方が違うのかもしれません。正しいやめ方をお話しします。
+
+---
+
+やめたい習慣がありませんか。
+
+つい食べすぎる。つい飲みすぎる。つい夜更かしする。ついスマホを見すぎる。
+
+やめようと決意しても、気づいたらまたやっている。
+
+「自分は意志が弱い」と落ち込む。でも問題は意志ではなく、やめ方なのです。
+
+---
+
+なぜやめられないのでしょうか。
+
+まず、習慣は自動化されているから。考えずに体が動いている。意識する前にやっている。
+
+次に、やめようとすると逆に意識するから。「やらない」と思うほど、そのことを考える。考えるから、やりたくなる。
+
+そして、代わりがないから。その習慣で満たしていたものを、別の方法で満たせていない。
+
+---
+
+間違ったやめ方があります。
+
+「絶対にやらない」と誓う。でも人間は「絶対」が苦手。プレッシャーになって、反動で余計にやってしまう。
+
+「意志の力で我慢する」。でも意志は消耗する。疲れたときに負ける。
+
+「自分を責めてやめさせる」。でも責めるほどストレスになり、ストレス解消のためにまたやってしまう。
+
+これらは逆効果なやめ方です。
+
+---
+
+正しいやめ方をお伝えします。
+
+まず、「減らす」ことから始めてください。
+
+いきなりゼロにしようとしない。今10回やっているなら、8回にする。それができたら6回にする。
+
+徐々に減らす方が続きます。小さな成功が積み重なると、自信になります。
+
+---
+
+次に、「代わりを見つける」ことです。
+
+その習慣で、何を得ていましたか。ストレス解消?快感?退屈しのぎ?
+
+その欲求を、別の方法で満たす。お菓子をやめたいなら、代わりにフルーツ。スマホをやめたいなら、代わりに本。
+
+代替があれば、元の習慣がなくても欲求が満たされます。
+
+---
+
+また、「環境を変える」ことが非常に効果的です。
+
+目の前にお菓子があるからつい食べる。手元にスマホがあるからつい見る。
+
+お菓子を買わない。スマホを遠くに置く。環境から誘惑を取り除けば、やらずに済みます。
+
+意志に頼らず、環境で防ぐ。これが最も確実な方法です。
+
+---
+
+さらに、「トリガーを特定する」ことです。
+
+いつその習慣をしてしまうか観察してください。食後?退屈なとき?ストレスを感じたとき?
+
+トリガーが分かれば、対策が立てられます。
+
+ストレスで食べてしまうなら、ストレスを感じたときに別の発散法を用意する。退屈で見てしまうなら、退屈になったときにやることを決めておく。
+
+---
+
+仏教では「正念」——今に意識を向けること——を教えます。
+
+習慣が発動する前に、気づくこと。「あ、今やろうとしている」と。
+
+気づいた瞬間、選択ができます。「このままやるか、やめるか」。気づかないと、自動的にやってしまう。
+
+マインドフルネスを練習すると、その「気づき」の力が育ちます。
+
+---
+
+もうひとつ大切なのは、「失敗を前提にする」ことです。
+
+完璧にやめ続けることは難しい。途中で失敗することもある。
+
+失敗したら責めずに、「なぜ失敗したか」を分析して、対策を立て直す。淡々と、また始める。
+
+「失敗しても大丈夫」と思えると、長く続けられます。
+
+---
+
+注意点があります。
+
+依存症レベルの習慣(アルコール、ギャンブル、薬物など)は、専門家の助けが必要です。一人でやめようとせず、サポートを求めてください。
+
+また、やめたい習慣が実は必要なことかもしれません。そのストレス解消法がなくなったとき、もっと悪いことをしないか考えてください。
+
+---
+
+やめたい癖がやめられない。
+
+やめ方が違うのです。
+
+意志ではなく、仕組みで。減らすことから。代わりを用意して。環境を変えて。
+
+今日から、一つ試してみませんか。
+
+正しいやめ方なら、やめられます。
+</pre>
     </div>
   </div>
 </main>

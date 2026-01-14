@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH22-010 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH22-010 — script</h1>
           <div class="muted">いつもの席が突然なくなった｜カフェ仲間の冷たい現実</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,172 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCXRMfwpf27FQFJT4jBUYgpw/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>いつもの席が突然なくなった｜カフェ仲間の冷たい現実</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>疎外感, 仲間, 老後, シニア, 友人関係, 近所付き合い, 同窓会, 町内会, 孤独, 人間関係, 物語, 朗読, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH22-010</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH22-010&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">あら敏子さん、今日は向こうに座ってくれる？
+
+その一言で、私の八年間が終わりました。
+
+---
+
+毎週土曜日の午前十時。駅前のカフェの窓際の席。四人で囲むいつものテーブル。
+
+私の席に、知らない人が座っていました。
+
+土曜日のお茶会が始まったのは、子どもたちが独立した頃でした。私と和恵さん、美智子さん、正子さん。四人で集まって、コーヒーを飲みながらおしゃべりをする。週に一度の楽しみが、いつの間にか八年も続いていました。
+
+最初は月に一度だけだったお茶会が、徐々に頻度が増えて、気づけば毎週になっていました。それだけ居心地がよかったのです。四人の関係が、ちょうどいいバランスで成り立っていました。
+
+いつも同じ席に座りました。窓際の四人がけのテーブル。私は窓側の奥の席。壁を背にして、外の景色が見える場所。一番居心地のいい場所でした。八年間、一度もその席を譲ったことはありません。カフェに入ると自然とその席に向かい、自然と同じ場所に座る。それが当たり前でした。誰も何も言わなくても、四人がそれぞれの定位置につく。長年の習慣が、私たちの間に心地よい秩序を作っていました。
+
+---
+
+その日、私はいつもより少し早く着きました。天気がよかったので、散歩がてら歩いてきたのです。空は抜けるような青で、秋の始まりを感じさせる、爽やかな朝でした。
+
+窓際の席が空いているのを確認して、ほっと一息つきました。コートを脱ぎ、バッグを隣の席に置く。メンバーが来るまでのこの時間も、週に一度の小さな楽しみでした。外を行き交う人々をぼんやり眺めながら、この一週間の出来事を思い返す。
+
+しばらくして、和恵さんと美智子さんが一緒に入ってきました。いつもなら、にこやかに手を振って席に向かってくるはずでした。でも、今日は様子が違いました。二人とも、どこかよそよそしい表情をしていたのです。そして、見たことのない女性が一人、美智子さんの隣にいました。
+
+あら敏子さん、今日は向こうに座ってくれる？
+
+和恵さんが言いました。私は一瞬、何を言われたのか分かりませんでした。向こう？ どこのこと？ 美智子さんのお友達なの。今日だけ一緒にいいかしら。見ると、私の席には、もうその見知らぬ女性が座っていました。私の場所で、笑っている。
+
+何も言えませんでした。いつものおはようも、今日は天気がいいわねも、喉の奥で詰まってしまいました。向こうというのは、テーブルの端のことでした。通路側の席。人が通るたびに椅子を引かなければならない、落ち着かない場所。背もたれの後ろを、店員さんやお客さんが行き来する。私はそこに座りました。
+
+---
+
+その席は、単なる椅子ではありませんでした。私にとっては、八年間の小さな歴史が刻まれた場所でした。コーヒーカップの底に付いた輪っかが、テーブルの木目にいくつも重なっているのを、私は知っていました。春には桜の枝が窓枠にかかり、夏にはブラインドの隙間から光が差し込む。秋には銀杏の葉が舞い落ち、冬には窓ガラスが曇って外の景色がぼやける。そのすべてを、私はこの席から見てきました。和恵さんが孫の写真を見せてくれたのも、美智子さんが俳句の手帳を広げたのも、正子さんが旅行のパンフレットを並べたのも、すべてこの席でのことでした。私たちはここで、子どもたちの進学や結婚を祝い、親の介護の悩みを分かち合い、時には些細な不満をこぼし合いました。誰かが風邪を引けば、他の三人が心配して薬を勧めました。誰かが旅行から帰れば、土産話に花が咲きました。その積み重ねが、この席を特別な場所にしていたのです。
+
+だから、突然向こうに座ってと言われた時、私は自分の過去の一部を奪われたような気持ちになりました。八年分の思い出が詰まった場所を、いきなり見知らぬ人に明け渡すように言われた。それは、単に物理的な席を移動しろという命令ではなく、あなたの居場所はもうここにはないという宣言に聞こえました。そして、その宣言を下したのが、八年間一緒に過ごしてきた仲間だったことが、何よりも胸に突き刺さりました。
+
+なぜ、事前に一言くれなかったのか。なぜ、私の気持ちを考えてくれなかったのか。そうした疑問が、頭の中でぐるぐると巡りました。でも、私はそれを口にすることができませんでした。怒りや悲しみを表に出せば、たかが席のことでそんなに大げさにと思われるのが怖かったからです。大人なのだから、もっと寛容であるべきだという、自分の中にある無言の圧力もありました。
+
+だから、私はただうつむいて、新しい席に移動しました。コートの裾が椅子の脚に引っかかり、少しばかりぎこちない動きになりましたが、誰もそれに気づかないふりをしました。三人の視線は、すでに幸子さんに向けられていました。私の小さな狼狽など、もはや誰の目にも留まらない背景の一部でしかなかったのです。
+
+いつもの私の席には、初対面のその女性が収まっています。まるで、元からそこにいたかのように。窓の外の景色を眺めながら、にこにこと笑っている。
+
+違和感がありました。胸の奥に、冷たい水が流れ込んでくるような感覚。今日だけと言っているけれど、なぜ新しい人を連れてくる時に私に一言もなかったのか。グループLINEで連絡すればいいだけのことです。今度友達を連れていくわねと。それだけのことが、なぜできなかったのか。そして、なぜ私が席を譲らなければならないのか。和恵さんでも正子さんでもなく、なぜ私なのか。考えれば考えるほど、胸が締め付けられる思いでした。
+
+その新しい人の名前は、幸子さんというらしいです。美智子さんの俳句サークルの仲間。最近会社を早期退職したばかりで、私たちより少し若い。六十を過ぎたところだそうです。話し方が上手で、場を盛り上げる力がありました。声も通るし、笑い方も華やか。手振りも大きくて、話にリズムがある。三人が幸子さんの話に引き込まれているのが分かりました。
+
+会話に入れませんでした。美智子さんと幸子さんは、俳句の話で盛り上がっています。最近の句会でどんな句が詠まれたか、次のお題は何か。先生がどんな批評をしたか、どんな季語が難しかったか。俳句のことなど、私には分かりません。和恵さんと正子さんも、興味深そうに聞いている。時々質問をしたり、感心したように頷いたりしている。私だけが、蚊帳の外でした。コーヒーカップを両手で包みながら、私は時々相槌を打つだけ。何か言おうとしても、話の流れに入り込む隙間がない。
+
+八年間、こんな気持ちになったことはありませんでした。このグループでは、私はいつも話を聞く側でした。和恵さんの旅行の話、美智子さんの趣味の話、正子さんの孫の話。私は聞き役に回ることが多かった。でも、それでも居場所がないと感じたことはなかった。話を聞いているだけでも、その輪の中にいる実感があった。今日は違う。私だけが、外側にいる。
+
+---
+
+帰り道、足が重かったです。商店街を抜け、駅に向かう道。秋の風が頬を撫でていきましたが、その爽やかさを感じる余裕がありませんでした。たかが席順のこと。たかが一回のこと。そう言い聞かせましたが、胸のつかえは消えませんでした。
+
+翌週も、幸子さんがいました。今度は最初から私の隣に座っていて、私の席は元に戻っていましたが、会話の中心は幸子さんでした。みんなが幸子さんの話を聞きたがっている。私の話よりも、幸子さんの話の方が面白いらしい。私が何か言おうとすると、幸子さんが違う話を始めて、そちらに話題が移ってしまう。そういえばと幸子さんが言えば、三人の視線がそちらに向く。私の言葉は、途中で宙に消えてしまう。
+
+その翌週も、そのまた翌週も、幸子さんは来ました。今日だけと言っていたはずなのに。いつの間にか、五人組になっていました。でも、私には居場所がありませんでした。
+
+---
+
+一ヶ月後、和恵さんから連絡がありました。来週から集合場所を変えようと思うの。もう少し広いカフェにしましょう。理由は、人数が増えたから。新しいカフェは、前のカフェより駅から少し遠く、席もバラバラで、あの窓際の居心地の良さはありませんでした。大きなテーブルを囲んで座る形式。特定のいつもの席が存在しない。誰がどこに座っても自由。それは一見、平等なようで、私には落ち着かない空間でした。
+
+私のいつもの席は、もう存在しませんでした。八年間守り続けてきた場所が、静かに消えてしまったのです。
+
+夫に話しました。グループに新しい人が入って、なんだか居場所がなくなった気がするの。夫はテレビを消して、私の方を向いてくれました。「五人になったらバランスが変わるだろう。しょうがないさ」。しょうがない。その言葉は正しいのかもしれません。「でも、八年もやってきたのよ。いつもの席だってあったし、いつもの雰囲気だってあった。それが全部なくなっちゃったの」「変化は嫌なもんだな。でも、逆に考えてみろ。新しい関係が始まる可能性もあるだろう」「私には、そう思えないの」。夫は黙って、私の話を聞いてくれました。
+
+新しい人が入れば、関係は変わる。それは自然なこと。幸子さんが悪いわけでも、三人が悪いわけでもない。誰も悪くない。ただ、変わっただけ。でも、私は寂しかったのです。八年間、あの席に座って、あの四人で過ごしてきた時間。窓の外の景色を眺めながら、たわいもない話をして、たまに愚痴を言い合って、笑い合って。それが突然変わってしまった。私に相談もなく、私の意見も聞かず。新しい人を入れていいかどうか、場所を変えていいかどうか、誰も私に聞かなかった。まるで、私の意見など必要ないかのように。
+
+---
+
+それから、私は土曜日のカフェを休むことが増えました。月に四回のうち、二回くらい欠席するように。用事があると言って。本当は用事などありませんでした。ただ、あの居心地の悪さに耐えられなかっただけです。
+
+すると不思議なことに、四人からの連絡が減りました。グループLINEでの会話に、私だけが入っていないことがある。既読がついた後で話が進んでいて、私がいないところで決まっている。次のランチの場所も、私が返事をしないうちに決定していました。「敏子さんがいなくても、三人で決めちゃったわね」と、後から報告が来る。それで分かりました。私は自分で抜けていったのです。席がなくなったから避けるようになって、避けるから余計に遠くなる。悪循環でした。でも、戻る気にもなれませんでした。あの居心地の悪さを味わうくらいなら、一人でいた方がまし。幸子さんの話に相槌を打ちながら疎外感を感じるくらいなら、一人でいる方がよほど楽です。
+
+ある日、夫が言いました。「一人で行ける場所を、一つ持っておいたらどうだ」「一人で？」「グループがなくても困らないように。逃げ場所みたいなもんだ」。その言葉が、私の背中を押してくれました。
+
+---
+
+それから、私は一人で歩き始めました。最初は目的もなく、ただ歩くだけでした。駅の周りをぐるぐると。見慣れた街なのに、一人で歩くと違って見える。ある日、駅の反対側に足を向けてみました。あまり行ったことのない方向。古い商店街を抜けて、住宅街の外れ。そこに小さな喫茶店を見つけました。看板も地味で、中は少し薄暗い。入り口に鉢植えが置いてあって、窓ガラスには古いカーテンがかっている。珈琲と書かれた看板が、少し傾いている。
+
+最初は通り過ぎました。一人で入るのが恥ずかしかったから。でも、翌週また同じ道を歩いて、また同じ店の前で足が止まりました。三週目に、ようやく勇気を出して入ってみました。中は思ったより明るくて、カウンターに三席、窓際にテーブルが二つ。お客さんは私だけでした。店主は無口な年配の男性で、深煎りのコーヒーを丁寧に淹れてくれます。ネルドリップで、一杯ずつ時間をかけて。注文を聞く時も最小限の言葉で、余計なことは何も言わない。
+
+その静かさが、私には心地よかった。誰かと話さなくていい。愛想笑いをしなくていい。ただ、ゆっくりコーヒーを飲むだけでいい。
+
+---
+
+二回目に訪れた時、何も言わなくても深煎りのコーヒーを出してくれました。そのささやかな気遣いに、なぜか胸が熱くなりました。覚えていてくださったんですか。「二回目のお客さんは、だいたい覚えてますから」。それだけ言って、店主はまた静かにカウンターに戻っていきました。
+
+ここでは、私は敏子さんという一個人として認識されている。グループの一員としてではなく。誰かと比べられることもなく、席を譲る必要もなく、静かに過ごせる場所。一人で本を読みながらコーヒーを飲む時間。窓から差し込む午後の光。古いジャズのレコードが、静かにかすかに流れている。カウンターの木目は使い込まれていて、年月を感じさせる温かみがある。
+
+最初は寂しいかと思っていました。一人でカフェに行くなんて。でも、慣れてしまえば、これほど楽なことはない。誰かに合わせなくていい。話題を探さなくていい。ただ、自分のペースで、自分の時間を過ごすだけ。それが、今の私の大切な居場所です。
+
+---
+
+時々、四人からランチの誘いが来ます。たまには顔を出そうかなと思うこともあります。先日も「久しぶりに五人で集まらない？」というメッセージが来ました。幸子さんも含めて、全員で。一瞬、心が揺れました。やはり八年間の思い出があるから。楽しかった時間の記憶があるから。でも、画面を見つめたまま、返事を打つ手が止まってしまいました。行けば、また疎外感を味わうのではないか。幸子さんの話の隙間で、居場所を探すことになるのではないか。そう考えると、指が動かなくなるのです。また傷つくのが怖い。
+
+結局、その日は予定があるのでと断りました。本当は予定などなかった。喫茶店で一人、コーヒーを飲んでいただけです。そして断るたびに、彼女たちとの距離は広がっていく。グループLINEの未読が増え、既読をつけるのも億劫になる。でも、それでいいのだと、今は思っています。無理をして居場所のない空間にいるより、一人でも心地よい場所にいる方が、ずっと楽です。
+
+人間関係は変わるもの。八年続いたグループでも、新しい人が一人入るだけで、バランスは崩れる。それは誰のせいでもない。悪意があるわけでもない。ただ、そういうものなのです。
+
+---
+
+私の居場所は、私自身が作らなければならない。誰かに用意してもらえるものではないのです。自分で歩いて、自分で見つけて、自分で選ぶ。あの窓際の席は、もう私のものではありません。八年間の思い出が詰まった場所だけど、今はもう、別の誰かのものです。でも、この小さな喫茶店のカウンター席は、私だけの場所です。店主は何も聞かない。私の過去も、私の悩みも知らない。ただ、深煎りのコーヒーを淹れてくれるだけ。その距離感が、今の私にはちょうどいいのです。
+
+いつもの席が突然なくなったら、別の店を一つ作って逃げ道を用意してください。一人でも過ごせる場所があれば、気持ちが楽になります。グループに依存しなくて済む。誰かに居場所を用意してもらわなくても、自分で自分を守れる。いつでも戻れるし、いつでも離れられる。その余裕を持つことが大事です。
+
+今夜、あなたができる小さな一歩は、ただ一つ。明日、いつもの道から少しだけ外れて、新しい通りを歩いてみることです。目的地は決めなくていい。ただ、ふと気になった路地を曲がってみる。新しい景色を見るだけで、心の逃げ道は少しずつ広がっていきます。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH14-022 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH14-022 — script</h1>
           <div class="muted">【過去】昔の失敗が刺さり続ける｜刺さる場所を抜く</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH14</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH14</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,225 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCoKMmvWzqZyNlgQ7YPxIGvQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【過去】昔の失敗が刺さり続ける｜刺さる場所を抜く</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの教え【執着からの解放】」の長時間コンテンツです。
+後悔・恨み・比較・お金不安…ほどけない執着を、静かにほどく。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>過去, ブッダ, 仏教, 執着, 後悔, 比較, お金不安, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの教え【執着からの解放】」の長時間コンテンツです。
+後悔・恨み・比較・お金不安…ほどけない執着を、静かにほどく。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH14-022</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH14-022&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">洗い物をしている静かな昼下がり、あるいは夜道を一人で歩いているふとした瞬間。
+なんの前触れもなく、過去の忌まわしい失敗の記憶が、濁流のように脳内に蘇ってきて、思わず「あっ」とか「うわぁ！」とか、奇妙な声が漏れてしまうことはありませんか。
+
+「なんであんな恥ずかしいことを、平気な顔をして言ってしまったんだろう」
+「どうして、あんな取り返しのつかない、酷いミスを犯してしまったんだろう」
+もう何年も、いや、人によっては十年、二十年も前のことなのに。
+それなのに、まるで昨日のことのように、あるいは今この瞬間に起きていることのように、顔が火が出るほど熱くなり、心臓がギュッと雑巾のように締め付けられる。
+
+できることなら、自分の脳内の記憶回路を消しゴムで綺麗に消し去ってしまいたい。
+タイムマシンがあるならば、あの瞬間に戻って、若くて愚かだった自分を思い切り一発殴ってやりたい。
+そんな、抜きようにも抜けない過去の鋭い棘が、あなたの心臓の奥深くに刺さったまま、時折激しく疼き、あなたの今という安らぎを情け容赦なく破壊し続けている。
+今日は、その古傷の疼きを根本から和らげ、刺さり続けるその目に見えない棘を、禅の深い洞察によってそっと引き抜くためのお話をします。
+過去の「事実」を変えることは誰にもできません。しかし、その過去に対する「意味付け」と「付き合い方」を変えることは、今この瞬間からでも可能であり、それこそがあなたの人生を救う唯一の道なのです。
+
+---
+
+第一章：なぜあなたの脳は、恥ずかしい記憶だけをハイビジョンで再生するのか
+
+まず、冷静に分析してみましょう。なぜ私たちは、昨日の昼食に何を食べたかすら忘れてしまうのに、十年以上前の「たった一度の失敗」や「些細な失言」を、これほどまでに鮮明に、かつドラマチックに覚えていて、何度も何度もビデオテープを巻き戻すように自動再生してしまうのでしょうか。
+楽しかった、誇らしかった思い出は、潮風に吹かれる砂の城のようにすぐに崩れて消えていくのに、情けない、恥ずかしい記憶だけは、まるで岩に刻まれた碑文のように、4Kのハイビジョン画質で残り続けている。
+実は、これには驚くべき理由があります。
+それは、あなたが根本的に「真面目で、責任感が人一倍強い、美しい魂の持ち主」だからです。
+
+本当にいい加減で、他人に関心のない人は、自分が犯した失敗など瞬時に、霧のように忘れてしまいます。
+まあいいか、誰かのせいだ、運が悪かっただけだ。
+自分の心を傷つけないように、脳が都合よく記憶を剪定、すなわち切り捨て、してまうのです。
+でも、あなたは違います。
+すべて自分の至らなさのせいだ、もっとうまくできたはずだ、相手にあんな思いをさせて、申し訳ない。
+自分という人間に対して、常に高い理想と厳格な基準を課しているからこそ、そこから1ミリでもズレてしまった、過去の不完全な自分が許せないのです。
+自己嫌悪の深さは、あなたの向上心の高さ、そして誠実さの裏返しに他なりません。
+つまり、あなたはそれだけ、真摯に人生に向き合ってきた、掛けがえのない人間だということです。
+
+しかし、その素晴らしい責任感という名の刃が、他人を守るためではなく、自分自身の柔らかな心を切りつける「拷問の凶器」になってしまっているのだとしたら、少しだけその使い方が間違っています。
+本来、私たちの脳は二度と同じ致命的な危険に遭わないようにという、生存本能のために、強烈な不快感を伴って失敗を記憶します。
+熱い鉄板を触って激しい火傷をしたら、脳は「鉄板＝熱い」と、恐怖と共に深く記憶しないと、命がいくつあっても足りません。
+あなたの脳も、もう二度とあんな恥をかき、社会的評価を失わないようにと、24時間、全力で警告のアラーム、すなわち非常ベルを鳴らし続けてくれているのです。
+でも、もう十分ではありませんか。
+あなたはこれまで、十分に自分を責め、十分に反省し、十分に苦しんできました。
+あなたの心の中の裁判所での刑期は、とっくに終わっています。
+もう、その暗い牢獄の扉を開けて、自由な空気を吸いに出てもいい頃なのです。
+
+---
+
+第二章：「後出しジャンケン」という不公平な裁判を手放す
+
+禅の智慧において最も重要な考え方に「諸行無常」があります。
+窓の外を流れる川を、じっと見てください。
+昨日そこを流れていた水は、今はもう地球の裏側まで行っているかもしれません。そこにあるのは、常に「新しい水」です。
+それと同じように、3年前、10年前のあなたと、今ここでこのメッセージに向き合っているあなたは、生物学的にも、精神的、あるいは情報的にも、完全に「別の人」です。
+蓄積された経験値も、当時の苦難を乗り越えて得た智恵も、今のあなたは、過去のあなたとは比べものにならないほどアップデートされています。
+
+当時の過去のあなたは、今のあなたから見れば、ひどく未熟に見えるでしょう。
+知識も少なく、心の余裕もなく、周囲を見渡す視野も極端に狭かったかもしれない。
+でも、その時の「彼」や「彼女」は、その時の自分に与えられた条件の中で、死ぬ気で、全力で生きていました。
+それがどんなに愚かな選択に見えたとしても、その瞬間のあなたは、それがベストだと信じて、必死に、その場しのぎではない判断を下したのです。
+あなたは、わざと失敗しようと思って行動したわけでは、決してないはずです。
+
+今の、多くの経験を経て賢くなったあなたが、当時の未熟で無防備だった自分を高いところから見下ろし、「なんであんな馬鹿な選択をしたのか」と冷酷に裁くのは、卑怯な「後出しジャンケン」に他なりません。
+結末をすべて知っている映画の観客が、スクリーンの中の主人公に対して「後ろに賊がいるぞ、なぜ気づかないんだ！」と怒鳴っているのと同じです。
+それは、あまりにも不公平で、残酷な裁判ではないでしょうか。
+「あの時の、あの不器用な私としては、あれが精一杯の、命がけの選択だったんだよ」
+そうやって寄り添い、弁護してあげられるのは、全宇宙、全空間を通じて、今のあなた、ただ一人だけなのです。
+
+---
+
+第三章：泥の中にしか、清らかな蓮の花は咲かない、泥中の蓮
+一週間の言葉に、泥中の蓮、という美しい表現があります。
+沼地の深い、濁った泥の中からしか、あの清らかで気高い蓮の花は咲きません。
+もし、泥を汚いものとしてすべて排除し、ピカピカに磨かれたコンクリートの庭に蓮を植えたらどうなるでしょうか。
+蓮は一週間も持たずに枯れ果ててしまいます。
+蓮にとって、あの濁った、臭い、重たい泥こそが、美しい花を咲かせるための唯一の養分、すなわち栄養だからです。
+
+あなたのこれまでの「過去の失敗」や「消したい恥」こそが、あなたの生命という大地に降り積もった、滋味豊かな「肥沃な泥」なのです。
+あの大失敗があったからこそ、あなたは「他人の失敗」に対して、心の底から優しい眼差しを向けられるようになったのではありませんか？
+あの大恥をかいたからこそ、あなたは自分の弱さを認め、傲慢さを捨て、謙虚に人の話を聞けるようになったのではありませんか？
+あんなに酷い思いをしたからこそ、同じように苦しんでいる誰かの背中を、無言で、温かくさすってあげられる「本物の慈愛」が、あなたの心に芽生えたのではありませんか？
+
+もし、あなたの人生が、1ミリも狂いのない、汚れ一つない、ツルツルした大理石のような道だったとしたら。
+その上には、一輪の雑草さえ生えず、誰の心も動かさない、無機質で冷たい風景が広がっていたことでしょう。
+あなたの心に刺さっているその棘は、実はあなたの魂を肥やすための「知恵の種」であり、あなたの人間的な「深み」を作るための、神様からの贈り物なのです。
+「あんな失敗があったからこそ、今の、深みのある私がいる」
+泥を嫌うのではなく、泥があったからこそ咲いた今の自分の心の花に目を向けてください。
+
+---
+
+第四章：金継ぎの人生は、無傷の人生より美しい
+
+日本の伝統的な工芸に「金継ぎ」という、非常に美しく、精神性の高い技法があります。
+大切にしていた高価な茶碗が割れてしまったとき、それを単に接着剤でくっつけて、傷を隠すのではありません。
+あえて、割れた継ぎ目の部分に漆と純金を施し、その亀裂を黄金の稲妻のような、美しい模様として強調するのです。
+傷跡を「隠すべき恥」とするのではなく、その器が経てきた「苦難の物語」として、新たな価値を上乗せして蘇らせる。
+金継ぎされた器は、元の無傷の状態よりも、遥かに高い美術的価値を持ち、見る人の心を強く揺さぶるようになります。
+
+あなたの人生も同じです。過去の失敗によって、あなたの心は一度、バラバラに粉砕されたかもしれません。
+でも、そのバラバラになった破片を、今のあなたの「知恵」と「優しさ」という黄金で、もう一度丁寧に繋ぎ合わせてみてください。
+それはもはや不完全な器ではなく、世界にたった一つしかない、強靭で、煌びやかな「魂の芸術品」です。
+傷一つない、大量生産されたプラスチックの皿のような人生には、何の魅力もありません。
+傷つき、割れ、それを自らの意志で修復してきた跡がある人生こそが、光を乱反射させ、虹のような深い輝きを放つのです。
+「この傷があるから、私はもっと美しくなれる」
+そう思えたとき、あなたを苦しめていた棘は、黄金のアクセサリーへと昇華されていきます。
+
+---
+
+第五章：脳内の「震えている自分」に、今のあなたが駆け寄る
+ハグ療法についてお話しします。
+
+では、具体的かつ強力な、心のヒーリング手法を伝授しましょう。
+過去の記憶が襲ってきたとき、あなたは「今の視点」でそれを分析するのをやめて、一度「当時」へと意識をダイブさせてみてください。
+
+目を閉じて、失敗したその瞬間。周囲の冷たい視線に晒され、あるいは自己嫌悪の嵐の中で、顔を真っ赤にして、冷や汗を流し、穴があったら入りたいと震えている「当時の、自分自身の姿」をありありと思い浮かべてください。
+まるで泣きじゃくる迷子のような、あまりにも無防備で、あまりにも孤独で、あまりにもボロボロになった自分の姿。
+さて、今の、大人になり、智恵をつけたあなたなら、その震えている自分を見て、一体何をしてあげるでしょうか。
+「このバカ野郎、お前のせいで今の私が迷惑してるんだ！」と、さらに石を投げつけたり、首を絞めたりしますか？
+今の優しいあなたなら、決して、そんな残酷なことはしないはずです。
+
+イメージの中で、そっとその子のそばに近寄り、無言で、全力でぎゅっと抱きしめてハグしてあげてください。
+辛かったね、本当に、よく今まで頑張って耐えてきたね、怖かったよね。でも、もう大丈夫だよ。私がついているからね。
+そう言って、子供の背中をなだめるように、ゆっくりとさすってあげてください。
+過去のあなたは、未来のあなた、すなわち今、から裁かれるのを待っていたのではありません。
+ずっと、ずっと、あなたの優しい「許し」の一言を、暗闇の中で何十年も待ち続けていたのです。
+あなたがイメージの中で自分自身を抱きしめた瞬間。
+その記憶に張り付いていた毒は一気に中和され、鋭い「痛み」だったものは、温かい「涙」へと変わり、やがて消え去っていきます。
+あなたは、自分の手で自分自身の時間を救うことができる、最高の魔法使いなのですよ。
+
+---
+
+第六章：「シロクマ」を追いかけず、窓の外を流れる雲として眺める
+
+最後に、一つだけ重要な注意点があります。それは「無理に忘れようとしないこと」です。
+心理学には「シロクマ効果」という有名な実験があります。「今から5分間、絶対にシロクマのことだけは考えないでください」と言われると、脳はその否定の命令を強化するために、逆にシロクマのことばかりを考えてしまう、という脳の性質です。
+「忘れなきゃ」「消さなきゃ」と必死になればなるほど、あなたの脳は「これは忘れてはいけない最重要事項なのだ」と誤解し、その記憶回路を太く、強固に補強してしまいます。
+
+思い出しても、いいのです。
+ただ、その時のあなたの「反応」だけを、少しずつ変えてみてください。
+これまでは「うわぁ、またあのアホな記憶が出てきた！ 最悪だ！」と激しく反応し、感情の波に飲み込まれていました。
+これからは、「ああ、また例のあの子、記憶、が遊びに来たね。相変わらず元気だこと」と、少し冷めた目、あるいは慈愛に満ちた祖父母のような目で、淡々と眺めてみてください。
+通りを歩いている、一匹の野良猫を見守るような感覚。
+あるいは、夏の空にゆっくりと流れては消えていく、形の定まらない雲を眺めるような感覚。
+「はいはい、その話はもう何度も聞いたよ。まあ、そこでお茶でも飲んでいきなさい」
+感情を込めずに、ただその記憶が過ぎ去るのをスルーする、すなわち受け流す、練習を繰り返してください。
+そうしているうちに、あなたの脳は「あ、この情報はもう、今の主人にとって何の重要性もない、退屈なデータなんだな」と判断を下し、徐々にその記憶を、脳の倉庫の最も奥深いアーカイブへと、静かに片付けていってくれます。
+
+---
+
+第七章：あなたは、今のその「不完全なまま」で、完璧に美しい
+
+失敗のない、欠点のない、非の打ち所のない人生なんて、お世辞にも面白いものではありません。
+完璧な人間など、どこにも存在しません。もしいたとしたら、それは感情のないAI、あるいは血の通わない石像と同じです。
+あなたの、そのどうしようもない不器用さ。
+あなたの、その消してしまいたいほどの不完全さ。
+それこそが、あなたが「人間として生きている」という、最高に美しく、愛おしい証拠なのです。
+
+過去の棘は、無理に力任せに引っこ抜こうと暴れると、余計に傷口が広がり、出血が止まらなくなります。
+「ああ、あの失敗があったから、私はこんなに深くなれたんだ。もういいよ、許そう」
+そう、心からの安寧と共に思えたとき、その棘は役割を終え、ポロリと自然に抜け落ち、小さな愛らしいかさぶた、すなわちあざ、になります。
+そのあざを指で優しく撫でながら、あなたはいつか、穏やかな笑顔でこう思うでしょう。
+「いろいろあったけれど、よくぞここまで腐らずに、懸命に生きてきたな、私……」
+「なんだかんだで、自分なりに最高に頑張ってきたじゃないか」と。
+
+今日、ゆっくりとお風呂に入り、自分の体をいたわりながら、一言だけ心の中で温かい声をかけてあげてください。
+あの時は、あれが精一杯だったんだよ。もう、十分だよ。許すよ。
+その一滴の許しという名の雫が、カチコチに凍りついていたあなたの過去の時間をゆっくりと溶かし、あなたを今ここという、唯一の本物の幸せへと連れ戻してくれるはずです。
+
+もう、自分を無意味に罰し、鞭で叩く巡礼の旅は、今日で終わりにしましょう。
+あなたはもう、十分に贖った。あなたはもう、自由に幸せになる資格を、1000パーセント持っているのですから。
+さあ、手放して。そして、新しい自分として、今日という素晴らしいキャンバスに向き合ってみませんか。
+</pre>
     </div>
   </div>
 </main>

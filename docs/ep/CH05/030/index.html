@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH05-030 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH05-030 — script</h1>
           <div class="muted">【夫婦の秘密】結婚45年目、夫の書斎で見つけた交換日記。そこには、私に言えなかった「愛してる」の言葉が、毎日綴られていた。</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH05</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,221 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCNxC0Q2xDoofIClGNurUcIg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【夫婦の秘密】結婚45年目、夫の書斎で見つけた交換日記。そこには、私に言えなかった「愛してる」の言葉が、毎日綴られていた。</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉
+
+この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>再婚, 家族の距離, 老後, シニア, 恋愛, シニア恋愛, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>大人の恋をもう一度楽しむための小さな勇気を届けます。
+・第二の恋に踏み出すステップ・家族へ伝える言葉</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「シニアの温かい恋愛【体験談】」の長時間コンテンツです。
+シニア層の恋愛事情に寄り添うコンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH05-030</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH05-030&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">病院の朝は早い。
+カーテンの隙間から差し込む白々しい光で目が覚めた。時計の針はまだ六時を回ったばかりだ。
+田中美和子、六十七歳。
+私はベッドの上で、重たい身体を起こそうとした。左足に走る鈍い痛み。ズキリ、というよりも、鉛が入っているような重苦しさだ。
+「……はあ」
+思わずため息が漏れる。
+三週間前、自宅の階段で足を滑らせた。軽い脳梗塞の前兆によるめまいだった。幸い、発見が早かったため麻痺は残らなかったが、転倒した際に左足を骨折してしまった。
+夫を見送って七年。一人暮らしの気楽さと自由を謳歌していたつもりだったが、こうして入院してみると、自分がいかに脆い存在だったかを思い知らされる。
+配膳車が廊下を通る音。消毒液の匂い。隣のベッドの人の寝息。
+ここには「生活」の音があるようで、ない。あるのは「管理された時間」だけだ。
+「美和子さん、おはようございます。今日はいい天気ですよ」
+看護師の明るい声とともに、カーテンが開けられた。窓の外には、春の日差しが溢れている。
+「……おはようございます」
+「今日のリハビリは午後からですね。午前中は少し中庭でも散歩してきますか？」
+「ええ……そうね」
+気乗りはしなかったが、ベッドに縛り付けられているような閉塞感から逃れたくて、私は頷いた。
+
+松葉杖をついて、長い廊下を歩く。
+コツ、コツ、という乾いた音が、私の孤独を強調するようだった。すれ違う患者さんたちの、どこか虚ろな目。私も同じ目をしているのだろうか。
+中庭に出ると、風が少し冷たかったが、日差しは暖かかった。
+ベンチに腰を下ろし、杖を横に置く。
+ふと、左足を見る。ギプスは取れたものの、まだサポーターが痛々しい。
+「……情けないわね」
+誰にともなく呟いた時だった。
+
+「大丈夫ですか。顔色が優れないようですが」
+隣のベンチに座っていた男性が、声をかけてきた。
+野村康平さん。入院着の上からでも分かる、がっしりとした体格の良さ。白髪だが、肌つやは良く、七十二歳という年齢よりも若く見えた。
+彼もまた、右足にサポーターをしている。
+「……すみません。少し、自分の不甲斐なさに落ち込んでしまって。こんな歳になって、階段から落ちるなんて」
+私が正直に言うと、彼は豪快に笑った。
+「ハハッ、分かりますよ。僕も最初はそうでした。現場監督として何十年も足場を走り回っていたのに、孫の三輪車につまずいてこれですから」
+彼は自分の右足を叩いた。「骨折のリハビリです。情けないやら、悔しいやら」
+「まあ、現場監督さんだったんですか」
+「ええ。声を張り上げるのが仕事でした。だから声だけは大きい」
+彼の屈託のない笑顔につられて、私も少し笑ってしまった。
+
+「もしよかったら、少し歩きませんか？ 一人だと怖くても、二人ならなんとかなる。お互い、杖代わりになりましょう」
+彼が立ち上がり、手を差し出した。
+大きな、節くれだった手。
+私は少し迷ったが、その手を取ることにした。
+「……お願いします」
+彼の手は、驚くほど温かかった。そして、固かった。
+私の身体を支えるために、彼の腕に力が入るのが伝わってくる。
+「一、二、一、二」
+彼が声をかけてくれる。まるで行進曲のような、力強いリズム。
+「あなたの声、響きますね」
+「腹から出していますから。……足、痛くないですか？」
+「いえ、不思議と。あなたが支えてくれているから、痛みが逃げていくみたい」
+中庭を一周するのに、普段の何倍もの時間がかかった。けれど、その時間は苦痛ではなかった。
+彼の体温、息遣い、そして励ましの声。
+「美和子さん、あなたは姿勢がいい。きっと、すぐに歩けるようになりますよ」
+「野村さんも。その力強さがあれば、現場復帰も夢じゃないです」
+お互いを励まし合う言葉が、乾いた心に染み渡っていくようだった。
+
+それから、私たちはリハビリの「戦友」になった。
+リハビリ室で顔を合わせると、どちらからともなく合図を送る。
+平行棒の中を歩く私を、彼が腕組みをして見守ってくれる。
+「右足の踏み込みが甘い！ もっと信じて！ 地面は逃げない！」
+「はい！」
+彼の檄が飛ぶと、不思議と力が出る。
+逆に彼がマシントレーニングをしている時は、私が声をかける。
+「野村さん、呼吸が止まってますよ！ 吸って、吐いて！」
+「おっと、いけない。美和子さんに見られていると、力が入ってしまうな」
+汗を拭う彼と視線が絡む。
+病院という、死と隣り合わせの無機質な空間。消毒液と湿布の匂いが充満する部屋。
+けれど、私たちの周りだけは、生々しい人間同士の熱気が渦巻いていた。
+
+ある雨の日。中庭には出られず、談話室のソファーで並んで座っていた。
+窓ガラスを叩く雨粒を眺めながら、彼がポツリと言った。
+「妻を亡くしてから、誰かに支えられるという経験がなかったんです。いつも支える側でした」
+「……私もです。夫を見送って七年。一人で何でもできると思っていました。誰にも迷惑をかけずに死ぬのが目標でした」
+「男は弱いですね。一人になると、急に脆くなる」
+「女も同じですよ。強がっているだけ」
+彼の手が、私の手の甲に触れた。
+「……手、冷たいですね」
+「雨の日は、少し冷えるんです」
+「温めましょう」
+彼が私の手を両手で包み込んでくれた。大きく、温かい手。
+カイロなんかよりもずっと、心の奥まで熱が伝わってくる。
+「……野村さんの手は、魔法使いみたい」
+「魔法？ ただのじじいの手ですよ」
+「いいえ。不安を消してくれる魔法の手です」
+私が言うと、彼は耳まで赤くして照れた。その顔が可愛らしくて、愛おしかった。
+
+退院の日が近づいてきた。
+「寂しくなりますね」
+最後の散歩の時、中庭のタンポポを見ながら私が言った。
+コンクリートの隙間から、黄色い花が力強く咲いている。
+「……退院したら、またこの公園で会いましょう」
+彼が立ち止まり、真剣な顔で言った。
+「今度は、患者としてではなく。男と女として」
+心臓がトクン、と跳ねた。
+「……ええ。私服で、杖なしで」
+「約束ですよ」
+彼が小指を差し出した。
+「指切りなんて、何十年ぶりかしら」
+「契約書よりも確かな約束です」
+小指を絡める。指先から伝わる彼の体温を、私は記憶に刻み込んだ。
+
+退院して一週間後。
+私は約束の公園に向かっていた。
+新しいベージュのパンプス。春らしい淡いピンクのブラウス。口紅は、いつもより少し明るい色を選んだ。
+杖は持っていない。まだ少し不安はあるけれど、彼に見せたい姿があった。
+公園の入り口が見える。時計を見る。約束の十分前。
+ベンチに座っている男性の姿が見えた。
+ジャケットを着て、髪を整えた野村さんだ。彼も杖を持っていない。
+「野村さん！」
+私が声をかけると、彼が弾かれたように顔を上げた。
+「美和子さん……！」
+彼が立ち上がり、こちらへ歩いてくる。その足取りは、病院の時よりもずっと力強く、自信に満ちていた。
+私たちが向き合うと、彼は自然に右手を差し出した。
+「さあ、行きましょうか」
+「……はい」
+私は彼の手を取った。
+病院で支え合った時の「介護」の手ではない。
+男性が女性をエスコートする、優しく、そして熱っぽい手。
+
+並んで歩く歩道の感触は、病院の廊下よりもずっと柔らかく感じられた。
+春の風が吹き抜け、桜の花びらが舞う。
+「足、痛みませんか？」彼が気遣う。
+「あなたの手が温かいから、痛みなんて忘れました」
+「僕もです。あなたの声を聞いていると、どこまでも歩けそうだ」
+二人の影が、アスファルトの上で一つに重なり、長く伸びていく。
+「あそこのカフェで、お茶でもしましょう」
+彼が指差した先には、テラス席のあるおしゃれなカフェがあった。
+「いいですね。病院の自販機のコーヒーとは大違い」
+「味はともかく、あの自販機の前で話した時間も、僕にとっては宝物ですがね」
+「ふふ、私もです」
+
+カフェの席に着き、向かい合う。
+太陽の光が、彼の顔を照らしている。入院していた頃の青白さは消え、健康的な血色が戻っていた。
+「乾杯しましょうか」
+「何に？」
+「僕たちの、新しい一歩に」
+アイスティーのグラスを軽く合わせる。カチン、と涼やかな音が響いた。
+「……生きていてよかった」
+彼がしみじみと言った。「怪我をした時は絶望したけれど、そのおかげであなたに出会えた」
+「人生、何があるか分かりませんね。転んでも、ただでは起きない」
+「ハハッ、たくましいな」
+彼が笑い、私も笑った。
+
+帰り道、彼は駅まで送ってくれた。
+「次は、映画でもどうですか。座って見られますから」
+「ええ、喜んで」
+改札の前で、繋いでいた手を離すのが惜しかった。
+「今日、どの一歩を選びましたか」
+心の中で自分に問いかける。
+私が選んだのは、過去を振り返る一歩でも、一人で踏ん張る一歩でもない。
+彼と共に歩く、この温かく、少しこそばゆい一歩だ。
+「じゃあ、また」
+彼が手を振る。
+「また、近いうちに」
+私も手を振り返す。
+自動改札を抜け、振り返ると、彼はまだそこに立って私を見ていた。
+その姿が見えなくなるまで、私は何度も振り返った。
+左足の痛みは、もう感じなかった。胸の奥にある温かい塊が、全身を支えてくれていたから。
+私は前を向いた。駅の雑踏が、まるで祝福のファンファーレのように聞こえた。
+人生の第二章は、まだ始まったばかりだ。</pre>
     </div>
   </div>
 </main>

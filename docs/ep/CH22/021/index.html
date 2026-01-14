@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH22-021 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH22-021 — script</h1>
           <div class="muted">謝罪の品を突き返された｜もう戻れない夜</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,244 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCXRMfwpf27FQFJT4jBUYgpw/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>謝罪の品を突き返された｜もう戻れない夜</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>後悔, 終わり, 老後, シニア, 友人関係, 近所付き合い, 同窓会, 町内会, 孤独, 人間関係, 物語, 朗読, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH22-021</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH22-021&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">謝罪の品を突き返された。
+
+---
+
+友人の幸恵さんが、私の差し出した紙袋を、まるで汚物でも扱うかのように無機質な手つきで押し返してきました。
+その瞬間、指先に伝わった、高級な羊羹のずっしりとした重み。
+それは、三十年かけて積み重ねてきたはずの、友情という名の結晶が、冷たい石ころに変わってしまった重さのようでした。
+「これ、返すわ。もう今の私には、あなたの選んだものの味なんて、分からないと思うから」
+幸恵さんの声は、低く、低く。
+まるで冬の池の氷の下を流れる水のように、透明で、そして一切の体温を感じさせませんでした。
+三十年来の、無二の親友。
+子どもたちの成長を、自分のことのように喜び、苦境を分かち合ってきたはずの彼女の目。
+そこには、かつての慈愛の欠片もなく、ただ、私の存在そのものを拒絶する、深い、深い沈黙が横たわっていました。
+何かとんでもないことをしてしまった。
+取り返しのつかない、人生の分岐点を、私は踏み外してしまったのだと。
+玄関先の冷たい風に吹かれながら、私は自分の膝が、情けなく震え始めるのを止めることができませんでした。
+
+---
+
+三十年という時間は、無数の小さな習慣と、目立たない気遣いの積み重ねだった。毎週水曜日の午後、私たちは近所の喫茶店で必ず顔を合わせ、一時間だけ自分の時間を分け合った。幸恵さんが注文するホットコーヒーと、私が頼む紅茶の香りが混ざり合うあの空間。子供たちの学校の話から始まり、やがては老いていく親の介護や、自分たちの体力の衰えへと話題は移っていった。雨の日には、どちらかが傘を差し出し、寒い日には温かい飲み物を勧め合う。そんな些細な行為が、三十年という長い時間を、確かなものにしていった。私が骨折で動けなかった一ヶ月間、幸恵さんは毎日のようにおかずを持ってきてくれた。玄関先で『無理しないでね』と微笑む彼女の顔。あの時、友情とは言葉ではなく、こうした日常の継続そのものなのだと感じた。だからこそ、真由美さんの結婚式という、非日常の大きなイベントに、私が参加できなかったことが、これほどまでに深い亀裂を生むとは想像もしていなかった。日常の細やかな繊維で織り上げられた布が、一度の強い引っ張りで簡単にほつれてしまうことを、今、身をもって知った。私たちは、あまりにも当たり前のように相手の存在を前提にしすぎて、その前提が崩れた時の衝撃を、全く想定していなかったのだ。
+
+事の発端は、先月行われた、幸恵さんの愛娘、真由美さんの結婚式でした。
+私たちが知り合ったのは、今からちょうど三十年前の、春の日でした。
+ＰＴＡの役員決めで、お互いに仕方なく手を挙げた者同士。
+最初は、ぎこちない敬語から始まった関係。
+でも、幼稚園の運動会の準備で、泥だらけになりながら万国旗を飾ったあの夕暮れ。
+二人で分け合って飲んだ、少しだけぬるくなった水筒のお茶の味。
+あの瞬間。私たちは、言葉を超えた何かの共犯者になり、それ以来、人生の荒波を一緒に漕いできたはずでした。
+真由美さんは、私にとっても、もう一人の娘のような存在でした。
+初めてのピアノの発表会。緊張で震える彼女の小さな背中を、一番後ろの席で幸恵さんと並んで、祈るような思いで見守っていたのは私です。
+第一志望の高校に落ちて、部屋に閉じこもってしまった時。
+夜通し幸恵さんの電話を握りしめ、「大丈夫よ、この子が選んだ道は、必ず光に繋がっているわ」と、励まし続けたのも、私だったはずなのに。
+そんな真由美さんの、人生で一番美しい、真っ白な花嫁姿。
+それを目にすることなく、私は今、自分の愚かさと不幸の狭間で、立ち尽くしているのです。
+
+---
+
+でも当日、私は行けませんでした。
+前日の夜から熱が出始めました。最初は37度台だったので、大したことないだろうと思っていました。寝れば治る、明日には下がっている、そう信じて早めに床につきました。でも夜中に何度も目が覚めて、体がどんどん熱くなっていくのが分かりました。朝になって体温計を見ると、39度近くまで上がっていました。
+頭が痛い、体が重い、起き上がるのもやっとという状態でした。トイレに行くだけで息が上がる。立っているのもやっと。とても結婚式に出席できる状態ではありませんでした。
+当日の朝、震える手で電話しました。本当に申し訳ないけれど熱があって起き上がれない、今日は欠席させてもらえないかと。声がかすれて、うまく言葉が出ませんでした。電話の向こうで、幸恵さんの声が変わるのが分かりました。
+今日。今日の朝になって言うの。
+その声は、明らかに怒りを含んでいました。
+本当にごめんなさい。昨日の夜から熱が出て、朝になったら下がるかと思って。
+結婚式は午後からでした。絶対に出席したかったから、ギリギリまで様子を見ていたのです。でもその判断は裏目に出ました。もっと早く連絡すべきだった。前日の夜の時点で、熱が出ていることを伝えておくべきだった。
+電話越しに、幸恵さんのため息が聞こえました。長い沈黙の後、彼女は短く言いました。
+そう。分かったわ。
+それだけ言って、電話が切れました。お大事にねの一言もなかった。
+
+---
+
+一人で、薄暗い寝室の天井を見上げながら。
+私は、式が進行していくスケジュールを、呪詛のように頭の中で唱え続けていました。
+今は午後二時。ちょうど指輪の交換が終わった頃かしら。
+今は午後四時。披露宴の最中。真由美さんは、私が絶対似合うわよと背中を押した、あのピンク色のカクテルドレスに着替えているはず。
+お母さんへの手紙。
+幸恵さんは、きっとボロボロと涙をこぼしながら、あの三万粒のビーズがついたハンカチで、顔を覆っているに違いない。
+その場所。その、人生で最も祝福に満ちたその場所に。
+私は、いない。
+ただ、自分の浅い呼吸の音と、加湿器のシューという無機質な霧の音だけが響く部屋で。
+私は、自分の存在そのものが、世界から忘れ去られてしまったかのような、耐え難い孤独の中に沈んでいきました。
+体調管理を怠った自分の至らなさ。
+もっと早く、昨夜のうちに、いや、一週間前から体調を万全にしておくべきだったという、不可能な後悔。
+熱で朦朧とした頭の中で。
+私は、幸恵さんの、あの電話越しの氷のような沈黙を、何度も、何度も、リプレイし続けていました。
+彼女は、怒っている。いや、失望している。
+私が、真由美さんの晴れ舞台よりも、自分の体調程度を優先したことに。
+少なくとも、今の彼女には、そうとしか見えなかったのでしょう。
+三十年という月日が、一瞬で一通の欠席連絡によって、踏み荒らされ、台無しにされてしまった。
+その恐怖が、熱の引かない私の体を、さらに内側から焼き尽くしていくようでした。
+光の当たらない枕元で。私はただ、自分の無力さを、血を吐くような思いで噛み締めることしかできなかったのです。
+
+---
+
+数日後、やっと体調が戻りました。すぐに幸恵さんに連絡しました。本当にごめんなさい、お詫びに行きたいんだけどいいかしらと。返事は素っ気なかったけれど、いいわよと言ってくれました。
+お詫びの品を用意しました。デパートまで足を運んで、一番上等な羊羹を選びました。幸恵さんが好きだと言っていたお店のもの。ご祝儀も改めて用意しました。出席できなかったのだから、少し多めに包むべきだと思いました。
+幸恵さんの家を訪ねて、玄関先で頭を下げました。
+本当にごめんなさい。楽しみにしていたのに。娘さん、綺麗だったでしょうね。
+幸恵さんは、私の顔をじっと見ていました。表情が読めませんでした。怒っているのか、悲しんでいるのか。ただ冷たい目で、私を見つめている。
+綺麗だったわよ。あなたがいなくても。
+その言葉に、胸がチクリと痛みました。あなたがいなくても。わざわざ言う必要があっただろうか。言外に込められた怒りが、ひしひしと伝わってきました。
+でも仕方なかったの。熱が39度もあって、本当に動けなくて。
+仕方なかった。そうね。仕方なかったのよね。
+幸恵さんの声には、明らかに皮肉が込められていました。
+あなた、私の娘の結婚式を仕方なかったで片付けるの。
+違うの、そういうつもりじゃなくて。
+30年よ。30年の付き合いで、娘の結婚式より大事な用事があるって思われたのね。
+病気だったの、本当に。
+じゃあ医者に行ったの。熱があったなら医者に行ったでしょう。診断書はあるの。
+私は言葉に詰まりました。医者には翌日行きました。当日は動けなかったから。解熱剤をもらって、安静にするよう言われた。でも診断書は取っていませんでした。必要だと思わなかったから。
+つまり、証拠はないってことね。
+幸恵さんの目が、冷たく光りました。それでも私は反論しようとしました。なぜ疑われなければならないのか。30年も一緒にいて、私の言葉を信じてくれないのか。
+正直に言うわ。私、あなたのこと信じられなくなったの。本当に具合が悪かったのかもしれない。でももしかしたら、来たくなかっただけかもしれない。どっちか分からないの。
+来たくなかったなんて、そんなこと。
+でも当日の朝に連絡してきたでしょう。もっと早く言えなかったの。前日の夜から具合が悪かったなら、その時点で連絡できたでしょう。
+それは、もしかしたら朝には良くなるかもしれないと思って、ギリギリまで様子を見ていて。
+つまり、私への連絡は後回しだったってこと。
+違う、そうじゃなくて。
+言い訳を並べないで。もういいわ。
+玄関のドアが、乾いた金属音を立てて閉まりました。
+私は、突き返された重い紙袋を抱えたまま、その場から一歩も動くことができませんでした。
+三十年。
+数字にすれば、一万一千日近い、果てしない時間の集積。
+一緒に笑い、一緒に泣き、一緒に老いていこうと誓い合った、あの無数のティータイム。
+それらすべてが。
+たった一日の不在と、たった一度の不信によって、塵となって消え去ってしまった。
+私は、幸恵さんの家の玄関のタイルの、小さなヒビをじっと見つめ続けました。
+もう、このドアが開くことはない。
+もう、彼女が「敏子さん、お茶が入ったわよ」と、明るい声をかけてくれることはない。
+私は、自分が謝罪という名目でここに来たこと自体が、彼女にとっては、さらなる屈辱の追い打ちでしかなかったのだと気づきました。
+赦しを乞うことは、自分の心の安寧を優先するエゴだったのかもしれない。
+彼女にとっての真由美さんの結婚式は、それほどまでに絶対的で、侵されてはならない聖域だった。
+それを病気という不可抗力の理由で汚してしまった私の存在を。
+彼女は、もう自分の世界から完全に、永遠に、抹消することに決めたのです。
+私は、震える足取りで、少しずつ、少しずつその場を離れました。
+手に持った羊羹の包みが、まるで死んだ赤ん坊を抱いているかのような、重たくて、冷たくて、そしてどうしようもなく悲しい感触に変わっていました。
+もう、戻れない。
+私たちは、あまりにも近づきすぎてしまったからこそ。
+一度でも隙間ができてしまえば、そこから入る冷たい風は、もう二度と止めることができないのだと。
+今の私は、西日に照らされた自分の長い影を見つめながら、その終わりを、ただ静かに、絶望とともに受け入れるしかありませんでした。
+
+---
+
+帰り道、涙が止まりませんでした。電車の中で泣いて、歩きながら泣いて、家に着いてからも泣き続けました。
+夕食の席で、私は持ち帰った羊羹を一切れずつ切って口に運びました。
+甘いはずの羊羹が、喉を通るときにチクリと刺さるような、砂を噛むような味がしました。
+翌日から。
+私たちの三十年の沈黙は、近所の噂話という、予期せぬ形で私の元へと返ってきました。
+「敏子さん、幸恵さんの娘さんの結婚式、直前でキャンセルしたんですって？」
+「何か気に食わないことでもあったのかしら。幸恵さん、相当落ち込んでらしたわよ」
+スーパーのレジ横で、あるいはゴミ出しの立ち話で。
+私の知らないところで、私は親友の娘の晴れ舞台に泥を塗った冷酷な女という配役を与えられていました。
+言い訳をしようと思えば、いくらでもできました。
+診断書を見せ、熱のグラフを説明し、どれだけ自分が行きたかったかを叫ぶこともできました。
+でも、私はそれをしませんでした。
+なぜなら、幸恵さんが誰かにそう漏らしたということは、それが彼女にとっての真実になってしまったということだから。
+友情という脆い糸。
+三十年かけて紡いできた太い綱でさえ、一箇所の綻びから、これほどまでにあっけなく解けてしまうものなのか。
+私は、自分の家のベランダから見える、幸恵さんの家の屋根を眺めながら。
+今まで当たり前だと思っていた日常が、実はどれほど危うい均衡の上に乗っていたのかを、痛いほど思い知らされたのです。
+
+---
+
+後日、私は机に向かい、何度も書き直した末に、一通の長い手紙を綴りました。
+三十年間の、数えきれない思い出。
+不器巧だった自分を、何度も救ってくれた彼女の笑顔への感謝。
+そして、本当に行きたかったという、偽りのない真実。
+でも、その手紙をポストに投函した瞬間、私は不思議なほど、心が凪いでいくのを感じました。
+返事は、来ないでしょう。
+もし返したとしても、それはさらなる拒絶か、あるいは形式的な定型文に違いありません。
+それでいいのです。
+三十年の歴史が、こんなあっけない幕切れを迎えることもある。
+でも、その終わりがどれほど残酷なものであっても。
+私たちが共に過ごしたあの温かい時間は、確かにそこに存在していたのだから。
+幸恵さんの幸せを、そして真由美さんの新しい家庭の平穏を。
+私はこれからは、彼女たちの視線の入らない、遠い、遠い場所から、一人で静かに祈り続けていこう。
+それが、不器巧な私にできる、最後にして唯一の、本当の「親愛」の形なのだと。
+今の私は、自分の心を無理に癒そうとすることをやめ。
+ただ、この痛みを、人生の後半生における大切な「傷跡」として、静かに抱きしめて生きていく覚悟を決めているのです。
+忘れられない思い出を、無理に忘れようとする必要はありません。
+ただ、その思い出を「美しい過去」として引き出しの奥にしまい、自分はまた、新しい、一人の朝を迎える。
+それだけで、いいのです。
+三十年の月日は、終わりを告げるためではなく。
+私が一人で立って歩いていくための、目に見えない根っことして、私の魂の奥底に。
+ちゃんと、息づいているのだから。
+
+---
+
+今夜の一手。もし謝罪を受け入れてもらえなかったら、終わったを認めて次を急がないでください。無理に復活させようとすると余計にこじれます。どちらにしても自分を責めすぎないでください。
+関係が壊れるときは、それが「あなたのせい」ではなく、単にその関係の寿命が尽きただけ、ということもあるのですから。
+そこにある痛みを無理に消そうとせず、ただ静かに眺める余裕を、自分に許してあげてください。
+
+あなたの言葉が、どこかで震えている誰かの心を、温める明かりになるかもしれません。
+このお話が、あなたの夜を、少しでも誇り高いものにできたなら、チャンネル登録と高評価をいただけると嬉しいです。
+どうぞ、今夜があなたにとって、誰かへの申し訳なさで眠れない夜ではなく、自分の誠意を尽くした自分自身を、そっと許してあげられる、そんな穏やかな夜になりますように。
+誰が信じてくれなくても、あなた自身の真実だけは、あなたが一番知っているのですから。
+あなたが歩んできた道は、たとえ誰かに否定されたとしても、決して色褪せることはないのですから。
+それでは、また次の穏やかなお話でお会いしましょう。
+おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

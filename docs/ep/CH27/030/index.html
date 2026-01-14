@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-030 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-030 — script</h1>
           <div class="muted">友達を減らしたら、心が軽くなった…罪悪感の終わり</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,322 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>友達を減らしたら、心が軽くなった…罪悪感の終わり</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, 終わり, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-030</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-030&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">朝のキッチンに、やかんがシュンシュンと小さな音を立てていました。
+窓から差し込む光は、まだ青白く、世界が目覚め始めたばかりの静けさに満ちています。
+シンクのステンレスが冷たく光り、空気には微かに淹れたばかりの珈琲の香りが残っています。
+床はひんやりとしていて、スリッパ越しの冷たさが、まだ夢うつつの私を目覚めさせてくれます。
+私は一人、テーブルに座り、スマートフォンの画面を眺めていました。
+液晶の明かりだけが、私の顔を照らしています。
+友人の智子さんから届いた、ランチの誘いのメッセージ。
+来週の水曜日、いつものイタリアンでどう？みんな楽しみにしてるよ
+かわいらしい猫のスタンプも添えられていました。
+画面の中の猫は笑っていますが、私の顔はこわばったままでした。
+以前なら、すぐに行くわ、楽しみねと返信していたでしょう。
+予定帳を確認するふりをして、心の中ではもうNOと言えない自分がいたはずです。
+断ったら悪い角が立つ付き合いが悪いと思われたくない
+そんな思いが、自分の本心を塗りつぶしていたでしょう。
+でも今朝の私は、違う選択をしようとしていました。
+数日前から、このメッセージを見るたびに、胸のあたりがズシッと重くなるのを感じていました。
+買物に行っても、気が晴れない。
+ランチに着ていく服がないわと焦り、ショーウィンドウを見てもため息しか出ない。
+夜中にふと目が覚めて、行きたくないなあと天井を見つめる。
+そんな時間が、私を少しずつ追い詰めていました。
+深呼吸をして、画面に指を走らせます。
+ごめんなさい、今回は遠慮させてね
+理由は書きませんでした。嘘をつくのも、適当な言い訳をするのも嫌だったからです。
+体調が悪くてと言えば、大丈夫？と心配されてしまう。
+用事があってと言えば、じゃあいつなら空いてる？と聞かれてしまう。
+だから、ただ断ることにしました。
+送信ボタンを押した指が、かすかに震えていました。
+罪悪感が胸の奥で渦巻きましたが、それ以上に強いもう無理だ、行きたくないという正直な気持ちがありました。
+今夜は、友達を減らすことで心が軽くなった物語をお話しします。
+罪悪感の終わり、そして新しい始まりについて。
+何かを手放すことで、手に入るものがあるということを、静かな夜に考えてみたいと思います。
+
+---
+
+智子さんとは、十五年以上の付き合いになります。
+地域のボランティア活動で知り合い、その後も定期的に集まる仲間の一人でした。
+彼女を含めた四人グループで、月に一度のランチ会を続けてきたのです。
+四人娘なんて自分たちで呼んで、笑い合っていました。
+最初の頃は、本当に楽しい時間でした。
+子育ての悩み、夫の愚痴、健康の話題。
+同世代だからこそ分かり合えることがたくさんありました。
+わかるわかる、うちの夫もそうなのよ子供って本当に心配が尽きないわよね
+共感し合うことで、日々のストレスを解消していたのです。
+あのお喋りの時間が、私の支えだった時期もありました。
+確かに、救われたこともあったのです。
+でも、いつからか、その時間が重荷に感じるようになっていたのです。
+集まりの日が近づくと、胃が重くなる。
+前日の夜はよく眠れない。
+明日は何を着ていこう何を話そうと考えるだけで、気が滅入ってしまう。
+そして集まりの後、必ずぐったりと疲れてしまう。
+家に帰るとソファに倒れ込み、化粧を落とす気力さえ残っていないほど消耗している自分に気づきました。
+翌日まで気分が晴れないこともしょっちゅうでした。
+それなのに、断るという選択肢は、私の頭に浮かびませんでした。
+一度断ったら、もう誘われないかもしれない。
+仲間外れにされるのが怖かったのです。
+一人ぼっちになる恐怖が、私をその場所に縛り付けていました。
+
+---
+
+思い返せば、違和感は以前からありました。
+いつものランチ会でのことです。
+話題は次第に、孫の自慢話や、病気自慢、そしてそこにいない人の悪口へと変わっていきました。
+うちの孫がね、ピアノのコンクールで入賞したのよ
+あらすごいわね。うちは〇〇大学に合格してね
+そんなマウントの取り合いに、私はついていけなくなっていました。
+「へえ、すごいわね」と笑顔で頷きながら、心の中ではまたかと溜息をついている。
+他の誰かの幸せを、素直に喜べない自分が嫌でした。
+さらに気が重いのは、会計の時でした。
+「私、小銭がないわ」じゃあ私が立て替えておくわね
+そんなやり取りの中で、一円単位まで割り勘にするのか、それとも大雑把でいいのか。
+毎回微妙な空気が流れるのが苦痛でした。
+「あなた、前回の分まだだったわよね？」なんて言われると、まるで私が忘れっぽい人間のように扱われている気がして、顔が熱くなりました。
+グループの中で、私はいつも聞き役でした。
+誰かの話を聞いて、相槌を打ち、求められれば意見を言う。
+私の役割は、彼女たちの感情を受け止めるサンドバッグのようなものでした。
+でも、私自身の話をすることは少なかった。
+話そうとしても、すぐに誰かの話題にすり替わってしまうからです。
+そういえばこの前ね...と口を開きかけても、
+「あ、そうそう、うちの場合はね！」と大きな声で遮られる。
+私の言葉は、いつも途中で宙に浮き、やがて消えていきました。
+最初は気にしていませんでした。
+みんな話したいことがあるのだから、仕方ない。私は聞くのが好きだし。
+波風を立てるよりは、私が我慢すればいい。
+そう自分に言い聞かせていました。
+でも、年月が経つにつれて、その繰り返しが少しずつ心を削っていったのです。
+私はこの場所にいる意味があるのだろうか。
+彼女たちは私に会いたいのではなく、話を聞いてくれる誰かがいればいいだけなのではないか。
+都合のいい観客が必要なだけなのではないか。
+いてもいなくても、同じではないか。
+そんな思いが、胸の奥で膨らんでいき、無視できなくなっていました。
+
+---
+
+決心がついたのは、先月のランチ会の帰り道でした。
+駅に向かって歩きながら、私はふと足を止めました。
+夕暮れの街を行き交う人々を見ながら、不意に涙がこみ上げてきました。
+疲れているのに、何も楽しいことがなかったのに、なぜ私はこの集まりに通い続けているのだろう。
+三時間も硬い椅子に座り続けて腰が痛い。
+興味のない他人の自慢話や愚痴を聞き続けて頭が痛い。
+お財布から出した三千円が、ひどく無駄なものに思えました。
+そのお金があれば、好きな本が買えた。美味しいケーキが買えた。
+一人で静かなカフェに入って、ゆっくりコーヒーを飲むこともできた。
+孤独になりたくないから。
+人付き合いが悪いと思われたくないから。
+友達がいないと寂しいから。
+どれも本当のことだけれど、それは本当に、自分の体と心をすり減らしてまで守るべきものなのだろうか。
+自分を犠牲にしてまで、維持しなければならない関係などあるのだろうか。
+いいえ、そんなものはないはずだ。
+その時初めて、断るという選択肢が、私の前に現れたのです。
+それは、暗闇の中に差した一本の光のように見えました。
+怖かった。足がすくむほど怖かった。
+でも、同時に、どこか解放されるような気持ちもありました。
+もう、いいんじゃないか。
+これ以上、頑張らなくていいんじゃないか。
+そう自分に許可を出せた瞬間でした。
+
+---
+
+今朝、断りのメッセージを送った後、しばらく心臓がバクバクしていました。
+スマートフォンを伏せて、画面が見えないようにしました。
+まるで爆発物を扱っているような気分でした。
+返信が来るのが怖かったのです。
+「どうして？」「何かあったの？」冷たいわね付き合い悪いわよ
+そんな非難の言葉が返ってくるのではないかと、怯えていました。
+やがて、通知音が鳴りました。
+ビクッとして、恐る恐る画面を見ると、智子さんからの返信でした。
+「そう、残念。また今度ね」
+たったそれだけの言葉。
+怒っているわけでも、理由を問い詰めてくるわけでもなかった。
+あっけないほど簡単でした。
+私が想像していたほど、大きな出来事ではなかったのです。
+彼女たちにとって、私の欠席はその程度のことだったのかもしれません。
+私一人がいなくても、会は滞りなく進むのでしょう。
+拍子抜けすると同時に、妙に晴れやかな気持ちになりました。
+肩の荷が下りたような、背中に背負っていた重い石が取れたような感覚。
+断っても世界は終わらない。
+友情が崩壊するわけでもない。
+ただ、一度の集まりを欠席した、それだけのこと。
+誰も私を責めたりしない。
+なぜ今まで、こんな簡単なことができなかったのだろう。
+自分を縛っていたのは、他の誰でもなく、私自身の恐怖心だったのです。
+嫌われたくないという呪縛を、自分で解くことができたのです。
+
+---
+
+本来ならランチ会に行くはずだった水曜日。
+私は一人で街に出かけました。
+いつもなら、みんなに合わせてパスタやピザを食べていたけれど、今日は一人です。
+以前から気になっていた、古い映画館に行きました。
+往年の名作映画をリバイバル上映している、小さな映画館です。
+館内は空いていて、革張りの椅子の座り心地が最高でした。
+暗闇の中で、スクリーンに映し出される物語に没頭しました。
+それは、人生の悲しみと喜びを描いた、静かな人間ドラマでした。
+主人公が困難を乗り越えていく姿に、自分を重ね合わせました。
+人生はいつからでもやり直せる
+画面の中の台詞が、私の心に深く響きました。
+隣の人に気を使うこともなく、泣きたい時に泣き、笑いたい時に笑う。
+涙が頬を伝っても、誰にも見られない。
+その暗闇の安心感が、心地よかったのです。
+映画の後は、近くの喫茶店に入りました。
+コーヒーの良い香りが漂う、落ち着いた雰囲気の店内。
+私は窓際の席に座り、レモンタルトとブレンドコーヒーを注文しました。
+運ばれてきたタルトの、甘酸っぱい香り。
+フォークを入れると、サクッという音がしました。
+一口食べると、口いっぱいに広がる爽やかな酸味と甘み。
+「ああ、美味しい」
+心からそう思いました。
+誰かの話に相槌を打つ必要もない。
+これ美味しいねそうだねと同調を求め合う必要もない。
+自分のペースで、味わうことができる。
+窓の外を行き交う人々を眺めながら、私は自分の呼吸が深くなっていることに気づきました。
+その後、本屋に立ち寄り、時間を気にせず棚を眺めました。
+気になった本を数冊買い、袋を提げて歩く帰り道。
+私の足取りは、驚くほど軽やかでした。
+自由だ
+風が頬を撫でる感触さえ、いつもより優しく感じられました。
+帰宅してから、一人で簡単な夕食を作りました。
+買ってきた野菜でサラダを作り、ワインを一杯だけ開けました。
+テレビもつけず、静かな部屋で食事をとりました。
+聞こえてくるのは、外の虫の声と、ワインをグラスに注ぐ音だけ。
+誰かのために作る料理ではなく、自分のために作る料理。
+誰かの機嫌を伺いながら食べる食事ではなく、自分の心を満たすための食事。
+それは、とても贅沢な時間に感じられました。
+人生の後半になって、私たちは減らすということを学ばなければならないのかもしれません。
+若い頃は、増やすことばかり考えていました。
+友達は多ければ多いほどいい。
+人脈が広いほうが素晴らしい。
+予定は埋まっているほうが充実している。
+でも今は違います。
+限られたエネルギーを、本当に大切なものに使いたい。
+残された時間は、無限ではありません。
+心から楽しいと思える時間を、少しでも増やしたい。
+義理や見栄で付き合う時間は、もう残されていないのです。
+そのためには、惰性で続けている関係を見直すことも必要なのです。
+勇気を持って手放すこと。
+
+---
+
+やかんが沸きました。
+ピーっという高い音が、私の思考を現実に引き戻しました。
+私はコンロの火を止め、丁寧にお茶を淹れました。
+戸棚の奥から、とっておきの茶葉を出しました。
+急須にお湯を注ぎ、少し時間をかけて蒸らします。
+茶葉が開くのを待つ間、私は窓の外を眺めていました。
+湯気の立つ湯飲みを両手で包みました。
+温かい。この感覚だけで、十分幸せだと感じられます。
+誰かと一緒にいなくても、一人の時間を楽しむことはできる。
+むしろ一人だからこそ、自分のペースで過ごせる贅沢がある。
+読みたい本を読み、聴きたい音楽を聴き、眠くなったら昼寝をする。
+誰にも気兼ねすることなく、自分を甘やかすことができる。
+「お茶のおかわりはいかが？」「寒くない？」と気を使う必要もない。
+そう思えるようになったことが、私の中で大きな変化でした。
+友達を減らすことは、孤独を選ぶことではありません。
+自分自身との友情を深めること。
+自分の心の声に耳を傾け、自分を大切にすること。
+それが、本当の意味での豊かさなのかもしれません。
+私は一人になったけれど、決して孤独ではありませんでした。
+むしろ、自分自身という最強の味方を取り戻したような気分でした。
+この静かな朝の時間は、私が勝ち取った自由なのです。
+
+---
+
+窓の外では、朝の光がだんだんと明るくなってきました。
+庭の木に来た小鳥が、楽しそうにさえずっています。
+今日という一日が、静かに始まろうとしています。
+誰と会う予定もない一日。
+手帳は真っ白です。
+でも、それは空っぽな一日ではありません。
+自分のための時間が、たっぷりとある一日です。
+何もしなくてもいいし、何をしてもいい。
+散歩に行ってもいいし、一日中パジャマで過ごしてもいい。
+その自由が、今の私には何よりも輝いて見えました。
+私の人生は、私のものです。
+誰かの機嫌を取るためのものではありません。
+
+---
+
+今夜の一手。
+今夜は返事は明日を選んで寝る。
+もし誰かからの誘いが来ても、すぐに返事をしなくていいのです。
+既読をつけても、すぐに返さなくていい。
+早く返さなきゃと焦る必要はありません。
+一晩寝て、明日の自分がどう感じるか、確かめてからでも遅くない。
+その時の気分で決めていいのです。
+行きたくなければ、行かなくていい。
+断るのに、もっともらしい理由は必要ありません。
+気が乗らないからという理由で十分なのです。
+自分の気持ちを大切にすることは、わがままではない。
+自分を守るための、賢明な選択なのです。
+今日一日を生き抜いた自分を、どうか労ってあげてください。
+あなたは、嫌なことから逃げてもいい。
+自分を守るために、NOと言ってもいい。
+その勇気が、あなたの明日を少しだけ明るくしてくれます。
+明日もまた、あなたらしい素敵な一日になりますように。
+おやすみなさい。
+今夜も、最後まで聞いてくださって、ありがとうございました。
+それでは、また。
+</pre>
     </div>
   </div>
 </main>

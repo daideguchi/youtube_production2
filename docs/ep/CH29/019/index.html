@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH29-019 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH29-019 — script</h1>
           <div class="muted">子どもの家庭に口出し…“正しさ”で壊した関係</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,224 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="#" class="btn" aria-disabled="true" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>子どもの家庭に口出し…“正しさ”で壊した関係</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>苦しさ, 比較, 老後, シニア, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH29-019</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH29-019&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">玄関の薄暗い灯り。
+私はドアの前に立ち尽くしたまま、手に握りしめた鍵を開けることができずにいます。
+さっきまで息子の家の居間に座っていたはずなのに、私は今、逃げるようにして家を飛び出し、気がつけば一人で冷たい夜の道を歩いていました。
+靴のかかとが固い地面を叩く音だけが、静まり返った住宅街に響いています。
+何が起きたのか、頭の中で整理しようとしても、うまくまとまりません。
+ただ娘婿の冷たい視線と、息子が私に向けた困惑の表情だけが、何度も何度も脳裏に蘇ってきます。
+嫁が目を伏せ、孫が不安そうに私と両親の顔を交互に見ていた、あの瞬間。
+居間の空気が凍りついたような、あの重苦しい沈黙。
+私は良かれと思って、ただ孫のために正しいことを言っただけなのに。
+なぜこんなにも胸が苦しく、立っていることさえ辛いのでしょうか。
+今夜は、子どもの家庭に口出しをして、「正しさ」で関係を壊してしまった私の物語を少しだけお話しさせてください。
+あなたがもし今、家族との距離感に悩み、つい正論を言いたくなって苦しんでいるのなら。
+この物語が、あなたの明日を少しだけ軽やかにするための静かな灯火になればと願っています。
+
+---
+
+息子が結婚して三年。
+孫が生まれてからの私の人生は、まるで第二の春が訪れたかのように輝いていました。
+病院で初めて孫を抱いた瞬間の、あの震えるような感動を今でも覚えています。
+まだ幼い孫を抱きしめる喜び、小さな手が私の指を握る温もり、「おばあちゃん」と呼ばれるときの誇らしさ。
+私の存在にはまだ価値があるのだと、強く実感させてくれる毎日でした。
+夫を亡くして独りになってから、私の心には大きな穴が空いていました。
+けれど孫の存在が、その穴を少しずつ埋めてくれたのです。
+時折息子の家を訪ね、孫の顔を見て、夕食を一緒にいただく。
+そんな穏やかな関係が、私の老後の何よりの心の支えになっていました。
+けれど私は、その幸せな関係にいつの間にか甘えすぎていたのかもしれません。
+「もっと孫のためになることを、私がアドバイスしてあげなければ」
+「私の経験を伝えて、息子たちの子育ての役に立たなければ」
+その善意という名の傲慢が、少しずつ私の言動に染み出し始めていたことに、私自身は気づいていませんでした。
+
+---
+
+最初の違和感は、孫の離乳食についての何気ない会話から始まりました。
+ある日曜日の昼下がり、私が息子の家を訪ねた時のことです。
+嫁が手作りの離乳食を孫に食べさせているのを見て、私は思わず口を挟んでしまいました。
+「あら、その野菜の切り方だと喉に詰まらせちゃうかもしれないわよ。私の時代はもっと細かく刻んでいたの」
+嫁は一瞬、箸を持つ手を止め、軽く頷きました。
+けれどその目には、明らかに歓迎されていない何かが宿っていました。
+「そうですか。でも今は栄養士さんの指導でこうするように言われているので」
+嫁の声は丁寧でしたが、そこには見えない壁がありました。
+私はその壁に気づかないふりをして、さらに言葉を重ねてしまったのです。
+「でもね、専門家の言うことが全部正しいとは限らないわ。私は三人の子どもを育て上げたんだから、経験で分かることもあるのよ。昔はこうやってね」
+私は立ち上がり、キッチンに向かおうとしました。
+自分のやり方を見せてあげようと思ったのです。
+その瞬間、息子が困ったような顔をして話題を変えました。
+「あ、お母さん、紅茶淹れようか。こっちに座って」
+私は何か大切なことを踏み越えてしまったのだと、その時ようやく薄々感じ始めていました。
+
+---
+
+それからも私の「正しさ」は止まりませんでした。
+孫の服装について「そんな薄着で風邪を引いたらどうするの。うちの息子が小さい頃はもっと厚着させていたわ」と言い、教育方針について「もっと早くから習い事をさせるべきよ。今の時代は競争が激しいんだから」と提言しました。
+嫁の家事のやり方について「効率が悪いわ。私のやり方を教えてあげる。こうすればもっと早く終わるのよ」と口を出し、孫のお昼寝の時間について「そんなに長く寝かせると夜眠れなくなるわよ」と忠告しました。
+すべては孫のため、息子の家族のためという純粋な善意からでした。
+私は自分の経験と知恵を伝えることが、年長者としての務めだと信じていたのです。
+三人の子どもを育て上げた実績が、私に発言権を与えてくれていると思い込んでいました。
+けれど嫁の表情は訪問のたびに硬くなり、息子は私と嫁の間で居心地悪そうに目を伏せるようになりました。
+最初は笑顔で迎えてくれていた孫も、私が来ると少し緊張するようになっていきました。
+ある日、私が何気なく台所の引き出しを開けて調理器具の配置にまで口を出した時、嫁は静かに、しかし強い声で言いました。
+「お義母さん、ここは私たちの家なんです」
+その一言が、私の胸を深く貫きました。
+嫁の目には、長年溜め込んできた疲労と、もう限界だという訴えが浮かんでいました。
+私は息子の家のキッチンにいながら、まるで自分の城にいるかのように振る舞っていたのです。
+
+---
+
+決定的な出来事は、孫の幼稚園選びについての夕食の席で起こりました。
+息子夫婦がある幼稚園に決めると話し始めた時、私は反射的に口を挟みました。
+「その幼稚園より、こっちの方が評判がいいって聞いたわよ。私が友人から情報を集めておいたの。ここは教育熱心で、将来のためになるって。孫のためを思うなら、もう一度考え直した方がいいんじゃない」
+嫁の顔が真っ赤に染まりました。
+箸を置く音が、静かな食卓に響きました。
+「私たちが何度も見学して、二人で話し合って決めたことです。どうしてお義母さんが決めるんですか」
+「だって孫のことを思えば」
+「孫のことは、私たちが一番わかっています」
+嫁の声は震えていました。
+その目には涙が光っていました。
+息子は二人の間に入ろうとしましたが、私は止まりませんでした。
+何か反論しなければという焦りが、私を突き動かしていたのです。
+「私だって孫を愛しているのよ。だからこそ正しいことを言っているの。親なら聞く耳を持つべきでしょう」
+その瞬間、息子が低い声で言いました。
+「お母さん、もういい。今日は帰ってくれないか」
+私は息子の目を見て、そこに深い疲労と悲しみが宿っているのを見てしまいました。
+息子は嫁を守ろうとしていたのです。
+そして私から距離を置こうとしていたのです。
+私の「正しさ」が、息子を追い詰めていたことを、その目が教えてくれました。
+
+---
+
+家に戻り、真っ暗な部屋で一人座り込んでいた私は、ようやく自分がしてきたことの意味に気づき始めました。
+時計の音だけが静かに響く中、私は自分の言動を一つ一つ振り返りました。
+私は孫のためだと言いながら、実は自分の存在価値を証明したかっただけなのではないか。
+「正しいこと」を言うことで、まだ自分は必要とされていると確認したかっただけなのではないか。
+嫁が作り上げた食卓を批判し、嫁が選んだ幼稚園を否定し、嫁の家事のやり方に口を出す。
+それらはすべて、「私の方が正しい」「私の方が経験がある」と証明するための行為だったのかもしれません。
+自分の居場所を、息子の家庭の中に無理やり作ろうとしていたのかもしれません。
+けれど、たとえ私が正しかったとしても、それを言う権利は私にはなかったのです。
+息子の家庭は、息子と嫁の二人が築き上げるもの。
+そこには彼らだけのルールがあり、彼らだけの時間があり、彼らだけの愛し方がある。
+私がどれだけ孫を愛していても、そこに土足で踏み込む権利は、どこにもありませんでした。
+窓の外では街灯が静かに光を放ち、私の涙を照らしていました。
+
+---
+
+それから私は、息子の家への訪問を自分から控えるようにしました。
+連絡も、こちらからは最小限にとどめました。
+最初は胸が引き裂かれるように寂しかったのです。
+孫の顔が見たい、声が聞きたい、抱きしめたい。
+スマートフォンの写真フォルダを何度も開いては、孫の笑顔を眺めていました。
+けれど私は、まず息子たちの時間と空間を尊重することから始めなければならないと思ったのです。
+自分がいないところで、彼らがどんな風に過ごしているのか。
+嫁がどんな表情で孫と接しているのか。
+それを想像することで、私は少しずつ自分の立ち位置を見直していきました。
+数ヶ月が経った頃、息子から久しぶりに電話がありました。
+「お母さん、今度の日曜日、うちに来ない。嫁も孫に会わせたいって言ってるよ」
+私は震える声で「ありがとう」と答えました。
+久しぶりに訪れた息子の家。
+私は意識して口を閉ざし、ただ孫と遊び、嫁の作った料理を美味しくいただきました。
+何か言いたくなっても、ぐっとこらえました。
+「これ、すごく美味しいわ。あなたの料理、本当に上手になったわね」
+私がそう言うと、嫁は少し照れたように微笑みました。
+その笑顔を見た時、私はようやく分かったのです。
+正しさを押し付けることよりも、ただそばにいることの方がずっと大切なのだと。
+
+---
+
+今、私は孫と会える時間を心から大切にしています。
+口を出したくなる瞬間は今でもあります。
+「そのやり方より、こうした方が」という言葉が喉元まで上がってくることもあります。
+けれどその度に、「これは私の家庭ではない」と自分に言い聞かせています。
+息子夫婦には息子夫婦のやり方があり、それを尊重することこそが、本当の愛情なのだと学びました。
+たとえ私から見て非効率に見えても、危なっかしく見えても、それは彼らの選択です。
+正しさで関係を壊すよりも、黙って見守る強さを持つこと。
+それが、年を重ねた私にできる最大の贈り物なのかもしれません。
+今では嫁も私に心を開いてくれるようになり、時には子育ての相談をしてくれることもあります。
+「お義母さんの時代はどうでしたか」と聞かれた時だけ、控えめに経験を話すようにしています。
+聞かれない限りは、ただ微笑んで見守る。
+それが今の私のスタンスです。
+
+もしあなたが今、子どもの家庭に口出ししたくなる衝動と戦っているのなら。
+どうか一度立ち止まって、その言葉が本当に必要なものなのか、自分に問いかけてみてください。
+あなたの経験や知恵は、きっと素晴らしいものです。
+けれどそれを伝えるタイミングは、相手が求めた時だけでいいのです。
+黙って見守ることは、無関心ではありません。
+それは相手を信じること、相手の力を信じることなのです。
+そしてそれは、最も深い愛情の形なのですから。
+
+今夜は、言いたいことをぐっと飲み込んで、ただ自分を労わることだけを考えてください。
+「今夜は寝ることを最優先にする」
+そう自分に許可を出して、温かな布団に身を委ねてください。
+明日また、新しい気持ちで家族と向き合えばいいのです。
+焦る必要はどこにもありません。
+あなたの愛情は、言葉にしなくても伝わっているはずですから。
+
+最後まで私の言葉に耳を傾けてくださり、本当にありがとうございます。
+あなたの今夜の眠りが、穏やかな安らぎに満たされますように。
+あなたの明日が、今日よりも少しだけ軽やかなものでありますように。
+今夜はこれでお別れです。
+どうぞ、ゆっくりとお休みください。
+おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

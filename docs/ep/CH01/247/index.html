@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-247 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-247 — script</h1>
           <div class="muted">【恩を売るな】「してあげた」と思った瞬間、それは善行ではなく取引になる</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,368 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【恩を売るな】「してあげた」と思った瞬間、それは善行ではなく取引になる</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-247</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-247&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">ありがとうの一言がないだけで、
+胸の奥に小さなトゲが刺さったように感じることはないでしょうか。
+
+重い荷物を持ってあげたのに素通りされたり、
+残業してまでフォローしたのに、助かったよの一言もない。
+家事や気配りが当たり前になり、誰も何も言わない。
+
+そのたびに心のどこかでこうつぶやいてしまう。
+「せめて一言くらいあってもよくないか？」
+
+このチャンネルでは、
+仏教の教えを紐解きながら
+あなたの人生に役に立つ知恵をお伝えします。
+
+今日は、見返りを手放し心軽くする話をしていきます。
+
+仏教には「陰徳」という言葉があります。
+人に知られない善行。
+誰かに見せるためではなく、
+自分の心を整えるための行いです。
+
+目立つ善行は拍手や称賛がついてきます。
+しかし、陰徳は静かです。
+誰も見ていない場所で、
+誰にも気づかれないまま行われる善行。
+
+ここで思い出したい仏教のたとえがあります。
+
+法華経には、
+仏の教えは慈しみの雨のようだ、と説かれます。
+
+雨は、草木を選びません。
+大きい木にも、小さい草にも、
+乾いたところにも、湿ったところにも、
+等しく降りそそぎます。
+
+誰が喜んでくれるか。
+誰が感謝してくれるか。
+それを計算して降らせる雨は、
+すぐに心の中で枯れていきます。
+
+だから仏教は、
+与えるときはまず自分の心を整えなさいと教えます。
+⭐︎
+---
+
+では、どうすれば整うのか。
+
+ここで、経典に記された話を一つお聞きください。
+
+賢愚経という経典に、
+「貧女難陀の一灯」という少しファンタジーなお話が残っています。
+「貧者、難陀の品」として紹介されることもあります。
+
+難陀というのは女性の名前で、
+とても貧しく、毎日の食べ物にも困るほどだったそうです。
+
+それでもある日、
+町の人たちがお釈迦さまに花や香を供えているのを見て、
+胸の奥が熱くなります。
+
+自分も何かを捧げたい。
+たった一つでいい。
+小さくても心を込めたものを。
+
+けれど、家には差し出せる物がない。
+布もなければ米もないし、
+お金はほとんどない。
+
+難陀はやっとの思いで銭を一つ握りしめ、
+油を売る店へ行きました。
+
+「この銭で灯りをともす油をください」
+
+店の人は難陀の身なりを見て、
+事情をすぐに察します。
+
+そして言いました。
+「少しだけど、これも持っていきなさい」
+
+銭の分より少し多めの油を分けてくれたのです。
+
+難陀は両手で油を抱え、
+胸の前でぎゅっと押さえながらお釈迦さまのいる場所へ向かいます。
+
+その夜、ちょうど同じ場所で、
+王さまも大きな供養をしていました。
+
+人を集めたくさんの灯明をずらりと並べ、
+まるで昼のように明るくしたのです。
+
+難陀の灯りは、その端に、
+小さく置かれました。
+
+比べるまでもありません。
+王さまの灯りは豪華で強い。
+難陀の灯りは細くて静か。
+
+それでも難陀は、
+その灯に火をともすとき心の中でそっと願いました。
+
+私のためではなく、
+誰かの暗い道を照らすために、
+苦しんでいる人の心が少しでも軽くなるように。
+
+するとそのとき強い風が吹き込みました。
+
+ざわっ、と灯りが揺れ、
+王さまの灯明は次々に消えていきます。
+
+あんなに数があったのに広い場所が一気に暗くなりました。
+人々は慌てて火を守ろうとして、手を伸ばします。
+でも風は止まりません。
+
+ところが不思議なことに、
+難陀が捧げたあの小さな一つの灯だけが、
+消えずに残っていたと言われています。
+
+弟子の目連尊者が近づきました。
+
+「小さな灯が残っている。消しておこう」
+
+そう思って手であおぎます。
+布でもあおぎ強く息を吹きかける。
+
+けれど消えない。
+
+揺れはするのに芯が折れない。
+灯りが踏ん張るように残る。
+
+目連尊者が首をかしげていると、
+お釈迦さまが静かに言いました。
+
+「その灯は消えない」
+
+「なぜなら、あの灯は、
+見せるために捧げられたものではない。
+
+褒められるためでもない。
+勝つためでもない。
+
+ただ、誰かを照らしたい、という心から出た灯だ。
+その心が灯りを強くしているのだ」
+
+難陀は胸がいっぱいになりました。
+
+自分の灯りは小さい。
+けれど心まで小さくしなくていい。
+
+誰にも気づかれなくてもいい。
+誰にも褒められなくてもいい。
+
+それでも、
+自分の心を正したい。
+誰かの闇にほんの少しでも光を置きたい。
+
+その思いが、
+小さな灯を消えにくい灯にしたのです。
+
+---
+
+いかがでしょう。この話は、
+私たちの日常にもそのまま当てはまります。
+
+ありがとうが欲しくてした親切は、
+相手の反応で簡単に消えてしまう。
+
+でも、
+自分の心を整えるためにした親切は、
+相手がどうであっても自分の中に残ります。
+
+見返りがないのに苦しいのは、
+あなたが悪いからではありません。
+
+優しさの中に、
+小さな取引が混ざっているだけです。
+
+だから、取引をほどいていきましょう。
+
+---
+
+では、見返りを求めると何が起きるでしょうか。
+あえて言語化してみましょう。
+
+誰かのために行動したはずなのに、
+気づけば心の中が請求書でいっぱいになることがあります。
+
+あのとき相談に乗ってあげたのに。
+こんなに尽くしているのに。
+誕生日には祝ったのに自分のときは何もない。
+
+頭の中でしてあげたことの一覧表が作られていく。
+まるで心の中で帳簿をつけているような状態です。
+
+善行が、
+静かな贈り物ではなく、
+返してほしいという取引に変わってしまう。
+
+もちろん、
+感謝されたい気持ちは自然なものです。
+ありがとうという言葉は誰の心にも栄養になります。
+
+けれど、
+そこに当然という期待が混ざると、
+期待が裏切られた瞬間に、
+怒りと悲しみが一気に噴き出します。
+
+善意だった行為が、
+自分を傷つける刃に変わってしまうのです。
+
+だからこそ仏教は、
+与えたらそこで終わらせなさいと教えます。
+
+---
+
+今日からできる実践を三つお伝えします。
+
+一つ目。
+心の中で帳簿をつけないこと。
+
+やったことを数え始めた瞬間、
+優しさは取引になりやすい。
+
+たとえば、
+過去のプレゼントを思い出して損得を計算しない。
+家事や仕事の担当分を、心の中で点数化しない。
+
+やさしいことを一つしたら、
+心の中で、はいここまで、と区切る。
+
+二つ目。
+期待が芽生えた瞬間、言葉を置き換えること。
+
+返してほしい。
+そう思ったらすぐに気づいて、
+流れが巡るかもしれない、に言い換える。
+
+巡ってこなくてもいい。
+巡ってきたらそれはそれでありがたい。
+
+この余白があるだけで、
+返ってこなかったときの痛みはかなり薄くなります。
+
+三つ目。
+誰にも言わない善行を一つ持つこと。
+
+誰にも気づかれなくていい小さな行いは、
+心の筋トレになります。
+
+駅のトイレでペーパーをそっと整える。
+落ちているゴミを一つだけ拾う。
+悪口が始まったら話題をやわらかく変える。
+
+ポイントは、
+誰にも言わない、と決めることです。
+
+見せるためではない優しさを、
+自分の中に育てていく。
+
+それが、
+貧女の一灯のように消えにくい心を作ります。
+
+---
+
+さて、これはご存知の方も多いでしょう。
+仏教には三輪空という教えがあります。
+物をあげるとき三つのものが現れます。
+あげる人、もらう人、あげるもの。
+でも、それらを、
+「私の行為」「あなたの受け取り」
+などと固く捉えると、
+これだけしてあげたのにという重さが生まれます。
+
+三輪空はこう教えてくれます。
+役割は一時的です。
+今日あなたが誰かを助けても、
+明日はあなたが助けられるかもしれません。
+雨が葉から地面へ落ちるのと同じで、
+行為は流れゆく一瞬の出来事。
+誰のものでもありません。
+
+「私」、や「あなた」、にこだわらず、
+行為そのものに心を向ける。
+そうすれば見返りを求めない心が生まれ自然な優しさが広がります。
+
+---
+
+では最後にまとめましょう。最後にもう一度。
+
+善行はそこで終える。
+帳簿はつけない。
+巡ってきたら流れに感謝する。
+
+今日から、
+小さな善行を一つ、
+黙って差し出してみてください。
+
+誰にも見られなくていい。
+ありがとうと言われなくていい。
+
+それでも自分の中に、
+静かな温かさが残る行いを選んでみてください。
+
+その温かさが、
+あなたの心の豊かさを育てていきます。
+
+本日も最後までご覧いただきありがとうございます。
+あなたの行いが静かに巡り、
+どこかで誰かの心と命をそっと癒やしますように。
+</pre>
     </div>
   </div>
 </main>

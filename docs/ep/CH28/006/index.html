@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH28-006 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH28-006 — script</h1>
           <div class="muted">一人の誕生日…ケーキより温かかった“言葉”</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH28</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH28</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,184 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UClIpFmUia69ZDU3soXJRSnQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>一人の誕生日…ケーキより温かかった“言葉”</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・心が折れそうな夜の整え方&lt;br&gt;・今日できる一歩
+
+※本チャンネルの物語はフィクションです。
+この動画は、「60代からの静かな救いの物語」の長時間コンテンツです。
+老後の友人関係・近所付き合いを、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>苦しさ, 居場所, 老後, シニア, 友人関係, 近所付き合い, 同窓会, 町内会, 孤独, 人間関係, 物語, 朗読, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・心が折れそうな夜の整え方&lt;br&gt;・今日できる一歩</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「60代からの静かな救いの物語」の長時間コンテンツです。
+老後の友人関係・近所付き合いを、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH28-006</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH28-006&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">部屋の明かりを極限まで落とした、夜のリビングの小さなテーブル。
+その上には、角が少しだけ擦り切れた使い古された白い封筒と、淹れたての温もりが消えかかっている紅茶のカップが一つ、寂しげに並んでいます。
+冷え切った紅茶の表面には、窓から差し込む街灯の頼りない光が虚しく反射し、私の心と同じように、どこへも行き場のない静寂だけが部屋を満たしていました。
+窓の外からは秋の虫たちが奏でる物悲しい旋律、時折通り過ぎる車のタイヤが濡れたアスファルトを噛む乾いた音が室内まで入り込んできますが、今の私の耳にはそれさえも重苦しいノイズのように響いていました。
+今日は、私の五十年にわたる「友情」という名の人生の一部が、あまりにもあっけなく、無残に音を立てて崩れ去った日でした。
+たった数枚のひんやりとした質感の紙幣、そして紅梅色の水引がどこか嘲笑うかのように鮮やかに見えた「お祝い金」の封筒。
+それが半世紀もの間、実の姉妹以上に寄り添い、互いの人生の喜びも悲しみもすべて一番近くで歩んできた二人の間に、二度と埋めることのできない暗く深い溝を作ってしまうとは、私は夢にも思っていませんでした。
+これまでの数えきれない思い出や、分かち合ってきた夜の苦しみが、お金という冷酷な物差しで測られた瞬間、泥水のように濁り、形を失っていくのを感じるのは、身を裂かれるような耐え難い苦悩でした。
+今夜は、長年の付き合いゆえに、お金という極めて繊細な問題で心がボロボロに磨り減ってしまったあなたへ、ある物語をお話しします。
+このひとときが、あなたの傷ついた魂を丁寧に包み込み、もう一度自分自身の基準で前を向くための静かな救いになれば幸いです。
+
+---
+
+智代さんとは、ランドセルが背中に大きすぎたあの小学校の入学式で隣り合わせになって以来の付き合いでした。
+お互いの家が歩いて三分もかからない距離にあり、放課後には毎日、夕焼けが部屋を茜色に染めるまでどちらかの家で宿題をし、半分に割ったアイスや、あの頃よく食べた懐かしい駄菓子を分かち合って過ごしました。
+二十代で経験した初めての結婚や、陣痛の痛みに耐えながら分かち合った出産も同じ年に経験し、子育ての悩みや喜びも常に半分ずつ分かち合ってきましたが、夫を見送り、震える肩を黙って抱いてくれた智代さんの温かさは、私の人生において唯一無二の支えでした。
+夫を亡くしたあの冬の日、智代さんが何も言わずに台所に立って作ってくれた、クタクタに煮込まれた白菜と野菜たっぷりのスープの湯気の匂いの中に、私はどれほどの生きる勇気を見出したか分かりません。
+「美味しいよ、智代さん」と、涙で味が分からなくなりながら啜ったあのスープの味は、私の生涯の記憶に深く刻まれています。
+私も、彼女の子供が肺炎で入院した時は、自分の家事を放り出してでも、毎日栄養のあるお弁当を作り、病院の廊下に漂う消毒液の匂いに怯える彼女の隣に座り、ただ無言で手を握り続けました。
+言葉に出さなくても瞳の揺れ方一つで心の内が完全に理解できる、そんな絆で結ばれた親友なのだと、人生の最期までそうあるのだと固く信じていました。
+けれど、そんな盤石だと思っていた鉄の絆に鋭い亀裂が入ったのは、智代さんの待望の初孫が誕生したことを祝う、夏の終わりの少し寝苦しい夜の席のことでした。
+私たちは家族の節目には必ず祝儀という形で、互いの身の丈に合った、等身大の真心を伝えてきましたが、今回の「孫の誕生」という人生最後の大きな慶事を前にして、私の中にある誠実な迷いが、結果として修復不可能な結果を招くことになってしまったのです。
+
+---
+
+「初孫の誕生、本当におめでとう。智代さんの幸せそうな顔が見れて、私も自分のことのように嬉しいわ」
+私は数日間、自分の使い込まれた通帳と睨めっこしながら考え抜いた金額を包んだ祝儀袋を、智代さんの家の清潔に整えられたテーブルに置きました。
+夫を見送り、一人きりの質素な年金生活の中で、それは私なりの最大限の「真心の三千円」を上乗せした、精一杯の贈り物でした。
+一ヶ月の食費や交際費のすべてを投げ打つような、重みのある決断でしたが、智代さんはその時は「気を遣わせてごめんなさいね」と、喜び勇んで封筒を受け取ってくれました。
+けれど三日後の夕暮れ時、スマートフォンにかかってきた智代さんの声は、以前の温かな余韻を一欠片も残さず、冷たく尖った金属のような鋭い響きを帯びていたのです。
+「ねえ、恵子さん。今、あの封筒の中身を確認したんだけど、驚きすぎて言葉にならなかったわ」
+私は心臓が不自然に脈動し、喉の奥がカラカラに乾いていくのを感じ、受話器を握る指先が白くなるほど力を込めました。
+「足りないどころの話じゃないわよ。五十年の付き合いがあって、あんな金額を包むなんて、あなた、私の孫を馬鹿にしてるの？ 世間の常識を疑うわ」
+智代さんの口から放たれた言葉は、私の数ヶ月の節約と、彼女を想って過ごした時間をゴミ箱に投げ捨てるような残忍な響きを持っていました。
+「私たちの付き合いは、あなたにとって、たったあれだけの数字に見合う程度のものだったのね。美智代さんが包んだ金額の半分にも満たないなんて、ショックで昨日から何も手につかないわよ」
+
+---
+
+美智代さんは亡くなったご主人の多額の遺産や、幾つもの不動産賃料で、我々とは住む世界が違うほど贅沢な暮らしをしている方でした。
+「智代さん、落ち着いて。私は今の自分の生活の中でやりくりして、あなたと孫の喜ぶ顔を想像しながら、精一杯の真心の形としてあの金額を選んだの」
+私は震える唇から必死に言葉を絞り出し、自分の現状を理解してもらおうと弁解を重ねました。
+けれど智代さんは、私の言葉を冷酷に遮るように、鼻で笑うような乾いた音を立て、吐き捨てるように言いました。
+「やりくりなんて、この歳になればみんな苦しいのは同じよ。要は私への愛があるかないかなのよ。美智代さんのような本当に人を大切にできる人は、何も言わなくても、もっと私のプライドに見合う額をちゃんと包んでくれたわ。あなたは結局、私への友情よりも、自分の一円、二円の方がずっと大切なのね」
+一方的に電話を叩き切られ、ツー、ツーという規則的な電子音が静まり返ったリビングで響き続ける中、私は夕闇に完全に飲み込まれた室内で、石の彫像のようにいつまでも立ち尽くしていました。
+私が人生の宝物として大切に抱えてきた五十年という物語は、智代さんにとっては単なる「贈答品の比較リスト」の一行に過ぎなかったのです。
+彼女の愛は封筒の中身という数字でしか証明されず、他人の金額と比較されることでしか満足を得られない、ひどく虚栄心に満ちたものでした。
+私は自分の誠実な歩みすべてが、泥靴で容赦なく踏み荒らされたかのような激しい屈辱感と虚しさに、一晩中、暗い居間で震え続けました。
+智代さんの孫のために、何時間も百貨店の売り場を回って選んだ小さな銀のスプーンと、私の拙い手つきで編んだ生成り色の小さな靴。
+それらを眺めるたびに、私の頬を、熱い、情けない涙が、止めどなく溢れてきました。
+
+---
+
+翌日から、私の周りを取り囲む空気は冬に逆戻りしたかのように一変しました。
+地域の茶話会や趣味の集まりでも、これまでなら当然のように私の隣が智代さんの指定席だったはずなのに、今の彼女は私の存在など視界に入っていないかのように見事に振る舞い、裕福な美智代さんの隣を確固たる意志で陣取って、これ見よがしに楽しげに大声で笑い合っていました。
+私が精一杯の勇気で挨拶をしても、彼女は私と一度も視線を合わせることなく、「あ、どうも」と冷淡に一言、突き放すように返すだけ。
+友人たちの会話の中には、私の全く知らない場所での、贅沢なレストランやクルーズの話題が隠語のように飛び交うようになりました。
+「智代さんの初孫のお祝い、美智代さんがお贈りしたあの有名ブランドの最高級ベビーカーは本当に素晴らしいんですってね」
+「本当、センスも、そして何よりそのお値段も、さすが大人の余裕がある方は違いますわ」
+周囲の、何も知らない友人たちの無邪気な称賛の声が智代さんの肥大化した承認欲求を満たすたびに、私の耳元で刃物のように鋭く響きます。
+私は自分が何かこの世で最も重大な、情の薄い裏切り行為を犯したかのような罪悪感の沼に、首までどっぷりと浸かり、もがいていました。
+「たとえ葬儀の積立金を切り崩してでも、彼女の期待に応えるために、無理をして多く包めば良かったのかしら」
+自責の念がさび付いたナイフのように心を執拗に刻み続けましたが、ある雨の午後、庭の紫陽花の葉を打つ不規則な雨垂れをぼんやりと見つめていた時、心の奥底から別の疑問が湧き上がりました。
+「なぜ私はあそこまでして彼女に許しを請わなければならないのだろう。私は自分の真心に対してこれほど不誠実であっていいのだろうか」
+計算に計算を重ねて捻出したあの金額は、今の私にとって、一ヶ月以上のおかずを減らし、暖房を我慢して用意した、本当に血の通った結晶のような重みがありました。
+その純粋な真心を他人の贈り物と天秤にかけ、唾を吐くように全否定した彼女こそが、私たちの五十年の関係を、最も卑劣な形で裏切ったのではないだろうか。
+そのことに気づいた瞬間、私の背筋を、これまで感じたことのないような、一点の曇りもない凛とした強さが稲妻のように駆け抜けました。
+
+---
+
+私は整理棚の奥底から、智代さんと共に歩んだ軌跡である何十枚もの写真を一枚ずつ取り出し、埃を払いました。
+白黒に近い幼い頃の泥だらけの無邪気な笑顔、結婚式での幸せを誓い合った輝くような和装姿、子育ての嵐の中で疲れ果てた顔で身を寄せ合う姿。
+それらの写真に刻まれた時間は確かに嘘のない、宝石のような温かな真実でしたが、それはあくまで過去の遺物に過ぎないことに気づきました。
+目の前にいる智代さんは、お金という冷酷な物差しで人を階級付け、他人の善意を自分のプライドを満たすための餌としてしか見られない人に完全に変わってしまったのです。
+私は彼女のその悲しい変容を認め、その過酷な事実を、音を立てずに静かに受け入れることにしました。
+「智代さん。私はあなたのことを大切に思っていましたが、もう、あなたの歪んだ物差しに自分を当てはめて磨り減ることは、今日限りでやめます」
+心の中で彼女の幻影に向かってそう宣言し、膨大な写真をそっと箱にしまい、重い蓋を閉じました。
+お金という溝は、時として言葉のズレや感情の行き違いよりもずっと深く、致命的な傷を関係に与えます。
+それは人生に対する根源的な価値観の決裂であり、住む世界の断絶だからです。
+半世紀の付き合いを失うことは大きな土台を崩すような痛みがありましたが、彼女の不機嫌を秒刻みで窺いながら「お祝いの金額」という醜い競技に強制参加させられる日々から解放されることは、私にとって、残りの人生を自分らしく生きるための魂の自由の獲得でもありました。
+私はお気に入りの、いつもより少しだけ高価で香りの高い茶葉を取り出しました。
+智代さんへの「お祝い」のために文字通り切り詰めていたその大切なお金を、今度は自分自身の荒れた心を癒やすための平穏な時間のために使おうと決めたのです。
+
+---
+
+それから長い数ヶ月が経ち、私は智代さんとの付き合いを完全に整理しました。
+彼女からは一度だけ、豪華なパーティーへの誘いという皮を被った「次は恥をかかない金額を持ってきてちょうだい」という嘲笑混じりの電話がありました。
+以前の私なら心臓を揺らし、言葉に詰まったでしょうが、今の私は穏やかで澄んだ声でこう答えました。
+「智代さん、もう数字を競うようなお付き合いは終わりにしましょう。お互い、二度と交わることのない別々の道を歩むのが、今の私たちにとって一番の誠実さだと思うのよ」
+受話器の向こうで絶句している彼女の反応を待たずに、私は静かに電話を切りました。
+その直後に去来したのは深い喪失感ではなく、冬の朝のような清々しく透明な静寂でした。
+自分をがんじがらめに縛り付けていた五十年の友情という枷が外れた瞬間、私は還暦を過ぎてようやく自分自身の人生の真の主人公に戻ることができたのです。
+贈り物の金額で人間の価値や積み上げてきた時間が決まるわけではありません。ましてやそれを他人と比較して蔑むような関係には、一秒の価値もないのです。
+誰に陰口を叩かれようと、私の真心の形は私自身だけが正しく知っていれば、それでいい。
+その毅然とした、背筋の伸びるような態度こそが、今の私の晩年を支える、最も強固で美しい「誇りの杖」となりました。
+今は一人で静かに過ぎていく時間を、心ゆくまで贅沢に楽しんでいます。
+他人の物差しを求めて彷徨うことはもうありません。
+不条理な序列や常識という名の鎖を断ち切り、ただ「今の私にできること」を私自身の物差しだけで決める。
+その静かな決断の先に、これまでの人生で一度も見たことのないような、穏やかで美しい夕暮れの風景が広がっているのです。
+
+---
+
+窓の外では、夜の闇がいよいよ深い藍色に染まり、しんしんと、どこまでも更けていきました。
+暖かいお部屋の中で、私の話に最後まで優しく心を通わせてくださった、あなた。
+友人や親戚との金銭感覚のズレや、贈り物のやり取りの中で、自分の守ってきた誠実な真心を数字だけで否定され、身を切るような孤独な夜を過ごしているあなたへ。
+今夜、布団に入る前に、一つだけ自分自身を守り抜くための「救いの一手」を静かに決めてみてはいかがでしょうか。
+明日、もし誰かへの贈り物や金額を決めなければならない場面が訪れたら、周囲の評価や相場ではなく「自分基準」だけに従って選んでみてください。
+「あの人はこれくらい包んだはず」「世間一般の常識では」という、あなたの心を曇らせる外側の物差しを一度クローゼットの奥底に仕舞い込み、今のあなたに無理がなく、胸を張って言える形を丁寧に選ぶのです。
+そして最も大切な魔法は、その決断に至った理由を、誰に対しても一切「説明しない」ことです。
+自分を卑下するような言い訳を一言も口にする必要はありません。
+あなたの贈り物はあなたの魂の一部であり、他人がどう評価しようとも、あなたの込めた真心の絶対的な価値は変わりません。
+自分自身の物差しを最後まで信じ、それを無言で守り抜く強さを持てたとき、あなたは他人との比較が生み出す闇から完全に、そして美しく自由になれるはずです。
+孤独とは、他人の顔色を窺う必要のない、自分だけの清らかで、最も安全な聖域なのですから。
+今夜はどうぞ安心して、深い、穏やかな眠りの海に、その身をすべて柔らかく委ねてくださいね。
+明日もまたあなたにとって、自分自身の誇らしい物差しで世界を正しく測ることができる、素晴らしい一日になりますように。
+おやすみなさい。
+最後までお聞きくださって、本当に、ありがとうございました。
+またいつか、どこかでお会いしましょう。
+その時まで、どうぞ、お体にお気をつけて。
+あなたの健やかな夜を、心からお祈りしています。
+</pre>
     </div>
   </div>
 </main>

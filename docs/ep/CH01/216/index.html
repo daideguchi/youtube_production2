@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-216 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-216 — script</h1>
           <div class="muted">【秘密の力】絶対に人に言ってはいけない「あなたの弱点」と「将来の計画」</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,390 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【秘密の力】絶対に人に言ってはいけない「あなたの弱点」と「将来の計画」</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-216</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-216&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">言わなきゃよかった……。
+そう後悔した夜はありませんか。
+
+勇気を出して打ち明けた後に
+ものすごく強い不安に駆られる。
+弱みを打ち明けたらなぜか翌日には噂になっている。
+夢を語ったら、
+いつの間にか誰かに先回りされていた。
+
+そのたびに、
+心の奥にある大事なものまで
+ごっそり持っていかれたような虚しさが残ります。
+
+このチャンネルでは、
+仏教の教えを紐解きながら
+あなたの人生に役に立つ知恵をお伝えします。
+ぜひゆっくりと癒されながらお聞きください。
+
+今日は、
+言葉で自分を傷つけないための
+「聖なる沈黙」についてお話しします。
+ただ黙るのではなく、
+あなたの弱点と将来の計画を守るための沈黙です。
+
+この動画を見終わる頃には、
+あらぬ一言で自分を安売りする癖が静かに消え、
+「秘密は武器だ」
+という感覚が、
+あなたの中にしっかり根を下ろしているでしょう。
+
+---
+
+お釈迦さまは、
+言葉の持つ力について繰り返し説かれました。
+
+嘘をつかないこと。
+人間関係を裂く噂話をしないこと。
+相手を傷つける悪口を慎むこと。
+中身のないおしゃべりに溺れないこと。
+
+この四つの戒め、
+すべてが「口」に関するものです。
+お釈迦さまは、
+心と同じくらい、いえ、それ以上に
+言葉を戒めたのかもしれません。
+
+弟子たちが誰かの弱点や失敗を面白おかしく語り始めたとき、
+お釈迦さまははっきり戒めたと言われています。
+その言葉は、
+相手を傷つける前に、
+まず自分の心を汚すのだと。
+
+なぜ言葉がそれほど重要なのか。
+仏教では、こう考えます。
+
+言葉は「業」を生む。
+つまり、口から出た言葉は、
+目に見えないところで因果の種をまいている。
+軽はずみな一言がやがて自分に返ってくる。
+
+これは二千五百年前の教えですが、
+歴史を見れば、
+この法則がいかに正しいか繰り返し証明されてきました。
+
+---
+
+徳川家康という人物をご存知でしょう。
+
+「鳴かぬなら鳴くまで待とうホトトギス」。
+この句は、彼の生涯を象徴しています。
+
+家康は六歳から十九歳までの十三年間、
+人質として他家で過ごしました。
+最初は織田家へ、その後は今川家へ。
+いつ殺されてもおかしくない日々。
+
+少年の家康が感じていた孤独と恐怖は、
+想像を絶するものがあったでしょう。
+誰かにわかってほしい、この苦しみを打ち明けたい——
+そう思わなかったはずがありません。
+
+しかし、家康はその渇きを胸に閉じ込めました。
+
+人質という立場で不満を漏らせば、
+自分だけでなく、故郷に残した家臣たちの命も危うくなる。
+だから彼は黙り続けた。
+十三年間ただひたすらに耐えた。
+
+仏教には「忍辱」という教えがあります。
+耐え忍ぶこと。
+不当な扱いを受けても、怒りや恨みで心を乱さず、
+静かに受け止める力のことです。
+
+家康の十三年間は、まさにこの忍辱の実践でした。
+話したい衝動を飲み込み、時が来るまで待つ。
+その沈黙が、やがて天下を手に入れる力になったのです。
+
+やがて独立を果たした家康を待ち受けていたのは、
+三河一向一揆という最大の試練でした。
+
+信仰を理由に、自分の家臣たちが敵に回る。
+裏切られた怒りと悲しみを誰かにぶつけたくなったでしょう。
+しかし家康は激情に任せず、
+最終的には講和という形で事態を収拾しました。
+
+怒りを言葉にしなかったからこそ、
+敵に回った家臣たちを再び味方に迎え入れることができたのです。
+
+そして後に、信長から妻と嫡男の殺害を命じられたときも、
+家康は弁明も助命嘆願もせず、沈黙を守りました。
+証拠は不十分、おそらく濡れ衣。
+心の中では血の涙を流していたでしょう。
+「息子がいたらなぁ」と後年漏らしたと伝えられています。
+しかし、その場では何も言わなかった。
+
+彼は知っていたのです。
+言葉を発するタイミングを誤れば、
+自分だけでなく、家臣も領民も、
+すべてを失うことになると。
+
+沈黙は臆病ではありません。
+それは、守るべきものを守るための、最も強い選択なのです。
+
+---
+
+時はかわり、第二次世界大戦中のヨーロッパ。
+
+駅や酒場やカフェの壁には、
+「おしゃべりが船を沈める」
+という警告ポスターが貼られていました。
+
+兵士の移動や作戦に関する何気ない一言が、
+敵に情報を与え、
+仲間の命を危険にさらす。
+それが現実に起きていたからです。
+
+家族も、恋人も友人も、
+誰がどこに向かうのか、いつ帰ってくるのかを
+詳しく話さないよう、繰り返し注意されました。
+
+ただの世間話だと思って口にした情報が、
+やがて取り返しのつかない結果を生む。
+それを止めるために、
+人々は沈黙を学ばざるを得なかったのです。
+
+日本でも同じです。
+
+江戸時代の大商人が残した家訓や店の掟を読むと、
+必ずといっていいほど、
+言葉への戒めが書かれています。
+
+商売の工夫、仕入れ先、値付けのコツ。
+それらをむやみに外で話すことは、
+家の財産をそのまま他人に渡すのと同じだと考えられていました。
+
+だからこそ、
+「口の禍を恐れよ」
+「秘伝は外に漏らすな」
+という趣旨の言葉が何度も書き込まれています。
+
+三井家には「宗竺遺書」という家訓が伝えられています。
+その中には、商いの秘密を軽々しく語らぬこと、
+家の内情を外に漏らさぬことが繰り返し説かれていました。
+
+三百年以上続く老舗の多くが、
+この沈黙の教えを守り続けてきたのです。
+
+イギリスでも同じことがありました。
+第二次世界大戦中、ブレッチリーパークという施設で
+ドイツ軍の暗号を解読していた人々がいます。
+
+彼らは戦争が終わっても、
+三十年以上、自分たちの仕事を誰にも話しませんでした。
+家族にさえ、何をしていたのか明かさなかった。
+
+認めてほしい、わかってほしいという気持ちを、
+何十年も飲み込み続けた。
+
+その沈黙が歴史を守ったのです。
+
+---
+
+さて、ここで私たちの日常に戻りましょう。
+
+戦場でも、歴史の転換点でも、
+人は同じ真理を学び続けてきました。
+話しすぎることは、
+自分の命と人生を削る行為になりうる。
+
+では、なぜ私たちはそれでも話してしまうのでしょうか。
+
+仏教では、心の苦しみの根本に「渇愛」があると説きます。
+満たされない渇きが、私たちを突き動かす。
+
+自分がどれだけ頑張っているか、
+誰か一人でいいから知ってほしい。
+この選択で本当に大丈夫だろうか、
+誰かに「いいね」と言ってもらえれば安心できるのに。
+人より早く知っている自分を見せたい。
+
+わかってほしい、安心したい、特別でいたい。
+この三つの渇きが合わさると、
+胸の内側にしまっておくべきものを、
+簡単に外へ出してしまいます。
+
+しかも、話した瞬間、
+脳は小さな達成感を感じます。
+まだ何も始まっていないのに、
+一歩前に進んだような錯覚が生まれる。
+
+言葉にした時点で、
+心の中の緊張がほどけてしまう。
+その結果、夢も計画も、
+話しただけで終わってしまうのです。
+
+家康はこの罠を本能的に知っていました。
+だから十三年間黙り続けることができた。
+科学者たちも自分の発見を語る誘惑に負けなかった。
+
+彼らは渇愛を超えていたのです。
+
+---
+
+最後にこの人たちの話をします。
+明治維新の立役者、大久保利通。
+プロイセンの名参謀、モルトケ。
+二人に共通するあだ名をご存知ですか。
+
+「偉大な沈黙者」です。
+
+大久保利通は寡黙で、
+面と向かって意見できる者がほとんどいなかったといいます。
+その威厳は、言葉を慎む姿勢から生まれていました。
+
+モルトケは戦略について多くを語らず、
+実行だけで結果を示しました。
+わずか七週間でオーストリア軍を破った彼の戦術は、
+言葉ではなく行動で歴史に刻まれています。
+
+口が堅い人には、やがて本当に深い相談が集まってきます。
+「あの人は口が軽い」という評判は、
+一度つくと一生剥がれません。
+逆に「あの人には話しても大丈夫」という信頼は、
+お金よりも価値のある財産です。
+
+沈黙は信用という名の貯金なのです。
+
+---
+
+もう一つ沈黙がもたらす恩恵があります。
+それは行動のエネルギーが残るということです。
+
+話さずに胸に残したエネルギーは、
+そのまま手と足を動かす力になります。
+
+誰にも言わずに、ひそかに勉強を続ける人。
+黙って、小さな改善を積み重ねる人。
+そういう人の変化は、
+ある日突然、
+周りの目にもはっきり見える形で現れます。
+
+言葉で飾る代わりに、
+静かな行動で積み上げていく。
+沈黙は、
+夢を守り、育てる温室なのです。
+
+お釈迦さまは、修行僧たちにこう語りました。
+「雨が小さな穴から家に入るように、
+欲望は心が油断している隙間から入ってくる」。
+
+話したいという衝動も同じです。
+小さな穴を塞がなければ、
+大事なものが少しずつ漏れ続ける。
+
+沈黙とは、心の屋根を修繕する行為なのかもしれません。
+
+---
+
+では、日常の中でどうすればいいか。
+最後に、小さな習慣を三つだけ添えて終わりにしましょう。
+
+一つ目。
+弱音を打ち明けそうになったとき、
+新しい計画を自慢したくなったとき、
+鼻から息を吸い、ゆっくり吐きながら心の中で三つ数えてみてください。
+その三秒で、衝動は驚くほどやわらぎます。
+たった三秒で、九割の失言は消えていきます。
+
+二つ目。
+感情が乗ったメッセージは、すぐに送らず、
+一度下書きに入れる癖をつけてみてください。
+一晩置いてから読み返すと、
+削った方がいい部分が必ず見つかります。
+
+三つ目。
+圧をかけられたとき、
+「今はまだお話しできる状態じゃなくて」
+と静かに返す練習をしてみてください。
+間を怖がらないこと。
+沈黙に耐えられないのは、多くの場合、相手の方です。
+
+---
+
+沈黙は冷たさではありません。
+自分の情報を大切に扱うという温かい自己防衛です。
+
+話さないことで失うものはほとんどありません。
+話してしまうことで失うものは、
+信用と未来の選択肢です。
+
+家康は十三年間黙り続け、天下を取りました。
+科学者たちは家族にさえ沈黙を守り、歴史を変えました。
+大久保利通は寡黙によって人を圧倒しました。
+
+あなたの弱点と将来の計画は、
+安易な共感に投げ出すものではなく、
+静かに磨き上げ、
+必要なときにだけ取り出す切り札です。
+
+秘密は武器です。
+そして、その武器をいつ抜くかを決める鍵は、
+いつでもあなたの手の中にあります。
+
+鍵はあなたが持つ。
+簡単には渡さない。
+渡すとしても本当に信頼できる
+ごくわずかな人にだけ。
+
+本日も最後までご覧いただきありがとうございます。
+皆様が、自分の宝物を自分で守りながら、
+静かな強さを育てていけますように。
+</pre>
     </div>
   </div>
 </main>

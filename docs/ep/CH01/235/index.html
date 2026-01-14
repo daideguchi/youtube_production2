@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-235 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-235 — script</h1>
           <div class="muted">【支配からの脱却】あなたをコントロールしようとする人の手口</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,489 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【支配からの脱却】あなたをコントロールしようとする人の手口</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【支配からの脱却】で苦しいあなたへ──ブッダの視点で心を整える話。
+・支配からの脱却の捉え方・マインドコントロールや洗脳（ガスライティング）のの実践
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>支配からの脱却, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【支配からの脱却】で苦しいあなたへ──ブッダの視点で心を整える話。
+・支配からの脱却の捉え方・マインドコントロールや洗脳（ガスライティング）のの実践</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-235</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-235&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">「あなたのためを思って言っているんだよ」
+「お前には私がいなきゃダメだ」
+
+そう言われるたびに、
+胸の奥が、きゅっとざわつきませんか。
+
+本当はうれしいはずの言葉なのに、
+なぜか息が浅くなる。
+断ろうとすると、罪悪感がこみ上げてくる。
+「私が悪いのかな」と自分を責めてしまう。
+
+気づけば、
+相手の機嫌・予定・価値観が
+自分の人生の「基準」になってしまっている――
+そんな感覚はないでしょうか。
+
+このチャンネルでは、
+仏教の教えをベースに、
+見えない檻から抜け出すための知恵をお伝えします。
+
+ここは、安全な場所です。
+深呼吸を一つ。
+肩の力を少し抜いて、お聞きください。
+
+今日のテーマは「支配からの脱出」です。
+
+この動画を見終わる頃には、
+罪悪感と恐怖であなたを縛っていた鎖が、
+実は紙のように薄かったのだと、
+静かに気づけるはずです。
+
+---
+
+時は、明治の初め。
+
+封建の名残がまだ色濃く残る山里に、
+おとよという娘がいました。
+
+おとよは働き者で、
+年老いた両親を支えながら暮らしていました。
+裁縫も炊事も畑仕事もそつなくこなし、
+村の人たちからは
+「しっかり者の娘だ」と噂されていました。
+
+そんなおとよに目をつけたのが、
+村の有力者の男でした。
+
+土地も金も持ち、
+村の祭りや役目ごとを仕切る立場。
+誰も逆らえない、権力を握る存在です。
+
+男は、おとよに近づき、
+甘い言葉をささやき始めました。
+
+「お前のためを思って言っているんだ」
+「俺がいなきゃ、お前は生きていけない」
+
+最初は、守ってくれる言葉のように聞こえました。
+しかし次第に、その言葉の裏側には
+別の意味が潜んでいることが分かってきます。
+
+「俺の言う通りにしろ」
+「お前の行き先も、会う人も、全部俺が決める」
+
+従わなければ、
+親の仕事にも影響が出るかもしれない。
+村の中で、居場所がなくなるかもしれない。
+
+そんな「空気」が、おとよの周囲をじわじわと締め付けました。
+
+夜、布団に入っても眠れません。
+断ったら親不孝なのではないか。
+期待に背く自分は、悪い娘なのではないか。
+
+涙をこらえながら、
+何度も何度も自分を責め続けました。
+
+---
+
+ある日。
+
+旅の尼僧が、山道を通って村にやってきました。
+粗末な衣に、よく使い込まれた数珠。
+しかし、その目は澄んでいて、
+長い道のりの風雪を静かに受け止めてきたような落ち着きを湛えていました。
+
+おとよは、井戸端で水を汲んでいるときに
+その尼僧とすれ違いました。
+
+一瞬、視線が合います。
+尼僧は何も聞かないまま、
+しばらくおとよの顔をじっと見つめました。
+
+そして、袂から小さな木の鍵を取り出し、
+そっとおとよの手のひらに乗せました。
+
+「これは、あなたの心の扉の鍵です。
+誰にも渡してはなりません」
+
+それだけ言うと、
+尼僧は深く頭を下げ、
+また静かに旅路へと戻っていきました。
+
+おとよは訳も分からないまま、
+その小さな鍵をぎゅっと握りしめました。
+なぜか、その感触が、
+胸の奥の震えを少しだけ落ち着かせてくれたのです。
+
+---
+
+その夜も、男はやってきました。
+
+「一緒に町へ出よう。
+俺がお前のことは全部決めてやる。
+働き先も、住むところも、人付き合いも。
+お前は何も考えなくていい」
+
+言葉だけ聞けば、
+一見「守ってくれる」ようにも聞こえます。
+
+けれどそれは、
+おとよの人生のハンドルを
+すべて奪い取る宣言でもありました。
+
+おとよは震える手で、
+懐に忍ばせた木の鍵を握りしめました。
+
+尼僧の声が、心の中でよみがえります。
+
+――これは、あなたの心の扉の鍵です。
+誰にも渡してはなりません。
+
+静かに息を吸い、
+おとよは、今までとは違う言葉を口にしました。
+
+「その鍵は、渡せません」
+
+男は耳を疑いました。
+
+「何を言っている。
+俺がいなきゃ、お前はやっていけないんだぞ。
+親も、この村も、みんな困るんだぞ」
+
+怒鳴り声とともに、
+「親不孝者」「裏切り者」という言葉が飛び出します。
+
+それは、おとよの罪悪感を
+狙い撃ちにする言葉でした。
+
+それでも、おとよは
+ぎゅっと鍵を握りしめたまま、
+同じ言葉を繰り返しました。
+
+「その鍵は、渡せません」
+
+説明を足しませんでした。
+自分を正当化するための言い訳も、
+相手を説得するための長い話も、しませんでした。
+
+ただ、自分の心の鍵は渡さない。
+その一点だけを、静かに守ったのです。
+
+やがて男は罵声を残して去っていきました。
+村には様々な噂が飛び交いましたが、
+それも時間とともに少しずつ薄れていきました。
+
+季節がいくつも巡ったのち、
+おとよは別の町に移り、
+小さな店を開くことになります。
+
+自分の働きで得たお金で、
+自分の時間と人間関係を選ぶ暮らし。
+派手ではありませんが、
+静かで、穏やかで、
+自分の呼吸を取り戻した日々でした。
+
+後になって、
+あの男から謝罪の手紙が届いたと言います。
+
+「当時は、俺が正しいと思っていた。
+お前を縛っていたことに、今は気づいた。
+許してほしい」
+
+その手紙を読みながらも、
+おとよは心の中で
+あの日と同じ言葉をそっと唱えました。
+
+「その鍵は、渡せません」
+
+誰を許すか、
+どの距離で付き合うかを決める鍵もまた、
+自分が持つものだからです。
+
+---
+
+支配は、
+鍵を奪うところから始まります。
+
+決定権。
+時間。
+金銭。
+人間関係。
+情報。
+
+「お前のため」と言いながら、
+これらの鍵束を、一つずつ抜き取っていくのです。
+
+・あなたの予定を、勝手に決める。
+・あなたの財布の中身を、自由に扱う。
+・あなたの友人や家族との関係を、制限する。
+・あなたが見聞きする情報を、コントロールする。
+
+それが続くと、
+いつの間にか「自分で決める」という力が弱っていきます。
+
+仏教には、こんな言葉があります。
+
+「自らを拠り所とし、他を拠り所とするな」
+
+自分の中の灯りを拠り所としなさい。
+他人の機嫌や評価だけを、
+自分の軸にしてはいけない。
+
+鍵を自分で持つこと。
+それが、自由への第一歩です。
+
+では、どう実践していけばいいのか。
+ここからは、五つのステップをお話しします。
+
+---
+
+ステップ１：違和感を信じる。
+
+「この人といると息が浅い」
+「会う前から胃が痛い」
+「連絡が来る音が怖い」
+
+その感覚は、
+あなたの中の小さな警報です。
+
+頭では
+「でも、この人にはお世話になっているし」
+「嫌なことを言う時もあるけど、優しいところもあるし」
+と理由を並べたくなるかもしれません。
+
+それでも、
+体は正直です。
+
+最初は、
+「私は気にしすぎなんだ」と
+そのサインを否定してきたかもしれません。
+
+これからは逆に、
+「この違和感は、私を守ろうとしてくれている」と
+受け取ってみてください。
+
+違和感は、逃げるための言い訳ではなく、
+自分を守るための大事なセンサーです。
+
+---
+
+ステップ２：ラベルを貼る。
+
+罪悪感で縛る。
+記憶を否定する。
+「お前がおかしい」「お前が悪い」と言い続ける。
+あなたの見ている現実を
+「それは間違っている」「そんなことは起きていない」と
+ねじ曲げてくる。
+
+こうした言葉や態度は、
+心理学では「ガスライティング」と呼ばれる
+心理的な暴力行為です。
+
+「でも、あの人もつらい過去があるから」
+「本当は優しい人だから」
+
+そうやって相手の事情ばかりを
+自分に言い聞かせていると、
+自分の痛みを見失ってしまいます。
+
+まずは、心の中で
+はっきりとラベルを貼ってください。
+
+「これは、暴力だ」
+「これは、支配だ」
+
+名前をつけるだけで、
+霧が少しずつ晴れていきます。
+
+---
+
+ステップ３：反応しない。
+
+支配する側は、
+あなたの「反応」を欲しがります。
+
+怒鳴れば怯え、
+黙り込めば焦り、
+泣けば謝る――。
+
+そのパターンができあがると、
+相手は「このボタンを押せば動く」と学んでしまいます。
+
+そこで必要なのが、
+「灰色の石」のようになる練習です。
+
+挑発されたとき、
+感情で返さず、短く単調に返す。
+
+「そうですか」
+「今は答えません」
+「その話は受け取りません」
+
+鍵は、ポケットに入れたまま。
+相手のペースに乗らず、
+自分のペースを守るのです。
+
+もちろん、心の中は揺れていてかまいません。
+外側の反応を、意識的に変えてみることが大切です。
+
+---
+
+ステップ４：静かに準備する。
+
+「もう嫌だ！」と
+衝動的に別れを切り出したくなることもあるかもしれません。
+
+しかし、相手が攻撃的だったり、
+権力やお金を握っている場合は、
+一気に関係を断とうとすると
+危険が高まることがあります。
+
+いきなり
+「別れます！」「離れます！」と宣言するのではなく、
+水面下で、静かに準備を進めてください。
+
+・少しずつ貯金を増やす。
+・自分名義の口座や身分証を整える。
+・信頼できる第三者や相談窓口を見つける。
+・やり取りの記録や証拠を保管しておく。
+・住まいの選択肢を調べておく。
+
+表面上は、すぐには逆らわないように見せながら、
+心の中では
+「脱出のカウントダウン」を
+静かに進めていきます。
+
+危険を感じる場合は、
+一人で抱え込まず、
+専門の支援窓口や信頼できる人に
+必ず相談してください。
+
+---
+
+ステップ５：完全に離れる。
+
+準備が整ったら、
+タイミングを見て、静かに距離を断ちます。
+
+そのとき、
+「ちゃんと話し合って理解してもらわなきゃ」
+「納得してもらってからじゃないと失礼だ」
+と考える必要はありません。
+
+火事場から逃げるのに、
+家主の許可はいりません。
+
+・連絡手段を切る。
+・ブロックする。
+・物理的に届かない場所へ移る。
+
+あなたの安全と命が、最優先です。
+
+逃げたあと、
+孤独や罪悪感が押し寄せてくるかもしれません。
+
+「本当にこれでよかったのだろうか」
+「私が悪者になってしまったのではないか」
+
+それは、
+毒が抜けていくときの「禁断症状」のようなものです。
+
+それまで当たり前だと思っていた
+歪んだ関係性から離れると、
+しばらく心は混乱します。
+
+けれど、少しずつ、
+呼吸が深くなり、
+味覚が戻り、
+景色の色が鮮やかに見え始めます。
+
+「怖くて当たり前だった自分」に
+優しくしてあげてください。
+
+---
+
+鍵は、あなたのものです。
+誰にも渡さなくていい。
+
+決める権利も。
+断る権利も。
+休む権利も。
+どんな人と付き合うかを選ぶ権利も。
+
+それらは、
+誰かの「好意」や「犠牲」によって
+与えられるものではなく、
+最初からあなたの手の中にあるものです。
+
+もし今、
+誰かの言葉や態度によって
+その鍵を取り上げられそうになっているなら、
+おとよが握りしめた小さな木の鍵を
+思い出してください。
+
+「その鍵は、渡せません」
+
+この一行を、
+心の中の合言葉にしてみてください。
+
+本日も最後までご覧いただきありがとうございます。
+
+皆様が、何者にも縛られることなく、
+自分の鍵をしっかりと握りしめて、
+静かで自由な人生を歩んでいけますように。
+</pre>
     </div>
   </div>
 </main>

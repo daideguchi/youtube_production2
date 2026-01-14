@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-003 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-003 — script</h1>
           <div class="muted">苦しみはむしろプラスになる | ブッダの教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,138 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>苦しみはむしろプラスになる | ブッダの教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-003</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-003&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">朝、ほうきを握るだけで、心の向きが少し変わります。廊下に落ちた細かな埃や落ち葉を掃くと、足音が軽くなる。ブッダは「掃除は心を整える行」と説きました。寺では早朝に掃き清めることで、不運を呼び込む淀みを減らし、福を迎える余白を作ります。家でも同じです。朝の五分の掃き掃除が、一日の流れを静かに変えます。
+
+六十二歳の昌子さんは、夫を亡くしたあと、朝が重く感じられる日が続きました。布団から出るのも億劫で、テレビの音だけが部屋を満たしていました。ある日、テレビで修行僧が廊下を黙々と掃く姿を見て、「私にもできることがある」と感じました。翌朝、昌子さんは玄関のたたきをほうきで掃き、水拭きをしました。五分で終わる作業でしたが、手のひらに温かさが残り、胸の奥に少しだけ風が通る気がしました。それ以来、昌子さんは朝の掃除を欠かさず、心の埃も少しずつ減っていきました。
+
+掃除は目に見える埃だけでなく、心に溜まった「気づかない負担」を減らします。床に落ちたパンくず、新聞紙の切れ端、靴の砂。小さなものが積もると、歩くたびにざらつきを感じます。心も同じで、言えなかった一言、やり残した用事、見ないふりをした苛立ちが少しずつ重なり、歩みを鈍らせます。ほうきを動かすたびに、「今日手放すこと」を一つ決めます。言えなかった「ごめんなさい」を今日言う。溜めた書類を一枚片付ける。苛立ちを深呼吸で流す。床と心は、同時に軽くなります。
+
+ブッダは「因果」を説きました。原因があって結果がある。汚れた床を放置すれば、滑って転びやすくなる。乱れた部屋は物を失くしやすく、時間を奪います。朝の掃除は、今日一日の安全と余裕を作る原因になります。原因を整えれば、結果も変わります。運気が上がるとは、良い原因を重ねることです。
+
+掃除は「布施」にもなります。家族や訪れる人のために、足元を整える。誰かのためにする行為は、見返りを求めなくても心を温めます。布施はお金だけでなく、場所を清めることも含まれます。静かに布施を続ける家には、福が留まります。
+
+朝の掃除を習慣にするために、五つの工夫を置きます。第一に、場所を決める。玄関、廊下、洗面台、キッチンシンク、仏壇まわり。毎日同じ場所を五分だけ掃く。第二に、時間を決める。起床後すぐ、朝食の前、洗濯機を回している間。時間の枠があると続きます。第三に、呼吸を合わせる。ほうきを動かす前にゆっくり息を吐き、吸う。呼吸と手の動きを合わせると、心拍が落ち着きます。第四に、終わりを決める。五分経ったら終了。完璧を目指さず、続けられる形にする。第五に、感謝を一言添える。「今日も歩けている」「今日も水が出る」。感謝の言葉は掃除の仕上げです。
+
+昌子さんは、掃除のあとに仏壇の前で座り、亡き夫に話しかけます。「今日は廊下を拭いたよ」「玄関が明るくなったよ」。話しかけることで、心の中の寂しさが少し動きます。ブッダの教えでは、「行」のあとに「座」を置きます。動いたあとに座ると、動きでほぐれた心が静かに整います。
+
+掃除は、過去の執着を手放す練習にもなります。長く置きっぱなしの古新聞、使わない贈り物、着ない服。手に取り、「今の私に必要か」と問い、手放します。無常の教えは、「形あるものは変わり、去る」という事実を受け入れることです。物を手放すとき、少しだけ無常を体で学べます。手放したあとに残る空白が、次の福を迎える余白になります。
+
+朝の掃除がもたらすものは、見た目の清潔さだけではありません。規則正しい動きが、生活のリズムを作ります。規則は心を安定させます。寺の鐘の音が毎朝同じ時間に響くように、自分の家でも「ほうきの音」を鐘の代わりにします。音が鳴れば、心と体が「あ、今は整える時間」と覚えます。整える時間を持つ家は、福が留まりやすいと信じられてきました。
+
+掃除を通して「正語」も学べます。床を拭きながら、心の中で今日の言葉を整えます。「今日は柔らかく話そう」「人の話を最後まで聞こう」。言葉は、心の状態を映す鏡です。床が清められると、言葉も清くなります。清い言葉は争いを減らし、家の中の空気を軽くします。軽い空気は、運を呼び込みます。
+
+道具にも心を配ります。ほうきの柄を拭き、ブラシを洗い、雑巾を干す。道具を大切にすると、掃除の時間が丁寧になります。丁寧さは、徳を育てます。ブッダは「小さな行いにこそ心を込めよ」と教えました。道具への心遣いが、そのまま人への心遣いに繋がります。
+
+掃除に疲れた日は、短い時間で終わらせてもかまいません。体調が優れない日、雨の日、心が重い日は、玄関だけ、洗面台だけ。短くても続けることで、自分との約束を守れます。約束を守る積み重ねが、自信になり、運の流れを整えます。
+
+掃除は、家族を巻き込むきっかけにもなります。孫が来たら一緒にほうきを持ち、小さな範囲を任せます。「ここを掃いたら一緒にお茶を飲もう」と声をかける。達成感と休息をセットにすると、掃除が楽しい記憶になります。楽しい記憶は、家に帰ってきたくなる理由になります。運気とは、人の気が運んでくるものです。人が来たくなる家は、運が巡る家です。
+
+掃除の途中で感情が湧いたら、そのまま掃き出します。怒りが出てきたら、ほうきを強く握らず、息を吐きながらゆっくり動かす。不安が出てきたら、「いま、この埃を取ることだけ」と目の前に集中します。瞑想のように、今に留まる練習です。今に留まる力がつくと、過去の後悔や未来の不安に引きずられにくくなります。引きずられない心は、福を感じやすくなります。
+
+掃除は、「正しい場所」に物を戻す行為でもあります。靴を揃え、カギを定位置に置き、郵便物を分類する。物が戻ると、心も戻ります。戻る場所がある人は、心が迷いにくい。迷いが減ると、決断が早くなり、チャンスを掴みやすくなります。チャンスを掴む人は、運がいいと呼ばれます。運とは、準備ができた人に訪れやすいものです。
+
+掃除のあとの一杯の水やお茶は、福を迎える儀式です。掃除で動いた体に水分を入れ、喉を潤す。水が喉を通る感覚に意識を向けると、「生きている」実感がわきます。実感は、心を満たし、不足感を減らします。不足感が減れば、他人を羨む気持ちが弱まります。羨みが弱まると、心が穏やかになり、福を感じやすくなります。
+
+掃除は、外に向かう前の「心の準備運動」です。清めた玄関を通って外に出ると、背筋が伸びます。伸びた背筋で歩けば、人の目を見る位置が変わり、挨拶の声も明るくなります。明るい声は、人を呼び寄せます。人との縁が増えれば、情報もチャンスも増えます。朝の掃除は、縁の扉を静かに開く動作です。
+
+ブッダは「ものを捨てることは、心を捨てること」とも説きました。掃除を重ねると、執着が弱まります。弱まった心は、変化に強くなります。変化に強い人は、運の波に乗りやすい。波に乗るには、板を軽くすることです。掃除は、心のサーフボードを軽くする作業です。
+
+昌子さんは、朝掃除を始めてから、近所の人との会話が増えました。玄関を掃いていると「おはよう」と声をかけられ、「今日は天気がいいですね」と笑い合う。短い会話が、心を少し温めます。温まった心でその日を過ごすと、買い物先でも親切にされることが増えました。福とは、こうした小さな温かさの連鎖かもしれません。
+
+朝の掃除は、終わりを決めると続きます。五分で終わり、終わったら鐘のように手を合わせます。「今日もできた」と自分を認める。認めることで、明日もできる力が湧きます。力は大きくなくていい。小さな力を毎日重ねる人に、福は積もります。積もった福は、見た目には分かりませんが、家の空気が教えてくれます。帰ってきたときの「ほっとする感じ」、朝の「少し軽い足取り」。それが福の形です。
+
+最後に、今日の掃除の中で一つだけ「ありがとう」を置いてください。ほうきに、床に、水に、今日の自分に。ありがとうは、福を呼ぶ言葉です。今日の小さな掃除が、明日の大きな福につながります。ほうきを置いたら、深く息を吸い、吐いてください。吐く息と一緒に不運の埃を手放し、吸う息と一緒に福の風を迎えましょう。朝の五分が、あなたの一日を、そして残りの人生を静かに変えていきます。
+
+ここから、もう少し丁寧に習慣を深める方法を重ねます。寺では、掃除の前に必ず姿勢を整え、ほうきの位置を揃えます。乱れた道具で整った場所は作れません。家でも、ほうきを立て掛ける場所を決め、雑巾は干しておく。道具の置き場が整うと、始めるまでの時間が短くなります。短くなるほど、続けやすくなります。続けやすい習慣が、運を呼び込みます。
+
+掃除の途中で、姿勢に気をつけます。背中を丸めず、腰から折ってほうきを動かす。膝を少し緩めて、足裏を感じる。体を痛めない姿勢は、長く続けるための智慧です。ブッダは「中道」を説きました。無理をしないことが、長く続ける道です。体をいたわる掃除は、心もいたわります。
+
+昌子さんは、掃除を始めて一ヶ月経った頃、仏壇の横の引き出しに入った古い手紙を見つけました。夫とのやりとり、子どもたちからの絵葉書。ほこりを払って読み返すと、涙がこぼれました。掃除は、過去の自分と再会させます。再会は、心をほどきます。涙が出たあと、昌子さんは「この手紙は今の私を支える」と感じ、仏壇の前に一枚飾りました。掃除が、思い出を選び直す機会になりました。
+
+掃除と一緒に、「音」を整えることもできます。廊下を掃いたあと、窓を少し開け、鳥の声や風の音を聞きます。音は心の埃を払います。テレビの音を消し、静かな時間を数分置く。静けさは、福の入る隙間です。隙間がある家には、福だけでなく人も入りやすくなります。
+
+朝の掃除を「祈り」と結びます。仏壇や小さな花に手を合わせ、「今日会う人が穏やかでありますように」「今日出会う出来事が学びになりますように」と短く唱える。祈りは、自分の心の方向を決める行為です。方向が決まれば、迷いが減ります。迷いが減れば、選択が速くなり、チャンスを逃しにくくなります。チャンスを掴む力が「運がいい」と呼ばれます。
+
+掃除の後、外に一歩出て、家の前の道を掃くと、近所との縁が変わります。「おはよう」の数が増え、顔なじみが増える。顔なじみが増えると、情報が増え、助けが得やすくなります。助けを得やすい人は、困ったときに「運がいい」と言われます。運は、人が運んできます。人が通りやすい道を作ることが、運を迎える準備です。
+
+掃除を続けると、気づきが増えます。床の冷たさで季節の変化を知り、水の冷たさで体調を知る。気づきは、小さな変化に早く対応する力です。早く対応できれば、大きな不運を避けやすくなります。ブッダは「観察」を重んじました。掃除は観察の練習です。観察する人は、運の流れを読む人です。
+
+夜、眠る前に朝の掃除を思い出します。「今日は玄関が光っていた」「窓の桟がきれいになった」。思い出すことで、習慣が心に根を張ります。根が張れば、嵐の日も倒れにくい。心の根が強ければ、不運が来ても揺れにくい。不運が去り、福が来る理由は、根の強さにあります。
+
+もし途中でやめてしまっても、自分を責めないでください。ブッダは「今日が最初の日」と言います。昨日までできなくても、今日ほうきを握れば、それが始まりです。始まりは、何度でも作れます。始め直せる人が、福を育てます。
+
+掃除をしても不運が続くと感じる日もあります。病気、仕事の悩み、人間関係の摩擦。掃除はそれらを消しませんが、向き合う力を少し増やします。足元が整っていると、踏ん張れます。踏ん張れる人は、嵐の中でも立っています。立っていれば、嵐が過ぎるのを待てます。待てる人が、福を見る人です。
+
+最後に、掃除をしている自分に微笑んでください。微笑みは、自分への布施です。微笑みを知る人は、人にも微笑みを返します。微笑みのある家に、福は留まります。朝のほうきを置いたとき、微笑みと一緒に「今日も生きている」と心で言ってみてください。その言葉が、一日の福を呼びます。
+
+ここで、寺の老僧の話を添えます。七十を超えた老僧が、毎朝四時に起き、まだ暗い廊下を静かに掃きます。弟子が「住職はもう掃除をしなくてもいいのでは」と尋ねました。老僧は笑って、「掃除は場所のためではなく、わしの心のためだ」と答えました。老僧は、掃くたびに「まだ心に埃がある」と気づき、また次の日も掃きました。老僧の姿を見て育った弟子たちは、掃除の意味を体で覚えました。誰かが見ていなくても掃除をする人の背中には、教えが宿ります。家でも同じです。見られているかどうかではなく、自分の心のために掃く。その姿が、家族に静かな教えを残します。
+
+朝の掃除に慣れてきたら、週に一度だけ「少し深い掃除」を加えます。仏壇の後ろ、冷蔵庫の下、窓の桟。普段手が届かないところを一箇所だけ。深い掃除は、心の奥の滞りを動かす感覚に似ています。終わったら、そこで感じたことを一言メモに残します。「埃が多くて驚いた」「光がきれいに入るようになった」。メモは、自分の変化の記録です。記録を読み返すと、「続けている自分」が見えてきます。自分を認める材料が増えると、心に福が溜まります。
+
+体の調子が悪い日は、掃除を「見るだけ」に変えても構いません。ほうきを握らず、家を一周して「今日はここに葉っぱが落ちている」「ここに埃が溜まっている」と観察する。観察するだけでも、意識が向きます。意識が向けば、体調が戻ったときに動けます。無理をしない日も、習慣の一部です。中道の実践です。
+
+朝の光を利用します。掃除の前にカーテンを開け、光を入れます。光は、埃を浮かび上がらせます。心の中の埃も、光を当てれば見えます。見えたものは、掃けます。光を取り入れる家は、福も取り入れます。日光浴を兼ねて、窓辺で数分立ち、背中に光を受けてから掃除を始めます。体が温まると、手の動きも柔らかくなります。
+
+掃除の後に、短い「感謝リスト」を作ります。「今日歩けた足」「水を出せる蛇口」「光を通す窓」。三つだけで十分です。感謝は、福のレンズです。レンズを通して世界を見ると、同じ景色でも明るく見えます。明るく見えれば、次の行動が軽くなります。行動が軽くなれば、運が動きます。
+
+もし心がざわつく日には、掃除を「音」に変えます。ほうきで掃く音、雑巾を絞る音、水の音を意識して聞く。音を聞いている間、頭の中のおしゃべりが少し静まります。静まった心は、福の足音を聞きやすくなります。足音が聞こえれば、福が来たときに気づけます。
+
+最後に、朝の掃除を「家族の合図」にすることもできます。家族がいる場合、「ほうきの音が聞こえたら起きる」「雑巾を絞る音が聞こえたら朝食の準備」と決める。音が合図になると、家のリズムが整います。整った家は、外の風に揺れても戻りやすい。戻りやすい家は、不運が長居せず、福が留まります。
+
+朝の掃除は、派手な運気アップではありません。誰にも見えない地味な作業です。ですが、地味な作業の積み重ねが、静かな福を招きます。ブッダは、派手な奇跡よりも、日々の「正しい行い」を重んじました。正しい行いを続ける人の顔には、穏やかな光が宿ります。その光こそが、運が上がった証です。今日の五分、明日の五分。その繰り返しが、あなたの暮らしに光の道を作ります。掃けば不運は去り、福が来ます。ほうき一本から始まる道を、どうか楽しんでください。
+</pre>
     </div>
   </div>
 </main>

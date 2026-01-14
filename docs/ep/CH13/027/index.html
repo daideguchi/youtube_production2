@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH13-027 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH13-027 — script</h1>
           <div class="muted">【友人】会うほど疲れる友人｜相性ではないサイン</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH13</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,281 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCLl4VOZ21zq9Fexo0822w7A/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【友人】会うほど疲れる友人｜相性ではないサイン</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>友人, ブッダ, 仏教, 家族, 介護, 夫婦, 人間関係, シニア, 法話, 禅, 友人関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの禅処方箋」の長時間コンテンツです。
+家族・介護・近所づきあいを、戦わずに軽くする“禅の処方箋”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH13-027</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH13-027&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">会うほど疲れる友人がいる。
+昔は楽しかったはずなのに、今は会うのが億劫。
+でも友人だから会わなければと思う。
+
+その関係、相性の問題ではないのかもしれません。
+別のサインが隠れているのです。
+
+今日は、この「疲れる友人関係」の正体と、角を立てずに距離を置くための処方箋について、禅の視点からお話しします。
+
+---
+
+まず、「会うと疲れる」という感覚を、もう少し詳しく見てみましょう。
+
+昔からの友人との約束。
+カレンダーに予定を入れた時点で、なんとなく気が重い。
+当日が近づくにつれて、「キャンセルできないかな」という考えがチラつく。
+でも、断る理由もないし、約束は約束だから行く。
+
+会っている間、笑顔で話を合わせる。
+でも、心のどこかで時計を見ている。
+「あと何時間かな」「何時に終わるかな」
+
+帰り道、どっと疲れが押し寄せてくる。
+楽しかったはずなのに、なぜか消耗している。
+家に着いたら、何もする気になれない。
+
+そして、数日後、また次の約束の連絡が来る。
+その通知を見ただけで、胃がキュッと縮む。
+
+こんな経験、ありませんか。
+
+---
+
+長年の友人との付き合いが、いつからか負担になることがあります。
+
+昔は楽しかった。話していて充実していた。
+でも最近は、会った後にぐったりする。話していてもどこか疲れる。
+
+「自分が変わったのかな」「相性が悪くなったのかな」と思うかもしれません。
+でもそれは相性の問題ではなく、関係そのものに問題があるサインかもしれません。
+
+会うと疲れる関係には、いくつかのパターンがあります。
+
+まず、相手の話ばかり聞く関係。
+相手はずっと話している。自分は聞き役。
+自分の話をする隙がない。
+一方的にエネルギーを吸い取られる感覚。
+
+次に、マウンティングがある関係。
+「私はこうだけど、あなたは？」と比較される。
+何となく下に見られている感じがする。
+会うたびに、自己肯定感が削られていく。
+
+そして、ネガティブな話が多い関係。
+愚痴、不満、悪口。そういう話ばかり。
+聞いているだけで気が滅入る。
+相手のネガティブなエネルギーを浴び続けて、自分まで暗くなる。
+
+どのパターンでも、会った後にエネルギーを消耗しています。
+友人なのに、回復ではなく消耗する関係になっている。
+これは、明らかにおかしいのです。
+
+---
+
+では、なぜそうなってしまったのでしょうか。
+問題の正体を探ってみましょう。
+
+まず、人は変わるからです。
+出会った頃と今では、お互い変わっています。
+価値観が変わり、興味が変わり、話が合わなくなった。
+それは自然なことです。
+
+二十代の頃は意気投合していた友人と、五十代になっても同じように楽しめるとは限りません。
+人生のステージが変われば、関心事も変わります。
+子育て真っ最中の人と、子どもが巣立った人とでは、話題が合わないこともある。
+それは誰が悪いわけでもなく、ただ「変化した」だけです。
+
+次に、関係のバランスが崩れたから。
+最初は対等だったのに、いつの間にか上下関係ができている。
+一方が取り、もう一方が与える関係になっている。
+話を聞く側、世話をする側、合わせる側が固定されてしまった。
+
+そして、関係が惰性になっているから。
+「昔からの友人だから会わなければ」という義務感で続けている。
+楽しいからではなく、切れないから続けている。
+本当に会いたいのではなく、「会わないといけない」と思い込んでいる。
+
+---
+
+仏教には「善友を持て」という教えがあります。
+
+お互いに高め合う関係、支え合う関係が良い友人関係です。
+会えば元気になる。話せば視野が広がる。
+そういう関係が「善友」です。
+
+一方的に消耗させる関係は、善友ではありません。
+
+お釈迦様は弟子たちに「善友」の重要性を説きました。
+修行を支える友がいれば、道を進みやすい。
+でも、足を引っ張る友といると、道を誤る。
+
+これは日常生活でも同じです。
+自分を高めてくれる人といれば、成長できる。
+でも、自分を消耗させる人といると、疲弊するだけ。
+
+友人は数ではありません。質です。
+百人の浅い友人より、三人の深い友人の方が、人生を豊かにしてくれます。
+
+お釈迦様はこうも説かれました。
+「愚かな者を友とするな。愚かな者と旅をするな。一人で歩く方がましだ」
+厳しい言葉に聞こえますが、これは「自分を大切にしなさい」という慈悲の教えです。
+あなたのエネルギーを無駄に消耗させる関係からは、離れてもいいのです。
+
+---
+
+会うと疲れると感じたら、どうすればいいでしょうか。
+角を立てずに距離を置くための、三つのステップをお伝えします。
+
+第一のステップ：距離を置く
+
+まず、会う頻度を減らしてください。無理に会わなくていい。
+
+「最近忙しくて」「予定が合わなくて」と言えばいい。
+少し会わない期間を作ることで、本当にその友人を必要としているか分かります。
+
+会わない期間が長くなっても、特に寂しくなければ、それが答えです。
+会いたいと思えないなら、無理に会う必要はありません。
+
+具体的には、誘われた時にすぐに「行く」と言わない。
+「スケジュール確認するね」と言って、時間を置く。
+そして、本当に行きたいかどうかを自分に問いかける。
+行きたくないなら、「ごめん、今回は難しい」と断る。
+
+第二のステップ：自分の気持ちに正直になる
+
+次に、「会いたくない」という気持ちを認めてください。
+
+「会わなければならない」という義務感で動いていませんか。
+義務感で続ける関係は、お互いにとって良くありません。
+あなたが無理をしていれば、相手も何となくそれを感じます。
+心からの関係ではなくなる。
+
+「この人と会うと疲れる」
+その気持ちを否定しないでください。
+それは、あなたの心が発している正直なサインです。
+
+罪悪感を感じる必要はありません。
+「長年の友人だから」「お世話になったから」という理由で、自分を犠牲にする必要はないのです。
+
+第三のステップ：関係を見直す
+
+そして、関係を見直す選択肢もあります。
+
+疎遠になってもいい。
+すべての友人を一生保ち続ける必要はありません。
+人は変わる。関係も変わる。それは自然なことです。
+
+もちろん、率直に話し合うという選択肢もあります。
+「最近こう感じている」と伝える。
+相手も気づいていないかもしれない。
+話し合いで改善することもあります。
+
+ただし、話しても変わらない場合、離れる選択をする必要があります。
+変わらない人を変えようとするのは、砂漠に水を撒くようなものです。
+あなたの労力が無駄になるだけです。
+
+---
+
+ここで注意点があります。
+
+すべての人間関係を同じ基準で切り捨てないでください。
+誰と会っても疲れる場合、自分の状態に問題があるかもしれません。
+うつ傾向や燃え尽き症候群など、自分自身のコンディションが原因のこともあります。
+
+また、一時的に疲れる時期があることも忘れないでください。
+相手も人生の困難な時期を過ごしているかもしれません。
+一時的に愚痴が多くなることは、誰にでもあります。
+長期的なパターンなのか、一時的な状態なのかを見極めることが大切です。
+
+そして、長年の友人だからといって、我慢し続ける必要もありません。
+「長いから大切」ではない。「今も大切かどうか」が重要です。
+過去の関係にしがみつくことは、あなたを苦しめるだけです。
+
+---
+
+離れることを決めた時、罪悪感を感じるかもしれません。
+「冷たい人間になってしまった」と自分を責めるかもしれません。
+
+でも、考えてみてください。
+あなたが無理をして付き合い続けた結果、心が擦り切れてしまったら。
+あなたが本当に大切にしたい人との関係にも、影響が出てしまいます。
+
+自分のエネルギーを守ることは、わがままではありません。
+限られたエネルギーを、本当に大切な関係に使うための選択です。
+
+禅には「捨ててこそ得る」という考え方があります。
+執着を手放すことで、本当に大切なものが見えてくる。
+消耗する関係を手放すことで、回復する関係に時間を使えるようになる。
+
+---
+
+会うほど疲れる友人がいる。
+
+それは相性だけの問題ではないサインです。
+関係のバランスが崩れている。
+惰性で続けている。
+どこかで無理をしている。
+
+そのサインに気づいたら、距離を置いてください。
+無理に続けなくていい。
+
+あなたのエネルギーは有限です。
+消耗する関係ではなく、回復する関係に時間を使ってください。
+
+今日から、その友人と会う頻度を減らしてみませんか。
+そして、会いたい人、話したい人、一緒にいて元気になれる人との時間を増やしてください。
+
+人間関係は、数より質なのです。
+少数の良い関係が、あなたの人生を豊かにします。
+消耗する関係に費やしていた時間とエネルギーを、自分のために、本当に大切な人のために使ってください。
+
+それが、あなた自身への慈悲であり、相手への誠実さでもあるのですから。
+</pre>
     </div>
   </div>
 </main>

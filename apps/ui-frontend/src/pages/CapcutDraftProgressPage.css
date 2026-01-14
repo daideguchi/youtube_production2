@@ -214,6 +214,14 @@
   vertical-align: bottom;
 }
 
+.capcut-draft-progress-page__run-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
 .capcut-draft-progress-page__link {
   display: inline-block;
   max-width: 100%;
@@ -224,6 +232,25 @@
 
 .capcut-draft-progress-page__link:hover {
   text-decoration: underline;
+}
+
+.capcut-draft-progress-page__run-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(71, 85, 105, 0.22);
+  background: rgba(71, 85, 105, 0.08);
+  color: #334155;
+  font-weight: 800;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.capcut-draft-progress-page__run-secondary:hover {
+  border-color: rgba(11, 110, 253, 0.45);
+  background: rgba(11, 110, 253, 0.08);
+  color: #0b6efd;
 }
 
 .capcut-draft-progress-page__overview {

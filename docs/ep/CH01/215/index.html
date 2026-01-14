@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-215 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-215 — script</h1>
           <div class="muted">【期待しない生き方】「裏切られた」と嘆く前に捨てるべき３つの期待</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,213 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【期待しない生き方】「裏切られた」と嘆く前に捨てるべき３つの期待</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【メンタル】で苦しいあなたへ──ブッダの視点で心を整える話。
+・期待しない生き方の捉え方・他者への期待が苦しみの根源であることを理解させるの実践
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>メンタル, 期待しない生き方, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【メンタル】で苦しいあなたへ──ブッダの視点で心を整える話。
+・期待しない生き方の捉え方・他者への期待が苦しみの根源であることを理解させるの実践</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-215</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-215&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">「裏切られた」
+そう感じて、夜中に何度もため息をついたことはありませんか。
+「あんなに尽くしたのに」
+そう思って、悔しさで眠れないことはありませんか。
+
+このチャンネルでは、
+仏教の教えをベースに、
+優しすぎるあなたが傷つかずに生きるための知恵をお届けします。
+安心して、ゆっくりお聞きください。
+
+今日は、期待に疲れた心を軽くする話です。
+この動画を見終わる頃には、
+「わかってくれるはず」「返してくれるはず」という重たい荷物を手放し、
+誰に何を言われても折れない、軽やかな心を手に入れているでしょう。
+
+時は江戸の終わり頃。
+越後に、良寛という僧がいました。
+布一枚の質素な庵に住み、
+子どもたちと手鞠をし、
+托鉢で生きる人です。
+
+ある冬の夜、庵に泥棒が入りました。
+わずかな茶碗と布団を抱えて逃げようとする泥棒に、
+良寛は驚くほど静かでした。
+「夜は冷えるでしょう。これも持っていきなさい」
+そう言って、自分の上着までそっと渡しました。
+
+翌朝、近所の人が騒ぎます。
+「なぜ止めなかったのですか！ 裏切られているのに！」
+良寛は微笑み、窓の外を指しました。
+雪景色の向こうに、丸い月が残っていました。
+「月だけは、誰にも持っていけませんね」
+それだけを言い、また掃除を続けたと伝えられています。
+
+泥棒に何も返ってこなくても、
+翌朝、謝る人が現れても、
+良寛は同じように受け入れました。
+彼は「誰かが自分をどう扱うか」に、期待を置いていなかったのです。
+
+この良寛の態度が教えてくれるのは、
+「期待は自分の側にある」という事実です。
+私たちは、相手が署名もしていない契約書を、
+勝手にポケットにねじ込み、
+「期限を過ぎているぞ！」と怒っています。
+
+なぜ期待は私たちを苦しめるのでしょうか。
+心理学では、
+期待は「コントロールの幻想」に支えられていると言われます。
+「こうすれば、こう返ってくるはず」という因果の直線を、
+人間関係にも当てはめてしまう。
+しかし、人は変数です。
+性格、体調、価値観、タイミング、全てがその日ごとに揺れます。
+そこに直線を引こうとすると、必ず折れます。
+
+仏教は、これを「執着」と呼びます。
+結果や他者への執着は、
+自分で自分の心を縛るロープです。
+ロープを握っているのは、他人ではなく自分です。
+
+では、どうすれば期待を置いていけるでしょうか。
+四つの練習をお伝えします。
+
+第一に、「わかってくれるはず」を捨てること。
+人はそれぞれ別の宇宙を生きています。
+言葉ですら100％届かないのに、沈黙で察してもらうのは幻想です。
+「伝わらないのが当たり前」。ここを出発点にしてください。
+伝われば感謝。伝わらなくても想定内。
+この前提があるだけで、衝突の半分は消えます。
+
+第二に、「見返りの契約」を破ること。
+親切にするとき、心でこう書いていませんか。
+「私がこれだけ尽くす代わりに、あなたも私を愛しなさい」。
+その契約書に、相手はサインしていません。
+渡したものは川に流す。川は振り向きません。それで十分です。
+これを心理学では「秘密の契約」と呼びます。
+秘密は自分を蝕みます。破り捨ててください。
+
+第三に、「変わってくれるはず」を置くこと。
+人は、自分が変わりたいと思ったときにしか変わりません。
+鏡をこすっても汚れは落ちません。
+自分の顔を拭くように、自分の受け取り方だけを変えてください。
+「いつか変わるかも」ではなく、「今のままの相手」を前提に。
+それでも一緒にいたいか。そこが本質です。
+
+第四に、自分のコップを自分で満たすこと。
+空っぽのまま他人に満たしてもらおうとすると、
+「もっとちょうだい」と貪る餓鬼になります。
+好きな音楽、静かな時間、温かいお茶。
+小さな「自分の満ちる習慣」を日に三つ用意してください。
+自分で満たせば、溢れた分だけ自然に人に渡せます。
+
+ここで、期待を置いていくための思考の道具を二つだけ紹介します。
+
+一つ目は「確率で見る」こと。
+「わかってくれるはず」は0か100ではなく、せいぜい30％。
+「返してくれるはず」は50％。
+数字にすると、心は落ち着きます。
+低い確率を前提に動けば、外れても平常心でいられます。
+
+二つ目は「交換日記をやめる」こと。
+心の中に、誰かとの交換日記をつけていませんか。
+「今日これをした、だから今度はあなたの番」
+その日記を閉じてください。
+日記を閉じると、目の前の人が「今ここ」に戻ってきます。
+過去の貸し借りではなく、今の関係を見られるようになります。
+
+さらに深掘りすると、
+期待には「役割期待」と「人格期待」があります。
+
+役割期待とは、「妻ならこう」「上司ならこう」「友人ならこう」という枠です。
+人格期待とは、「この人は優しいはず」「誠実なはず」という内面への期待です。
+どちらも裏切られると痛みますが、解き方が違います。
+
+役割期待は、具体的に言語化して交渉できます。
+「週に一度は家事を分担してほしい」
+「仕事の連絡は前日までにほしい」
+言語化できる期待は、交渉し、合意し、修正できます。
+
+人格期待は、交渉できません。
+「あなたはいつも優しい人でいて」とは言えません。
+ここは「ラベルを外す」しかありません。
+「優しいはず」「察してくれるはず」というラベルを剥がし、
+目の前の行動を見る。
+ラベルではなく、事実を基準に関わり方を決めてください。
+
+ここで、良寛の月の話を思い出してください。
+「月だけは、誰にも持っていけませんね」
+奪われないものを一つ、心に持ってください。
+それは信念でも、習慣でも、小さな楽しみでもいい。
+奪われないものがあると、奪われるものにしがみつかなくなります。
+
+期待は未来への執着です。
+感謝は今への肯定です。
+「おはよう」を返してくれた。それだけで奇跡。
+「ありがとう」と言われなくても、月は美しい。
+
+今日から、心の片付けを始めましょう。
+「夫はこうあるべき」
+「友人はこうあるべき」
+「自分はこうあるべき」
+そのラベルを一枚ずつ剥がして捨ててください。
+ラベルを剥がした瓶には、好きな花を活けられます。
+
+誰もあなたを縛れない。
+誰もあなたを傷つけられない。
+あなたは、あなたの機嫌を自分で決めていいのです。
+
+本日も最後までご覧いただきありがとうございます。
+重たい期待の荷物を下ろし、軽やかに歩けますように。
+皆様が幸せでありますように。
+</pre>
     </div>
   </div>
 </main>

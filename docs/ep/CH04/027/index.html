@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH04-027 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH04-027 — script</h1>
           <div class="muted">【危険】感情を抑えるほど苦しくなる。抑圧が心と体を壊すメカニズムと解放法</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH04</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH04</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,232 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCzHniXbE1_IfaRDHVFI4zwg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【危険】感情を抑えるほど苦しくなる。抑圧が心と体を壊すメカニズムと解放法</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「隠れ書庫アカシック」の長時間コンテンツです。
+心理学と好奇心をテーマにした知的コンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「隠れ書庫アカシック」の長時間コンテンツです。
+心理学と好奇心をテーマにした知的コンテンツ
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH04-027</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH04-027&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">「感情的にならないで」と言われたことはありますか。
+
+多くの人が、感情を表に出すことを「大人げない」「弱さの証拠」と考えています。怒っているのに笑顔を作る。悲しいのに「大丈夫」と言う。本当は傷ついているのに、何も感じていないふりをする。私たちは日常的に、自分の感情を偽っています。
+
+しかし、抑圧された感情は消えてなくなるわけではありません。心の奥深くに溜まり、いつか何らかの形で表に出てきます。今回の動画では、感情のアウトプットの科学と、抑圧された感情が体と心に与える影響、そして感情を健全に解放する方法についてお伝えします。
+
+これは心理学的な話でありながら、魂の解放にも通じる深いテーマです。
+
+まず、なぜ私たちは感情を抑圧するのでしょうか。
+
+子供の頃、「泣くな」「怒るな」「そんなことで悲しむな」と言われた経験はありませんか。特に男の子は「男は泣くな」と言われて育つことが多いです。女の子も「おとなしくしなさい」「怒らないで」と言われることがあります。
+
+感情を表現することが「悪いこと」「恥ずかしいこと」として教えられた人は、自然と感情を抑え込むようになります。親を悲しませたくない、怒られたくない、周囲に迷惑をかけたくない。こうした思いから、感情を隠すことを学ぶのです。
+
+また、社会的な期待もあります。仕事では冷静であるべき、大人は感情的になってはいけない、弱さを見せてはいけない、いつも明るくポジティブでいるべき。こうした規範が、感情の抑圧を促します。
+
+特にビジネスの世界では、感情は邪魔者扱いされることが多いです。「感情に流されるな」「理性的に判断しろ」。感情を持っていること自体が、プロフェッショナルではないかのように言われることさえあります。
+
+その結果、多くの人が「感情麻痺」の状態にあります。自分が何を感じているか分からない、感情を感じる力が鈍っている、喜びも悲しみも薄く感じる。生きているのに、どこか生きている実感がない。
+
+ヨガナンダは言いました。「抑圧された感情は、心の地下に溜まり、やがて噴火する。火山のマグマのように、抑え込んでも消えることはない」と。
+
+抑圧された感情は、どこに行くのでしょうか。
+
+消えてしまうわけではありません。意識の表面から隠れるだけで、無意識の深層に蓄積されていきます。そして、様々な形で表に現れます。
+
+体の症状として現れることがあります。慢性的な肩こり、首の痛み、頭痛、胃の不調、消化器系の問題、原因不明の疲労感、免疫力の低下。「体が重い」と感じるとき、それは文字通り、感情の重荷を背負っているのかもしれません。
+
+心理学では「心身症」という概念があります。心の問題が、体の症状として現れること。ストレスで胃が痛くなる、緊張で頭が痛くなる、悲しみで胸が締め付けられる。これらは比喩ではなく、実際に起きていることなのです。
+
+また、予期せぬ爆発として現れることもあります。普段は穏やかな人が、些細なことで激怒する。いつもは我慢強い人が、突然泣き崩れる。これは、長年溜め込んだ感情が、限界を超えて噴出した結果です。
+
+ダムに水が溜まり続けると、やがて決壊します。感情も同じです。溜め込み続ければ、コントロールできない形で出てきてしまうのです。
+
+うつ状態も、抑圧された感情の表れであることがあります。特に、怒りを抑圧し続けた人は、その怒りが内側に向かい、自己攻撃となってうつを引き起こすことがあります。「自分を責める」という行為は、外に向けられるべき怒りが内側に向かったものかもしれません。
+
+不安障害やパニック障害も、抑圧された恐怖が関係していることがあります。感じることを許されなかった恐怖が、突然の発作という形で表に出てくるのです。
+
+仏陀は言いました。「苦しみと向き合わない限り、苦しみは消えない。目を背けても、苦しみはそこにある」と。
+
+ある男性の話をしましょう。彼は「感情的にならない人」として知られていました。どんな状況でも冷静で、動揺することがない。周囲からは「大人だ」「できる人だ」「頼りになる」と評価されていました。
+
+彼自身も、それを誇りに思っていました。感情に振り回されない自分は、強い人間だと思っていたのです。
+
+しかし、四十代になって、彼は原因不明の体調不良に悩まされるようになりました。慢性的な疲労、胃腸の不調、不眠、集中力の低下。病院に行っても異常なし。検査結果はすべて正常。しかし、体は確実に悲鳴を上げていました。
+
+心療内科を紹介され、カウンセリングを受ける中で、彼は驚くべき発見をしました。自分は長年、感情を抑圧し続けてきた。「冷静」だと思っていたのは、実は「麻痺」だったのです。
+
+あるセッションで、セラピストに勧められて、感情を表現するワークを行いました。クッションを叩きながら、抑え込んできた怒りを解放する。最初は抵抗がありましたが、やってみると、驚くほどの怒りが湧き出てきました。
+
+何十年分の怒り、悲しみ、恐れ。封印してきた感情が、堰を切ったように流れ出しました。泣いたのは、子供の頃以来でした。
+
+感情を解放した後、彼は言いました。「体が軽くなった。こんなに重荷を背負っていたとは知らなかった。『冷静』だと思っていたのは、単に感じることを避けていただけだった」と。
+
+その後、彼の体調は徐々に改善していきました。
+
+感情を健全に解放する方法をお伝えします。
+
+まず、感情を認めることです。「今、自分は怒っている」「今、自分は悲しい」「今、自分は恐れている」「今、自分は傷ついている」と、感情を認識してください。
+
+多くの人は、感情を感じていることすら認めません。「怒ってなんかいない」「悲しくない」「大丈夫」と、自分にさえ嘘をつきます。しかし、認めないことは、抑圧の第一歩です。
+
+名前をつけることで、感情と少し距離が取れ、それに支配されにくくなります。「私は怒っている」は「怒りという感情が私の中にある」と言い換えることもできます。観察者として感情を見つめることで、巻き込まれずに済むのです。
+
+体を使った解放も効果的です。感情は体に蓄積されるので、体を通じて解放することが有効です。
+
+怒りを感じているなら、枕を叩く、大声を出す、激しい運動をする、ダンスで発散するなど。安全な環境で、思いきり体を動かしてみてください。
+
+悲しみを感じているなら、泣くことを自分に許してください。泣くことは弱さではありません。感情を解放する自然な方法です。泣いた後、不思議と心が軽くなった経験はありませんか。
+
+恐れを感じているなら、震えることを許してください。動物は危険な状況の後、体を震わせてトラウマを解放します。私たちも同じように、震えることで恐怖のエネルギーを解放できます。
+
+書くことも助けになります。感じていることを紙に書き出す。誰にも見せなくていいので、正直に、検閲なしに書いてください。汚い言葉でも、支離滅裂でも構いません。書くことで、混乱した感情が整理され、客観視できるようになります。
+
+書いた後、その紙を破いたり、燃やしたりすることで、象徴的に感情を手放すこともできます。
+
+自然の中で過ごすことも効果的です。木々に囲まれ、風を感じ、土を踏み、水の音を聴く。自然は、抑圧された感情を穏やかに解放させてくれます。都会の喧騒から離れ、自然の中で深呼吸するだけで、心が軽くなることがあります。
+
+信頼できる人に話すことも大切です。一人で抱え込まず、聴いてくれる人に話す。話すだけで、感情は軽くなることがあります。相手がアドバイスをくれなくても、ただ聴いてもらうだけで十分な場合が多いです。
+
+専門家の助けを借りることも選択肢です。深いトラウマや長年の抑圧は、一人で扱うのが難しいことがあります。心理カウンセラーやセラピストのサポートを受けることで、安全に感情を解放することができます。
+
+カルマの視点からも考えてみましょう。
+
+抑圧された感情は、来世に持ち越されることがあると言われています。今世で処理されなかった怒りや悲しみが、来世のテーマとなる。同じパターンを何度も経験することになる。
+
+だからこそ、今世で感情と向き合うことが、魂の進化にとって重要なのです。逃げ続けても、いつかは向き合わなければならない。それなら、今向き合う方がいいのではないでしょうか。
+
+ヨガナンダはこう語りました。「感情を浄化することは、カルマを浄化することでもある。感じ切った感情は、二度と戻ってこない」と。
+
+日常でできる実践をお伝えします。
+
+毎日、数分間、自分の感情をチェックする時間を持ってください。「今、自分は何を感じているか」と問いかける。答えが出なくても構いません。問いかけることで、感情への気づきが育ちます。
+
+感情日記をつけてください。その日感じた感情を、良いものも悪いものも書き出す。判断せず、ただ記録する。続けていくと、パターンが見えてくることがあります。特定の状況で特定の感情が湧く、特定の人といると特定の感情が出る、など。
+
+深呼吸と共に感情を解放する練習をしてください。息を深く吸い込み、溜まった感情を意識する。そして息を吐くときに、その感情も一緒に吐き出すイメージをする。シンプルですが、効果的です。
+
+泣くことを自分に許してください。「泣いてはいけない」という思い込みを手放す。映画を見て泣く、音楽を聴いて泣く、思い出に浸って泣く。涙は、感情を解放する自然な方法です。
+
+そして、感情を否定する人から距離を取ることも大切です。「そんなことで怒るな」「泣くな」「もっとポジティブになれ」と言う人は、あなたの感情を尊重していません。感情を受け止めてくれる人と時間を過ごしてください。
+
+この動画をここまで見てくださったあなたへ。
+
+感情を感じることは、弱さではありません。それは、人間として生きている証です。感情を抑圧することで「強く」見えるかもしれませんが、その代償は大きいのです。体は悲鳴を上げ、心は萎んでいく。
+
+今日から、自分の感情を大切にしてください。感じることを自分に許し、必要であれば解放してください。感情が流れるとき、心も体も軽くなり、本当の自分とつながれるようになるでしょう。
+
+あなたの感情は、あなたの味方です。敵ではありません。
+
+感情と体の関係についてさらに詳しくお伝えします。
+
+各感情は、体の特定の部位に蓄積されやすいとされています。怒りは肩、首、顎に溜まりやすい。悲しみは胸に。恐怖は腹部に。羞恥心は背中に。
+
+慢性的な肩こりを抱えている人は、もしかすると抑圧された怒りを持っているかもしれません。胸が詰まる感覚がある人は、悲しみを抱えているかもしれません。
+
+体の症状と感情を結びつけることで、何が解放を必要としているかが分かります。肩が凝っているなら、怒りについて考えてみる。胸が重いなら、悲しみについて探ってみる。
+
+ボディワーク（マッサージ、ヨガ、タイチなど）は、体に蓄積された感情を解放するのに効果的です。体をほぐすことで、感情もほぐれていくのです。
+
+感情と呼吸の関係についても触れておきましょう。
+
+私たちは無意識に、感情を抑圧するために呼吸を浅くしています。深く呼吸すると感情が浮かび上がってくるので、それを避けるために呼吸を制限するのです。
+
+意識的に深呼吸をすることで、抑圧された感情にアクセスできます。呼吸法を使ったセラピー（ブレスワークなど）は、この原理に基づいています。
+
+試してみてください。静かな場所で、ゆっくりと深い呼吸を続ける。数分続けると、何かの感情が浮かび上がってくるかもしれません。それを抑えずに感じてください。
+
+「ネガティブな感情」への誤解について触れておきます。
+
+多くの人は、怒り、悲しみ、恐れを「ネガティブな感情」と呼び、避けるべきものと考えています。しかし、これらの感情は「ネガティブ」ではありません。
+
+怒りは、境界線が侵されたときに自分を守るエネルギーです。悲しみは、大切なものを失ったときの自然な反応であり、癒しのプロセスの一部です。恐怖は、危険を知らせるアラームです。
+
+これらは「悪い」感情ではなく、「情報」を持った感情です。何かがおかしいことを教えてくれているのです。
+
+問題なのは感情そのものではなく、感情を抑圧すること、あるいは感情に支配されることです。感情を感じ、その情報を受け取り、適切に対応する。それが健全な感情との付き合い方です。
+
+感情の波を乗りこなす方法をお伝えします。
+
+感情は波のようなものです。高まり、ピークに達し、やがて収まる。この自然な流れを妨げないことが大切です。
+
+感情が高まっているときに抵抗すると、波は長く続きます。逆に、その波に身を任せ、感じ切ることで、波は自然と収まっていきます。
+
+感情の波が来たとき、「これは波だ。やがて収まる」と自分に言い聞かせてください。波に乗っている間は苦しくても、必ず収まるときが来ます。
+
+泣いた後の爽快感、怒りを発散した後の軽さ。これらは、感情の波が通り過ぎた後の状態です。抵抗せずに波を通過させることで、この爽快感に到達できます。
+
+感情と創造性の関係についても考えてみましょう。
+
+感情を抑圧している人は、しばしば創造性も抑圧されています。感情は創造性の源泉だからです。喜び、悲しみ、怒り、愛。これらの感情がアートを生み出し、音楽を生み出し、文学を生み出します。
+
+感情を感じることを自分に許すと、創造性も解放されます。何かを表現したくなる、何かを作りたくなる、何かを書きたくなる。それは感情が流れ始めたサインかもしれません。
+
+子供の頃は感情を自由に表現していました。泣き、笑い、怒り、喜び。社会化の過程でそれを抑えることを学びましたが、本来の自分は感情豊かな存在なのです。
+
+感情と直感の関係についても触れておきましょう。
+
+感情を抑圧していると、直感も鈍くなります。直感は、感情的なシグナルを通じて伝わってくることが多いからです。「何か嫌な感じがする」「この人は信頼できる気がする」。こうした直感は、感情として現れます。
+
+感情を感じる力を取り戻すと、直感も鮮明になってきます。決断に迷ったとき、体が何を感じているかに耳を傾けてください。論理では分からないことを、感情が教えてくれることがあります。
+
+最後に、感情を解放したい人へのメッセージです。
+
+長年抑圧してきた感情を解放するのは、勇気がいることです。痛みと向き合う覚悟が必要です。
+
+しかし、その向こう側には、長年感じられなかった軽さ、自由、生きている実感があります。感情を感じることで、人生がより色鮮やかになります。
+
+一人で取り組むのが難しければ、助けを求めてください。専門家、信頼できる友人、支援グループ。一人で抱え込む必要はありません。
+
+高評価、チャンネル登録をお願いします。コメント欄であなたの感情の旅を共有してください。
+
+では、またお会いする日まで。抑圧された感情が解放され、心が軽くなりますように。本当のあなたが解き放たれますように。
+</pre>
     </div>
   </div>
 </main>

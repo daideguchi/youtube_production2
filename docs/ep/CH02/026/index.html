@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH02-026 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH02-026 — script</h1>
           <div class="muted">【優しさの刃】あなたの“良かれ”は、なぜ相手を傷つけるのか―他者への介入という暴力</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH02</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,429 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCM5VYzeXFFcMiBYfSDOILlQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【優しさの刃】あなたの“良かれ”は、なぜ相手を傷つけるのか―他者への介入という暴力</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>考えすぎて眠れない夜に、心を整える哲学の視点を届けます。
+・怒りが湧いた瞬間の対処法・感情を言語化する3ステップ
+
+この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>思考疲れ, 孤独, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>考えすぎて眠れない夜に、心を整える哲学の視点を届けます。
+・怒りが湧いた瞬間の対処法・感情を言語化する3ステップ</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「静寂の哲学」の長時間コンテンツです。
+心理学とモチベーションを哲学的に考察
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH02-026</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH02-026&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">深夜、友人から「もう限界かも」とメッセージが届きました。明日も早いけれど、放っておけずに電話に出る。気づけば一時間。布団に入っても頭が冴え、翌朝はぼんやり。優しくしたつもりが、自分も相手もすり減っている。この重さの正体が「優しさの刃」です。刃がない優しさは、守りたいものごと飲み込み、やがて自分も壊します。今日は、優しさを長く続けるための境界の引き方を静かに考えます。
+
+---
+
+◇ 優しさは、どこで凶器に変わるのか
+
+優しさの刃という言葉は、少し物騒に聞こえるかもしれません。
+でもここで言う刃は、斬り捨てるための刀ではなく、区切るための道具です。
+
+外科医がメスを握るのは、傷つけるためではなく、救うために切るべき線を見極めるからです。
+心理カウンセラーが一人一人の相談時間を決めるのは、倒れずに聞き続けるためです。
+親が子どもに「ここは自分でやってみよう」と返すのは、自立という芽を守るためです。
+
+刃があるから、優しさは輪郭を保てます。
+どこまで差し出し、どこから先は相手に委ねるのか。
+その線があることで、助ける側も助けられる側も、壊れずにいられる。
+
+では、刃を持たない優しさはどうなるのか。
+
+頼まれごとを断れず、夜遅くまで働き、翌日イライラして誰かに当たってしまう。
+落ち込んでいる友人のすべての荷物を引き受けようとして、自分の生活が崩れていく。
+必要とされる感覚が気持ちよくて、相手が自力で歩き出そうとしても、無意識に引き止めてしまう。
+
+始まりは、たいてい善意です。
+ただ、境界のない善意は、いつの間にか鎖に変わります。
+心理学では、こうした状態を共依存と呼びます。
+支える側が支えられないと生きづらくなり、助けること自体がアイデンティティになってしまう状態です。
+
+優しさは、少し間違えるだけで凶器にも依存物にもなってしまう。
+その危うさを自覚するところから、刃の話が始まります。
+
+---
+
+◇ 心はなぜ、他人の痛みで折れてしまうのか
+
+脳の中には、相手の表情や声に反応して動く回路があります。
+誰かの涙を見ただけで胸が締め付けられたり、
+暗い声を聞いただけで自分まで落ち込んだりするのは、
+この共感の回路がよく働いている証拠です。
+
+ただ、この回路はガスコンロの火に似ています。
+火力を調整すれば料理を温めてくれるけれど、
+つけっぱなしにすれば、鍋も部屋も焦げてしまう。
+
+医療や介護の現場では、共感疲労という言葉があります。
+人のつらさに寄り添い続けることで、
+心がすり減り、感情が麻痺してしまう状態です。
+優しい人ほど、気づかないうちにそこまで行ってしまう。
+
+興味深いのは、心理学の研究で、
+共感よりも思いやりの感情が強いときの方が、
+人は長く他者に関わり続けられる、と示されている点です。
+
+相手の痛みを自分の痛みとして引き受けるのが共感。
+痛みを理解しつつ、自分の場所から手を伸ばして支えるのが思いやり。
+
+優しさの刃というのは、
+この二つの距離を調整するための道具でもあります。
+相手の感情に完全に同一化してしまわないための線。
+
+---
+
+◇ 哲学者たちが考えた「境界」のかたち
+
+境界の話は、哲学の中でも繰り返し現れます。
+
+ある哲学者は、他者を無限だと言いました。
+相手の内側には、自分には触れられない領域がある。
+その全部を理解し、背負おうとすることは不可能であり、
+ある意味では、相手の尊厳を侵す行為にさえなりうる。
+
+仏教では、中道という道が説かれます。
+自分を犠牲にする苦行と、自分だけを満たす快楽。
+どちらにも偏らない、真ん中の道を探り続ける姿勢です。
+そこには、自分と他者の境界をどう引き直すかという問いが潜んでいます。
+
+古代ギリシアの哲学者アリストテレスは、徳とは極端ではなく中庸にある、と考えました。
+勇気は、無謀と臆病の真ん中にある。
+寛大さは、浪費とケチの真ん中にある。
+優しさもまた、過干渉と無関心の中間で輝くのかもしれません。
+
+刃を持つ優しさとは、
+この中庸を探るための線引きの道具です。
+やりすぎと、やらなさすぎの境界線。
+その線を、場面ごとに引き直していくことが、
+長く続く優しさの条件になっていきます。
+
+---
+
+◇ 深夜一時の電話の裏で起きていること
+
+もう一度、最初の場面に戻ってみます。
+
+深夜に届いた助けを求めるメッセージ。
+明日は早いけれど、迷わず電話に出る自分。
+一時間話し終えたあと、相手は少し軽くなったように見える。
+こちらは目が冴えて、布団の中で今日の会話を何度も反芻する。
+
+ここで、心の中を少し分解してみます。
+
+相手の苦しさに触れたことで動いた共感。
+頼られたことで感じた、小さな誇り。
+断ったら嫌われるかもしれないという恐怖。
+自分の疲れを後回しにする癖。
+
+これらが一度に動いているから、
+切るタイミングが見えなくなります。
+
+もしこの場面を、心の実験室に持ち込むとしたら、
+どんな条件を変えてみるでしょうか。
+
+電話に出る前に、
+今日は三十分だけなら起きていられると、自分に宣言しておく。
+電話に出た瞬間に、
+今なら三十分話せると相手に伝えておく。
+
+どちらも、小さな刃です。
+実験として試してみる価値があります。
+その上で、相手の表情や、自分の翌朝の状態を観察してみる。
+優しさの量と、自分の体力との相関を、自分なりにデータとして集めていく。
+
+◇ 刃は冷たさではなく、長く続けるための構造
+
+刃を持つと言うと、多くの人は胸にひっかかりを覚えます。
+断ったら嫌われるのではないか。
+助けを求めている人を突き放してしまうのではないか。
+
+けれど、刃がないまま続けた優しさは、
+ある日突然、爆発的な拒絶に変わります。
+
+ある日を境に、連絡をすべて無視してしまう。
+小さな不満をため込み続けた結果、
+一度の喧嘩で関係を切ってしまう。
+
+本当は、もっと早く、小さなノーを言えたはずです。
+小さなラインを引けていれば、
+関係を壊すような大きな分断を避けられたかもしれない。
+
+早い段階での小さなノーは、実はとても優しい行為です。
+これ以上踏み込むと、自分もあなたも壊れてしまうから、
+ここでいったん止まろう、というサインだからです。
+
+飛行機の酸素マスクの案内があります。
+まず自分のマスクをつけてから、隣の人を助けてください。
+冷たいようでいて、全員を助けるための順番の話です。
+
+夜遅くの相談に対して、
+今は眠る時間にしているから、明日の昼なら落ち着いて話せると伝えることも、
+順番を整える優しさです。
+飛び込むタイミングをずらすだけで、介入の質は大きく変わります。
+
+◇ 心理学の視点から見た「優しさのボーダーライン」
+
+カウンセラーや医療職の人たちは、
+日々、優しさと境界のバランスを意識せざるをえません。
+
+決められた時間で区切ること。
+決められた範囲の中でだけ責任を持つこと。
+必要に応じて、別の専門家に引き継ぐこと。
+
+これらは、冷たい線ではなく、
+自分の心と体を守りつつ、
+長く他者に関われるようにするための技術です。
+
+心理学者の中には、
+援助職が倒れていく過程を研究してきた人たちがいます。
+共感疲労、燃え尽き症候群。
+どちらも、境界が薄くなったときに起きやすい。
+
+興味深いのは、
+自分の限界を言葉にできる人ほど、
+長く他者を支え続けられる傾向がある、という点です。
+
+ここまでなら気持ちよくできる。
+ここから先は別の人の役割。
+自分が倒れそうなときは、助けを求める。
+
+こうしたセルフモニタリングの力は、
+優しさの刃を磨く感覚に近いものです。
+
+◇ 日常で試せる、小さな「刃の実験」
+
+具体的な場面で、刃をどう持つか。
+いくつかイメージしてみます。
+
+夜のリビングで、家族が愚痴をこぼし始めたとします。
+すべてを聞ききる前に、先に時間を共有する。
+今日は眠いから十五分だけ一緒に聞くね、その後は明日の朝に続けよう。
+
+職場で、同僚から手伝いを求められたとします。
+まず、自分が引き受けられる範囲を一文で伝える。
+この資料のチェックなら一時間だけできる。
+代わりに全部を背負うことはできない。
+
+相談を持ちかける側にも、刃を渡すことができます。
+いきなり本題を流し込むのではなく、
+今、あなたに話せる余裕はあるかを先に尋ねる。
+ないと返ってきたら、引き下がる。
+
+相手の境界を尊重できる人は、
+自分の境界も尊重してもらいやすくなります。
+優しさが一方通行ではなく循環に変わる瞬間です。
+
+◇ 歪んだ優しさを生み出す「場の力」
+
+境界の話になると、
+人は自分の性格の問題だと考えがちです。
+しかし、場の空気そのものが、刃を鈍らせることもあります。
+
+駅のホームで誰かが倒れても、
+大勢の人がいるほど誰も動かないという、
+傍観者効果と呼ばれる現象があります。
+
+自分がやらなくても誰かがやるだろう。
+責任が薄まり、役割が見えなくなる。
+
+優しさにも同じことが起きます。
+家庭でも職場でも、誰かひとりが「何でも屋」になっている場合、
+たいてい宣言されていない役割が、その人に集まってしまっています。
+
+これは、その人だけの問題ではなく、
+刃を共有してこなかった集団全体の構造の問題です。
+
+チームの中で、自分はどこまでを担当するのか。
+どこから先は、この人にバトンを渡すのか。
+忙しい時間帯でも、この時間だけは連絡を控えるのか。
+
+こうした合意は、冷たいルールではなく、
+全員の優しさを守る柵です。
+
+◇ 刃が鋭くなりすぎるとき
+
+ここまで刃を語ってくると、
+今度は逆方向の危険も見えてきます。
+
+境界を引くことに慣れすぎると、
+今度は人との距離が遠くなりすぎることがあります。
+
+決まり文句だけを淡々と伝える医師。
+禁止事項ばかり並べてしまう親。
+厳しさだけを強調する教師。
+
+刃は守るための道具であって、
+切り捨てるための武器ではありません。
+
+刃が硬さに変わり始めたときのサインは、
+相手の表情が見えなくなることです。
+目の前の相手の不安や迷いより、
+自分の枠やルールだけに意識が向いてしまう。
+
+そんなときは、一度刃を鞘に納めて、
+単純な共感の側に戻ってみる必要があります。
+今日は線を引くことではなく、
+ただ話を聞くだけにしよう、と決める日があってもいい。
+
+優しさの刃は、
+共感と境界の間を揺れ動きながら、
+自分にとってのしっくりくる位置を見つけていく作業です。
+
+◇ 自分の内側を観察するという「好奇心」
+
+ここまで聞いて、
+もしかしたら少し、重い内容に感じたかもしれません。
+
+ここで一つ、軽い実験を提案します。
+
+一週間だけ、自分の優しさのログを取ってみてください。
+誰かを助けた場面。
+頼みを引き受けた場面。
+断りたかったのに断れなかった場面。
+断ってホッとした場面。
+
+大きな出来事でなくて構いません。
+一日一行くらいのメモで十分です。
+
+一週間分を並べて眺めると、
+自分の中のパターンが見えてきます。
+
+特定の相手にだけ、境界が薄くなっていないか。
+夜になるほど、ノーが言いにくくなっていないか。
+仕事では刃を持てるのに、家では鈍っていないか。
+
+この「なぜそうなるのか」という問いは、
+自分に向ける好奇心です。
+刃を研ぐ磨き布のようなものです。
+
+なぜ助けたいのか。
+なぜ断れないのか。
+どこまでなら気持ちよく助けられるのか。
+
+問いを投げるだけで、
+境界線の位置が、少しずつ立体的に見えてきます。
+
+◇ ケーススタディという小さな物語
+
+最後に、二つだけ、刃を持ち直した人たちの物語を紹介します。
+
+一人は、中学の部活動を見ていた教師です。
+生徒からの相談を毎晩のように受け、
+気づけば帰宅はいつも終電間際でした。
+生徒のためだと自分に言い聞かせていたものの、
+家に帰ると家族にきつく当たってしまい、
+眠りも浅くなっていきました。
+
+彼はある日、相談を受ける前にこう言うようにしました。
+今日はここまでという時間を決めて話そう。
+続きが必要なら、明日も聞くから。
+
+さらに週に一度、同僚と相談内容を振り返る時間を作り、
+自分一人で抱え込まない仕組みを整えました。
+
+生徒の相談の数は変わらなかったのに、
+教師の顔色は少しずつ戻り、
+言葉に余裕が出てきました。
+時間という刃を入れたことで、
+優しさの密度がむしろ増えていった例です。
+
+もう一人は、家族の介護をしていた人です。
+親を施設に一日預けることに強い罪悪感があり、
+長い間、誰にも頼らず在宅で看ていました。
+やがて怒りや苛立ちが増え、
+自分でも嫌になるほどきつい言葉を投げてしまうようになりました。
+
+周囲に勧められて、一度だけショートステイを利用した日。
+その日は何もせず、ただ公園を歩き、
+好きだった本を久しぶりに開いたそうです。
+
+翌日、親を迎えに行ったとき、
+不思議なことに、昨日までとは違う眼差しで
+相手の顔を見ることができたと話していました。
+
+休むことは、裏切りではなく、刃の研ぎ直しです。
+磨かれた刃だからこそ、また優しく触れられる。
+
+◇ きょう一本だけ引く線
+
+優しさの刃は、派手なものではありません。
+夜九時になったら通知を切る。
+相談は三十分で一度区切る。
+自分の時間をカレンダーに予定として書き込む。
+
+どれも、ごく小さな線です。
+でも、その一本があるかないかで、
+来週のあなたの表情はきっと変わります。
+
+最後に、今日このあと一本だけ、
+自分なりの刃を引いてみてください。
+
+深夜のメッセージに、
+今夜は眠って、明日必ず話そうと返す線。
+家族に、今から一時間は自分の時間にするねと宣言する線。
+仕事のメールには、夜は返さず、明日の朝まとめて返す線。
+
+どんな線でもかまいません。
+あなたが明日の自分を守るために引く、小さな一本であれば。
+
+その刃は、誰かを切り捨てるためではなく、
+優しさを長く続けるための土台になります。
+
+優しさを長距離走にするために、
+静かに刃を磨き、必要なときにだけ抜き、
+またそっと鞘に収めていく。
+
+その所作が、あなたの優しさを、
+今日だけで終わらせず、
+これから先も誰かの支えとして残していきますように。
+</pre>
     </div>
   </div>
 </main>

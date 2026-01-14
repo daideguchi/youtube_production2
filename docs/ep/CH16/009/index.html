@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH16-009 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH16-009 — script</h1>
           <div class="muted">【焦り】焦るほどお金は逃げる｜落ち着く順番</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH16</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH16</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,170 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCBCHIgXDxk9yP851zxScNtg/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【焦り】焦るほどお金は逃げる｜落ち着く順番</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの教え【心を整える】」の長時間コンテンツです。
+老後の不安を煽らず、安心が増える“整える順番”を渡す。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>焦り, ブッダ, 仏教, 老後, 年金, 健康, 片づけ, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの教え【心を整える】」の長時間コンテンツです。
+老後の不安を煽らず、安心が増える“整える順番”を渡す。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH16-009</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH16-009&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">お金のことで焦っている。早く稼がなきゃ。早くなんとかしなきゃ。でも焦れば焦るほど、うまくいかない気がする。
+
+焦るほどお金は逃げていく。落ち着く順番があるのです。
+
+---
+
+お金が足りない、もっと稼がなければ、このままではまずい。
+
+そういう焦りを感じたことはありませんか。
+
+焦りは行動を促す力になることもあります。でも、お金に関しては逆効果になることが多いのです。
+
+---
+
+なぜ焦るとお金が逃げるのでしょうか。
+
+まず、判断力が落ちるから。焦っていると冷静な判断ができません。詐欺や悪い投資に引っかかりやすくなる。「儲かる話」に飛びついてしまう。
+
+次に、目先しか見えなくなるから。今すぐのお金に目がいって、長期的な視点を失う。今月の支払いに追われて、将来の設計ができない。
+
+そして、精神的に消耗するから。お金の不安で頭がいっぱいになると、本来の仕事のパフォーマンスが落ちる。結果、収入が減る。
+
+---
+
+お金に焦る人には共通のパターンがあります。
+
+まず、現状を正確に把握していないこと。漠然と「足りない」「やばい」と思っているが、具体的な数字を見ていない。
+
+次に、支出をコントロールしていないこと。入ってきたら使う。残ったら貯める。これでは足りなくなって当然。
+
+そして、収入源が一つしかないこと。その収入が減ったら終わり、という状況。
+
+---
+
+仏教では「欲に振り回されるな」と教えます。
+
+お金への過度な欲求や恐怖は、心を乱します。焦りもその一種。
+
+お金は大切ですが、お金に心を支配されてはいけない。お金と適切な距離を保つ。
+
+冷静さを取り戻すことが、結果的にお金を守ることにつながります。
+
+---
+
+落ち着く順番をお伝えします。
+
+まず、「深呼吸して、一度立ち止まる」ことです。焦っている自分に気づく。「今焦っている」と認識する。
+
+焦ったまま行動するのは危険です。一度立ち止まって、冷静になってから動く。
+
+---
+
+次に、「現状を正確に把握する」ことです。
+
+収入はいくらか。支出はいくらか。貯金はいくらか。借金はいくらか。
+
+紙に書き出して、数字で見る。漠然とした不安より、具体的な数字の方が対処しやすい。
+
+思ったより悪くないこともあれば、思ったより悪いこともある。どちらにしても、把握することが第一歩です。
+
+---
+
+そして、「支出を見直す」ことです。
+
+減らせるものはないか。なくても困らないものにお金を使っていないか。
+
+固定費から見直す。通信費、保険、サブスクリプション。月数千円でも、年間にすると大きい。
+
+使わなくても幸せは変わらないものに、お金を使っていることは多い。
+
+---
+
+さらに、「収入を増やす方法を考える」ことです。
+
+今の仕事で収入を上げられないか。副業はできないか。スキルを磨いて単価を上げられないか。
+
+焦って怪しいビジネスに手を出すのではなく、堅実な方法で。
+
+すぐに結果は出なくても、長期的に取り組む。
+
+---
+
+もうひとつ大切なのは、「小さな成功を積み重ねる」ことです。
+
+今月1万円節約できた。来月も続いた。少しずつ貯金が増えた。
+
+その小さな成功が自信になり、焦りが減っていきます。
+
+一気に解決しようとせず、少しずつ改善する。それが結果的に早道です。
+
+---
+
+注意点があります。
+
+「楽して儲かる」話には乗らないでください。焦っているときほど騙されやすい。うまい話には裏がある。
+
+借金で急場をしのぐのも危険です。利息で状況が悪化する。
+
+本当に困っているなら、公的な支援制度を調べてください。生活困窮者自立支援、住居確保給付金など。
+
+---
+
+焦るほどお金は逃げる。
+
+落ち着くことが最優先です。
+
+深呼吸する。現状を把握する。支出を見直す。堅実に収入を増やす。
+
+今日から、落ち着いてお金と向き合ってみませんか。
+
+焦りを手放したとき、状況は改善に向かいます。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH29-016 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH29-016 — script</h1>
           <div class="muted">家族旅行で気づいた…私は“便利な人”だった</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH29</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,219 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="#" class="btn" aria-disabled="true" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>家族旅行で気づいた…私は“便利な人”だった</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>孤独, 嫁姑, 老後, シニア, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・罪悪感を増やさない線引き&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの人生が軽くなる話」の長時間コンテンツです。
+家族（子ども世代・孫・義実家）との境界線を、物語でほどくチャンネル。罪悪感を減らし、家族を嫌いにならずに自分を守る方法へ。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH29-016</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH29-016&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">旅先の豪華なホテルのエントランスロビー。
+高く吹き抜けになった天井からは、まばゆいばかりのシャンデリアの光が無数の小さな結晶となって降り注ぎ、床の磨き上げられた大理石は一歩歩くたびにコツコツと誇らしげな音を立てています。
+ロビーの中央には季節の花が美しく活けられ、どこからともなく上品な香りが漂っています。
+周囲では正装した人々や楽しげな笑い声を上げる若いカップルたちが、旅の興奮を隠しきれない様子でどこか浮き足立った時間を過ごしています。
+ベルボーイが丁寧なお辞儀とともに宿泊客を案内し、コンシェルジュが優雅に電話を取っています。
+けれど、その華やかな光景のたった数メートル隣、重いベルベットのソファの隅にぽつんと座っている私の心には、この贅沢な設えとはあまりにも不釣り合いな底知れない疲れと、言いようのない孤独が横たわっています。
+足は棒のように重く、腰には鈍い痛みが走り続けています。
+家族旅行。
+それは離れて暮らす子供たちや孫たちと絆を深めるための特別なご褒美のはずでした。
+久しぶりに全員が揃う、かけがえのない時間になるはずでした。
+けれど今の私の目の前にあるのは、楽しげな家族の思い出などではなく、あちこちに散らばった孫たちの脱ぎ捨てられた靴下や食べかけのお菓子のゴミ、そして「おばあちゃん、あれ持ってきて」「これ片付けておいて」という感謝の言葉すら置き去りにされた自分勝手な要求の残骸ばかり。
+今夜は、家族旅行という幸福の仮面を被った地獄の中で、私がどのようにして自分という存在を都合の良い「便利な人」として消費され、そしてどのようにして自分自身の魂の自由を奪い返すための境界線を引くに至ったのか。
+その心の内側に隠し続けてきた物語を少しだけお話しさせてください。
+あなたがもし今、家族のために良かれと思って尽くし続け、気づけば自分の人生が誰かの便利屋としてすり減ってボロボロになっているのだとしたら。
+この物語があなたの本当の安寧を取り戻すための小さな切符になればと願っています。
+
+---
+
+数ヶ月前、息子から久しぶりに電話があった時、私は飛び上がるような喜びを感じていました。
+普段は忙しくてなかなか連絡をくれない息子からの突然の電話。
+それだけで私の心は躍り上がっていました。
+「お母さん、今年の夏休みはさ、家族みんなで温泉旅行に行かないか。孫もおばあちゃんと行きたいって言ってるんだ」
+その優しくて温かな誘いの言葉。
+私は長年一人暮らしで凍えそうになっていた心の氷が一瞬で溶けていくような、救われた気持ちになりました。
+夫を亡くしてから独りで暮らす家は静かすぎて、時折耐えられないほどの孤独を感じていました。
+「ありがとう。お母さんすっごく嬉しいわ。楽しみにしてるわね」
+声が震えないよう、必死で感情を抑えながらそう答えました。
+私はその日から子供たちに喜んでもらおうと、自分のなけなしの貯金を惜しみなく叩き、最高級の旅館やホテルのスイートルーム、そして贅沢な食事の手配に奔走しました。
+何軒もの旅行代理店を回り、パンフレットを何十枚も読み比べました。
+自分が美味しいものを食べたいからではありません。
+愛する家族が笑顔で過ごす、その一瞬の風景。
+それを見ることこそが私という人生の最後の幸福なのだと、私は一ミリの疑いもなく信じ切っていたのです。
+旅のしおりを夜な夜な自分の手で書き、孫が喜びそうなおもちゃを何時間もかけて選び、スーツケースいっぱいに詰め込んでいたあの頃の興奮を、昨日のことのように覚えています。
+けれどその期待の糸は、実際には旅の出発のベルが鳴ったその瞬間から、不気味な音を立てて擦り切れ始めていたのです。
+
+---
+
+違和感という名の棘が私の日常に現れたのは、旅の初日の新幹線の中でした。
+朝早く駅で待ち合わせをした時から、息子夫婦の態度はどこかよそよそしいものでした。
+挨拶もそこそこに、二人は自分たちのスマートフォンの画面をただ不機嫌そうに睨みつけています。
+私が話しかけても、生返事が返ってくるだけでした。
+座席に着くと、息子が当然の業務命令のように言い放ちました。
+「お母さん、孫の相手お願いね。俺たち昨日徹夜で仕事して疲れてるから、少し眠らせて」
+そう言い捨てると、後は私に孫のわがままや騒がしいエネルギーをすべて丸投げして、自分たちはアイマスクをして眠りに落ちてしまいました。
+嫁も同様に、私の方を見ることなくすぐに目を閉じました。
+私は新幹線の狭い座席の中で泣き叫ぶ孫をあやし、こぼしたジュースを自分のタオルで拭き、周囲の乗客たちに自分一人で頭を下げて謝り続けました。
+隣の席の若い女性が困惑した顔をしているのが見えました。
+その時、私は驚くほど冷静な思考が頭をよぎったのです。
+「この子たちは私の存在を一人の家族として大切にしてくれているのだろうか。それともただの便利なシッターとして連れてきたのだろうか」
+けれど私はその内側の小さな声を即座に押し殺しました。
+「せっかくの旅行なのだから、私が我慢すればすべて丸く収まる。それがお母さんの仕事なのだから」
+そう自分自身に罪悪感という名の毒を飲ませ続けて、自分を麻痺させていたのです。
+
+---
+
+旅館に着いてからも、その便利な人としての扱いはさらに露骨になっていきました。
+チェックインの手続きは私が行い、荷物を部屋に運ぶのも私でした。
+息子たちは孫を連れてさっさと大浴場に向かい、私は一人で全員の荷解きをしていました。
+夕食の時間になると、豪華な懐石料理が次々と運ばれてきました。
+色とりどりの前菜、新鮮な刺身、焼きたての魚料理。
+どれも見事な盛り付けで、目を見張るような美しさでした。
+けれど私は自分の料理の味を一切楽しむ余裕などありませんでした。
+「あ、お母さん、孫が魚は嫌だって言ってるから自分のと替えてあげてよ」
+「お母さん、飲み物足りなくなったからスタッフ呼んで注文して」
+「おばあちゃん、この骨取って。孫が食べられないから」
+息子や嫁の声は、かつての慕っている声ではなく、まるで高級レストランの横柄な客が店員に向けるような無機質で使い捨てのものへと変貌し切っていました。
+私が腰の痛みに耐えながら甲斐甲斐しく立ち働いているその隣で、彼らは自分たちの楽しみや贅沢について私を除け者にして笑い合っていました。
+私はその懐石料理の一皿一皿が、まるごと私の寿命を削って作られたもののように感じられ、喉を通るすべてのものが砂のように虚しいものに変わっていくのをはっきりと自覚しました。
+自分はこの家族という絆を繋ぎとめるための、最も安い代償としてこの旅行に呼び出されただけに過ぎない。
+その残酷な事実に、ようやく光が当たり始めたのです。
+
+---
+
+さらに追い打ちをかける日常の小さな棘たちが、私の精神を無慈悲に削り取っていきました。
+翌日の観光でも、私は荷物持ちと子守を一手に引き受けていました。
+美しい景色を楽しむ余裕などなく、汗だくになりながら孫を追いかける時間が続きました。
+ある日の夕方、旅先の街を歩いていた時のことです。
+私は息子から大量の土産物の袋を「重いから持っててよ、お母さんどうせ暇でしょ」と渡され、引きずるようにして歩いていました。
+両手は紙袋でいっぱいで、汗が目に入っても拭うことすらできませんでした。
+その時、ふと私の前を歩いていた嫁が、私の歩く速度がわずかに遅いことに深い呆れたような溜息をついたのです。
+「ねえお母さん、さっさと歩いてよ。孫も喉が渇いたって騒いでるし。お母さんは一日中何もしてないんだから、それくらい我慢してよ」
+その「お母さんは何もしてないんだからいいけど」という無神経な言葉。
+それが私のこれまで生きてきた三十年という人生そのものを、価値のないゴミ屑のように投げ捨てられたように感じられました。
+私は家族の円満という嘘を塗り固めるためのパテに過ぎなかったのでしょうか。
+誰も私の足の痛みや、重い荷物を持つ腕の辛さを気にかけてはくれませんでした。
+夕焼けに染まる美しい海を見つめながら、私の全身は冷たく締め付けられていきました。
+
+---
+
+決定的な出来事は、旅の最終日の夜に静かに起こりました。
+チェックアウトの時間が近づき、私たちはロビーに集まっていました。
+息子が不意に私に一枚のメモを乱暴に差し出したのです。
+それは追加で発生した飲食代や、孫が壊してしまった備品の弁償費用の明細でした。
+「あ、これお母さん払っておいてよ。孫の教育資金の足しにしたいからさ。お母さんはもうそんなにお金必要ないでしょ。一人だしさ。寂しさを埋めるためのコストだと思ってよろしくね」
+その「寂しさを埋めるためのコスト」という言葉。
+私の魂を完全に否定する不浄な響き。
+私がこれまで一円を削り、自分の唯一の楽しみである小さな趣味さえも犠牲にして積み上げてきた命の欠片。
+年金から少しずつ貯めてきた大切な老後の資金。
+それらは彼らにとっては、私という家族という名の存在を維持するための管理費のようなものに過ぎなかったのです。
+そこには私の孤独な将来への不安や、健康への心配を思いやる気持ちなど一ミリもありませんでした。
+私は一言も言い返せませんでした。
+高く吹き抜けになったロビーの天井を見上げながら、私は自分が透明に透けてそのまま消えてしまいそうな感覚に陥りました。
+愛していたのは家族という温かな温もりではなく、必要とされるために私が偽りの力で塗り固めた滑稽な砂の城だったのだと、ついに認めざるを得ませんでした。
+
+---
+
+私はそれから、一人の自立した人間として明確な境界線を引く準備を一人で始めました。
+旅から帰宅した翌日、私は長い時間をかけて自分の気持ちと向き合いました。
+本当にこのままでいいのだろうか。
+残りの人生を、便利な道具として消費され続けていいのだろうか。
+答えは明白でした。
+私は彼らに一通の短い手紙を書きました。
+「これからは一切の援助も便利な手伝いも致しません」
+「私は私の限られた人生を慈しんで生きていきます」
+「嫌いになったのではありません。自分をやっと愛し始めただけなのです」
+便箋を封筒に入れる時、私の指先は激しく震え続けました。
+これまで「便利」という名の汚れた糸で繋ぎ止めてきた関係が、一瞬で消え失せてしまうのではないかという恐怖。
+けれどもう、自分という世界で最も大切な一人の人間に嘘をつき続けることは限界だったのです。
+子供たちからは案の定、怒りと侮蔑の言葉が返ってきました。
+「お母さんがそんなに冷酷で自分勝手な人だとは思わなかったよ。もう二度と顔も見たくないし関わらないからな」
+冷たいナイフのような言葉が何日も降り注ぎましたが、私はただ静かにやり過ごしました。
+それは彼らを嫌いになるための戦いではなく、私が一人の誇り高い存在として再び自分の足で大地に立つために必要な通過儀礼だったのです。
+
+---
+
+今、私の生活には嵐の後の凪のような静かで穏やかな時間がゆっくりと流れています。
+結局あれ以来、子供たちとはほとんど会っていません。
+一人の生活は時折刺すように寂しいものではありますが、その寂しさは以前の自分を殺して家族の賑やかな笑いの一部になっていた時のあの底知れない虚しさとは全く別のものでした。
+私は初めて、自分のための旅行を計画しました。
+行きたかった場所に一人で行き、食べたいものを食べ、見たい景色をゆっくり眺めました。
+誰かの荷物を持つ必要も、誰かの子守をする必要もありませんでした。
+そしてある誇らしい秋の午後のこと。
+自分のために丁寧に淹れたお茶をテラスで楽しんでいた時、ふと空を見上げました。
+そこにはどこまでも高く澄み切った自由な青。
+私は誰かのための便利な背景ではなく、自分のための自分自身の主人公として今呼吸をしている。
+その当たり前のけれど最高に贅沢な事実に涙が溢れました。
+対等な関係とは、互いの侵してはならない境界線を共に守り慈しみ合うことから始まるのだと、私はようやく命の円熟期に学ぶことができました。
+
+もしあなたが今、家族という不自由な呪縛のために自分の命の時間をすり減らし、「都合の良い便利な人」を無意識に演じて疲れ果てているのなら。
+どうか一度だけでいいから、そのあなたを殺してしまう役を降ろしてみてください。
+あなたが無理をせずに心から清らかに微笑めることこそが、本当の愛にたどり着くための唯一の道なのですから。
+
+今夜は、これまで無理をして支えてきた家族という名の期待を一度そっと置いてみてください。
+無理に作った笑顔、過剰な不安。
+それらをすべて夜の闇に溶かして、あなたはあなただけの時間を生きてください。
+今夜は自分自身の体を最優先に考えて、「今夜はもういいわ。私は私をよく守った」と自分自身を許して深い眠りについてください。
+その静寂こそがあなたを内側から強く美しく立て直してくれる最高のギフトになるはずですから。
+
+最後まで私の言葉に耳を傾けてくださり、本当に心から感謝いたします。
+あなたの今夜の眠りが、穏やかな安らぎに満たされますように。
+あなたの明日が、今日よりも一分でも軽やかで自立したものでありますように。
+今夜はこれでお別れです。
+どうぞ、自分という世界にたった一人の人間を丁寧に扱ってお休みください。
+おやすみなさい。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH22-015 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH22-015 — script</h1>
           <div class="muted">冗談のつもりが一言で崩壊｜友人関係の末路</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH22</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,253 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCXRMfwpf27FQFJT4jBUYgpw/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>冗談のつもりが一言で崩壊｜友人関係の末路</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>後悔, 言葉, 老後, シニア, 友人関係, 近所付き合い, 同窓会, 町内会, 孤独, 人間関係, 物語, 朗読, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「シニアの心を軽くする物語」の長時間コンテンツです。
+老後の友人関係を、物語で整える。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH22-015</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH22-015&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">冗談のつもりが一言で崩壊。
+
+---
+
+三十年以上前、子供たちが幼稚園で同じ組になったことがきっかけで始まった私たちの付き合いは、子育ての忙しさの中でも時間を作ってはカフェで愚痴を言い合い、学校の行事で肩を並べ、やがて子供たちが巣立った後も、月に一度のランチを欠かさない習慣となっていた。正子さんは最初からムードメーカーで、誰かが沈んでいると明るい話題を振り、料理の感想を大げさに褒めて場を和ませるのが上手だった。そんな彼女が孫の世話で疲れていると打ち明けるようになったのは、ここ数年のこと。その愚痴には、『自分はまだ家族の役に立っている』という誇りと、『このままでいいのか』という不安が微妙に混ざり合っていた。私はそれを、単なる孫自慢の延長と軽く受け止めていた。長い付き合いだからこそ、相手の言葉の奥にある切なさに耳を傾けることを怠り、表面だけの会話で済ませていた。あの日のランチでも、前菜が運ばれてくるまでのわずかな沈黙を埋めようと、つい軽口を叩いてしまった。三十年来の信頼が、かえって『この人ならわかってくれる』という甘えを生み、無神経な一言を許してしまった。高齢期の友人関係は、長い時間をかけて築かれた分、一度壊れたら修復が難しい。お互いの人生の大半を共有してきたからこそ、傷つけた時の後悔も深く、傷ついた側の孤独も大きい。私たちはお互いのことをよく知っていると思い込んでいたが、実は相手の心の変化に気づいていなかった。子育てが終わり、夫との会話が減り、社会との接点が狭まる中で、友人とのやり取りが自分を確認する唯一の場になっていたのかもしれない。正子さんにとって、孫の世話は単なる労働ではなく、自分がまだ必要とされている証であり、それを愚痴ることで『大変だけど頑張っている』という自己肯定を繰り返していた。私の『便利屋』という言葉は、その努力を否定し、彼女の存在価値まで揺るがすものに映った。冗談のつもりが、相手の人生の基盤を揺さぶるほどの重みを持つとは、言った当時は気づかなかった。長年の友情は、時に無防備さを生み、不用意な一言が致命傷になる脆さも持っている。あの瞬間、私は正子さんがこれまでどれほど繊細に自分の立場を守りながら生きてきたかを考えず、ただ場の空気を変えようとしただけだった。その浅はかさが、三十年の信頼を一瞬で崩すことになった。
+
+冗談よ、そんな顔しないで。
+
+私がそう言った瞬間、友人の正子さんの表情が凍りつきました。目が見開いて、口が少し開いたまま動かなくなった。笑いかけていた顔がそのまま止まって、能面のようになりました。
+
+それは、いつもの四人でランチをしていた時のことでした。子供の幼稚園時代からの付き合いで、もう三十年以上になります。駅前のイタリアンレストラン。窓際のいつもの席。白いテーブルクロスに、午後の柔らかな日差しが落ちていました。
+
+今日も、最初はそうでした。前菜を食べながら、話題は自然と孫のことになりました。正子さんが、大きくため息をつきました。彼女は言葉とは裏腹に、どこか誇らしげに見えました。頼られている自分、必要とされている自分。その自負が、疲れの中にも透けて見えていました。
+
+大変ねえ、正子さん。趣味の俳句教室はどうしたの。
+もう全然行けてないわよ。朝から夕方まで孫のお守りでしょう。自分の時間なんてありゃしない。
+
+正子さんはフォークでパスタをくるくると巻きながら、愚痴をこぼし続けました。旅行にも行けない、友達とも会えない、腰が痛い。
+
+私はそれを聞きながら、少しだけ心の奥でまたかと思っていました。正子さんの孫自慢交じりの愚痴は、ここ数ヶ月、私たちのランチの定番メニューになっていたからです。私自身も孫の世話をした経験があり、その大変さは分かります。でも、同時にその大変さをアピールすることで、自分が家族の中心にいることを確認しているようにも見えました。
+
+私は軽い気持ちで、本当に軽い気持ちで、口を挟みました。場の空気を少し和ませよう、笑いを取ろう、そんな安易な考えでした。
+
+孫に使われる毎日ね、おばあちゃんは便利屋ってことかしら。
+
+一瞬、時が止まりました。フォークとナイフが皿に当たるカチャカチャという音だけが、やけに大きく響きました。
+
+私は自分の失敗に気づいていませんでした。むしろ、うまいことを言ったつもりで、相手の反応を待っていました。そうそう、まさに便利屋よーなんて笑い返してくれると思っていました。長年の付き合いという甘えがありました。正子さんなら分かってくれる。ちょっとしたジョークくらい、笑い飛ばしてくれる。そんな思い込みが、私の口を軽くさせていたのです。
+
+でも、正子さんの顔が変わりました。
+
+便利屋って、どういう意味。
+
+声が、いつもより低くなっていました。地を這うような低い声。
+
+私はハッとしました。正子さんの目は笑っていませんでした。私を射抜くような、冷たく鋭い視線。その視線に射すくめられ、私は急に喉が渇くのを感じました。
+
+冗談よ、と私は焦って言いました。分かるでしょ、大変よねって意味で。私もそうだったから、共感したのよ。悪気があって言ったんじゃないのよ。
+
+必死に言い訳を並べ立てました。でも、言葉を重ねれば重ねるほど、それが空回っていくのが分かりました。
+
+正子さんは黙っていました。何も言わない。ただじっと私を見つめているだけ。その沈黙が、何よりも雄弁に彼女の怒りを物語っていました。
+
+和恵さんと美智子さんも、気まずそうに目を伏せました。二人とも何か言おうとして口を開きかけたけれど、結局何も言わなかった。誰かが咳払いをする音さえ、爆音のように聞こえました。
+
+便利屋……そうね。私は娘にとって、ただ便利なだけの存在なのかもしれないわね。
+
+正子さんが、ポツリと言いました。その言葉には、怒りよりも深い悲しみが滲んでいました。彼女自身が、心のどこかでずっと抱いていた不安。それを私が、無神経にも土足で踏み荒らしてしまったのです。図星だったからこそ、傷ついたのです。
+
+違うの、正子さん。そんなつもりじゃ……
+
+もういいわ。
+
+正子さんは私の言葉を遮ると、ナプキンで口元を拭いました。そして、残っていたパスタを一口も食べることなく、カップのコーヒーに口をつけました。
+
+その後のランチは、地獄のような時間でした。表面上は普通に続きました。でも、空気は完全に変わってしまいました。ガラスの破片が散らばった床の上を歩くような、ピリピリとした緊張感。
+
+正子さんはあまり話さなくなりました。いつもなら一番おしゃべりな彼女が、貝のように口を閉ざしている。こちらから質問すればええそうねと短く答えるけれど、自分からは決して話題を振らない。笑顔も消えていた。無理に口角を上げただけの、引きつった笑い。
+
+会話のボールを投げても、すべて地面に落ちていく。キャッチボールが成立しない。私は居たたまれなくなって、トイレに逃げ込みました。
+
+個室に入ると、ようやく息ができました。鏡に映った自分の顔は、青ざめていました。何であんなこと言っちゃったんだろう。後悔が波のように押し寄せてきました。便利屋なんて、あんな失礼な言葉。たとえ思っていても、口にしてはいけない言葉だった。長年の付き合いという甘えが、私から親しき仲にも礼儀ありという感覚を奪っていたのです。
+
+---
+
+席に戻ると、三人は沈黙したままでした。私が戻ってきたことで、さらに空気が重くなります。
+
+そろそろ出ましょうか。
+
+和恵さんのその一言に、全員が救われたような顔をしました。
+
+レジで会計を済ませ、店の外に出ました。春の日差しは相変わらず穏やかでしたが、私の心は真冬のように凍えていました。
+
+じゃあ、また。
+
+正子さんは私を見ずに言いました。いつものバイバイという明るい声はありませんでした。彼女は私に背を向けると、一度も振り返ることなく駅の方へ歩いていきました。その背中があなたとはもう話したくないと拒絶しているように見えました。
+
+---
+
+帰宅して、夫に話しました。靴を脱ぐのももどかしく、リビングにいる夫に駆け寄りました。こんなことを言ってしまった、正子さん怒ってるみたいと。
+
+夫は新聞を読みながら、ふんと鼻を鳴らしました。
+
+お前はたまに余計なことを言うからな。
+
+余計なこと……夫の言葉が胸に刺さりました。そうなのです。私は昔から、沈黙を埋めようとして、あるいは笑いを取ろうとして、余計な一言を言ってしまう癖がありました。悪気はない。でも、悪気がないからこそタチが悪い。
+
+冗談のつもりでも、相手には冗談に聞こえないことがある。お前にとっては軽い言葉でも、相手にとっては重い言葉かもしれない。特に、相手が気にしている痛いところを突くような言葉はな。
+
+夫の正論に、私は何も言い返せませんでした。
+
+その夜、ベッドに入っても眠れませんでした。目を閉じると、正子さんのあの凍り付いた表情が浮かんでくるのです。便利屋って、どういう意味。その低い声が、頭の中で何度もリフレインしました。
+
+---
+
+翌日、和恵さんからLINEが来ました。恐る恐る画面を開くと、予想通りの内容でした。
+
+正子さん、かなりショックを受けてたわよ。昨日の夜、電話があったの。
+
+やっぱり。胸がズキンとしました。
+
+便利屋って言われて、自分は娘に使われてるだけなのかって、前から薄々思ってたことを突きつけられたみたい。敏子さんの一言で、心が折れたって泣いてたわ。
+
+泣いていた。あの勝気な正子さんが。私は携帯を握りしめたまま、その場に崩れ落ちました。彼女が必死に築いてきた頼れるおばあちゃんとしてのプライド。それを私は、たった一言で粉々に砕いてしまったのです。
+
+正子さんは毎日、孫のために早起きして、離乳食を作って、公園に連れて行って、夜泣きに付き合って。その大変さを愚痴として吐き出すことで、なんとかバランスを保っていたのかもしれない。なのに私は、その必死さを便利屋という言葉で切り捨ててしまった。
+
+ごめんなさい……
+
+誰もいない部屋で、私はつぶやきました。
+
+すぐに正子さんに電話しました。指が震えて、なかなか発信ボタンが押せませんでした。数回のコールの後、留守番電話になりました。私はメッセージを残しました。
+
+ごめんなさい、昨日は本当に失礼なことを言ってしまって……。傷つけるつもりはなかったの。本当にごめんなさい。
+
+返信はありませんでした。既読もつかない。ブロックされたのかもしれない。そう思うと、怖くて確認できませんでした。
+
+それから一週間、正子さんとは連絡が取れませんでした。LINEを送っても既読がつくだけ。返事はない。無視されている。それが、三十年の友情に対する彼女の答えでした。
+
+次のランチ会の日が近づいてきました。グループLINEで今月はどうするという話題が出ましたが、正子さんからの反応はありません。結局、正子さんが体調悪いみたいだから、今月は延期ねということになりました。私のせいです。私が彼女をこのグループから追い出してしまったのです。
+
+---
+
+一ヶ月後、ようやく正子さんと話す機会が訪れました。和恵さんが間に入ってくれて、四人でお茶をすることになったのです。場所はいつものイタリアンではなく、静かな喫茶店でした。
+
+店に入ると、正子さんは一番奥の席に座っていました。私を見ると、彼女は小さく会釈をしました。以前のような、体を乗り出して手を振るような元気な挨拶はありません。
+
+正子さん、本当にごめんなさい。
+
+私は席に着くなり、頭を下げました。正子さんは静かに首を横に振りました。
+
+いいのよ、もう気にしてないから。
+
+その声は穏やかでしたが、どこか他人行儀で、冷たさを帯びていました。気にしてないという言葉は、許したという意味ではなく、もうあなたには期待していないから、どうでもいいという意味に聞こえました。
+
+以前の正子さんなら、こんな時敏子さん、もうそんなに気にしないでよと明るく笑い飛ばしてくれたはず。でも、その笑顔はもうありませんでした。
+
+会話は続きましたが、以前のような弾むようなリズムはありませんでした。まるで薄いガラスの壁越しに話しているような隔たり。表面的な話題を選び、当たり障りのない言葉を交わす。お互いに傷つかないように、慎重に距離を測りながら。
+
+正子さんの笑顔は、きれいでした。でも、目が笑っていない。私の目を見て話してくれない。視線が微妙にずれている。それが、何よりも辛かった。
+
+私ね、最近、孫の世話を少し減らしてもらったの。
+
+正子さんが言いました。
+
+えっ。
+
+やっぱり、無理してたみたい。自分の時間も大切にしなきゃって思ったの。だから、娘と話し合って、週に二日は休ませてもらうことにしたわ。
+
+そう……それは良かったわね。
+
+私は心からそう言いました。
+
+敏子さんのあの一言が、きっかけになったのかもね。
+
+正子さんは、皮肉めいた笑みを浮かべて言いました。
+
+私が便利屋だってこと、気づかせてくれたんだもの。
+
+ドキリとしました。彼女はまだ、怒っている。いや、傷ついている。その傷は、かさぶたにはなっているけれど、まだ治っていない。私がつけた傷跡を見て、彼女は生き方を変えたのです。
+
+---
+
+それから一年が経ちました。正子さんとの関係は、表面上は元通りになりました。月に一度はランチに行くし、笑い合うこともあります。
+
+でも、私たちは知っています。
+
+以前なら、正子さんは私の前で遠慮なく孫の愚痴を言えていた。今は、孫の話題が出ると、どこか遠慮がちになる。また愚痴っちゃってごめんねと付け加えるようになった。
+
+私のせいです。私のあの一言が、正子さんから安心して愚痴れる場所を奪ってしまったのです。
+
+あの日のような、無防備で、無遠慮で、心の底から信頼し合っていた関係には、もう戻れない。あの一言で、何かが決定的に壊れてしまった。そして、壊れた破片をつなぎ合わせても、継ぎ目は決して消えないことを、私たちは知っています。
+
+言葉は、言った本人の意図ではなく、受け取る側の心の状態でその重みが決まります。特に、高齢になると、家族や社会での自分の役割に敏感になります。ちょっとした言葉が、自分は必要とされていないという深い傷につながるのです。
+
+私は今でも、人と話すとき、一瞬立ち止まる癖がつきました。この言葉は、相手を傷つけないだろうか。これは余計な一言ではないだろうか。それは少し窮屈な生き方かもしれません。でも、大切な人を失わないための、必要なブレーキなのだと思います。
+
+親しき仲にも礼儀あり。この言葉の本当の重さを、私は還暦を過ぎてようやく知りました。
+
+---
+
+今夜の一手。
+
+もし誰かを傷つける言葉を言ってしまったら、言い訳はしないでください。悪気はなかった、冗談のつもりだったという言葉は、自分を守るための盾に過ぎません。相手にとっては、傷口に塩を塗られるようなものです。
+
+ただ、ごめんなさいと短く謝って、それ以上は何も言わないでください。そして、相手が許してくれるまで、静かに待つこと。壊れた信頼を修復するには、長い時間と沈黙が必要です。焦って言葉を重ねるほど、相手は離れていきます。
+
+最後までご視聴いただきありがとうございました。同じような失敗をしてしまった経験のある方、ぜひコメント欄で教えてください。言葉の重みについて、皆さんと一緒に考えたいと思います。よろしければ、チャンネル登録と高評価をお願いします。それではまた、次の動画でお会いしましょう。
+</pre>
     </div>
   </div>
 </main>

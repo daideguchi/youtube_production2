@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH27-027 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH27-027 — script</h1>
           <div class="muted">「あなたって空気読めない」…笑い声が痛かった</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH27</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a><a class="tab" href="thumb/illust_v1/">イラストサムネ（縦長）</a></nav>
@@ -22,42 +22,256 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCN_MIAWPlttRsppfprZGnew/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>「あなたって空気読めない」…笑い声が痛かった</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手
+
+※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>後悔, 対等でない, 老後, シニア, 友人関係, 人間関係, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 波音リツ</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+・関係を壊さない距離の置き方&lt;br&gt;・今夜できる一手</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>※本チャンネルの物語はフィクションです。
+この動画は、「老後の心がほどける物語」の長時間コンテンツです。
+親友・友人・近い関係ほど傷つく瞬間を、老後の物語で静かにほどくチャンネル。断罪やスカッとではなく、関係を壊さない距離の取り方を届けます。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：波音リツ
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH27-027</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH27-027&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">ランチ会のテーブルに、笑い声が弾けていました。
+ガラス張りの店内には、柔らかな午後の日差しが差し込み、白いテーブルクロスを輝かせています。
+私も一緒に笑おうとしたのですが、唇がうまく動きませんでした。
+本当に洋子さんって、空気読めないわよね
+由美さんが、冗談めかして言った言葉。
+その声は軽く、いつものおしゃべりの延長線上にありました。
+けれど、その場にいた他の三人が、声を合わせて笑った瞬間。
+私だけが、その輪の中にいながら、どこか遠い場所にいるような気がしていました。
+胸の奥が、きゅうと締め付けられる感覚。
+指先が冷たくなる感覚。
+これまで何度も経験してきたはずなのに、今日のこの一言は、なぜかいつもより深く刺さりました。
+テーブルに並んだ色とりどりの前菜も、焼きたてのパンの香りも、急に色褪せて感じられました。
+今夜は、仲間内の軽い一言が、心を折った日の物語をお話しします。
+笑顔で過ごした時間の裏側で、何が起きていたのか。
+私の心の中で、何かが静かに音を立てて崩れていった、あの日のことを。
+
+---
+
+このメンバーで集まるようになったのは、三年ほど前のことでした。
+地域の健康体操教室で知り合った四人。
+年齢も近く、住んでいる場所も近いことから、自然と言葉を交わすようになりました。
+今日、疲れましたねこのあと、お時間あります？
+そんな何気ない会話から始まり、教室の後にお茶をするようになり、いつしか月に一度のランチ会が恒例になりました。
+リーダー格の由美さん、いつもにこやかな恵子さん、聞き上手な智子さん、そして私。
+最初の頃は、本当に楽しい時間でした。
+夫の定年後のこと、離れて暮らす孫のこと、体の不調のこと。
+同じ世代だからこそわかる話題で盛り上がり、それぞれの悩みを相談し合いました。
+わかるわ、うちもそうなのよ
+共感し合える仲間がいることは、私にとって大きな支えでした。
+夫を亡くして一人暮らしの私にとって、月に一度のこの集まりは、カレンダーに花丸をつけるほど楽しみな予定だったのです。
+けれど、いつからか、私だけが浮いているような感覚を覚えるようになっていました。
+話の輪に入れないことがある。
+皆が笑っているのに、何が面白いのかわからないことがある。
+私の発言の後、一瞬だけ場が静まり、すぐに誰かが別の話題に変える。
+それでも、気のせいだと思って、自分を納得させてきました。
+この年齢で新しい友達を作るのは難しいし、せっかくできた居場所を失いたくなかったからです。
+
+---
+
+空気読めない
+その言葉を聞いた瞬間、頭が真っ白になりました。
+話題は、近所に新しくできたスーパーのことでした。
+皆が品揃えがいい安いと盛り上がっている中、私がふとでも、駐車場の入り口が狭くて危ないわよねと言ったときのことでした。
+由美さんは、にこにこ笑いながら言いました。
+まるで親しみを込めた冗談のように。
+また洋子さん、そういう細かいこと気にする。本当に空気読めないわよねえ
+悪意があるようには見えませんでした。
+だからこそ、余計に苦しかったのです。
+「そうそう、この前も変なタイミングで話し始めるから」
+恵子さんが笑いながら続けます。
+「あ、あの時のことでしょ？ 皆が旅行の話してるのに、急に庭の草むしりの話した時」
+「そうそう！ あれはおかしかったわ」
+智子さんも一緒になって笑いました。
+「でもそこが洋子さんの可愛いところよね。天然っていうか」
+智子さんがフォローを入れましたが、すでに私の心は凍りついていました。
+可愛いところ。
+天然。
+それは、褒め言葉なのでしょうか。
+いいえ、そうではないことは、わかっていました。
+それはあなたは私たちとは違うちょっとズレているということを、オブラートに包んで言っているだけです。
+表面上は柔らかいけれど、中身は鋭い刃物。
+私は、この人たちにとって、対等な友人ではなく、ちょっとズレた面白い観察対象だったのです。
+笑われることで、このグループに居場所を与えられていたのです。
+そのことに気づいたとき、手元のグラスを持つ手が震えました。
+
+---
+
+帰り道、みんなと別れて一人で歩きながら、これまでのことを振り返りました。
+夕暮れの風が、少し冷たく感じられました。
+そういえば、いつも最後に意見を聞かれることが多かった。
+「洋子さんはどう思う？」と聞かれるのは、他の三人の意見が固まった後。
+まるで、答え合わせをするかのように。
+話題が変わる時、私の発言はスルーされることがあった。
+私が何か言っても、「へえ、そうなんだ。ところでさ」と、すぐに別の話に移っていく。
+グループの決め事は、三人で話し合った後に報告される形が多かった。
+「今度、温泉行こうって決まったから。洋子さんも行くでしょ？」
+それは相談ではなく、決定事項の通達でした。
+一つ一つは些細なこと。
+いちいち目くじらを立てるほどのことではないかもしれません。
+でも、積み重なると、そこに見えてくるものがあります。
+私は最初から、このグループの中心にはいなかったのだ。
+入れてもらっている、という立場だったのだ。
+三人の仲良しグループに、おまけでくっついている四人目。
+そう気づいた瞬間、これまで感じていた違和感の正体が、はっきりと見えました。
+私は、彼女たちにとって、なくてはならない存在ではなかった。
+いてもいなくても変わらない、あるいは、たまに笑いの種になるだけの存在だったのです。
+足元の影が、長く伸びていました。
+その影法師が、ひどく寂しげに見えました。
+
+---
+
+家に帰って、夕飯の支度をしながらも、頭の中はずっとあの言葉を反芻していました。
+空気読めない
+まな板の上で人参を切る音が、トントンと響きます。
+本当にそうなのだろうか。
+私は、場の雰囲気を壊すような発言をしていたのだろうか。
+自分では普通に話しているつもりだった。
+皆の話を聞いて、思ったことを言っていただけ。
+スーパーの駐車場の話だって、皆が事故に遭わないようにと思って言ったことでした。
+それがいけなかったのか。
+水を差すようなことを言うべきではなかったのか。
+自分を責める気持ちと、理不尽だと感じる気持ちが、胸の中でせめぎ合っていました。
+由美さんたちに悪気があったわけではないのかもしれない。
+本当に冗談のつもりだったのかもしれない。
+「ただの軽口じゃない。気にしすぎよ」
+もう一人の私が、耳元でそう囁きます。
+けれど、言われた側には冗談に聞こえなかった。
+心が血を流すほど痛かった。
+それが現実です。
+鍋のお湯が沸騰して、蓋がカタカタと鳴りました。
+慌てて火を弱めながら、涙が一粒、こぼれ落ちました。
+
+---
+
+年を重ねると、友人関係のあり方も変わってきます。
+若い頃なら、気の合わない人とは自然と離れ、新しい友達を作ることもできました。
+でも今は、新しい出会いは少なくなり、既存の関係を大切にしなければという気持ちが強くなる。
+孤独への不安が、私たちを縛り付けます。
+だから、多少の違和感があっても我慢してしまう。
+居場所を失いたくないから。
+一人でお昼を食べるのが寂しいから。
+「あの人、友達いないのかしら」と思われるのが怖いから。
+けれど、我慢し続けた先に何があるのでしょうか。
+笑顔の下で、少しずつ心がすり減っていく。
+本当の自分を隠して、相手に合わせ続ける。
+空気読めないと言われないように、必死で顔色を伺う。
+それは、本当の意味で友情と呼べるものなのでしょうか。
+それは、私が残りの人生で大切にしたい時間なのでしょうか。
+出来上がった煮物を小鉢によそいながら、私は考えました。
+湯気の向こうに、この先何年も、彼女たちの顔色を伺いながら笑っている自分の姿が見えた気がしました。
+それは、あまりにも悲しい姿でした。
+私は、そろそろ答えを出さなければならないと思いました。
+
+---
+
+キッチンで、新しいお茶の葉を出しました。
+頂き物の、少し上等なほうじ茶です。
+急須にお湯を注ぐと、香ばしい香りが立ち上りました。
+湯気の立つ湯飲みを両手で包むと、じんわりとした温かさが手のひらに伝わってきます。
+少しだけ心が落ち着きました。
+今日のことは、悲しかった。
+傷ついた事実は消えません。
+でも、これをきっかけに、自分の立ち位置を見直せたのかもしれません。
+無理して輪の中にいなくてもいい。
+空気を読むことが苦手なら、そういう自分を認めてあげればいい。
+皆と同じタイミングで笑えなくても、それは私の感じ方なのだから。
+合わない人とは、少しずつ距離を置けばいい。
+いきなり縁を切る必要はありません。
+ただ、ランチ会の回数を減らしたり、無理に合わせていた会話をやめたり。
+「ごめんなさい、ちょっと用事があって」と断る勇気を持てばいい。
+それは、相手を恨むこととは違います。
+由美さんたちを悪者にしたいわけではないのです。
+ただ、自分の心を守るための選択。
+一人でいる時間を、寂しいものではなく、穏やかなものにするための選択なのです。
+お茶を一口すすると、体に染み渡るような味がしました。
+一人で飲むお茶も、悪くない。
+そう思える自分がいました。
+
+---
+
+窓の外に、夜の帳が降りてきました。
+遠くで電車の音が聞こえます。
+一日の終わりを告げる、静かな時間。
+今夜、もし誰かの言葉に傷ついて、この物語を聴いてくださっている方がいたら。
+その傷は、あなたのせいではないかもしれません。
+空気が読めないと言われても、変だと言われても、あなたの価値は変わりません。
+皆と同じでなくていい。
+周りに合わせられなくてもいい。
+あなたはあなたのままで、十分に素敵な人なのです。
+誰かの物差しで、自分を測らなくていい。
+あなたは、あなた自身の物差しを大切にしてください。
+
+---
+
+今夜の一手。
+今夜は温かい一杯を用意して寝る。
+お茶でも、ホットミルクでも、お白湯でも構いません。
+好きな飲み物を、お気に入りのカップに入れて。
+ゆっくりと時間をかけて飲んでみてください。
+その温かさが、冷えた体と心を、内側から溶かしてくれます。
+今日の出来事は、一度横に置いて。
+飲み物の香りや味だけに集中して。
+美味しいなと感じる、その一瞬を大切にしてください。
+布団に入ったら、自分をぎゅっと抱きしめるつもりで、目を閉じてみてください。
+今日一日、傷つきながらも耐え抜いた自分を、褒めてあげてください。
+明日になれば、また違う景色が見えるかもしれません。
+少しだけ強くなった自分に、出会えるかもしれません。
+おやすみなさい。
+今夜も、最後まで聞いてくださって、ありがとうございました。
+どうか、温かい夢が見られますように。
+それは、また。
+</pre>
     </div>
   </div>
 </main>

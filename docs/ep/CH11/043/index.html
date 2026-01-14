@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-043 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-043 — script</h1>
           <div class="muted">【死ぬのが怖い、が消える話】ブッダが説く「輪廻転生」と、穏やかな最期を迎える心の準備</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,142 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【死ぬのが怖い、が消える話】ブッダが説く「輪廻転生」と、穏やかな最期を迎える心の準備</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-043</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-043&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre"># 【死ぬのが怖い、が消える話】ブッダが説く「輪廻転生」と穏やかな最期を迎える心の準備
+
+夜、ふと「いつか終わりが来る」と気づくと、胸の奥がひやりとします。家族や大切な人を思い浮かべ、もう会えなくなるかもしれない恐れ。体が老い、息が細くなる未来。死の影は、見ないふりをしても心の隅に居座ります。ブッダは、生老病死を逃げられない真実として見つめ、その上で「恐れを和らげる道」を示しました。輪廻転生という教えは、命が途切れるのではなく、連なりとして続く視点を与えます。今日は、死の恐れを柔らかくし、穏やかな最期を迎えるための心の準備を、具体的な所作とともに描きます。
+
+まず、死への恐れの正体を見ます。恐れの多くは「未知」と「喪失」から生まれます。見えない先、失われる関係、途切れる感覚。それらが一度に押し寄せ、心が凍る。ブッダは「無常」と「縁起」を教えました。すべては変わり続け、条件が整えば現れ、条件が変われば去る。命もまた、条件の集まりがほどけていく現象です。ほどけるだけでなく、ほどけた条件は次の命の種になる。輪廻転生は、ほどけた命が別の形でつながる視点です。終わりではなく、形を変えた連なりと見ると、恐れの温度が少し下がります。
+
+呼吸を整えることから始めましょう。死のことを考えると呼吸が浅くなり、体が緊張します。四つ吸って六つ吐く。吐くときに「生まれては消える」と心で唱える。吸う息で今を受け取り、吐く息で手放す。呼吸そのものが「生滅」を体感させます。一日の中で三回、三分だけでも続けると、変化に体が慣れていきます。
+
+輪廻転生の話に触れるときは、比喩を使うと心に入りやすい。炎のリレー。一本のロウソクの火を別のロウソクに移すと、火は続くが元の蝋は変わる。川の流れ。水は同じでなくとも、流れの形は続く。意識や行いも、条件として次の瞬間に影響を渡す。ブッダは「業」を、行いが次の結果を生む力として語りました。善い行いは善い条件を生み、悪い行いは苦しみの条件になる。だからこそ、今の行いを整えることが、穏やかな最期につながると説きます。
+
+怖さを和らげる三つの実践を紹介します。第一に「回想」。これまでの人生で嬉しかったこと、感謝したい人を十人書き、思い出す。感謝が浮かぶと、死の影が薄れます。第二に「未完了の整理」。伝えたい言葉を書き、渡せる人には渡し、渡せない人には心で伝え、紙を小さく破る。未完了を減らすと、心の残務が減り、最期が軽くなる。第三に「手放しの練習」。毎日一つ物を手放し、一つ予定を減らす。手放す動作に慣れると、最期の手放しも穏やかになります。
+
+死の場面を、静かな儀式として練習しておきます。椅子に座り、両手を膝の上に置き、目を閉じる。四つ吸い六つ吐きながら「ありがとう」を心で繰り返す。五感に意識を向け、音、香り、温度を感じる。数分でいい。これを「終わりの稽古」と呼び、週に一度行う。稽古を重ねると、未知への抵抗が和らぎます。
+
+家族と死について話すのは勇気が要りますが、大切な準備です。治療の希望、延命の範囲、家で過ごしたいか、音楽や香りの好み。これらを短いメモに残し、信頼できる人と共有する。話すことで、家族の不安も減り、最期の選択が尊重されます。仏教の「正語」は、必要なことを丁寧に伝える知恵です。
+
+医療と心の架け橋として、緩和ケアを早めに相談するのも一つです。痛みや不安を和らげる専門家とつながると、「どう死ぬか」を一人で抱えずに済みます。支えの輪ができると、恐れは分散されます。僧侶やカウンセラーに話すことも助けになります。第三者に話すと、恐れが言葉になり、形があるものとして扱えます。
+
+死の恐れを和らげた人の例を三つ。六十代の女性は、親を看取った後、自分の死が怖くなりました。彼女は毎朝四つ吸い六つ吐く呼吸をし、週に一度、友人と「感謝の手紙」を交換しました。三ヶ月後、「死を考えても、今の朝の光が綺麗だと思える」と話します。七十代の男性は、延命治療を受けた友人を見て、自分はどうするか悩みました。家族と話し、延命の希望を書き、緩和ケアの相談をしました。準備を終えると、「決めたことで、今が軽い」と感じました。八十代の女性は、輪廻転生の話を半信半疑で聞きながら、庭の花に水をやるたびに「これも巡っている」と呟きました。季節が巡るたびに、死は途切れではなく流れだと感じ、穏やかに笑うことが増えました。
+
+七日間のプラン。1日目、呼吸法を三分。2日目、感謝したい人を十人書き、心で礼を言う。3日目、未完了の言葉を紙に書き、一つだけ渡すか破る。4日目、手放す物を一つ選び、感謝して手放す。5日目、家族や友人と一つだけ「最期の希望」を共有する。6日目、終わりの稽古を五分行う。7日目、一週間の心の変化をノートに書き、「今、ここにいる」感覚を味わう。
+
+二十一日続けると、呼吸と手放しが体に馴染み、死を考えても体が固まりにくくなります。九十日を超えるころには、恐れは完全に消えなくても、日常の背景に静かに置かれます。背景に置ければ、今の食事、今の会話、今の風の音を味わう余裕が生まれます。
+
+輪廻転生をどう信じるかは人それぞれです。ただ一つ確かなのは、「今の行いが次の瞬間をつくる」という因果です。優しい言葉は次の優しさを生み、粗い言葉は次の粗さを生む。今の一手が、次の瞬間の条件になる。だから、死の恐れを和らげる最短の道は、今の言葉と行いを整えることです。
+
+死を思うと、逆に今が鮮やかになります。今日飲むお茶の湯気、窓の光、家族の声。有限だと知るから、丁寧に扱える。丁寧に扱うと、恐れは感謝に変わります。感謝は、静かな強さを生みます。
+
+最後に儀式を。手のひらを胸に当て、四つ吸い六つ吐く。吐くたびに心で唱える。「今ここにいる。流れは続く」。心の奥に小さな灯をイメージし、その灯が静かに次へ渡っていく姿を思う。灯がある限り、道は途切れません。恐れを抱えたままでもいい。灯を持って歩けば、最期は穏やかなものになる。静かな灯が、あなたとあなたの大切な人を照らしますように。
+
+ここからさらに、恐れを和らげる具体の所作を重ねます。夜眠る前、枕元に小さな灯りを置きます。明るすぎず、柔らかな光。光を眺めながら四つ吸い六つ吐く。光は「灯が続く」象徴です。起きている間に光を消す練習をし、消えた後の暗さに慣れます。暗さに慣れると、「終わり」に対する体の抵抗が減ります。
+
+触覚を使った安心も効果的です。手ぬぐいを一枚用意し、温かいお湯で絞って胸に当てます。温度がゆっくり下がるのを感じる。温度が下がる過程が、変化の受容を教えてくれます。冷たくなる前に手ぬぐいを外し、「十分温かさを味わった」と心で言う。味わうことと手放すことをセットで練習します。
+
+音の力も借ります。夕方、鐘や鈴の音、好きな短い音楽を一曲だけ聞く。音は鳴り、やがて消える。消えることを知りつつ、鳴っている間は集中して聴く。音の終わりに合わせて深呼吸をする。音を通じて「生まれ、続き、終わる」を体感します。
+
+食事も「今」の練習になります。一口ごとに箸を置き、口の中の温度と香りを味わう。急がず、噛む音を耳で聞く。食べ終わったら手を合わせて「これで終わり」と言う。小さな終わりを毎食迎えることで、大きな終わりへの練習になります。
+
+家族や友人と「遺したいもの」を話す時間を作ります。物だけでなく、歌、言葉、料理のレシピ、庭の手入れの仕方。伝えると決めたら、動画や手紙に残す。残す作業が、今の生を濃くします。渡したいものを渡し終えると、心は軽くなり、最期に向けての準備が進みます。
+
+信仰や宗派を問わず、儀式は心を整えます。好きな寺院や教会、静かな場所に足を運び、五分だけ座る。手を合わせ、今の恐れと向き合う。場の静けさは、心の静けさを引き出します。通う場所が難しければ、家に小さなスペースを作る。花と水と灯りだけの簡素な場所。そこに座るだけで「ここは落ち着く」と体が覚えます。
+
+死に関する情報に触れすぎると、不安が増すことがあります。ニュースや噂話で心がざわついたら、「情報を閉じる時間」を決めます。夜は死の話題を避け、朝の光の中で読むならまだ心が耐えられます。情報の量と時間を選ぶのも、心を守る技です。
+
+体のケアも恐れを和らげます。痛みがあると、死の恐怖が増します。早めに医療を頼り、痛みを言葉にして伝える。「少し痛む」「かなり痛む」を曖昧にせず、数字で伝える。痛みが減ると、心は落ち着き、今に戻れます。体を守ることは、心を守ることです。
+
+ここで、死の恐れと向き合った三つの場面を描きます。六十五歳の男性は、検査で病気を告げられ、夜眠れませんでした。彼は「終わりの稽古」を始め、毎晩灯を見つめて呼吸を整えました。同時に、子どもたちに遺す手紙を書き、感謝を伝えました。数週間で眠れるようになり、「恐れはあるけれど、手紙を書けたのが嬉しい」と話しました。七十二歳の女性は、延命治療をめぐって家族と意見が合いませんでした。彼女は「希望メモ」を書き、家族と短い時間で話し合い、緩和ケアの医師に同席してもらいました。話した後、家族は安心し、彼女も「決めたことで心が静かになった」と感じました。八十歳の男性は、孤独死を恐れていました。近所の人と週に一度の茶の時間を持つようにし、連絡先を書いたカードを冷蔵庫に貼りました。つながりの糸が見えたことで、「一人で終わる恐れが薄れた」と語ります。
+
+二十一日目以降は、恐れが再び顔を出す日もあります。そのときは「恐れがあるのは生きている証」と受け止め、呼吸に戻ります。恐れを消そうと力むのではなく、「恐れがあっても歩ける」を目指します。歩くたびに、足裏が「ここだよ」と教えてくれます。
+
+九十日後には、死の話題を避けずに話せる自分に気づくかもしれません。避けないことで、日常の光景がより鮮やかになる。輪廻転生を信じるかどうかに関わらず、「命は流れ、今ここにある」という感覚が根を張ります。根がある心は、強く、しなやかです。
+
+最後にもう一度、灯りを見て深呼吸します。吐きながら「怖いよ」と正直に言い、吸いながら「それでも今、息をしている」と感じる。恐れを否定しないで抱え、今を抱く。抱く力があれば、最期も静かに抱きしめられます。あなたの灯が、静かに次へ渡り続けますように。
+
+ここからは、死をめぐる会話を円滑にする言葉を用意します。「もしものときは、こうしてほしい」「この音楽を流してほしい」「この香りが好き」。短い文で十分です。事前に言葉を持っていると、いざというとき慌てずに済みます。言葉は、恐れの霧の中に立つ道標です。
+
+死の恐れが強いと、未来を閉ざしがちです。逆に、小さな未来の計画を立てると、今が動き出します。「来週はこの花を買う」「来月はこの本を読む」。短いスパンの予定は、命が流れていることを実感させます。予定が実行できなくても構いません。立てること自体が、命への肯定になります。
+
+デジタルの世界にも終わりがあります。スマホの中身を整理し、不要なアプリを削除し、大切な写真を選び、コメントを添える。デジタル遺品を意識すると、今の行動が整います。パスワードの管理や、共有の方法を家族と確認しておくことも安心につながります。
+
+身体を通じた「生の感覚」を増やします。朝日を浴びる、風を顔に受ける、土に触れる。感覚に意識を置くと、「今ここ」の存在感が強まります。存在感が強まると、未来への恐れが薄まります。恐れは「今が薄い」ときに強くなるからです。
+
+ブッダは「正念」を説きました。今起きていることを、評価せずにそのまま観る心のことです。死の恐れが湧いたとき、「恐れがある」と言葉にし、呼吸に戻る。評価ではなく観察。観察する心は、恐れに飲まれずに済みます。
+
+夜中に目が覚めたときは、窓の外の音を数えます。風の音、遠くの車、虫の声。音を十個数えたら、手のひらを温めて胸に当てる。体の温かさと外の音を同時に感じると、意識が「今」に戻ります。戻れる場所を体に作ることが大切です。
+
+終わりを意識すると、人はやさしくなります。怒りが湧いたときに、「これが最後の会話かもしれない」と思うと、言葉が柔らかくなる。柔らかい言葉は、自分の耳にも優しく響きます。優しい響きは、恐れを鎮める音楽になります。
+
+仏教の戒律にある「不殺生」は、命を奪わないという外側のルールだけでなく、内側の恐れを殺さないことも含みます。恐れを無理に消そうとせず、少しずつ和らげる。和らげるために、呼吸、光、音、触覚、言葉を使う。内側の命も大切に扱う姿勢が、最期の穏やかさを支えます。
+
+三か月に一度、自分の人生の「棚卸し」をします。できたこと、嬉しかったこと、悔いが残ることを三つずつ書く。書き終えたら、悔いの欄に対し「今できる一歩」を一つずつ書く。棚卸しは、未完了を減らし、今を整える作業です。整った今は、未来への橋になります。
+
+死の話題は重く感じますが、笑いも忘れずに。昔の失敗談を家族と笑い合う。笑いは、終わりへの恐れを柔らかく包みます。笑いながら「そのときも生きてたね」と確認する。笑いは、生の証明です。
+
+そして、日常に小さな「終わりの儀式」を入れます。仕事を終えたら、一礼をする。掃除を終えたら、手を合わせる。テレビを消す前に「今日もありがとう」と言う。小さな終わりを意識するたび、終わりは「怖いもの」から「区切り」に変わります。区切りは次の始まりを用意します。
+
+輪廻転生の話に戻ります。次の生をどう受け取るかは誰にも分かりません。ただ、今の行いが次に渡るなら、今を整えることが最善です。誰かに優しくすること、自分を大切にすること、環境をいたわること。これらは次の条件を整える種です。種を蒔けば、いつかどこかで芽が出ます。芽が出る場所は選べなくても、種を蒔くことは選べます。
+
+死を考えることは、今を大切にすること。恐れに飲まれたら、呼吸に戻り、光を見て、音を聴き、手を温める。小さな感覚が、怖さから連れ戻してくれます。戻る場所をたくさん持ってください。
+
+最後の最後に、短いマントラを一つ。「流れの中にいる」。歩くとき、座るとき、寝る前。心で唱えながら四つ吸い六つ吐く。流れを感じると、終わりは途切れではなく、形を変えるだけだと体が知ります。体が知れば、心も静かになります。静かな心で、穏やかな最期へ向かう道を歩んでください。
+
+死の話は、一度で終わらなくていい。何度でも考え、話し、準備する。準備するたびに、怖さは少しずつ薄まり、今が少しずつ濃くなる。薄まった恐れの隙間に、感謝や喜びが入り、人生の色が深くなる。深まった色を味わい尽くすことが、最期の一瞬を穏やかにする最良の方法です。
+</pre>
     </div>
   </div>
 </main>

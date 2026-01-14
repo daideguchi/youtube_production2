@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH01-269 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH01-269 — script</h1>
           <div class="muted">【言葉は刃】陰口が止まらない人が心で失っているもの｜ブッダの教え</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH01</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,141 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCdAT_v1_2aTPergMpWy2V-w/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【言葉は刃】陰口が止まらない人が心で失っているもの｜ブッダの教え</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>【人間関係】で苦しいあなたへ──噂話から降りる話。
+・陰口が止まらない心理・噂の輪から降りる方法
+
+この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>人間関係, 悪口, 仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 男性3</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly>【人間関係】で苦しいあなたへ──噂話から降りる話。
+・陰口が止まらない心理・噂の輪から降りる方法</textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「人生の道標 - 癒される仏教」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：男性3
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH01-269</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH01-269&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">陰口を言い終わった後にふと訪れる、あの粘り気のような虚しい感覚を覚えはしないでしょうか。一瞬はスッキリした気がしていても、時間が経つにつれて胸の奥が重くなっていく。あれは単なるストレス発散ではありません。実は、あなた自身の大切な心を削り取り、自己肯定感を失わせている行為なのです。私たちはつい、言葉を空気のように軽く扱ってしまいますが、仏教の視点は少し違います。
+
+仏教には口業という言葉があります。これは、口を使って行う行為、つまり言葉による行動のことです。私たちは体を動かすことだけを行いだと思いがちですが、言葉を発することもまた、強い力を持った行為だと教えられています。誰かの悪口を言うとき、あなたの心の中では一体何が起きているのでしょうか。相手の欠点を探し、それを言葉にする瞬間、あなた自身の心は相手の醜さと同じ形に染まっていくのです。それはまるで、自分の手で墨をすり込んでいるようなものです。
+
+陰口は一時的な虚勢に過ぎません。他人を下げることで、自分が上がったような錯覚を覚えるだけです。しかし、その錯覚はすぐに消え去り、後に残るのは自己嫌悪というしこりだけです。心が汚れるというのは、そういうことです。物事をネガティブに捉える癖がつき、世界全体が灰色に見えてくる。そして最終的には、自分自身を愛することができなくなってしまうのです。言葉は発した瞬間に、自分に返ってくるのです。悪口を言えば言うほど、あなたの心は荒んでいき、穏やかさを失っていきます。それはまるで、毒を自分で飲み続けているようなものです。
+
+この言葉の刃が、自分自身を傷つけるだけで終わらないこともあります。時には、周囲の人間関係そのものを破壊してしまった歴史の教えがあるのです。
+
+---
+
+かつて、仏教教団を二つに裂こうとした、ある男の悲しい物語があります。その名を、提婆達多といいます。彼はブッダの従弟であり、優れた才能とカリスマ性を持っていたと伝えられています。多くの人々から尊敬を集めていた彼でしたが、ある時から心の奥底に黒い影を落とし始めました。それは、自分がブッダの代わりに教団を率いたいという強烈な嫉妬と野心でした。
+
+提婆達多は、ブッダにその座を譲るよう頼みましたが、きっぱりと断られます。その屈辱が彼を狂わせたのか、彼はブッダを陥れるための陰湿な工作を始めました。彼は王族に近づき、ブッダの悪口を吹き込み、信頼を失わせようと画策しました。また、教団内部でも、修行僧たちの間に巧妙な噂を流し始めます。
+
+彼は言いました。
+ブッダはもう年老いて、指導する力がない。
+もっと過酷な苦行をこそ、本当の修行とすべきだ。
+これらの言葉は、不安を抱えていた若い修行僧たちの心に突き刺さりました。一見もっともらしく聞こえる彼の主張は、次第に支持者を増やしていきました。かつて一枚岩だった和やかな共同体は、疑心暗鬼の色を濃くし、ついに物理的に二つに引き裂かれてしまったのです。
+
+しかし、提婆達多が手に入れたのは、亀裂だらけの荒廃した集団でした。ブッダは、この騒動の中でも一度も怒ることなく、静かに事態を見守り続けました。やがて、修行僧たちは提婆達多の言葉の裏にある、自分自身の欲望と怒りに気づき始めます。嘘はいつか暴かれ、彼の周りからは次々と人が離れていきました。
+
+結局のところ、提婆達多が破壊しようとしたのは、他ならぬ自分自身の居場所だったのです。悪意ある言葉を吐き続けた結果、彼は誰からも信頼されない孤独な淵へと落ちていきました。他人を傷つけ、社会を壊そうとしたその言葉は、ブーメランのように確実に自分に返ってきました。これが、因果の理が示す恐ろしい現実です。
+
+なぜ、他人を傷つけようとした言葉が、結局は自分を孤立させることになるのでしょうか。
+
+---
+
+陰口で一時的に結ばれた関係は、決して長続きするものではなく、そこにあるのは信頼ではなく共通の敵を作り出すことでしか成立しない不安定な連帯感です。陰口を聞いている側は、表向きでは同調していても、心の奥底では自分が次に標的にされるかもしれないという恐怖を無意識に感じています。話し手が他人を値踏みし、悪意を露わにするほど、聞き手の警戒心は高まり、心の距離は広がっていくのです。その結果、言葉の主は周囲から見放されるだけでなく、自分自身の心の中に安らぎを見出せなくなってしまいます。他人を下げることでしか自分の存在を確認できない心は、常に誰かと比較し、競い合わねばならない疲弊した状態に陥り、穏やかな日々は失われていくのです。結局のところ、陰口という刃は、相手を切り裂く前に、まず自分自身の居場所と心の平穏を確実に切り刻んでしまうのです。
+
+もし、あなたが真っ赤に熱した炭の塊を誰かに投げつけようとしたら、どうなるでしょうか。
+
+その熱い塊は、相手に届く前にあなたの手を焼き切ってしまいます。
+あるいは、握りしめたその瞬間に、あなた自身がひどい火傷を負うことになるでしょう。
+
+ブッダは、悪口を言うという行為をこの熱した炭に例えて語られました。
+誰かを傷つけようとして放った言葉は、相手に届く前に、まず放った本人の心を焼き焦がしてしまうのです。
+怒りや憎しみを込めて言葉を吐き出すとき、その毒は最初に自分の心を満たします。
+相手が傷つくかどうかに関わらず、あなたの心は既に黒く煤け、痛みを感じているのです。
+
+まるで風上に立って誰かに煙を吹きかけようとするようなものです。
+煙は、相手よりも先に、自分の目を刺し、咳き込ませることになります。
+これは、自分が蒔いた種が自分に返ってくるという因果の理です。
+他人を攻撃しようとすればするほど、自分自身がその痛みを背負う仕組みになっています。
+
+私たちはつい、言葉を武器にして相手を責めることで自分を守ろうとします。
+一時的には勝ったような気分になるかもしれません。
+しかし実際には、その熱い武器を持っている間に自分が傷つき、心の平穏を失っているのです。
+他人を下げることで自分が上がるわけではない、という現実をこのたとえ話は教えてくれます。
+
+この仕組みを知った上で、私たちは日々の生活の中で飛び交う言葉の輪とどう向き合えばよいのでしょうか。
+
+---
+
+職場の休憩時間や、親戚の集まり。和やかな雰囲気が、ふと一変する瞬間があります。誰かの悪口が始まるときです。あなたはどうしていますか。みんなが笑っているのに、胸の奥がギュッと締め付けられるような感覚。同調して頷いてしまいそうになる自分と、それを止めたい理性がせめぎ合います。この苦しい感覚、とてもよくわかります。でも、安心してください。その輪から降りることは、実は誰にも気づかれずにできるのです。
+
+ここで無理に相手を諭したり、意見を戦わせたりする必要はありません。大切なのは、あなたの心だけを、その濁流から守り抜くことです。そのために役立つのが、心の距離を置くという技術です。まるで、自分の周りに透明なガラスの壁を一枚置くようなイメージを持ってください。相手の言葉は、その壁に当たってそこで止まります。あなたの心の中には、決して入れない。そう決めるだけで、心は驚くほど静かになります。
+
+さらに、少し視点を変えてみましょう。噂話をしている人たちを、高いところから眺めるような気持ちで見てください。すると見えてくるのは、実は誰かを傷つけたいという強い悪意ではなく、自分たちの仲間意識を確認したいという弱さや、漠然とした不安を吐き出したいという切実さです。つまり、その言葉はあなたに向けられたものではなく、話し手自身の心の揺らぎの表れなのです。
+
+彼らが投げつける言葉は、実は自分たちに返ってくる煙のようなものです。あなたがその煙を吸い込む必要はありません。ただ静かに、その場の空気を観察する「第三者」でいればいいのです。反応しないことが、最大の防御であり、あなた自身の尊厳を守ることになります。誰かの陰口を聞くとき、あなたの心は汚れません。その清らかさを保つことが、結果的にあなたを苦しみから遠ざけるのです。
+
+さて、心の準備ができたら、次は実際に言葉を出す前の一瞬、何をすればよいでしょうか。
+
+---
+
+さて、私たちの日常に戻りましょう。これまでお話ししてきたように、噂話や悪口は、実は自分自身の心を削り取る行為です。熱した炭を投げつければ、先に自分が火傷をする。その仕組みはもうお分かりいただけたはずです。では、もし明日、職場や地域の集まりで、誰かの悪口が飛び交う場面に遭遇したら、どうすればいいのでしょうか。あるいは、自分自身が何か言いたくなってしまった時、どうその衝動を止めればいいのでしょうか。
+
+---
+
+難しい修行が必要なわけではありません。特別な場所へ行く必要もありません。今夜から、たった一つだけ意識していただきたいことがあります。それは、悪口を言いそうになったその瞬間に、口を閉じることです。言葉が出る前に、物理的に唇を閉じてみてください。たったそれだけのことで、あなたの心は守られます。言葉にしてしまえば後悔しても遅いですが、口にしなければ、それはただの風のように過ぎ去っていくのです。一呼吸置くことで、熱くなった頭を冷やす時間が生まれます。その沈黙こそが、あなた自身を守る最強の盾になるのです。
+
+---
+
+口を閉じた次に、心の中で一つだけ行ってください。それは、その相手の長所や、感謝できることを一つだけ探すことです。もし思いつかなければ、今日元気でいてくれたことだけでも構いません。それを心の中で静かに唱えてみてください。悪意を込める代わりに、感謝を込める。この小さな切り替えが、あなたの心の空気を一瞬で変えてしまいます。相手の欠点を見るのではなく、長所を見る。それが、あなたの心を穏やかに保つ秘訣です。陰口の輪の中にいる時よりも、ずっと軽やかな気持ちを味わえるはずです。
+
+---
+
+この二つのステップ、口を閉じて感謝を探す。これなら、今夜、布団に入る前から始められますよね。誰かに迷惑をかけることなく、静かに自分の心を整えることができます。言葉は刃物ですが、使い方次第で、自分を守る盾にもなります。これからのあなたの日々が、穏やかで美しいものとなりますように。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-009 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-009 — script</h1>
           <div class="muted">【比較】比べるほど心が弱る｜比べない軸</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,453 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【比較】比べるほど心が弱る｜比べない軸</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>比較, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-009</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-009&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">誰かと比べてしまう。
+SNSを開けば、誰かの幸せそうな投稿が目に入る。
+周りを見れば、自分より上手くやっている人がいる。
+比べるたびに、心がズーンと重くなる。
+
+そんな経験、ありませんか。
+
+今日は、比較に苦しむ優しいあなたへ、心が楽になるお話をさせてください。
+比べてしまう自分を責めなくていいのです。
+それは、あなたの心が繊細で、周りをよく見ている証拠でもあるのですから。
+
+---
+
+まず、あなたに知っておいていただきたいことがあります。
+
+比較すること自体は、人間として自然なことなのです。
+
+私たちの祖先は、群れの中で自分の位置を確認することで生き延びてきました。
+周りと比べて、自分が安全かどうかを判断していた。
+それが脳に刻み込まれているのです。
+
+だから、比べてしまう自分を責めないでください。
+それは、あなたが悪いのではありません。
+人間として、ごく自然な反応なのです。
+
+ただ、現代社会では、この比較本能が暴走しやすくなっています。
+昔は、比較する相手は村の中の数十人でした。
+でも今は、SNSを通じて、世界中の何億人とも比較できてしまう。
+しかも、みんなの一番輝いている瞬間だけを見せられる。
+
+これでは、心が疲れてしまうのも当然です。
+
+---
+
+お釈迦様のお話をご紹介しましょう。
+
+ある時、一人の弟子がお釈迦様に尋ねました。
+私は他の弟子たちと比べて、修行が進んでいません。
+彼らはすでに悟りに近づいているのに、私だけが遅れています。
+どうすれば追いつけるでしょうか。
+
+お釈迦様は静かにこう答えられました。
+
+お前は、誰かと競争しているのか。
+修行とは、他者に勝つことではない。
+昨日の自分より、今日の自分が一歩でも進んでいれば、それでよいのだ。
+
+犀の角のように、ただ独り、自分の道を歩みなさい。
+上を見て焦る必要もなければ、下を見て安心する必要もない。
+お前の道は、お前だけのものなのだから。
+
+弟子は、その言葉を聞いて、肩の荷が下りたような気持ちになりました。
+比べることをやめた時、初めて自分自身の歩みに集中できるようになったのです。
+
+---
+
+なぜ、比較は心をこれほど苦しめるのでしょうか。
+その仕組みを、少し見てみましょう。
+
+まず、比較は常に不公平だからです。
+
+私たちは比較する時、自分の弱い部分と、相手の強い部分を比べてしまいます。
+自分の裏側と、相手の表側を比べている。
+自分の苦労は全部知っているけれど、相手の苦労は見えない。
+
+これでは、自分が劣っているように感じるのは当然です。
+でも、それは公平な比較ではないのです。
+
+次に、比較には終わりがないからです。
+
+一人に追いついたと思ったら、また別の人が現れる。
+上には上がいる。
+どこまで行っても、必ず自分より上の人がいる。
+
+この終わりのないレースに参加している限り、永遠に満足することはできません。
+ゴールのないマラソンを走っているようなものです。
+
+そして、比較は自分の価値を他者に預けてしまうからです。
+
+他者より上か下かで、自分の価値が決まる。
+これでは、自己評価が非常に不安定になります。
+今日は勝っていても、明日は負けるかもしれない。
+常に不安にさらされることになります。
+
+さらに、私たちの脳はネガティブな情報に敏感にできています。
+これは生存のために必要な機能でした。
+危険を察知して逃げるために。
+
+だから、比較する時も、自分が劣っている部分に目が行きやすい。
+自分が優れている部分は見過ごしてしまう。
+
+これは、あなたの性格の問題ではありません。
+脳の仕組みなのです。
+だから、自分を責める必要はないのです。
+
+---
+
+仏教では、不動心という言葉があります。
+
+これは、何があっても動じない、鋼のような心のことだと思われがちです。
+でも、本当の意味は少し違います。
+
+不動心とは、揺れても戻れる心のことです。
+
+比較して落ち込むことがあってもいい。
+誰かを羨ましく思うことがあってもいい。
+それは人間として自然なことです。
+
+大切なのは、揺れた後に、自分の軸に戻ってこられること。
+柳の木のように、風に揺れても、また元の位置に戻る。
+それが、真の心の強さなのです。
+
+竹を思い浮かべてみてください。
+竹は、強風が吹くと大きくしなります。
+でも、風が止むと、また元の姿に戻る。
+
+もし竹が、風に抗おうとしたら、どうなるでしょうか。
+折れてしまうかもしれません。
+
+心も同じです。
+比較の風が吹いた時、それに抗おうとすると、心が折れてしまう。
+でも、一度しなって、また戻ってくればいい。
+その柔らかさが、本当の強さなのです。
+
+比較しない人になろうとしなくていいのです。
+比較しても、そこから戻ってこられればいい。
+その戻る力を、少しずつ育てていけばいいのです。
+
+---
+
+歴史上の偉人たちも、比較に苦しんだ経験があります。
+
+夏目漱石は、若い頃、周囲の秀才たちと自分を比べて苦しみました。
+自分には才能がないのではないか。
+他の人のように書けないのではないか。
+そんな劣等感に悩まされていたといいます。
+
+でも、漱石は最終的に、自分だけの文体を見つけました。
+誰かの真似ではなく、夏目漱石にしか書けない作品。
+それは、比較をやめて、自分自身と向き合った結果でした。
+
+漱石は晩年、こう語っています。
+自己本位という言葉を、私は大切にしている。
+他人がどうあれ、自分は自分の道を行く。
+それが、私がたどり着いた境地だ。
+
+比較の苦しみを経験したからこそ、この言葉には重みがあります。
+あなたも、今は比較に苦しんでいるかもしれません。
+でも、その苦しみの先に、自分だけの道が見えてくるのです。
+
+もう一人、エピソードをお話しさせてください。
+
+アルフレッド・アドラーという心理学者がいます。
+彼は幼少期、兄と比較されて苦しみました。
+兄は優秀で、自分は劣っている。
+そう感じて育ったのです。
+
+しかし、その経験が彼を心理学へと導きました。
+劣等感とは何か、比較がなぜ人を苦しめるのか。
+それを深く研究し、アドラー心理学という体系を作り上げたのです。
+
+アドラーは、こう言っています。
+劣等感は、前に進むための燃料にもなるし、足を止める鎖にもなる。
+どちらになるかは、その人次第だ。
+
+比較の苦しみを経験したからこそ、この言葉は生まれました。
+苦しみは、必ずしも無駄ではないのです。
+
+---
+
+では、比較から心を守るための、具体的な方法をお伝えしましょう。
+三つのステップです。
+
+第一のステップ。比較していることに気づく、です。
+
+まず、自分が今、比較していることに気づいてください。
+比較は無意識に起こることが多いのです。
+気づかないうちに、誰かと自分を比べている。
+そして、気づかないうちに、心が沈んでいる。
+
+だから、まず気づくことが大切です。
+あ、今、私は誰かと比べているな。
+そう気づくだけで、一歩引くことができます。
+
+比較に巻き込まれている自分と、それを見ている自分。
+二人の自分がいるようなイメージです。
+見ている自分がいると、巻き込まれにくくなります。
+
+第二のステップ。比較の相手を変える、です。
+
+他人と比べるのではなく、過去の自分と比べてください。
+一年前の自分より、今の自分は成長しているだろうか。
+去年できなかったことで、今年できるようになったことはあるだろうか。
+
+そう考えると、案外、自分が進んでいることに気づくかもしれません。
+小さな進歩でもいいのです。
+それを認めてあげてください。
+
+他人と比べると、常に負ける可能性がある。
+でも、過去の自分と比べると、少なくとも同じか、成長しているはずです。
+これなら、心が折れません。
+
+第三のステップ。感謝を増やす、です。
+
+比較する時、私たちは自分にないものに目が行きます。
+あの人にはあって、自分にはない。
+それを数えるほど、心は貧しくなっていきます。
+
+逆に、自分が持っているものに目を向けてみてください。
+当たり前だと思っているもの。
+健康、住む場所、食べるもの、話せる人。
+
+毎日、三つだけ、感謝できることを思い浮かべてみてください。
+ノートに書いてもいいですし、心の中で思うだけでもいいです。
+
+これを続けると、比較よりも感謝が増えていきます。
+心が、足りないものではなく、あるものに向くようになります。
+
+この三つのステップは、すぐに効果が出るわけではありません。
+でも、続けていくと、確実に変わっていきます。
+
+最初は、比較に気づくのに時間がかかるかもしれません。
+気づいた時には、もう落ち込んでいる。
+それでも大丈夫です。
+気づけただけで、一歩前進です。
+
+続けるうちに、気づくのが早くなっていきます。
+比較し始めた瞬間に、あ、今比較しているな、と分かるようになる。
+そうなれば、巻き込まれる前に抜け出せます。
+
+焦らず、ゆっくりと、自分のペースで続けてください。
+一日に一回でも、意識できれば十分です。
+
+---
+
+この実践をする時、一つ気をつけていただきたいことがあります。
+
+比較する自分を、責めないでください。
+
+さっき比較してしまった、また比較してしまった、自分はダメだ。
+そう思わなくていいのです。
+
+比較は人間の本能です。
+完全になくすことはできません。
+それでいいのです。
+
+大切なのは、比較に気づいて、そこから戻ってくること。
+気づいたら、深呼吸をして、意識を自分に戻す。
+それを繰り返すだけです。
+
+何度比較しても、何度でも戻ってくればいい。
+その繰り返しで、少しずつ、比較に振り回されなくなっていきます。
+
+また、感情を押し殺す必要もありません。
+
+誰かを羨ましいと思ったら、羨ましいと認めていい。
+悔しいと思ったら、悔しいと認めていい。
+その感情を否定しないでください。
+
+ただ、その感情に飲み込まれないこと。
+感じた後で、自分の軸に戻ってくること。
+それだけでいいのです。
+
+---
+
+最後に、SNSとの付き合い方についてお話しします。
+
+SNSは、比較を加速させる装置です。
+みんなの一番輝いている瞬間だけが流れてくる。
+苦労や悩みは見えない。
+編集された現実だけが見える。
+
+それを見て、自分と比べてしまうのは自然なことです。
+
+もし、SNSを見ると心が辛くなるなら、距離を取ることを考えてみてください。
+見る頻度を減らす。
+特に辛くなるアカウントはミュートする。
+夜寝る前は見ないようにする。
+
+見なければ、比べようがありません。
+物理的に距離を取ることも、立派な対策です。
+
+SNSを完全にやめる必要はありません。
+ただ、自分の心を守れる範囲で付き合うこと。
+それが大切です。
+
+一つ、覚えておいていただきたいことがあります。
+
+SNSで見ているのは、その人の人生のほんの一部です。
+幸せそうに見える人も、画面の向こうでは悩んでいるかもしれない。
+成功しているように見える人も、見えないところで苦労しているかもしれない。
+
+みんな、自分の良いところだけを見せている。
+それを全部だと思って比較すると、必ず自分が負けてしまう。
+
+そのことを、忘れないでください。
+
+また、比較で辛くなった時は、信頼できる人に話を聞いてもらうことも大切です。
+自分だけで抱え込まないでください。
+
+友人でも、家族でも、カウンセラーでも。
+聞いてもらうだけで、心が軽くなることがあります。
+
+---
+
+人生は、一つのレースではありません。
+
+みんなが同じコースを走っているわけではないのです。
+Aさんのレースと、あなたのレースは違う。
+ルールも違う。ゴールも違う。
+比べても意味がないのです。
+
+あなたのレースは、あなただけのもの。
+誰とも比較できない、唯一無二のレースです。
+
+そして、そのレースには、あなたのペースがあります。
+速くなくていい。
+周りに合わせなくていい。
+あなたのペースで、あなたの道を歩んでいけばいいのです。
+
+---
+
+比べることで心が弱っていたあなた。
+もう、自分を責めないでください。
+
+今日のお話を聞いて、少しでも心が軽くなっていれば嬉しいです。
+
+比較してしまう自分を否定しなくていい。
+比較は人間の本能だから。
+
+ただ、比較に飲み込まれなくてもいい。
+揺れても、戻ってくればいい。
+
+今日ご紹介した三つのステップ。
+比較に気づく。
+過去の自分と比べる。
+感謝を増やす。
+
+どれか一つでも、試してみてください。
+全部やる必要はありません。
+一つでも、続けていれば、心は変わっていきます。
+
+比較してしまうのは、人間として自然なこと。
+でも、比較に飲み込まれなくてもいいのです。
+
+比較に気づいて、深呼吸をして、自分の軸に戻る。
+過去の自分と比べて、小さな成長を認める。
+感謝を増やして、あるものに目を向ける。
+
+それだけで、心は少しずつ楽になっていきます。
+
+あなたの人生は、あなただけのもの。
+誰とも比較できない、かけがえのないものです。
+
+あなたのペースで、あなたの道を歩んでいってください。
+その道を歩むあなたを、私は心から応援しています。
+
+あなたは、比較に苦しむほど繊細な心を持っています。
+それは、弱さではありません。
+周りをよく見ている証拠です。
+人の気持ちが分かる証拠です。
+
+その繊細さは、あなたの才能です。
+ただ、その才能が自分を傷つける方向に向いてしまっていただけ。
+
+これからは、その繊細さを、自分を守る方向に使ってください。
+比較している自分に気づく。
+感謝できることを見つける。
+自分の小さな成長を認める。
+
+繊細だからこそ、できることです。
+
+あなたの心は、美しいままでいいのです。
+比較に疲れた今日も、あなたの価値は何も変わっていません。
+どうか、そのことを忘れないでください。
+
+明日もまた、比較してしまうかもしれません。
+それでも大丈夫です。
+何度でも、自分の軸に戻ってくればいいのです。
+
+その繰り返しの中で、少しずつ、心は強くなっていきます。
+柳のように、竹のように、しなやかに強くなっていきます。
+
+あなたなら、できます。
+私は、そう信じています。
+あなたの心は、あなたが思っている以上に、強くてしなやかなのです。
+
+今日も最後まで聞いてくださって、ありがとうございました。
+またお会いできる日を、心から楽しみにしています。
+
+どうか、今夜は穏やかな眠りにつけますように。
+そして明日からの日々が、少しでも楽になりますように。
+
+皆様の心が穏やかでありますように。
+</pre>
     </div>
   </div>
 </main>

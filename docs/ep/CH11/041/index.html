@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH11-041 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH11-041 — script</h1>
           <div class="muted">【失敗を巻き直す】ブッダが教える静かなやり直し術</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH11</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,156 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCuTMwifbRbBXqjPBRq4c7CQ/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【失敗を巻き直す】ブッダが教える静かなやり直し術</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>仏教, 法話, 禅, 心理学, 哲学, 内省, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEPEAK, 女性1</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの法話」の長時間コンテンツです。
+仏教の教えと現代科学を融合した人生哲学
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEPEAK：女性1
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH11-041</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH11-041&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">失敗を思い出すと、胸が縮こまり、夜が長くなる。あの日言い過ぎたこと、あの選択で失ったもの、取り返せない時間。何度も巻き戻し、心の中で自分を叱り続ける。けれど、巻き戻しではなく「巻き直し」はできる。ブッダの教えを借りて、過去の失敗を静かに置き直し、今を歩き出す台本です。派手な反省ではなく、静かな再スタートを描きます。
+
+朝の始まりに、失敗の映像が浮かんだら、カーテンを指一本分開け、四つ吸い六つ吐く。吐くときに心で静かに言う。「終わったこと、ここで置く」。光が入るだけで、映像の色が薄くなる。白湯を一口飲み、今日やることを一つだけ紙に書く。過去ではなく、今日の一歩に手を伸ばす儀式です。
+
+失敗を「形」にして外に出す。頭の中にあるうちは、失敗は巨大だ。紙に三行で書く。「何が起きたか」「どう感じたか」「今できる一歩」。書いたらたたみ、封筒に入れ、引き出しにしまう。仏教の「放下着」は、握っているものを置くこと。しまう場所を決めると、頭の中から引き出しに移動する。引き出しがいっぱいなら、新しい紙を入れる前に古い紙を破る。破るときに長く吐息を入れ、「ここで手放す」と心で唱える。
+
+失敗の原因を一言でまとめる。「準備不足」「焦り」「油断」「怒り」。一言にすると、感情の塊が扱える大きさになる。扱えるようになったら、同じ原因を減らす小さな習慣を一つ決める。準備不足なら「前夜にバッグを確認する」。焦りなら「返事を一晩寝かせる」。油断なら「確認を一人に任せずダブルチェック」。怒りなら「三呼吸してから話す」。原因に対する具体を一つだけ足す。足しすぎない。足しすぎは続かない。
+
+仏教の「因果」を思い出す。失敗は結果で、原因があった。原因は変えられる。未来の結果も変えられる。原因に手を入れることで、過去をやり直すのではなく、未来を描き直す。描き直しは、今日の一歩から始まる。
+
+失敗を思い出すとき、同時に「得たもの」を一つ思い出す。人の痛みに気づけた、慎重さを得た、別の道を知った。得たものを書き、感謝を一つ添える。感謝は、失敗を「素材」に変える。素材にすると、心の中で腐らない。
+
+失敗を誰かに話す。信頼できる人に、十分だけ時間をもらい、事実と感情を短く話す。聞いてもらうことで、頭の中の音量が下がる。話し終えたら「聞いてくれてありがとう」と言う。感謝は、恥ではなく共感で終える儀式。
+
+体を動かして、思考の渦から抜ける。歩行瞑想を十歩。右、左と心で唱え、足裏に意識を置く。足裏は過去にも未来にもいない。今ここにしかいない。足裏に戻るたび、失敗の映像は遠ざかる。
+
+夜の習慣で、失敗の熱を下げる。湯気の飲み物を手に持ち、今日の失敗の芽と感謝の芽を三行書く。芽は小さいうちに摘む。書き終えたら、手の甲をもう片方の手で包み、「今日の分はここまで」と唱え、四つ吸い六つ吐く。吐くたびに熱が薄れ、吸うたびに静けさが入る。
+
+心配や後悔が強くなるのは夜が多い。寝る前に、「今できることはない」と紙に書き、枕の下に置く。仏教の「放下着」を枕元で実践する。置く場所があると、頭の中から床に下りる。
+
+デジタルの線引きをする。失敗を検索し続けるのをやめ、経験を糧にした人の話を一つ読むか聞く。SNSで過去を責めるコメントを見たら、画面を伏せ、四つ吸い六つ吐く。即レスしない。翌朝、落ち着いた頭で返すか返さないかを決める。決めたら、返事を短く。「確認します」「ここで区切ります」。短さが、燃料を減らす。
+
+七日間の練習。初日：紙に三行で失敗を書く。二日目：原因を一言でまとめ、小さな対策を一つ決める。三日目：歩行瞑想十歩。四日目：誰かに失敗を十分だけ話し、感謝を言う。五日目：情報オフを一時間。六日目：感謝の芽を三つ書く。七日目：枕元に「今は休む」と書いた紙を置き、長い吐息で眠る。七日が過ぎるころ、頭の中の音量が下がる。
+
+二十一日続けると、失敗が浮かんでも、呼吸と紙と歩行に戻る回路ができる。三十日を過ぎるころには、原因への小さな対策が習慣になり、同じ失敗への恐怖が薄れる。九十日を超えると、「失敗＝終わり」ではなく、「失敗＝素材」という感覚が体に染みる。染みれば、挑戦の足が軽くなる。
+
+科学の視点も添える。長い吐息は迷走神経を刺激し、心拍変動を整え、ストレス反応を下げる。紙に書く行為はワーキングメモリの負荷を減らし、前頭前野を働かせて反芻を減らす。感謝を書く習慣はポジティブな記憶の想起を増やし、ネガティブバイアスを弱める。歩行はコルチゾールを下げ、心拍と呼吸を整える。理屈を知ると、続ける理由が増える。
+
+失敗の中には、取り返しがつかないものもある。人にかけた傷、失った命。そうしたものは、簡単に「学び」に変えられない。仏教の懺悔は、過去を消す儀式ではない。過去を見つめ、二度と繰り返さない誓いを立てる儀式だ。できる補償があるなら行う。できないものは、日々の行いで少しずつ償う。誰かを助け、優しい言葉をかけ、怒りを減らす。小さな善行で過去は直接は消えないが、今の自分を変えることはできる。変わった自分が、周りに静かな光を届かせる。
+
+失敗を思い出すと、自己否定の言葉が湧く。「自分はダメだ」「もう終わりだ」。その言葉を「私は今、ダメだと思っている」と言い換える。思っているのは事実だが、事実がすべてではない。仏教の「正見」は、物事をありのままに見ること。ありのままは、評価ではなく状態だ。状態を見れば、変える余地が見える。
+
+「最悪」を想像する癖があるなら、「最悪が起きたら誰に助けを求めるか」をセットにする。名前を書くだけで、心は少し落ち着く。落ち着いた心で、今できる備えを一つする。備えができたら、「備えたから今は休む」と言う。休む勇気も、再スタートの一部だ。
+
+未来に踏み出すために、小さな成功を記録する。引き出しを一つ整理した、手紙を一通送った、散歩に出た。成功を紙に書き、丸をつける。丸が増えると、「できない自分」の映像の上に「できた自分」の映像が重なる。重なれば、失敗の映像は薄まる。
+
+人と比べると、失敗の重さは増える。比較は燃料だ。仏教の縁起は「条件が違えば結果も違う」と教える。条件が違う人と比べない。比べそうになったら、「あの人の条件は私とは違う」と心で言う。言うだけで、刃が鈍る。鈍った刃は、自分も他人も切らない。
+
+自然に触れる。森の年輪、川の流れ、石の風化。自然は、失敗も時間とともに形を変えることを教えてくれる。年輪の割れも、川の曲がりも、石の欠けも、味になる。自分の失敗も、時間が経てば味になる。味になるまで、今を丁寧に過ごす。
+
+最後に、手の甲を包み、心で唱える。「失敗は素材。今を描く」。四つ吸い六つ吐く。吐くたびに過去の熱が床に降り、吸うたびに静かな力が胸に入る。静かな力があれば、失敗の上に新しい線を引ける。線を引けば、物語は続く。続く物語を、ゆっくり歩いてください。
+
+七日間の再スタートプランをもう一度まとめる。初日：三行で失敗を書き封筒に入れる。二日目：原因を一言でまとめ対策を一つだけ決める。三日目：歩行瞑想十歩。四日目：信頼できる人に十分だけ話し感謝を言う。五日目：情報オフ一時間。六日目：感謝の芽を三つ書く。七日目：枕元に放下の紙を置き、長い吐息で眠る。七日の終わりに、紙に丸をつける。丸は小さな再スタートの証。
+
+二十一日続けると、封筒に入れる・書く・話す・歩く・感謝・放下が一連の回路になる。回路ができると、失敗の映像が浮かんでも、回路に乗せて外に出せる。三十日を過ぎるころには、原因への小さな対策が身体に染み、同じ失敗を恐れすぎなくなる。九十日を超えると、失敗を素材として扱う筋肉がつき、新しい挑戦への足が軽くなる。軽さは、未来への信頼を作る。
+
+具体例を三つ置く。五十代の会社員は、大きなプレゼンで失敗し、三か月落ち込んでいた。彼は三行で失敗を書き、原因を「準備不足」と一言でまとめ、毎日10分のリハーサルを追加した。二十一日で声の震えが減り、三か月後のプレゼンで「落ち着いていた」と同僚に言われた。六十代の主婦は、子どもとの喧嘩を悔やんでいた。紙に「言い過ぎた」「悲しかった」「後で話す」を書いて封筒にしまい、翌日「ごめんね」と短く伝えた。繰り返すうちに、怒鳴る回数が減り、関係が戻った。四十代の経営者は、投資の失敗で負債を抱えた。頭で責め続けていたが、紙に数字と対策を書き、週に一度だけ心配会議を開くようにした。三か月で計画が見え、眠れるようになった。「紙は敵を小さくする」と彼は言う。
+
+デジタルの習慣も組み込む。毎朝ニュースやSNSを開く前に、呼吸と白湯と今日の一歩を書く。夜は寝る一時間前に画面を閉じ、湯気と紙に切り替える。深夜の衝動的な検索や返信は、反芻を増やすだけだ。翌朝の明るい頭で返すか返さないかを選ぶ。選べるだけで、心の主導権が戻る。
+
+身体のケアは、心のケアと同じ。睡眠不足と空腹は、失敗の映像を増幅する。よく寝て、温かいものを飲み、少し歩く。仏教の中道は、極端を避ける道。反省しすぎも、反省しなさすぎも極端だ。適度に振り返り、適度に休む。休むことは、再スタートの準備だ。
+
+「許されたい」という気持ちが強いときは、まず自分に許可を出す。「もう一度やっていい」「間違えてもいい」。許可は免罪符ではない。挑戦を続けるための燃料だ。仏教の慈悲は、他人だけでなく自分にも向ける。自分への慈悲が、次の善行を動かす。
+
+未来に向けて小さな灯りを置く。来週試すことを一つ、来月行く場所を一つ決める。灯りがあると、失敗の闇が薄まる。灯りに向かって歩けば、足元が安定する。安定した足元で、過去を振り返ると、見え方が変わる。
+
+人と比べず、過去の自分と比べる。昨日より一つ紙を破ったか、昨日より一歩歩いたか。比べる相手を自分に戻す。戻すと、焦りは減る。焦りが減ると、失敗の傷も疼きにくくなる。
+
+最後の合図。手の甲を包み、心で唱える。「失敗は終わりではない。素材だ。私は今日も描き直す」。四つ吸い六つ吐く。吐くたびに肩が下がり、吸うたびに背が伸びる。背が伸びたら、前を向く。前を向いたら、また一歩。静かに、しかし確かに、歩き出せる。
+
+眠りの前に「感謝瓶」を使う。小さな紙に今日の感謝を一つ書き、瓶に入れる。瓶が重くなるのを視覚で感じると、「持っているもの」が増えていると実感できる。失敗が浮かんだ夜は、瓶を開けて過去の感謝を読む。読むと、失敗の映像と感謝の映像が重なり、痛みが薄まる。
+
+24時間ルールも効く。衝動的に「ごめんなさい」と謝りたくなるとき、衝動的に言い訳したくなるとき、24時間置く。翌日、短く事実と感謝と対策だけを伝える。「昨日はこうでした。驚かせてしまいごめんなさい。次はこうします」。長い言い訳は信頼を削る。短い事実と感謝と対策は、信頼を積み直す。
+
+失敗を繰り返し思い出すときは、体の部位を一つだけ意識する。耳たぶを触り、温度を感じる。耳たぶは未来にも過去にもいない。今にしかいない。耳たぶの温度が、心を今に戻す。戻ったら、呼吸に移る。呼吸に移ったら、足裏に移る。段階的に戻る階段を用意する。
+
+信頼を回復するには、約束を一つだけ守る。大きな約束ではなく、小さな約束。「9時にメールを送る」「週に一度連絡する」。守れたら丸をつける。丸が信頼の筋肉を作る。信頼は人相にも声にもにじむ。にじんだ信頼が、過去の失敗を上書きする。
+
+体を温める。温かい飲み物、湯たんぽ、ぬるめの風呂。体が冷えると、失敗の映像が濃くなる。温まると、映像がぼやける。ぼやけたところに、今の音や匂いが入る。入ってきた今が、過去の上に重なる。
+
+自分にだけ厳しい人は、自分にだけ優しい時間も持つ。「今日はよくやった」「ここまででいい」と声に出す。声に出すと、耳からも優しさが入る。優しさが入ると、次の挑戦への燃料になる。
+
+過去の自分へ手紙を書く。「あのときのあなたへ。うまくいかなかったね。でも、その後、こうして息をしているよ。あの失敗があったから、今の私があるよ」。書き終えたら封筒に入れ、引き出しにしまう。しまう場所があると、過去が居場所を得る。居場所を得た過去は、さまよわない。
+
+未来の自分にも手紙を書く。「半年後のあなたへ。今はこんな小さな一歩を続けています。あなたはきっと、何かを描き直しているでしょう」。未来を想像すると、今の足が動く。動く足が、過去との距離を取る。
+
+最後にもう一度、手の甲を包み、心で唱える。「失敗を素材に、静かに描き直す」。四つ吸い六つ吐く。吐くたびに過去の重さが床に落ち、吸うたびに静かな光が胸に入る。静かな光があれば、道は見える。見えた道を、ゆっくり、しかし確かに歩く。それで十分だ。
+
+小さなご褒美を用意する。再スタートの一歩を踏んだら、好きなお茶を一杯、好きな音楽を一曲。ご褒美は、過去ではなく今に結びつける飴玉だ。飴玉があると、次の一歩が軽くなる。
+
+周囲への告知も助けになる。「今、巻き直し中です」と一言伝えると、周りも過去ではなく今の努力を見てくれる。見てくれる目があると、足が止まりにくい。仏教の僧団も、仲間がいるから修行を続けられる。仲間に巻き直しを共有する。
+
+朝の光、昼の水、夜の湯気。三つの区切りを繰り返すだけでも、過去への引力は弱まる。光は前を照らし、水は境界を作り、湯気は手放しを助ける。三つの所作が、一日の地図になる。地図があれば、迷っても戻れる。
+
+身体の痛みや疲れは、失敗の映像を濃くする。痛みを放置せず、休む日を作る。休むことに罪悪感を持たない。仏教の中道は、休息も修行だと教える。休んだ体で見る過去は、少し優しい。
+
+最後に、今日の一歩を書き、丸をつける。丸が一つ増えるたび、過去に貼っていたタグが一つ剥がれる。タグが減れば、身軽になる。身軽な心で、また明日、静かに歩き出す。
+
+静かな声で唱えるマントラを一つ決める。「終わったことは流す。今を描く」。歩きながら、洗い物をしながら、呼吸に合わせて繰り返す。言葉は心の針。針が今に刺さると、過去は流れる。流れる心で、静かな道を進む。
+
+失敗のない人生はない。だからこそ、扱い方が技になる。技は、今日の呼吸、今日の紙、今日の一歩から育つ。育った技が、未来の失敗も静かに受け止める。技がある人は、何度でも巻き直せる。巻き直せる人は、静かに強い。静かな強さで、あなたの物語を続けてください。
+
+今日の一歩は小さくていい。小さな一歩が、静かな強さの種になる。
+
+種は、静かに芽を出す。その芽が、次の一歩を照らす。
+
+過去に巻き付いた糸は、今日の手で少しずつほどける。ほどく手は、誰かに優しく触れる手にもなる。ほどきながら、優しさも育つ。優しさが育てば、未来の失敗も静かに受け止められる。過去をほどく作業は、未来をやわらかくする作業だ。
+</pre>
     </div>
   </div>
 </main>

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CH15-030 — script</title>
-    <link rel="stylesheet" href="../../styles.css?v=20260113_09" />
-    <script defer src="../../app.js?v=20260113_09"></script>
+    <link rel="stylesheet" href="../../styles.css?v=20260114_00" />
+    <script defer src="../../app.js?v=20260114_00"></script>
   </head>
   <body>
     <div class="wrap">
@@ -14,7 +14,7 @@
           <h1 class="title">CH15-030 — script</h1>
           <div class="muted">【救い】心が強くなる最後の視点｜残るのは安心</div>
         </div>
-        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
+        <div class="links"><a class="btn btn--accent" href="../../">ep</a><a class="btn" href="../">CH15</a><a class="btn" href="../../../index.html" target="_blank" rel="noreferrer">Script Viewer</a><a class="btn" href="../../../archive/" target="_blank" rel="noreferrer">書庫</a><a class="btn" href="../../../snapshot/" target="_blank" rel="noreferrer">snapshot</a><a class="btn" href="../../../guide/" target="_blank" rel="noreferrer">guide</a></div>
       </header>
       <main>
   <nav class="tabs"><a class="tab" href="./" aria-current="page">台本</a><a class="tab" href="audio/">音声</a><a class="tab" href="thumb/">サムネ</a><a class="tab" href="images/">画像</a></nav>
@@ -22,42 +22,172 @@
   <div class="panel" id="descPanel">
     <div class="panel__head">
       <div><strong>YouTube貼り付け</strong> <span class="muted">タイトル/概要欄/タグ</span></div>
-      <div class="copy-actions"><a class="btn" id="descStudioLink" href="#" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>概要欄コピー</button></div>
+      <div class="copy-actions"><a href="https://studio.youtube.com/channel/UCJZpBqczQs-Y2yi9g32Qt7Q/videos" class="btn btn--accent" id="descStudioLink" target="_blank" rel="noreferrer">YouTube Studio</a><button class="btn btn--accent" type="button" data-copy-target="descFull">概要欄コピー</button></div>
     </div>
     <div class="panel__body">
       <div class="muted">貼り付け順: ①タイトル → ②概要欄 → ③タグ</div>
       <div class="copy-grid" style="margin-top:10px">
         <div class="copy-block" data-kind="title">
-          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle" disabled>コピー</button></div></div>
-          <textarea id="ytTitle" class="textarea" rows="3" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">① タイトル</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTitle">コピー</button></div></div>
+          <textarea id="ytTitle" class="textarea" rows="3" readonly>【救い】心が強くなる最後の視点｜残るのは安心</textarea>
         </div>
         <div class="copy-block" data-kind="full">
-          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull" disabled>コピー</button></div></div>
-          <textarea id="descFull" class="textarea" rows="10" readonly placeholder="読み込み中…"></textarea>
+          <div class="copy-head"><div class="copy-title">② 概要欄（全文）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="descFull">コピー</button></div></div>
+          <textarea id="descFull" class="textarea" rows="10" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
         </div>
         <div class="copy-block" data-kind="tags">
-          <div class="copy-head"><div class="copy-title">③ タグ（comma）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="ytTags" disabled>コピー</button></div></div>
-          <textarea id="ytTags" class="textarea" rows="4" readonly placeholder="—"></textarea>
+          <div class="copy-head"><div class="copy-title">③ タグ（カンマ区切り）</div><div class="copy-actions"><button class="btn btn--accent" type="button" data-copy-target="ytTags">コピー</button></div></div>
+          <textarea id="ytTags" class="textarea" rows="4" readonly>救い, ブッダ, 仏教, 習慣, メンタル, 心の体力, 回復, シニア, 法話, 禅, 寝落ち, 睡眠用, 作業用BGM, 勉強用BGM, 長時間, 聞き流し, VOICEVOX, 青山流星</textarea>
         </div>
-        <div class="copy-block" data-kind="episode">
-          <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode" disabled>コピー</button></div></div>
-          <textarea id="descEpisode" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
-        <div class="copy-block" data-kind="channel">
-          <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel" disabled>コピー</button></div></div>
-          <textarea id="descChannel" class="textarea" rows="8" readonly placeholder="—"></textarea>
-        </div>
+        <details class="details">
+          <summary class="details__summary">詳細（上級）: 概要欄の内訳 <span class="muted">（動画ごと/チャンネル固定）</span></summary>
+          <div class="details__body">
+            <div class="copy-block" data-kind="episode">
+              <div class="copy-head"><div class="copy-title">概要欄（動画ごと）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descEpisode">コピー</button></div></div>
+              <textarea id="descEpisode" class="textarea" rows="8" readonly></textarea>
+            </div>
+            <div class="copy-block" data-kind="channel">
+              <div class="copy-head"><div class="copy-title">概要欄（チャンネル固定）</div><div class="copy-actions"><button class="btn" type="button" data-copy-target="descChannel">コピー</button></div></div>
+              <textarea id="descChannel" class="textarea" rows="8" readonly>この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。
+根性論ではなく、心の体力を“整えて鍛える”。
+寝落ち・作業・勉強中の“聞き流し”としてお使いください。
+【音声】VOICEVOX：青山流星
+【視聴スタイル】画面は見なくてOK／音量は小さめ推奨
+【ご注意】運転中・危険作業中の視聴はお控えください。
+#仏教 #寝落ち</textarea>
+            </div>
+          </div>
+        </details>
       </div>
-      <div class="muted" id="descStatus" style="margin-top:10px">読み込み中…</div>
+      <div class="muted" id="descStatus" style="margin-top:10px">準備OK（コピーボタンを押してください）</div>
     </div>
   </div>
   <div class="panel">
     <div class="panel__head">
       <div><strong>CH15-030</strong> <span class="muted">台本</span></div>
-      <div class="muted">updated_at: 2026-01-13T13:11:39.158540Z</div>
+      <div class="muted">updated_at: 2026-01-14T00:17:50.251371Z</div>
     </div>
     <div class="panel__body">
-      <iframe class="frame" src="../../../?id=CH15-030&amp;view=script&amp;embed=1&amp;sv=20260113_09" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      <pre class="pre">このシリーズを通して、心の強さについて多くのことをお話ししてきました。
+
+最後に、心が強くなる視点をお伝えします。残るのは安心なのです。
+
+---
+
+心を強くしたい。折れない心がほしい。困難に負けない自分になりたい。
+
+そう思って努力してきたかもしれません。
+
+でも実は、心の強さは「頑張って手に入れるもの」ではないのです。
+
+---
+
+強くなろうとするほど、苦しくなることがあります。
+
+「まだ弱い」「もっと強くならなければ」と自分を責める。頑張っても強くなれないと落ち込む。
+
+強さへの執着が、かえって弱さを生んでいるのです。
+
+---
+
+本当に強い人を見てみてください。
+
+彼らは「強くなろう」と意識していないことが多い。ただ淡々と、目の前のことをやっている。
+
+弱さを隠そうとせず、弱いときは弱いと認める。助けを求める。でも諦めない。
+
+強さとは「弱さを隠すこと」ではなく、「弱さを認めた上で進むこと」なのです。
+
+---
+
+仏教では「執着を手放す」ことで解放されると教えます。
+
+心の強さへの執着も手放す。「強くなければダメ」という思い込みを離れる。
+
+弱くても大丈夫。弱いまま生きていい。そう思えたとき、不思議と強くなっています。
+
+---
+
+心が強くなる最後の視点とは何でしょうか。
+
+それは「自分は大丈夫」という信頼です。
+
+困難が来ても、なんとかなる。最悪でも生きていける。自分を信じられる。
+
+この信頼があれば、何が起きても落ち着いていられます。
+
+---
+
+「自分は大丈夫」という信頼を育てるにはどうすればいいでしょうか。
+
+まず、過去を振り返ってください。
+
+今まで、いくつもの困難を乗り越えてきました。辛い時期もあった。でも生きている。なんとかなってきた。
+
+その経験が、「これからも大丈夫」という証拠です。
+
+---
+
+次に、最小限で生きてみる経験をしてください。
+
+物を減らしても大丈夫。予定を減らしても大丈夫。なくてもなんとかなる経験。
+
+「これがなくても生きられた」という発見が、自信になります。
+
+---
+
+そして、「今この瞬間」に意識を向けてください。
+
+不安は未来への恐れ。後悔は過去への執着。
+
+今に集中すると、心は落ち着きます。今、息をしている。今、生きている。それだけで十分。
+
+---
+
+このシリーズでお伝えしてきたこと。
+
+比較をやめる。習慣を整える。自分責めをやめる。不安を扱う。休むことを許す。
+
+すべては「自分の内側に安心を見つける」ための道筋です。
+
+外に求めず、内に見つける。それが本当の心の強さ。
+
+---
+
+全てを手放したとき、何が残るのか。
+
+空っぽになるのではありません。
+
+残るのは、あなた自身。そして深い安心。
+
+何があっても大丈夫。何がなくても大丈夫。そういう穏やかさ。
+
+---
+
+心を強くしようと頑張らなくていいのです。
+
+強くなろうという執着を手放す。弱さを認める。自分を信頼する。
+
+そうすれば、自然と心は強くなっています。
+
+あなたが探していた強さは、すでにあなたの中にあるのです。
+
+---
+
+今日から、一つずつ。
+
+少しずつ、自分への信頼を育ててください。
+
+あなたは大丈夫。きっと乗り越えられる。
+
+残るのは、安心なのです。
+</pre>
     </div>
   </div>
 </main>
