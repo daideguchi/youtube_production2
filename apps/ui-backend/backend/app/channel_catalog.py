@@ -59,6 +59,5 @@ def list_known_channel_codes(channel_info_map: Optional[Dict[str, dict]] = None)
             if code:
                 codes.add(code)
 
-    filtered = [code for code in codes if re.match(r"^CH\\d+$", code)]
+    filtered = [code for code in codes if re.match(r"^CH\d+$", code)]
     return sorted(filtered, key=_channel_sort_key)
-

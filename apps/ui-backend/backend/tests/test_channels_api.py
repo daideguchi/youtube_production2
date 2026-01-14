@@ -6,7 +6,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend import main
+from backend.app import channel_catalog
 from backend.app import channel_info_store
+from backend.app import episode_store
 from backend.main import app
 
 
@@ -35,6 +37,11 @@ def channels_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
     monkeypatch.setattr(main, "SCRIPT_PIPELINE_ROOT", script_pipeline_root)
+    monkeypatch.setattr(channel_catalog, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(channel_catalog, "CHANNEL_PLANNING_DIR", planning_channels_dir)
+    monkeypatch.setattr(channel_catalog, "CHANNELS_DIR", channels_dir)
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(episode_store, "PROJECT_ROOT", project_root)
     monkeypatch.setattr(channel_info_store, "CHANNELS_DIR", channels_dir)
     monkeypatch.setattr(channel_info_store, "CHANNEL_INFO_PATH", channels_dir / "channels_info.json")
     monkeypatch.setattr(channel_info_store, "CHANNEL_INFO", {})
