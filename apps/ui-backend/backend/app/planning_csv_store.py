@@ -5,10 +5,10 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-import portalocker
 from fastapi import HTTPException
 
 from backend.app.normalize import CHANNEL_PLANNING_DIR
+from backend.core.portalocker_compat import portalocker
 from script_pipeline.tools import planning_store
 
 logger = logging.getLogger(__name__)
@@ -79,4 +79,3 @@ def _write_csv_with_lock(path: Path, fieldnames: List[str], rows: List[Dict[str,
             status_code=500,
             detail=f"{path.name} の更新中にロックエラーが発生しました。",
         ) from exc
-
