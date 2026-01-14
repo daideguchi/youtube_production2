@@ -149,7 +149,7 @@
 | 3a | File lock/lock-metrics（`write_text_with_lock`, `LOCK_METRICS`, `LOCK_HISTORY`, `init_lock_storage` など）を `app/lock_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 3b | JSON util（`load_json`, `write_json`）を `app/json_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 3c | Status store I/O（`save_status`, `PROGRESS_STATUS_PATH`）を `app/status_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
-| 3d | Planning CSV store の file-lock を `portalocker_compat` に寄せ、portalocker未導入環境でもUI-backendが起動できるようにする（挙動互換） | dd | - | Draft |
+| 3d | Planning CSV store の file-lock を `portalocker_compat` に寄せ、portalocker未導入環境でもUI-backendが起動できるようにする（挙動互換） | dd | - | Done（2026-01-14） |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
 ## 8. TODO / チェックリスト
