@@ -2,18 +2,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from backend.main import (
-    ReadyUpdateRequest,
-    StageUpdateRequest,
-    StatusUpdateRequest,
-    current_timestamp,
-    current_timestamp_compact,
-    ensure_expected_updated_at,
-    load_status,
-    normalize_channel_code,
-    normalize_video_number,
-    save_status,
-)
+from backend.app.datetime_utils import current_timestamp, current_timestamp_compact
+from backend.app.episode_store import load_status
+from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.status_models import ReadyUpdateRequest, StageUpdateRequest, StatusUpdateRequest
+from backend.main import ensure_expected_updated_at, save_status
 
 router = APIRouter(prefix="/api", tags=["status"])
 
@@ -68,4 +61,3 @@ def update_ready(channel: str, video: str, payload: ReadyUpdateRequest):
     status["updated_at"] = now_iso
     save_status(channel_code, video_number, status)
     return {"status": "ok", "updated_at": now_iso}
-
