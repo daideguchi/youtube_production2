@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Optional
 
 from fastapi import HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -46,3 +46,15 @@ class StatusUpdateRequest(OptimisticUpdateRequest):
             raise HTTPException(status_code=400, detail="status が長すぎます。64文字以内にしてください。")
         return normalized
 
+
+def ensure_expected_updated_at(status: dict, expected: Optional[str]) -> None:
+    """Compare the provided version token with the latest status and raise 409 if it diverges."""
+
+    if expected is None:
+        return
+    current = status.get("updated_at")
+    if current != expected:
+        raise HTTPException(
+            status_code=409,
+            detail="他のセッションで更新されました。最新の情報を再取得してからもう一度保存してください。",
+        )

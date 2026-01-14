@@ -149,6 +149,7 @@ from backend.app.status_models import (
     StageStatus,
     StageUpdateRequest,
     StatusUpdateRequest,
+    ensure_expected_updated_at,
 )
 from backend.app.image_model_routing_models import (
     IMAGE_MODEL_ROUTING_SCHEMA_V1,
@@ -1656,19 +1657,6 @@ def load_or_init_status(channel_code: str, video_number: str) -> dict:
 
     save_status(channel_code, video_number, payload)
     return payload
-
-
-def ensure_expected_updated_at(status: dict, expected: Optional[str]) -> None:
-    """Compare the provided version token with the latest status and raise 409 if it diverges."""
-
-    if expected is None:
-        return
-    current = status.get("updated_at")
-    if current != expected:
-        raise HTTPException(
-            status_code=409,
-            detail="他のセッションで更新されました。最新の情報を再取得してからもう一度保存してください。",
-        )
 
 
 def save_status(channel_code: str, video_number: str, payload: dict) -> None:
