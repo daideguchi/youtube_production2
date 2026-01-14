@@ -17,14 +17,11 @@ from backend.app.status_models import ensure_expected_updated_at
 from backend.app.thumbnails_projects_store import THUMBNAIL_PROJECTS_LOCK
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
+from backend.app.video_registry_models import VideoCreateRequest, VideoDetailResponse, VideoFileReferences, VideoSummaryResponse
 from backend.main import (
     PROJECT_ROOT,
     PlanningInfoResponse,
     THUMBNAIL_PROJECT_STATUSES,
-    VideoDetailResponse,
-    VideoCreateRequest,
-    VideoFileReferences,
-    VideoSummaryResponse,
     _build_youtube_description,
     _character_count_from_a_text,
     _collect_disk_thumbnail_variants,
