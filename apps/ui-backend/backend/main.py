@@ -168,6 +168,7 @@ from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
 from backend.app.srt_models import SRTIssue, SRTVerifyResponse
 from backend.app.tts_models import TTSIssue
+from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
 from backend.app.normalize import (
     normalize_channel_code,
     normalize_optional_text,
@@ -3193,26 +3194,6 @@ class VideoDetailResponse(BaseModel):
     youtube_description: Optional[str] = None
     warnings: List[str] = Field(default_factory=list)
     artifacts: Optional[ArtifactsSummaryResponse] = None
-
-
-class ThumbnailProgressResponse(BaseModel):
-    created: bool = False
-    created_at: Optional[str] = None
-    qc_cleared: bool = False
-    qc_cleared_at: Optional[str] = None
-    status: Optional[str] = None
-    variant_count: int = 0
-
-
-class VideoImagesProgressResponse(BaseModel):
-    run_id: Optional[str] = None
-    prompt_ready: bool = False
-    prompt_ready_at: Optional[str] = None
-    cue_count: Optional[int] = None
-    prompt_count: Optional[int] = None
-    images_count: int = 0
-    images_complete: bool = False
-    images_updated_at: Optional[str] = None
 
 
 class VideoSummaryResponse(BaseModel):
