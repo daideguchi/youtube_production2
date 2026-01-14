@@ -9,13 +9,13 @@ from fastapi import APIRouter, HTTPException
 
 from backend.app.normalize import normalize_channel_code
 from backend.app.thumbnails_layer_specs_models import ThumbnailImageModelInfoResponse
-from backend.main import (
-    PROJECT_ROOT,
+from backend.app.thumbnails_templates_models import (
     ThumbnailChannelStyleResponse,
     ThumbnailChannelTemplatesResponse,
     ThumbnailChannelTemplatesUpdateRequest,
     ThumbnailTemplateResponse,
 )
+from backend.main import PROJECT_ROOT
 
 router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
 
