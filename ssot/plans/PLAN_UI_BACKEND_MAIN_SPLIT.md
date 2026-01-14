@@ -168,6 +168,7 @@
 | 4n | Audio metadata path normalize（`normalize_audio_path_string`, `normalize_audio_metadata`）を `app/audio_metadata_utils.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4o | Stage status helpers（`_normalize_status_token`, `_stage_status_value`）を `app/stage_status_utils.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4p | Status payload builder（`initialize_stage_payload`, `build_status_payload`）を `app/status_payload_builder.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
+| 4q | Channel catalog helpers（`list_channel_dirs`, `list_known_channel_codes`）を `app/channel_catalog.py` に寄せ、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
