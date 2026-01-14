@@ -267,6 +267,7 @@ from backend.app.thumbnails_overview_models import (
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.srt_models import SRTIssue, SRTVerifyResponse
 from backend.app.srt_verify import verify_srt_file
+from backend.app.audio_metadata_utils import normalize_audio_metadata, normalize_audio_path_string
 from backend.app.tts_content_analyzer import analyze_tts_content
 from backend.app.tts_tagged_text import _compose_tagged_tts, _parse_tagged_tts
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
@@ -775,33 +776,6 @@ def _find_commentary_input_asset(channel_code: str, video_number: str, suffix: s
         if match.is_file():
             return match.resolve()
     return None
-
-def normalize_audio_path_string(value: str) -> str:
-    if not value:
-        return value
-    path_obj = Path(value)
-    if path_obj.is_absolute():
-        try:
-            return str(path_obj.relative_to(PROJECT_ROOT))
-        except ValueError:
-            return value
-    return value
-
-
-def normalize_audio_metadata(metadata: Optional[dict]) -> Optional[dict]:
-    if not isinstance(metadata, dict):
-        return None
-
-    def _transform(obj: Any) -> Any:
-        if isinstance(obj, dict):
-            return {key: _transform(val) for key, val in obj.items()}
-        if isinstance(obj, list):
-            return [_transform(item) for item in obj]
-        if isinstance(obj, str):
-            return normalize_audio_path_string(obj)
-        return obj
-
-    return _transform(metadata)
 
 
 def save_status(channel_code: str, video_number: str, payload: dict) -> None:
