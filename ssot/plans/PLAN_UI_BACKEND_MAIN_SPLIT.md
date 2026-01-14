@@ -154,7 +154,7 @@
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 | 4a | Video registry models（`VideoCreateRequest`, `VideoSummaryResponse`, `VideoDetailResponse` 等）を `app/video_registry_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4b | Thumbnails project statuses（`THUMBNAIL_PROJECT_STATUSES`）を `app/thumbnails_constants.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
-| 4c | Thumbnails library const（`THUMBNAIL_LIBRARY_MAX_BYTES`, `THUMBNAIL_REMOTE_FETCH_TIMEOUT`）を `app/thumbnails_constants.py` に移設し、router は `backend.app` 参照へ寄せる（挙動互換） | dd | - | Draft |
+| 4c | Thumbnails library const（`THUMBNAIL_LIBRARY_MAX_BYTES`, `THUMBNAIL_REMOTE_FETCH_TIMEOUT`）を `app/thumbnails_constants.py` に移設し、router は `backend.app` 参照へ寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
