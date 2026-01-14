@@ -114,6 +114,7 @@
 | 2bi | Audio duration util（`get_audio_duration_seconds`）を `app/episode_store.py` に移設し、各 router の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-13） |
 | 2bj | safe_relative_path（相対パス表示）を `app/path_utils.py` に集約し、`main.py` / `app/prompts_store.py` の重複定義を削除（挙動互換） | dd | - | Done（2026-01-13） |
 | 2bk | routers 側の `safe_relative_path` 参照を `app/path_utils.py` に統一し、`backend.main` 依存をさらに削減（挙動互換） | dd | - | Done（2026-01-13） |
+| 2bl | Natural command models（`NaturalCommandAction/Request/Response`）を `app/scripts_models.py` に移設し、`backend.main` 依存を削減（挙動互換） | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
