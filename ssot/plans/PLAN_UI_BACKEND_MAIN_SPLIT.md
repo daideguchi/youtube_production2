@@ -171,7 +171,7 @@
 | 4q | Channel catalog helpers（`list_channel_dirs`, `list_known_channel_codes`）を `app/channel_catalog.py` に寄せ、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4r | Channel catalog rebuild（`rebuild_channel_catalog`）を `app/channel_info_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4s | YouTube description builder（`_build_youtube_description` + helpers）を `app/youtube_description_builder.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
-| 4t | A-text/文字数ユーティリティ（`_resolve_a_text_display_path`, `_character_count_from_a_text`, `_fallback_character_count_from_files`）を `app/script_text_utils.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
+| 4t | A-text/文字数ユーティリティ（`_resolve_a_text_display_path`, `_character_count_from_a_text`, `_fallback_character_count_from_files`）を `app/script_text_utils.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
