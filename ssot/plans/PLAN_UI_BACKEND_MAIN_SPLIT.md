@@ -127,7 +127,7 @@
 | 2bv | TTS edit models（`TtsUpdateRequest`, `TtsReplaceRequest`, `TtsReplaceResponse`）を `app/tts_models.py` に移設し、`routers/tts.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bw | Thumbnails project model（`ThumbnailProjectResponse`）を `app/thumbnails_project_models.py` に移設し、`routers/thumbnails_workspace.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bx | Thumbnails overview models（`ThumbnailOverviewResponse` など）を `app/thumbnails_overview_models.py` に移設し、`routers/thumbnails_workspace.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
-| 2by | Thumbnails library models（library asset/rename/import/assign/history）+ extensions 定数を `app/` に移設し、`routers/thumbnails_workspace.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Draft |
+| 2by | Thumbnails library models（library asset/rename/import/assign/history）+ extensions 定数を `app/` に移設し、`routers/thumbnails_workspace.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
