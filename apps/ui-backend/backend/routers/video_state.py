@@ -11,7 +11,7 @@ from backend.app.status_models import (
     StatusUpdateRequest,
     ensure_expected_updated_at,
 )
-from backend.main import save_status
+from backend.app.status_store import save_status
 
 router = APIRouter(prefix="/api", tags=["status"])
 

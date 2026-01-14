@@ -8,6 +8,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend import main
+from backend.app import episode_store
+from backend.app import status_store
 from backend.main import app
 
 
@@ -34,6 +36,10 @@ def video_state_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
     monkeypatch.setattr(main, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(episode_store, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(status_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(status_store, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
 
     with TestClient(app) as client:
         yield {"client": client, "base_dir": scripts_root / "CH01" / "001"}
@@ -102,4 +108,3 @@ def test_update_ready_sets_and_clears_ready_for_audio_at(video_state_env):
     meta2 = status2.get("metadata") or {}
     assert meta2.get("ready_for_audio") is False
     assert "ready_for_audio_at" not in meta2
-
