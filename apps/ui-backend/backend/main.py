@@ -156,6 +156,7 @@ from backend.app.status_store import (
     default_status_payload as _default_status_payload,
     save_status as _save_status_impl,
 )
+from backend.app.image_model_routing_policy import IMAGE_MODEL_KEY_BLOCKLIST, _image_model_key_blocked
 from backend.app.image_model_routing_models import (
     IMAGE_MODEL_ROUTING_SCHEMA_V1,
     ChannelImageModelRouting,
@@ -373,24 +374,6 @@ CHANNEL_PLANNING_DIR = ssot_planning_root() / "channels"
 PLANNING_CSV_PATH: Path | None = None
 SPREADSHEET_EXPORT_DIR = EXPORTS_DIR / "spreadsheets"
 THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
-IMAGE_MODEL_KEY_BLOCKLIST = {
-    # Policy: Gemini 3 image models are blocked for video images, but allowed for thumbnails.
-    "gemini_3_pro_image_preview",
-    "openrouter_gemini_3_pro_image_preview",
-}
-
-
-def _image_model_key_blocked(model_key: str, *, task: Optional[str]) -> bool:
-    mk = str(model_key or "").strip()
-    if not mk:
-        return False
-    if mk not in IMAGE_MODEL_KEY_BLOCKLIST:
-        return False
-    # Thumbnails are allowed to use Gemini 3 (explicitly).
-    if str(task or "").strip() == "thumbnail_image_gen":
-        return False
-    return True
-
 CODEX_CONFIG_TOML_PATH = Path.home() / ".codex" / "config.toml"
 CODEX_EXEC_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.yaml"
 CODEX_EXEC_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.local.yaml"
