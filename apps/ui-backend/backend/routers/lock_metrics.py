@@ -7,6 +7,8 @@ from typing import List
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from backend.app import lock_store
+
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
@@ -35,11 +37,9 @@ LockMetricsResponse.model_rebuild()
 
 @router.get("/lock-metrics", response_model=LockMetricsResponse)
 def get_lock_metrics() -> LockMetricsResponse:
-    from backend import main as backend_main
-
-    history = [LockMetricSample(**entry) for entry in backend_main.LOCK_HISTORY]
+    history = [LockMetricSample(**entry) for entry in lock_store.LOCK_HISTORY]
     seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=6)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    with sqlite3.connect(backend_main.LOCK_DB_PATH) as conn:
+    with sqlite3.connect(lock_store.LOCK_DB_PATH) as conn:
         aggregates = conn.execute(
             """
             SELECT substr(occurred_at, 1, 10) AS day,
@@ -55,9 +55,8 @@ def get_lock_metrics() -> LockMetricsResponse:
         ).fetchall()
     daily = [{"date": row[0], "timeout": row[1], "unexpected": row[2]} for row in aggregates]
     return LockMetricsResponse(
-        timeout=backend_main.LOCK_METRICS["timeout"],
-        unexpected=backend_main.LOCK_METRICS["unexpected"],
+        timeout=lock_store.LOCK_METRICS["timeout"],
+        unexpected=lock_store.LOCK_METRICS["unexpected"],
         history=history,
         daily=daily,
     )
-
