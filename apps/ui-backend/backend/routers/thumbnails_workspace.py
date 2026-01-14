@@ -18,6 +18,11 @@ from fastapi.responses import PlainTextResponse, StreamingResponse
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
 from backend.app.thumbnails_description_models import ThumbnailDescriptionResponse
+from backend.app.thumbnails_constants import (
+    THUMBNAIL_LIBRARY_MAX_BYTES,
+    THUMBNAIL_REMOTE_FETCH_TIMEOUT,
+    THUMBNAIL_SUPPORTED_EXTENSIONS,
+)
 from backend.app.thumbnails_library_models import (
     ThumbnailLibraryAssetResponse,
     ThumbnailLibraryAssignRequest,
@@ -996,7 +1001,7 @@ def import_thumbnail_library_asset(channel: str, payload: ThumbnailLibraryImport
     if not source_url:
         raise HTTPException(status_code=400, detail="URL を指定してください。")
     try:
-        response = requests.get(source_url, timeout=backend_main.THUMBNAIL_REMOTE_FETCH_TIMEOUT)
+        response = requests.get(source_url, timeout=THUMBNAIL_REMOTE_FETCH_TIMEOUT)
     except requests.RequestException as exc:
         raise HTTPException(status_code=502, detail=f"画像の取得に失敗しました: {exc}") from exc
     if response.status_code >= 400:
@@ -1004,13 +1009,13 @@ def import_thumbnail_library_asset(channel: str, payload: ThumbnailLibraryImport
     content = response.content
     if not content:
         raise HTTPException(status_code=400, detail="画像データが空です。")
-    if len(content) > backend_main.THUMBNAIL_LIBRARY_MAX_BYTES:
+    if len(content) > THUMBNAIL_LIBRARY_MAX_BYTES:
         raise HTTPException(status_code=400, detail="画像サイズが大きすぎます。")
     content_type = response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
     suffix = mimetypes.guess_extension(content_type) if content_type else None
     if suffix == ".jpe":
         suffix = ".jpg"
-    if suffix not in backend_main.THUMBNAIL_SUPPORTED_EXTENSIONS:
+    if suffix not in THUMBNAIL_SUPPORTED_EXTENSIONS:
         suffix = None
     candidate_name = payload.file_name.strip() if payload.file_name else ""
     if not candidate_name:
