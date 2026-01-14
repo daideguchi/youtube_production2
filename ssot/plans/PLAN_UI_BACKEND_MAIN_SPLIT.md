@@ -153,6 +153,7 @@
 | 3e | `routers/thumbnails_video.py` の `ssot_assets_root`/`ssot_thumbnails_root` import を修正（`assets_root`/`thumbnails_root` を alias で使用）し、UI-backend 起動時エラーを解消（挙動互換） | dd | - | Done（2026-01-14） |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 | 4a | Video registry models（`VideoCreateRequest`, `VideoSummaryResponse`, `VideoDetailResponse` 等）を `app/video_registry_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
+| 4b | Thumbnails project statuses（`THUMBNAIL_PROJECT_STATUSES`）を `app/thumbnails_constants.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
