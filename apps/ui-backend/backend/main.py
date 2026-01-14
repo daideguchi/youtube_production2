@@ -208,7 +208,7 @@ from backend.app.lock_store import (
 from backend.app.json_store import load_json, write_json
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
-from backend.app.thumbnails_constants import THUMBNAIL_SUPPORTED_EXTENSIONS
+from backend.app.thumbnails_constants import THUMBNAIL_PROJECT_STATUSES, THUMBNAIL_SUPPORTED_EXTENSIONS
 from backend.app.thumbnails_projects_store import (
     THUMBNAIL_PROJECTS_LOCK,
     _load_thumbnail_projects_document,
@@ -374,14 +374,6 @@ OPENROUTER_MODELS_CACHE_TTL_SEC = 60 * 60
 CODEX_CONFIG_TOML_PATH = Path.home() / ".codex" / "config.toml"
 CODEX_EXEC_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.yaml"
 CODEX_EXEC_LOCAL_CONFIG_PATH = PROJECT_ROOT / "configs" / "codex_exec.local.yaml"
-THUMBNAIL_PROJECT_STATUSES = {
-    "draft",
-    "in_progress",
-    "review",
-    "approved",
-    "published",
-    "archived",
-}
 THUMBNAIL_LIBRARY_MAX_BYTES = 15 * 1024 * 1024
 THUMBNAIL_REMOTE_FETCH_TIMEOUT = 15
 LOGS_ROOT = ssot_logs_root()
