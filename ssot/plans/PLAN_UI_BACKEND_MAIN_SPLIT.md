@@ -146,7 +146,7 @@
 | 2co | Stage order（`STAGE_ORDER`）を `app/status_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 2cp | Default status payload（`_default_status_payload`）を `app/status_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
-| 3a | File lock/lock-metrics（`write_text_with_lock`, `LOCK_METRICS`, `LOCK_HISTORY`, `init_lock_storage` など）を `app/lock_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
+| 3a | File lock/lock-metrics（`write_text_with_lock`, `LOCK_METRICS`, `LOCK_HISTORY`, `init_lock_storage` など）を `app/lock_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
 ## 8. TODO / チェックリスト
