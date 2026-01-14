@@ -8,7 +8,11 @@ from backend.app.settings_models import (
     LLMSettingsResponse,
     LLMSettingsUpdate,
 )
-from backend.main import ChannelImageModelRouting, ImageModelRoutingResponse, ImageModelRoutingUpdate
+from backend.app.image_model_routing_models import (
+    ChannelImageModelRouting,
+    ImageModelRoutingResponse,
+    ImageModelRoutingUpdate,
+)
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
@@ -53,4 +57,3 @@ def patch_image_model_routing(channel: str, payload: ImageModelRoutingUpdate) ->
     from backend.main import patch_image_model_routing as impl
 
     return impl(channel, payload)
-
