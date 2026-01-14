@@ -237,6 +237,30 @@ function render(items) {
     });
     actions.appendChild(copyPull);
 
+    const isTgz = name.endsWith(".tgz") || name.endsWith(".tar.gz");
+    if (isTgz && name !== "-") {
+      const copyPullExtract = document.createElement("button");
+      copyPullExtract.className = "btn";
+      copyPullExtract.type = "button";
+      copyPullExtract.textContent = "復元+展開コマンドをコピー";
+      copyPullExtract.addEventListener("click", async () => {
+        const outdir = "/tmp/ytm_restore";
+        const filePath = `${outdir}/${name}`;
+        const extractDir = `${outdir}/unpacked/${archiveId}`;
+        const pull = `./ops archive release pull "${archiveId}" --outdir "${outdir}"`;
+        const extract = `mkdir -p "${extractDir}" && tar -xzf "${filePath}" -C "${extractDir}"`;
+        const base = `${pull} && ${extract}`;
+        const cmd = repoSlug ? `ARCHIVE_REPO="${repoSlug}" ${base}` : base;
+        const ok = await copyText(cmd);
+        const prev = copyPullExtract.textContent;
+        copyPullExtract.textContent = ok ? "コピーしました" : "コピー失敗";
+        window.setTimeout(() => {
+          copyPullExtract.textContent = prev;
+        }, 1200);
+      });
+      actions.appendChild(copyPullExtract);
+    }
+
     const manifestHref = buildTreeUrl(MANIFEST_PATH);
     const openManifest = document.createElement("a");
     openManifest.className = "btn";

@@ -20,6 +20,7 @@ import argparse
 import csv
 import json
 import re
+import shutil
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -255,6 +256,23 @@ def build_index(repo_root: Path) -> dict:
     return payload
 
 
+def _sync_release_archive_index(repo_root: Path) -> None:
+    """
+    GitHub Pages deploys `docs/` only.
+
+    The archive UI (`/archive/`) loads `gh_releases_archive/index/latest.json`,
+    so we mirror the tracked index into `docs/archive/gh_releases_archive/...`
+    during the Pages build step.
+    """
+    src = repo_root / "gh_releases_archive" / "index" / "latest.json"
+    dest = repo_root / "docs" / "archive" / "gh_releases_archive" / "index" / "latest.json"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if src.exists():
+        shutil.copy2(src, dest)
+        return
+    dest.write_text("[]\n", encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Generate docs/data/index.json (script viewer index).")
     ap.add_argument("--write", action="store_true", help="Write docs/data/index.json")
@@ -269,6 +287,7 @@ def main() -> int:
         out_path = repo_root / "docs" / "data" / "index.json"
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(content, encoding="utf-8")
+        _sync_release_archive_index(repo_root)
         print(f"[pages_script_viewer_index] wrote {out_path.relative_to(repo_root)} (items={payload['count']})")
         return 0
 

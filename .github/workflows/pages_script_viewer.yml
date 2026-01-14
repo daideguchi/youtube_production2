@@ -8,6 +8,7 @@ on:
       - "docs/**"
       - "scripts/ops/pages_script_viewer_index.py"
       - "scripts/ops/pages_episode_routes.py"
+      - "gh_releases_archive/**"
       - "workspaces/scripts/**"
       - "workspaces/planning/channels/**"
 

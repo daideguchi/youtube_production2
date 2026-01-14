@@ -24,6 +24,8 @@
 
 - 一覧UI: `/archive/`（GitHub Pages）
   - データ: `gh_releases_archive/index/latest.json`（tracked）
+  - Pages は `docs/` のみデプロイするため、Pages生成時に index を `docs/archive/gh_releases_archive/index/latest.json` にミラーする（`/archive/` はミラー側を読む）。
+    - Pages workflow は `gh_releases_archive/**` の変更でも走る（manifest/index更新がUIへ反映される）。
   - ここは **目録**。実体（.mp4/.wav/.zip/.tgz）は GitHub Releases assets。
   - 空の場合は未投入（= `./ops archive ... --push --run` をまだ実行していない）。
 
