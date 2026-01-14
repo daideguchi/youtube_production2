@@ -268,6 +268,7 @@ from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.srt_models import SRTIssue, SRTVerifyResponse
 from backend.app.srt_verify import verify_srt_file
 from backend.app.audio_metadata_utils import normalize_audio_metadata, normalize_audio_path_string
+from backend.app.stage_status_utils import _normalize_status_token, _stage_status_value
 from backend.app.tts_content_analyzer import analyze_tts_content
 from backend.app.tts_tagged_text import _compose_tagged_tts, _parse_tagged_tts
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
@@ -831,38 +832,6 @@ def build_status_payload(
 
     payload["metadata"] = metadata
     return payload
-def _normalize_status_token(value: Any) -> str:
-    """
-    Normalize various runner/UI status tokens into the small set the UI can reason about.
-
-    The UI (frontend) expects stage statuses to collapse into:
-      pending | in_progress | review | blocked | completed
-    while older/legacy status.json may contain tokens like:
-      processing | running | failed | skipped | done | ok ...
-    """
-
-    token = str(value or "").strip().lower()
-    if not token or token == "pending":
-        return "pending"
-    if token in {"completed", "done", "ok", "success", "succeeded", "skipped"}:
-        return "completed"
-    if token in {"blocked", "failed", "error"}:
-        return "blocked"
-    if token in {"review"}:
-        return "review"
-    if token in {"in_progress", "processing", "running", "rerun_in_progress", "rerun_requested"}:
-        return "in_progress"
-    return "unknown"
-
-
-def _stage_status_value(stage_entry: Any) -> str:
-    if stage_entry is None:
-        return "pending"
-    raw = stage_entry.get("status") if isinstance(stage_entry, dict) else stage_entry
-    normalized = _normalize_status_token(raw)
-    if normalized in VALID_STAGE_STATUSES:
-        return normalized
-    return "unknown"
 
 
 SCRIPT_DUMMY_MARKERS = (
