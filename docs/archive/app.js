@@ -316,11 +316,39 @@ async function loadLatest() {
 
 let latest = [];
 
+function applyUrlParamsToFilters() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const q = String(params.get("q") || "").trim();
+    const tag = String(params.get("tag") || "").trim();
+    if (q) $("queryInput").value = q;
+    if (tag) $("tagInput").value = tag;
+  } catch (_err) {
+    // ignore
+  }
+}
+
+function updateUrlFilters(query, tag) {
+  try {
+    const url = new URL(window.location.href);
+    const q = String(query || "").trim();
+    const t = String(tag || "").trim();
+    if (q) url.searchParams.set("q", q);
+    else url.searchParams.delete("q");
+    if (t) url.searchParams.set("tag", t);
+    else url.searchParams.delete("tag");
+    window.history.replaceState(null, "", url.toString());
+  } catch (_err) {
+    // ignore
+  }
+}
+
 function applyFilters() {
   const query = $("queryInput").value;
   const tag = $("tagInput").value;
   const filtered = latest.filter((it) => matchQuery(it, query) && matchTag(it, tag));
   render(filtered);
+  updateUrlFilters(query, tag);
   $("footerMeta").textContent = `source: ${INDEX_PATH} · shown: ${filtered.length.toLocaleString("ja-JP")} / total: ${latest.length.toLocaleString(
     "ja-JP"
   )}`;
@@ -350,6 +378,7 @@ function setupLinks() {
 
 document.addEventListener("DOMContentLoaded", () => {
   setupLinks();
+  applyUrlParamsToFilters();
   $("reloadBtn").addEventListener("click", () => void reload());
   $("queryInput").addEventListener("input", () => applyFilters());
   $("tagInput").addEventListener("input", () => applyFilters());

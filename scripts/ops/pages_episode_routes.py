@@ -959,12 +959,15 @@ def _episode_viewer_page_html(
 
         yt_title = clean(title or "")
 
+        archive_href = _rel_href(page_dir, docs_root / "archive", is_dir=True) + f"?q={vid}"
+
         desc_panel = (
             "  <div class=\"panel\" id=\"descPanel\">\n"
             "    <div class=\"panel__head\">\n"
             "      <div><strong>YouTube貼り付け</strong> <span class=\"muted\">タイトル/概要欄/タグ</span></div>\n"
             "      <div class=\"copy-actions\">"
             f"<a {studio_attrs} id=\"descStudioLink\" target=\"_blank\" rel=\"noreferrer\">YouTube Studio</a>"
+            f"<a class=\"btn\" href=\"{_escape_html(archive_href)}\" target=\"_blank\" rel=\"noreferrer\">書庫で探す</a>"
             "<button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\">概要欄コピー</button>"
             "</div>\n"
             "    </div>\n"
