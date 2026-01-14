@@ -8,7 +8,7 @@ created: 2026-01-14
 
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 
@@ -33,3 +33,12 @@ class ThumbnailProjectResponse(BaseModel):
     audio_stage: Optional[str] = None
     script_stage: Optional[str] = None
 
+
+class ThumbnailProjectUpdateRequest(BaseModel):
+    owner: Optional[str] = Field(default=None)
+    summary: Optional[str] = Field(default=None)
+    notes: Optional[str] = Field(default=None)
+    tags: Optional[List[str]] = Field(default=None)
+    due_at: Optional[str] = Field(default=None)
+    status: Optional[str] = Field(default=None)
+    selected_variant_id: Optional[str] = Field(default=None)

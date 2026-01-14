@@ -3178,17 +3178,6 @@ class ThumbnailAssetReplaceResponse(BaseModel):
     image_path: str
     public_url: str
 
-
-class ThumbnailProjectUpdateRequest(BaseModel):
-    owner: Optional[str] = Field(default=None)
-    summary: Optional[str] = Field(default=None)
-    notes: Optional[str] = Field(default=None)
-    tags: Optional[List[str]] = Field(default=None)
-    due_at: Optional[str] = Field(default=None)
-    status: Optional[str] = Field(default=None)
-    selected_variant_id: Optional[str] = Field(default=None)
-
-
 class ThumbnailVariantCreateRequest(BaseModel):
     label: str = Field(..., min_length=1, max_length=160)
     status: Optional[str] = Field(default="draft")
@@ -3233,12 +3222,6 @@ class ThumbnailVariantComposeRequest(BaseModel):
     tags: Optional[List[str]] = None
     impact: Optional[bool] = True
     flip_base: Optional[bool] = True
-
-
-class ThumbnailDescriptionResponse(BaseModel):
-    description: str
-    model: Optional[str] = None
-    source: Literal["openai", "openrouter", "heuristic"]
 
 
 class ThumbnailTemplatePayload(BaseModel):
