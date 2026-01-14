@@ -47,13 +47,13 @@ def update_codex_settings(payload: CodexSettingsUpdate) -> CodexSettingsResponse
 
 @router.get("/image-model-routing", response_model=ImageModelRoutingResponse)
 def get_image_model_routing() -> ImageModelRoutingResponse:
-    from backend.main import get_image_model_routing as impl
+    from backend.app.image_model_routing_handlers import get_image_model_routing as impl
 
     return impl()
 
 
 @router.patch("/image-model-routing/{channel}", response_model=ChannelImageModelRouting)
 def patch_image_model_routing(channel: str, payload: ImageModelRoutingUpdate) -> ChannelImageModelRouting:
-    from backend.main import patch_image_model_routing as impl
+    from backend.app.image_model_routing_handlers import patch_image_model_routing as impl
 
     return impl(channel, payload)
