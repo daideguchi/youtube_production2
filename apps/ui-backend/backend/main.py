@@ -97,6 +97,7 @@ from backend.app.channel_info_store import (
     CHANNEL_INFO_PATH,
     find_channel_directory,
     infer_channel_genre,
+    rebuild_channel_catalog,
     refresh_channel_info,
 )
 from backend.app.channel_catalog import list_channel_dirs, list_known_channel_codes
@@ -543,25 +544,6 @@ def _append_channel_profile_log(channel_code: str, changes: List[Dict[str, Any]]
     with log_path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
-
-def rebuild_channel_catalog() -> None:
-    entries: List[Dict[str, Any]] = []
-    for entry in sorted(CHANNELS_DIR.iterdir()):
-        if not entry.is_dir():
-            continue
-        info_path = entry / "channel_info.json"
-        if not info_path.exists():
-            continue
-        try:
-            data = json.loads(info_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            logger.warning("channel_info.json の解析に失敗しました: %s", info_path)
-            continue
-        entries.append(data)
-    write_text_with_lock(
-        CHANNEL_INFO_PATH,
-        json.dumps(entries, ensure_ascii=False, indent=2) + "\n",
-    )
 
 def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse:
     try:

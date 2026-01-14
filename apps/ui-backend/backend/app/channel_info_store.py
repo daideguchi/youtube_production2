@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Dict, Iterable, Optional
 
 from backend.core.tools.channel_stats_store import merge_channel_stats_into_channel_info
+from backend.app.lock_store import write_text_with_lock
 from factory_common.paths import script_pkg_root
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,28 @@ CHANNEL_INFO_MTIME = 0.0
 
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def rebuild_channel_catalog() -> None:
+    entries: list[dict] = []
+    if CHANNELS_DIR.exists():
+        for entry in sorted(CHANNELS_DIR.iterdir()):
+            if not entry.is_dir():
+                continue
+            info_path = entry / "channel_info.json"
+            if not info_path.exists():
+                continue
+            try:
+                data = json.loads(info_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                logger.warning("channel_info.json の解析に失敗しました: %s", info_path)
+                continue
+            if isinstance(data, dict):
+                entries.append(data)
+    write_text_with_lock(
+        CHANNEL_INFO_PATH,
+        json.dumps(entries, ensure_ascii=False, indent=2) + "\n",
+    )
 
 
 def _merge_channel_payload(base: dict, override: dict) -> dict:
@@ -161,4 +184,3 @@ def infer_channel_genre(info: dict) -> Optional[str]:
             return stripped
 
     return None
-
