@@ -11,7 +11,7 @@
   - `ssot/ops/OPS_ENTRYPOINTS_INDEX.md`
   - `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`
   - `packages/factory_common/paths.py`（パスSSOT）
-- **最終更新日**: 2026-01-13
+- **最終更新日**: 2026-01-14
 
 ## 1. 背景と目的
 - `apps/ui-backend/backend/main.py` が肥大化し、変更差分のレビュー/探索/衝突（並列運用）が起きやすい。
@@ -126,6 +126,7 @@
 | 2bu | Thumbnail variant model（`ThumbnailVariantResponse`）を `app/thumbnails_variant_models.py` に移設し、thumbnail系 router の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bv | TTS edit models（`TtsUpdateRequest`, `TtsReplaceRequest`, `TtsReplaceResponse`）を `app/tts_models.py` に移設し、`routers/tts.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
 | 2bw | Thumbnails project model（`ThumbnailProjectResponse`）を `app/thumbnails_project_models.py` に移設し、`routers/thumbnails_workspace.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-14） |
+| 2bx | Thumbnails overview models（`ThumbnailOverviewResponse` など）を `app/thumbnails_overview_models.py` に移設し、`routers/thumbnails_workspace.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Draft |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
