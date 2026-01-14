@@ -15,16 +15,8 @@ from PIL import Image
 import backend.main as backend_main
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
-from backend.app.thumbnails_specs_models import ThumbnailTextLineSpecLinePayload, ThumbnailThumbSpecUpdateRequest
-from backend.app.thumbnails_video_models import (
-    ThumbnailAssetReplaceResponse,
-    ThumbnailVariantComposeRequest,
-    ThumbnailVariantCreateRequest,
-    ThumbnailVariantGenerateRequest,
-    ThumbnailVariantPatchRequest,
-)
-from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
-from backend.main import (
+from backend.app.thumbnails_editor_models import (
+    THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
     ThumbnailCommentPatchRequest,
     ThumbnailCommentPatchResponse,
     ThumbnailCommentPatchTargetResponse,
@@ -39,6 +31,15 @@ from backend.main import (
     ThumbnailTextTemplateOptionResponse,
     ThumbnailTwoUpBuildResponse,
 )
+from backend.app.thumbnails_specs_models import ThumbnailTextLineSpecLinePayload, ThumbnailThumbSpecUpdateRequest
+from backend.app.thumbnails_video_models import (
+    ThumbnailAssetReplaceResponse,
+    ThumbnailVariantComposeRequest,
+    ThumbnailVariantCreateRequest,
+    ThumbnailVariantGenerateRequest,
+    ThumbnailVariantPatchRequest,
+)
+from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from factory_common.paths import ssot_assets_root, ssot_thumbnails_root
 from script_pipeline.tools import planning_store
 
@@ -49,7 +50,6 @@ PROJECT_ROOT = backend_main.PROJECT_ROOT
 THUMBNAIL_ASSETS_DIR = backend_main.THUMBNAIL_ASSETS_DIR
 THUMBNAIL_TEMPLATES_LOCK = backend_main.THUMBNAIL_TEMPLATES_LOCK
 THUMBNAIL_PROJECTS_LOCK = backend_main.THUMBNAIL_PROJECTS_LOCK
-THUMBNAIL_COMMENT_PATCH_SCHEMA_V1 = backend_main.THUMBNAIL_COMMENT_PATCH_SCHEMA_V1
 
 # Late-bound helpers defined in backend.main after router wiring.
 # (Keep wrappers to avoid circular-import ordering issues.)
