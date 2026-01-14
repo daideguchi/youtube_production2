@@ -192,6 +192,7 @@ from backend.app.lock_store import (
     reset_lock_alert_state,
     write_text_with_lock,
 )
+from backend.app.json_store import load_json, write_json
 from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_constants import THUMBNAIL_SUPPORTED_EXTENSIONS
@@ -1012,15 +1013,6 @@ def _build_channel_profile_response(channel_code: str) -> ChannelProfileResponse
         planning_template_headers=planning_template_headers,
         planning_template_sample=planning_template_sample,
     )
-def load_json(path: Path) -> dict:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=500, detail=f"Invalid JSON: {path}") from exc
-
-
-def write_json(path: Path, payload: dict) -> None:
-    write_text_with_lock(path, json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
 
 
 def list_channel_dirs() -> List[Path]:
