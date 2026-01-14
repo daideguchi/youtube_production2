@@ -139,7 +139,7 @@
 | 2ch | Status update models/const（`VALID_STAGE_STATUSES`, `MAX_STATUS_LENGTH`, `StageStatus`, `StageUpdateRequest`, `ReadyUpdateRequest`, `StatusUpdateRequest`）を `app/status_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 2ci | Timestamp util（`current_timestamp`, `current_timestamp_compact`, `parse_iso_datetime`）を `app/datetime_utils.py` に集約し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 2cj | Video state router（`routers/video_state.py`）の import を整理し、日時/正規化/ステータス更新モデルは `backend/app` へ寄せる（挙動互換） | dd | - | Done（2026-01-14） |
-| 2ck | Optimistic concurrency（`ensure_expected_updated_at`）を `app/status_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Draft |
+| 2ck | Optimistic concurrency（`ensure_expected_updated_at`）を `app/status_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
 | 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
 
