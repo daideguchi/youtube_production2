@@ -202,9 +202,20 @@ function render(items) {
     const badges = document.createElement("div");
     badges.className = "badges";
     for (const t of tags.slice(0, 12)) {
-      const b = document.createElement("div");
+      const b = document.createElement("button");
+      b.type = "button";
       b.className = "badge badge--ok";
       b.textContent = t;
+      b.title = "クリックで Tag フィルタ";
+      b.addEventListener("click", () => {
+        $("tagInput").value = t;
+        applyFilters();
+        try {
+          $("tagInput").focus();
+        } catch (_err) {
+          // ignore
+        }
+      });
       badges.appendChild(b);
     }
 

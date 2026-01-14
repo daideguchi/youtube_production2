@@ -224,8 +224,11 @@ code {
   border-radius: 999px;
   border: 1px solid var(--border);
   background: rgba(233, 238, 255, 0.06);
+  color: var(--text);
   font-size: 12px;
   white-space: nowrap;
+  cursor: pointer;
+  appearance: none;
 }
 
 .badge--ok {
@@ -290,4 +293,3 @@ code {
     text-align: center;
   }
 }
-
