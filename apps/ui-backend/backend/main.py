@@ -167,6 +167,12 @@ from backend.app.youtube_client import YouTubeDataClient, YouTubeDataAPIError
 from backend.app.redo_models import RedoUpdateRequest, RedoUpdateResponse
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
 from backend.app.thumbnails_project_models import ThumbnailProjectResponse
+from backend.app.thumbnails_overview_models import (
+    ThumbnailChannelBlockResponse,
+    ThumbnailChannelSummaryResponse,
+    ThumbnailChannelVideoResponse,
+    ThumbnailOverviewResponse,
+)
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.srt_models import SRTIssue, SRTVerifyResponse
 from backend.app.tts_models import TTSIssue
@@ -3154,39 +3160,6 @@ class VideoSummaryResponse(BaseModel):
     youtube_description: Optional[str] = None
     thumbnail_progress: Optional[ThumbnailProgressResponse] = None
     video_images_progress: Optional[VideoImagesProgressResponse] = None
-
-class ThumbnailChannelVideoResponse(BaseModel):
-    video_id: str
-    title: str
-    url: str
-    thumbnail_url: Optional[str] = None
-    published_at: Optional[str] = None
-    view_count: Optional[int] = None
-    duration_seconds: Optional[float] = None
-    estimated_ctr: Optional[float] = None
-    source: Literal["youtube", "variant"] = "youtube"
-
-
-class ThumbnailChannelSummaryResponse(BaseModel):
-    total: int
-    subscriber_count: Optional[int] = None
-    view_count: Optional[int] = None
-    video_count: Optional[int] = None
-
-
-class ThumbnailChannelBlockResponse(BaseModel):
-    channel: str
-    channel_title: Optional[str] = None
-    summary: ThumbnailChannelSummaryResponse
-    projects: List[ThumbnailProjectResponse]
-    videos: List[ThumbnailChannelVideoResponse]
-    library_path: Optional[str] = None
-
-
-class ThumbnailOverviewResponse(BaseModel):
-    generated_at: Optional[str] = None
-    channels: List[ThumbnailChannelBlockResponse]
-
 
 class ThumbnailLibraryAssetResponse(BaseModel):
     id: str
