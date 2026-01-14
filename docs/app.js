@@ -9,7 +9,9 @@ const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260113_09";
+const SITE_ASSET_VERSION = "20260113_23";
+const URL_ASSET_VERSION = readAssetVersionFromUrl();
+const ASSET_VERSION = URL_ASSET_VERSION || SITE_ASSET_VERSION;
 const EMBED_MODE = detectEmbedMode();
 
 function detectEmbedMode() {
@@ -24,6 +26,15 @@ function detectEmbedMode() {
     return window.self !== window.top;
   } catch (_err) {
     return true;
+  }
+}
+
+function readAssetVersionFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return String(params.get("sv") || "").trim();
+  } catch (_err) {
+    return "";
   }
 }
 
@@ -144,6 +155,18 @@ function joinUrl(base, path) {
   return safeBase + safePath;
 }
 
+function rawUrl(relPath) {
+  const s = String(relPath || "")
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/^\.\/+/, "");
+  if (!s) return "";
+  const base = joinUrl(rawBase, s);
+  if (!ASSET_VERSION) return base;
+  const sep = base.includes("?") ? "&" : "?";
+  return `${base}${sep}sv=${encodeURIComponent(ASSET_VERSION)}`;
+}
+
 function siteUrl(relPath) {
   const s = String(relPath || "")
     .trim()
@@ -151,7 +174,7 @@ function siteUrl(relPath) {
     .replace(/^\.\/+/, "");
   if (!s) return "";
   const base = `./${s}`;
-  return SITE_ASSET_VERSION ? `${base}?v=${encodeURIComponent(SITE_ASSET_VERSION)}` : base;
+  return ASSET_VERSION ? `${base}?v=${encodeURIComponent(ASSET_VERSION)}` : base;
 }
 
 function docsRawUrl(relPath) {
@@ -305,7 +328,7 @@ function loadChannelMeta() {
   if (channelMetaPromise) return channelMetaPromise;
   channelMetaPromise = (async () => {
     try {
-      const res = await fetch(channelsInfoUrl, { cache: "no-store" });
+      const res = await fetch(rawUrl(CHANNELS_INFO_PATH), { cache: "force-cache" });
       if (!res.ok) throw new Error(`channels_info fetch failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
       if (!Array.isArray(data)) return channelMetaById;
@@ -334,7 +357,7 @@ function loadThumbProjects() {
   if (thumbProjectPromise) return thumbProjectPromise;
   thumbProjectPromise = (async () => {
     try {
-      const res = await fetch(thumbProjectsUrl, { cache: "no-store" });
+      const res = await fetch(rawUrl(THUMB_PROJECTS_PATH), { cache: "force-cache" });
       if (!res.ok) throw new Error(`projects.json fetch failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
       const projects = Array.isArray(data?.projects) ? data.projects : [];
@@ -376,7 +399,7 @@ function loadThumbIndex() {
   if (thumbIndexPromise) return thumbIndexPromise;
   thumbIndexPromise = (async () => {
     try {
-      const res = await fetch(siteUrl(THUMBS_INDEX_URL), { cache: "no-store" });
+      const res = await fetch(siteUrl(THUMBS_INDEX_URL), { cache: "force-cache" });
       if (res.status === 404) {
         thumbIndexByVideoId = new Map();
         return thumbIndexByVideoId;
@@ -407,7 +430,7 @@ function loadThumbAltIndex() {
   if (thumbAltPromise) return thumbAltPromise;
   thumbAltPromise = (async () => {
     try {
-      const res = await fetch(siteUrl(THUMBS_ALT_INDEX_URL), { cache: "no-store" });
+      const res = await fetch(siteUrl(THUMBS_ALT_INDEX_URL), { cache: "force-cache" });
       if (res.status === 404) {
         thumbAltByChannel = new Map();
         return thumbAltByChannel;
@@ -450,7 +473,7 @@ function loadVideoImagesIndex() {
   if (videoImagesIndexPromise) return videoImagesIndexPromise;
   videoImagesIndexPromise = (async () => {
     try {
-      const res = await fetch(siteUrl(VIDEO_IMAGES_INDEX_URL), { cache: "no-store" });
+      const res = await fetch(siteUrl(VIDEO_IMAGES_INDEX_URL), { cache: "force-cache" });
       if (res.status === 404) {
         videoImagesIndexByVideoId = new Map();
         return videoImagesIndexByVideoId;
@@ -493,7 +516,7 @@ function loadSnapshotChannels() {
   if (snapshotChannelsPromise) return snapshotChannelsPromise;
   snapshotChannelsPromise = (async () => {
     try {
-      const res = await fetch(siteUrl(SNAPSHOT_CHANNELS_URL), { cache: "no-store" });
+      const res = await fetch(siteUrl(SNAPSHOT_CHANNELS_URL), { cache: "force-cache" });
       if (res.status === 404) {
         snapshotByChannel = new Map();
         return snapshotByChannel;
@@ -539,7 +562,7 @@ async function loadSnapshotChannel(channelId) {
       await loadSnapshotChannels();
       const dataPath = snapshotChannelDataPath(ch);
       if (!dataPath) return null;
-      const res = await fetch(siteUrl(dataPath), { cache: "no-store" });
+      const res = await fetch(siteUrl(dataPath), { cache: "force-cache" });
       if (res.status === 404) return null;
       if (!res.ok) throw new Error(`snapshot fetch failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
@@ -568,6 +591,7 @@ let channelsSorted = [];
 let selected = null;
 let loadedText = "";
 let loadedNoSepText = "";
+let loadedScriptVideoId = "";
 let audioPrepScriptText = "";
 let audioPrepMetaText = "";
 const initialUiState = getInitialUiState();
@@ -844,7 +868,9 @@ function updateMetaSub(it) {
 }
 
 function cleanText(raw) {
-  return normalizeNewlines(String(raw || "")).trim();
+  return normalizeNewlines(String(raw || ""))
+    .replace(/\\n/g, "\n")
+    .trim();
 }
 
 function effectivePlanning(it) {
@@ -1161,6 +1187,19 @@ function setActiveView(view) {
   if (selected && String(selected?.channel || "").trim() && String(selected?.video || "").trim()) {
     updateMetaSub(selected);
   }
+
+  // Lazy-load only the currently visible view (prevents fetching big indexes on every selection).
+  if (selected && String(selected?.video_id || "").trim()) {
+    if (v === "script") {
+      void loadScriptBody(selected);
+    } else if (v === "audio") {
+      void loadAudioPrep(selected);
+    } else if (v === "thumb") {
+      void loadThumb(selected);
+    } else if (v === "images") {
+      void loadVideoImages(selected);
+    }
+  }
 }
 
 function scrollToEl(el) {
@@ -1254,7 +1293,7 @@ function updateAssetPackLink(it) {
 }
 
 async function fetchTextOptional(url) {
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, { cache: "force-cache" });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`fetch failed: ${res.status} ${res.statusText}`);
   return await res.text();
@@ -1274,8 +1313,8 @@ async function loadAudioPrep(it) {
   const base = episodeBasePath(it);
   const scriptPath = `${base}/audio_prep/script_sanitized.txt`;
   const metaPath = `${base}/audio_prep/inference_metadata.txt`;
-  const scriptUrl = joinUrl(rawBase, scriptPath);
-  const metaUrl = joinUrl(rawBase, metaPath);
+  const scriptUrl = rawUrl(scriptPath);
+  const metaUrl = rawUrl(metaPath);
   openAudioPrepScript.href = scriptUrl;
   openAudioPrepMeta.href = metaUrl;
 
@@ -2539,6 +2578,68 @@ function renderNoSepChunkButtons() {
   }
 }
 
+async function loadScriptBody(it) {
+  const currentId = String(it?.video_id || "").trim();
+  if (!currentId) return;
+  const assembledPath = String(it?.assembled_path || "").trim();
+
+  // Skip refetch if we already have the current script body.
+  if (loadedScriptVideoId === currentId && scriptState === "ok" && loadedText.trim()) return;
+
+  loadedText = "";
+  loadedNoSepText = "";
+  loadedScriptVideoId = "";
+  renderNoSepChunkButtons();
+
+  if (!assembledPath) {
+    openRaw.removeAttribute("href");
+    contentPre.textContent = [
+      "台本本文はまだありません（assembled.md が git にありません）。",
+      "- 企画（タイトル/概要欄/タグ）は表示できます。",
+      "- 台本を公開したら「データ再読み込み」してください。",
+    ].join("\n");
+    scriptState = "missing";
+    updateBadges();
+    footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")} · selected: ${currentId}`;
+    return;
+  }
+
+  const url = rawUrl(assembledPath);
+  openRaw.href = url;
+
+  setLoading(true);
+  scriptState = "loading";
+  updateBadges();
+  try {
+    const res = await fetch(url, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`fetch failed: ${res.status} ${res.statusText}`);
+    const text = await res.text();
+    if (String(selected?.video_id || "").trim() !== currentId) return;
+    loadedText = normalizeNewlines(text);
+    loadedNoSepText = stripPauseSeparators(loadedText);
+    loadedScriptVideoId = currentId;
+    renderNoSepChunkButtons();
+    contentPre.textContent = loadedText;
+    scriptState = "ok";
+    updateBadges();
+    footerMeta.textContent = `index: ${indexData?.count || items.length} items · loaded: ${currentId} · chars: ${loadedText.length.toLocaleString(
+      "ja-JP"
+    )}`;
+  } catch (err) {
+    if (String(selected?.video_id || "").trim() !== currentId) return;
+    console.error(err);
+    contentPre.textContent = `読み込みに失敗しました。\n\n${String(err)}`;
+    footerMeta.textContent = "—";
+    loadedNoSepText = "";
+    loadedScriptVideoId = "";
+    scriptState = "error";
+    updateBadges();
+    renderNoSepChunkButtons();
+  } finally {
+    setLoading(false);
+  }
+}
+
 async function loadScript(it) {
   selected = it;
   updateContentNav(it);
@@ -2549,12 +2650,10 @@ async function loadScript(it) {
   updateHeroMedia(it);
   loadedText = "";
   loadedNoSepText = "";
-  scriptState = "loading";
+  loadedScriptVideoId = "";
+  scriptState = "idle";
   updateBadges();
   renderNoSepChunkButtons();
-  void loadAudioPrep(it);
-  void loadThumb(it);
-  void loadVideoImages(it);
 
   const chLabel = channelLabel(it.channel);
   metaTitle.textContent = it.title ? `${chLabel} · ${it.video} · ${it.title}` : `${chLabel} · ${it.video}`;
@@ -2576,49 +2675,23 @@ async function loadScript(it) {
     updateContentNav(hydrated);
   })();
 
-  if (!assembledPath) {
-    openRaw.removeAttribute("href");
-    updateAssetPackLink(it);
-    contentPre.textContent = [
-      "台本本文はまだありません（assembled.md が git にありません）。",
-      "- 企画（タイトル/概要欄/タグ）は表示できます。",
-      "- 台本を公開したら「索引を再読み込み」してください。",
-    ].join("\n");
-    scriptState = "missing";
-    updateBadges();
-    footerMeta.textContent = `generated: ${indexData?.generated_at || "—"} · items: ${items.length.toLocaleString("ja-JP")} · selected: ${it.video_id}`;
-    return;
-  }
-
-  const url = joinUrl(rawBase, assembledPath);
-  openRaw.href = url;
   updateAssetPackLink(it);
 
-  setLoading(true);
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`fetch failed: ${res.status} ${res.statusText}`);
-    const text = await res.text();
-    loadedText = normalizeNewlines(text);
-    loadedNoSepText = stripPauseSeparators(loadedText);
-    renderNoSepChunkButtons();
-    contentPre.textContent = loadedText;
-    scriptState = "ok";
-    updateBadges();
-    footerMeta.textContent = `index: ${indexData?.count || items.length} items · loaded: ${it.video_id} · chars: ${loadedText.length.toLocaleString(
-      "ja-JP"
-    )}`;
-  } catch (err) {
-    console.error(err);
-    contentPre.textContent = `読み込みに失敗しました。\n\n${String(err)}`;
-    footerMeta.textContent = "—";
-    loadedNoSepText = "";
-    scriptState = "error";
-    updateBadges();
-    renderNoSepChunkButtons();
-  } finally {
-    setLoading(false);
+  // Load only the currently visible view (script/audio/thumb/images).
+  const viewNow = normalizeView(currentView);
+  if (viewNow === "audio") {
+    void loadAudioPrep(it);
+    return;
   }
+  if (viewNow === "thumb") {
+    void loadThumb(it);
+    return;
+  }
+  if (viewNow === "images") {
+    void loadVideoImages(it);
+    return;
+  }
+  await loadScriptBody(it);
 }
 
 function selectItem(channel, video) {
@@ -2690,12 +2763,8 @@ async function reloadIndex() {
     snapshotEpisodesByChannel = new Map();
 
     const [res] = await Promise.all([
-      fetch(siteUrl(INDEX_URL), { cache: "no-store" }),
+      fetch(siteUrl(INDEX_URL), { cache: "force-cache" }),
       loadChannelMeta(),
-      loadThumbProjects(),
-      loadThumbIndex(),
-      loadThumbAltIndex(),
-      loadVideoImagesIndex(),
       loadSnapshotChannels(),
     ]);
     if (!res.ok) throw new Error(`index fetch failed: ${res.status} ${res.statusText}`);
@@ -3046,7 +3115,7 @@ function setupEvents() {
 
 setupEvents();
 try {
-  browseDetails.open = isNarrowView();
+  browseDetails.open = !EMBED_MODE && isNarrowView();
 } catch (_err) {
   // ignore
 }
@@ -3055,4 +3124,34 @@ updateBrowseSummary();
 setActiveView(currentView);
 updateBadges();
 clearYoutubeMeta();
-void reloadIndex();
+
+async function initEmbed() {
+  const ch = normalizeChannelParam(initialUiState.channel || "");
+  const v = normalizeVideoParam(initialUiState.video || "");
+  const vid = ch && v ? `${ch}-${v}` : "";
+  if (!vid) {
+    contentPre.textContent = "CHxx-NNN を指定してください（例: ?id=CH07-024）";
+    footerMeta.textContent = "—";
+    return;
+  }
+  setLoading(true);
+  setControlsDisabled(true);
+  try {
+    await loadSnapshotChannels();
+    await loadSnapshotChannel(ch);
+    const ep = snapshotEpisodeByVideoId.get(vid);
+    const it = ep
+      ? _snapshotEpisodeToPseudoItem(ep, ch)
+      : { channel: ch, video: v, video_id: vid, title: "", planning: {}, assembled_path: "" };
+    await loadScript(it);
+  } finally {
+    setLoading(false);
+    setControlsDisabled(false);
+  }
+}
+
+if (EMBED_MODE) {
+  void initEmbed();
+} else {
+  void reloadIndex();
+}

@@ -6,7 +6,8 @@
 - GitHub Pages は rewrite が無いので、静的な wrapper HTML を生成して「外側URLを整理」する。
 
 方針:
-- wrapper は iframe で Script Viewer を表示する（中身のUI/UXは既存を維持）。
+- 台本（/ep/CHxx/NNN/）は **iframeに依存しない**（台本本文 + YouTube貼り付けメタを静的HTMLに埋め込む）。
+- 音声（/ep/CHxx/NNN/audio/）は Script Viewer iframe を維持（TTS用テキスト等の詳細は Viewer 側に集約）。
 - 共有すべきURLは wrapper 側（/ep/...）に統一する。
 - alt thumb は `docs/media/thumbs_alt/<variant>/<CHxx>/<NNN>.jpg` がある場合に生成する。
 
@@ -51,7 +52,7 @@ VIDEO_RE_3 = re.compile(r"^\d{3}$")
 
 # Cache-bust for docs/ep static assets (styles/app).
 # Bump this string when updating /docs/ep UX.
-EP_ASSET_VERSION = "20260113_09"
+EP_ASSET_VERSION = "20260114_00"
 
 
 def _now_iso_utc() -> str:
@@ -243,8 +244,17 @@ input,select{padding:10px 12px;border-radius:10px;border:1px solid var(--border)
 .copy-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border)}
 .copy-title{font-weight:800}
 .copy-actions{display:flex;gap:8px;flex-wrap:wrap}
+.details{grid-column:1 / -1;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.02);overflow:hidden}
+.details__summary{cursor:pointer;padding:10px 12px;border-bottom:1px solid var(--border);font-weight:800}
+.details__summary::-webkit-details-marker{display:none}
+.details__body{padding:12px;display:grid;gap:12px}
 .textarea{width:100%;min-height:140px;resize:vertical;padding:12px;border:0;outline:none;background:transparent;color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.4;white-space:pre-wrap}
+.pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:14px;line-height:1.75}
+@media (max-width:720px){.textarea{font-size:14px;line-height:1.55}.pre{font-size:15px}}
 @media (min-width:960px){.copy-grid{grid-template-columns:1fr 1fr}.copy-block[data-kind="full"]{grid-column:1 / -1}}
+/* Touch devices can report a desktop-sized viewport (e.g. "デスクトップ用サイト"/in-app browsers),
+   so also force single-column layout based on pointer capabilities. */
+@media (hover: none) and (pointer: coarse){.copy-grid{grid-template-columns:1fr}.copy-block[data-kind="full"]{grid-column:auto}}
 """
 
 
@@ -276,10 +286,6 @@ function gotoEpisode(ch, video, view){
   location.href=path;
 }
 
-function textOrEmpty(el){
-  const s=String((el?.innerText||el?.textContent||"")||"").replace(/\\r\\n/g,"\\n").trim();
-  return s;
-}
 async function copyText(text){
   const s=String(text||"");
   if(!s.trim())return false;
@@ -322,15 +328,9 @@ function setupEpJumpForm(){
   });
 }
 
-function getIframeDoc(frame){
-  try{return frame?.contentDocument||frame?.contentWindow?.document||null;}catch(_e){return null;}
-}
-
 function setupEpisodeDescriptionCopy(){
   const panel=document.getElementById("descPanel");
   if(!panel)return;
-  const frame=document.querySelector("iframe.frame");
-  if(!frame)return;
 
   const status=document.getElementById("descStatus");
   const studioLink=document.getElementById("descStudioLink");
@@ -366,39 +366,12 @@ function setupEpisodeDescriptionCopy(){
     });
   }
 
-  async function refreshFromIframe(){
-    const doc=getIframeDoc(frame);
-    if(!doc){
-      setStatus("iframe読み込み中…（しばらく待ってください）");
-      return false;
-    }
-    const title=textOrEmpty(doc.getElementById("ytTitlePre"));
-    const tags=textOrEmpty(doc.getElementById("ytTagsPre"));
-    const full=textOrEmpty(doc.getElementById("ytFullDescPre"));
-    const ep=textOrEmpty(doc.getElementById("ytEpisodeDescPre"));
-    const ch=textOrEmpty(doc.getElementById("ytChannelDescPre"));
-    if(titleTa)titleTa.value=title;
-    if(tagsTa)tagsTa.value=tags;
-    if(fullTa)fullTa.value=full;
-    if(epTa)epTa.value=ep;
-    if(chTa)chTa.value=ch;
-
-    const studioHref=String(doc.getElementById("openYtStudio")?.href||"").trim();
-    setStudioHref(studioHref);
-
-    const hasAny=!!(title||tags||full||ep||ch);
-    if(hasAny)setStatus("準備OK（コピーボタンを押してください）");
-    else setStatus("概要欄が未生成/未表示です（Script Viewer側の「YouTube貼り付け」を確認）");
-    updateCopyButtons();
-    return hasAny;
-  }
-
   panel.querySelectorAll("[data-copy-target]").forEach((btn)=>{
     btn.addEventListener("click",async()=>{
       const id=String(btn.getAttribute("data-copy-target")||"").trim();
       const ta=document.getElementById(id);
       const text=String(ta?.value||"");
-      const labelById={ytTitle:"タイトル",descFull:"概要欄(全文)",ytTags:"タグ",descEpisode:"概要欄(動画ごと)",descChannel:"概要欄(チャンネル固定)"};
+      const labelById={ytTitle:"タイトル",descFull:"概要欄",ytTags:"タグ",descEpisode:"概要欄(動画ごと)",descChannel:"概要欄(チャンネル固定)"};
       const label=labelById[id]||id;
       try{
         const ok=await copyText(text);
@@ -409,19 +382,11 @@ function setupEpisodeDescriptionCopy(){
     });
   });
 
-  let tries=0;
-  async function poll(){
-    tries+=1;
-    const ok=await refreshFromIframe();
-    if(ok)return;
-    if(tries>=60)return;
-    window.setTimeout(poll,250);
-  }
-  frame.addEventListener("load",()=>{
-    tries=0;
-    poll();
-  });
-  poll();
+  // HTML側で textarea は埋め込み済み。JSは「コピー導線」だけ担当する。
+  updateCopyButtons();
+  setStudioHref(String(studioLink?.getAttribute("href")||"").trim().replace(/^#$/,""));
+  const hasAny=!!(String(titleTa?.value||"").trim()||String(fullTa?.value||"").trim()||String(tagsTa?.value||"").trim());
+  setStatus(hasAny?"準備OK（①タイトル→②概要欄→③タグ をコピーして貼り付け）":"概要欄が空です（Planningを確認してください）");
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
@@ -477,6 +442,7 @@ class EpisodeItem:
     video_int: int
     title: str | None
     assembled_rel: str | None
+    planning: dict[str, Any]
 
     @property
     def video_id(self) -> str:
@@ -501,7 +467,7 @@ def _collect_episodes(repo_root: Path) -> list[EpisodeItem]:
     scripts_root = fpaths.script_data_root()
     items: list[EpisodeItem] = []
 
-    def add_episode(*, channel: str, video_int: int, title: str | None) -> None:
+    def add_episode(*, channel: str, video_int: int, title: str | None, planning: dict[str, Any]) -> None:
         video = f"{int(video_int):03d}"
         assembled_rel: str | None = None
         episode_dir = scripts_root / channel / video
@@ -518,6 +484,7 @@ def _collect_episodes(repo_root: Path) -> list[EpisodeItem]:
                 video_int=int(video_int),
                 title=title,
                 assembled_rel=assembled_rel,
+                planning=planning,
             )
         )
 
@@ -555,7 +522,8 @@ def _collect_episodes(repo_root: Path) -> list[EpisodeItem]:
                 except Exception:
                     continue
                 title = str(ep.get("title") or "").strip() or titles.get((channel, video_int))
-                add_episode(channel=channel, video_int=video_int, title=title)
+                planning = ep.get("planning") if isinstance(ep.get("planning"), dict) else {}
+                add_episode(channel=channel, video_int=video_int, title=title, planning=planning)
 
         items.sort(key=lambda it: (_channel_sort_key(it.channel), it.video_int))
         return items
@@ -575,7 +543,7 @@ def _collect_episodes(repo_root: Path) -> list[EpisodeItem]:
                 except Exception:
                     continue
                 title = titles.get((channel, video_int))
-                add_episode(channel=channel, video_int=video_int, title=title)
+                add_episode(channel=channel, video_int=video_int, title=title, planning={})
 
     items.sort(key=lambda it: (_channel_sort_key(it.channel), it.video_int))
     return items
@@ -648,6 +616,7 @@ def _preferred_thumb_alt_variant(*, variants: dict[str, set[str]], channel: str,
 def _standard_links(*, page_dir: Path, docs_root: Path, ep_root: Path, channel_dir: Path | None) -> str:
     ep_href = _rel_href(page_dir, ep_root, is_dir=True)
     viewer_href = _rel_href(page_dir, docs_root / "index.html", is_dir=False)
+    archive_href = _rel_href(page_dir, docs_root / "archive", is_dir=True)
     snapshot_href = _rel_href(page_dir, docs_root / "snapshot", is_dir=True)
     guide_href = _rel_href(page_dir, docs_root / "guide", is_dir=True)
 
@@ -657,6 +626,7 @@ def _standard_links(*, page_dir: Path, docs_root: Path, ep_root: Path, channel_d
         parts.append(f'<a class="btn" href="{_escape_html(ch_href)}">{_escape_html(channel_dir.name)}</a>')
 
     parts.append(f'<a class="btn" href="{_escape_html(viewer_href)}" target="_blank" rel="noreferrer">Script Viewer</a>')
+    parts.append(f'<a class="btn" href="{_escape_html(archive_href)}" target="_blank" rel="noreferrer">書庫</a>')
     parts.append(f'<a class="btn" href="{_escape_html(snapshot_href)}" target="_blank" rel="noreferrer">snapshot</a>')
     parts.append(f'<a class="btn" href="{_escape_html(guide_href)}" target="_blank" rel="noreferrer">guide</a>')
     return "".join(parts)
@@ -889,6 +859,9 @@ def _episode_viewer_page_html(
     channel: str,
     video: str,
     title: str | None,
+    assembled_rel: str | None,
+    planning: dict[str, Any],
+    channel_meta: dict[str, Any] | None,
     view: str,
     updated_at: str,
     variants: list[str],
@@ -916,15 +889,83 @@ def _episode_viewer_page_html(
 
     desc_panel = ""
     script_href = None
+    panel_body = f'      <iframe class="frame" src="{_escape_html(viewer_src)}" loading="lazy" referrerpolicy="no-referrer"></iframe>\n'
+
     if view == "script":
         script_href = _rel_href(page_dir, ep_root / "app.js", is_dir=False)
+
+        def clean(v: Any) -> str:
+            s = str(v or "")
+            s = s.replace("\r\n", "\n").replace("\r", "\n")
+            s = s.replace("\\n", "\n")
+            return s.strip()
+
+        p = planning if isinstance(planning, dict) else {}
+        lead = clean(p.get("説明文_リード") or p.get("description_lead") or "")
+        body_txt = clean(
+            p.get("説明文_この動画でわかること")
+            or p.get("説明文_本文")
+            or p.get("description_body")
+            or p.get("description_takeaways")
+            or ""
+        )
+        description_episode = "\n".join([x for x in (lead, body_txt) if x]).strip()
+
+        cm = channel_meta if isinstance(channel_meta, dict) else {}
+        description_channel = clean(cm.get("youtube_description") or cm.get("description") or "")
+        if description_episode and description_channel:
+            description_full = f"{description_episode}\n\n{description_channel}".strip()
+        else:
+            description_full = (description_episode or description_channel or "").strip()
+
+        tags: list[str] = []
+
+        def push_tag(val: Any) -> None:
+            t = clean(val)
+            if t and t not in tags:
+                tags.append(t)
+
+        tags_raw = p.get("tags") or p.get("Tags") or ""
+        if isinstance(tags_raw, list):
+            for t in tags_raw:
+                push_tag(t)
+        else:
+            s = clean(tags_raw)
+            if s:
+                for part in s.split(","):
+                    push_tag(part)
+            else:
+                push_tag(p.get("悩みタグ_メイン") or "")
+                push_tag(p.get("悩みタグ_サブ") or "")
+
+        defaults_raw = cm.get("default_tags")
+        if isinstance(defaults_raw, list):
+            for t in defaults_raw:
+                push_tag(t)
+        elif isinstance(defaults_raw, str):
+            push_tag(defaults_raw)
+
+        tags_comma = ", ".join(tags)
+
+        yt = cm.get("youtube") if isinstance(cm.get("youtube"), dict) else {}
+        channel_id = clean(yt.get("channel_id") or "")
+        studio_url = f"https://studio.youtube.com/channel/{channel_id}/videos" if channel_id else ""
+        studio_href = studio_url or "#"
+        studio_attrs = (
+            f'href="{_escape_html(studio_href)}" class="btn btn--accent"'
+            if studio_url
+            else 'href="#" class="btn" aria-disabled="true"'
+        )
+
+        yt_title = clean(title or "")
+
         desc_panel = (
             "  <div class=\"panel\" id=\"descPanel\">\n"
             "    <div class=\"panel__head\">\n"
             "      <div><strong>YouTube貼り付け</strong> <span class=\"muted\">タイトル/概要欄/タグ</span></div>\n"
             "      <div class=\"copy-actions\">"
-            "<a class=\"btn\" id=\"descStudioLink\" href=\"#\" target=\"_blank\" rel=\"noreferrer\">YouTube Studio</a>"
-            "<button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\" disabled>概要欄コピー</button>"
+            f"<a {studio_attrs} id=\"descStudioLink\" target=\"_blank\" rel=\"noreferrer\">YouTube Studio</a>"
+            "<button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\">概要欄コピー</button>"
             "</div>\n"
             "    </div>\n"
             "    <div class=\"panel__body\">\n"
@@ -932,34 +973,53 @@ def _episode_viewer_page_html(
             "      <div class=\"copy-grid\" style=\"margin-top:10px\">\n"
             "        <div class=\"copy-block\" data-kind=\"title\">\n"
             "          <div class=\"copy-head\"><div class=\"copy-title\">① タイトル</div>"
-            "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"ytTitle\" disabled>コピー</button></div></div>\n"
-            "          <textarea id=\"ytTitle\" class=\"textarea\" rows=\"3\" readonly placeholder=\"読み込み中…\"></textarea>\n"
+            "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"ytTitle\">コピー</button></div></div>\n"
+            f"          <textarea id=\"ytTitle\" class=\"textarea\" rows=\"3\" readonly>{_escape_html(yt_title)}</textarea>\n"
             "        </div>\n"
             "        <div class=\"copy-block\" data-kind=\"full\">\n"
             "          <div class=\"copy-head\"><div class=\"copy-title\">② 概要欄（全文）</div>"
-            "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\" disabled>コピー</button></div></div>\n"
-            "          <textarea id=\"descFull\" class=\"textarea\" rows=\"10\" readonly placeholder=\"読み込み中…\"></textarea>\n"
+            "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"descFull\">コピー</button></div></div>\n"
+            f"          <textarea id=\"descFull\" class=\"textarea\" rows=\"10\" readonly>{_escape_html(description_full)}</textarea>\n"
             "        </div>\n"
             "        <div class=\"copy-block\" data-kind=\"tags\">\n"
-            "          <div class=\"copy-head\"><div class=\"copy-title\">③ タグ（comma）</div>"
-            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"ytTags\" disabled>コピー</button></div></div>\n"
-            "          <textarea id=\"ytTags\" class=\"textarea\" rows=\"4\" readonly placeholder=\"—\"></textarea>\n"
+            "          <div class=\"copy-head\"><div class=\"copy-title\">③ タグ（カンマ区切り）</div>"
+            "<div class=\"copy-actions\"><button class=\"btn btn--accent\" type=\"button\" data-copy-target=\"ytTags\">コピー</button></div></div>\n"
+            f"          <textarea id=\"ytTags\" class=\"textarea\" rows=\"4\" readonly>{_escape_html(tags_comma)}</textarea>\n"
             "        </div>\n"
-            "        <div class=\"copy-block\" data-kind=\"episode\">\n"
-            "          <div class=\"copy-head\"><div class=\"copy-title\">概要欄（動画ごと）</div>"
-            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descEpisode\" disabled>コピー</button></div></div>\n"
-            "          <textarea id=\"descEpisode\" class=\"textarea\" rows=\"8\" readonly placeholder=\"—\"></textarea>\n"
-            "        </div>\n"
-            "        <div class=\"copy-block\" data-kind=\"channel\">\n"
-            "          <div class=\"copy-head\"><div class=\"copy-title\">概要欄（チャンネル固定）</div>"
-            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descChannel\" disabled>コピー</button></div></div>\n"
-            "          <textarea id=\"descChannel\" class=\"textarea\" rows=\"8\" readonly placeholder=\"—\"></textarea>\n"
-            "        </div>\n"
+            "        <details class=\"details\">\n"
+            "          <summary class=\"details__summary\">詳細（上級）: 概要欄の内訳 <span class=\"muted\">（動画ごと/チャンネル固定）</span></summary>\n"
+            "          <div class=\"details__body\">\n"
+            "            <div class=\"copy-block\" data-kind=\"episode\">\n"
+            "              <div class=\"copy-head\"><div class=\"copy-title\">概要欄（動画ごと）</div>"
+            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descEpisode\">コピー</button></div></div>\n"
+            f"              <textarea id=\"descEpisode\" class=\"textarea\" rows=\"8\" readonly>{_escape_html(description_episode)}</textarea>\n"
+            "            </div>\n"
+            "            <div class=\"copy-block\" data-kind=\"channel\">\n"
+            "              <div class=\"copy-head\"><div class=\"copy-title\">概要欄（チャンネル固定）</div>"
+            "<div class=\"copy-actions\"><button class=\"btn\" type=\"button\" data-copy-target=\"descChannel\">コピー</button></div></div>\n"
+            f"              <textarea id=\"descChannel\" class=\"textarea\" rows=\"8\" readonly>{_escape_html(description_channel)}</textarea>\n"
+            "            </div>\n"
+            "          </div>\n"
+            "        </details>\n"
             "      </div>\n"
-            "      <div class=\"muted\" id=\"descStatus\" style=\"margin-top:10px\">読み込み中…</div>\n"
+            "      <div class=\"muted\" id=\"descStatus\" style=\"margin-top:10px\">準備OK（コピーボタンを押してください）</div>\n"
             "    </div>\n"
             "  </div>\n"
         )
+
+        repo_root = docs_root.parent
+        script_text = ""
+        if assembled_rel:
+            try:
+                script_text = (repo_root / str(assembled_rel)).read_text(encoding="utf-8")
+            except Exception:
+                script_text = ""
+        script_text = script_text.replace("\r\n", "\n").replace("\r", "\n")
+
+        if script_text.strip():
+            panel_body = f'      <pre class="pre">{_escape_html(script_text)}</pre>\n'
+        else:
+            panel_body = "      <div class=\"muted\">台本本文は未生成です（assembled_human.md / assembled.md がありません）。</div>\n"
 
     body = (
         "<main>\n"
@@ -972,7 +1032,7 @@ def _episode_viewer_page_html(
         f"      <div class=\"muted\">updated_at: {updated_at}</div>\n"
         "    </div>\n"
         "    <div class=\"panel__body\">\n"
-        f"      <iframe class=\"frame\" src=\"{_escape_html(viewer_src)}\" loading=\"lazy\" referrerpolicy=\"no-referrer\"></iframe>\n"
+        f"{panel_body}"
         "    </div>\n"
         "  </div>\n"
         "</main>\n"
@@ -1431,6 +1491,9 @@ def main() -> int:
                     channel=it.channel,
                     video=it.video,
                     title=it.title,
+                    assembled_rel=it.assembled_rel,
+                    planning=it.planning,
+                    channel_meta=channel_meta_by_id.get(it.channel),
                     view="script",
                     updated_at=updated_at,
                     variants=episode_variants,
@@ -1452,6 +1515,9 @@ def main() -> int:
                     channel=it.channel,
                     video=it.video,
                     title=it.title,
+                    assembled_rel=it.assembled_rel,
+                    planning=it.planning,
+                    channel_meta=channel_meta_by_id.get(it.channel),
                     view="audio",
                     updated_at=updated_at,
                     variants=episode_variants,
