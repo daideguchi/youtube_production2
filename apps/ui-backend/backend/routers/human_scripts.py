@@ -4,6 +4,9 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException
 
+from backend.app.datetime_utils import current_timestamp
+from backend.app.episode_store import load_status_optional, resolve_text_file, video_base_dir
+from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.scripts_models import HumanScriptResponse, HumanScriptUpdateRequest
 from backend.app.path_utils import safe_relative_path
 from backend.app.status_models import ensure_expected_updated_at
@@ -13,14 +16,7 @@ router = APIRouter(prefix="/api", tags=["scripts"])
 
 @router.get("/channels/{channel}/videos/{video}/scripts/human", response_model=HumanScriptResponse)
 def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
-    from backend.main import (
-        _default_status_payload,
-        load_status_optional,
-        normalize_channel_code,
-        normalize_video_number,
-        resolve_text_file,
-        video_base_dir,
-    )
+    from backend.main import _default_status_payload
 
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
@@ -74,15 +70,7 @@ def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
 
 @router.put("/channels/{channel}/videos/{video}/scripts/human")
 def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateRequest) -> Dict[str, Any]:
-    from backend.main import (
-        current_timestamp,
-        load_or_init_status,
-        normalize_channel_code,
-        normalize_video_number,
-        save_status,
-        video_base_dir,
-        write_text_with_lock,
-    )
+    from backend.main import load_or_init_status, save_status, write_text_with_lock
 
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)

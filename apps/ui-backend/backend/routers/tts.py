@@ -5,6 +5,9 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from fastapi import APIRouter, HTTPException
 
+from backend.app.datetime_utils import current_timestamp
+from backend.app.episode_store import load_status, resolve_text_file, video_base_dir
+from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.tts_models import (
     TTSValidateRequest,
     TTSValidateResponse,
@@ -21,15 +24,9 @@ from backend.main import (
     _persist_tts_variants,
     analyze_tts_content,
     append_audio_history_entry,
-    current_timestamp,
-    load_status,
     logger,
-    normalize_channel_code,
-    normalize_video_number,
     replace_text,
-    resolve_text_file,
     save_status,
-    video_base_dir,
 )
 
 router = APIRouter(prefix="/api", tags=["tts"])

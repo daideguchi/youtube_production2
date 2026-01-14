@@ -3,6 +3,9 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 
+from backend.app.datetime_utils import current_timestamp
+from backend.app.episode_store import load_status, video_base_dir
+from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.scripts_models import TextUpdateRequest
 from backend.app.status_models import ensure_expected_updated_at
 
@@ -11,15 +14,7 @@ router = APIRouter(prefix="/api", tags=["scripts"])
 
 @router.put("/channels/{channel}/videos/{video}/assembled")
 def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
-    from backend.main import (
-        current_timestamp,
-        load_status,
-        normalize_channel_code,
-        normalize_video_number,
-        save_status,
-        video_base_dir,
-        write_text_with_lock,
-    )
+    from backend.main import save_status, write_text_with_lock
 
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
@@ -74,7 +69,7 @@ def get_a_text(channel: str, video: str):
     Aテキスト（表示用原稿）を返す。優先順位:
     content/assembled_human.md -> content/assembled.md
     """
-    from backend.main import _resolve_a_text_display_path, normalize_channel_code, normalize_video_number
+    from backend.main import _resolve_a_text_display_path
 
     channel_code = normalize_channel_code(channel)
     video_no = normalize_video_number(video)

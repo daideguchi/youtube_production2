@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
+from backend.app.datetime_utils import current_timestamp
 from backend.app.normalize import normalize_channel_code, normalize_optional_text, normalize_video_number
+from backend.app.episode_store import load_status
 from backend.app.planning_models import PlanningUpdateRequest, PlanningUpdateResponse
 from backend.app.status_models import ensure_expected_updated_at
 from backend.main import (
     build_planning_payload,
-    current_timestamp,
     get_planning_section,
-    load_status,
     run_ssot_sync_for_channel,
     save_status,
 )
