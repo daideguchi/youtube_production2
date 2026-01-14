@@ -33,18 +33,20 @@ from backend.app.thumbnails_overview_models import (
     ThumbnailOverviewResponse,
 )
 from backend.app.thumbnails_project_models import ThumbnailProjectResponse, ThumbnailProjectUpdateRequest
-from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
-from backend.main import (
-    ThumbnailThumbSpecResponse,
-    ThumbnailThumbSpecUpdateRequest,
+from backend.app.thumbnails_specs_models import (
+    THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1,
+    THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1,
+    ThumbnailElementPayload,
+    ThumbnailElementStrokePayload,
+    ThumbnailElementsSpecResponse,
+    ThumbnailElementsSpecUpdateRequest,
     ThumbnailTextLineSpecLinePayload,
     ThumbnailTextLineSpecResponse,
     ThumbnailTextLineSpecUpdateRequest,
-    ThumbnailElementPayload,
-    ThumbnailElementsSpecResponse,
-    ThumbnailElementsSpecUpdateRequest,
-    ThumbnailElementStrokePayload,
+    ThumbnailThumbSpecResponse,
+    ThumbnailThumbSpecUpdateRequest,
 )
+from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.channel_info_store import refresh_channel_info
 
 router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
@@ -617,7 +619,7 @@ def upsert_thumbnail_text_line_spec(
         lines_out[slot_key] = {"offset_x": ox, "offset_y": oy, "scale": sc, "rotate_deg": rot}
 
     payload = {
-        "schema": backend_main.THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1,
+        "schema": THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1,
         "channel": channel_code,
         "video": video_number,
         "stable": stable_label,
@@ -814,7 +816,7 @@ def upsert_thumbnail_elements_spec(
         elements_out.append(out)
 
     payload = {
-        "schema": backend_main.THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1,
+        "schema": THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1,
         "channel": channel_code,
         "video": video_number,
         "stable": stable_label,

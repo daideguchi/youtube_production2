@@ -15,6 +15,7 @@ from PIL import Image
 import backend.main as backend_main
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
+from backend.app.thumbnails_specs_models import ThumbnailTextLineSpecLinePayload, ThumbnailThumbSpecUpdateRequest
 from backend.app.thumbnails_video_models import (
     ThumbnailAssetReplaceResponse,
     ThumbnailVariantComposeRequest,
@@ -34,11 +35,9 @@ from backend.main import (
     ThumbnailPreviewTextLayerSlotsRequest,
     ThumbnailPreviewTextLayerSlotsResponse,
     ThumbnailPreviewTextSlotImageResponse,
-    ThumbnailTextLineSpecLinePayload,
     ThumbnailTextSlotMetaResponse,
     ThumbnailTextTemplateOptionResponse,
     ThumbnailTwoUpBuildResponse,
-    ThumbnailThumbSpecUpdateRequest,
 )
 from factory_common.paths import ssot_assets_root, ssot_thumbnails_root
 from script_pipeline.tools import planning_store

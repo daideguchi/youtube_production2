@@ -176,6 +176,7 @@ from backend.app.thumbnails_library_models import (
 )
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
 from backend.app.thumbnails_project_models import ThumbnailProjectResponse
+from backend.app.thumbnails_specs_models import ThumbnailTextLineSpecLinePayload
 from backend.app.thumbnails_overview_models import (
     ThumbnailChannelBlockResponse,
     ThumbnailChannelSummaryResponse,
@@ -3281,84 +3282,6 @@ class ThumbnailParamCatalogEntryResponse(BaseModel):
     engine: str
     min_value: Optional[float] = None
     max_value: Optional[float] = None
-
-
-class ThumbnailThumbSpecUpdateRequest(BaseModel):
-    overrides: Dict[str, Any] = Field(default_factory=dict)
-
-
-class ThumbnailThumbSpecResponse(BaseModel):
-    exists: bool
-    path: Optional[str] = None
-    schema: Optional[str] = None
-    channel: str
-    video: str
-    overrides: Dict[str, Any] = Field(default_factory=dict)
-    updated_at: Optional[str] = None
-    normalized_overrides_leaf: Dict[str, Any] = Field(default_factory=dict)
-
-THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1 = "ytm.thumbnail.text_line_spec.v1"
-
-
-class ThumbnailTextLineSpecLinePayload(BaseModel):
-    offset_x: float = 0.0
-    offset_y: float = 0.0
-    scale: float = 1.0
-    rotate_deg: float = 0.0
-
-
-class ThumbnailTextLineSpecUpdateRequest(BaseModel):
-    lines: Dict[str, ThumbnailTextLineSpecLinePayload] = Field(default_factory=dict)
-
-
-class ThumbnailTextLineSpecResponse(BaseModel):
-    exists: bool
-    path: Optional[str] = None
-    schema: str = THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1
-    channel: str
-    video: str
-    stable: str
-    lines: Dict[str, ThumbnailTextLineSpecLinePayload] = Field(default_factory=dict)
-    updated_at: Optional[str] = None
-
-
-THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1 = "ytm.thumbnail.elements_spec.v1"
-
-
-class ThumbnailElementStrokePayload(BaseModel):
-    color: Optional[str] = None
-    width_px: float = 0.0
-
-
-class ThumbnailElementPayload(BaseModel):
-    id: str
-    kind: str
-    layer: str = "above_portrait"  # above_portrait | below_portrait
-    z: int = 0
-    x: float = 0.5  # normalized center (0-1), can go out of frame
-    y: float = 0.5
-    w: float = 0.2  # normalized size (relative to canvas)
-    h: float = 0.2
-    rotation_deg: float = 0.0
-    opacity: float = 1.0
-    fill: Optional[str] = None
-    stroke: Optional[ThumbnailElementStrokePayload] = None
-    src_path: Optional[str] = None  # relative path under workspaces/thumbnails/assets (e.g. CHxx/library/foo.png)
-
-
-class ThumbnailElementsSpecUpdateRequest(BaseModel):
-    elements: List[ThumbnailElementPayload] = Field(default_factory=list)
-
-
-class ThumbnailElementsSpecResponse(BaseModel):
-    exists: bool
-    path: Optional[str] = None
-    schema: str = THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1
-    channel: str
-    video: str
-    stable: str
-    elements: List[ThumbnailElementPayload] = Field(default_factory=list)
-    updated_at: Optional[str] = None
 
 
 class ThumbnailPreviewTextSlotImageResponse(BaseModel):
