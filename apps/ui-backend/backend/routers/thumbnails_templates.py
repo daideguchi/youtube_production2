@@ -15,6 +15,11 @@ from backend.app.thumbnails_templates_models import (
     ThumbnailChannelTemplatesUpdateRequest,
     ThumbnailTemplateResponse,
 )
+from backend.app.thumbnails_templates_store import (
+    THUMBNAIL_TEMPLATES_LOCK,
+    _load_thumbnail_templates_document,
+    _write_thumbnail_templates_document,
+)
 from backend.main import PROJECT_ROOT
 
 router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
@@ -87,12 +92,9 @@ def list_thumbnail_image_models():
     response_model=ThumbnailChannelTemplatesResponse,
 )
 def get_thumbnail_channel_templates(channel: str):
-    # Late-binding: thumbnail templates helpers are defined later in backend.main.
-    import backend.main as backend_main
-
     channel_code = normalize_channel_code(channel)
-    with backend_main.THUMBNAIL_TEMPLATES_LOCK:
-        _path, payload = backend_main._load_thumbnail_templates_document()  # type: ignore[attr-defined]
+    with THUMBNAIL_TEMPLATES_LOCK:
+        _path, payload = _load_thumbnail_templates_document()
         channels = payload.get("channels") if isinstance(payload, dict) else None
         channel_payload = channels.get(channel_code) if isinstance(channels, dict) else None
 
@@ -169,8 +171,6 @@ def get_thumbnail_channel_templates(channel: str):
     response_model=ThumbnailChannelTemplatesResponse,
 )
 def upsert_thumbnail_channel_templates(channel: str, request: ThumbnailChannelTemplatesUpdateRequest):
-    import backend.main as backend_main
-
     channel_code = normalize_channel_code(channel)
 
     model_keys: set[str] = set()
@@ -186,8 +186,8 @@ def upsert_thumbnail_channel_templates(channel: str, request: ThumbnailChannelTe
 
     now = datetime.now(timezone.utc).isoformat()
 
-    with backend_main.THUMBNAIL_TEMPLATES_LOCK:
-        path, payload = backend_main._load_thumbnail_templates_document()  # type: ignore[attr-defined]
+    with THUMBNAIL_TEMPLATES_LOCK:
+        path, payload = _load_thumbnail_templates_document()
         channels = payload.get("channels")
         if not isinstance(channels, dict):
             channels = {}
@@ -248,6 +248,6 @@ def upsert_thumbnail_channel_templates(channel: str, request: ThumbnailChannelTe
             }
         )
         channels[channel_code] = merged_channel
-        backend_main._write_thumbnail_templates_document(path, payload)  # type: ignore[attr-defined]
+        _write_thumbnail_templates_document(path, payload)
 
     return get_thumbnail_channel_templates(channel_code)
