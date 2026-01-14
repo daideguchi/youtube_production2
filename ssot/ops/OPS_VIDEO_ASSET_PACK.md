@@ -140,5 +140,12 @@ mv /tmp/episode_asset_pack__CHxx-NNN.tgz "$YTM_OFFLOAD_ROOT/episode_asset_pack/C
 - `channel:CHxx` / `CHxx-NNN` で検索する（query）。
 
 復元（固定）:
-- UIの `Copy restore cmd` を実行する（`release_archive.py pull` + `tar -xzf ...`）。
-- 注意: 復元は `gh` 認証が必要（`gh auth status`）。
+- CLI（入口固定）:
+  - archive_id 指定: `./ops archive episode-asset-pack-restore --archive-id A-YYYY-MM-DD-0001 --run`
+  - CH/動画指定（manifestから検索）: `./ops archive episode-asset-pack-restore --channel CHxx --video NNN --run`
+  - 既定は dry-run（計画だけ表示）。実行は `--run`。
+- Asset Pack へ取り込み（オプション）:
+  - `--write-pack` で `workspaces/video/assets/episodes/{CHxx}/{NNN}/` へコピーする（既存dirがある場合は停止）
+  - `--overwrite-pack` を付けると上書きできる
+- 注意: 復元は `gh` 認証が必要（`gh auth status` が `Logged in to github.com` を表示すること）
+- 参考（UI）: `Copy restore cmd` は `release_archive.py pull` + `tar -xzf ...` の分解形

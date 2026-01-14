@@ -21,6 +21,8 @@
   - 記帳ログ: `workspaces/logs/ops/sessions/<session_id>/{start.json,end.json}`
 - 書庫/容量対策（archive / delete）:
   - Episode Asset Pack（画像束）書庫化: `./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --run`
+  - Episode Asset Pack（画像束）復元（archive_id指定）: `./ops archive episode-asset-pack-restore --archive-id A-YYYY-MM-DD-0001 --run`
+  - Episode Asset Pack（画像束）復元（CH/動画で検索）: `./ops archive episode-asset-pack-restore --channel CHxx --video NNN --run`
   - 投稿済み（進捗=投稿済み）削除: `./ops archive published --channel CHxx --audio --video-runs --delete --run --yes`
   - 正本: `ssot/ops/OPS_VIDEO_ASSET_PACK.md` / `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md` / `ssot/ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`
 - 迷子/復帰:

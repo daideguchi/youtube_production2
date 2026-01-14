@@ -73,6 +73,11 @@
               <pre class="code"># 画像束（再利用/容量対策）: Episode Asset Pack → Releases書庫
 ARCHIVE_REPO="OWNER/REPO" ./ops archive episode-asset-pack --channel CHxx --video NNN --push --run
 
+# 書庫から復元（download + extract）
+./ops archive episode-asset-pack-restore --archive-id A-YYYY-MM-DD-0001 --run
+# CH/動画から検索して復元（manifest tags）
+./ops archive episode-asset-pack-restore --channel CHxx --video NNN --run
+
 # 投稿済み（容量対策）: 音声 + run_dir + CapCut drafts を削除（台本/進捗は保持）
 ./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --run --yes
 

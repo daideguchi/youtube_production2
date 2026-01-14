@@ -107,6 +107,30 @@ ARCHIVE_REPO="OWNER/REPO" \
   --outdir "/path/to/restore"
 ```
 
+### 2.2.1 Episode Asset Pack（画像束）の復元（入口固定）
+
+目的:
+- Releases 書庫 → ローカルへ **download + sha検証 + tgz展開** までを 1 コマンドで完結する。
+- `manifest.jsonl` の tags（`type/channel/video`）から **最新の archive_id を検索**できるようにする。
+
+```bash
+# dry-run（計画だけ表示）
+./ops archive episode-asset-pack-restore --archive-id A-YYYY-MM-DD-0001
+
+# 実行（download + extract）
+./ops archive episode-asset-pack-restore --archive-id A-YYYY-MM-DD-0001 --run
+
+# CH/動画から検索（manifest tags）
+./ops archive episode-asset-pack-restore --channel CHxx --video NNN --run
+
+# （オプション）Asset Pack へ戻す（既存dirがある場合は停止。上書きは --overwrite-pack）
+./ops archive episode-asset-pack-restore --channel CHxx --video NNN --write-pack --run
+```
+
+出力:
+- 既定の展開先: `/tmp/ytm_restore/unpacked/<archive_id>/`
+- tgz 内は `{CHxx}/{NNN}/...` の構造を前提とする
+
 ### 2.3 list（一覧/検索）
 
 ```bash
