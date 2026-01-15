@@ -19,28 +19,28 @@ router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 @router.get("/llm", response_model=LLMSettingsResponse)
 def get_llm_settings() -> LLMSettingsResponse:
-    from backend.main import get_llm_settings as impl
+    from backend.app.llm_settings_handlers import get_llm_settings as impl
 
     return impl()
 
 
 @router.put("/llm", response_model=LLMSettingsResponse)
 def update_llm_settings(payload: LLMSettingsUpdate) -> LLMSettingsResponse:
-    from backend.main import update_llm_settings as impl
+    from backend.app.llm_settings_handlers import update_llm_settings as impl
 
     return impl(payload)
 
 
 @router.get("/codex", response_model=CodexSettingsResponse)
 def get_codex_settings() -> CodexSettingsResponse:
-    from backend.main import get_codex_settings as impl
+    from backend.app.codex_settings_store import get_codex_settings as impl
 
     return impl()
 
 
 @router.put("/codex", response_model=CodexSettingsResponse)
 def update_codex_settings(payload: CodexSettingsUpdate) -> CodexSettingsResponse:
-    from backend.main import update_codex_settings as impl
+    from backend.app.codex_settings_store import update_codex_settings as impl
 
     return impl(payload)
 
