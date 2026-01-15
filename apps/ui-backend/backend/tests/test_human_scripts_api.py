@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend import main
+from backend.app import episode_store, normalize as normalize_mod, status_store
 from backend.main import app
 
 
@@ -23,6 +24,11 @@ def human_scripts_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
     monkeypatch.setattr(main, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "CHANNEL_PLANNING_DIR", planning_channels_dir)
+    monkeypatch.setattr(status_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(status_store, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
 
     with TestClient(app) as client:
         yield {"client": client, "scripts_root": scripts_root}
@@ -152,4 +158,3 @@ def test_human_scripts_put_updates_a_text_and_resets_flags(human_scripts_env):
     assert sv.get("status") == "pending"
     assert "error" not in (sv.get("details") or {})
     assert "issues" not in (sv.get("details") or {})
-

@@ -9,18 +9,18 @@ from backend.app.episode_store import load_status_optional, resolve_text_file, v
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.scripts_models import HumanScriptResponse, HumanScriptUpdateRequest
 from backend.app.path_utils import safe_relative_path
+from backend.app.lock_store import write_text_with_lock
 from backend.app.status_models import ensure_expected_updated_at
+from backend.app.status_store import default_status_payload, load_or_init_status, save_status
 
 router = APIRouter(prefix="/api", tags=["scripts"])
 
 
 @router.get("/channels/{channel}/videos/{video}/scripts/human", response_model=HumanScriptResponse)
 def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
-    from backend.main import _default_status_payload
-
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
-    status = load_status_optional(channel_code, video_number) or _default_status_payload(channel_code, video_number)
+    status = load_status_optional(channel_code, video_number) or default_status_payload(channel_code, video_number)
     metadata = status.get("metadata") or {}
     base_dir = video_base_dir(channel_code, video_number)
     content_dir = base_dir / "content"
@@ -70,8 +70,6 @@ def get_human_scripts(channel: str, video: str) -> HumanScriptResponse:
 
 @router.put("/channels/{channel}/videos/{video}/scripts/human")
 def update_human_scripts(channel: str, video: str, payload: HumanScriptUpdateRequest) -> Dict[str, Any]:
-    from backend.main import load_or_init_status, save_status, write_text_with_lock
-
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     status = load_or_init_status(channel_code, video_number)

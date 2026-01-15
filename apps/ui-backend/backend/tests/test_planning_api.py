@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend import main
+from backend.app import channel_catalog, episode_store, normalize as normalize_mod, status_store
 from backend.main import app
 from script_pipeline.tools import planning_requirements
 from factory_common import paths as fc_paths
@@ -48,6 +49,13 @@ def planning_test_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", channels_dir)
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
+    monkeypatch.setattr(channel_catalog, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(channel_catalog, "CHANNEL_PLANNING_DIR", channels_dir)
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "CHANNEL_PLANNING_DIR", channels_dir)
+    monkeypatch.setattr(status_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(status_store, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
     monkeypatch.setattr(planning_requirements, "SSOT_DIR", persona_dir)
     monkeypatch.setattr(planning_requirements, "YTM_ROOT", tmp_path)
     planning_requirements.clear_persona_cache()
