@@ -1106,23 +1106,9 @@ def _persist_tts_variants(
 
 
 def append_audio_history_entry(channel_code: str, video_number: str, entry: Dict[str, Any]) -> None:
-    status_path = DATA_ROOT / channel_code / video_number / "status.json"
-    if not status_path.exists():
-        return
-    try:
-        payload = load_json(status_path)
-    except HTTPException:
-        return
-    timestamp = entry.get("timestamp") or current_timestamp()
-    history_entry = dict(entry)
-    history_entry["timestamp"] = timestamp
-    metadata = payload.setdefault("metadata", {})
-    audio_meta = metadata.setdefault("audio", {})
-    history = audio_meta.setdefault("history", [])
-    history.append(history_entry)
-    if len(history) > 50:
-        del history[:-50]
-    write_json(status_path, payload)
+    from backend.app.status_store import append_audio_history_entry as impl
+
+    impl(channel_code, video_number, entry)
 
 
 def _heuristic_natural_command(command: str, tts_content: str) -> Tuple[List[NaturalCommandAction], str]:

@@ -42,7 +42,7 @@ def _persist_tts_variants(*args: Any, **kwargs: Any):
 
 
 def append_audio_history_entry(*args: Any, **kwargs: Any):
-    from backend.main import append_audio_history_entry as impl
+    from backend.app.status_store import append_audio_history_entry as impl
 
     return impl(*args, **kwargs)
 

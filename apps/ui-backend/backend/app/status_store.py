@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from fastapi import HTTPException
+
+from backend.app.datetime_utils import current_timestamp
 from backend.app.episode_store import load_status_optional
 from backend.app.normalize import normalize_video_number
 from backend.app.status_models import STAGE_ORDER
@@ -91,3 +94,31 @@ def load_or_init_status(channel_code: str, video_number: str) -> dict:
 
     save_status(channel_code, video_number, payload)
     return payload
+
+
+def append_audio_history_entry(channel_code: str, video_number: str, entry: dict) -> None:
+    """
+    Append a short history entry under `metadata.audio.history` in status.json.
+
+    This is best-effort and never creates a new status.json.
+    """
+    status_path = DATA_ROOT / channel_code / video_number / "status.json"
+    if not status_path.exists():
+        return
+    try:
+        payload = load_json(status_path)
+    except HTTPException:
+        return
+
+    timestamp = entry.get("timestamp") or current_timestamp()
+    history_entry = dict(entry)
+    history_entry["timestamp"] = timestamp
+
+    metadata = payload.setdefault("metadata", {})
+    audio_meta = metadata.setdefault("audio", {})
+    history = audio_meta.setdefault("history", [])
+    history.append(history_entry)
+    if len(history) > 50:
+        del history[:-50]
+
+    write_json(status_path, payload)
