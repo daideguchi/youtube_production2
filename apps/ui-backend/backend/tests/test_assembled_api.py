@@ -97,3 +97,30 @@ def test_update_assembled_prefers_assembled_human_and_mirrors(assembled_env):
     assert resp.status_code == 200
     assert assembled_human.read_text(encoding="utf-8") == "NEW2"
     assert assembled.read_text(encoding="utf-8") == "NEW2"
+
+
+def test_get_a_text_returns_assembled_when_no_human(assembled_env):
+    client: TestClient = assembled_env["client"]  # type: ignore[assignment]
+    base_dir: Path = assembled_env["base_dir"]  # type: ignore[assignment]
+
+    content_dir = base_dir / "content"
+    content_dir.mkdir(parents=True, exist_ok=True)
+    (content_dir / "assembled.md").write_text("A_TEXT", encoding="utf-8")
+
+    resp = client.get("/api/channels/CH01/videos/1/a-text")
+    assert resp.status_code == 200
+    assert resp.text == "A_TEXT"
+
+
+def test_get_a_text_prefers_assembled_human(assembled_env):
+    client: TestClient = assembled_env["client"]  # type: ignore[assignment]
+    base_dir: Path = assembled_env["base_dir"]  # type: ignore[assignment]
+
+    content_dir = base_dir / "content"
+    content_dir.mkdir(parents=True, exist_ok=True)
+    (content_dir / "assembled.md").write_text("A_TEXT", encoding="utf-8")
+    (content_dir / "assembled_human.md").write_text("H_TEXT", encoding="utf-8")
+
+    resp = client.get("/api/channels/CH01/videos/1/a-text")
+    assert resp.status_code == 200
+    assert resp.text == "H_TEXT"

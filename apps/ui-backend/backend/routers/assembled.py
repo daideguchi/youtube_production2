@@ -7,6 +7,7 @@ from backend.app.datetime_utils import current_timestamp
 from backend.app.episode_store import load_status, video_base_dir
 from backend.app.lock_store import write_text_with_lock
 from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.script_text_utils import _resolve_a_text_display_path
 from backend.app.scripts_models import TextUpdateRequest
 from backend.app.status_store import save_status
 from backend.app.status_models import ensure_expected_updated_at
@@ -69,8 +70,6 @@ def get_a_text(channel: str, video: str):
     Aテキスト（表示用原稿）を返す。優先順位:
     content/assembled_human.md -> content/assembled.md
     """
-    from backend.main import _resolve_a_text_display_path
-
     channel_code = normalize_channel_code(channel)
     video_no = normalize_video_number(video)
     path = _resolve_a_text_display_path(channel_code, video_no)
