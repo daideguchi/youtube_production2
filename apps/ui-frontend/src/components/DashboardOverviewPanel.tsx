@@ -110,7 +110,15 @@ export function DashboardOverviewPanel({
   }
 
   if (!overview) {
-    return null;
+    return (
+      <section className="dashboard-overview dashboard-clean">
+        <p className="muted">ダッシュボードデータを取得できませんでした。</p>
+        <p className="muted small-text">
+          /api が 404 の場合は ui-backend が未起動/到達不可の可能性があります（起動:{" "}
+          <code>bash scripts/start_all.sh start</code>）。
+        </p>
+      </section>
+    );
   }
 
   const channelMetaMap = new Map<string, ChannelSummary>();

@@ -43,6 +43,8 @@ export function ChannelDetailPage() {
     selectedChannelSnapshot,
     selectChannel,
     navigateToChannel,
+    videosLoading,
+    videosError,
     detailError,
     detailLoading,
     shouldShowDetailPanel,
@@ -125,9 +127,11 @@ export function ChannelDetailPage() {
 
   return (
     <>
-      {hasUnsavedChanges ? (
+      {hasUnsavedChanges || videosLoading || videosError ? (
         <div className="main-status">
-          <span className="status-chip status-chip--warning">未保存の変更あり</span>
+          {hasUnsavedChanges ? <span className="status-chip status-chip--warning">未保存の変更あり</span> : null}
+          {videosLoading ? <span className="status-chip">台本一覧読み込み中…</span> : null}
+          {videosError ? <span className="status-chip status-chip--danger">{videosError}</span> : null}
         </div>
       ) : null}
       <section className="main-content main-content--channel">
@@ -201,7 +205,19 @@ export function ChannelDetailPage() {
         ) : (
           <div className="shell-panel shell-panel--placeholder">
             <h2>チャンネル情報を取得できませんでした</h2>
-            <p className="shell-panel__subtitle">サイドバーから別のチャンネルを選択するか、ダッシュボードへ戻ってください。</p>
+            <p className="shell-panel__subtitle">
+              {channelsError ? (
+                <span className="error">{channelsError}</span>
+              ) : (
+                "サイドバーから別のチャンネルを選択するか、ダッシュボードへ戻ってください。"
+              )}
+            </p>
+            {channelsError ? (
+              <p className="muted small-text">
+                /api が 404 の場合は ui-backend が未起動/到達不可の可能性があります（起動:{" "}
+                <code>bash scripts/start_all.sh start</code>）。
+              </p>
+            ) : null}
           </div>
         )}
       </section>
