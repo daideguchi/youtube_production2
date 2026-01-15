@@ -190,6 +190,7 @@
 | 4aj | Planning channel router（`routers/planning_channel.py`）の module-level `backend.main` import を外し、`backend/app` + lazy import へ寄せて循環import/404リスクを下げる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4ak | Audio review router（`routers/audio_review.py`）の module-level `backend.main` import を外し、`backend/app` + lazy import へ寄せて循環import/404リスクを下げる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4al | TTS router（`routers/tts.py`）の module-level `backend.main` import を外し、`backend/app` + lazy import へ寄せて循環import/404リスクを下げる（挙動互換） | dd | - | Done（2026-01-15） |
+| 4am | Thumbnails video router（`routers/thumbnails_video.py`）の module-level `import backend.main as ...` を外し、`backend/app` + lazy import へ寄せて循環import/404リスクを下げる（挙動互換） | dd | - | Draft |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
