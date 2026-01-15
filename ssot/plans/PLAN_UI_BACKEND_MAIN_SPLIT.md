@@ -183,6 +183,7 @@
 | 4ac | Assembled router（`routers/assembled.py`）の `backend.main` 依存（`save_status`, `write_text_with_lock`）を外し、`backend/app` へ寄せる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4ad | Assembled router（`routers/assembled.py`）の A-text path 解決（`_resolve_a_text_display_path`）を `backend.main` から `app/script_text_utils.py` へ寄せる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4ae | TTS plain router（`routers/tts_text.py`）の `backend.main` 依存（`audio_final_dir`, `video_base_dir`, `resolve_text_file`, 正規化）を外し、`backend/app` + `factory_common.paths` へ寄せる（挙動互換） | dd | - | Done（2026-01-15） |
+| 4af | Audio reports router（`routers/audio_reports.py`）の `backend.main` 依存（`resolve_text_file`）を外し、`backend/app/episode_store.py` へ寄せる（挙動互換） | dd | - | Draft |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
