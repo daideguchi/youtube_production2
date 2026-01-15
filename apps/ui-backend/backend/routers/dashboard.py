@@ -6,20 +6,11 @@ from fastapi import APIRouter, Query
 
 from backend.app.datetime_utils import current_timestamp, parse_iso_datetime
 from backend.app.dashboard_models import DashboardAlert, DashboardChannelSummary, DashboardOverviewResponse
-from backend.app.status_models import VALID_STAGE_STATUSES
-from backend.main import (
-    STAGE_ORDER,
-    _default_status_payload,
-    _derive_effective_stages,
-    _stage_status_value,
-    list_known_channel_codes,
-    list_planning_video_numbers,
-    list_video_dirs,
-    load_status_optional,
-    resolve_audio_path,
-    resolve_srt_path,
-    video_base_dir,
-)
+from backend.app.channel_catalog import list_known_channel_codes, list_planning_video_numbers, list_video_dirs
+from backend.app.episode_store import load_status_optional, resolve_audio_path, resolve_srt_path, video_base_dir
+from backend.app.stage_status_utils import _stage_status_value
+from backend.app.status_models import STAGE_ORDER, VALID_STAGE_STATUSES
+from backend.app.status_store import default_status_payload
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -121,6 +112,8 @@ def dashboard_overview(
     stage_matrix: Dict[str, Dict[str, Dict[str, int]]] = {}
     alerts: List[DashboardAlert] = []
 
+    from backend.main import _derive_effective_stages
+
     for channel_code in list_known_channel_codes():
         if channel_filter and channel_code not in channel_filter:
             continue
@@ -134,7 +127,7 @@ def dashboard_overview(
         for video_number in video_numbers:
             status_payload = load_status_optional(channel_code, video_number)
             if status_payload is None:
-                status_payload = _default_status_payload(channel_code, video_number)
+                status_payload = default_status_payload(channel_code, video_number)
 
             base_dir = video_base_dir(channel_code, video_number)
             status_value = status_payload.get("status", "unknown")
