@@ -5,8 +5,10 @@ from fastapi.responses import PlainTextResponse
 
 from backend.app.datetime_utils import current_timestamp
 from backend.app.episode_store import load_status, video_base_dir
+from backend.app.lock_store import write_text_with_lock
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.scripts_models import TextUpdateRequest
+from backend.app.status_store import save_status
 from backend.app.status_models import ensure_expected_updated_at
 
 router = APIRouter(prefix="/api", tags=["scripts"])
@@ -14,8 +16,6 @@ router = APIRouter(prefix="/api", tags=["scripts"])
 
 @router.put("/channels/{channel}/videos/{video}/assembled")
 def update_assembled(channel: str, video: str, payload: TextUpdateRequest):
-    from backend.main import save_status, write_text_with_lock
-
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     status = load_status(channel_code, video_number)
