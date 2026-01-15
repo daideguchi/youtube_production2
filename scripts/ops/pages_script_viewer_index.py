@@ -273,6 +273,35 @@ def _sync_release_archive_index(repo_root: Path) -> None:
     dest.write_text("[]\n", encoding="utf-8")
 
 
+def _sync_script_viewer_deps(repo_root: Path) -> None:
+    """
+    Script Viewer on GitHub Pages should avoid cross-origin (raw.githubusercontent.com) fetches
+    for large JSON metadata to keep mobile loading stable.
+
+    We mirror a small set of repo-tracked JSON files into `docs/data/` so the UI can fetch them
+    from the same origin (GitHub Pages).
+    """
+    deps: list[tuple[Path, Path, str]] = [
+        (
+            repo_root / "packages" / "script_pipeline" / "channels" / "channels_info.json",
+            repo_root / "docs" / "data" / "channels_info.json",
+            "[]\n",
+        ),
+        (
+            repo_root / "workspaces" / "thumbnails" / "projects.json",
+            repo_root / "docs" / "data" / "thumb_projects.json",
+            json.dumps({"version": 1, "updated_at": _now_iso_utc(), "projects": []}, ensure_ascii=False, indent=2) + "\n",
+        ),
+    ]
+
+    for src, dest, fallback in deps:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        if src.exists():
+            shutil.copy2(src, dest)
+            continue
+        dest.write_text(fallback, encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Generate docs/data/index.json (script viewer index).")
     ap.add_argument("--write", action="store_true", help="Write docs/data/index.json")
@@ -288,6 +317,7 @@ def main() -> int:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(content, encoding="utf-8")
         _sync_release_archive_index(repo_root)
+        _sync_script_viewer_deps(repo_root)
         print(f"[pages_script_viewer_index] wrote {out_path.relative_to(repo_root)} (items={payload['count']})")
         return 0
 

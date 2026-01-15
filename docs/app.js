@@ -1,15 +1,17 @@
 /* eslint-disable no-console */
 
 const INDEX_URL = "./data/index.json";
+const CHANNELS_INFO_DOCS_URL = "./data/channels_info.json";
 const CHANNELS_INFO_PATH = "packages/script_pipeline/channels/channels_info.json";
 const THUMB_PROJECTS_PATH = "workspaces/thumbnails/projects.json";
+const THUMB_PROJECTS_DOCS_URL = "./data/thumb_projects.json";
 const THUMBS_INDEX_URL = "./data/thumbs_index.json";
 const THUMBS_ALT_INDEX_URL = "./data/thumbs_alt_index.json";
 const VIDEO_IMAGES_INDEX_URL = "./data/video_images_index.json";
 const SNAPSHOT_CHANNELS_URL = "./data/snapshot/channels.json";
 const CHUNK_SIZE = 10_000;
 const UI_STATE_KEY = "ytm_script_viewer_state_v1";
-const SITE_ASSET_VERSION = "20260114_01";
+const SITE_ASSET_VERSION = "20260115_02";
 const URL_ASSET_VERSION = readAssetVersionFromUrl();
 const ASSET_VERSION = URL_ASSET_VERSION || SITE_ASSET_VERSION;
 const EMBED_MODE = detectEmbedMode();
@@ -45,6 +47,16 @@ function $(id) {
     throw new Error(`missing element: ${id}`);
   }
   return el;
+}
+
+function setTextDump(el, text) {
+  const v = String(text ?? "");
+  if (!el) return;
+  if (String(el.tagName || "").toUpperCase() === "TEXTAREA") {
+    el.value = v;
+    return;
+  }
+  el.textContent = v;
 }
 
 function normalizeNewlines(text) {
@@ -273,8 +285,6 @@ function getInitialUiState() {
 
 const rawBase = resolveRawBase();
 const gitTreeBase = resolveGitTreeBase();
-const channelsInfoUrl = joinUrl(rawBase, CHANNELS_INFO_PATH);
-const thumbProjectsUrl = joinUrl(rawBase, THUMB_PROJECTS_PATH);
 
 let channelMetaById = new Map();
 let channelMetaPromise = null;
@@ -329,9 +339,15 @@ function loadChannelMeta() {
   if (channelMetaPromise) return channelMetaPromise;
   channelMetaPromise = (async () => {
     try {
-      const res = await fetch(rawUrl(CHANNELS_INFO_PATH), { cache: "force-cache" });
-      if (!res.ok) throw new Error(`channels_info fetch failed: ${res.status} ${res.statusText}`);
-      const data = await res.json();
+      const urls = [siteUrl(CHANNELS_INFO_DOCS_URL), rawUrl(CHANNELS_INFO_PATH)];
+      let data = null;
+      for (const url of urls) {
+        const res = await fetch(url, { cache: "force-cache" });
+        if (res.status === 404) continue;
+        if (!res.ok) throw new Error(`channels_info fetch failed: ${res.status} ${res.statusText}`);
+        data = await res.json();
+        break;
+      }
       if (!Array.isArray(data)) return channelMetaById;
       const next = new Map();
       for (const row of data) {
@@ -358,9 +374,15 @@ function loadThumbProjects() {
   if (thumbProjectPromise) return thumbProjectPromise;
   thumbProjectPromise = (async () => {
     try {
-      const res = await fetch(rawUrl(THUMB_PROJECTS_PATH), { cache: "force-cache" });
-      if (!res.ok) throw new Error(`projects.json fetch failed: ${res.status} ${res.statusText}`);
-      const data = await res.json();
+      const urls = [siteUrl(THUMB_PROJECTS_DOCS_URL), rawUrl(THUMB_PROJECTS_PATH)];
+      let data = null;
+      for (const url of urls) {
+        const res = await fetch(url, { cache: "force-cache" });
+        if (res.status === 404) continue;
+        if (!res.ok) throw new Error(`projects.json fetch failed: ${res.status} ${res.statusText}`);
+        data = await res.json();
+        break;
+      }
       const projects = Array.isArray(data?.projects) ? data.projects : [];
       const next = new Map();
       for (const p of projects) {
@@ -977,23 +999,25 @@ function renderYoutubeMeta(it) {
   const voiceConfigUrl = voiceConfigPath ? (gitTreeBase ? `${gitTreeBase}${voiceConfigPath}` : joinUrl(rawBase, voiceConfigPath)) : "";
   const promptUrl = promptPath ? (gitTreeBase ? `${gitTreeBase}${promptPath}` : joinUrl(rawBase, promptPath)) : "";
 
-  ytChannelInfoPre.textContent =
+  setTextDump(
+    ytChannelInfoPre,
     (channelName ? `${channelName}${ch ? ` (${ch})` : ""}` : ch) +
-    (handle ? `\nhandle: ${handle}` : "") +
-    (youtubeChannelId ? `\nyoutube_channel_id: ${youtubeChannelId}` : "") +
-    (voiceConfigPath ? `\nvoice_config: ${voiceConfigPath}` : "") +
-    (promptPath ? `\nscript_prompt: ${promptPath}` : "") ||
-    "—";
+      (handle ? `\nhandle: ${handle}` : "") +
+      (youtubeChannelId ? `\nyoutube_channel_id: ${youtubeChannelId}` : "") +
+      (voiceConfigPath ? `\nvoice_config: ${voiceConfigPath}` : "") +
+      (promptPath ? `\nscript_prompt: ${promptPath}` : "") ||
+      "—",
+  );
   setLink(openYtStudio, youtubeStudioUrl);
   setLink(openYtChannel, youtubeUrl);
   setLink(openVoiceConfig, encodeURI(voiceConfigUrl));
   setLink(openChannelPrompt, encodeURI(promptUrl));
 
-  ytTitlePre.textContent = title || "（未設定）";
-  ytTagsPre.textContent = tags.length ? tags.join(", ") : "（未設定）";
-  ytFullDescPre.textContent = fullDesc || "（未設定）";
-  ytEpisodeDescPre.textContent = episodeDesc || "（未設定）";
-  ytChannelDescPre.textContent = channelDesc || "（未設定）";
+  setTextDump(ytTitlePre, title || "（未設定）");
+  setTextDump(ytTagsPre, tags.length ? tags.join(", ") : "（未設定）");
+  setTextDump(ytFullDescPre, fullDesc || "（未設定）");
+  setTextDump(ytEpisodeDescPre, episodeDesc || "（未設定）");
+  setTextDump(ytChannelDescPre, channelDesc || "（未設定）");
 
   copyYtTitle.disabled = !title;
   copyYtTags.disabled = !tags.length;

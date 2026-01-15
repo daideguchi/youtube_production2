@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Script Viewer</title>
-    <link rel="stylesheet" href="./styles.css?v=20260114_02" />
-    <script defer src="./app.js?v=20260114_02"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260115_02" />
+    <script defer src="./app.js?v=20260115_02"></script>
   </head>
   <body>
     <div id="appRoot" class="app" data-view="script">
@@ -172,7 +172,7 @@
                     <a id="openChannelPrompt" class="btn btn--ghost" target="_blank" rel="noreferrer">台本プロンプト</a>
                   </div>
                 </div>
-                <pre id="ytChannelInfoPre" class="pre pre--small muted"></pre>
+                <textarea id="ytChannelInfoPre" class="pre pre--small muted" rows="6" readonly></textarea>
               </div>
               <div class="asset-card">
                 <div class="asset-card__head">
@@ -181,7 +181,7 @@
                     <button id="copyYtTitle" class="btn btn--primary" type="button">コピー（タイトル欄へ）</button>
                   </div>
                 </div>
-                <pre id="ytTitlePre" class="pre pre--small muted"></pre>
+                <textarea id="ytTitlePre" class="pre pre--small muted" rows="3" readonly></textarea>
               </div>
               <div class="asset-card" style="grid-column: 1 / -1">
                 <div class="asset-card__head">
@@ -190,7 +190,7 @@
                     <button id="copyYtFullDesc" class="btn btn--primary" type="button">コピー（説明欄へ）</button>
                   </div>
                 </div>
-                <pre id="ytFullDescPre" class="pre pre--small muted"></pre>
+                <textarea id="ytFullDescPre" class="pre pre--small muted" rows="12" readonly></textarea>
               </div>
               <div class="asset-card">
                 <div class="asset-card__head">
@@ -199,7 +199,7 @@
                     <button id="copyYtTags" class="btn btn--primary" type="button">コピー（タグ欄へ）</button>
                   </div>
                 </div>
-                <pre id="ytTagsPre" class="pre pre--small muted"></pre>
+                <textarea id="ytTagsPre" class="pre pre--small muted" rows="4" readonly></textarea>
               </div>
               <div class="asset-card" style="grid-column: 1 / -1">
                 <div class="asset-card__head">
@@ -208,7 +208,7 @@
                     <button id="copyYtEpisodeDesc" class="btn btn--ghost" type="button">コピー（説明欄へ・この動画）</button>
                   </div>
                 </div>
-                <pre id="ytEpisodeDescPre" class="pre pre--small muted"></pre>
+                <textarea id="ytEpisodeDescPre" class="pre pre--small muted" rows="10" readonly></textarea>
               </div>
               <div class="asset-card" style="grid-column: 1 / -1">
                 <div class="asset-card__head">
@@ -217,7 +217,7 @@
                     <button id="copyYtChannelDesc" class="btn btn--ghost" type="button">コピー（説明欄へ・定型）</button>
                   </div>
                 </div>
-                <pre id="ytChannelDescPre" class="pre pre--small muted"></pre>
+                <textarea id="ytChannelDescPre" class="pre pre--small muted" rows="10" readonly></textarea>
               </div>
             </div>
           </div>
