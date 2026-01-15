@@ -177,7 +177,7 @@
 | 4w | Video/planning list helpers（`list_video_dirs`, `list_planning_video_numbers`）を `app/channel_catalog.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4x | Dashboard router の import（STAGE_ORDER/ステータスpayload/channel catalog/episode store 等）を `backend/app` へ寄せ、`backend.main` 依存を最小化（挙動互換; `_derive_effective_stages` は当面残す） | dd | - | Done（2026-01-15） |
 | 4y | Human scripts router（`routers/human_scripts.py`）の `backend.main` 依存を外し、status/store/lock は `backend/app` へ寄せる（挙動互換） | dd | - | Done（2026-01-15） |
-| 4z | Redo flags router（`routers/redo_flags.py`）の `backend.main` 依存を外し、`app/status_store.py` の `save_status` に寄せる（挙動互換） | dd | - | Draft |
+| 4z | Redo flags router（`routers/redo_flags.py`）の `backend.main` 依存を外し、`app/status_store.py` の `save_status` に寄せる（挙動互換） | dd | - | Done（2026-01-15） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
