@@ -12,14 +12,14 @@ import yaml
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from PIL import Image
 
-import backend.main as backend_main
 from backend.app.normalize import normalize_channel_code, normalize_video_number
-from backend.app.path_utils import safe_relative_path
+from backend.app.path_utils import PROJECT_ROOT, safe_relative_path
 from backend.app.thumbnails_projects_store import (
     THUMBNAIL_PROJECTS_LOCK,
     _load_thumbnail_projects_document,
     _write_thumbnail_projects_document,
 )
+from backend.app.thumbnails_templates_store import THUMBNAIL_TEMPLATES_LOCK, _load_thumbnail_templates_document
 from backend.app.thumbnails_editor_models import (
     THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
     ThumbnailCommentPatchRequest,
@@ -50,76 +50,71 @@ from script_pipeline.tools import planning_store
 
 router = APIRouter(tags=["thumbnails"])
 
-# Shared constants from backend.main (avoid duplication across routers).
-PROJECT_ROOT = backend_main.PROJECT_ROOT
-THUMBNAIL_ASSETS_DIR = backend_main.THUMBNAIL_ASSETS_DIR
-THUMBNAIL_TEMPLATES_LOCK = backend_main.THUMBNAIL_TEMPLATES_LOCK
+THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
 
-# Late-bound helpers defined in backend.main after router wiring.
-# (Keep wrappers to avoid circular-import ordering issues.)
+def _backend_main():
+    import backend.main as backend_main
+
+    return backend_main
 
 def _normalize_thumbnail_stable_id(raw: Optional[str]) -> Optional[str]:
-    return backend_main._normalize_thumbnail_stable_id(raw)
+    return _backend_main()._normalize_thumbnail_stable_id(raw)
 
 
 def _thumb_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return backend_main._thumb_spec_stable_path(channel_code, video_number, stable)
+    return _backend_main()._thumb_spec_stable_path(channel_code, video_number, stable)
 
 
 def _text_line_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return backend_main._text_line_spec_stable_path(channel_code, video_number, stable)
+    return _backend_main()._text_line_spec_stable_path(channel_code, video_number, stable)
 
 
 def _elements_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return backend_main._elements_spec_stable_path(channel_code, video_number, stable)
-
-
-def _load_thumbnail_templates_document():
-    return backend_main._load_thumbnail_templates_document()
+    return _backend_main()._elements_spec_stable_path(channel_code, video_number, stable)
 
 
 def _get_or_create_thumbnail_project(payload: dict, channel_code: str, video_number: str) -> dict:
-    return backend_main._get_or_create_thumbnail_project(payload, channel_code, video_number)
+    return _backend_main()._get_or_create_thumbnail_project(payload, channel_code, video_number)
 
 
 def _normalize_thumbnail_status(status: Optional[str]) -> str:
-    return backend_main._normalize_thumbnail_status(status)
+    return _backend_main()._normalize_thumbnail_status(status)
 
 
 def _normalize_thumbnail_tags(tags: Optional[Iterable[str]]) -> Optional[List[str]]:
-    return backend_main._normalize_thumbnail_tags(tags)
+    return _backend_main()._normalize_thumbnail_tags(tags)
 
 
 def _normalize_thumbnail_image_bytes(image_bytes: bytes, *, width: int = 1280, height: int = 720) -> bytes:
-    return backend_main._normalize_thumbnail_image_bytes(image_bytes, width=width, height=height)
+    return _backend_main()._normalize_thumbnail_image_bytes(image_bytes, width=width, height=height)
 
 
 def _sanitize_library_filename(name: str, *, default_prefix: str) -> str:
-    return backend_main._sanitize_library_filename(name, default_prefix=default_prefix)
+    return _backend_main()._sanitize_library_filename(name, default_prefix=default_prefix)
 
 
 def _ensure_unique_filename(directory: Path, filename: str) -> Path:
-    return backend_main._ensure_unique_filename(directory, filename)
+    return _backend_main()._ensure_unique_filename(directory, filename)
 
 
 def _persist_thumbnail_variant(*args: Any, **kwargs: Any) -> ThumbnailVariantResponse:
-    return backend_main._persist_thumbnail_variant(*args, **kwargs)
+    return _backend_main()._persist_thumbnail_variant(*args, **kwargs)
 
 
 def _build_thumbnail_template_context(channel_code: str, video_number: str) -> Dict[str, str]:
-    return backend_main._build_thumbnail_template_context(channel_code, video_number)
+    return _backend_main()._build_thumbnail_template_context(channel_code, video_number)
 
 
 def _render_thumbnail_prompt_template(template: str, context: Dict[str, str]) -> str:
-    return backend_main._render_thumbnail_prompt_template(template, context)
+    return _backend_main()._render_thumbnail_prompt_template(template, context)
 
 
 def _fetch_openrouter_generation(gen_id: str, *, timeout_sec: int = 10) -> Optional[Dict[str, Any]]:
-    return backend_main._fetch_openrouter_generation(gen_id, timeout_sec=timeout_sec)
+    return _backend_main()._fetch_openrouter_generation(gen_id, timeout_sec=timeout_sec)
 
 
 async def _save_upload_file(upload: UploadFile, destination: Path) -> None:
-    await backend_main._save_upload_file(upload, destination)
+    await _backend_main()._save_upload_file(upload, destination)
 @router.get(
     "/api/workspaces/thumbnails/{channel}/{video}/editor-context",
     response_model=ThumbnailEditorContextResponse,
