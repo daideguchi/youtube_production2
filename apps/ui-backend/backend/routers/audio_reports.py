@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, List, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
+from backend.app.episode_store import resolve_text_file
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from factory_common.paths import audio_final_dir, script_data_root as ssot_script_data_root
 
@@ -94,8 +95,6 @@ def _load_audio_analysis(channel: str, video: str) -> AudioAnalysisResponse:
 
     audio_prep = base_dir / "audio_prep"
     final_dir = audio_final_dir(channel_code, video_no)
-
-    from backend.main import resolve_text_file
 
     # --- B text (TTS input snapshot) -----------------------------------------
     # Preferred: final/a_text.txt (what was actually synthesized).
