@@ -174,16 +174,28 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(buildUrl(path), {
-    ...init,
-    method,
-    // 明示的にキャッシュを無効化し、最新の設定を取得する
-    cache: "no-store",
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(buildUrl(path), {
+      ...init,
+      method,
+      // 明示的にキャッシュを無効化し、最新の設定を取得する
+      cache: "no-store",
+      headers,
+    });
+  } catch (error) {
+    const hint =
+      process.env.NODE_ENV === "development"
+        ? "API fetch failed (ui-backend is it running? dev proxy targets http://localhost:8000 by default)"
+        : "API fetch failed";
+    throw new Error(`${hint}: ${String(error)}`);
+  }
 
   if (!response.ok) {
     let message = `${response.status} ${response.statusText}`;
+    if (process.env.NODE_ENV === "development" && response.status === 404 && path.startsWith("/api")) {
+      message = `${message} (dev proxy may be misconfigured or ui-backend is not reachable)`;
+    }
     try {
       const data: ApiErrorShape = await response.json();
       if (data.detail) {

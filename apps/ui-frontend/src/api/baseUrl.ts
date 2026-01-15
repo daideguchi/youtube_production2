@@ -3,12 +3,15 @@
 const DEFAULT_API_BASE_URL = ""; // relative path (same-origin / dev proxy)
 
 export const getApiBaseUrl = (): string => {
-  // In CRA dev (`npm start`), always prefer same-origin + `setupProxy.js` to avoid CORS
-  // and to keep URLs stable even when env vars are left over from older setups.
+  const envBase = process.env.REACT_APP_API_BASE_URL;
+  // In CRA dev (`npm start`), default to same-origin + `setupProxy.js` to avoid CORS.
+  // Allow explicit override for cases where the backend isn't running at the proxy target.
   if (process.env.NODE_ENV === "development") {
+    if (envBase && envBase.trim().length > 0) {
+      return envBase.replace(/\/$/, "");
+    }
     return DEFAULT_API_BASE_URL;
   }
-  const envBase = process.env.REACT_APP_API_BASE_URL;
   if (envBase && envBase.trim().length > 0) {
     return envBase.replace(/\/$/, "");
   }
