@@ -194,7 +194,7 @@
 | 4an | Settings router（`routers/settings.py`）の `backend.main` runtime import（`get_llm_settings`, `update_llm_settings`, `get_codex_settings`, `update_codex_settings`）を外し、`app/llm_settings_handlers.py` + `app/codex_settings_store.py` に寄せる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4ao | Audio review router（`routers/audio_review.py`）の残り `backend.main` 依存（`summarize_log`, `_resolve_channel_title`）を `backend/app` へ移設し、runtime import を解消（挙動互換） | dd | - | Done（2026-01-15） |
 | 4ap | Audio history helper（`append_audio_history_entry`）を `app/status_store.py` へ移設し、`routers/channel_videos.py` / `routers/tts.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-15） |
-| 4aq | Effective stages/status（`_derive_effective_stages`, `_derive_effective_video_status` + artifact-based injectors）を `app/video_effective_status.py` に移設し、dashboard/channel_videos の `backend.main` runtime import を削減（挙動互換） | dd | - | Draft |
+| 4aq | Effective stages/status（`_derive_effective_stages`, `_derive_effective_video_status` + artifact-based injectors）を `app/video_effective_status.py` に移設し、dashboard/channel_videos の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-15） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
