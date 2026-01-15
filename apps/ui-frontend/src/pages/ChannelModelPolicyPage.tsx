@@ -4,6 +4,7 @@ import { fetchImageModelRouting, fetchSsotCatalog } from "../api/client";
 import { getFireworksKeyStatus } from "../api/llmUsage";
 import type { ChannelImageModelRouting, ChannelSummary, ImageModelRoutingSelection, ImageModelRoutingResponse, SsotCatalog } from "../api/types";
 import type { ShellOutletContext } from "../layouts/AppShell";
+import { safeLocalStorage } from "../utils/safeStorage";
 import "./ChannelModelPolicyPage.css";
 
 function normalizeKey(value?: string | null): string {
@@ -582,7 +583,7 @@ export function ChannelModelPolicyPage() {
   const [copied, setCopied] = useState<string | null>(null);
   const [tab, setTab] = useState<PolicyTab>(() => {
     try {
-      const raw = window.localStorage.getItem("modelPolicy.tab");
+      const raw = safeLocalStorage.getItem("modelPolicy.tab");
       return isPolicyTab(raw) ? raw : "channels";
     } catch {
       return "channels";
@@ -591,7 +592,7 @@ export function ChannelModelPolicyPage() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem("modelPolicy.tab", tab);
+      safeLocalStorage.setItem("modelPolicy.tab", tab);
     } catch {
       // ignore storage errors
     }
@@ -599,7 +600,7 @@ export function ChannelModelPolicyPage() {
 
   const [uiLevel, setUiLevel] = useState<UiLevel>(() => {
     try {
-      const raw = window.localStorage.getItem("modelPolicy.uiLevel");
+      const raw = safeLocalStorage.getItem("modelPolicy.uiLevel");
       const v = String(raw ?? "").trim();
       return v === "detail" ? "detail" : "simple";
     } catch {
@@ -609,7 +610,7 @@ export function ChannelModelPolicyPage() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem("modelPolicy.uiLevel", uiLevel);
+      safeLocalStorage.setItem("modelPolicy.uiLevel", uiLevel);
     } catch {
       // ignore storage errors
     }
@@ -617,7 +618,7 @@ export function ChannelModelPolicyPage() {
 
   const [channelListView, setChannelListView] = useState<ChannelListView>(() => {
     try {
-      const raw = window.localStorage.getItem("modelPolicy.channelListView");
+      const raw = safeLocalStorage.getItem("modelPolicy.channelListView");
       const v = String(raw ?? "").trim();
       return v === "table" ? "table" : "cards";
     } catch {
@@ -627,7 +628,7 @@ export function ChannelModelPolicyPage() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem("modelPolicy.channelListView", channelListView);
+      safeLocalStorage.setItem("modelPolicy.channelListView", channelListView);
     } catch {
       // ignore storage errors
     }

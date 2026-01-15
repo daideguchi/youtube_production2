@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchBatchTtsLog, fetchBatchTtsProgress, resetBatchTts, startBatchTtsRegeneration } from "../api/client";
 import type { BatchTtsProgressResponse, ChannelSummary } from "../api/types";
+import { safeLocalStorage } from "../utils/safeStorage";
 
 type BatchTtsProgressPanelProps = {
     channels?: ChannelSummary[];
@@ -20,7 +21,7 @@ function compareChannelCode(a: string, b: string): number {
 
 function loadSavedSelection(): Set<string> {
     try {
-        const raw = localStorage.getItem("ui.batch_tts.selected_channels");
+        const raw = safeLocalStorage.getItem("ui.batch_tts.selected_channels");
         if (!raw) return new Set();
         const arr = JSON.parse(raw);
         if (!Array.isArray(arr)) return new Set();
@@ -46,11 +47,7 @@ export function BatchTtsProgressPanel({
     const [collapsed, setCollapsed] = useState(false);
 
     useEffect(() => {
-        try {
-            localStorage.setItem("ui.batch_tts.selected_channels", JSON.stringify(Array.from(selectedChannels)));
-        } catch {
-            /* ignore */
-        }
+        safeLocalStorage.setItem("ui.batch_tts.selected_channels", JSON.stringify(Array.from(selectedChannels)));
     }, [selectedChannels]);
 
     const channelOptions = useMemo(() => {

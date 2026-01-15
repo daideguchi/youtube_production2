@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getLlmUsageLogs, getLlmOverrides, saveLlmOverrides, getLlmModels } from "../api/llmUsage";
+import { safeLocalStorage } from "../utils/safeStorage";
 
 export const LlmUsagePage: React.FC = () => {
   const [limit, setLimit] = useState<number>(() => {
-    const saved = localStorage.getItem("llmUsage.limit");
+    const saved = safeLocalStorage.getItem("llmUsage.limit");
     return saved ? Number(saved) : 200;
   });
   const [logs, setLogs] = useState<any[]>([]);
@@ -37,7 +38,7 @@ export const LlmUsagePage: React.FC = () => {
   }, [load]);
 
   useEffect(() => {
-    localStorage.setItem("llmUsage.limit", String(limit));
+    safeLocalStorage.setItem("llmUsage.limit", String(limit));
   }, [limit]);
 
   const handleSave = async () => {

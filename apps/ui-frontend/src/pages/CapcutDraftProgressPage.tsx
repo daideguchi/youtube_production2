@@ -4,6 +4,7 @@ import { fetchPlanningRows } from "../api/client";
 import type { PlanningCsvRow } from "../api/types";
 import { apiUrl } from "../api/baseUrl";
 import type { ShellOutletContext } from "../layouts/AppShell";
+import { safeLocalStorage } from "../utils/safeStorage";
 import "./CapcutDraftProgressPage.css";
 
 type BadgeState = "done" | "doing" | "todo" | "danger";
@@ -221,7 +222,7 @@ export function CapcutDraftProgressPage() {
   }, [channels]);
 
   const initialChannel = useMemo(() => {
-    const stored = typeof window !== "undefined" ? window.localStorage.getItem("ui.channel.selected") : null;
+    const stored = safeLocalStorage.getItem("ui.channel.selected");
     return normalizeChannelCode(selectedChannel) || normalizeChannelCode(stored) || channelCodes[0] || "";
   }, [channelCodes, selectedChannel]);
 
@@ -393,9 +394,7 @@ export function CapcutDraftProgressPage() {
     const next = normalizeChannelCode(nextRaw);
     setChannel(next);
     if (next) {
-      try {
-        window.localStorage.setItem("ui.channel.selected", next);
-      } catch {}
+      safeLocalStorage.setItem("ui.channel.selected", next);
     }
     if (options?.scrollToDetail) {
       requestAnimationFrame(() => {

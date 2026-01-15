@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { getFireworksKeyStatus, getLlmUsageSummary, getScriptRoutes, probeFireworksKeys } from "../api/llmUsage";
+import { safeLocalStorage } from "../utils/safeStorage";
 import "./LlmUsageDashboardPage.css";
 
 type Agg = {
@@ -279,12 +280,12 @@ function BarList({
 
 export function LlmUsageDashboardPage() {
   const [rangeKey, setRangeKey] = useState<RangeKey>(() => {
-    const stored = localStorage.getItem("llmUsage.dashboard.range") as RangeKey | null;
+    const stored = safeLocalStorage.getItem("llmUsage.dashboard.range") as RangeKey | null;
     return stored ?? "today_jst";
   });
-  const [provider, setProvider] = useState<string>(() => localStorage.getItem("llmUsage.dashboard.provider") ?? "");
+  const [provider, setProvider] = useState<string>(() => safeLocalStorage.getItem("llmUsage.dashboard.provider") ?? "");
   const [topN, setTopN] = useState<number>(() => {
-    const stored = localStorage.getItem("llmUsage.dashboard.topN");
+    const stored = safeLocalStorage.getItem("llmUsage.dashboard.topN");
     return stored ? Number(stored) : 12;
   });
 
@@ -296,15 +297,15 @@ export function LlmUsageDashboardPage() {
   const [fwLoading, setFwLoading] = useState(false);
   const [fwError, setFwError] = useState<string | null>(null);
   const [fwProbeLimit, setFwProbeLimit] = useState<number>(() => {
-    const stored = localStorage.getItem("llmUsage.dashboard.fireworksProbeLimit");
+    const stored = safeLocalStorage.getItem("llmUsage.dashboard.fireworksProbeLimit");
     return stored ? Number(stored) : 0;
   });
 
   const [scriptRoutesChannels, setScriptRoutesChannels] = useState<string>(() => {
-    return localStorage.getItem("llmUsage.dashboard.scriptRoutes.channels") ?? "CH10,CH22,CH23";
+    return safeLocalStorage.getItem("llmUsage.dashboard.scriptRoutes.channels") ?? "CH10,CH22,CH23";
   });
   const [scriptRoutesMaxVideos, setScriptRoutesMaxVideos] = useState<number>(() => {
-    const stored = localStorage.getItem("llmUsage.dashboard.scriptRoutes.maxVideos");
+    const stored = safeLocalStorage.getItem("llmUsage.dashboard.scriptRoutes.maxVideos");
     return stored ? Number(stored) : 80;
   });
   const [scriptRoutesData, setScriptRoutesData] = useState<ScriptRoutesResponse | null>(null);
@@ -312,22 +313,22 @@ export function LlmUsageDashboardPage() {
   const [scriptRoutesError, setScriptRoutesError] = useState<string | null>(null);
 
   useEffect(() => {
-    localStorage.setItem("llmUsage.dashboard.range", rangeKey);
+    safeLocalStorage.setItem("llmUsage.dashboard.range", rangeKey);
   }, [rangeKey]);
   useEffect(() => {
-    localStorage.setItem("llmUsage.dashboard.provider", provider);
+    safeLocalStorage.setItem("llmUsage.dashboard.provider", provider);
   }, [provider]);
   useEffect(() => {
-    localStorage.setItem("llmUsage.dashboard.topN", String(topN));
+    safeLocalStorage.setItem("llmUsage.dashboard.topN", String(topN));
   }, [topN]);
   useEffect(() => {
-    localStorage.setItem("llmUsage.dashboard.fireworksProbeLimit", String(fwProbeLimit));
+    safeLocalStorage.setItem("llmUsage.dashboard.fireworksProbeLimit", String(fwProbeLimit));
   }, [fwProbeLimit]);
   useEffect(() => {
-    localStorage.setItem("llmUsage.dashboard.scriptRoutes.channels", scriptRoutesChannels);
+    safeLocalStorage.setItem("llmUsage.dashboard.scriptRoutes.channels", scriptRoutesChannels);
   }, [scriptRoutesChannels]);
   useEffect(() => {
-    localStorage.setItem("llmUsage.dashboard.scriptRoutes.maxVideos", String(scriptRoutesMaxVideos));
+    safeLocalStorage.setItem("llmUsage.dashboard.scriptRoutes.maxVideos", String(scriptRoutesMaxVideos));
   }, [scriptRoutesMaxVideos]);
 
   const load = useCallback(async () => {

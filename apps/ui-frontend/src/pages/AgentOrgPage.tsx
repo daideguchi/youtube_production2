@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiUrl } from "../api/baseUrl";
+import { safeLocalStorage } from "../utils/safeStorage";
 import "./AgentOrgPage.css";
 
 type OrchestratorStatus = {
@@ -147,18 +148,18 @@ export function AgentOrgPage() {
       return fromParam;
     }
     try {
-      const stored = (localStorage.getItem("agent_org_actor") || "").trim();
+      const stored = (safeLocalStorage.getItem("agent_org_actor") || "").trim();
       if (stored) {
         return stored;
       }
       const suffixKey = "agent_org_actor_suffix";
-      let suffix = (localStorage.getItem(suffixKey) || "").trim();
+      let suffix = (safeLocalStorage.getItem(suffixKey) || "").trim();
       if (!suffix) {
         suffix = Math.random().toString(16).slice(2, 6);
-        localStorage.setItem(suffixKey, suffix);
+        safeLocalStorage.setItem(suffixKey, suffix);
       }
       const generated = `dd-ui-${suffix}`;
-      localStorage.setItem("agent_org_actor", generated);
+      safeLocalStorage.setItem("agent_org_actor", generated);
       return generated;
     } catch {
       return "dd-ui";
@@ -170,7 +171,7 @@ export function AgentOrgPage() {
       return urlTab;
     }
     try {
-      const stored = localStorage.getItem("agent_org_tab");
+      const stored = safeLocalStorage.getItem("agent_org_tab");
       if (isTabKey(stored)) {
         return stored;
       }
@@ -189,7 +190,7 @@ export function AgentOrgPage() {
       return false;
     }
     try {
-      return localStorage.getItem("agent_org_auto_refresh") === "1";
+      return safeLocalStorage.getItem("agent_org_auto_refresh") === "1";
     } catch {
       return false;
     }
@@ -255,7 +256,7 @@ export function AgentOrgPage() {
 
   useEffect(() => {
     try {
-      localStorage.setItem("agent_org_actor", actorName);
+      safeLocalStorage.setItem("agent_org_actor", actorName);
     } catch {
       /* ignore */
     }
@@ -263,7 +264,7 @@ export function AgentOrgPage() {
 
   useEffect(() => {
     try {
-      localStorage.setItem("agent_org_tab", tab);
+      safeLocalStorage.setItem("agent_org_tab", tab);
     } catch {
       /* ignore */
     }
@@ -271,7 +272,7 @@ export function AgentOrgPage() {
 
   useEffect(() => {
     try {
-      localStorage.setItem("agent_org_auto_refresh", autoRefresh ? "1" : "0");
+      safeLocalStorage.setItem("agent_org_auto_refresh", autoRefresh ? "1" : "0");
     } catch {
       /* ignore */
     }

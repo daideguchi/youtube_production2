@@ -20,6 +20,7 @@ import type {
   VideoProjectSummary,
 } from "../api/types";
 import { VideoImageVariantsPanel } from "../components/VideoImageVariantsPanel";
+import { safeLocalStorage } from "../utils/safeStorage";
 
 function resolveChannelId(summary?: VideoProjectDetail["summary"]): string | null {
   if (!summary) return null;
@@ -162,11 +163,7 @@ export function ImageManagementPage() {
       if (projectId) {
         params.set("project", projectId);
         if (timelineOnly) {
-          try {
-            localStorage.setItem(IMAGE_TIMELINE_LAST_PROJECT_ID_KEY, projectId);
-          } catch {
-            // ignore
-          }
+          safeLocalStorage.setItem(IMAGE_TIMELINE_LAST_PROJECT_ID_KEY, projectId);
         }
       } else {
         params.delete("project");

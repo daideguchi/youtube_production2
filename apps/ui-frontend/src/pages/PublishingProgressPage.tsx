@@ -4,6 +4,7 @@ import { fetchPlanningRows } from "../api/client";
 import type { PlanningCsvRow } from "../api/types";
 import { apiUrl } from "../api/baseUrl";
 import type { ShellOutletContext } from "../layouts/AppShell";
+import { safeLocalStorage } from "../utils/safeStorage";
 import "./PublishingProgressPage.css";
 
 type SortKey =
@@ -321,7 +322,7 @@ export function PublishingProgressPage() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(MANUAL_SCHEDULE_STORAGE_KEY);
+      const saved = safeLocalStorage.getItem(MANUAL_SCHEDULE_STORAGE_KEY);
       if (!saved) return;
       const parsed = JSON.parse(saved) as ManualScheduleSnapshot;
       if (!parsed || !Array.isArray(parsed.channels)) return;
@@ -381,22 +382,14 @@ export function PublishingProgressPage() {
     if (!text) {
       setScheduleSnapshot(null);
       setScheduleError(null);
-      try {
-        localStorage.removeItem(MANUAL_SCHEDULE_STORAGE_KEY);
-      } catch (err) {
-        // no-op
-      }
+      safeLocalStorage.removeItem(MANUAL_SCHEDULE_STORAGE_KEY);
       return;
     }
     try {
       const snapshot = parseManualScheduleSnapshot(text);
       setScheduleSnapshot(snapshot);
       setScheduleError(null);
-      try {
-        localStorage.setItem(MANUAL_SCHEDULE_STORAGE_KEY, JSON.stringify(snapshot));
-      } catch (err) {
-        // no-op
-      }
+      safeLocalStorage.setItem(MANUAL_SCHEDULE_STORAGE_KEY, JSON.stringify(snapshot));
     } catch (err) {
       setScheduleError(err instanceof Error ? err.message : String(err));
     }
@@ -406,11 +399,7 @@ export function PublishingProgressPage() {
     setScheduleDraft("");
     setScheduleSnapshot(null);
     setScheduleError(null);
-    try {
-      localStorage.removeItem(MANUAL_SCHEDULE_STORAGE_KEY);
-    } catch (err) {
-      // no-op
-    }
+    safeLocalStorage.removeItem(MANUAL_SCHEDULE_STORAGE_KEY);
   }, []);
 
   const onScheduleFileChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
