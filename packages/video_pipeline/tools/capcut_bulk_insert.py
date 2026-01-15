@@ -1700,6 +1700,13 @@ def _dedupe_tracks_and_materials(draft_dir: Path):
     """
     Remove duplicate tracks/materials caused by template carryover.
     Keep the last occurrence of each (type, name) track and dedupe video materials by path/material_name.
+
+    Notes:
+    - Some templates are inconsistent across CapCut's two JSONs:
+        - `draft_content.json` may name the BGM track `audio_1`
+        - `draft_info.json` may name the BGM track `audio_bgm`
+      After merging info->content, both can appear and cause double BGM playback.
+      We collapse those into a single BGM track when they point to the same audio file.
     """
     try:
         content_path = draft_dir / "draft_content.json"
@@ -1717,6 +1724,61 @@ def _dedupe_tracks_and_materials(draft_dir: Path):
             deduped.append(tr)
         deduped.reverse()
         data["tracks"] = deduped
+
+        # Special-case: collapse duplicate BGM tracks (audio_1 vs audio_bgm) when they reference the same audio file.
+        try:
+            tracks = data.get("tracks", [])
+            if isinstance(tracks, list) and tracks:
+                audio_mats = data.get("materials", {}).get("audios", [])
+                audio_by_id = {
+                    m.get("id"): m
+                    for m in (audio_mats or [])
+                    if isinstance(m, dict) and m.get("id")
+                }
+
+                def _track_audio_paths(tr: dict) -> set[str]:
+                    paths: set[str] = set()
+                    for seg in tr.get("segments") or []:
+                        if not isinstance(seg, dict):
+                            continue
+                        mid = seg.get("material_id")
+                        if not mid:
+                            continue
+                        mat = audio_by_id.get(mid)
+                        if isinstance(mat, dict):
+                            p = mat.get("path")
+                            if isinstance(p, str) and p:
+                                paths.add(p)
+                    return paths
+
+                tr_audio_1 = next(
+                    (
+                        tr
+                        for tr in tracks
+                        if isinstance(tr, dict) and tr.get("type") == "audio" and tr.get("name") == "audio_1"
+                    ),
+                    None,
+                )
+                tr_audio_bgm = next(
+                    (
+                        tr
+                        for tr in tracks
+                        if isinstance(tr, dict) and tr.get("type") == "audio" and tr.get("name") == "audio_bgm"
+                    ),
+                    None,
+                )
+                if isinstance(tr_audio_1, dict) and isinstance(tr_audio_bgm, dict):
+                    p1 = _track_audio_paths(tr_audio_1)
+                    p2 = _track_audio_paths(tr_audio_bgm)
+                    if p1 and p1 == p2:
+                        # Prefer template-like naming (`audio_bgm`) to match CH02 template conventions.
+                        data["tracks"] = [
+                            tr
+                            for tr in tracks
+                            if not (isinstance(tr, dict) and tr.get("type") == "audio" and tr.get("name") == "audio_1")
+                        ]
+        except Exception:
+            pass
 
         mats = data.get("materials", {}).get("videos", [])
         seen_vid = set()
@@ -3704,6 +3766,8 @@ def main():
             sys.exit(1)
 
     _merge_info_tracks_into_content(draft_dir)
+    # Merge can re-introduce template carryover duplicates (notably BGM tracks).
+    _dedupe_tracks_and_materials(draft_dir)
     _ensure_bgm_covers_duration(draft_dir, logger)
     print(f"Inserted {len(cues)} images into draft: {args.new}\nLocation: {args.draft_root}/{args.new}")
 

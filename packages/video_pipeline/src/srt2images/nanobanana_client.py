@@ -618,6 +618,12 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
         logging.warning("Persona load skipped: %s", e)
 
     if os.path.exists(out_path) and not force:
+        # Legacy runs may contain non-16:9 images (e.g. 1:1 1024x1024) from older pipelines.
+        # Normalize in-place so resume/draft rebuild always uses 1920x1080 assets.
+        try:
+            _convert_to_16_9(out_path, width, height)
+        except Exception:
+            pass
         logging.info("Skip existing %s", out_path)
         return
 

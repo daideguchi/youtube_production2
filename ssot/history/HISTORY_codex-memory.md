@@ -278,3 +278,13 @@
 - Retiming: 各 run_dir を final SRT/WAV に合わせて `align_run_dir_to_tts_final` で再整列（`workspaces/logs/ops/ch27_align_run_dir_to_tts_final_20260113T124207Z/`）。
 - CapCut patch: 既存ドラフトを in-place で音声/字幕/画像尺まで同期し、ドラフト内素材パスを `##_draftpath_placeholder_..._##` に正規化（参照切れ対策）（`workspaces/logs/ops/ch27_patch_capcut_drafts_v2_20260113T124713Z/`）。
 - Audit: 音声差し替え後の30本を再監査し failures=0（`workspaces/logs/ops/ch27_capcut_audit_audiofix_20260113T124951Z/report.json`）。
+
+## 2026-01-14
+- CH28 preset: `CH28` を `video_pipeline` に追加（`packages/video_pipeline/config/channel_presets.json`）。
+- CH28 cue分割: grouped cue のセクション境界を **非LLM** の semantic partition に切替（等間隔禁止のまま・句読点/話題転換/ギャップ活用）（`packages/video_pipeline/src/srt2images/llm_context_analyzer.py`）。
+- Script validation: CH28-002/003/020 は `length_too_long` 対応で `assembled.md` を短縮→ alignment stamp 更新→ script_validation を 30/30 完了（`workspaces/logs/ops/ch28_script_validation_nollm_20260114T063743Z/`）。
+- Audio: CH28-001..030 を **VOICEVOX 波音リツ（speaker_id=9）** で `workspaces/audio/final/CH28/{NNN}/` に生成（読み監査 `tts_reading` は agent task 結果投入で進行；ログ例: `workspaces/logs/ops/ch28_audio_026_030_20260114T095257Z/`）。
+- Images: CH28-001..030 の run_dir に対し **Gemini Developer API Batch** で画像生成（`python3 -m video_pipeline.tools.regenerate_images_from_cues --nanobanana batch`）。全画像を 1920x1080(16:9) で生成・検査（1175枚, failures=0）。
+- CapCut: CH28-001..030 を `CH22-テンプレ` からドラフト生成（planning CSV タイトルで命名）。素材参照は draft 内（relative or `##_draftpath_placeholder_..._##`）に収束し、run_dir への絶対参照なし。
+- Audit: CapCut draft を参照切れ/尺/字幕位置/画像数/アスペクトで機械監査し failures=0（`workspaces/logs/ops/ch28_capcut_full_audit_20260114T123342Z/`）。
+- Thumbnails: CH28 の `00_thumb.png` は維持したまま、書体差分（Hiragino優先）の `00_thumb_altfont_hiragino.png` を 30/30 出力し QC シート作成（`workspaces/thumbnails/assets/CH28/_qc/contactsheet_altfont_hiragino.png`）。

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-01-11T11:04:31.936600+00:00",
+  "updated_at": "2026-01-14T23:05:03.124660+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -16970,6 +16970,15 @@
       "video": "001",
       "variants": [
         {
+          "id": "fs::ch28_001_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/001/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/001/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:18.158735+00:00",
+          "updated_at": "2026-01-14T23:03:18.158737+00:00"
+        },
+        {
           "id": "fs::ch28_001_00_thumb",
           "label": "thumb_00",
           "status": "review",
@@ -16981,8 +16990,8 @@
       ],
       "title": "誰にも呼ばれない冬…公園の一言で救われた",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:45:29.069140+00:00",
-      "updated_at": "2026-01-11T07:45:29.069172+00:00",
+      "status_updated_at": "2026-01-14T23:03:18.158716+00:00",
+      "updated_at": "2026-01-14T23:03:18.158738+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_001_00_thumb"
     },
@@ -16990,6 +16999,15 @@
       "channel": "CH28",
       "video": "002",
       "variants": [
+        {
+          "id": "fs::ch28_002_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/002/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/002/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:21.950839+00:00",
+          "updated_at": "2026-01-14T23:03:21.950840+00:00"
+        },
         {
           "id": "fs::ch28_002_00_thumb",
           "label": "thumb_00",
@@ -17002,8 +17020,8 @@
       ],
       "title": "夫を見送った夜…“空の食卓”が私を壊しそうだった",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:45:37.538356+00:00",
-      "updated_at": "2026-01-11T07:45:37.538382+00:00",
+      "status_updated_at": "2026-01-14T23:03:21.950823+00:00",
+      "updated_at": "2026-01-14T23:03:21.950842+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_002_00_thumb"
     },
@@ -17011,6 +17029,15 @@
       "channel": "CH28",
       "video": "003",
       "variants": [
+        {
+          "id": "fs::ch28_003_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/003/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/003/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:25.308466+00:00",
+          "updated_at": "2026-01-14T23:03:25.308467+00:00"
+        },
         {
           "id": "fs::ch28_003_00_thumb",
           "label": "thumb_00",
@@ -17023,8 +17050,8 @@
       ],
       "title": "朝の電話が鳴らない…それでも私は生きていく",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:45:47.041357+00:00",
-      "updated_at": "2026-01-11T07:45:47.041381+00:00",
+      "status_updated_at": "2026-01-14T23:03:25.308449+00:00",
+      "updated_at": "2026-01-14T23:03:25.308469+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_003_00_thumb"
     },
@@ -17032,6 +17059,15 @@
       "channel": "CH28",
       "video": "004",
       "variants": [
+        {
+          "id": "fs::ch28_004_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/004/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/004/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:28.846513+00:00",
+          "updated_at": "2026-01-14T23:03:28.846515+00:00"
+        },
         {
           "id": "fs::ch28_004_00_thumb",
           "label": "thumb_00",
@@ -17044,8 +17080,8 @@
       ],
       "title": "スーパーで倒れそうになった日…助けてくれたのは“知らない人”",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:55:03.603228+00:00",
-      "updated_at": "2026-01-11T07:55:03.603274+00:00",
+      "status_updated_at": "2026-01-14T23:03:28.846484+00:00",
+      "updated_at": "2026-01-14T23:03:28.846518+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_004_00_thumb"
     },
@@ -17053,6 +17089,15 @@
       "channel": "CH28",
       "video": "005",
       "variants": [
+        {
+          "id": "fs::ch28_005_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/005/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/005/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:32.635428+00:00",
+          "updated_at": "2026-01-14T23:03:32.635429+00:00"
+        },
         {
           "id": "fs::ch28_005_00_thumb",
           "label": "thumb_00",
@@ -17065,8 +17110,8 @@
       ],
       "title": "「迷惑かけたくない」…その気持ちが孤独を作っていた",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:55:18.230233+00:00",
-      "updated_at": "2026-01-11T07:55:18.230267+00:00",
+      "status_updated_at": "2026-01-14T23:03:32.635413+00:00",
+      "updated_at": "2026-01-14T23:03:32.635432+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_005_00_thumb"
     },
@@ -17074,6 +17119,15 @@
       "channel": "CH28",
       "video": "006",
       "variants": [
+        {
+          "id": "fs::ch28_006_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/006/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/006/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:35.997520+00:00",
+          "updated_at": "2026-01-14T23:03:35.997521+00:00"
+        },
         {
           "id": "fs::ch28_006_00_thumb",
           "label": "thumb_00",
@@ -17086,8 +17140,8 @@
       ],
       "title": "一人の誕生日…ケーキより温かかった“言葉”",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:55:27.906979+00:00",
-      "updated_at": "2026-01-11T07:55:27.907019+00:00",
+      "status_updated_at": "2026-01-14T23:03:35.997495+00:00",
+      "updated_at": "2026-01-14T23:03:35.997523+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_006_00_thumb"
     },
@@ -17095,6 +17149,15 @@
       "channel": "CH28",
       "video": "007",
       "variants": [
+        {
+          "id": "fs::ch28_007_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/007/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/007/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:39.982182+00:00",
+          "updated_at": "2026-01-14T23:03:39.982184+00:00"
+        },
         {
           "id": "fs::ch28_007_00_thumb",
           "label": "thumb_00",
@@ -17107,8 +17170,8 @@
       ],
       "title": "喪服をしまった日…“終わり”じゃなく“始まり”だった",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:55:38.533043+00:00",
-      "updated_at": "2026-01-11T07:55:38.533064+00:00",
+      "status_updated_at": "2026-01-14T23:03:39.982167+00:00",
+      "updated_at": "2026-01-14T23:03:39.982185+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_007_00_thumb"
     },
@@ -17116,6 +17179,15 @@
       "channel": "CH28",
       "video": "008",
       "variants": [
+        {
+          "id": "fs::ch28_008_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/008/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/008/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:43.339699+00:00",
+          "updated_at": "2026-01-14T23:03:43.339700+00:00"
+        },
         {
           "id": "fs::ch28_008_00_thumb",
           "label": "thumb_00",
@@ -17128,8 +17200,8 @@
       ],
       "title": "家にいるほど苦しい…外に出たら見えた世界",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:55:50.479388+00:00",
-      "updated_at": "2026-01-11T07:55:50.479431+00:00",
+      "status_updated_at": "2026-01-14T23:03:43.339682+00:00",
+      "updated_at": "2026-01-14T23:03:43.339702+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_008_00_thumb"
     },
@@ -17137,6 +17209,15 @@
       "channel": "CH28",
       "video": "009",
       "variants": [
+        {
+          "id": "fs::ch28_009_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/009/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/009/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:46.912338+00:00",
+          "updated_at": "2026-01-14T23:03:46.912340+00:00"
+        },
         {
           "id": "fs::ch28_009_00_thumb",
           "label": "thumb_00",
@@ -17149,8 +17230,8 @@
       ],
       "title": "「私は必要ない」…思い込みを壊した一冊の本",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:56:00.519232+00:00",
-      "updated_at": "2026-01-11T07:56:00.519258+00:00",
+      "status_updated_at": "2026-01-14T23:03:46.912313+00:00",
+      "updated_at": "2026-01-14T23:03:46.912342+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_009_00_thumb"
     },
@@ -17158,6 +17239,15 @@
       "channel": "CH28",
       "video": "010",
       "variants": [
+        {
+          "id": "fs::ch28_010_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/010/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/010/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:50.709843+00:00",
+          "updated_at": "2026-01-14T23:03:50.709844+00:00"
+        },
         {
           "id": "fs::ch28_010_00_thumb",
           "label": "thumb_00",
@@ -17170,8 +17260,8 @@
       ],
       "title": "涙が出ない夜…“泣けない自分”を許した",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:56:16.115031+00:00",
-      "updated_at": "2026-01-11T07:56:16.115077+00:00",
+      "status_updated_at": "2026-01-14T23:03:50.709828+00:00",
+      "updated_at": "2026-01-14T23:03:50.709846+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_010_00_thumb"
     },
@@ -17179,6 +17269,15 @@
       "channel": "CH28",
       "video": "011",
       "variants": [
+        {
+          "id": "fs::ch28_011_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/011/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/011/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:54.211902+00:00",
+          "updated_at": "2026-01-14T23:03:54.211903+00:00"
+        },
         {
           "id": "fs::ch28_011_00_thumb",
           "label": "thumb_00",
@@ -17191,8 +17290,8 @@
       ],
       "title": "誰にも言えない不安…“聞くだけ”の人に出会った",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:56:26.742311+00:00",
-      "updated_at": "2026-01-11T07:56:26.742344+00:00",
+      "status_updated_at": "2026-01-14T23:03:54.211883+00:00",
+      "updated_at": "2026-01-14T23:03:54.211905+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_011_00_thumb"
     },
@@ -17200,6 +17299,15 @@
       "channel": "CH28",
       "video": "012",
       "variants": [
+        {
+          "id": "fs::ch28_012_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/012/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/012/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:03:58.464331+00:00",
+          "updated_at": "2026-01-14T23:03:58.464332+00:00"
+        },
         {
           "id": "fs::ch28_012_00_thumb",
           "label": "thumb_00",
@@ -17212,8 +17320,8 @@
       ],
       "title": "孤独が怖い…だから“予定”を一つだけ作った",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:56:37.568506+00:00",
-      "updated_at": "2026-01-11T07:56:37.568534+00:00",
+      "status_updated_at": "2026-01-14T23:03:58.464315+00:00",
+      "updated_at": "2026-01-14T23:03:58.464333+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_012_00_thumb"
     },
@@ -17221,6 +17329,15 @@
       "channel": "CH28",
       "video": "013",
       "variants": [
+        {
+          "id": "fs::ch28_013_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/013/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/013/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:01.955782+00:00",
+          "updated_at": "2026-01-14T23:04:01.955783+00:00"
+        },
         {
           "id": "fs::ch28_013_00_thumb",
           "label": "thumb_00",
@@ -17233,8 +17350,8 @@
       ],
       "title": "鏡の中の自分が嫌いだった…でも今日だけは違った",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:56:47.078761+00:00",
-      "updated_at": "2026-01-11T07:56:47.078787+00:00",
+      "status_updated_at": "2026-01-14T23:04:01.955760+00:00",
+      "updated_at": "2026-01-14T23:04:01.955785+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_013_00_thumb"
     },
@@ -17242,6 +17359,15 @@
       "channel": "CH28",
       "video": "014",
       "variants": [
+        {
+          "id": "fs::ch28_014_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/014/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/014/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:05.586104+00:00",
+          "updated_at": "2026-01-14T23:04:05.586105+00:00"
+        },
         {
           "id": "fs::ch28_014_00_thumb",
           "label": "thumb_00",
@@ -17254,8 +17380,8 @@
       ],
       "title": "町の噂が怖い…それでも“居場所”は作れる",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:56:56.588528+00:00",
-      "updated_at": "2026-01-11T07:56:56.588552+00:00",
+      "status_updated_at": "2026-01-14T23:04:05.586087+00:00",
+      "updated_at": "2026-01-14T23:04:05.586106+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_014_00_thumb"
     },
@@ -17263,6 +17389,15 @@
       "channel": "CH28",
       "video": "015",
       "variants": [
+        {
+          "id": "fs::ch28_015_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/015/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/015/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:09.294207+00:00",
+          "updated_at": "2026-01-14T23:04:09.294209+00:00"
+        },
         {
           "id": "fs::ch28_015_00_thumb",
           "label": "thumb_00",
@@ -17275,8 +17410,8 @@
       ],
       "title": "「友達がいない」…その言葉を言えた日から楽になった",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:57:06.526295+00:00",
-      "updated_at": "2026-01-11T07:57:06.526318+00:00",
+      "status_updated_at": "2026-01-14T23:04:09.294168+00:00",
+      "updated_at": "2026-01-14T23:04:09.294213+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_015_00_thumb"
     },
@@ -17284,6 +17419,15 @@
       "channel": "CH28",
       "video": "016",
       "variants": [
+        {
+          "id": "fs::ch28_016_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/016/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/016/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:12.265171+00:00",
+          "updated_at": "2026-01-14T23:04:12.265172+00:00"
+        },
         {
           "id": "fs::ch28_016_00_thumb",
           "label": "thumb_00",
@@ -17296,8 +17440,8 @@
       ],
       "title": "一人で病院へ…受付の一言で泣きそうになった",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:57:17.851537+00:00",
-      "updated_at": "2026-01-11T07:57:17.851579+00:00",
+      "status_updated_at": "2026-01-14T23:04:12.265155+00:00",
+      "updated_at": "2026-01-14T23:04:12.265177+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_016_00_thumb"
     },
@@ -17305,6 +17449,15 @@
       "channel": "CH28",
       "video": "017",
       "variants": [
+        {
+          "id": "fs::ch28_017_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/017/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/017/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:16.121107+00:00",
+          "updated_at": "2026-01-14T23:04:16.121108+00:00"
+        },
         {
           "id": "fs::ch28_017_00_thumb",
           "label": "thumb_00",
@@ -17317,8 +17470,8 @@
       ],
       "title": "空回りの優しさをやめたら、人が寄ってきた",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:57:27.249319+00:00",
-      "updated_at": "2026-01-11T07:57:27.249353+00:00",
+      "status_updated_at": "2026-01-14T23:04:16.121088+00:00",
+      "updated_at": "2026-01-14T23:04:16.121110+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_017_00_thumb"
     },
@@ -17326,6 +17479,15 @@
       "channel": "CH28",
       "video": "018",
       "variants": [
+        {
+          "id": "fs::ch28_018_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/018/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/018/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:19.780607+00:00",
+          "updated_at": "2026-01-14T23:04:19.780608+00:00"
+        },
         {
           "id": "fs::ch28_018_00_thumb",
           "label": "thumb_00",
@@ -17338,8 +17500,8 @@
       ],
       "title": "夜の静けさが怖い…ラジオじゃなく“声”が欲しかった",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:57:41.234500+00:00",
-      "updated_at": "2026-01-11T07:57:41.234527+00:00",
+      "status_updated_at": "2026-01-14T23:04:19.780593+00:00",
+      "updated_at": "2026-01-14T23:04:19.780610+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_018_00_thumb"
     },
@@ -17347,6 +17509,15 @@
       "channel": "CH28",
       "video": "019",
       "variants": [
+        {
+          "id": "fs::ch28_019_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/019/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/019/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:23.770859+00:00",
+          "updated_at": "2026-01-14T23:04:23.770861+00:00"
+        },
         {
           "id": "fs::ch28_019_00_thumb",
           "label": "thumb_00",
@@ -17359,8 +17530,8 @@
       ],
       "title": "「もう遅い」って言いかけた…その瞬間に来た電話",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:57:51.144879+00:00",
-      "updated_at": "2026-01-11T07:57:51.144906+00:00",
+      "status_updated_at": "2026-01-14T23:04:23.770837+00:00",
+      "updated_at": "2026-01-14T23:04:23.770862+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_019_00_thumb"
     },
@@ -17368,6 +17539,15 @@
       "channel": "CH28",
       "video": "020",
       "variants": [
+        {
+          "id": "fs::ch28_020_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/020/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/020/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:26.452880+00:00",
+          "updated_at": "2026-01-14T23:04:26.452881+00:00"
+        },
         {
           "id": "fs::ch28_020_00_thumb",
           "label": "thumb_00",
@@ -17380,8 +17560,8 @@
       ],
       "title": "孤独を隠すのをやめた…私は私でいい",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:57:59.654745+00:00",
-      "updated_at": "2026-01-11T07:57:59.654814+00:00",
+      "status_updated_at": "2026-01-14T23:04:26.452863+00:00",
+      "updated_at": "2026-01-14T23:04:26.452883+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_020_00_thumb"
     },
@@ -17389,6 +17569,15 @@
       "channel": "CH28",
       "video": "021",
       "variants": [
+        {
+          "id": "fs::ch28_021_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/021/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/021/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:30.085631+00:00",
+          "updated_at": "2026-01-14T23:04:30.085632+00:00"
+        },
         {
           "id": "fs::ch28_021_00_thumb",
           "label": "thumb_00",
@@ -17401,8 +17590,8 @@
       ],
       "title": "“ひとり飯”が寂しい…でも工夫で変わった",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:58:12.361103+00:00",
-      "updated_at": "2026-01-11T07:58:12.361132+00:00",
+      "status_updated_at": "2026-01-14T23:04:30.085613+00:00",
+      "updated_at": "2026-01-14T23:04:30.085634+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_021_00_thumb"
     },
@@ -17410,6 +17599,15 @@
       "channel": "CH28",
       "video": "022",
       "variants": [
+        {
+          "id": "fs::ch28_022_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/022/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/022/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:33.831603+00:00",
+          "updated_at": "2026-01-14T23:04:33.831605+00:00"
+        },
         {
           "id": "fs::ch28_022_00_thumb",
           "label": "thumb_00",
@@ -17422,8 +17620,8 @@
       ],
       "title": "手紙を書いた…送らない手紙が私を救った",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:58:23.172247+00:00",
-      "updated_at": "2026-01-11T07:58:23.172276+00:00",
+      "status_updated_at": "2026-01-14T23:04:33.831586+00:00",
+      "updated_at": "2026-01-14T23:04:33.831606+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_022_00_thumb"
     },
@@ -17431,6 +17629,15 @@
       "channel": "CH28",
       "video": "023",
       "variants": [
+        {
+          "id": "fs::ch28_023_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/023/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/023/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:37.578918+00:00",
+          "updated_at": "2026-01-14T23:04:37.578920+00:00"
+        },
         {
           "id": "fs::ch28_023_00_thumb",
           "label": "thumb_00",
@@ -17443,8 +17650,8 @@
       ],
       "title": "“何もできない日”があってもいい",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:58:39.123255+00:00",
-      "updated_at": "2026-01-11T07:58:39.123281+00:00",
+      "status_updated_at": "2026-01-14T23:04:37.578896+00:00",
+      "updated_at": "2026-01-14T23:04:37.578923+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_023_00_thumb"
     },
@@ -17452,6 +17659,15 @@
       "channel": "CH28",
       "video": "024",
       "variants": [
+        {
+          "id": "fs::ch28_024_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/024/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/024/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:41.544985+00:00",
+          "updated_at": "2026-01-14T23:04:41.544990+00:00"
+        },
         {
           "id": "fs::ch28_024_00_thumb",
           "label": "thumb_00",
@@ -17464,8 +17680,8 @@
       ],
       "title": "誰にも会わない日…それでも心は回復する",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:58:48.975734+00:00",
-      "updated_at": "2026-01-11T07:58:48.975767+00:00",
+      "status_updated_at": "2026-01-14T23:04:41.544948+00:00",
+      "updated_at": "2026-01-14T23:04:41.544992+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_024_00_thumb"
     },
@@ -17473,6 +17689,15 @@
       "channel": "CH28",
       "video": "025",
       "variants": [
+        {
+          "id": "fs::ch28_025_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/025/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/025/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:45.214149+00:00",
+          "updated_at": "2026-01-14T23:04:45.214151+00:00"
+        },
         {
           "id": "fs::ch28_025_00_thumb",
           "label": "thumb_00",
@@ -17485,8 +17710,8 @@
       ],
       "title": "小さな習慣が“未来”を連れてきた",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:58:58.564468+00:00",
-      "updated_at": "2026-01-11T07:58:58.564494+00:00",
+      "status_updated_at": "2026-01-14T23:04:45.214129+00:00",
+      "updated_at": "2026-01-14T23:04:45.214152+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_025_00_thumb"
     },
@@ -17494,6 +17719,15 @@
       "channel": "CH28",
       "video": "026",
       "variants": [
+        {
+          "id": "fs::ch28_026_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/026/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/026/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:48.367083+00:00",
+          "updated_at": "2026-01-14T23:04:48.367084+00:00"
+        },
         {
           "id": "fs::ch28_026_00_thumb",
           "label": "thumb_00",
@@ -17506,8 +17740,8 @@
       ],
       "title": "“聞く”だけで世界が変わった…私の口が一つの理由",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:59:09.204389+00:00",
-      "updated_at": "2026-01-11T07:59:09.204425+00:00",
+      "status_updated_at": "2026-01-14T23:04:48.367067+00:00",
+      "updated_at": "2026-01-14T23:04:48.367086+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_026_00_thumb"
     },
@@ -17515,6 +17749,15 @@
       "channel": "CH28",
       "video": "027",
       "variants": [
+        {
+          "id": "fs::ch28_027_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/027/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/027/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:52.143886+00:00",
+          "updated_at": "2026-01-14T23:04:52.143892+00:00"
+        },
         {
           "id": "fs::ch28_027_00_thumb",
           "label": "thumb_00",
@@ -17527,8 +17770,8 @@
       ],
       "title": "一人が怖い…でも“二人分の役割”は捨てていい",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:59:19.052291+00:00",
-      "updated_at": "2026-01-11T07:59:19.052321+00:00",
+      "status_updated_at": "2026-01-14T23:04:52.143863+00:00",
+      "updated_at": "2026-01-14T23:04:52.143893+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_027_00_thumb"
     },
@@ -17536,6 +17779,15 @@
       "channel": "CH28",
       "video": "028",
       "variants": [
+        {
+          "id": "fs::ch28_028_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/028/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/028/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:55.169579+00:00",
+          "updated_at": "2026-01-14T23:04:55.169581+00:00"
+        },
         {
           "id": "fs::ch28_028_00_thumb",
           "label": "thumb_00",
@@ -17548,8 +17800,8 @@
       ],
       "title": "春になった…私は“新しい名前”で呼ばれた",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:59:28.393243+00:00",
-      "updated_at": "2026-01-11T07:59:28.393299+00:00",
+      "status_updated_at": "2026-01-14T23:04:55.169563+00:00",
+      "updated_at": "2026-01-14T23:04:55.169582+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_028_00_thumb"
     },
@@ -17557,6 +17809,15 @@
       "channel": "CH28",
       "video": "029",
       "variants": [
+        {
+          "id": "fs::ch28_029_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/029/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/029/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:04:59.006224+00:00",
+          "updated_at": "2026-01-14T23:04:59.006226+00:00"
+        },
         {
           "id": "fs::ch28_029_00_thumb",
           "label": "thumb_00",
@@ -17569,8 +17830,8 @@
       ],
       "title": "孤独は終わらない…でも“孤立”は終わらせられる",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:59:39.577004+00:00",
-      "updated_at": "2026-01-11T07:59:39.577032+00:00",
+      "status_updated_at": "2026-01-14T23:04:59.006210+00:00",
+      "updated_at": "2026-01-14T23:04:59.006227+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_029_00_thumb"
     },
@@ -17578,6 +17839,15 @@
       "channel": "CH28",
       "video": "030",
       "variants": [
+        {
+          "id": "fs::ch28_030_00_thumb_altfont_hiragino",
+          "label": "00_thumb_altfont_hiragino",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH28/030/00_thumb_altfont_hiragino.png",
+          "image_path": "CH28/030/00_thumb_altfont_hiragino.png",
+          "created_at": "2026-01-14T23:05:03.124652+00:00",
+          "updated_at": "2026-01-14T23:05:03.124653+00:00"
+        },
         {
           "id": "fs::ch28_030_00_thumb",
           "label": "thumb_00",
@@ -17590,8 +17860,8 @@
       ],
       "title": "最後に残ったのは“温かい一杯”だった",
       "status": "review",
-      "status_updated_at": "2026-01-11T07:59:53.078670+00:00",
-      "updated_at": "2026-01-11T07:59:53.078700+00:00",
+      "status_updated_at": "2026-01-14T23:05:03.124627+00:00",
+      "updated_at": "2026-01-14T23:05:03.124655+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch28_030_00_thumb"
     },

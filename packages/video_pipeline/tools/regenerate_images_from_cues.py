@@ -683,9 +683,18 @@ def main() -> None:
         cue = cues[i - 1]
         if not isinstance(cue, dict):
             continue
-        if cue.get("asset_relpath"):
-            # Never regenerate b-roll / asset-backed frames.
-            continue
+        rel = (str(cue.get("asset_relpath") or "").strip() if isinstance(cue, dict) else "") or ""
+        if rel:
+            # Never regenerate true b-roll / asset-backed frames (the asset exists on disk).
+            # However, some runs keep an `asset_relpath` but the underlying file is missing
+            # (e.g., paused/failed b-roll download). In that case, we *do* want to
+            # regenerate the fallback PNG under images/*.png so CapCut insertion can
+            # safely fall back.
+            try:
+                if (run_dir / rel).resolve().exists():
+                    continue
+            except Exception:
+                pass
         if not str(cue.get("seed") or "").strip().isdigit():
             cue["seed"] = _stable_cue_seed(run_dir, int(cue.get("index") or i))
         if args.ensure_diversity_note and not str(cue.get("diversity_note") or "").strip():

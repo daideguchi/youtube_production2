@@ -72,6 +72,7 @@
       "belt_labels": "",
       "persona_required": false,
       "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
       "notes": "帯ルールはCH01準拠。章タイトル生成ロジックを共用する。",
       "status": "active"
     },
@@ -722,6 +723,42 @@
       "image_min_bytes": 60000,
       "video_style_id": "jinsei_standard_v2",
       "notes": "画像は30〜40秒/枚を目安に分割。友人/家族の摩耗を“心理描写”で見せる。人物一貫性を優先（不要な新キャラは入れない）。",
+      "status": "draft"
+    },
+    "CH28": {
+      "name": "60代からの静かな救いの物語",
+      "image_generation": {
+        "base_period": 35.0,
+        "model_key": "img-gemini-flash-1"
+      },
+      "prompt_template": "templates/senior_story_friendly_psychology.txt",
+      "prompt_suffix": "少し実写寄りのセミリアル日本イラストで統一（写真ではなくイラスト）。心理描写は誇張せず、視線/口元/沈黙/手元/距離感で“現実の摩耗”を描く。人物が出る場合は同一人物を全カットで顔立ち/髪型/服装/体型/年齢感を固定。不要な新キャラや群衆は入れない。文字/看板/ロゴ/字幕は描かない。",
+      "tone_profile": "トーン: 友人/近所/同窓会などの静かな摩耗を、生活のリアリティとやさしさで描く。背景は状況が分かる程度に描き、主役よりコントラストを落として背景ボケ。光は柔らかく、写実寄りだが重くしすぎない。",
+      "character_note": "人物ポリシー: 基本は主人公中心。必要なら相手1名まで。顔/服/年齢感/雰囲気を固定し、毎カットでブレさせない。台本に人物が不要な場面は無人構図も可。",
+      "style": "Japanese semi-realistic illustration (slightly photoreal look), realistic proportions, soft cinematic lighting, subtle texture, gentle depth of field, natural aging details (60s+), friendly and realistic expressions, illustration (not photography), no text",
+      "capcut_template": "CH22-テンプレ",
+      "position": {
+        "tx": 0.0,
+        "ty": 0.0,
+        "scale": 1.03
+      },
+      "layout": {
+        "beltTopPct": 82,
+        "beltHeightPct": 16,
+        "subtitleBottomPx": 120,
+        "subtitleMaxWidthPct": 80,
+        "subtitleFontSize": 34
+      },
+      "belt": {
+        "enabled": true,
+        "opening_offset": 0.0,
+        "requires_config": false
+      },
+      "belt_labels": "",
+      "persona_required": false,
+      "image_min_bytes": 60000,
+      "video_style_id": "jinsei_standard_v2",
+      "notes": "画像は25〜45秒/枚を目安に分割。静かな摩耗と救いの余韻を“心理描写”で見せる。人物一貫性を優先（不要な新キャラは入れない）。",
       "status": "draft"
     }
   }

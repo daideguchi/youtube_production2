@@ -72,6 +72,12 @@
         "path": "workspaces/thumbnails/compiler/layer_specs/ch22_text_layout_ch22_v1.yaml",
         "name": "ch22_text_layout_ch22_v1"
       },
+      "ch22_text_layout_ch22_v1_altfont_hiragino": {
+        "kind": "text_layout",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch22_text_layout_ch22_v1_altfont_hiragino.yaml",
+        "name": "ch22_text_layout_ch22_v1_altfont_hiragino"
+      },
       "ch23_image_prompts_ch23_v1": {
         "kind": "image_prompts",
         "version": 3,
