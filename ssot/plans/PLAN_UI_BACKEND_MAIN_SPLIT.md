@@ -186,6 +186,7 @@
 | 4af | Audio reports router（`routers/audio_reports.py`）の `backend.main` 依存（`resolve_text_file`）を外し、`backend/app/episode_store.py` へ寄せる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4ag | Thumbnails templates router（`routers/thumbnails_templates.py`）の `backend.main` 依存（module-level `PROJECT_ROOT`）を外し、`backend/app/path_utils.py` へ寄せる（挙動互換） | dd | - | Done（2026-01-15） |
 | 4ah | Channel videos router（`routers/channel_videos.py`）の module-level `backend.main` import を外し、`backend/app` + lazy import に寄せて循環import/404リスクを下げる（挙動互換） | dd | - | Done（2026-01-15） |
+| 4ai | Video planning router（`routers/video_planning.py`）の module-level `backend.main` import を外し、`backend/app` へ寄せて循環import/404リスクを下げる（挙動互換） | dd | - | Done（2026-01-15） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
