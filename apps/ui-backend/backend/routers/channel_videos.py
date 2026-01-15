@@ -8,54 +8,78 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.episode_store import get_audio_duration_seconds
+from backend.app.audio_metadata_utils import normalize_audio_metadata
+from backend.app.channel_catalog import list_video_dirs
 from backend.app.datetime_utils import parse_iso_datetime
-from backend.app.normalize import normalize_channel_code, normalize_video_number
-from backend.app.path_utils import safe_relative_path
-from backend.app.scripts_models import NaturalCommandRequest, NaturalCommandResponse
-from backend.app.status_models import ensure_expected_updated_at
-from backend.app.thumbnails_projects_store import THUMBNAIL_PROJECTS_LOCK
-from backend.app.thumbnails_constants import THUMBNAIL_PROJECT_STATUSES
-from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
-from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
-from backend.app.video_registry_models import VideoCreateRequest, VideoDetailResponse, VideoFileReferences, VideoSummaryResponse
-from backend.main import (
-    PROJECT_ROOT,
-    PlanningInfoResponse,
-    _build_youtube_description,
-    _character_count_from_a_text,
-    _collect_disk_thumbnail_variants,
-    _compose_tagged_tts,
-    _derive_effective_stages,
-    _derive_effective_video_status,
-    _stage_status_value,
-    _summarize_video_detail_artifacts,
-    _default_status_payload,
-    build_planning_payload,
-    build_planning_payload_from_row,
-    build_status_payload,
-    get_planning_section,
-    interpret_natural_command,
-    list_video_dirs,
+from backend.app.episode_store import (
+    get_audio_duration_seconds,
     load_status,
     load_status_optional,
-    normalize_planning_video_number,
-    normalize_audio_metadata,
-    planning_store,
-    planning_hash_from_row,
-    iter_thumbnail_catches_from_row,
-    sha1_file_bytes,
-    save_status,
     resolve_audio_path,
     resolve_srt_path,
     resolve_text_file,
-    update_planning_from_row,
     video_base_dir,
-    append_audio_history_entry,
 )
+from backend.app.normalize import normalize_channel_code, normalize_planning_video_number, normalize_video_number
+from backend.app.path_utils import PROJECT_ROOT, safe_relative_path
+from backend.app.planning_models import PlanningInfoResponse
+from backend.app.planning_payload import build_planning_payload, build_planning_payload_from_row
+from backend.app.scripts_models import NaturalCommandRequest, NaturalCommandResponse
+from backend.app.status_payload_builder import build_status_payload
+from backend.app.status_models import ensure_expected_updated_at
+from backend.app.status_store import default_status_payload as _default_status_payload, save_status
+from backend.app.thumbnails_projects_store import THUMBNAIL_PROJECTS_LOCK
+from backend.app.thumbnails_constants import THUMBNAIL_PROJECT_STATUSES
+from backend.app.tts_tagged_text import _compose_tagged_tts
+from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
+from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
+from backend.app.video_registry_models import VideoCreateRequest, VideoDetailResponse, VideoFileReferences, VideoSummaryResponse
+from backend.app.script_text_utils import _character_count_from_a_text
+from backend.app.stage_status_utils import _stage_status_value
+from backend.app.youtube_description_builder import _build_youtube_description
+from backend.tools.optional_fields_registry import get_planning_section, update_planning_from_row
+from factory_common.alignment import iter_thumbnail_catches_from_row, planning_hash_from_row, sha1_file as sha1_file_bytes
 from factory_common.paths import audio_final_dir, video_runs_root as ssot_video_runs_root
+from script_pipeline.tools import planning_store
 
 router = APIRouter(prefix="/api/channels", tags=["channels"])
+
+
+# Late-binding helpers defined in backend.main (avoid module-level import/circular deps).
+def _collect_disk_thumbnail_variants(*args: Any, **kwargs: Any):
+    from backend.main import _collect_disk_thumbnail_variants as impl
+
+    return impl(*args, **kwargs)
+
+
+def _derive_effective_stages(*args: Any, **kwargs: Any):
+    from backend.main import _derive_effective_stages as impl
+
+    return impl(*args, **kwargs)
+
+
+def _derive_effective_video_status(*args: Any, **kwargs: Any):
+    from backend.main import _derive_effective_video_status as impl
+
+    return impl(*args, **kwargs)
+
+
+def _summarize_video_detail_artifacts(*args: Any, **kwargs: Any):
+    from backend.main import _summarize_video_detail_artifacts as impl
+
+    return impl(*args, **kwargs)
+
+
+def interpret_natural_command(*args: Any, **kwargs: Any):
+    from backend.main import interpret_natural_command as impl
+
+    return impl(*args, **kwargs)
+
+
+def append_audio_history_entry(*args: Any, **kwargs: Any):
+    from backend.main import append_audio_history_entry as impl
+
+    return impl(*args, **kwargs)
 
 
 def _load_tts_content_for_command(channel_code: str, video_number: str) -> str:
