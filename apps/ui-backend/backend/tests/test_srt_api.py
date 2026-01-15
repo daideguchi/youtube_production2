@@ -8,6 +8,7 @@ from typing import Dict
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app import episode_store, normalize as normalize_mod, status_store
 from backend import main
 from backend.main import app
 
@@ -56,6 +57,17 @@ def srt_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
     monkeypatch.setattr(main, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
 
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "CHANNEL_PLANNING_DIR", planning_channels_dir)
+    monkeypatch.setattr(status_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(status_store, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
+
+    def _tmp_audio_final_dir(channel_code: str, video_number: str) -> Path:
+        return tmp_path / "workspaces" / "audio" / "final" / channel_code / video_number
+
+    monkeypatch.setattr(episode_store, "audio_final_dir", _tmp_audio_final_dir)
+
     with TestClient(app) as client:
         yield {"client": client, "base_dir": scripts_root / "CH01" / "001"}
 
@@ -101,4 +113,3 @@ def test_verify_srt_ok(srt_env):
     payload = resp.json()
     assert payload["valid"] is True
     assert payload["issues"] == []
-

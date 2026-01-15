@@ -4,12 +4,14 @@ from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.datetime_utils import current_timestamp
 from backend.app.episode_store import load_status, resolve_audio_path, resolve_srt_path, video_base_dir
+from backend.app.lock_store import write_text_with_lock
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import safe_relative_path
+from backend.app.srt_verify import verify_srt_file
 from backend.app.srt_models import SRTVerifyResponse
 from backend.app.scripts_models import TextUpdateRequest
 from backend.app.status_models import ensure_expected_updated_at
-from backend.main import save_status, verify_srt_file, write_text_with_lock
+from backend.app.status_store import save_status
 
 router = APIRouter(prefix="/api", tags=["srt"])
 
