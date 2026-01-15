@@ -5,16 +5,15 @@ from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
 
-from backend.app.normalize import normalize_channel_code, normalize_optional_text
+from backend.app.datetime_utils import current_timestamp
+from backend.app.episode_store import load_status
+from backend.app.normalize import normalize_channel_code, normalize_optional_text, normalize_planning_video_number
 from backend.app.planning_csv_store import _normalize_video_number_token, _read_channel_csv_rows, _write_csv_with_lock
 from backend.app.planning_models import (
     PlanningCsvRowResponse,
     PlanningProgressUpdateRequest,
 )
-from backend.main import (
-    build_planning_payload_from_row,
-    current_timestamp,
-)
+from backend.app.planning_payload import build_planning_payload_from_row
 from backend.core.tools import thumbnails_lookup as thumbnails_lookup_tools
 from factory_common.alignment import (
     iter_thumbnail_catches_from_row,
@@ -38,8 +37,6 @@ def get_planning_channel_rows(channel_code: str):
 
     NOTE: Keep behavior compatible with legacy `backend.main.api_planning_channel`.
     """
-    from backend.main import load_status, normalize_planning_video_number
-
     channel_code = normalize_channel_code(channel_code)
     csv_path = CHANNEL_PLANNING_DIR / f"{channel_code}.csv"
     if not csv_path.exists():
