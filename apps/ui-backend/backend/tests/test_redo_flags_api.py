@@ -6,6 +6,7 @@ from typing import Dict
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app import episode_store, normalize as normalize_mod, status_store
 from backend import main
 from backend.main import app
 from backend.routers import redo_flags as redo_flags_router
@@ -41,6 +42,12 @@ def redo_flags_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
     monkeypatch.setattr(main, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
+
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "CHANNEL_PLANNING_DIR", planning_channels_dir)
+    monkeypatch.setattr(status_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(status_store, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
 
     with TestClient(app) as client:
         yield {"client": client, "status_path": status_path}
@@ -82,4 +89,3 @@ def test_update_video_redo_rejects_when_published_locked(redo_flags_env, monkeyp
         json={"redo_script": True},
     )
     assert resp.status_code == 423
-
