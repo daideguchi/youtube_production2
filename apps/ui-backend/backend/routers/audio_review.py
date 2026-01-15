@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.audio_review_models import AudioReviewItemResponse
 from backend.app.channel_catalog import list_channel_dirs, list_video_dirs
-from backend.app.channel_info_store import refresh_channel_info
+from backend.app.channel_info_store import refresh_channel_info, resolve_channel_title
 from backend.app.episode_store import (
     DATA_ROOT,
     get_audio_duration_seconds,
@@ -17,15 +17,10 @@ from backend.app.episode_store import (
     resolve_srt_path,
     video_base_dir,
 )
+from backend.app.log_summarizer import summarize_log
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 
 router = APIRouter(prefix="/api/workspaces/audio-review", tags=["audio-review"])
-
-
-def summarize_log(*args: Any, **kwargs: Any):
-    from backend.main import summarize_log as impl
-
-    return impl(*args, **kwargs)
 
 
 def _count_manual_pauses(history: Any) -> int:
@@ -80,10 +75,7 @@ def list_audio_review_items(
         if not channel_dir.is_dir():
             continue
         channel_code = channel_dir.name.upper()
-        # Avoid circular import during app.include_router(): helper is defined after router wiring in backend.main.
-        from backend import main as backend_main
-
-        channel_title = backend_main._resolve_channel_title(channel_code, channel_info_map)
+        channel_title = resolve_channel_title(channel_code, channel_info_map)
 
         for video_dir in list_video_dirs(channel_code):
             video_number = video_dir.name

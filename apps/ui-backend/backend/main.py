@@ -99,6 +99,7 @@ from backend.app.channel_info_store import (
     infer_channel_genre,
     rebuild_channel_catalog,
     refresh_channel_info,
+    resolve_channel_title,
 )
 from backend.app.channel_catalog import (
     list_channel_dirs,
@@ -1286,25 +1287,6 @@ def interpret_natural_command(command: str, tts_content: str) -> Tuple[List[Natu
     return _heuristic_natural_command(command, tts_content)
 
 
-def summarize_log(log_path: Path) -> Optional[dict]:
-    if not log_path or not log_path.exists():
-        return None
-    try:
-        data = json.loads(log_path.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-    meta = data.get("audio") or {}
-    engine = data.get("engine") or meta.get("engine")
-    duration = meta.get("duration_sec")
-    chunk_meta = data.get("engine_metadata", {}).get("chunk_meta")
-    chunk_count = len(chunk_meta) if isinstance(chunk_meta, list) else None
-    return {
-        "engine": engine,
-        "duration_sec": duration,
-        "chunk_count": chunk_count,
-    }
-
-
 ESSENTIAL_BRANDING_KEYS = ("avatar_url", "subscriber_count", "view_count", "video_count")
 
 
@@ -2398,23 +2380,7 @@ def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
 
 
 def _resolve_channel_title(channel_code: str, info_map: Dict[str, dict]) -> Optional[str]:
-    info = info_map.get(channel_code)
-    if not isinstance(info, dict):
-        return None
-    branding = info.get("branding")
-    if isinstance(branding, dict):
-        title = branding.get("title")
-        if isinstance(title, str) and title.strip():
-            return title.strip()
-    name = info.get("name")
-    if isinstance(name, str) and name.strip():
-        return name.strip()
-    youtube_meta = info.get("youtube")
-    if isinstance(youtube_meta, dict):
-        yt_title = youtube_meta.get("title")
-        if isinstance(yt_title, str) and yt_title.strip():
-            return yt_title.strip()
-    return None
+    return resolve_channel_title(channel_code, info_map)
 
 
 def _get_or_create_thumbnail_project(payload: dict, channel_code: str, video_number: str) -> dict:

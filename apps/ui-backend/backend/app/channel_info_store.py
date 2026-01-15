@@ -161,6 +161,26 @@ def find_channel_directory(channel_code: str) -> Optional[Path]:
     return None
 
 
+def resolve_channel_title(channel_code: str, info_map: Dict[str, dict]) -> Optional[str]:
+    info = info_map.get(channel_code)
+    if not isinstance(info, dict):
+        return None
+    branding = info.get("branding")
+    if isinstance(branding, dict):
+        title = branding.get("title")
+        if isinstance(title, str) and title.strip():
+            return title.strip()
+    name = info.get("name")
+    if isinstance(name, str) and name.strip():
+        return name.strip()
+    youtube_meta = info.get("youtube")
+    if isinstance(youtube_meta, dict):
+        yt_title = youtube_meta.get("title")
+        if isinstance(yt_title, str) and yt_title.strip():
+            return yt_title.strip()
+    return None
+
+
 def infer_channel_genre(info: dict) -> Optional[str]:
     genre = info.get("genre")
     if isinstance(genre, str) and genre.strip():
