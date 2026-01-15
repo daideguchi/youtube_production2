@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import configparser
 import hashlib
 import json
 import os
@@ -31,6 +32,73 @@ def _now_iso_utc() -> str:
 def _env_truthy(key: str) -> bool:
     v = str(os.getenv(key) or "").strip().lower()
     return v in {"1", "true", "yes", "y", "on"}
+
+
+def _normalize_base_url(url: str) -> str:
+    u = str(url or "").strip()
+    if not u:
+        return ""
+    u = u.rstrip("/") + "/"
+    return u
+
+
+def _parse_owner_repo_from_git_remote(url: str) -> tuple[str, str]:
+    raw = str(url or "").strip()
+    if not raw:
+        return ("", "")
+
+    # SSH: git@github.com:OWNER/REPO.git
+    m = re.match(r"^git@github\\.com:([^/]+)/([^/]+?)(?:\\.git)?$", raw)
+    if m:
+        return (m.group(1), m.group(2))
+
+    # SSH: ssh://git@github.com/OWNER/REPO.git
+    m = re.match(r"^ssh://git@github\\.com/([^/]+)/([^/]+?)(?:\\.git)?$", raw)
+    if m:
+        return (m.group(1), m.group(2))
+
+    # HTTPS: https://github.com/OWNER/REPO.git
+    m = re.match(r"^https://github\\.com/([^/]+)/([^/]+?)(?:\\.git)?$", raw)
+    if m:
+        return (m.group(1), m.group(2))
+
+    return ("", "")
+
+
+def _guess_pages_base_url() -> str:
+    """
+    Best-effort GitHub Pages base URL for this repo.
+
+    Priority:
+      1) env YTM_PAGES_BASE_URL (explicit override)
+      2) env GITHUB_REPOSITORY ("OWNER/REPO") → https://OWNER.github.io/REPO/
+      3) .git/config remote "origin" url → https://OWNER.github.io/REPO/
+    """
+    override = _normalize_base_url(os.getenv("YTM_PAGES_BASE_URL") or "")
+    if override:
+        return override
+
+    gh_repo = str(os.getenv("GITHUB_REPOSITORY") or "").strip()
+    if gh_repo and "/" in gh_repo:
+        owner, repo = gh_repo.split("/", 1)
+        owner = owner.strip()
+        repo = repo.strip().removesuffix(".git")
+        if owner and repo:
+            return f"https://{owner}.github.io/{repo}/"
+
+    try:
+        cfg_path = PROJECT_ROOT / ".git" / "config"
+        if cfg_path.exists():
+            cp = configparser.ConfigParser(strict=False)
+            cp.read(cfg_path, encoding="utf-8")
+            url = str(cp.get('remote "origin"', "url", fallback="") or "").strip()
+            owner, repo = _parse_owner_repo_from_git_remote(url)
+            if owner and repo:
+                return f"https://{owner}.github.io/{repo}/"
+    except Exception:
+        pass
+
+    return ""
 
 
 def _slack_dedupe_off() -> bool:
@@ -1107,13 +1175,44 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
         title_bits.append(f"episode={episode}")
     title = " ".join(title_bits)
 
+    pages_base = _guess_pages_base_url()
+
+    pages_ep_url = ""
+    pages_viewer_url = ""
+    pages_archive_url = ""
+    if pages_base and episode != "-":
+        m = re.match(r"^(CH\\d{2})-(\\d{3})$", str(episode))
+        if m:
+            ch = m.group(1)
+            v = m.group(2)
+            pages_ep_url = f"{pages_base}ep/{ch}/{v}/"
+            pages_viewer_url = f"{pages_base}?id={episode}"
+            pages_archive_url = f"{pages_base}archive/?q={episode}"
+    elif episode != "-":
+        pages_ep_url = "(env: YTM_PAGES_BASE_URL 未設定)"
+        pages_viewer_url = "(env: YTM_PAGES_BASE_URL 未設定)"
+        pages_archive_url = "(env: YTM_PAGES_BASE_URL 未設定)"
+
     agent_display = agent if agent != "-" else "LLM_AGENT_NAME未設定"
+    ev_label = {
+        "CLAIM": "着手",
+        "COMPLETE": "完了",
+        "FAIL": "失敗",
+        "ERROR": "失敗",
+    }.get(ev, ev)
+    meaning = "-"
+    if ev == "CLAIM":
+        meaning = "このtaskを担当として確保（pendingは残る）"
+    if ev == "COMPLETE":
+        meaning = "results.json を保存（pending は completed へ移動）"
+
     headline = [
-        "何が終わった？" if ev == "COMPLETE" else "何が起きた？",
+        f"{ev_label}（agent_task）",
         f"- task: {task}" + (f"（{human}）" if human and human != task else ""),
-        f"- task_id: {task_id}",
         f"- episode: {episode}" if episode != "-" else "- episode: -",
         f"- agent: {agent_display}",
+        f"- meaning: {meaning}",
+        f"- task_id: {task_id}",
     ]
     next_line = "元コマンドを再実行（resultsを拾って続行）"
     if ev == "CLAIM":
@@ -1151,6 +1250,9 @@ def _build_text_from_agent_task_event(event: Dict[str, Any]) -> str:
             "- 再実行コマンド: 下の「再実行コマンド」をコピー" if invocation != "-" else "- 再実行コマンド: -",
             "",
             "参照（困ったらここを見る）",
+            f"- Pages共有URL（/ep）: {pages_ep_url}" if pages_ep_url else "- Pages共有URL（/ep）: -",
+            f"- Pages Script Viewer: {pages_viewer_url}" if pages_viewer_url else "- Pages Script Viewer: -",
+            f"- Pages 書庫（Releases）: {pages_archive_url}" if pages_archive_url else "- Pages 書庫（Releases）: -",
             f"- runbook: `{runbook_path}`（手順/前提）" if runbook_path != "-" else "- runbook: -",
             f"- result: `{rel(result_abs) if result_abs else result_path}`（AIの出力/正本）",
             f"- pending: `{pending_display}`（AIへの入力/未完了ならここ）",

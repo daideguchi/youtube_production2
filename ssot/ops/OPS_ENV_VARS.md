@@ -25,6 +25,9 @@
   - `SLACK_BOT_TOKEN` と `SLACK_CHANNEL` を設定する（git管理しない）。
   - `YTM_SLACK_THREAD_TS`（省略可）を設定すると、通知は **チャンネル直投げではなくスレ返信**に寄せられる（スパム低減）。
     - 注意: thread返信は Bot方式のみ（Webhookでは不可）
+  - Pagesリンク（省略可）:
+    - 既定: `scripts/ops/slack_notify.py` が repo の `git remote origin` から Pages の base URL を推測して通知へ入れる
+    - 上書き: `YTM_PAGES_BASE_URL`（例: `https://OWNER.github.io/REPO/`）
 
 通知対象（省略可）:
 - `YTM_SLACK_NOTIFY_CMDS`（default: `script,audio,video,thumbnails,publish,resume,reconcile`）
@@ -40,10 +43,12 @@
 ````text
 [agent_task] COMPLETE task=tts_reading episode=CH27-001
 
-何が終わった？
+完了（agent_task）
 - task: tts_reading（TTS読み監査（VOICEVOXの読みOK/NG判定））
 - episode: CH27-001
 - agent: dd-tts-01
+- meaning: results.json を保存（pending は completed へ移動）
+- task_id: tts_reading__<hash>
 
 サマリ
 - summary: ok=4 ng=0 skip=0
@@ -53,6 +58,9 @@
 - 再実行コマンド: 下の「再実行コマンド」をコピー
 
 参照（困ったらここを見る）
+- Pages共有URL（/ep）: https://OWNER.github.io/REPO/ep/CH27/001/
+- Pages Script Viewer: https://OWNER.github.io/REPO/?id=CH27-001
+- Pages 書庫（Releases）: https://OWNER.github.io/REPO/archive/?q=CH27-001
 - runbook: `ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md`
 - result: `workspaces/logs/agent_tasks/results/tts_reading__<hash>.json`
 - pending: `workspaces/logs/agent_tasks/pending/tts_reading__<hash>.json (moved to completed)`

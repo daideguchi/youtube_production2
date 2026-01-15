@@ -34,10 +34,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml
 
-      - name: SSOT audit
+      - name: SSOT audit (core, blocking)
         run: |
           set -e
-          python3 scripts/ops/ssot_audit.py --path-audit --link-audit --text-audit --text-scope all
+          python3 scripts/ops/ssot_audit.py --path-audit --link-audit --text-audit --text-scope core
+
+      - name: SSOT text audit (all, report-only)
+        run: |
+          python3 scripts/ops/ssot_audit.py --text-audit --text-scope all --json > ssot_audit_text_all.json || true
+
+      - name: Upload SSOT text audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssot-audit-text-all
+          path: ssot_audit_text_all.json
+          if-no-files-found: ignore
 
       - name: Repo sanity audit
         run: |

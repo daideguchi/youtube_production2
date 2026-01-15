@@ -260,16 +260,18 @@ python -m scripts.cleanup_workspace --all --run --yes
 
 投稿済み（Planning SoT: `進捗=投稿済み`）を根拠に、容量対策として削除、または復元用途でアーカイブを横断実行する入口を用意する。
 
-- 入口（容量対策 / delete; 音声 + CapCut run_dir）:
+- 入口（容量対策 / delete; 音声 + video runs + CapCut drafts）:
   - dry-run:
-    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --audio --video-runs --delete --dry-run`
+    - `./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --dry-run`
   - 実行:
-    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --audio --video-runs --delete --run --yes`
+    - `./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --run --yes`
 - 入口（退避 / archive）:
   - dry-run:
-    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --dry-run`
+    - `./ops archive published --channel CHxx --audio --thumbnails --video-input --video-runs --capcut-drafts --dry-run`
   - 実行:
-    - `./scripts/with_ytm_env.sh python3 scripts/ops/archive_published_episodes.py --channel CHxx --run --yes`
+    - `./ops archive published --channel CHxx --audio --thumbnails --video-input --video-runs --capcut-drafts --run --yes`
+- 補助（画像の再利用/書庫化）:
+  - `./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --run`
 - 判定: `workspaces/planning/channels/CHxx.csv` の `進捗=投稿済み`
 - 退避先（archive の場合 / ドメイン別）:
   - audio: `workspaces/audio/_archive_audio/<timestamp>/`
