@@ -16,20 +16,23 @@ export function ChannelWorkspacePage() {
     handleFocusNeedsAttention,
   } = useOutletContext<ShellOutletContext>();
 
+  const combinedLoading = channelsLoading || dashboardLoading;
+  const combinedError = channelsError || dashboardError;
+
   return (
     <>
-      {channelsLoading || channelsError || dashboardError ? (
+      {combinedLoading || combinedError ? (
         <div className="main-status">
           {channelsLoading ? <span className="status-chip">チャンネル読み込み中…</span> : null}
-          {channelsError ? <span className="status-chip status-chip--danger">{channelsError}</span> : null}
-          {dashboardError ? <span className="status-chip status-chip--danger">{dashboardError}</span> : null}
+          {dashboardLoading ? <span className="status-chip">ダッシュボード読み込み中…</span> : null}
+          {combinedError ? <span className="status-chip status-chip--danger">{combinedError}</span> : null}
         </div>
       ) : null}
       <section className="main-content main-content--dashboard">
         <DashboardOverviewPanel
           overview={dashboardOverview}
-          loading={dashboardLoading}
-          error={dashboardError}
+          loading={combinedLoading}
+          error={combinedError}
           channels={channels}
           onSelectChannel={navigateToChannel}
           selectedChannel={selectedChannel}
