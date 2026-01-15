@@ -6,6 +6,7 @@ from typing import Dict
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app import episode_store, normalize as normalize_mod
 from backend import main
 from backend.main import app
 from backend.routers import tts_text
@@ -22,6 +23,10 @@ def tts_plain_env(tmp_path, monkeypatch) -> Dict[str, object]:
 
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
+
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "CHANNEL_PLANNING_DIR", planning_channels_dir)
 
     final_root = tmp_path / "workspaces" / "audio_artifacts" / "final"
 
@@ -86,4 +91,3 @@ def test_tts_plain_404_when_missing(tts_plain_env):
     resp = client.get("/api/channels/CH01/videos/1/tts/plain")
     assert resp.status_code == 404
     assert resp.json()["detail"] == "TTS input text not found (script_sanitized.txt / a_text.txt)"
-
