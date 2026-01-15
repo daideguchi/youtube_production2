@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from backend.app.datetime_utils import current_timestamp
 from backend.app.episode_store import load_status
 from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.status_store import save_status
 from backend.app.thumbnails_models import ThumbnailOverrideRequest, ThumbnailOverrideResponse
 
 router = APIRouter(prefix="/api", tags=["thumbnails"])
@@ -12,8 +13,6 @@ router = APIRouter(prefix="/api", tags=["thumbnails"])
 
 @router.patch("/channels/{channel}/videos/{video}/thumbnail", response_model=ThumbnailOverrideResponse)
 def update_video_thumbnail_override(channel: str, video: str, payload: ThumbnailOverrideRequest):
-    from backend.main import save_status
-
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     status = load_status(channel_code, video_number)

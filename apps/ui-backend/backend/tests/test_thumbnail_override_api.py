@@ -6,6 +6,7 @@ from typing import Dict
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app import episode_store, normalize as normalize_mod, status_store
 from backend import main
 from backend.main import app
 
@@ -39,6 +40,12 @@ def thumbnail_override_env(tmp_path, monkeypatch) -> Dict[str, object]:
     monkeypatch.setattr(main, "DATA_ROOT", scripts_root)
     monkeypatch.setattr(main, "CHANNEL_PLANNING_DIR", planning_channels_dir)
 
+    monkeypatch.setattr(episode_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(normalize_mod, "CHANNEL_PLANNING_DIR", planning_channels_dir)
+    monkeypatch.setattr(status_store, "DATA_ROOT", scripts_root)
+    monkeypatch.setattr(status_store, "PROGRESS_STATUS_PATH", scripts_root / "_progress" / "processing_status.json")
+
     with TestClient(app) as client:
         yield {"client": client, "status_path": status_path}
 
@@ -63,4 +70,3 @@ def test_thumbnail_override_updates_status_metadata(thumbnail_override_env):
     assert meta["thumbnail_url_override"] == "https://example.com/thumb.png"
     assert meta["thumbnail_path_override"] == "CH01/001/00_thumb.png"
     assert saved["updated_at"] == payload["updated_at"]
-
