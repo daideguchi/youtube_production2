@@ -175,7 +175,7 @@
 | 4u | LLM settings handlers（`get_llm_settings`, `update_llm_settings`, `_build_llm_settings_response`）を `app/llm_settings_handlers.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4v | Image model routing handlers（`_load_image_models_index_simple`, `_load_image_model_slots_config`, `_resolve_image_model_slot_selector`, `get_image_model_routing`, `patch_image_model_routing`）を `app/image_model_routing_handlers.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4w | Video/planning list helpers（`list_video_dirs`, `list_planning_video_numbers`）を `app/channel_catalog.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-15） |
-| 4x | Dashboard router の import（STAGE_ORDER/ステータスpayload/channel catalog/episode store 等）を `backend/app` へ寄せ、`backend.main` 依存を最小化（挙動互換; `_derive_effective_stages` は当面残す） | dd | - | Draft |
+| 4x | Dashboard router の import（STAGE_ORDER/ステータスpayload/channel catalog/episode store 等）を `backend/app` へ寄せ、`backend.main` 依存を最小化（挙動互換; `_derive_effective_stages` は当面残す） | dd | - | Done（2026-01-15） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
