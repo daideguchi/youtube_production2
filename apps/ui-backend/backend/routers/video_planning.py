@@ -6,13 +6,11 @@ from backend.app.datetime_utils import current_timestamp
 from backend.app.normalize import normalize_channel_code, normalize_optional_text, normalize_video_number
 from backend.app.episode_store import load_status
 from backend.app.planning_models import PlanningUpdateRequest, PlanningUpdateResponse
+from backend.app.planning_payload import build_planning_payload
+from backend.app.ssot_sync_guard import run_ssot_sync_for_channel
 from backend.app.status_models import ensure_expected_updated_at
-from backend.main import (
-    build_planning_payload,
-    get_planning_section,
-    run_ssot_sync_for_channel,
-    save_status,
-)
+from backend.app.status_store import save_status
+from backend.tools.optional_fields_registry import get_planning_section
 
 router = APIRouter(prefix="/api", tags=["planning"])
 
