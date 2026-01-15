@@ -6,22 +6,26 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.audio_review_models import AudioReviewItemResponse
-from backend.app.episode_store import get_audio_duration_seconds
-from backend.app.normalize import normalize_channel_code, normalize_video_number
-from backend.main import (
+from backend.app.channel_catalog import list_channel_dirs, list_video_dirs
+from backend.app.channel_info_store import refresh_channel_info
+from backend.app.episode_store import (
     DATA_ROOT,
-    list_channel_dirs,
-    list_video_dirs,
+    get_audio_duration_seconds,
     load_status,
-    refresh_channel_info,
     resolve_audio_path,
     resolve_log_path,
     resolve_srt_path,
-    summarize_log,
     video_base_dir,
 )
+from backend.app.normalize import normalize_channel_code, normalize_video_number
 
 router = APIRouter(prefix="/api/workspaces/audio-review", tags=["audio-review"])
+
+
+def summarize_log(*args: Any, **kwargs: Any):
+    from backend.main import summarize_log as impl
+
+    return impl(*args, **kwargs)
 
 
 def _count_manual_pauses(history: Any) -> int:
