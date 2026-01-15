@@ -20,7 +20,7 @@ from backend.app.thumbnails_templates_store import (
     _load_thumbnail_templates_document,
     _write_thumbnail_templates_document,
 )
-from backend.main import PROJECT_ROOT
+from backend.app.path_utils import PROJECT_ROOT
 
 router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
 
