@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import difflib
+import logging
 from typing import Any, Dict, List, Optional, Sequence
 
 from fastapi import APIRouter, HTTPException
@@ -8,6 +9,7 @@ from fastapi import APIRouter, HTTPException
 from backend.app.datetime_utils import current_timestamp
 from backend.app.episode_store import load_status, resolve_text_file, video_base_dir
 from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.path_utils import PROJECT_ROOT
 from backend.app.tts_models import (
     TTSValidateRequest,
     TTSValidateResponse,
@@ -15,21 +17,34 @@ from backend.app.tts_models import (
     TtsReplaceResponse,
     TtsUpdateRequest,
 )
+from backend.app.tts_content_analyzer import analyze_tts_content
 from backend.app.status_models import ensure_expected_updated_at
-from backend.main import (
-    AudioManager,
-    PROJECT_ROOT,
-    _compose_tagged_tts,
-    _parse_tagged_tts,
-    _persist_tts_variants,
-    analyze_tts_content,
-    append_audio_history_entry,
-    logger,
-    replace_text,
-    save_status,
-)
+from backend.app.status_store import save_status
+from backend.app.tts_tagged_text import _compose_tagged_tts, _parse_tagged_tts
+from backend.core.tools.audio_manager import AudioManager
 
 router = APIRouter(prefix="/api", tags=["tts"])
+
+logger = logging.getLogger(__name__)
+
+
+# Late-binding helpers defined in backend.main (avoid module-level import/circular deps).
+def replace_text(*args: Any, **kwargs: Any):
+    from backend.main import replace_text as impl
+
+    return impl(*args, **kwargs)
+
+
+def _persist_tts_variants(*args: Any, **kwargs: Any):
+    from backend.main import _persist_tts_variants as impl
+
+    return impl(*args, **kwargs)
+
+
+def append_audio_history_entry(*args: Any, **kwargs: Any):
+    from backend.main import append_audio_history_entry as impl
+
+    return impl(*args, **kwargs)
 
 
 @router.post("/channels/{channel}/videos/{video}/tts/replace", response_model=TtsReplaceResponse)
