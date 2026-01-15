@@ -11,6 +11,7 @@ from backend.app.episode_store import load_status_optional, resolve_audio_path, 
 from backend.app.stage_status_utils import _stage_status_value
 from backend.app.status_models import STAGE_ORDER, VALID_STAGE_STATUSES
 from backend.app.status_store import default_status_payload
+from backend.app.video_effective_status import _derive_effective_stages
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -111,8 +112,6 @@ def dashboard_overview(
     overview_channels: List[DashboardChannelSummary] = []
     stage_matrix: Dict[str, Dict[str, Dict[str, int]]] = {}
     alerts: List[DashboardAlert] = []
-
-    from backend.main import _derive_effective_stages
 
     for channel_code in list_known_channel_codes():
         if channel_filter and channel_code not in channel_filter:

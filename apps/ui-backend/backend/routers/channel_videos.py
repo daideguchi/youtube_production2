@@ -53,13 +53,13 @@ def _collect_disk_thumbnail_variants(*args: Any, **kwargs: Any):
 
 
 def _derive_effective_stages(*args: Any, **kwargs: Any):
-    from backend.main import _derive_effective_stages as impl
+    from backend.app.video_effective_status import _derive_effective_stages as impl
 
     return impl(*args, **kwargs)
 
 
 def _derive_effective_video_status(*args: Any, **kwargs: Any):
-    from backend.main import _derive_effective_video_status as impl
+    from backend.app.video_effective_status import _derive_effective_video_status as impl
 
     return impl(*args, **kwargs)
 
