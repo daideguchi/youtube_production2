@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-12T12:08:24.753023Z",
+  "generated_at": "2026-01-15T04:05:19.435364Z",
   "generated_by": "scripts/ops/pages_script_viewer_index.py",
   "source": "Planning CSV (workspaces/planning/channels/*.csv) + git-tracked workspaces/scripts/**/(content/assembled_human.md|content/assembled.md|assembled.md)",
   "count": 1505,
@@ -9365,7 +9365,7 @@
       "video_id": "CH07-001",
       "title": "【逆転の一言】見下された時に使えるブッダの知恵",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "見下された時に使えるブッダの知恵で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・見下された時に使えるブッダの知恵で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "逆転の一言",
@@ -9381,7 +9381,7 @@
       "video_id": "CH07-002",
       "title": "【人生が変わる】悪口・批判・否定を気にしない方法",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "悪口・批判・否定を気にしない方法で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・悪口・批判・否定を気にしない方法で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "人生が変わる",
@@ -9397,7 +9397,7 @@
       "video_id": "CH07-003",
       "title": "心が汚い人が必ず発する7つの言葉",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "心が汚い人が必ず発する7つの言葉で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・心が汚い人が必ず発する7つの言葉で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩"
       },
@@ -9409,7 +9409,7 @@
       "video_id": "CH07-004",
       "title": "心配ばかりしてしまうあなたへ｜心が軽くなる仏教の教え",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "心配ばかりしてしまうあなたへ｜心が軽くなる仏教の教えで迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・心配ばかりしてしまうあなたへ｜心が軽くなる仏教の教えで苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩"
       },
@@ -9421,7 +9421,7 @@
       "video_id": "CH07-005",
       "title": "「どうでもいい」と思うと心が軽くなる理由",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "「どうでもいい」と思うと心が軽くなる理由で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・「どうでもいい」と思うと心が軽くなる理由で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩"
       },
@@ -9433,7 +9433,7 @@
       "video_id": "CH07-006",
       "title": "【もう苦しまなくていい】許さなくていい生き方",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "許さなくていい生き方で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・許さなくていい生き方で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "もう苦しまなくていい",
@@ -9449,7 +9449,7 @@
       "video_id": "CH07-007",
       "title": "優しい人の口癖とその深い意味",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "優しい人の口癖とその深い意味で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・優しい人の口癖とその深い意味で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩"
       },
@@ -9461,7 +9461,7 @@
       "video_id": "CH07-008",
       "title": "誠実な人が無意識に使う魔法の言葉",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "誠実な人が無意識に使う魔法の言葉で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・誠実な人が無意識に使う魔法の言葉で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩"
       },
@@ -9473,7 +9473,7 @@
       "video_id": "CH07-009",
       "title": "【因果応報】あなたを苦しめた人が迎える結末",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "あなたを苦しめた人が迎える結末で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・あなたを苦しめた人が迎える結末で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "因果応報",
@@ -9489,7 +9489,7 @@
       "video_id": "CH07-010",
       "title": "【絶対に助けてはいけない人】関わった瞬間に不幸になる相手",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "関わった瞬間に不幸になる相手で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・関わった瞬間に不幸になる相手で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "絶対に助けてはいけない人",
@@ -9505,7 +9505,7 @@
       "video_id": "CH07-011",
       "title": "【もう舐められない】見下されたときの最強の一言",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "見下されたときの最強の一言で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・見下されたときの最強の一言で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "もう舐められない",
@@ -9521,7 +9521,7 @@
       "video_id": "CH07-012",
       "title": "【正論よりも大切なもの】常識が人を傷つける理由",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "常識が人を傷つける理由で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・常識が人を傷つける理由で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "正論よりも大切なもの",
@@ -9537,7 +9537,7 @@
       "video_id": "CH07-013",
       "title": "【感謝すべき敵】腹が立つ人への仏教的対処法",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "腹が立つ人への仏教的対処法で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・腹が立つ人への仏教的対処法で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "感謝すべき敵",
@@ -9553,7 +9553,7 @@
       "video_id": "CH07-014",
       "title": "【警告】こんな子供は親を不幸にする…今すぐ縁を切れ",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "こんな子供は親を不幸にする…今すぐ縁を切れで迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・こんな子供は親を不幸にする…今すぐ縁を切れで苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "警告",
@@ -9569,7 +9569,7 @@
       "video_id": "CH07-015",
       "title": "辛いときに口にすると心が軽くなる仏の言葉",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "辛いときに口にすると心が軽くなる仏の言葉で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・辛いときに口にすると心が軽くなる仏の言葉で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩"
       },
@@ -9581,7 +9581,7 @@
       "video_id": "CH07-016",
       "title": "【偶然じゃない】嫌いな人との出会いに意味がある",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "嫌いな人との出会いに意味があるで迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・嫌いな人との出会いに意味があるで苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "偶然じゃない",
@@ -9597,7 +9597,7 @@
       "video_id": "CH07-017",
       "title": "【言い返すな】上から目線の人への返し方",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "上から目線の人への返し方で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・上から目線の人への返し方で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "言い返すな",
@@ -9613,7 +9613,7 @@
       "video_id": "CH07-018",
       "title": "【話しすぎ注意】言葉が多いと不幸になる",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "言葉が多いと不幸になるで迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・言葉が多いと不幸になるで苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "話しすぎ注意",
@@ -9629,7 +9629,7 @@
       "video_id": "CH07-019",
       "title": "【手放すな】運命の縁を教えてくれる言葉",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "運命の縁を教えてくれる言葉で苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。",
         "description_body": "・【手放すな】運命の縁を教えてくれる言葉で起きる苦しさの正体\\n・心を守る考え方と、今日からできる一歩",
         "main_tag": "人間関係",
@@ -9647,7 +9647,7 @@
       "video_id": "CH07-020",
       "title": "【老後の備え】子供に絶対に渡してはいけない5つのもの",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "子供に絶対に渡してはいけない5つのもので苦しくなる夜に。ブッダの視点で、心を守る考え方と一歩を整理します。",
         "description_body": "・【老後の備え】子供に絶対に渡してはいけない5つのもので起きる苦しさの正体\\n・心を守る考え方と、今日からできる一歩",
         "main_tag": "老後不安",
@@ -11749,7 +11749,7 @@
       "video_id": "CH10-017",
       "title": "【ニコラ・テスラ流】心臓が止まっても君が消えない理由",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "心臓が止まっても君が消えない理由で迷うときに。考え方と、今日からできる一歩を整理します。",
         "description_body": "・心臓が止まっても君が消えない理由で苦しくなる理由\\n・心を守る考え方\\n・今日からできる一歩",
         "main_tag": "ニコラ・テスラ流",
@@ -17625,7 +17625,7 @@
       "video_id": "CH22-023",
       "title": "最後に残った、たった一人の友｜孤独がほどける夜話",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "孤独",
@@ -17643,7 +17643,7 @@
       "video_id": "CH22-024",
       "title": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "虚しさ",
@@ -17661,7 +17661,7 @@
       "video_id": "CH22-025",
       "title": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "不信",
@@ -17679,7 +17679,7 @@
       "video_id": "CH22-026",
       "title": "同窓会で感じた格差｜『昔のまま』は残酷だった",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "虚しさ",
@@ -17697,7 +17697,7 @@
       "video_id": "CH22-027",
       "title": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "疲れ",
@@ -17715,7 +17715,7 @@
       "video_id": "CH22-028",
       "title": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "不安",
@@ -17733,7 +17733,7 @@
       "video_id": "CH22-029",
       "title": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "恐れ",
@@ -17751,7 +17751,7 @@
       "video_id": "CH22-030",
       "title": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
         "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "孤独",
@@ -18543,7 +18543,7 @@
       "video_id": "CH24-014",
       "title": "都合のいい人を急に辞めてはいけない（順序がある）【弘法大師の教え】",
       "planning": {
-        "status": "投稿済み",
+        "status": "topic_research: pending",
         "description_lead": "弘法大師（空海）の教えで、心を静かに整える時間。",
         "description_body": "・悩みの見方が1つ変わる\n・今夜できる一手がわかる\n\n#推奨タグ\n都合のいい人,距離感,脱却",
         "main_tag": "都合のいい人",
@@ -18561,7 +18561,7 @@
       "video_id": "CH24-015",
       "title": "サビついた心に必要なもの【弘法大師の教え】",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "弘法大師（空海）の教えで、心を静かに整える時間。",
         "description_body": "・悩みの見方が1つ変わる\n・今夜できる一手がわかる\n\n#推奨タグ\n家族,雑,尊重",
         "main_tag": "家族",
@@ -18579,7 +18579,7 @@
       "video_id": "CH24-016",
       "title": "しがみついてはいけない人間関係【弘法大師の教え】",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "弘法大師（空海）の教えで、心を静かに整える時間。",
         "description_body": "・悩みの見方が1つ変わる\n・今夜できる一手がわかる\n\n#推奨タグ\n境界線,自己肯定感,人間関係",
         "main_tag": "境界線",
@@ -18597,7 +18597,7 @@
       "video_id": "CH24-017",
       "title": "線引きできない人は話を聞かれない（軽く見られる）【弘法大師の教え】",
       "planning": {
-        "status": "topic_research: pending",
+        "status": "投稿済み",
         "description_lead": "弘法大師（空海）の教えで、心を静かに整える時間。",
         "description_body": "・悩みの見方が1つ変わる\n・今夜できる一手がわかる\n\n#推奨タグ\n境界線,信頼,舐められる",
         "main_tag": "境界線",
@@ -20456,16 +20456,16 @@
       "channel": "CH28",
       "video": "001",
       "video_id": "CH28-001",
-      "title": "誰にも呼ばれない冬…公園の一言で救われた",
+      "title": "私だけ誘われないランチ会｜60代の友情が静かに崩壊した日",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "苦しさ",
-        "sub_tag": "居場所",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "孤独",
+        "sub_tag": "疎外感",
         "tags": [
-          "苦しさ",
-          "居場所"
+          "孤独",
+          "疎外感"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/001/content/assembled.md"
@@ -20474,16 +20474,16 @@
       "channel": "CH28",
       "video": "002",
       "video_id": "CH28-002",
-      "title": "夫を見送った夜…“空の食卓”が私を壊しそうだった",
+      "title": "挨拶が返らない隣人｜近所付き合いが地獄になる瞬間",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "恐れ",
-        "sub_tag": "孤立",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "不安",
+        "sub_tag": "居場所がない",
         "tags": [
-          "恐れ",
-          "孤立"
+          "不安",
+          "居場所がない"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/002/content/assembled.md"
@@ -20492,16 +20492,16 @@
       "channel": "CH28",
       "video": "003",
       "video_id": "CH28-003",
-      "title": "朝の電話が鳴らない…それでも私は生きていく",
+      "title": "趣味サークルのボスに逆らった末路｜居場所を失った夜",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "不安",
-        "sub_tag": "夜",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "疎外感",
+        "sub_tag": "仲間外れ",
         "tags": [
-          "不安",
-          "夜"
+          "疎外感",
+          "仲間外れ"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/003/content/assembled.md"
@@ -20510,16 +20510,16 @@
       "channel": "CH28",
       "video": "004",
       "video_id": "CH28-004",
-      "title": "スーパーで倒れそうになった日…助けてくれたのは“知らない人”",
+      "title": "LINEグループで私だけ既読が付かない｜静かな仲間外れの現実",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "虚しさ",
-        "sub_tag": "ため息",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "不安",
+        "sub_tag": "反すう",
         "tags": [
-          "虚しさ",
-          "ため息"
+          "不安",
+          "反すう"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/004/content/assembled.md"
@@ -20528,16 +20528,16 @@
       "channel": "CH28",
       "video": "005",
       "video_id": "CH28-005",
-      "title": "「迷惑かけたくない」…その気持ちが孤独を作っていた",
+      "title": "送迎係を断ったら絶縁｜都合のいい人で終わった話",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "孤独",
-        "sub_tag": "空虚",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "疲れ",
+        "sub_tag": "都合のいい人",
         "tags": [
-          "孤独",
-          "空虚"
+          "疲れ",
+          "都合のいい人"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/005/content/assembled.md"
@@ -20546,16 +20546,16 @@
       "channel": "CH28",
       "video": "006",
       "video_id": "CH28-006",
-      "title": "一人の誕生日…ケーキより温かかった“言葉”",
+      "title": "祝い金の金額で揉めた｜50年の友情が決裂した夜",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "苦しさ",
-        "sub_tag": "居場所",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "後悔",
+        "sub_tag": "お金の溝",
         "tags": [
-          "苦しさ",
-          "居場所"
+          "後悔",
+          "お金の溝"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/006/content/assembled.md"
@@ -20564,16 +20564,16 @@
       "channel": "CH28",
       "video": "007",
       "video_id": "CH28-007",
-      "title": "喪服をしまった日…“終わり”じゃなく“始まり”だった",
+      "title": "健康自慢の一言で心が折れた｜優しさが消える瞬間",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "恐れ",
-        "sub_tag": "孤立",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "虚しさ",
+        "sub_tag": "比較",
         "tags": [
-          "恐れ",
-          "孤立"
+          "虚しさ",
+          "比較"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/007/content/assembled.md"
@@ -20582,16 +20582,16 @@
       "channel": "CH28",
       "video": "008",
       "video_id": "CH28-008",
-      "title": "家にいるほど苦しい…外に出たら見えた世界",
+      "title": "友人宅に私の席がない｜『友達』じゃなかった現実",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "不安",
-        "sub_tag": "夜",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "孤独",
+        "sub_tag": "居場所",
         "tags": [
-          "不安",
-          "夜"
+          "孤独",
+          "居場所"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/008/content/assembled.md"
@@ -20600,16 +20600,16 @@
       "channel": "CH28",
       "video": "009",
       "video_id": "CH28-009",
-      "title": "「私は必要ない」…思い込みを壊した一冊の本",
+      "title": "贈り物の格差が見えた日｜静かに始まるマウント地獄",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "虚しさ",
-        "sub_tag": "ため息",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "嫉妬",
+        "sub_tag": "劣等感",
         "tags": [
-          "虚しさ",
-          "ため息"
+          "嫉妬",
+          "劣等感"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/009/content/assembled.md"
@@ -20618,16 +20618,16 @@
       "channel": "CH28",
       "video": "010",
       "video_id": "CH28-010",
-      "title": "涙が出ない夜…“泣けない自分”を許した",
+      "title": "いつもの席が突然なくなった｜カフェ仲間の冷たい現実",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "孤独",
-        "sub_tag": "空虚",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "疎外感",
+        "sub_tag": "仲間",
         "tags": [
-          "孤独",
-          "空虚"
+          "疎外感",
+          "仲間"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/010/content/assembled.md"
@@ -20636,16 +20636,16 @@
       "channel": "CH28",
       "video": "011",
       "video_id": "CH28-011",
-      "title": "誰にも言えない不安…“聞くだけ”の人に出会った",
+      "title": "孫の話ばかりで息が詰まる｜比べる会の地獄",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "苦しさ",
-        "sub_tag": "居場所",
+        "sub_tag": "比較",
         "tags": [
           "苦しさ",
-          "居場所"
+          "比較"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/011/content/assembled.md"
@@ -20654,16 +20654,16 @@
       "channel": "CH28",
       "video": "012",
       "video_id": "CH28-012",
-      "title": "孤独が怖い…だから“予定”を一つだけ作った",
+      "title": "友人の夫から一本の電話｜噂が広がる夜",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "恐れ",
-        "sub_tag": "孤立",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "不安",
+        "sub_tag": "噂",
         "tags": [
-          "恐れ",
-          "孤立"
+          "不安",
+          "噂"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/012/content/assembled.md"
@@ -20672,16 +20672,16 @@
       "channel": "CH28",
       "video": "013",
       "video_id": "CH28-013",
-      "title": "鏡の中の自分が嫌いだった…でも今日だけは違った",
+      "title": "貸したお金が戻らない｜友情が終わる一線",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "不安",
-        "sub_tag": "夜",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "不信",
+        "sub_tag": "お金",
         "tags": [
-          "不安",
-          "夜"
+          "不信",
+          "お金"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/013/content/assembled.md"
@@ -20690,16 +20690,16 @@
       "channel": "CH28",
       "video": "014",
       "video_id": "CH28-014",
-      "title": "町の噂が怖い…それでも“居場所”は作れる",
+      "title": "町内会の集金で突然敵に｜正しいのに孤立する現実",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "虚しさ",
-        "sub_tag": "ため息",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "孤立",
+        "sub_tag": "噂",
         "tags": [
-          "虚しさ",
-          "ため息"
+          "孤立",
+          "噂"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/014/content/assembled.md"
@@ -20708,16 +20708,16 @@
       "channel": "CH28",
       "video": "015",
       "video_id": "CH28-015",
-      "title": "「友達がいない」…その言葉を言えた日から楽になった",
+      "title": "冗談のつもりが一言で崩壊｜友人関係の末路",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "孤独",
-        "sub_tag": "空虚",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "後悔",
+        "sub_tag": "言葉",
         "tags": [
-          "孤独",
-          "空虚"
+          "後悔",
+          "言葉"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/015/content/assembled.md"
@@ -20726,16 +20726,16 @@
       "channel": "CH28",
       "video": "016",
       "video_id": "CH28-016",
-      "title": "一人で病院へ…受付の一言で泣きそうになった",
+      "title": "お悔やみの席で友情が終わった｜その一言はない",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "苦しさ",
-        "sub_tag": "居場所",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "悲しみ",
+        "sub_tag": "無神経",
         "tags": [
-          "苦しさ",
-          "居場所"
+          "悲しみ",
+          "無神経"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/016/content/assembled.md"
@@ -20744,16 +20744,16 @@
       "channel": "CH28",
       "video": "017",
       "video_id": "CH28-017",
-      "title": "空回りの優しさをやめたら、人が寄ってきた",
+      "title": "録音に入ってた私の悪口｜静かに絶縁した夜",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "恐れ",
-        "sub_tag": "孤立",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "ショック",
+        "sub_tag": "裏切り",
         "tags": [
-          "恐れ",
-          "孤立"
+          "ショック",
+          "裏切り"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/017/content/assembled.md"
@@ -20762,16 +20762,16 @@
       "channel": "CH28",
       "video": "018",
       "video_id": "CH28-018",
-      "title": "夜の静けさが怖い…ラジオじゃなく“声”が欲しかった",
+      "title": "仲直りの食事で謝るのは私だけ｜関係が壊れる合図",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "不安",
-        "sub_tag": "夜",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "疲れ",
+        "sub_tag": "対等でない",
         "tags": [
-          "不安",
-          "夜"
+          "疲れ",
+          "対等でない"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/018/content/assembled.md"
@@ -20780,16 +20780,16 @@
       "channel": "CH28",
       "video": "019",
       "video_id": "CH28-019",
-      "title": "「もう遅い」って言いかけた…その瞬間に来た電話",
+      "title": "旅行の部屋割りで立場が決まった｜余り者の現実",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "虚しさ",
-        "sub_tag": "ため息",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "惨めさ",
+        "sub_tag": "格差",
         "tags": [
-          "虚しさ",
-          "ため息"
+          "惨めさ",
+          "格差"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/019/content/assembled.md"
@@ -20798,16 +20798,16 @@
       "channel": "CH28",
       "video": "020",
       "video_id": "CH28-020",
-      "title": "孤独を隠すのをやめた…私は私でいい",
+      "title": "優しさが怖い友人｜近づくほど奪われる関係",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "孤独",
-        "sub_tag": "空虚",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "不安",
+        "sub_tag": "支配",
         "tags": [
-          "孤独",
-          "空虚"
+          "不安",
+          "支配"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/020/content/assembled.md"
@@ -20816,16 +20816,16 @@
       "channel": "CH28",
       "video": "021",
       "video_id": "CH28-021",
-      "title": "“ひとり飯”が寂しい…でも工夫で変わった",
+      "title": "謝罪の品を突き返された｜もう戻れない夜",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "苦しさ",
-        "sub_tag": "居場所",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "後悔",
+        "sub_tag": "終わり",
         "tags": [
-          "苦しさ",
-          "居場所"
+          "後悔",
+          "終わり"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/021/content/assembled.md"
@@ -20834,16 +20834,16 @@
       "channel": "CH28",
       "video": "022",
       "video_id": "CH28-022",
-      "title": "手紙を書いた…送らない手紙が私を救った",
+      "title": "引っ越し先でできた最初の友｜距離が近すぎる違和感",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "恐れ",
-        "sub_tag": "孤立",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "不安",
+        "sub_tag": "警戒",
         "tags": [
-          "恐れ",
-          "孤立"
+          "不安",
+          "警戒"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/022/content/assembled.md"
@@ -20852,16 +20852,16 @@
       "channel": "CH28",
       "video": "023",
       "video_id": "CH28-023",
-      "title": "“何もできない日”があってもいい",
+      "title": "最後に残った、たった一人の友｜孤独がほどける夜話",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "不安",
-        "sub_tag": "夜",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "孤独",
+        "sub_tag": "寂しさ",
         "tags": [
-          "不安",
-          "夜"
+          "孤独",
+          "寂しさ"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/023/content/assembled.md"
@@ -20870,16 +20870,16 @@
       "channel": "CH28",
       "video": "024",
       "video_id": "CH28-024",
-      "title": "誰にも会わない日…それでも心は回復する",
+      "title": "退職金の自慢で空気が変わった｜友達の顔が見えた日",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "虚しさ",
-        "sub_tag": "ため息",
+        "sub_tag": "格差",
         "tags": [
           "虚しさ",
-          "ため息"
+          "格差"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/024/content/assembled.md"
@@ -20888,16 +20888,16 @@
       "channel": "CH28",
       "video": "025",
       "video_id": "CH28-025",
-      "title": "小さな習慣が“未来”を連れてきた",
+      "title": "急な割り勘変更で揉めた｜小さなお金が友情を壊す",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "孤独",
-        "sub_tag": "空虚",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "不信",
+        "sub_tag": "お金",
         "tags": [
-          "孤独",
-          "空虚"
+          "不信",
+          "お金"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/025/content/assembled.md"
@@ -20906,16 +20906,16 @@
       "channel": "CH28",
       "video": "026",
       "video_id": "CH28-026",
-      "title": "“聞く”だけで世界が変わった…私の口が一つの理由",
+      "title": "同窓会で感じた格差｜『昔のまま』は残酷だった",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "苦しさ",
-        "sub_tag": "居場所",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "虚しさ",
+        "sub_tag": "過去",
         "tags": [
-          "苦しさ",
-          "居場所"
+          "虚しさ",
+          "過去"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/026/content/assembled.md"
@@ -20924,16 +20924,16 @@
       "channel": "CH28",
       "video": "027",
       "video_id": "CH28-027",
-      "title": "一人が怖い…でも“二人分の役割”は捨てていい",
+      "title": "ボランティアで私だけ押し付けられる｜善意が搾取になる夜",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "恐れ",
-        "sub_tag": "孤立",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "疲れ",
+        "sub_tag": "利用される",
         "tags": [
-          "恐れ",
-          "孤立"
+          "疲れ",
+          "利用される"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/027/content/assembled.md"
@@ -20942,16 +20942,16 @@
       "channel": "CH28",
       "video": "028",
       "video_id": "CH28-028",
-      "title": "春になった…私は“新しい名前”で呼ばれた",
+      "title": "ゴミ出しルールで吊し上げ｜近所の噂が止まらない",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "不安",
-        "sub_tag": "夜",
+        "sub_tag": "噂",
         "tags": [
           "不安",
-          "夜"
+          "噂"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/028/content/assembled.md"
@@ -20960,16 +20960,16 @@
       "channel": "CH28",
       "video": "029",
       "video_id": "CH28-029",
-      "title": "孤独は終わらない…でも“孤立”は終わらせられる",
+      "title": "写真を勝手にSNSに載せられた｜老いが晒される恐怖",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
-        "main_tag": "虚しさ",
-        "sub_tag": "ため息",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
+        "main_tag": "恐れ",
+        "sub_tag": "羞恥",
         "tags": [
-          "虚しさ",
-          "ため息"
+          "恐れ",
+          "羞恥"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/029/content/assembled.md"
@@ -20978,16 +20978,16 @@
       "channel": "CH28",
       "video": "030",
       "video_id": "CH28-030",
-      "title": "最後に残ったのは“温かい一杯”だった",
+      "title": "誘われない理由を知った夜｜心がすり減らない距離の作り方",
       "planning": {
         "status": "topic_research: pending",
         "description_lead": "※本チャンネルの物語はフィクションです。",
-        "description_body": "・心が折れそうな夜の整え方<br>・今日できる一歩",
+        "description_body": "・関係を壊さない距離の置き方<br>・今夜できる一手",
         "main_tag": "孤独",
-        "sub_tag": "空虚",
+        "sub_tag": "自己否定",
         "tags": [
           "孤独",
-          "空虚"
+          "自己否定"
         ]
       },
       "assembled_path": "workspaces/scripts/CH28/030/content/assembled.md"
@@ -21008,7 +21008,7 @@
           "嫁姑"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/001/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21026,7 +21026,7 @@
           "当然扱い"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/002/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21044,7 +21044,7 @@
           "支配"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/003/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21062,7 +21062,7 @@
           "比較"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/004/content/assembled_human.md"
     },
     {
       "channel": "CH29",
@@ -21080,7 +21080,7 @@
           "同居"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/005/content/assembled_human.md"
     },
     {
       "channel": "CH29",
@@ -21098,7 +21098,7 @@
           "嫁姑"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/006/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21116,7 +21116,7 @@
           "当然扱い"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/007/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21134,7 +21134,7 @@
           "支配"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/008/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21152,7 +21152,7 @@
           "比較"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/009/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21170,7 +21170,7 @@
           "同居"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/010/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21188,7 +21188,7 @@
           "嫁姑"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/011/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21206,7 +21206,7 @@
           "当然扱い"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/012/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21224,7 +21224,7 @@
           "支配"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/013/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21242,7 +21242,7 @@
           "比較"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/014/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21260,7 +21260,7 @@
           "同居"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/015/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21278,7 +21278,7 @@
           "嫁姑"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/016/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21296,7 +21296,7 @@
           "当然扱い"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/017/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21314,7 +21314,7 @@
           "支配"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/018/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21332,7 +21332,7 @@
           "比較"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/019/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21350,7 +21350,7 @@
           "同居"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH29/020/content/assembled.md"
     },
     {
       "channel": "CH29",
@@ -21548,7 +21548,7 @@
           "詐欺"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH30/001/content/assembled.md"
     },
     {
       "channel": "CH30",
@@ -21566,7 +21566,7 @@
           "保証人"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH30/002/content/assembled.md"
     },
     {
       "channel": "CH30",
@@ -21584,7 +21584,7 @@
           "格差"
         ]
       },
-      "assembled_path": null
+      "assembled_path": "workspaces/scripts/CH30/003/content/assembled.md"
     },
     {
       "channel": "CH30",
