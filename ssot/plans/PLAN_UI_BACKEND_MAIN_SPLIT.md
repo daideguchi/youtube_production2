@@ -198,6 +198,10 @@
 | 4ar | TTS router（`routers/tts.py`）の残り runtime import（`replace_text`, `_persist_tts_variants`）を `app/tts_text_utils.py` へ移設し、router の `backend.main` 依存を解消（挙動互換） | dd | - | Done（2026-01-16） |
 | 4as | Channel videos router（`routers/channel_videos.py`）の `backend.main` runtime import（`_collect_disk_thumbnail_variants`）を `app/thumbnails_disk_variants.py` へ移設し、循環import/404リスクを下げる（挙動互換） | dd | - | Done（2026-01-16） |
 | 4at | Channel videos router（`routers/channel_videos.py`）の残り runtime import（`_summarize_video_detail_artifacts`）を `app/video_detail_artifacts.py` へ移設し、循環import/404リスクを下げる（挙動互換） | dd | - | Done（2026-01-16） |
+| 4au | Channel registry helper（`_build_channel_summary`）を `app/channel_summary_builder.py` に移設し、`routers/channel_registry.py` の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-16） |
+| 4av | Channel branding/metrics（`ensure_channel_branding`, `_ensure_youtube_metrics`）を `app/channel_branding.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-16） |
+| 4aw | Natural command（`interpret_natural_command`）を `app/tts_natural_command.py` に移設し、`routers/channel_videos.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-16） |
+| 4ax | Channel profile response（`_build_channel_profile_response`, channel_info/voice_config load）を `app/channel_profile.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-16） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
