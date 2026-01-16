@@ -8,8 +8,16 @@ from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from backend.app.channel_catalog import CHANNEL_PLANNING_DIR, DATA_ROOT, list_channel_dirs
+from backend.app.channel_catalog import (
+    CHANNEL_PLANNING_DIR,
+    DATA_ROOT,
+    list_channel_dirs,
+    list_known_channel_codes,
+)
 from backend.app.channel_info_store import refresh_channel_info
+from backend.app.channel_branding import ensure_channel_branding, ensure_youtube_metrics
+from backend.app.channel_profile import _build_channel_profile_response
+from backend.app.channel_summary_builder import build_channel_summary
 from backend.app.channels_models import (
     ChannelAuditItemResponse,
     ChannelProfileResponse,
@@ -52,23 +60,19 @@ def _clean_default_tags(values: Optional[List[str]]) -> Optional[List[str]]:
 
 @router.get("", response_model=List[ChannelSummaryResponse])
 def list_channels():
-    from backend.main import YOUTUBE_CLIENT, _build_channel_summary, _ensure_youtube_metrics, list_known_channel_codes
-
     channels: List[ChannelSummaryResponse] = []
     channel_info_map = refresh_channel_info(force=True)
     for code in list_known_channel_codes(channel_info_map):
         info = channel_info_map.get(code, {"channel_id": code})
-        if YOUTUBE_CLIENT is not None:
-            info = _ensure_youtube_metrics(code, info)
-            channel_info_map[code] = info
-        channels.append(_build_channel_summary(code, info))
+        info = ensure_youtube_metrics(code, info)
+        channel_info_map[code] = info
+        channels.append(build_channel_summary(code, info))
     return channels
 
 
 @router.post("/{channel}/branding/refresh", response_model=ChannelSummaryResponse)
 def refresh_channel_branding(channel: str, ignore_backoff: bool = Query(False, description="true で一時停止中でも強制実行")):
     from backend.app.normalize import normalize_channel_code
-    from backend.main import _build_channel_summary, ensure_channel_branding
 
     channel_code = normalize_channel_code(channel)
     channel_info_map = refresh_channel_info()
@@ -83,13 +87,12 @@ def refresh_channel_branding(channel: str, ignore_backoff: bool = Query(False, d
         strict=True,
     )
     refreshed = refresh_channel_info(force=True).get(channel_code, info)
-    return _build_channel_summary(channel_code, refreshed)
+    return build_channel_summary(channel_code, refreshed)
 
 
 @router.get("/{channel}/profile", response_model=ChannelProfileResponse)
 def get_channel_profile(channel: str):
     from backend.app.normalize import normalize_channel_code
-    from backend.main import _build_channel_profile_response
 
     channel_code = normalize_channel_code(channel)
     return _build_channel_profile_response(channel_code)
@@ -156,7 +159,6 @@ def register_channel(payload: ChannelRegisterRequest):
 
     planning_requirements.clear_persona_cache()
     refresh_channel_info(force=True)
-    from backend.main import _build_channel_profile_response
 
     return _build_channel_profile_response(channel_code)
 

@@ -61,7 +61,7 @@ def _derive_effective_video_status(*args: Any, **kwargs: Any):
 
 
 def interpret_natural_command(*args: Any, **kwargs: Any):
-    from backend.main import interpret_natural_command as impl
+    from backend.app.tts_natural_command import interpret_natural_command as impl
 
     return impl(*args, **kwargs)
 
