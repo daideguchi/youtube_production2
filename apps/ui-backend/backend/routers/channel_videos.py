@@ -33,6 +33,7 @@ from backend.app.thumbnails_constants import THUMBNAIL_PROJECT_STATUSES
 from backend.app.thumbnails_disk_variants import _collect_disk_thumbnail_variants
 from backend.app.tts_tagged_text import _compose_tagged_tts
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
+from backend.app.video_detail_artifacts import _summarize_video_detail_artifacts
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
 from backend.app.video_registry_models import VideoCreateRequest, VideoDetailResponse, VideoFileReferences, VideoSummaryResponse
 from backend.app.script_text_utils import _character_count_from_a_text
@@ -55,12 +56,6 @@ def _derive_effective_stages(*args: Any, **kwargs: Any):
 
 def _derive_effective_video_status(*args: Any, **kwargs: Any):
     from backend.app.video_effective_status import _derive_effective_video_status as impl
-
-    return impl(*args, **kwargs)
-
-
-def _summarize_video_detail_artifacts(*args: Any, **kwargs: Any):
-    from backend.main import _summarize_video_detail_artifacts as impl
 
     return impl(*args, **kwargs)
 
