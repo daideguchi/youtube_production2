@@ -254,6 +254,7 @@ from backend.app.thumbnails_constants import (
     THUMBNAIL_REMOTE_FETCH_TIMEOUT,
     THUMBNAIL_SUPPORTED_EXTENSIONS,
 )
+from backend.app.thumbnails_disk_variants import _collect_disk_thumbnail_variants, _coerce_video_from_dir
 from backend.app.thumbnails_projects_store import (
     THUMBNAIL_PROJECTS_LOCK,
     _load_thumbnail_projects_document,
@@ -1077,71 +1078,6 @@ def ensure_channel_branding(
 refresh_channel_info(force=True)
 init_lock_storage()
 CONTENT_PROCESSOR = ContentProcessor(PROJECT_ROOT)
-
-def _coerce_video_from_dir(name: str) -> Optional[str]:
-    if not name:
-        return None
-    match = re.match(r"(\d+)", name.strip())
-    if not match:
-        return None
-    return match.group(1).zfill(3)
-
-
-def _thumbnail_asset_roots(channel_code: str) -> List[Path]:
-    # Canonical root: workspaces/thumbnails/assets/{CH}/
-    # (Do not scan package channel dirs; avoid legacy multi-root ambiguity.)
-    return [THUMBNAIL_ASSETS_DIR / channel_code]
-
-
-def _collect_disk_thumbnail_variants(channel_code: str) -> Dict[str, List[ThumbnailVariantResponse]]:
-    variant_map: Dict[str, List[ThumbnailVariantResponse]] = {}
-    seen_paths: set[str] = set()
-    for root in _thumbnail_asset_roots(channel_code):
-        if not root.exists():
-            continue
-        for video_dir in root.iterdir():
-            if not video_dir.is_dir():
-                continue
-            video_number = _coerce_video_from_dir(video_dir.name)
-            if not video_number:
-                continue
-            for asset_path in sorted(video_dir.rglob("*")):
-                if not asset_path.is_file():
-                    continue
-                suffix = asset_path.suffix.lower()
-                if suffix not in THUMBNAIL_SUPPORTED_EXTENSIONS:
-                    continue
-                try:
-                    rel_asset = asset_path.relative_to(video_dir)
-                except ValueError:
-                    rel_asset = Path(asset_path.name)
-                public_rel = (Path(channel_code) / video_number / rel_asset).as_posix()
-                if public_rel in seen_paths:
-                    continue
-                seen_paths.add(public_rel)
-                label = rel_asset.as_posix()
-                if suffix:
-                    label = label[: -len(suffix)]
-                label = label or asset_path.stem
-                timestamp = datetime.fromtimestamp(asset_path.stat().st_mtime, timezone.utc).isoformat()
-                digest = hashlib.sha1(public_rel.encode("utf-8")).hexdigest()[:12]
-                asset_url = f"/thumbnails/assets/{public_rel}"
-                variant = ThumbnailVariantResponse(
-                    id=f"fs::{digest}",
-                    label=label,
-                    status="draft",
-                    image_url=asset_url,
-                    image_path=public_rel,
-                    preview_url=asset_url,
-                    notes=None,
-                    tags=None,
-                    is_selected=False,
-                    created_at=timestamp,
-                    updated_at=timestamp,
-                )
-                variant_map.setdefault(video_number, []).append(variant)
-    return variant_map
-
 
 def _build_fallback_thumbnail_project(channel_code: str, video_number: str) -> ThumbnailProjectResponse:
     script_id = f"{channel_code}-{video_number}"

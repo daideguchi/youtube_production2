@@ -30,6 +30,7 @@ from backend.app.status_models import ensure_expected_updated_at
 from backend.app.status_store import default_status_payload as _default_status_payload, save_status
 from backend.app.thumbnails_projects_store import THUMBNAIL_PROJECTS_LOCK
 from backend.app.thumbnails_constants import THUMBNAIL_PROJECT_STATUSES
+from backend.app.thumbnails_disk_variants import _collect_disk_thumbnail_variants
 from backend.app.tts_tagged_text import _compose_tagged_tts
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.video_progress_models import ThumbnailProgressResponse, VideoImagesProgressResponse
@@ -46,12 +47,6 @@ router = APIRouter(prefix="/api/channels", tags=["channels"])
 
 
 # Late-binding helpers defined in backend.main (avoid module-level import/circular deps).
-def _collect_disk_thumbnail_variants(*args: Any, **kwargs: Any):
-    from backend.main import _collect_disk_thumbnail_variants as impl
-
-    return impl(*args, **kwargs)
-
-
 def _derive_effective_stages(*args: Any, **kwargs: Any):
     from backend.app.video_effective_status import _derive_effective_stages as impl
 
