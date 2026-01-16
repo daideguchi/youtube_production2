@@ -19,33 +19,14 @@ from backend.app.tts_models import (
 )
 from backend.app.tts_content_analyzer import analyze_tts_content
 from backend.app.status_models import ensure_expected_updated_at
-from backend.app.status_store import save_status
+from backend.app.status_store import append_audio_history_entry, save_status
+from backend.app.tts_text_utils import _persist_tts_variants, replace_text
 from backend.app.tts_tagged_text import _compose_tagged_tts, _parse_tagged_tts
 from backend.core.tools.audio_manager import AudioManager
 
 router = APIRouter(prefix="/api", tags=["tts"])
 
 logger = logging.getLogger(__name__)
-
-
-# Late-binding helpers defined in backend.main (avoid module-level import/circular deps).
-def replace_text(*args: Any, **kwargs: Any):
-    from backend.main import replace_text as impl
-
-    return impl(*args, **kwargs)
-
-
-def _persist_tts_variants(*args: Any, **kwargs: Any):
-    from backend.main import _persist_tts_variants as impl
-
-    return impl(*args, **kwargs)
-
-
-def append_audio_history_entry(*args: Any, **kwargs: Any):
-    from backend.app.status_store import append_audio_history_entry as impl
-
-    return impl(*args, **kwargs)
-
 
 @router.post("/channels/{channel}/videos/{video}/tts/replace", response_model=TtsReplaceResponse)
 def replace_tts_segment(channel: str, video: str, payload: TtsReplaceRequest) -> TtsReplaceResponse:
