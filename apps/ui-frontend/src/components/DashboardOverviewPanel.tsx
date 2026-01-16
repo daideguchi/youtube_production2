@@ -330,6 +330,15 @@ export function DashboardOverviewPanel({
         <span className="dashboard-overview__timestamp">最終更新 {new Date(overview.generated_at).toLocaleString("ja-JP")}</span>
       </header>
 
+      {!channelRows.length ? (
+        <div>
+          <p className="muted">チャンネルが0件です（APIが未起動/到達不可の可能性があります）。</p>
+          <p className="muted small-text">
+            確認: <code>/api/channels</code> と <code>/api/dashboard/overview</code>
+          </p>
+        </div>
+      ) : null}
+
       {channelRows.length ? (
         <section className="dashboard-overview__channel-chips" aria-label="チャンネル選択">
           {channelRows.map((row) => {
