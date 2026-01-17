@@ -17,6 +17,7 @@ from backend.app.channel_catalog import (
 from backend.app.channel_info_store import refresh_channel_info
 from backend.app.channel_branding import ensure_channel_branding, ensure_youtube_metrics
 from backend.app.channel_profile import _build_channel_profile_response
+from backend.app.channel_profile_update import update_channel_profile as update_channel_profile_impl
 from backend.app.channel_summary_builder import build_channel_summary
 from backend.app.channels_models import (
     ChannelAuditItemResponse,
@@ -100,16 +101,7 @@ def get_channel_profile(channel: str):
 
 @router.put("/{channel}/profile", response_model=ChannelProfileResponse)
 def update_channel_profile(channel: str, payload: ChannelProfileUpdateRequest):
-    """
-    Update channel profile.
-
-    Keep implementation in backend.main for now (milestone move: routing only),
-    to avoid widening the diff and risking behavior changes.
-    """
-
-    from backend.main import update_channel_profile as impl
-
-    return impl(channel, payload)
+    return update_channel_profile_impl(channel, payload)
 
 
 @router.post("/register", response_model=ChannelProfileResponse, status_code=201)
