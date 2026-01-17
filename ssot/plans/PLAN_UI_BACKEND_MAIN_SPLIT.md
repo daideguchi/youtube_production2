@@ -202,7 +202,7 @@
 | 4av | Channel branding/metrics（`ensure_channel_branding`, `_ensure_youtube_metrics`）を `app/channel_branding.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-16） |
 | 4aw | Natural command（`interpret_natural_command`）を `app/tts_natural_command.py` に移設し、`routers/channel_videos.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-16） |
 | 4ax | Channel profile response（`_build_channel_profile_response`, channel_info/voice_config load）を `app/channel_profile.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-16） |
-| 4ay | Channel profile update（`update_channel_profile` + prompt/tags/youtube/audio 更新 + edit log）を `app/channel_profile_update.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を解消（挙動互換） | dd | - | Draft |
+| 4ay | Channel profile update（`update_channel_profile` + prompt/tags/youtube/audio 更新 + edit log）を `app/channel_profile_update.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を解消（挙動互換） | dd | - | Done（2026-01-17） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
