@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": "2026-01-12T13:30:01.289188Z",
-  "count": 86,
+  "updated_at": "2026-01-18T09:07:30.544003Z",
+  "count": 89,
   "items": [
     {
       "video_id": "CH01-251",
@@ -17269,6 +17269,408 @@
           "file": "0001.jpg",
           "rel": "media/video_images/CH27/027/0001.jpg",
           "summary": "Static portrait layout (right portrait, left black). No in-image text."
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-028",
+      "channel": "CH27",
+      "video": "028",
+      "run_id": "CH27-028_capcut_v2",
+      "count": 17,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/028/0001.jpg",
+          "summary": "写真にない私"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/028/0002.jpg",
+          "summary": "料理教室のはじまり"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/028/0003.jpg",
+          "summary": "四人の距離が近い頃"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/028/0004.jpg",
+          "summary": "寂しさを埋めた存在"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/028/0005.jpg",
+          "summary": "連絡が減っていく"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/028/0006.jpg",
+          "summary": "三人だけの紅葉写真"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/028/0007.jpg",
+          "summary": "夜中の遡りと孤独"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/028/0008.jpg",
+          "summary": "軽い調子の連絡"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/028/0009.jpg",
+          "summary": "『急に』の違和感"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/028/0010.jpg",
+          "summary": "聞けない理由"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/028/0011.jpg",
+          "summary": "距離は自然に生まれる"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/028/0012.jpg",
+          "summary": "追いかけない選択"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/028/0013.jpg",
+          "summary": "次のランチが怖い"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/028/0014.jpg",
+          "summary": "夜が更ける部屋"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/028/0015.jpg",
+          "summary": "雲の向こうの光"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/028/0016.jpg",
+          "summary": "今夜は眠る"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/028/0017.jpg",
+          "summary": "優しい眠り"
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-029",
+      "channel": "CH27",
+      "video": "029",
+      "run_id": "CH27-029_capcut_v2",
+      "count": 30,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/029/0001.jpg",
+          "summary": "夕暮れの公園ベンチ"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/029/0002.jpg",
+          "summary": "秋の匂いと金木犀"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/029/0003.jpg",
+          "summary": "静けさが居場所になる"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/029/0004.jpg",
+          "summary": "昔のグループの賑わい"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/029/0005.jpg",
+          "summary": "生活の変化と疎遠"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/029/0006.jpg",
+          "summary": "必死な繋ぎ止めと糸"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/029/0007.jpg",
+          "summary": "デパートで見かけた二人"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/029/0008.jpg",
+          "summary": "柱の陰で声を失う"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/029/0009.jpg",
+          "summary": "取り残された背中"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/029/0010.jpg",
+          "summary": "電車の窓と涙の堪え"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/029/0011.jpg",
+          "summary": "図書館での出会い"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/029/0012.jpg",
+          "summary": "落としたしおりが縁"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/029/0013.jpg",
+          "summary": "雨の相合傘で近づく"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/029/0014.jpg",
+          "summary": "誘いと臆病な心"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/029/0015.jpg",
+          "summary": "押し付けない優しさ"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/029/0016.jpg",
+          "summary": "日常の小さな美しさ"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/029/0017.jpg",
+          "summary": "過去を話し、頷かれる"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH27/029/0018.jpg",
+          "summary": "老いを笑い、雲を見る"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH27/029/0019.jpg",
+          "summary": "沈黙が怖くなくなる"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH27/029/0020.jpg",
+          "summary": "失った友を責めない"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH27/029/0021.jpg",
+          "summary": "体力の限界と手放し"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH27/029/0022.jpg",
+          "summary": "受け入れてくれる静かな友"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH27/029/0023.jpg",
+          "summary": "帰り道の一番星"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH27/029/0024.jpg",
+          "summary": "義務感の集まりから解放"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH27/029/0025.jpg",
+          "summary": "会いたいと思える一人"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH27/029/0026.jpg",
+          "summary": "小さな友情を育てる"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH27/029/0027.jpg",
+          "summary": "明日は短い挨拶を一つ"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH27/029/0028.jpg",
+          "summary": "会釈と感謝のひと言"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH27/029/0029.jpg",
+          "summary": "小さな繋がりが心を温める"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH27/029/0030.jpg",
+          "summary": "夕空を思い出し、おやすみ"
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-030",
+      "channel": "CH27",
+      "video": "030",
+      "run_id": "CH27-030_capcut_v2",
+      "count": 28,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/030/0001.jpg",
+          "summary": "朝の静かなキッチン"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/030/0002.jpg",
+          "summary": "ランチの誘いと固まる顔"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/030/0003.jpg",
+          "summary": "いつものYESが出ない"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/030/0004.jpg",
+          "summary": "胸の重さが積もる日々"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/030/0005.jpg",
+          "summary": "理由を書かずに断る"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/030/0006.jpg",
+          "summary": "十五年の四人ランチ会"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/030/0007.jpg",
+          "summary": "集まり前後の消耗"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/030/0008.jpg",
+          "summary": "自慢と悪口の空気"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/030/0009.jpg",
+          "summary": "割り勘の微妙な沈黙"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/030/0010.jpg",
+          "summary": "遮られて消える言葉"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/030/0011.jpg",
+          "summary": "都合のいい聞き役の疑い"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/030/0012.jpg",
+          "summary": "帰り道の涙の決心"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/030/0013.jpg",
+          "summary": "三千円が虚しくなる"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/030/0014.jpg",
+          "summary": "断る選択肢が光になる"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/030/0015.jpg",
+          "summary": "送った後の恐怖"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/030/0016.jpg",
+          "summary": "拍子抜けの短い返信"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/030/0017.jpg",
+          "summary": "世界は終わらないと知る"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH27/030/0018.jpg",
+          "summary": "一人で行く古い映画館"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH27/030/0019.jpg",
+          "summary": "暗闇で泣ける安心"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH27/030/0020.jpg",
+          "summary": "レモンタルトのご褒美"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH27/030/0021.jpg",
+          "summary": "本屋帰り、自由な風"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH27/030/0022.jpg",
+          "summary": "静かな一人の夕食"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH27/030/0023.jpg",
+          "summary": "増やすより減らす覚悟"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH27/030/0024.jpg",
+          "summary": "茶葉が開く、温かさ"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH27/030/0025.jpg",
+          "summary": "一人時間が味方になる"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH27/030/0026.jpg",
+          "summary": "真っ白な手帳の豊かさ"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH27/030/0027.jpg",
+          "summary": "今夜は返事を明日にする"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH27/030/0028.jpg",
+          "summary": "あなたへ、おやすみの言葉"
         }
       ]
     }
