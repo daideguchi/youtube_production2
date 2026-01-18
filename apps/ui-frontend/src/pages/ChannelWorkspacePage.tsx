@@ -14,6 +14,7 @@ export function ChannelWorkspacePage() {
     navigateToChannel,
     handleFocusAudioBacklog,
     handleFocusNeedsAttention,
+    reloadWorkspace,
   } = useOutletContext<ShellOutletContext>();
 
   const showStatus = channelsLoading || channelsError || dashboardLoading || dashboardError;
@@ -38,6 +39,9 @@ export function ChannelWorkspacePage() {
           selectedChannel={selectedChannel}
           onFocusAudioBacklog={handleFocusAudioBacklog}
           onFocusNeedsAttention={handleFocusNeedsAttention}
+          onReload={() => {
+            void reloadWorkspace();
+          }}
           title="台本・音声字幕管理"
           titleIcon="🎛️"
           subtitle="既存の案件を俯瞰し、台本・音声・字幕の滞留を可視化します。"

@@ -99,6 +99,7 @@ export type ShellOutletContext = {
   dashboardLoading: boolean;
   dashboardError: string | null;
   redoSummary: Record<string, { redo_script: number; redo_audio: number; redo_both: number }>;
+  reloadWorkspace: () => Promise<void>;
   selectedChannel: string | null;
   selectedChannelSummary: ChannelSummary | null;
   selectedChannelSnapshot: ChannelSnapshot | null;
@@ -625,8 +626,9 @@ export function AppShell() {
       const data = await fetchChannels();
       setChannels(data);
       setSelectedChannel((current) => {
-        if (routeChannelCode) {
-          return routeChannelCode;
+        const routeCode = (routeChannelCode ?? "").trim().toUpperCase();
+        if (routeCode && data.some((item) => item.code === routeCode)) {
+          return routeCode;
         }
         if (current && data.some((item) => item.code === current)) {
           return current;
@@ -715,6 +717,10 @@ export function AppShell() {
       setDashboardLoading(false);
     }
   }, []);
+
+  const reloadWorkspace = useCallback(async () => {
+    await Promise.all([refreshChannels(), refreshDashboardOverview()]);
+  }, [refreshChannels, refreshDashboardOverview]);
 
   useEffect(() => {
     refreshChannels();
@@ -1307,6 +1313,7 @@ export function AppShell() {
       dashboardLoading,
       dashboardError,
       redoSummary,
+      reloadWorkspace,
       selectedChannel,
       selectedChannelSummary,
       selectedChannelSnapshot,
@@ -1374,6 +1381,7 @@ export function AppShell() {
       handleSidebarChannelSelect,
       hasUnsavedChanges,
       placeholderPanel,
+      reloadWorkspace,
       redoSummary,
       refreshCurrentDetail,
       selectedChannel,

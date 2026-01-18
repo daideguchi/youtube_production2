@@ -12,6 +12,7 @@ interface DashboardOverviewPanelProps {
   onSelectChannel?: (code: string) => void;
   onFocusAudioBacklog?: (channelCode: string | null) => void;
   onFocusNeedsAttention?: (channelCode?: string | null) => void;
+  onReload?: () => void;
   title?: string;
   titleIcon?: string;
   subtitle?: string;
@@ -86,6 +87,7 @@ export function DashboardOverviewPanel({
   selectedChannel,
   onFocusAudioBacklog,
   onFocusNeedsAttention,
+  onReload,
   title,
   titleIcon = "📺",
   subtitle = "台本・音声・字幕の進行状況と滞留ポイントを一目で把握し、次のアクションへ繋げます。",
@@ -110,6 +112,16 @@ export function DashboardOverviewPanel({
   }
 
   if (!overview) {
+    const channelList = Array.isArray(channels) ? channels : [];
+    const sortKey = (code: string) => {
+      const match = code.trim().toUpperCase().match(/^CH(\d+)$/);
+      return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
+    };
+    const sortedChannels = [...channelList].sort((a, b) => {
+      const diff = sortKey(a.code) - sortKey(b.code);
+      if (diff !== 0) return diff;
+      return a.code.localeCompare(b.code);
+    });
     return (
       <section className="dashboard-overview dashboard-clean">
         <p className="muted">ダッシュボードデータを取得できませんでした。</p>
@@ -117,6 +129,50 @@ export function DashboardOverviewPanel({
           /api が 404 の場合は ui-backend が未起動/到達不可の可能性があります（起動:{" "}
           <code>bash scripts/start_all.sh start</code>）。
         </p>
+        {onReload ? (
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+            <button type="button" className="workspace-button workspace-button--ghost" onClick={onReload}>
+              再読み込み
+            </button>
+          </div>
+        ) : null}
+        {sortedChannels.length ? (
+          <section className="dashboard-overview__channel-chips" aria-label="チャンネル選択（fallback）">
+            {sortedChannels.map((channel) => {
+              const code = channel.code;
+              const active = selectedChannel === code;
+              const displayName =
+                channel.name ?? channel.branding?.title ?? channel.youtube_title ?? channel.code;
+              const avatarUrl = channel.branding?.avatar_url ?? null;
+              const themeColor = channel.branding?.theme_color ?? null;
+              const avatarStyle =
+                avatarUrl != null
+                  ? { backgroundImage: `url(${avatarUrl})` }
+                  : themeColor
+                    ? { backgroundColor: themeColor }
+                    : undefined;
+              const avatarLabel = displayName.slice(0, 2).toUpperCase();
+              return (
+                <button
+                  key={code}
+                  type="button"
+                  className={`dashboard-channel-chip${active ? " dashboard-channel-chip--active" : ""}`}
+                  onClick={() => onSelectChannel?.(code)}
+                  title={`${code}${displayName ? ` / ${displayName}` : ""}`}
+                >
+                  <span
+                    className={`dashboard-channel-chip__avatar${avatarUrl ? " dashboard-channel-chip__avatar--image" : ""}`}
+                    style={avatarStyle}
+                    aria-hidden
+                  >
+                    {!avatarUrl ? avatarLabel : null}
+                  </span>
+                  <span className="dashboard-channel-chip__code">{code}</span>
+                </button>
+              );
+            })}
+          </section>
+        ) : null}
       </section>
     );
   }

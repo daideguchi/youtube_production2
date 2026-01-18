@@ -10,6 +10,7 @@ export function ChannelOverviewPage() {
     channels,
     channelsLoading,
     channelsError,
+    reloadWorkspace,
     selectedChannel,
     selectedChannelSummary,
     selectedChannelSnapshot,
@@ -39,13 +40,23 @@ export function ChannelOverviewPage() {
 
   return (
     <section className="main-content main-content--channel">
-      {sortedChannels.length ? (
-        <section className="channel-top-switcher" aria-label="チャンネル切替">
-          <div className="channel-top-switcher__header">
-            <span className="muted">チャンネル切替:</span>
-            {channelsLoading ? <span className="status-chip">読み込み中…</span> : null}
-            {channelsError ? <span className="status-chip status-chip--danger">{channelsError}</span> : null}
-          </div>
+      <section className="channel-top-switcher" aria-label="チャンネル切替">
+        <div className="channel-top-switcher__header">
+          <span className="muted">チャンネル切替:</span>
+          {channelsLoading ? <span className="status-chip">読み込み中…</span> : null}
+          {channelsError ? <span className="status-chip status-chip--danger">{channelsError}</span> : null}
+          <button
+            type="button"
+            className="workspace-button workspace-button--ghost"
+            disabled={channelsLoading}
+            onClick={() => {
+              void reloadWorkspace();
+            }}
+          >
+            再読み込み
+          </button>
+        </div>
+        {sortedChannels.length ? (
           <div className="channel-projects__filters" role="list" aria-label="チャンネル一覧">
             {sortedChannels.map((channel) => {
               const active = channel.code === selectedChannel;
@@ -87,22 +98,28 @@ export function ChannelOverviewPage() {
                           <span className="channel-chip-tooltip__name">{displayName}</span>
                         ) : null}
                       </div>
-                      {normalizedHandle ? (
-                        <div className="channel-chip-tooltip__handle">{normalizedHandle}</div>
-                      ) : null}
+                      {normalizedHandle ? <div className="channel-chip-tooltip__handle">{normalizedHandle}</div> : null}
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </section>
-      ) : null}
+        ) : (
+          <p className="muted small-text" style={{ marginTop: 8 }}>
+            チャンネル一覧を取得できていません（<code>/api/channels</code>）。ui-backend を起動して{" "}
+            <code>npm start</code> を再起動（proxy反映）してください。
+          </p>
+        )}
+      </section>
 
       {!selectedChannel || !selectedChannelSummary || !selectedChannelSnapshot ? (
         <div className="shell-panel shell-panel--placeholder">
-          <h2>チャンネルを選択してください</h2>
-          <p className="shell-panel__subtitle">サイドバーからチャンネルを選ぶと案件一覧が表示されます。</p>
+          <h2>{channelsLoading ? "チャンネル情報を読み込み中…" : "チャンネルを選択してください"}</h2>
+          <p className="shell-panel__subtitle">
+            サイドバーからチャンネルを選ぶと案件一覧が表示されます。
+            {channelsError ? `（エラー: ${channelsError}）` : ""}
+          </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
             <button
               type="button"
@@ -117,6 +134,16 @@ export function ChannelOverviewPage() {
               onClick={() => navigate("/channel-settings")}
             >
               チャンネル設定を開く
+            </button>
+            <button
+              type="button"
+              className="workspace-button workspace-button--ghost"
+              disabled={channelsLoading}
+              onClick={() => {
+                void reloadWorkspace();
+              }}
+            >
+              再読み込み
             </button>
           </div>
         </div>
