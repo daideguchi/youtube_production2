@@ -873,6 +873,7 @@ def _print_list() -> None:
     print("  Script (runbook):")
     print("    ./ops script <MODE> -- --channel CHxx --video NNN")
     print("    ./ops api script <MODE> -- --channel CHxx --video NNN   # 台本はAPI固定（THINK/CODEX禁止）")
+    print("    ./ops gemini script --channel CHxx --video NNN --run     # 手動/明示: Gemini CLIで本文生成（dry-run既定）")
     print("")
     print("  Audio/TTS:")
     print("    ./ops audio -- --channel CHxx --video NNN")
@@ -1168,6 +1169,24 @@ def cmd_script(args: argparse.Namespace) -> int:
     forwarded = _strip_leading_double_dash(list(args.args))
     inner = ["python3", "scripts/ops/script_runbook.py", args.mode, *forwarded]
     return _run(inner, env=_env_with_llm_exec_slot(0))
+
+
+def cmd_gemini(args: argparse.Namespace) -> int:
+    """
+    Gemini helpers.
+    NOTE:
+    - This is an explicit, operator-invoked route. It is NOT a silent fallback for script_pipeline.
+    - LLM mode / exec-slot is irrelevant here (runs the external `gemini` CLI directly).
+    """
+    target = str(getattr(args, "target", "") or "").strip().lower()
+    forwarded = _strip_leading_double_dash(list(getattr(args, "args", []) or []))
+
+    if target == "script":
+        inner = ["python3", "scripts/ops/gemini_cli_generate_scripts.py", "run", *forwarded]
+        return _run(inner)
+
+    print(f"unknown gemini target: {target}", file=sys.stderr)
+    return 2
 
 
 def cmd_audio(args: argparse.Namespace) -> int:
@@ -2077,6 +2096,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("mode", help="runbook mode (new/redo-full/resume/rewrite/seed-expand)")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/script_runbook.py (use '--' before flags)")
     sp.set_defaults(func=cmd_script)
+
+    sp = sub.add_parser("gemini", help="Gemini helpers (explicit; no silent fallback)")
+    sp.add_argument("target", choices=["script"], help="gemini operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to scripts/ops/gemini_cli_generate_scripts.py run (use '--' before flags; dry-run by default)",
+    )
+    sp.set_defaults(func=cmd_gemini)
 
     sp = sub.add_parser("audio", help="audio/TTS wrapper (script_pipeline.cli audio)")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())

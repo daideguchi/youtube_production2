@@ -2,7 +2,7 @@
   "channel_id": "CH15",
   "name": "ブッダの心胆鍛錬",
   "description": "根性論ではなく、心の体力を“整えて鍛える”。",
-  "youtube_description": "この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。\n根性論ではなく、心の体力を“整えて鍛える”。\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#仏教 #寝落ち\n",
+  "youtube_description": "この動画は、「ブッダの心胆鍛錬」の長時間コンテンツです。\n根性論ではなく、心の体力を“整えて鍛える”。\n作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#仏教\n",
   "default_tags": [
     "ブッダ",
     "仏教",
@@ -13,8 +13,6 @@
     "シニア",
     "法話",
     "禅",
-    "寝落ち",
-    "睡眠用",
     "作業用BGM",
     "勉強用BGM",
     "長時間",
@@ -79,6 +77,10 @@
     "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
     "thumbnails_default_template_id": "ch15_buddha_left_3line_v1",
     "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
-    "capcut_preset": null
+    "capcut_preset": {
+      "capcut_template": "CH12-テンプレ正",
+      "video_style_id": "jinsei_standard_v2",
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt"
+    }
   }
 }

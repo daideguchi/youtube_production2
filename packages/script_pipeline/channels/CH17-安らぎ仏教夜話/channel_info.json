@@ -55,7 +55,11 @@
     "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
     "thumbnails_default_template_id": null,
     "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
-    "capcut_preset": null
+    "capcut_preset": {
+      "capcut_template": "CH12-テンプレ正",
+      "video_style_id": "jinsei_standard_v2",
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt"
+    }
   },
   "branding": {
     "avatar_url": "https://yt3.ggpht.com/BzmXtFeHB-BD9Ed6xg_h8NqXClwBLw7buYgnCoF9IzRFk2yXJN8kMaeQ_tzwXWxZUed6j1SgNQ=s88-c-k-c0x00ffffff-no-rj",

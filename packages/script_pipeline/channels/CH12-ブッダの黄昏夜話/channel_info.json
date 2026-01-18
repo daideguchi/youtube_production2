@@ -2,7 +2,7 @@
   "channel_id": "CH12",
   "name": "ブッダの教え【人生が輝く知恵】",
   "description": "夜の不安を、ブッダの教えで“わかる言葉”にして静める。",
-  "youtube_description": "この動画は、「ブッダの教え【人生が輝く知恵】」の長時間コンテンツです。\n夜の不安を、ブッダの教えで“わかる言葉”にして静める。\n寝落ち・作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#仏教 #寝落ち\n",
+  "youtube_description": "この動画は、「ブッダの教え【人生が輝く知恵】」の長時間コンテンツです。\n夜の不安を、ブッダの教えで“わかる言葉”にして静める。\n作業・勉強中の“聞き流し”としてお使いください。\n【音声】VOICEVOX：青山流星\n【視聴スタイル】画面は見なくてOK／音量は小さめ推奨\n【ご注意】運転中・危険作業中の視聴はお控えください。\n#仏教\n",
   "default_tags": [
     "ブッダ",
     "仏教",
@@ -13,8 +13,6 @@
     "心が軽くなる",
     "法話",
     "禅",
-    "寝落ち",
-    "睡眠用",
     "作業用BGM",
     "勉強用BGM",
     "長時間",
@@ -104,9 +102,9 @@
     "thumbnails_default_template_id": "ch12_buddha_left_3line_v1",
     "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
     "capcut_preset": {
-      "capcut_template": "CH12-テンプレ",
+      "capcut_template": "CH12-テンプレ正",
       "video_style_id": "jinsei_standard_v2",
-      "prompt_template": "templates/jinsei_warm_gold_blue_strict.txt"
+      "prompt_template": "templates/jinsei_no_michishirube_buddhist.txt"
     }
   }
 }

@@ -39,8 +39,6 @@
     "学び",
     "名言",
     "教養",
-    "寝落ち",
-    "睡眠用",
     "作業用BGM",
     "勉強用BGM",
     "長時間",
@@ -96,6 +94,10 @@
     "thumbnails_templates_sot": "workspaces/thumbnails/templates.json",
     "thumbnails_default_template_id": "ch26_background_dark_portrait_v1",
     "capcut_channel_preset_sot": "packages/video_pipeline/config/channel_presets.json",
-    "capcut_preset": null
+    "capcut_preset": {
+      "capcut_template": "CH09_テンプレ",
+      "video_style_id": "portrait_left_subtitles_v1",
+      "prompt_template": "templates/default.txt"
+    }
   }
 }

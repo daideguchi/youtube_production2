@@ -134,7 +134,7 @@
 
 ### Alternatives（代替案）
 - A) Fireworksが復旧するまで待つ: 正攻法だが、停止期間が長いと量産が止まる。
-- B) Gemini（非Batch）へ手動コピペ: 速いが、証跡/再現性/大量処理に弱い。
+- B) Gemini CLI（非Batch）で手動/半自動: 速い。証跡は `./ops gemini script`（明示実行）で残せるが、大量処理はBatchを優先。
 
 ### Impact（影響/作業）
 - SSOT: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md` に「Batch運用（台本）」の導線を追加する

@@ -89,6 +89,15 @@ def normalize_for_compare(kana: str) -> str:
     text = str(kana)
     text = text.translate({code: code + 0x60 for code in range(ord("ぁ"), ord("ゖ") + 1)})  # ひらがな→カタカナ
     text = _normalize(text)
+    # Small-vowel variants (ァ/ィ/ゥ/ェ/ォ) are cosmetic in many loanwords for comparison purposes
+    # (e.g., ツァ/ツア, ファ/フア). Normalize to the large vowel to reduce false mismatches.
+    text = (
+        text.replace("ァ", "ア")
+        .replace("ィ", "イ")
+        .replace("ゥ", "ウ")
+        .replace("ェ", "エ")
+        .replace("ォ", "オ")
+    )
     # VOICEVOX kana sometimes expands yōon (拗音) in longer phrases:
     #   ギョウ -> ギヨウ, キョク -> キヨク, etc.
     # For comparison only, normalize: I-row kana + ヨ + <katakana> -> I-row kana + smallョ + same char.

@@ -258,6 +258,9 @@ def _infer_tags(channel_name: str, description: str) -> List[str]:
     text = f"{channel_name}\n{description}"
     tags: List[str] = []
 
+    sleep_keywords = ("寝落ち", "睡眠", "眠り", "眠れる", "安眠", "おやすみ", "眠る前")
+    is_sleep_content = any(k in text for k in sleep_keywords)
+
     def has(token: str) -> bool:
         return token in text
 
@@ -298,12 +301,17 @@ def _infer_tags(channel_name: str, description: str) -> List[str]:
     if any(has(t) for t in ("都市伝説", "ミステリー", "怪談")):
         tags += ["都市伝説", "ミステリー", "考察"]
 
-    tags += ["寝落ち", "睡眠用", "作業用BGM", "勉強用BGM", "長時間", "聞き流し"]
+    # Listening/long-form tags are okay globally, but sleep tags must be opt-in (per-channel),
+    # otherwise we contaminate non-sleep channels with "寝落ち/睡眠用" framing.
+    tags += ["作業用BGM", "勉強用BGM", "長時間", "聞き流し"]
+    if is_sleep_content:
+        tags += ["寝落ち", "睡眠用"]
     return _dedupe_preserve_order(tags)[:30]
 
 
 def _render_video_description_template(channel_code: str, *, name: str, lead: str, voice_label: str) -> str:
     fiction_notice = "" if channel_code not in {"CH22", "CH23"} else "※本チャンネルの物語はフィクションです。\n\n"
+    is_sleep_content = any(k in f"{name}\n{lead}" for k in ("寝落ち", "睡眠", "眠り", "眠れる", "安眠", "おやすみ", "眠る前"))
 
     hashtags: List[str] = []
     if any(tok in name for tok in ("仏教", "ブッダ", "法話", "禅")):
@@ -316,15 +324,18 @@ def _render_video_description_template(channel_code: str, *, name: str, lead: st
         hashtags.append("#旅")
     if any(tok in name for tok in ("昔ばなし", "朗読")):
         hashtags.append("#朗読")
-    hashtags.append("#寝落ち")
+    if is_sleep_content:
+        hashtags.append("#寝落ち")
     hashtags = _dedupe_preserve_order(hashtags)[:3]
+
+    listen_line = "寝落ち・作業・勉強中の“聞き流し”としてお使いください。" if is_sleep_content else "作業・勉強中の“聞き流し”としてお使いください。"
 
     lines = [
         fiction_notice.strip("\n"),
         f"この動画は、「{name}」の長時間コンテンツです。",
         lead.strip() or name.strip(),
         "",
-        "寝落ち・作業・勉強中の“聞き流し”としてお使いください。",
+        listen_line,
         "",
         f"【音声】{voice_label}",
         "【視聴スタイル】画面は見なくてOK／音量は小さめ推奨",
@@ -556,6 +567,20 @@ def normalize_channel_info(
         changed = True
         notes.append("set template_path")
 
+    # Keep channel_info.json.script_prompt in sync with template_path for UI consumers.
+    template_rel = str(payload.get("template_path") or "").strip()
+    if template_rel:
+        template_path = repo_root() / template_rel
+        if template_path.exists():
+            try:
+                template_text = template_path.read_text(encoding="utf-8").strip()
+            except Exception:
+                template_text = ""
+            if template_text and str(payload.get("script_prompt") or "").strip() != template_text:
+                payload["script_prompt"] = template_text
+                changed = True
+                notes.append("sync script_prompt")
+
     thumb_spec = payload.get("thumbnail_text_layer_spec_path")
     if isinstance(thumb_spec, str) and thumb_spec.strip():
         canonical_thumb = _canonicalize_thumbnail_asset_path(thumb_spec)
@@ -574,22 +599,33 @@ def normalize_channel_info(
     existing_tags = payload.get("default_tags")
     if not isinstance(existing_tags, list):
         existing_tags = []
+    original_existing_tags = list(existing_tags)
     desc = str(payload.get("description") or "").strip()
+    is_sleep_content = any(k in f"{name}\n{desc}" for k in ("寝落ち", "睡眠", "眠り", "眠れる", "安眠", "おやすみ", "眠る前"))
+    if not is_sleep_content:
+        sleep_tags = {"寝落ち", "睡眠用"}
+        existing_tags = [t for t in existing_tags if str(t or "").strip() not in sleep_tags]
     inferred_tags = _infer_tags(name, desc)
     merged_tags = _dedupe_preserve_order([*existing_tags, *inferred_tags])
     merged_tags = _apply_voice_tags(merged_tags, engine_tag=voice_engine_tag, voice_name=voice_name)
-    if merged_tags != existing_tags:
+    if merged_tags != original_existing_tags:
         payload["default_tags"] = merged_tags
         changed = True
         notes.append("normalize default_tags")
 
-    if _needs_video_description_template(payload.get("youtube_description")):
+    yt_desc = payload.get("youtube_description")
+    should_replace_sleep_framing = (
+        (not is_sleep_content)
+        and isinstance(yt_desc, str)
+        and ("#寝落ち" in yt_desc or "寝落ち・作業・勉強中" in yt_desc or "睡眠用" in yt_desc)
+    )
+    if _needs_video_description_template(yt_desc) or should_replace_sleep_framing:
         lead = desc or name
         payload["youtube_description"] = _render_video_description_template(
             channel_code, name=name, lead=lead, voice_label=voice_label
         )
         changed = True
-        notes.append("fill youtube_description")
+        notes.append("fill youtube_description" if _needs_video_description_template(yt_desc) else "remove sleep framing from youtube_description")
 
     b = payload.get("benchmarks")
     if not isinstance(b, dict) or b.get("version") is None:

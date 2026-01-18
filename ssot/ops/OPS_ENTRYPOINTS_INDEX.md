@@ -79,6 +79,11 @@
     - individual/full: `prompts/antigravity_gemini/CHxx/CHxx_NNN_{PROMPT|FULL_PROMPT}.md`
   - Batch submit: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py submit --channel CHxx --videos NNN-NNN`
   - Batch fetch（assembled反映）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
+- 台本（手動/明示; Gemini CLIで本文を書く）:
+  - 入口: `./ops gemini script --channel CHxx --video NNN --run`（デフォルトはdry-run）
+  - 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別の結合）
+  - 出力（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
+  - 注意: **サイレントfallbackは禁止**。必要時のみ明示コマンドで使う（Batchの代替/補助）。
 - 音声（Audio/TTS）:
   - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`
   - 互換（同等）: `python -m script_pipeline.cli audio --channel CHxx --video NNN`

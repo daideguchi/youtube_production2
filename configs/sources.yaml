@@ -105,8 +105,8 @@ channels:
       lang: ja
       fallback_lang: en
     chapter_count: 7
-    target_chars_min: 20000
-    target_chars_max: 26000
+    target_chars_min: 15000
+    target_chars_max: 20000
     video_broll:
       enabled: true
       provider: pexels

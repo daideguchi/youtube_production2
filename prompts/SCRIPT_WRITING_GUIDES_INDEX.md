@@ -18,7 +18,7 @@
 | CH03 | シニア健康 | 7000〜9000 | `prompts/guides/scriptwriting/channels/CH03.md` |
 | CH04 | 心理・好奇心 隠れ書庫アカシック | 8000〜10000 | `prompts/guides/scriptwriting/channels/CH04.md` |
 | CH05 | シニア・恋愛 シニア恋愛 | 6000〜8000 | `prompts/guides/scriptwriting/channels/CH05.md` |
-| CH06 | 都市伝説・闇 都市伝説のダーク図書館 | 20000〜26000 | `prompts/guides/scriptwriting/channels/CH06.md` |
+| CH06 | 都市伝説・闇 都市伝説のダーク図書館 | 15000〜20000 | `prompts/guides/scriptwriting/channels/CH06.md` |
 | CH07 | 仏教の心【全てうまくいく】 | 6000〜6600 | `prompts/guides/scriptwriting/channels/CH07.md` |
 | CH08 | 静かな夜の心理図書室 | 6000〜7000 | `prompts/guides/scriptwriting/channels/CH08.md` |
 | CH09 | 不動の指針 | 8000〜10000 | `prompts/guides/scriptwriting/channels/CH09.md` |

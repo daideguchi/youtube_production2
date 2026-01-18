@@ -296,6 +296,21 @@ flowchart LR
 3) 完了待ち → Batch fetch: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
 4) 復旧後: `script_validation` を再実行して品質ゲートを通す（LLM品質/意味整合/ファクトチェック）
 
+### 2.1.2 手動（明示）: Gemini CLIで本文を書く（SoT=assembled_human.md）
+前提:
+- これは `script_pipeline` の自動生成ではなく、「人間が本文（Aテキスト）を用意する」導線。
+- **サイレントfallbackは禁止**。必要時のみ明示コマンドで使う（Batchの代替/補助）。
+
+入口（固定）:
+- `./ops gemini script --channel CHxx --video NNN --run`（デフォルトはdry-run）
+
+I/O（固定）:
+- 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別）
+- 出力（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（`assembled.md` は mirror 扱い）
+
+次にやること（必須）:
+- 本文を更新したら、`script_validation` と alignment stamp を必ず更新してから Audio/TTS に進む（下流ガードが mismatch で停止する）。
+
 ### 2.2 長尺（安定化）: Seed→Expand（低コストSeed→追記で収束）
 目的:
 - 長文を一撃で書かせず、**短い本文Seed（ちゃんとした文章）→追記で目標字数へ**の形にして、ズレと往復を減らす。

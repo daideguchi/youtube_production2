@@ -642,6 +642,11 @@ def _jp_number_with_counter_kana(n: int, counter: str) -> str:
         }
         return special.get(n) or (_jp_number_kana(n) + "サツ")
 
+    if counter == "着":
+        # Clothing counter: 1着=イッチャク, 8着=ハッチャク, 10着=ジュッチャク ...
+        special = {1: "イッチャク", 8: "ハッチャク", 10: "ジュッチャク"}
+        return special.get(n) or (_jp_number_kana(n) + "チャク")
+
     if counter == "通":
         # Mail/message counter: 1通=イッツウ, 8通=ハッツウ, 10通=ジュッツウ ...
         special = {
@@ -677,6 +682,10 @@ def _jp_number_with_counter_kana(n: int, counter: str) -> str:
             90: "キュウジュッケン",
         }
         return special.get(n) or (_jp_number_kana(n) + "ケン")
+
+    if counter == "軒":
+        # House counter: 1軒=イッケン ... (same phonetics as 件)
+        return _jp_number_with_counter_kana(n, "件")
 
     if counter == "発":
         # 1発=イッパツ, 6発=ロッパツ, 8発=ハッパツ, 10発=ジュッパツ ...
@@ -732,6 +741,31 @@ def _jp_number_with_counter_kana(n: int, counter: str) -> str:
     if counter == "口":
         special = {1: "ヒトクチ"}
         return special.get(n) or (_jp_number_kana(n) + "クチ")
+
+    if counter == "匹":
+        # Animal counter: 1匹=イッピキ, 3匹=サンビキ, 8匹=ハッピキ, 10匹=ジュッピキ ...
+        special = {1: "イッピキ", 3: "サンビキ", 6: "ロッピキ", 8: "ハッピキ", 10: "ジュッピキ"}
+        return special.get(n) or (_jp_number_kana(n) + "ヒキ")
+
+    if counter == "粒":
+        # 1粒=ヒトツブ, 10粒=ジュッツブ ...
+        special = {1: "ヒトツブ", 10: "ジュッツブ"}
+        return special.get(n) or (_jp_number_kana(n) + "ツブ")
+
+    if counter == "握り":
+        # 1握り=ヒトニギリ
+        special = {1: "ヒトニギリ"}
+        return special.get(n) or (_jp_number_kana(n) + "ニギリ")
+
+    if counter == "首":
+        # Poem counter: 1首=イッシュ, 8首=ハッシュ, 10首=ジュッシュ ...
+        special = {1: "イッシュ", 8: "ハッシュ", 10: "ジュッシュ"}
+        return special.get(n) or (_jp_number_kana(n) + "シュ")
+
+    if counter == "画":
+        # Stroke counter: 1画=イッカク, 8画=ハッカク, 10画=ジュッカク ...
+        special = {1: "イッカク", 8: "ハッカク", 10: "ジュッカク"}
+        return special.get(n) or (_jp_number_kana(n) + "カク")
 
     if counter == "滴":
         # Drop counter: 1滴=イッテキ, 8滴=ハッテキ, 10滴=ジュッテキ ...
@@ -873,6 +907,20 @@ def _jp_number_with_counter_kana(n: int, counter: str) -> str:
             return (prefix + "ヨネン") if prefix else "ヨネン"
         return _jp_number_kana(n) + "ネン"
 
+    if counter == "兆":
+        # 1兆=イッチョウ, 60兆=ロクジュッチョウ
+        special = {1: "イッチョウ", 8: "ハッチョウ", 10: "ジュッチョウ"}
+        if n in special:
+            return special[n]
+        base = _jp_number_kana(n)
+        if base.endswith("ジュウ"):
+            base = base[:-2] + "ジュッ"
+        elif base.endswith("イチ"):
+            base = base[:-2] + "イッ"
+        elif base.endswith("ハチ"):
+            base = base[:-2] + "ハッ"
+        return base + "チョウ"
+
     if counter == "世紀":
         # Century counter: 1世紀=イッセイキ, 18世紀=ジュウハッセイキ ...
         special = {
@@ -1007,6 +1055,8 @@ def _try_numeric_replacement(tokens: List[Dict[str, object]], i: int) -> Optiona
             if s2 in {"円", "ドル"}:
                 suffix = "エン" if s2 == "円" else "ドル"
                 end = i + 2
+        if unit == "兆":
+            return (_jp_number_with_counter_kana(n, "兆") + suffix, end)
         return (_jp_number_kana(n) + unit_kana + suffix, end)
 
     # Simple counter: 94 年 / 9 歳 / 98 パーセント / 10 分間 ...
@@ -1031,11 +1081,17 @@ def _try_numeric_replacement(tokens: List[Dict[str, object]], i: int) -> Optiona
                 "個",
                 "本",
                 "冊",
+                "着",
                 "通",
                 "件",
+                "軒",
+                "匹",
                 "発",
                 "杯",
                 "口",
+                "粒",
+                "握り",
+                "首",
                 "歩",
                 "つ",
                 "分",
@@ -1049,9 +1105,11 @@ def _try_numeric_replacement(tokens: List[Dict[str, object]], i: int) -> Optiona
                 "ヶ月",
                 "か月",
                 "世紀",
+                "兆",
                 "円",
                 "点",
                 "章",
+                "画",
                 "枠",
                 "か所",
                 "ヶ所",
@@ -1212,11 +1270,17 @@ def _try_kanji_numeric_replacement(tokens: List[Dict[str, object]], i: int) -> O
         "個",
         "本",
         "冊",
+        "着",
         "通",
         "件",
+        "軒",
+        "匹",
         "発",
         "杯",
         "口",
+        "粒",
+        "握り",
+        "首",
         "歩",
         "つ",
         "分",
@@ -1230,9 +1294,11 @@ def _try_kanji_numeric_replacement(tokens: List[Dict[str, object]], i: int) -> O
         "ヶ月",
         "か月",
         "世紀",
+        "兆",
         "円",
         "点",
         "章",
+        "画",
         "枠",
         "か所",
         "ヶ所",
@@ -1447,6 +1513,52 @@ def _patch_tokens_with_words(
 
     skip_indices = _compute_inline_annotation_skips()
 
+    def span_ok(start: int, end: int) -> bool:
+        if end >= len(tokens):
+            return False
+        if has_override_in_range(start, end):
+            return False
+        for k in range(start, end + 1):
+            if k in skip_indices:
+                return False
+        return True
+
+    # Deterministic multi-token reading patches (B-text only).
+    # Keep this conservative: prefer multi-token surfaces (avoids 1-char dict bans).
+    B_PATCH_SPAN_3: dict[tuple[str, str, str], str] = {
+        ("二", "択以", "外"): "ニタクイガイ",
+        ("大", "ら", "か"): "おおらか",
+        ("軽", "ん", "じ"): "かろんじ",
+        ("刻", "一", "刻"): "こくいっこく",
+        ("会", "いたく", "ない"): "あいたくない",
+        ("趙", "州", "は"): "じょうしゅうわ",
+        ("疲れ", "果て", "、"): "つかれはてて",
+    }
+    B_PATCH_SPAN_2: dict[tuple[str, str], str] = {
+        ("事実", "返し"): "じじつがえし",
+        ("趙", "州"): "じょうしゅう",
+        ("禅", "寺"): "ぜんでら",
+        ("荘", "子"): "そうし",
+        ("善", "友"): "ぜんゆう",
+        ("容れ", "物"): "いれもの",
+        ("関わり", "方"): "かかわりかた",
+        ("刻", "一刻"): "こくいっこく",
+        ("際", "断"): "さいだん",
+        ("抜き", "去り"): "ぬきさり",
+        ("微", "笑み"): "ほほえみ",
+        ("加", "虐心"): "かぎゃくしん",
+        ("活", "かせる"): "いかせる",
+        ("癒", "やせ"): "いやせ",
+        ("癒", "やす"): "いやす",
+        ("緩", "すぎる"): "ゆるすぎる",
+        ("いつも", "通り"): "いつもどおり",
+        ("怒ろ", "う"): "おころう",
+        ("引き", "方"): "ひきかた",
+        ("脱ぎ捨て", "、"): "ぬぎすてて",
+        ("楽", "さ"): "らくさ",
+        ("締", "まり"): "しまり",
+    }
+
     parts: List[str] = []
     i = 0
     n = len(tokens)
@@ -1461,6 +1573,7 @@ def _patch_tokens_with_words(
 
         surface = str(tokens[i].get("surface") or "")
         next_surface = str(tokens[i + 1].get("surface") or "") if (i + 1) < n else ""
+        next_next_surface = str(tokens[i + 2].get("surface") or "") if (i + 2) < n else ""
 
         # Placeholder: ○○ / 〇〇 -> マルマル (B-text only)
         if surface in {"○", "〇"} and next_surface == surface:
@@ -1469,6 +1582,17 @@ def _patch_tokens_with_words(
                 j += 1
             parts.append("マル" * (j - i))
             i = j
+            continue
+
+        key3 = (surface, next_surface, next_next_surface)
+        if key3 in B_PATCH_SPAN_3 and span_ok(i, i + 2):
+            parts.append(B_PATCH_SPAN_3[key3])
+            i += 3
+            continue
+        key2 = (surface, next_surface)
+        if key2 in B_PATCH_SPAN_2 and span_ok(i, i + 1):
+            parts.append(B_PATCH_SPAN_2[key2])
+            i += 2
             continue
 
         # Deterministic reading: 他の -> ホカの
@@ -1483,6 +1607,32 @@ def _patch_tokens_with_words(
             if not has_override_in_range(i, i + 1) and (i + 1) not in skip_indices:
                 parts.append("ホカから")
                 i += 2
+                continue
+        # Deterministic reading: 他に -> ホカに
+        if surface == "他" and next_surface == "に":
+            if not has_override_in_range(i, i + 1) and (i + 1) not in skip_indices:
+                parts.append("ホカに")
+                i += 2
+                continue
+        # Deterministic reading: 他でも -> ホカでも
+        if surface == "他" and next_surface == "で" and next_next_surface == "も":
+            if (
+                not has_override_in_range(i, i + 2)
+                and (i + 1) not in skip_indices
+                and (i + 2) not in skip_indices
+            ):
+                parts.append("ホカでも")
+                i += 3
+                continue
+        # Deterministic reading: 何でも -> なんでも
+        if surface == "何" and next_surface == "で" and next_next_surface == "も":
+            if (
+                not has_override_in_range(i, i + 2)
+                and (i + 1) not in skip_indices
+                and (i + 2) not in skip_indices
+            ):
+                parts.append("なんでも")
+                i += 3
                 continue
 
         # Deterministic voicing: 数十X -> 数ジュッX (VOICEVOX uses ジュッ before some counters)
@@ -1623,6 +1773,414 @@ def _patch_tokens_with_words(
             i += 1
             continue
 
+        # - ○（箇条書き記号）: TTSでは読まず、B側から除去（VOICEVOXが「マル」と読んで誤差になるのを防ぐ）。
+        if surface == "○":
+            i += 1
+            continue
+
+        # - 例え話: B側で「たとえばなし」に寄せ、自然な連濁（バナシ）を確定。
+        if (
+            surface == "例え"
+            and next_surface == "話"
+            and not has_override_in_range(i, i + 1)
+            and (i + 1) not in skip_indices
+        ):
+            parts.append("たとえばなし")
+            i += 2
+            continue
+
+        # - 未払い: VOICEVOX が「ミバライ」側へ寄るため、「みはらい」を確定。
+        if surface == "未払い" and reading_mecab == "ミハライ":
+            parts.append("みはらい")
+            i += 1
+            continue
+
+        # - というのも: VOICEVOX が「トユウ」側へ寄るため、B側で「とゆうのも」に寄せる。
+        if surface == "というのも" and reading_mecab == "トイウノモ" and span_ok(i, i):
+            parts.append("とゆうのも")
+            i += 1
+            continue
+
+        # - お話しできれば: VOICEVOX が「オハナシシデキレバ」になるため、「おはなし」に寄せる。
+        if surface == "お話し" and next_base == "できる" and span_ok(i, i):
+            parts.append("おはなし")
+            i += 1
+            continue
+
+        # - 親自身: MeCab が「シンジシン」側へ寄るため、B側で「おやじしん」に寄せる。
+        if surface == "親" and next_surface == "自身" and span_ok(i, i + 1):
+            parts.append("おやじしん")
+            i += 2
+            continue
+
+        # - 数分間: VOICEVOX が「スウフンケン」側へ寄るため、B側で「数分カン」に寄せる。
+        if surface == "数" and next_surface == "分間" and span_ok(i, i + 1):
+            parts.append("数分カン")
+            i += 2
+            continue
+
+        # - 洗面所: VOICEVOX が「センメンジョ」側で読むため、B側でカタカナを確定。
+        if surface == "洗面" and next_surface == "所" and span_ok(i, i + 1):
+            parts.append("センメンジョ")
+            i += 2
+            continue
+
+        # - 妬ま(妬む): VOICEVOX が「ソネマ」側へ寄るため、B側で「ねたま」を確定。
+        if base == "妬む" and surface == "妬ま" and reading_mecab == "ネタマ" and span_ok(i, i):
+            parts.append("ねたま")
+            i += 1
+            continue
+
+        # - 細やか: VOICEVOX が「ササヤカ」側へ寄るため、B側で「こまやか」を確定。
+        if surface == "細やか" and reading_mecab == "コマヤカ" and span_ok(i, i):
+            parts.append("こまやか")
+            i += 1
+            continue
+
+        # - 質や形: 「質や形」が「シチヤガタ」側へ寄るのを避けるため、B側で「しつ」を確定。
+        if (
+            surface == "質"
+            and reading_mecab == "シツ"
+            and next_surface == "や"
+            and next_next_surface == "形"
+            and span_ok(i, i)
+        ):
+            parts.append("しつ")
+            i += 1
+            continue
+
+        # - について触れ(触れる): VOICEVOX が「ブレ」側へ寄るため、B側で「ふれ」を確定。
+        if (
+            prev_surface == "について"
+            and base == "触れる"
+            and surface == "触れ"
+            and reading_mecab == "フレ"
+            and span_ok(i, i)
+        ):
+            parts.append("ふれ")
+            i += 1
+            continue
+
+        # - 何物: MeCab が「ナニブツ」側へ寄るため、「なにもの」を確定。
+        if (
+            surface == "何"
+            and next_surface == "物"
+            and str(tokens[i + 1].get("reading_mecab") or "") == "ブツ"
+            and not has_override_in_range(i, i + 1)
+            and (i + 1) not in skip_indices
+        ):
+            parts.append("なにもの")
+            i += 2
+            continue
+
+        # - 何一つ: VOICEVOX が「ナンヒトツ」側へ寄るため、「なにひとつ」を確定。
+        if surface == "何一つ" and span_ok(i, i):
+            parts.append("なにひとつ")
+            i += 1
+            continue
+
+        # - 逸話: VOICEVOX が「イチバナシ」側へ寄るため、「いつわ」を確定。
+        if surface == "逸話" and reading_mecab == "イツワ" and span_ok(i, i):
+            parts.append("いつわ")
+            i += 1
+            continue
+
+        # - 空そのもの: 「空」が「クウ」側へ寄るため、「そら」に寄せる。
+        if surface == "空" and next_surface == "その" and span_ok(i, i):
+            parts.append("そら")
+            i += 1
+            continue
+
+        # - 大海原: 接頭辞「大」が「ダイ」側へ寄るため、「おお」に寄せる（大+海原）。
+        if surface == "大" and next_surface == "海原" and reading_mecab == "ダイ" and span_ok(i, i):
+            parts.append("おお")
+            i += 1
+            continue
+
+        # - 纏っ(纏う): VOICEVOX が「マツワ..」側へ寄るため、「まとっ」を確定。
+        if base == "纏う" and surface == "纏っ" and reading_mecab == "マトッ" and span_ok(i, i):
+            parts.append("まとっ")
+            i += 1
+            continue
+
+        # - 差し出そうとして: 「差し出る」側に誤解析されることがあるため、「さしだ」に寄せる。
+        if (
+            base == "差し出る"
+            and surface == "差し出"
+            and next_surface == "そう"
+            and reading_mecab == "サシデ"
+            and span_ok(i, i)
+        ):
+            parts.append("さしだ")
+            i += 1
+            continue
+
+        # - 水拭き: 「水+拭き(フキ)」を「みずぶき」に寄せる。
+        if prev_surface == "水" and surface == "拭き" and base == "拭く" and reading_mecab == "フキ" and span_ok(i, i):
+            parts.append("ぶき")
+            i += 1
+            continue
+
+        # - 排水溝: 「排水+溝(ミゾ)」を「はいすいこう」に寄せる。
+        if surface == "排水" and next_surface == "溝" and span_ok(i, i + 1):
+            parts.append("はいすいこう")
+            i += 2
+            continue
+
+        # - 金継ぎ: 「金+継ぎ(キム/ツギ)」を「きんつぎ」に寄せる。
+        if surface == "金" and next_surface == "継ぎ" and span_ok(i, i + 1):
+            parts.append("きんつぎ")
+            i += 2
+            continue
+
+        # - 木槌: 「木+槌(ツチ)」を「きづち」に寄せる。
+        if surface == "木" and next_surface == "槌" and span_ok(i, i + 1):
+            parts.append("きづち")
+            i += 2
+            continue
+
+        # - 被告人: 「被告+人(ジン)」を「ひこくにん」に寄せる。
+        if surface == "被告" and next_surface == "人" and span_ok(i, i + 1):
+            parts.append("ひこくにん")
+            i += 2
+            continue
+
+        # - 僧侶たる者: 「たる+者(シャ)」を「もの」に寄せる。
+        if surface == "者" and prev_surface == "たる" and reading_mecab == "シャ" and span_ok(i, i):
+            parts.append("もの")
+            i += 1
+            continue
+
+        # - ビニール傘: 「傘」を「がさ」に寄せる。
+        if surface == "傘" and prev_surface == "ビニール" and reading_mecab == "カサ" and span_ok(i, i):
+            parts.append("がさ")
+            i += 1
+            continue
+
+        # - 褒め(褒める): VOICEVOX が濁ることがあるため、「ほめ」を確定。
+        if base == "褒める" and surface == "褒め" and reading_mecab == "ホメ" and span_ok(i, i):
+            parts.append("ほめ")
+            i += 1
+            continue
+
+        # - 血眼: 「ちまなこ」を確定。
+        if surface == "血眼" and reading_mecab == "チメ" and span_ok(i, i):
+            parts.append("ちまなこ")
+            i += 1
+            continue
+
+        # - 荒ぶる: 「荒ぶ+る」を「あらぶる」に寄せる。
+        if surface == "荒ぶ" and next_surface == "る" and reading_mecab == "スサブ" and span_ok(i, i + 1):
+            parts.append("あらぶる")
+            i += 2
+            continue
+
+        # - 屈し*: VOICEVOX が「コゴメ」側へ寄るため、「くっし」を確定。
+        if surface == "屈し" and reading_mecab == "クッシ" and span_ok(i, i):
+            parts.append("くっし")
+            i += 1
+            continue
+
+        # - 慧鶴: 「慧+鶴(トシ/ツル)」を「えかく」に寄せる。
+        if surface == "慧" and next_surface == "鶴" and span_ok(i, i + 1):
+            parts.append("えかく")
+            i += 2
+            continue
+
+        # - 令和: 「令+和(リョウ/ワ)」を「れいわ」に寄せる。
+        if surface == "令" and next_surface == "和" and reading_mecab == "リョウ" and span_ok(i, i + 1):
+            parts.append("れいわ")
+            i += 2
+            continue
+
+        # - こはく: 「こ+はく」分割で「は」=助詞扱いになるのを避け、「コハク」を確定。
+        if surface == "こ" and next_surface == "はく" and span_ok(i, i + 1):
+            parts.append("コハク")
+            i += 2
+            continue
+
+        # - 逃げ去る: 「去り」が濁るのを避け、「さり」を確定。
+        if surface == "去り" and base == "去る" and reading_mecab == "サリ" and span_ok(i, i):
+            parts.append("さり")
+            i += 1
+            continue
+
+        # - 歩き出せる: 「歩き+出せる」が「で」側に寄るため、「あるきだせる」を確定。
+        if surface == "歩き" and base == "歩く" and next_surface == "出せる" and span_ok(i, i + 1):
+            parts.append("あるきだせる")
+            i += 2
+            continue
+
+        # - 引き剥がす(剥がす): 「ヘガ..」側を避け、「はが..」へ寄せる。
+        if base == "剥がす" and surface.startswith("剥が") and reading_mecab.startswith("ヘガ") and span_ok(i, i):
+            parts.append("はが" + surface.replace("剥が", ""))
+            i += 1
+            continue
+
+        # - 一領一鉢: 読みを「いちりょういっぱつ」に固定。
+        if (
+            surface == "一"
+            and next_surface == "領"
+            and next_next_surface == "一"
+            and str(tokens[i + 3].get("surface") or "") == "鉢"
+            and span_ok(i, i + 3)
+        ):
+            parts.append("いちりょういっぱつ")
+            i += 4
+            continue
+
+        # - 一区切りつけ*: 「一+区+切りつけ」を「ひとくぎりつけ」に寄せる。
+        if (
+            surface == "一"
+            and next_surface == "区"
+            and next_next_base == "切りつける"
+            and str(tokens[i + 2].get("surface") or "").startswith("切りつけ")
+            and span_ok(i, i + 2)
+        ):
+            parts.append("ひとくぎりつけ")
+            i += 3
+            continue
+
+        # - 今日という日の: 「日」が「ニチ」側へ寄るため、「ひ」に寄せる。
+        if (
+            surface == "日"
+            and reading_mecab == "ニチ"
+            and prev_surface == "という"
+            and next_surface == "の"
+            and i > 1
+            and str(tokens[i - 2].get("surface") or "") == "今日"
+        ):
+            parts.append("ひ")
+            i += 1
+            continue
+
+        # - 愛おし*: 「愛おしむ/愛おしく…」が「あい…」側へ崩れるのを避ける（愛+おし…）。
+        if surface == "愛" and reading_mecab == "アイ" and next_surface.startswith("おし"):
+            parts.append("いと")
+            i += 1
+            continue
+        # - 愛おしめる: 「愛 + お + しめる」分割時の誤読を避ける。
+        if (
+            surface == "愛"
+            and reading_mecab == "アイ"
+            and next_surface == "お"
+            and next_next_base == "しめる"
+            and span_ok(i, i + 2)
+        ):
+            parts.append("いとお")
+            i += 2
+            continue
+
+        # - 癒やし: 「癒(未知)+やし」分割を避け、「いやし」を確定。
+        if surface == "癒" and next_surface == "やし" and span_ok(i, i + 1):
+            parts.append("いやし")
+            i += 2
+            continue
+        if surface == "癒" and next_surface == "や" and next_next_surface == "し" and span_ok(i, i + 2):
+            parts.append("いやし")
+            i += 3
+            continue
+
+        # - 唯一無二: VOICEVOX が「タダイチ」側へ寄るため、「ゆいいつむに」を確定。
+        if surface == "唯一" and next_surface == "無二" and span_ok(i, i + 1):
+            parts.append("ゆいいつむに")
+            i += 2
+            continue
+
+        # - 仰いました: 「仰い(仰ぐ)+ます」→「おっしゃい」に寄せる。
+        if base == "仰ぐ" and surface == "仰い" and reading_mecab == "アオイ" and next_base == "ます":
+            parts.append("おっしゃい")
+            i += 1
+            continue
+
+        # - 貼り(貼る): VOICEVOX が「バリ」側へ寄るため、「はり」を確定。
+        if base == "貼る" and surface == "貼り" and reading_mecab == "ハリ":
+            parts.append("はり")
+            i += 1
+            continue
+
+        # - 病: VOICEVOX が「ヤメ」側へ寄るため、「やまい」を確定。
+        if surface == "病" and reading_mecab == "ヤマイ":
+            parts.append("やまい")
+            i += 1
+            continue
+
+
+        # - 扁桃体: 未知語崩壊を避けるため「へんとうたい」を確定。
+        if (
+            surface == "扁桃"
+            and next_surface == "体"
+            and not has_override_in_range(i, i + 1)
+            and (i + 1) not in skip_indices
+        ):
+            parts.append("へんとうたい")
+            i += 2
+            continue
+
+        # - 大勢: MeCab が「タイセイ」側へ誤読するため、「おおぜい」を確定。
+        if surface == "大勢" and reading_mecab == "タイセイ":
+            parts.append("おおぜい")
+            i += 1
+            continue
+
+        # - 尊く(尊い): VOICEVOX が「タットク」側へ寄るため、「とうとく」を確定。
+        if surface == "尊く" and base == "尊い" and reading_mecab == "トウトク":
+            parts.append("とうとく")
+            i += 1
+            continue
+
+        # - 責め立て、: 文脈上「せめたてて」に寄せる（句読点は次トークンで維持）。
+        if surface == "責め立て" and base == "責め立てる" and next_surface == "、":
+            parts.append("せめたてて")
+            i += 1
+            continue
+
+        # - 呪い(呪う): 「呪いながら」等で「マジナイ」側へ寄るため、「のろい」を確定。
+        if surface == "呪い" and base == "呪う" and reading_mecab == "マジナイ":
+            parts.append("のろい")
+            i += 1
+            continue
+
+        # - 注ぎ込む: VOICEVOX が「ツギ..」側へ寄るため、「そそぎこ..」を確定。
+        if base == "注ぎ込む" and surface.startswith("注ぎ込") and reading_mecab.startswith("ソソギコ"):
+            parts.append("そそぎこ" + surface[len("注ぎ込") :])
+            i += 1
+            continue
+
+        # - 白隠禅師/白隠さん: MeCab が「シロ/コモ」「シロ/カクサ」側へ分割しやすいため、B側で固有読みを確定。
+        if (
+            surface == "白"
+            and next_surface == "隠"
+            and next_next_surface == "禅師"
+            and not has_override_in_range(i, i + 2)
+            and (i + 1) not in skip_indices
+            and (i + 2) not in skip_indices
+        ):
+            parts.append("ハクインゼンジ")
+            i += 3
+            continue
+        if surface == "白" and next_surface == "隠" and span_ok(i, i + 1):
+            parts.append("ハクイン")
+            i += 2
+            continue
+        if (
+            surface == "白"
+            and next_surface == "隠さ"
+            and next_next_surface == "ん"
+            and not has_override_in_range(i, i + 2)
+            and (i + 1) not in skip_indices
+            and (i + 2) not in skip_indices
+        ):
+            parts.append("ハクインサン")
+            i += 3
+            continue
+
+        # - 〜決め: 複合語では連濁で「ギメ」側へ寄りやすいため、名詞用法のみ「ぎめ」を確定。
+        if surface == "決め" and pos == "名詞" and reading_mecab == "キメ":
+            parts.append("ぎめ")
+            i += 1
+            continue
+
         # - 夜中: 「夜中に」で MeCab が「ヤチュウ」側へ寄るため、B側で「よなか」を確定。
         if surface == "夜中" and reading_mecab == "ヤチュウ":
             parts.append("よなか")
@@ -1644,6 +2202,62 @@ def _patch_tokens_with_words(
         # - 潜る: VOICEVOX が「クグ..」側へ寄ることがあるため、B側で「もぐ..」へ寄せる。
         if base == "潜る" and surface == "潜る" and reading_mecab == "モグル":
             parts.append("もぐる")
+            i += 1
+            continue
+
+        # - 怖れ(怖い+れ): 誤って「コワレ」側へ寄るため、B側で「おそれ」を確定。
+        if (
+            surface == "怖"
+            and next_surface == "れ"
+            and reading_mecab == "コワ"
+            and not has_override_in_range(i, i + 1)
+            and (i + 1) not in skip_indices
+        ):
+            parts.append("おそれ")
+            i += 2
+            continue
+
+        # - 「はい」と言う/答える: 「は+いと」へ崩れるのを防ぐため、B側で「ハイト」を確定。
+        if (
+            surface == "は"
+            and next_surface == "いと"
+            and next_next_base in {"言う", "答える", "受け取る"}
+            and reading_mecab == "ハ"
+            and not has_override_in_range(i, i + 1)
+            and (i + 1) not in skip_indices
+        ):
+            parts.append("ハイト")
+            i += 2
+            continue
+
+        # - 一回分: 「一+回分」トークンで濁音/促音が揺れるため、B側で「イッカイブン」を確定。
+        if surface == "一" and next_surface == "回分" and reading_mecab == "イチ" and not has_override_in_range(i, i + 1) and (i + 1) not in skip_indices:
+            parts.append("イッカイブン")
+            i += 2
+            continue
+
+        # - 労る/労わる: MeCab が「労+る/わる」へ崩れるため、B側で「いたわる」を確定。
+        if surface == "労" and next_surface in {"わる", "る"} and reading_mecab == "ロウ" and not has_override_in_range(i, i + 1) and (i + 1) not in skip_indices:
+            parts.append("いたわる")
+            i += 2
+            continue
+
+        # - 擦り減る/擦り減らす: VOICEVOX が「こすり..」側へ寄ることがあるため、B側で読みを確定。
+        if surface == "擦り" and next_surface in {"減り", "減る", "減らし", "減らす"} and reading_mecab == "コスリ" and not has_override_in_range(i, i + 1) and (i + 1) not in skip_indices:
+            if next_surface == "減り":
+                parts.append("すりへり")
+            elif next_surface == "減る":
+                parts.append("すりへる")
+            elif next_surface == "減らし":
+                parts.append("すりへらし")
+            else:
+                parts.append("すりへらす")
+            i += 2
+            continue
+
+        # - 注げる: VOICEVOX が「ツゲル」側へ寄ることがあるため、B側で「そそげる」を確定。
+        if surface == "注げる" and reading_mecab == "ソソゲル":
+            parts.append("そそげる")
             i += 1
             continue
 
@@ -1675,6 +2289,18 @@ def _patch_tokens_with_words(
         # - 冷め(冷める): 直前語によって濁るため、B側で「さめ」を確定。
         if surface == "冷め" and base == "冷める" and reading_mecab == "サメ":
             parts.append("さめ")
+            i += 1
+            continue
+
+        # - 留まっ(留まる): 「留まる」は「とどまる」側へ寄るため、B側で「とどまっ」を確定。
+        if surface == "留まっ" and base == "留まる" and reading_mecab == "トマッ":
+            parts.append("とどまっ")
+            i += 1
+            continue
+
+        # - 出そう(出る+そう): VOICEVOX が「シュッソウ」側へ寄ることがあるため、B側で「で」を確定。
+        if surface == "出" and base == "出る" and next_surface == "そう" and reading_mecab == "デ" and i not in skip_indices:
+            parts.append("で")
             i += 1
             continue
 
@@ -1732,14 +2358,93 @@ def _patch_tokens_with_words(
             i += 1
             continue
 
-        # - 正しくこなす: 文脈上は「ただしく」が自然。
-        if surface == "正しく" and reading_mecab == "マサシク" and next_base == "こなす":
+        # - 琴: 文脈上は「こと」が自然。
+        if surface == "琴" and reading_mecab == "キン":
+            parts.append("こと")
+            i += 1
+            continue
+
+        # - 蓮: MeCab が「ハチス」側になるため、B側で「はす」を確定。
+        if surface == "蓮" and reading_mecab == "ハチス":
+            parts.append("ハス")
+            i += 1
+            continue
+
+        # - 真正面: MeCab が「マッショウメン」側になるため、B側で「ましょうめん」を確定。
+        if surface == "真正面" and reading_mecab == "マッショウメン":
+            parts.append("ましょうめん")
+            i += 1
+            continue
+
+        # - 暇: VOICEVOX の誤読(イトマ)を避けるため、B側で「ひま」を確定。
+        if surface == "暇" and reading_mecab == "ヒマ":
+            parts.append("ひま")
+            i += 1
+            continue
+
+        # - 負け(負ける): VOICEVOX の誤読(フケ)を避けるため、B側で「まけ」を確定。
+        if surface == "負け" and base in {"負ける", "負け"} and reading_mecab == "マケ":
+            parts.append("まけ")
+            i += 1
+            continue
+
+        # - 止まれる: VOICEVOX が「ヤマレル」側へ寄ることがあるため、B側で「とまれる」を確定。
+        if surface == "止まれる" and reading_mecab == "トマレル":
+            parts.append("とまれる")
+            i += 1
+            continue
+
+        # - 止まれる: MeCab が「止む(ヤマ)+れる」へ崩れるため、B側で「とまれる」を確定。
+        if surface == "止ま" and base == "止む" and next_surface == "れる" and reading_mecab == "ヤマ" and not has_override_in_range(i, i + 1) and (i + 1) not in skip_indices:
+            parts.append("とまれる")
+            i += 2
+            continue
+
+        # - 何でも(副詞): VOICEVOX が「ナニデモ」側へ寄ることがあるため、B側で「なんでも」を確定。
+        if surface == "何でも" and reading_mecab == "ナンデモ":
+            parts.append("なんでも")
+            i += 1
+            continue
+
+        # - 察でき(る): 「察できます」は「さっし」が自然。
+        if surface == "察" and reading_mecab == "サッ" and next_base == "できる":
+            parts.append("さっし")
+            i += 1
+            continue
+
+        # - 「はい」と受け入れる: 受容の「はい」を確定（「全てをはいと受け入れる」等）。
+        if (
+            surface == "はい"
+            and reading_mecab == "ハイ"
+            and prev_surface == "を"
+            and next_surface == "と"
+            and next_next_base == "受け入れる"
+        ):
+            parts.append("ハイ")
+            i += 1
+            continue
+
+        # - 恩着せがましく言う: 「がましくいう」が「…クイイ」側へ寄るため、B側で「イウ」を確定。
+        prev_prev_surface = str(tokens[i - 2].get("surface") or "") if i > 1 else ""
+        if surface == "言う" and reading_mecab == "イウ" and prev_prev_surface == "がま" and prev_surface == "しく":
+            parts.append("イウ")
+            i += 1
+            continue
+
+        # - 「何好子…」: 引用内の「何」をVOI​​CEVOXに寄せず、B側で「なに」を確定。
+        if surface == "何" and reading_mecab == "ナニ" and prev_surface == "「" and next_surface == "好子":
+            parts.append("なに")
+            i += 1
+            continue
+
+        # - 正しく: 文脈上は「ただしく」が自然。
+        if surface == "正しく" and reading_mecab == "マサシク":
             parts.append("ただしく")
             i += 1
             continue
 
-        # - 罰など: 「罰(バチ)」の揺れを避け、「ばつ」を確定。
-        if surface == "罰" and reading_mecab == "バチ" and next_surface == "など":
+        # - 罰: 「罰(バチ)」の揺れを避け、「ばつ」を確定（罰当たり等の複合語は除外）。
+        if surface == "罰" and reading_mecab == "バチ" and next_surface in {"を", "が", "は", "も", "に", "で", "など", "や", "と", "。", "、"}:
             parts.append("ばつ")
             i += 1
             continue
@@ -1750,9 +2455,9 @@ def _patch_tokens_with_words(
             i += 1
             continue
 
-        # - 淹れる: MeCab が未知語分割するため、B側で「いれる」を確定。
-        if surface == "淹" and next_surface == "れる" and reading_mecab == "淹":
-            parts.append("いれる")
+        # - 淹れる/淹れた: MeCab が未知語分割するため、B側で「いれ..」を確定。
+        if surface == "淹" and next_surface in {"れる", "れ"} and reading_mecab == "淹" and not has_override_in_range(i, i + 1) and (i + 1) not in skip_indices:
+            parts.append("いれる" if next_surface == "れる" else "いれ")
             i += 2
             continue
         # VOICEVOX misreads some inflections when left in kanji; force kana in B-text.
@@ -1826,16 +2531,10 @@ def _patch_tokens_with_words(
             parts.append("ナラベ")
             i += 1
             continue
-        # - 同じ力: VOICEVOX が「ドウジリョク」側へ寄ることがあるため、フレーズで「おなじちから」を確定。
-        if (
-            surface == "同じ"
-            and next_surface in {"力", "人"}
-            and reading_mecab == "オナジ"
-            and not has_override_in_range(i, i + 1)
-            and (i + 1) not in skip_indices
-        ):
-            parts.append("おなじちから" if next_surface == "力" else "おなじひと")
-            i += 2
+        # - 同じ: VOICEVOX が「ドウジ」側へ寄ることがあるため、B側で「おなじ」に寄せる。
+        if surface == "同じ" and reading_mecab == "オナジ":
+            parts.append("おなじ")
+            i += 1
             continue
         # - 振り返り: VOICEVOX が「フリガエリ」側へ寄ることがあるため、B側で「ふりかえり」に寄せる。
         if surface == "振り返り" and reading_mecab == "フリカエリ":
@@ -2024,18 +2723,16 @@ def _patch_tokens_with_words(
             parts.append("ほっし")
             i += 1
             continue
-        # - 比べて疲れた: VOICEVOX が「ズカレ」側へ寄るため、「て+疲れ」は「つかれ」を確定。
-        if surface == "疲れ" and base == "疲れる" and reading_mecab == "ツカレ" and prev_surface == "て":
+        # - 疲れ: VOICEVOX が「ズカレ」側へ寄ることがあるため、B側で「つかれ」を確定。
+        if surface == "疲れ" and base == "疲れる" and reading_mecab == "ツカレ":
             parts.append("つかれ")
             i += 1
             continue
-        # - 注意の行き先: 文脈上は「いきさき」が自然。
+        # - 行き先: 文脈上は「いきさき」が自然。
         if surface == "行き先" and reading_mecab == "ユキサキ":
-            prev_prev_surface_local = str(tokens[i - 2].get("surface") or "") if i > 1 else ""
-            if prev_surface == "の" and prev_prev_surface_local == "注意":
-                parts.append("いきさき")
-                i += 1
-                continue
+            parts.append("いきさき")
+            i += 1
+            continue
         # - 手を放す: 「放す」が「ホカス」側に寄ることがあるため、B側で「ハナス」を確定。
         prev_prev_surface = str(tokens[i - 2].get("surface") or "") if i > 1 else ""
         prev_prev_pos = str(tokens[i - 2].get("pos") or "") if i > 1 else ""

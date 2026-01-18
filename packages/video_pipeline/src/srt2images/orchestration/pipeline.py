@@ -706,7 +706,10 @@ def run_pipeline(args):
         cue_model_key = str(cue.get("image_model_key") or "").strip() or (forced_model_key or None)
         if _looks_like_fireworks_flux_schnell(cue_model_key):
             rp = str(cue.get("refined_prompt") or "").strip()
-            if not rp:
+            # NOTE: cue-mode=single is explicitly a deterministic 1-cue flow.
+            # Allow FLUX schnell to run without per-cue refined prompts in this mode
+            # (operators can still provide refined_prompt manually if desired).
+            if not rp and args.cue_mode != "single":
                 raise SystemExit(
                     "❌ FLUX schnell requires per-cue refined_prompt (SSOT).\n"
                     f"- Fix: fill {out_dir / 'visual_cues_plan.json'} sections[*].refined_prompt (THINK/AGENT), then rerun.\n"
