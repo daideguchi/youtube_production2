@@ -112,6 +112,7 @@
 | 静的素材（BGM/ロゴ等） | `asset/` | git管理のL0。cleanup対象外 |
 | 設定（非機密） | `configs/` | 機密は `.env` / `credentials/` |
 | 設計/運用ドキュメント | `ssot/` | 追加したら `DOCS_INDEX` 更新 |
+| 人間用メモ/下書き（git管理） | `workspaces/notes/` | 実行コード/パイプラインは参照しない（学習・整理用） |
 | GitHub Releases 書庫（manifest/index） | `gh_releases_archive/` | 実体は GitHub Releases。`manifest.lock` は gitignore |
 | 退避/復元用アーカイブ | `backups/` | 実行入口にしない |
 | 旧資産/試作（退避） | `backups/graveyard/` | archive-first のみ。実行/同期/SoT にしない |
