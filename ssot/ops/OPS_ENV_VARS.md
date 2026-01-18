@@ -59,6 +59,7 @@
 
 参照（困ったらここを見る）
 - Pages共有URL（/ep）: https://OWNER.github.io/REPO/ep/CH27/001/
+- Pagesモバイル入口（/m; 推奨）: https://OWNER.github.io/REPO/m/ （/ep へ誘導）
 - Pages Script Viewer: https://OWNER.github.io/REPO/?id=CH27-001
 - Pages 書庫（Releases）: https://OWNER.github.io/REPO/archive/?q=CH27-001
 - runbook: `ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md`
