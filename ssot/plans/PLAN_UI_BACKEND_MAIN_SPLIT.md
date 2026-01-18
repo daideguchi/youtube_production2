@@ -50,7 +50,7 @@
 ## 7. マイルストーン / 実装ステップ
 | ステージ | 具体タスク | オーナー | 期日 | ステータス |
 | --- | --- | --- | --- | --- |
-| 1 | `main.py` の “移設候補” をドメイン別に棚卸し（API群/共通util/スキーマ） | dd | - | Draft |
+| 1 | `main.py` の “移設候補” をドメイン別に棚卸し（API群/共通util/スキーマ） | dd | - | Done（2026-01-18） |
 | 2 | 影響が小さい1ドメイン（例: `/api/llm-usage`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 2b | 影響が小さい1ドメイン（例: `/api/remotion/restart_preview`）を router に移設し、`include_router` へ接続 | dd | - | Done |
 | 2c | 影響が小さい1ドメイン（例: `/api/workspaces/video/input/{run_id}/{asset_path}`）を router に移設し、`include_router` へ接続 | dd | - | Done |
@@ -145,13 +145,13 @@
 | 2cn | Routers の `backend.main` 依存（timestamp/正規化/status I/O 等）を削減し、`backend/app` へ寄せる（assembled/human_scripts/tts/video_planning; 挙動互換） | dd | - | Done（2026-01-14） |
 | 2co | Stage order（`STAGE_ORDER`）を `app/status_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 2cp | Default status payload（`_default_status_payload`）を `app/status_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
-| 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Draft |
+| 3 | “共通スキーマ/共通util” の置き場を固定し、循環importを潰す（必要最小） | dd | - | Done（2026-01-18） |
 | 3a | File lock/lock-metrics（`write_text_with_lock`, `LOCK_METRICS`, `LOCK_HISTORY`, `init_lock_storage` など）を `app/lock_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 3b | JSON util（`load_json`, `write_json`）を `app/json_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 3c | Status store I/O（`save_status`, `PROGRESS_STATUS_PATH`）を `app/status_store.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 3d | Planning CSV store の file-lock を `portalocker_compat` に寄せ、portalocker未導入環境でもUI-backendが起動できるようにする（挙動互換） | dd | - | Done（2026-01-14） |
 | 3e | `routers/thumbnails_video.py` の `ssot_assets_root`/`ssot_thumbnails_root` import を修正（`assets_root`/`thumbnails_root` を alias で使用）し、UI-backend 起動時エラーを解消（挙動互換） | dd | - | Done（2026-01-14） |
-| 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Draft |
+| 4 | 段階的に移設を繰り返し、`main.py` を起動/統合へ寄せる | dd | - | Done（2026-01-18） |
 | 4a | Video registry models（`VideoCreateRequest`, `VideoSummaryResponse`, `VideoDetailResponse` 等）を `app/video_registry_models.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4b | Thumbnails project statuses（`THUMBNAIL_PROJECT_STATUSES`）を `app/thumbnails_constants.py` に移設し、`main.py` は import に寄せる（挙動互換） | dd | - | Done（2026-01-14） |
 | 4c | Thumbnails library const（`THUMBNAIL_LIBRARY_MAX_BYTES`, `THUMBNAIL_REMOTE_FETCH_TIMEOUT`）を `app/thumbnails_constants.py` に移設し、router は `backend.app` 参照へ寄せる（挙動互換） | dd | - | Done（2026-01-14） |
