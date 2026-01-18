@@ -336,6 +336,10 @@ export function DashboardOverviewPanel({
           <p className="muted small-text">
             確認: <code>/api/channels</code> と <code>/api/dashboard/overview</code>
           </p>
+          <p className="muted small-text">
+            ローカル開発: ui-backend（既定ポート <code>8000</code>）を起動し、フロントは <code>npm start</code>{" "}
+            を再起動（proxy反映）してください。
+          </p>
         </div>
       ) : null}
 
