@@ -16,6 +16,8 @@ export function ChannelOverviewPage() {
     selectedChannelSnapshot,
     videos,
     filteredVideos,
+    videosLoading,
+    videosError,
     selectedVideo,
     selectChannel,
     videoKeyword,
@@ -37,9 +39,18 @@ export function ChannelOverviewPage() {
     [channels]
   );
   const channelPickerDisabled = channelsLoading || Boolean(channelsError);
+  const showStatus = channelsLoading || Boolean(channelsError) || videosLoading || Boolean(videosError);
 
   return (
     <section className="main-content main-content--channel">
+      {showStatus ? (
+        <div className="main-status">
+          {channelsLoading ? <span className="status-chip">チャンネル読み込み中…</span> : null}
+          {channelsError ? <span className="status-chip status-chip--danger">{channelsError}</span> : null}
+          {videosLoading ? <span className="status-chip">台本一覧読み込み中…</span> : null}
+          {videosError ? <span className="status-chip status-chip--danger">{videosError}</span> : null}
+        </div>
+      ) : null}
       <section className="channel-top-switcher" aria-label="チャンネル切替">
         <div className="channel-top-switcher__header">
           <span className="muted">チャンネル切替:</span>
@@ -154,6 +165,13 @@ export function ChannelOverviewPage() {
         onBackToDashboard={() => selectChannel(null)}
       />
       )}
+
+      {selectedChannel && videosError ? (
+        <p className="muted small-text" style={{ marginTop: 8 }}>
+          台本一覧を取得できていません（<code>/api/channels/{selectedChannel}/videos</code>）。まず「再読み込み」を押し、
+          それでも改善しなければ <code>npm start</code> を再起動（proxy反映）してください。
+        </p>
+      ) : null}
 
       {selectedChannel && selectedChannelSummary && selectedChannelSnapshot ? (
       <ChannelProjectList
