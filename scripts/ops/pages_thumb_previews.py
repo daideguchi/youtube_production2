@@ -34,9 +34,11 @@ from typing import Any, Iterable
 from _bootstrap import bootstrap
 
 try:
-    from PIL import Image, ImageOps
+    from PIL import Image, ImageDraw, ImageFont, ImageOps
 except Exception:  # pragma: no cover
     Image = None  # type: ignore[assignment]
+    ImageDraw = None  # type: ignore[assignment]
+    ImageFont = None  # type: ignore[assignment]
     ImageOps = None  # type: ignore[assignment]
 
 
@@ -152,6 +154,115 @@ def _write_preview_jpg(*, src: Path, dest: Path, width: int, quality: int) -> No
         tmp.replace(dest)
 
 
+def _load_docs_index_video_items(repo_root: Path) -> list[dict[str, Any]]:
+    """
+    Load docs/data/index.json (pages script viewer index).
+
+    This index is larger than thumbnails projects.json and is used to
+    generate *placeholder* thumbs for episodes that don't have a thumbnail
+    project yet (so mobile Pages doesn't show broken images).
+    """
+    path = repo_root / "docs" / "data" / "index.json"
+    if not path.exists():
+        return []
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8"))
+        items = obj.get("items") if isinstance(obj, dict) else None
+        return items if isinstance(items, list) else []
+    except Exception:
+        return []
+
+
+def _load_font(size: int):
+    if ImageFont is None:  # pragma: no cover
+        return None
+    try:
+        return ImageFont.truetype("DejaVuSans.ttf", size=size)
+    except Exception:  # pragma: no cover
+        try:
+            return ImageFont.load_default()
+        except Exception:
+            return None
+
+
+def _draw_centered_text(draw: Any, *, text: str, y: int, font: Any, fill: tuple[int, int, int], width: int) -> int:
+    if not text:
+        return y
+    try:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = int(bbox[2] - bbox[0])
+        th = int(bbox[3] - bbox[1])
+    except Exception:  # pragma: no cover
+        tw, th = 0, 0
+    x = max(0, int((width - tw) / 2))
+    draw.text((x, int(y)), text, font=font, fill=fill)
+    return int(y + th)
+
+
+def _write_placeholder_thumb_jpg(*, dest: Path, video_id: str, title: str, width: int, quality: int) -> None:
+    if Image is None or ImageDraw is None:  # pragma: no cover
+        raise RuntimeError("Pillow (PIL) is required to generate placeholder previews.")
+
+    # Generate at a larger base resolution then downscale to `width`.
+    base_w = max(int(width) * 2, 1280)
+    base_h = int(round(base_w * 9 / 16))
+    bg = (19, 24, 32)  # dark
+    fg = (231, 238, 247)
+    muted = (155, 176, 198)
+
+    im = Image.new("RGB", (base_w, base_h), bg)
+    draw = ImageDraw.Draw(im)
+
+    pad = int(base_w * 0.06)
+    try:
+        draw.rectangle((pad, pad, base_w - pad, base_h - pad), outline=(46, 57, 74), width=3)
+    except Exception:
+        pass
+
+    font_main = _load_font(int(base_w * 0.10)) or _load_font(48)
+    font_sub = _load_font(int(base_w * 0.045)) or _load_font(22)
+    font_title = _load_font(int(base_w * 0.035)) or _load_font(18)
+
+    y = int(base_h * 0.32)
+    y = _draw_centered_text(draw, text=video_id, y=y, font=font_main, fill=fg, width=base_w) + int(base_h * 0.02)
+    y = _draw_centered_text(draw, text="THUMBNAIL MISSING", y=y, font=font_sub, fill=muted, width=base_w) + int(
+        base_h * 0.03
+    )
+    if title:
+        one_line = " ".join(str(title).strip().split())
+        if len(one_line) > 80:
+            one_line = one_line[:77] + "..."
+        _draw_centered_text(draw, text=one_line, y=y, font=font_title, fill=muted, width=base_w)
+
+    im.thumbnail((int(width), 10_000_000), resample=Image.Resampling.LANCZOS)
+
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".tmp")
+    im.save(tmp, format="JPEG", quality=int(quality), optimize=True, progressive=True)
+    tmp.replace(dest)
+
+
+def _fill_missing_placeholders(repo_root: Path, *, width: int, quality: int) -> tuple[int, int]:
+    written = 0
+    skipped_exists = 0
+    for raw in _load_docs_index_video_items(repo_root):
+        if not isinstance(raw, dict):
+            continue
+        ch = _normalize_channel(str(raw.get("channel") or ""))
+        vv = _normalize_video(str(raw.get("video") or ""))
+        if not (CHANNEL_RE.match(ch) and VIDEO_RE.match(vv)):
+            continue
+        dest = _thumb_preview_path(repo_root, ch, vv)
+        if dest.exists():
+            skipped_exists += 1
+            continue
+        vid = str(raw.get("video_id") or _video_id(ch, vv)).strip() or _video_id(ch, vv)
+        title = str(raw.get("title") or "").strip()
+        _write_placeholder_thumb_jpg(dest=dest, video_id=vid, title=title, width=int(width), quality=int(quality))
+        written += 1
+    return written, skipped_exists
+
+
 @dataclass(frozen=True)
 class ThumbIndexItem:
     video_id: str
@@ -237,6 +348,11 @@ def main() -> int:
     ap.add_argument("--width", type=int, default=640, help="Preview max width (default: 640)")
     ap.add_argument("--quality", type=int, default=85, help="JPEG quality (default: 85)")
     ap.add_argument("--overwrite", action="store_true", help="Overwrite existing previews")
+    ap.add_argument(
+        "--fill-missing-placeholders",
+        action="store_true",
+        help="Also generate placeholder thumbs under docs/media/thumbs/ for episodes missing any preview (uses docs/data/index.json).",
+    )
     ap.add_argument("--write", action="store_true", help="Write previews + thumbs_index.json (default: dry-run)")
     args = ap.parse_args()
 
@@ -257,6 +373,7 @@ def main() -> int:
     written = 0
     skipped_exists = 0
     missing_src = 0
+    placeholder_written = 0
 
     if args.write:
         for it in items:
@@ -270,6 +387,10 @@ def main() -> int:
                 continue
             _write_preview_jpg(src=src, dest=dest, width=int(args.width), quality=int(args.quality))
             written += 1
+        if bool(args.fill_missing_placeholders):
+            placeholder_written, _placeholder_skipped = _fill_missing_placeholders(
+                repo_root, width=int(args.width), quality=int(args.quality)
+            )
 
     # Always write index when --write (kept small; no secrets).
     out_payload = {
@@ -300,7 +421,7 @@ def main() -> int:
 
     mode = "WRITE" if args.write else "DRY"
     print(
-        f"[pages_thumb_previews] mode={mode} targets={len(items)} written={written} skipped_exists={skipped_exists} missing_src={missing_src}"
+        f"[pages_thumb_previews] mode={mode} targets={len(items)} written={written} placeholder_written={placeholder_written} skipped_exists={skipped_exists} missing_src={missing_src}"
     )
     if not args.write:
         print("Dry-run only. Re-run with --write to generate previews and index.")
@@ -309,4 +430,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
