@@ -204,7 +204,7 @@
 | 4ax | Channel profile response（`_build_channel_profile_response`, channel_info/voice_config load）を `app/channel_profile.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を削減（挙動互換） | dd | - | Done（2026-01-16） |
 | 4ay | Channel profile update（`update_channel_profile` + prompt/tags/youtube/audio 更新 + edit log）を `app/channel_profile_update.py` に移設し、`routers/channel_registry.py` の `backend.main` runtime import を解消（挙動互換） | dd | - | Done（2026-01-17） |
 | 4az | Thumbnail stable spec helpers（`_normalize_thumbnail_stable_id`, `_thumb_spec_stable_path`, `_text_line_spec_stable_path`, `_elements_spec_stable_path`）を `app/thumbnails_stable_paths.py` に移設し、thumbnail系 router の `backend.main` 依存を削減（挙動互換） | dd | - | Done（2026-01-18） |
-| 4ba | Thumbnails OpenRouter helpers（pricing/generation）参照を `backend.main` から `app/llm_catalog_store.py` に寄せ、thumbnail系 router の runtime import を削減（挙動互換） | dd | - | Draft |
+| 4ba | Thumbnails OpenRouter helpers（pricing/generation）参照を `backend.main` から `app/llm_catalog_store.py` に寄せ、thumbnail系 router の runtime import を削減（挙動互換） | dd | - | Done（2026-01-18） |
 
 ## 8. TODO / チェックリスト
 - [ ] 1回の移設で変える範囲を小さく保つ（差分が広がったら分割）
