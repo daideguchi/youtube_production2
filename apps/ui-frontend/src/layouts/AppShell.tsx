@@ -807,8 +807,19 @@ export function AppShell() {
       return;
     }
     setSummaryFilter(null);
+    // Avoid noisy /videos fetches until channels are available.
+    // (dev proxy misconfig / backend down / first load)
+    if (channelsError) {
+      return;
+    }
+    if (channels.length === 0) {
+      return;
+    }
+    if (!channels.some((item) => item.code === selectedChannel)) {
+      return;
+    }
     refreshVideos(selectedChannel);
-  }, [selectedChannel, refreshVideos]);
+  }, [selectedChannel, refreshVideos, channels, channelsError]);
 
   useEffect(() => {
     if (!selectedChannel || !selectedVideo) {
