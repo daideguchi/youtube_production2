@@ -7,6 +7,7 @@ import uuid
 import yaml
 from fastapi import APIRouter, HTTPException
 
+from backend.app.llm_catalog_store import _get_openrouter_pricing_by_model_id
 from backend.app.normalize import normalize_channel_code
 from backend.app.thumbnails_layer_specs_models import ThumbnailImageModelInfoResponse
 from backend.app.thumbnails_templates_models import (
@@ -51,10 +52,7 @@ def list_thumbnail_image_models():
     pricing_by_id: Dict[str, Dict[str, str]] = {}
     pricing_updated_at: Optional[str] = None
     try:
-        # Late-binding: backend.main defines pricing helpers after router wiring.
-        import backend.main as backend_main
-
-        pricing_by_id, fetched_at = backend_main._get_openrouter_pricing_by_model_id()  # type: ignore[attr-defined]
+        pricing_by_id, fetched_at = _get_openrouter_pricing_by_model_id()
         if fetched_at:
             pricing_updated_at = datetime.fromtimestamp(fetched_at, timezone.utc).isoformat()
     except Exception:

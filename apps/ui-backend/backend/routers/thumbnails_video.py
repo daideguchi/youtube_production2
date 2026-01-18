@@ -12,6 +12,7 @@ import yaml
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from PIL import Image
 
+from backend.app.llm_catalog_store import _fetch_openrouter_generation as _fetch_openrouter_generation_impl
 from backend.app.normalize import normalize_channel_code, normalize_video_number
 from backend.app.path_utils import PROJECT_ROOT, safe_relative_path
 from backend.app.thumbnails_projects_store import (
@@ -116,7 +117,7 @@ def _render_thumbnail_prompt_template(template: str, context: Dict[str, str]) ->
 
 
 def _fetch_openrouter_generation(gen_id: str, *, timeout_sec: int = 10) -> Optional[Dict[str, Any]]:
-    return _backend_main()._fetch_openrouter_generation(gen_id, timeout_sec=timeout_sec)
+    return _fetch_openrouter_generation_impl(gen_id, timeout_sec=timeout_sec)
 
 
 async def _save_upload_file(upload: UploadFile, destination: Path) -> None:
