@@ -126,7 +126,80 @@ function setupEpisodeDescriptionCopy(){
   setStatus(hasAny?"準備OK（①タイトル→②概要欄→③タグ をコピーして貼り付け）":"概要欄が空です（Planningを確認してください）");
 }
 
+function stripScriptSeparators(text){
+  const lines=String(text||"").replace(/\r\n/g,"\n").split("\n");
+  const out=[];
+  for(const line of lines){
+    if(String(line).trim()==="---")continue;
+    out.push(line);
+  }
+  return out.join("\n").replace(/\n{3,}/g,"\n\n");
+}
+
+function setupEpisodeScriptCopy(){
+  const pre=document.querySelector("pre.pre");
+  if(!pre)return;
+
+  const currentTab=document.querySelector("nav.tabs a[aria-current='page']");
+  if(currentTab){
+    const label=String(currentTab.textContent||"").trim();
+    if(label&&label!=="台本")return;
+  }
+
+  if(document.getElementById("scriptCopyActions"))return;
+
+  const actions=document.createElement("div");
+  actions.id="scriptCopyActions";
+  actions.className="copy-actions";
+  actions.style.marginTop="12px";
+
+  const btnRaw=document.createElement("button");
+  btnRaw.type="button";
+  btnRaw.className="btn btn--accent";
+  btnRaw.textContent="台本コピー";
+
+  const btnNoSep=document.createElement("button");
+  btnNoSep.type="button";
+  btnNoSep.className="btn";
+  btnNoSep.textContent="台本コピー（---なし）";
+
+  const status=document.createElement("div");
+  status.id="scriptCopyStatus";
+  status.className="muted";
+  status.style.marginTop="8px";
+  status.textContent="台本コピー: ボタンを押してください";
+
+  actions.appendChild(btnRaw);
+  actions.appendChild(btnNoSep);
+  pre.parentNode?.insertBefore(actions, pre);
+  pre.parentNode?.insertBefore(status, pre);
+
+  function setStatus(msg){
+    status.textContent=String(msg||"");
+  }
+
+  btnRaw.addEventListener("click", async()=>{
+    try{
+      const ok=await copyText(pre.textContent||"");
+      setStatus(ok?"コピーしました（台本）":"コピー失敗（台本）");
+    }catch(_e){
+      setStatus("コピー失敗（台本）");
+    }
+  });
+
+  btnNoSep.addEventListener("click", async()=>{
+    try{
+      const stripped=stripScriptSeparators(pre.textContent||"");
+      const ok=await copyText(stripped);
+      setStatus(ok?"コピーしました（台本・---なし）":"コピー失敗（台本・---なし）");
+    }catch(_e){
+      setStatus("コピー失敗（台本・---なし）");
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded",()=>{
   setupEpJumpForm();
   setupEpisodeDescriptionCopy();
+  setupEpisodeScriptCopy();
 });
