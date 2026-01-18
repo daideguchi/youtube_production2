@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": "2026-01-18T09:07:30.544003Z",
-  "count": 89,
+  "updated_at": "2026-01-18T09:20:16.407186Z",
+  "count": 92,
   "items": [
     {
       "video_id": "CH01-251",
@@ -17234,13 +17234,158 @@
       "video_id": "CH27-001",
       "channel": "CH27",
       "video": "001",
-      "run_id": "CH27-001_capcut_v1",
-      "count": 1,
+      "run_id": "CH27-001_capcut_v2",
+      "count": 30,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH27/001/0001.jpg",
-          "summary": "Static portrait layout (right portrait, left black). No in-image text."
+          "summary": "雨の深夜ファミレス"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/001/0002.jpg",
+          "summary": "去った席と静寂"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/001/0003.jpg",
+          "summary": "冗談の棘を聴く"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/001/0004.jpg",
+          "summary": "社宅での出会い"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/001/0005.jpg",
+          "summary": "太陽と影の二人"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/001/0006.jpg",
+          "summary": "再会の楽しさと溝"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/001/0007.jpg",
+          "summary": "駅ビルイタリアン"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/001/0008.jpg",
+          "summary": "軽口が刺さる瞬間"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/001/0009.jpg",
+          "summary": "自分を否定された夜"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/001/0010.jpg",
+          "summary": "服と習慣への冗談"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/001/0011.jpg",
+          "summary": "免罪符と円卓の予兆"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/001/0012.jpg",
+          "summary": "野草話から嘲笑へ"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/001/0013.jpg",
+          "summary": "笑いに巻き込まれる"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/001/0014.jpg",
+          "summary": "踏み台にされた確信"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/001/0015.jpg",
+          "summary": "雨の再会、最後の夜"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/001/0016.jpg",
+          "summary": "愚痴と冷めるコーヒー"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/001/0017.jpg",
+          "summary": "暗い顔が比較対象に"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH27/001/0018.jpg",
+          "summary": "過去の恵子はもういない"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH27/001/0019.jpg",
+          "summary": "冷えた一口と宣告"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH27/001/0020.jpg",
+          "summary": "変わらないと悟る"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH27/001/0021.jpg",
+          "summary": "思い出の鎖を解く"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH27/001/0022.jpg",
+          "summary": "優しい言葉が壁を壊す"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH27/001/0023.jpg",
+          "summary": "受け止めず距離を変える"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH27/001/0024.jpg",
+          "summary": "冷えたグラスの比喩"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH27/001/0025.jpg",
+          "summary": "心を静かな場所へ置く"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH27/001/0026.jpg",
+          "summary": "雨の駐車場、背中の別れ"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH27/001/0027.jpg",
+          "summary": "荷物を下ろし、ハーブティー"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH27/001/0028.jpg",
+          "summary": "深い眠りが癒す"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH27/001/0029.jpg",
+          "summary": "今夜は理由探しをやめて"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH27/001/0030.jpg",
+          "summary": "呼吸だけ聴いておやすみ"
         }
       ]
     },
@@ -17248,13 +17393,183 @@
       "video_id": "CH27-002",
       "channel": "CH27",
       "video": "002",
-      "run_id": "CH27-002_capcut_v1",
-      "count": 1,
+      "run_id": "CH27-002_capcut_v2",
+      "count": 35,
       "files": [
         {
           "file": "0001.jpg",
           "rel": "media/video_images/CH27/002/0001.jpg",
-          "summary": "Static portrait layout (right portrait, left black). No in-image text."
+          "summary": "冷たい廊下の温度"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/002/0002.jpg",
+          "summary": "針のような会話"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/002/0003.jpg",
+          "summary": "静かに眠ると決める"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/002/0004.jpg",
+          "summary": "修学旅行の対等さ"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/002/0005.jpg",
+          "summary": "グループLINEの熱"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/002/0006.jpg",
+          "summary": "宿選びで棘が刺さる"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/002/0007.jpg",
+          "summary": "映える宿に決定"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/002/0008.jpg",
+          "summary": "合流は駅でと言われる"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/002/0009.jpg",
+          "summary": "ホームで見える膜"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/002/0010.jpg",
+          "summary": "車内で私はお客様"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/002/0011.jpg",
+          "summary": "駅弁を合わせてしまう"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/002/0012.jpg",
+          "summary": "旅館到着と部屋割り前"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/002/0013.jpg",
+          "summary": "当然のように一人部屋"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/002/0014.jpg",
+          "summary": "薄い返事と襖が閉まる"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/002/0015.jpg",
+          "summary": "別館へ、数合わせの私"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/002/0016.jpg",
+          "summary": "格差と乾いた諦め"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/002/0017.jpg",
+          "summary": "小さな洋室で息をつく"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH27/002/0018.jpg",
+          "summary": "浴衣の三人と夕食へ"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH27/002/0019.jpg",
+          "summary": "豪華料理が遠い"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH27/002/0020.jpg",
+          "summary": "定年話の笑いと違和感"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH27/002/0021.jpg",
+          "summary": "話題は冷めた焼き魚"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH27/002/0022.jpg",
+          "summary": "入り込む気力がない"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH27/002/0023.jpg",
+          "summary": "二次会の誘いの温度"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH27/002/0024.jpg",
+          "summary": "糸を切る決意"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH27/002/0025.jpg",
+          "summary": "嘘の頭痛で離れる"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH27/002/0026.jpg",
+          "summary": "鍵の音、境界線"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH27/002/0027.jpg",
+          "summary": "天井のシミと静けさ"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH27/002/0028.jpg",
+          "summary": "周波数がずれていく"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH27/002/0029.jpg",
+          "summary": "尊厳を守る距離"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH27/002/0030.jpg",
+          "summary": "明日は挨拶だけでいい"
+        },
+        {
+          "file": "0031.jpg",
+          "rel": "media/video_images/CH27/002/0031.jpg",
+          "summary": "扉を閉める勇気"
+        },
+        {
+          "file": "0032.jpg",
+          "rel": "media/video_images/CH27/002/0032.jpg",
+          "summary": "月と本と私の時間"
+        },
+        {
+          "file": "0033.jpg",
+          "rel": "media/video_images/CH27/002/0033.jpg",
+          "summary": "今夜は追わない"
+        },
+        {
+          "file": "0034.jpg",
+          "rel": "media/video_images/CH27/002/0034.jpg",
+          "summary": "灯りを消し、朝を待つ"
+        },
+        {
+          "file": "0035.jpg",
+          "rel": "media/video_images/CH27/002/0035.jpg",
+          "summary": "自分の切符を買う"
         }
       ]
     },
@@ -17671,6 +17986,553 @@
           "file": "0028.jpg",
           "rel": "media/video_images/CH27/030/0028.jpg",
           "summary": "あなたへ、おやすみの言葉"
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-003",
+      "channel": "CH27",
+      "video": "003",
+      "run_id": "CH27-003_capcut_v2",
+      "count": 37,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/003/0001.jpg",
+          "summary": "暗闇の写真投稿"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/003/0002.jpg",
+          "summary": "優しい声が刃になる"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/003/0003.jpg",
+          "summary": "伏せたスマホと沈黙"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/003/0004.jpg",
+          "summary": "時計を少し戻す"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/003/0005.jpg",
+          "summary": "五人組の安心感"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/003/0006.jpg",
+          "summary": "定例ランチの違和感"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/003/0007.jpg",
+          "summary": "二人だけの内輪話"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/003/0008.jpg",
+          "summary": "偶然と自分に言い聞かせ"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/003/0009.jpg",
+          "summary": "既読の壁"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/003/0010.jpg",
+          "summary": "買い物帰りの再会"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/003/0011.jpg",
+          "summary": "誘うのも悪い？"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/003/0012.jpg",
+          "summary": "残酷な答えが届く"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/003/0013.jpg",
+          "summary": "『このメンバー』の排他"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/003/0014.jpg",
+          "summary": "恥と自己検閲"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/003/0015.jpg",
+          "summary": "ソファに沈む夜"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/003/0016.jpg",
+          "summary": "裏の会話の気配"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/003/0017.jpg",
+          "summary": "想像が胃を締める"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH27/003/0018.jpg",
+          "summary": "眠れぬ闇と過去"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH27/003/0019.jpg",
+          "summary": "支え合った日々"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH27/003/0020.jpg",
+          "summary": "愚痴っぽい私？"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH27/003/0021.jpg",
+          "summary": "夜明けの結論"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH27/003/0022.jpg",
+          "summary": "季節が変わっただけ"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH27/003/0023.jpg",
+          "summary": "春の服を脱ぐ"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH27/003/0024.jpg",
+          "summary": "沈黙を選ぶ"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH27/003/0025.jpg",
+          "summary": "個別LINEの誘い"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH27/003/0026.jpg",
+          "summary": "断る指先の震え"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH27/003/0027.jpg",
+          "summary": "秋のベランダの空"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH27/003/0028.jpg",
+          "summary": "友人関係の見栄"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH27/003/0029.jpg",
+          "summary": "根詰まりのサイン"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH27/003/0030.jpg",
+          "summary": "卒業証書として受け取る"
+        },
+        {
+          "file": "0031.jpg",
+          "rel": "media/video_images/CH27/003/0031.jpg",
+          "summary": "一人映画の豊かな沈黙"
+        },
+        {
+          "file": "0032.jpg",
+          "rel": "media/video_images/CH27/003/0032.jpg",
+          "summary": "声をかけず通り過ぎる"
+        },
+        {
+          "file": "0033.jpg",
+          "rel": "media/video_images/CH27/003/0033.jpg",
+          "summary": "心の特等席"
+        },
+        {
+          "file": "0034.jpg",
+          "rel": "media/video_images/CH27/003/0034.jpg",
+          "summary": "通知を置く勇気"
+        },
+        {
+          "file": "0035.jpg",
+          "rel": "media/video_images/CH27/003/0035.jpg",
+          "summary": "フレーム外の自由"
+        },
+        {
+          "file": "0036.jpg",
+          "rel": "media/video_images/CH27/003/0036.jpg",
+          "summary": "今夜は追わずに眠る"
+        },
+        {
+          "file": "0037.jpg",
+          "rel": "media/video_images/CH27/003/0037.jpg",
+          "summary": "闇は毛布になる"
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-004",
+      "channel": "CH27",
+      "video": "004",
+      "run_id": "CH27-004_capcut_v2",
+      "count": 32,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/004/0001.jpg",
+          "summary": "レジ前の硬質な光"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/004/0002.jpg",
+          "summary": "千円札だけ差し出す"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/004/0003.jpg",
+          "summary": "侮蔑の言葉で凍る"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/004/0004.jpg",
+          "summary": "遠い声、軽いごちそうさま"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/004/0005.jpg",
+          "summary": "今夜の決別の話"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/004/0006.jpg",
+          "summary": "コーラスで出会う"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/004/0007.jpg",
+          "summary": "初ランチの立て替え"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/004/0008.jpg",
+          "summary": "催促できない指"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/004/0009.jpg",
+          "summary": "端数切り捨ての常套句"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/004/0010.jpg",
+          "summary": "雨のタクシーと飴玉"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/004/0011.jpg",
+          "summary": "安上がりの便利屋"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/004/0012.jpg",
+          "summary": "都合のいい財布へ"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/004/0013.jpg",
+          "summary": "上の空と不満"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/004/0014.jpg",
+          "summary": "居場所を失う恐怖"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/004/0015.jpg",
+          "summary": "予約店での裏切り"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/004/0016.jpg",
+          "summary": "割り勘の準備"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/004/0017.jpg",
+          "summary": "きっちり割り勘宣言"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH27/004/0018.jpg",
+          "summary": "カード要求と嘘"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH27/004/0019.jpg",
+          "summary": "スイッチが切り替わる"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH27/004/0020.jpg",
+          "summary": "駅までの沈黙"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH27/004/0021.jpg",
+          "summary": "返さなくていい"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH27/004/0022.jpg",
+          "summary": "手切れ金の宣告"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH27/004/0023.jpg",
+          "summary": "尊厳を守り改札へ"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH27/004/0024.jpg",
+          "summary": "足取り軽く、涙一粒"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH27/004/0025.jpg",
+          "summary": "退会連絡、静かな風"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH27/004/0026.jpg",
+          "summary": "一人の夕食の美味しさ"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH27/004/0027.jpg",
+          "summary": "上限ラインを引く"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH27/004/0028.jpg",
+          "summary": "財布を整える覚悟"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH27/004/0029.jpg",
+          "summary": "スーパーで再会、通り過ぎる"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH27/004/0030.jpg",
+          "summary": "季節の果物を選ぶ"
+        },
+        {
+          "file": "0031.jpg",
+          "rel": "media/video_images/CH27/004/0031.jpg",
+          "summary": "お金の品格と線引き"
+        },
+        {
+          "file": "0032.jpg",
+          "rel": "media/video_images/CH27/004/0032.jpg",
+          "summary": "自分のための朝コーヒー"
+        }
+      ]
+    },
+    {
+      "video_id": "CH27-005",
+      "channel": "CH27",
+      "video": "005",
+      "run_id": "CH27-005_capcut_v2",
+      "count": 35,
+      "files": [
+        {
+          "file": "0001.jpg",
+          "rel": "media/video_images/CH27/005/0001.jpg",
+          "summary": "玄関チャイムの震え"
+        },
+        {
+          "file": "0002.jpg",
+          "rel": "media/video_images/CH27/005/0002.jpg",
+          "summary": "香水と紅茶の招待"
+        },
+        {
+          "file": "0003.jpg",
+          "rel": "media/video_images/CH27/005/0003.jpg",
+          "summary": "宝石箱のような箱"
+        },
+        {
+          "file": "0004.jpg",
+          "rel": "media/video_images/CH27/005/0004.jpg",
+          "summary": "色褪せる私の手土産"
+        },
+        {
+          "file": "0005.jpg",
+          "rel": "media/video_images/CH27/005/0005.jpg",
+          "summary": "クスクス笑いの刺"
+        },
+        {
+          "file": "0006.jpg",
+          "rel": "media/video_images/CH27/005/0006.jpg",
+          "summary": "靴を止めた一言"
+        },
+        {
+          "file": "0007.jpg",
+          "rel": "media/video_images/CH27/005/0007.jpg",
+          "summary": "タッパー交換の頃"
+        },
+        {
+          "file": "0008.jpg",
+          "rel": "media/video_images/CH27/005/0008.jpg",
+          "summary": "清美の変化の始まり"
+        },
+        {
+          "file": "0009.jpg",
+          "rel": "media/video_images/CH27/005/0009.jpg",
+          "summary": "銀座ランチの圧"
+        },
+        {
+          "file": "0010.jpg",
+          "rel": "media/video_images/CH27/005/0010.jpg",
+          "summary": "良心が揺れる車窓"
+        },
+        {
+          "file": "0011.jpg",
+          "rel": "media/video_images/CH27/005/0011.jpg",
+          "summary": "卵棚と十円玉"
+        },
+        {
+          "file": "0012.jpg",
+          "rel": "media/video_images/CH27/005/0012.jpg",
+          "summary": "知らないソースの笑顔"
+        },
+        {
+          "file": "0013.jpg",
+          "rel": "media/video_images/CH27/005/0013.jpg",
+          "summary": "手土産合戦の始まり"
+        },
+        {
+          "file": "0014.jpg",
+          "rel": "media/video_images/CH27/005/0014.jpg",
+          "summary": "手土産バッグの序列"
+        },
+        {
+          "file": "0015.jpg",
+          "rel": "media/video_images/CH27/005/0015.jpg",
+          "summary": "眩しさが暴く貧しさ"
+        },
+        {
+          "file": "0016.jpg",
+          "rel": "media/video_images/CH27/005/0016.jpg",
+          "summary": "ブランドで量る友情"
+        },
+        {
+          "file": "0017.jpg",
+          "rel": "media/video_images/CH27/005/0017.jpg",
+          "summary": "拍手でつなぐ居場所"
+        },
+        {
+          "file": "0018.jpg",
+          "rel": "media/video_images/CH27/005/0018.jpg",
+          "summary": "リフォーム宅の冷たさ"
+        },
+        {
+          "file": "0019.jpg",
+          "rel": "media/video_images/CH27/005/0019.jpg",
+          "summary": "古いワンピースを探す"
+        },
+        {
+          "file": "0020.jpg",
+          "rel": "media/video_images/CH27/005/0020.jpg",
+          "summary": "和菓子屋の試食"
+        },
+        {
+          "file": "0021.jpg",
+          "rel": "media/video_images/CH27/005/0021.jpg",
+          "summary": "八百円を選ぶ"
+        },
+        {
+          "file": "0022.jpg",
+          "rel": "media/video_images/CH27/005/0022.jpg",
+          "summary": "覚悟の深呼吸"
+        },
+        {
+          "file": "0023.jpg",
+          "rel": "media/video_images/CH27/005/0023.jpg",
+          "summary": "鏡に映る嘲笑"
+        },
+        {
+          "file": "0024.jpg",
+          "rel": "media/video_images/CH27/005/0024.jpg",
+          "summary": "凍りつく玄関"
+        },
+        {
+          "file": "0025.jpg",
+          "rel": "media/video_images/CH27/005/0025.jpg",
+          "summary": "エレベーターの吐息"
+        },
+        {
+          "file": "0026.jpg",
+          "rel": "media/video_images/CH27/005/0026.jpg",
+          "summary": "鏡の澄んだ目"
+        },
+        {
+          "file": "0027.jpg",
+          "rel": "media/video_images/CH27/005/0027.jpg",
+          "summary": "削除と静かな退出"
+        },
+        {
+          "file": "0028.jpg",
+          "rel": "media/video_images/CH27/005/0028.jpg",
+          "summary": "緑茶の湯気と涙"
+        },
+        {
+          "file": "0029.jpg",
+          "rel": "media/video_images/CH27/005/0029.jpg",
+          "summary": "服を脱いだ後の体温"
+        },
+        {
+          "file": "0030.jpg",
+          "rel": "media/video_images/CH27/005/0030.jpg",
+          "summary": "夕焼けの安らぎ"
+        },
+        {
+          "file": "0031.jpg",
+          "rel": "media/video_images/CH27/005/0031.jpg",
+          "summary": "店先の再会"
+        },
+        {
+          "file": "0032.jpg",
+          "rel": "media/video_images/CH27/005/0032.jpg",
+          "summary": "公園ベンチの半分こ"
+        },
+        {
+          "file": "0033.jpg",
+          "rel": "media/video_images/CH27/005/0033.jpg",
+          "summary": "連絡先の空きスペース"
+        },
+        {
+          "file": "0034.jpg",
+          "rel": "media/video_images/CH27/005/0034.jpg",
+          "summary": "値段のない箱"
+        },
+        {
+          "file": "0035.jpg",
+          "rel": "media/video_images/CH27/005/0035.jpg",
+          "summary": "追わない夜の花"
         }
       ]
     }
