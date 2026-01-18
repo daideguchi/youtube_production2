@@ -57,6 +57,13 @@ from backend.app.thumbnails_specs_models import (
     ThumbnailThumbSpecResponse,
     ThumbnailThumbSpecUpdateRequest,
 )
+from backend.app.thumbnails_stable_paths import (
+    THUMBNAIL_ASSETS_DIR,
+    elements_spec_stable_path,
+    normalize_thumbnail_stable_id,
+    text_line_spec_stable_path,
+    thumb_spec_stable_path,
+)
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
 from backend.app.channel_info_store import refresh_channel_info
 
@@ -373,8 +380,6 @@ def get_thumbnail_thumb_spec(
     stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
     variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
 ):
-    from backend import main as backend_main
-
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     try:
@@ -387,12 +392,12 @@ def get_thumbnail_thumb_spec(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"thumb_spec module is not available: {exc}") from exc
 
-    stable_id = backend_main._normalize_thumbnail_stable_id(stable if stable is not None else variant)
+    stable_id = normalize_thumbnail_stable_id(stable if stable is not None else variant)
     loaded = None
     stable_exists = False
     stable_path = None
     if stable_id:
-        stable_path = backend_main._thumb_spec_stable_path(channel_code, video_number, stable_id)
+        stable_path = thumb_spec_stable_path(channel_code, video_number, stable_id)
         stable_exists = stable_path.exists()
         if stable_exists:
             try:
@@ -466,11 +471,11 @@ def upsert_thumbnail_thumb_spec(
 
     overrides = request.overrides if isinstance(request.overrides, dict) else {}
     try:
-        stable_id = backend_main._normalize_thumbnail_stable_id(stable if stable is not None else variant)
+        stable_id = normalize_thumbnail_stable_id(stable if stable is not None else variant)
         if not stable_id:
             save_thumb_spec(channel_code, video_number, overrides)
         else:
-            path = backend_main._thumb_spec_stable_path(channel_code, video_number, stable_id)
+            path = thumb_spec_stable_path(channel_code, video_number, stable_id)
             payload = {
                 "schema": THUMB_SPEC_SCHEMA_V1,
                 "channel": channel_code,
@@ -497,7 +502,7 @@ def upsert_thumbnail_thumb_spec(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to save thumb_spec: {exc}") from exc
 
-    stable_id = backend_main._normalize_thumbnail_stable_id(stable if stable is not None else variant)
+    stable_id = normalize_thumbnail_stable_id(stable if stable is not None else variant)
     if stable_id:
         return get_thumbnail_thumb_spec(channel_code, video_number, stable=stable_id)
     return get_thumbnail_thumb_spec(channel_code, video_number)
@@ -513,16 +518,14 @@ def get_thumbnail_text_line_spec(
     stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
     variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
 ):
-    from backend import main as backend_main
-
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     stable_raw = stable if stable is not None else variant
-    stable_id = backend_main._normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
+    stable_id = normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
     stable_label = stable_id or "default"
-    legacy_path = backend_main.THUMBNAIL_ASSETS_DIR / channel_code / video_number / "text_line_spec.json"
+    legacy_path = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "text_line_spec.json"
     stable_path = (
-        backend_main._text_line_spec_stable_path(channel_code, video_number, stable_id) if stable_id else None
+        text_line_spec_stable_path(channel_code, video_number, stable_id) if stable_id else None
     )
     candidates: List[Path] = []
     if stable_path is not None:
@@ -600,7 +603,7 @@ def upsert_thumbnail_text_line_spec(
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     stable_raw = stable if stable is not None else variant
-    stable_id = backend_main._normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
+    stable_id = normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
     stable_label = stable_id or "default"
 
     lines_out: Dict[str, Dict[str, float]] = {}
@@ -636,9 +639,9 @@ def upsert_thumbnail_text_line_spec(
         "updated_at": backend_main._utc_now_iso_z(),
     }
     path = (
-        backend_main._text_line_spec_stable_path(channel_code, video_number, stable_id)
+        text_line_spec_stable_path(channel_code, video_number, stable_id)
         if stable_id
-        else (backend_main.THUMBNAIL_ASSETS_DIR / channel_code / video_number / "text_line_spec.json")
+        else (THUMBNAIL_ASSETS_DIR / channel_code / video_number / "text_line_spec.json")
     )
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -659,16 +662,14 @@ def get_thumbnail_elements_spec(
     stable: Optional[str] = Query(None, description="stable output id (e.g. 00_thumb_1)"),
     variant: Optional[str] = Query(None, description="alias of stable (deprecated)"),
 ):
-    from backend import main as backend_main
-
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     stable_raw = stable if stable is not None else variant
-    stable_id = backend_main._normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
+    stable_id = normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
     stable_label = stable_id or "default"
-    legacy_path = backend_main.THUMBNAIL_ASSETS_DIR / channel_code / video_number / "elements_spec.json"
+    legacy_path = THUMBNAIL_ASSETS_DIR / channel_code / video_number / "elements_spec.json"
     stable_path = (
-        backend_main._elements_spec_stable_path(channel_code, video_number, stable_id) if stable_id else None
+        elements_spec_stable_path(channel_code, video_number, stable_id) if stable_id else None
     )
     candidates: List[Path] = []
     if stable_path is not None:
@@ -741,7 +742,7 @@ def upsert_thumbnail_elements_spec(
     channel_code = normalize_channel_code(channel)
     video_number = normalize_video_number(video)
     stable_raw = stable if stable is not None else variant
-    stable_id = backend_main._normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
+    stable_id = normalize_thumbnail_stable_id(stable_raw) if stable_raw else None
     stable_label = stable_id or "default"
 
     allowed_kinds = {"rect", "circle", "image"}
@@ -833,9 +834,9 @@ def upsert_thumbnail_elements_spec(
         "updated_at": backend_main._utc_now_iso_z(),
     }
     path = (
-        backend_main._elements_spec_stable_path(channel_code, video_number, stable_id)
+        elements_spec_stable_path(channel_code, video_number, stable_id)
         if stable_id
-        else (backend_main.THUMBNAIL_ASSETS_DIR / channel_code / video_number / "elements_spec.json")
+        else (THUMBNAIL_ASSETS_DIR / channel_code / video_number / "elements_spec.json")
     )
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -929,9 +930,9 @@ def download_thumbnail_zip(
             if not rel.parts or rel.parts[0].strip().upper() != channel_code:
                 continue
 
-            candidate = (backend_main.THUMBNAIL_ASSETS_DIR / rel).resolve()
+            candidate = (THUMBNAIL_ASSETS_DIR / rel).resolve()
             try:
-                candidate.relative_to(backend_main.THUMBNAIL_ASSETS_DIR.resolve())
+                candidate.relative_to(THUMBNAIL_ASSETS_DIR.resolve())
             except (OSError, ValueError):
                 continue
             if not candidate.is_file():

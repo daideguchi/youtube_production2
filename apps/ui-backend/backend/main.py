@@ -1436,69 +1436,6 @@ def _utc_now_iso_z() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def _normalize_thumbnail_stable_id(raw: Optional[str]) -> Optional[str]:
-    """
-    Normalize a "stable output id" such as `00_thumb_1` / `00_thumb_2`.
-
-    Accepts:
-      - 00_thumb_1
-      - 00_thumb_1.png / 00_thumb_1.jpg / 00_thumb_1.webp
-      - thumb_1 / thumb_2 (legacy labels)
-      - a / b (legacy labels)
-      - default / __default__ / 00_thumb / thumb (treated as non-stable / canonical output)
-    """
-    if raw is None:
-        return None
-    value = str(raw or "").strip()
-    if not value:
-        return None
-    cleaned = value.split("?", 1)[0].split("#", 1)[0].strip()
-    if not cleaned:
-        return None
-    base = Path(cleaned).name.strip()
-    for ext in (".png", ".jpg", ".jpeg", ".webp"):
-        if base.lower().endswith(ext):
-            base = base[: -len(ext)]
-            break
-    lowered = base.strip().lower()
-    if lowered in {"default", "__default__", "00_thumb", "thumb"}:
-        return None
-    if lowered in {"thumb_1", "thumb1", "1", "a"}:
-        return "00_thumb_1"
-    if lowered in {"thumb_2", "thumb2", "2", "b"}:
-        return "00_thumb_2"
-    normalized = base.strip()
-    if normalized.startswith("00_thumb_") and normalized[len("00_thumb_") :].isdigit():
-        return normalized
-
-    # Be permissive: accept strings that contain a stable id (e.g. "00_thumb_1 (selected)").
-    match = re.search(r"(00_thumb_\d+)", lowered)
-    if match:
-        return match.group(1)
-
-    # Also accept strings containing legacy labels like "thumb_1 (selected)".
-    match = re.search(r"(?:^|[^a-z0-9])(thumb[_-]?(1|2))(?:$|[^a-z0-9])", lowered)
-    if match:
-        return "00_thumb_1" if match.group(2) == "1" else "00_thumb_2"
-
-    raise HTTPException(
-        status_code=400,
-        detail="stable must be like 00_thumb_1 / 00_thumb_2 (or 00_thumb_<n>)",
-    )
-
-
-def _thumb_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return THUMBNAIL_ASSETS_DIR / channel_code / video_number / f"thumb_spec.{stable}.json"
-
-
-def _text_line_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return THUMBNAIL_ASSETS_DIR / channel_code / video_number / f"text_line_spec.{stable}.json"
-
-
-def _elements_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return THUMBNAIL_ASSETS_DIR / channel_code / video_number / f"elements_spec.{stable}.json"
-
-
 def parse_cli_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the YouTube Master UI backend")
     parser.add_argument("--host", default="127.0.0.1", help="Host interface to bind (default: 127.0.0.1)")

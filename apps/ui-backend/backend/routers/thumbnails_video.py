@@ -45,6 +45,12 @@ from backend.app.thumbnails_video_models import (
     ThumbnailVariantPatchRequest,
 )
 from backend.app.thumbnails_variant_models import ThumbnailVariantResponse
+from backend.app.thumbnails_stable_paths import (
+    elements_spec_stable_path as elements_spec_stable_path_impl,
+    normalize_thumbnail_stable_id as normalize_thumbnail_stable_id_impl,
+    text_line_spec_stable_path as text_line_spec_stable_path_impl,
+    thumb_spec_stable_path as thumb_spec_stable_path_impl,
+)
 from factory_common.paths import assets_root as ssot_assets_root, thumbnails_root as ssot_thumbnails_root
 from script_pipeline.tools import planning_store
 
@@ -58,19 +64,19 @@ def _backend_main():
     return backend_main
 
 def _normalize_thumbnail_stable_id(raw: Optional[str]) -> Optional[str]:
-    return _backend_main()._normalize_thumbnail_stable_id(raw)
+    return normalize_thumbnail_stable_id_impl(raw)
 
 
 def _thumb_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return _backend_main()._thumb_spec_stable_path(channel_code, video_number, stable)
+    return thumb_spec_stable_path_impl(channel_code, video_number, stable)
 
 
 def _text_line_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return _backend_main()._text_line_spec_stable_path(channel_code, video_number, stable)
+    return text_line_spec_stable_path_impl(channel_code, video_number, stable)
 
 
 def _elements_spec_stable_path(channel_code: str, video_number: str, stable: str) -> Path:
-    return _backend_main()._elements_spec_stable_path(channel_code, video_number, stable)
+    return elements_spec_stable_path_impl(channel_code, video_number, stable)
 
 
 def _get_or_create_thumbnail_project(payload: dict, channel_code: str, video_number: str) -> dict:
