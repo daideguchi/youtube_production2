@@ -38,6 +38,7 @@ export function ChannelDetailPage() {
     channels,
     channelsLoading,
     channelsError,
+    reloadWorkspace,
     selectedChannel,
     selectedChannelSummary,
     selectedChannelSnapshot,
@@ -135,13 +136,23 @@ export function ChannelDetailPage() {
         </div>
       ) : null}
       <section className="main-content main-content--channel">
-        {sortedChannels.length ? (
-          <section className="channel-top-switcher" aria-label="チャンネル切替">
-            <div className="channel-top-switcher__header">
-              <span className="muted">チャンネル切替:</span>
-              {channelsLoading ? <span className="status-chip">読み込み中…</span> : null}
-              {channelsError ? <span className="status-chip status-chip--danger">{channelsError}</span> : null}
-            </div>
+        <section className="channel-top-switcher" aria-label="チャンネル切替">
+          <div className="channel-top-switcher__header">
+            <span className="muted">チャンネル切替:</span>
+            {channelsLoading ? <span className="status-chip">読み込み中…</span> : null}
+            {channelsError ? <span className="status-chip status-chip--danger">{channelsError}</span> : null}
+            <button
+              type="button"
+              className="workspace-button workspace-button--ghost"
+              disabled={channelsLoading}
+              onClick={() => {
+                void reloadWorkspace();
+              }}
+            >
+              再読み込み
+            </button>
+          </div>
+          {sortedChannels.length ? (
             <div className="channel-projects__filters" role="list" aria-label="チャンネル一覧">
               {sortedChannels.map((channel) => {
                 const active = channel.code === selectedChannel;
@@ -183,17 +194,20 @@ export function ChannelDetailPage() {
                             <span className="channel-chip-tooltip__name">{displayName}</span>
                           ) : null}
                         </div>
-                        {normalizedHandle ? (
-                          <div className="channel-chip-tooltip__handle">{normalizedHandle}</div>
-                        ) : null}
+                        {normalizedHandle ? <div className="channel-chip-tooltip__handle">{normalizedHandle}</div> : null}
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
-          </section>
-        ) : null}
+          ) : (
+            <p className="muted small-text" style={{ marginTop: 8 }}>
+              チャンネル一覧を取得できていません（<code>/api/channels</code>）。ui-backend を起動して{" "}
+              <code>npm start</code> を再起動（proxy反映）してください。
+            </p>
+          )}
+        </section>
 
         {selectedChannel && selectedChannelSummary && selectedChannelSnapshot ? (
           <ChannelOverviewPanel
@@ -204,7 +218,7 @@ export function ChannelDetailPage() {
           />
         ) : (
           <div className="shell-panel shell-panel--placeholder">
-            <h2>チャンネル情報を取得できませんでした</h2>
+            <h2>{selectedChannel ? `${selectedChannel} のチャンネル情報を取得できませんでした` : "チャンネル情報を取得できませんでした"}</h2>
             <p className="shell-panel__subtitle">
               {channelsError ? (
                 <span className="error">{channelsError}</span>
@@ -218,6 +232,21 @@ export function ChannelDetailPage() {
                 <code>bash scripts/start_all.sh start</code>）。
               </p>
             ) : null}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+              <button
+                type="button"
+                className="workspace-button workspace-button--ghost"
+                disabled={channelsLoading}
+                onClick={() => {
+                  void reloadWorkspace();
+                }}
+              >
+                再読み込み
+              </button>
+              <button type="button" className="workspace-button workspace-button--ghost" onClick={() => navigate("/dashboard")}>
+                ダッシュボードへ
+              </button>
+            </div>
           </div>
         )}
       </section>
