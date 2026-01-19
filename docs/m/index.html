@@ -80,6 +80,11 @@
         <div class="muted">
           このURLをブックマーク: <code>/m/</code>（スマホ用の入口）
         </div>
+        <div class="start-actions" aria-label="SSOT quick links">
+          <a class="btn btn--ghost" href="../guide/">SSOT Guide</a>
+          <a id="editFixedLogic" class="btn btn--ghost" target="_blank" rel="noreferrer">確定ロジック（編集）</a>
+          <a id="editContactBox" class="btn btn--ghost" target="_blank" rel="noreferrer">CONTACT_BOX（編集）</a>
+        </div>
       </section>
 
       <section class="start-card start-grid" aria-label="主要ページ">
@@ -256,6 +261,49 @@
         }
 
         void boot();
+      })();
+    </script>
+
+    <script>
+      (function () {
+        const fixedLogic = document.getElementById("editFixedLogic");
+        const contactBox = document.getElementById("editContactBox");
+        if (!fixedLogic && !contactBox) return;
+
+        function guessGitHubRepoFromPages() {
+          const host = String(window.location.hostname || "");
+          const m = host.match(/^([^.]+)\\.github\\.io$/);
+          if (!m) return null;
+          const owner = m[1];
+          const parts = String(window.location.pathname || "")
+            .split("/")
+            .filter(Boolean);
+          const repo = parts.length ? parts[0] : "";
+          if (!owner || !repo) return null;
+          return { owner, repo };
+        }
+
+        function encodePath(path) {
+          return String(path || "")
+            .split("/")
+            .map((seg) => encodeURIComponent(seg))
+            .join("/");
+        }
+
+        const guessed = guessGitHubRepoFromPages();
+        const owner = guessed?.owner || "daideguchi";
+        const repo = guessed?.repo || "youtube_production2";
+        const branch = "main";
+        const editBase = `https://github.com/${owner}/${repo}/edit/${branch}/`;
+
+        if (fixedLogic) {
+          fixedLogic.href =
+            editBase +
+            encodePath("ssot/reference/【消さないで！人間用】確定ロジック.md");
+        }
+        if (contactBox) {
+          contactBox.href = editBase + encodePath("ssot/reference/CONTACT_BOX.md");
+        }
       })();
     </script>
   </body>
