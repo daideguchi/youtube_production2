@@ -38,6 +38,39 @@
         font-size: 16px;
         outline: none;
       }
+      .channel-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .channel-row {
+        display: grid;
+        grid-template-columns: 72px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(11, 17, 32, 0.55);
+      }
+      .channel-row__code {
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+      .channel-row__meta {
+        display: grid;
+        gap: 2px;
+      }
+      .channel-row__actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .channel-row__actions .btn {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
     </style>
   </head>
   <body>
@@ -81,6 +114,24 @@
           </form>
         </div>
       </section>
+
+      <section class="start-card" aria-label="チャンネル一覧">
+        <div style="font-weight: 700; margin-bottom: 6px">チャンネル一覧（企画/台本の本数）</div>
+        <div class="muted">
+          ※ 企画/進捗の正本は Planning CSV。ここは静的スナップショット（読み取り専用）。
+        </div>
+        <div style="margin-top: 10px">
+          <input
+            id="channelListFilter"
+            class="start-input"
+            inputmode="text"
+            autocomplete="off"
+            placeholder="絞り込み: CH27 / 27"
+          />
+          <div id="channelsMeta" class="muted" style="margin-top: 8px"></div>
+          <div id="channelsBody" class="channel-list" aria-label="Channels"></div>
+        </div>
+      </section>
     </div>
 
     <script>
@@ -122,6 +173,89 @@
           }
           window.location.href = `../ep/${ch}/${vv}/`;
         });
+      })();
+    </script>
+
+    <script>
+      (function () {
+        const body = document.getElementById("channelsBody");
+        const meta = document.getElementById("channelsMeta");
+        const filter = document.getElementById("channelListFilter");
+        if (!body) return;
+
+        function normalizeChannelQuery(raw) {
+          const s = String(raw || "").trim().toUpperCase();
+          if (!s) return "";
+          if (/^CH\\d{1,2}$/.test(s)) return s.replace(/^CH(\\d+)$/, (_, n) => `CH${String(Number(n)).padStart(2, "0")}`);
+          if (/^\\d{1,2}$/.test(s)) return `CH${String(Number(s)).padStart(2, "0")}`;
+          return s;
+        }
+
+        function el(tag, className, text) {
+          const node = document.createElement(tag);
+          if (className) node.className = className;
+          if (text != null) node.textContent = String(text);
+          return node;
+        }
+
+        function renderChannels(channels, generatedAt, q) {
+          body.innerHTML = "";
+          const query = normalizeChannelQuery(q);
+          const filtered = query
+            ? channels.filter((c) => String(c.channel || "").toUpperCase().includes(query))
+            : channels;
+
+          if (meta) {
+            const ts = generatedAt ? `updated=${generatedAt}` : "";
+            meta.textContent = `${filtered.length}/${channels.length} ${ts}`.trim();
+          }
+
+          for (const c of filtered) {
+            const ch = String(c.channel || "").trim();
+            const planning = Number(c.planning_count || 0);
+            const scripts = Number(c.scripts_count || 0);
+
+            const row = el("div", "channel-row");
+            row.appendChild(el("div", "channel-row__code", ch || "—"));
+
+            const metaBox = el("div", "channel-row__meta");
+            metaBox.appendChild(el("div", "muted", `企画: ${planning}`));
+            metaBox.appendChild(el("div", "muted", `台本: ${scripts}`));
+            row.appendChild(metaBox);
+
+            const actions = el("div", "channel-row__actions");
+            const ep = el("a", "btn btn--primary", "EP");
+            ep.href = `../ep/${ch}/`;
+            const snap = el("a", "btn btn--ghost", "進捗");
+            snap.href = `../snapshot/?channel=${encodeURIComponent(ch)}`;
+            actions.appendChild(ep);
+            actions.appendChild(snap);
+            row.appendChild(actions);
+
+            body.appendChild(row);
+          }
+        }
+
+        async function boot() {
+          try {
+            const res = await fetch("../data/snapshot/channels.json", { cache: "no-store" });
+            if (!res.ok) throw new Error(`channels.json fetch failed: ${res.status} ${res.statusText}`);
+            const obj = await res.json();
+            const channels = Array.isArray(obj?.channels) ? obj.channels : [];
+            channels.sort((a, b) => String(a.channel || "").localeCompare(String(b.channel || "")));
+            renderChannels(channels, String(obj?.generated_at || ""), "");
+
+            if (filter) {
+              filter.addEventListener("input", () => {
+                renderChannels(channels, String(obj?.generated_at || ""), String(filter.value || ""));
+              });
+            }
+          } catch (err) {
+            if (meta) meta.textContent = `チャンネル一覧の取得に失敗: ${String(err)}`;
+          }
+        }
+
+        void boot();
       })();
     </script>
   </body>

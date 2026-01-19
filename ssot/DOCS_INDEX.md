@@ -13,6 +13,7 @@
 
 迷子にならない “読む順”:
 
+0. (Start) `docs/m/`: スマホ入口（EP/進捗/Guide への導線）
 1. (Guide) `docs/guide/` の `Overview`（`?doc=__OVERVIEW__`）: 目的/成果物/固定ルール
 2. (Guide) `docs/guide/` の `Flow Map`（`?doc=__FLOW__`）: 処理フロー（停止条件つき）
 3. (SoT) `ops/OPS_CHANNEL_MODEL_ROUTING.md`: どの処理がどのモデルか（固定ルール）
