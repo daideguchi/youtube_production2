@@ -7,7 +7,15 @@
 
 この文書は「台本パイプラインの単一SSOT（1枚）」である。詳細は必要時にリンク先へ降りるが、**迷ったら本書の手順を優先**する。
 
-入口固定（共通）:
+重要（運用の既定配線 / 迷いゼロ）:
+- 日常運用の台本生成は **Blueprint→Writer→Validate** に分離し、正本は `ssot/agent_runbooks/RUNBOOK_JOB_SCRIPT_PIPELINE.md`。
+  - Blueprint: `./ops script resume -- --channel CHxx --video NNN --until script_master_plan --max-iter 6`
+  - Writer（本文Aテキスト）: `./ops claude script -- --channel CHxx --video NNN --run`（既定; 失敗→Gemini→qwen）
+  - Validate: `./ops script resume -- --channel CHxx --video NNN --until script_validation --max-iter 6`
+- 本書は `scripts/ops/script_runbook.py` / `packages/script_pipeline/*` の **内部ロジック/契約**の正本。
+  - 台本本文（Aテキスト）の既定Writerは **外部CLI**（APIは明示した実行だけ / 失敗→停止 / 自動フォールバック禁止）。
+
+入口固定（パイプライン直叩き。通常運用は `./ops` を使う）:
 - **必ず** `./scripts/with_ytm_env.sh python3 ...` を使う（.envロード + PYTHONPATH固定）。
   - `python -m ...` 直叩きは環境差分（依存不足）で詰まりやすい。
   - 日常運用の入口（固定）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
@@ -307,6 +315,26 @@ flowchart LR
 - 既定（Claude CLI）: `./ops claude script -- --channel CHxx --video NNN --run`
 - フォールバック（Gemini CLI）: `./ops gemini script -- --channel CHxx --video NNN --run --gemini-model gemini-3-flash-preview`
 - 最終フォールバック（qwen）: `./ops qwen script -- --channel CHxx --video NNN --run`
+
+#### 2.1.2.1 Claude Code（claude CLI）非対話モード（-p/--print）
+前提:
+- `claude` は既定で対話セッションを開始する。**非対話（バッチ/パイプ）では `-p/--print` を使う**（`claude -h` 参照）。
+- `-p` は workspace trust dialog をスキップする。**信頼できるディレクトリでのみ使う**。
+
+推奨フラグ（本repoの Claude CLI 系スクリプトが採用している形）:
+- `--output-format text`
+- `--permission-mode dontAsk`
+- `--no-session-persistence`
+- `--tools ''`（**ツール無効化**。シェルでは `--tools ''` / `--tools \"\"` のように *空文字を1個* 渡す）
+
+例（長いプロンプトを stdin で渡す）:
+- `cat prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md | claude -p --output-format text --permission-mode dontAsk --no-session-persistence --tools ''`
+
+例（短いワンショット）:
+- `claude -p 'OKとだけ返して' --tools ''`
+
+失敗時の切り分け（まずここ）:
+- `Invalid API key · Fix external API key` が出る場合、Claude Code 側の認証（外部APIキー/サブスクtoken）が壊れている。**`claude setup-token` でサブスクtokenを再設定**してから再実行する（本repoの Claude CLI ツールは `.env` を読まず、原則としてClaude Codeのログイン状態に依存する）。
 
 I/O（固定）:
 - 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別）
