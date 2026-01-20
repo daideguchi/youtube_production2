@@ -349,17 +349,18 @@ def _find_claude_bin(explicit: str | None) -> str:
 
 
 _CLAUDE_ALLOWED_ALIASES = {"sonnet", "opus"}
+_CLAUDE_DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
 
 
 def _validate_claude_model(raw: str | None) -> str:
     """
     Policy:
-    - Default: sonnet (Sonnet 4.5).
+    - Default: pinned Sonnet 4.5.
     - Allow only sonnet/opus aliases, or explicit 4.5 pinned names.
     """
     s = str(raw or "").strip()
     if not s:
-        return "sonnet"
+        return _CLAUDE_DEFAULT_MODEL
     low = s.lower()
     if low in _CLAUDE_ALLOWED_ALIASES:
         return low
@@ -371,7 +372,7 @@ def _validate_claude_model(raw: str | None) -> str:
                 "[POLICY] Forbidden --claude-model (unsupported).",
                 f"- got: {s}",
                 "- allowed: sonnet | opus | claude-sonnet-4-5-YYYYMMDD | claude-opus-4-5-YYYYMMDD",
-                "- note: default is sonnet (4.5). Use opus only when explicitly instructed.",
+                f"- note: default is {_CLAUDE_DEFAULT_MODEL}. Use opus only when explicitly instructed.",
             ]
         )
     )
@@ -1112,8 +1113,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--claude-bin", default="", help="Explicit claude binary path (optional)")
     sp.add_argument(
         "--claude-model",
-        default="sonnet",
-        help="Claude model alias/name (default: sonnet). Use opus only when explicitly instructed.",
+        default=_CLAUDE_DEFAULT_MODEL,
+        help=f"Claude model alias/name (default: {_CLAUDE_DEFAULT_MODEL}). Use opus only when explicitly instructed.",
     )
     sp.add_argument("--timeout-sec", type=int, default=1800, help="Timeout seconds per episode (default: 1800)")
     sp.set_defaults(func=cmd_run)

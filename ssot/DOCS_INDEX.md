@@ -115,6 +115,7 @@
 - (Register) `ops/IMAGE_API_PROGRESS.md`: 画像API/実装の進捗・運用メモ。
 - `agent_runbooks/README.md`: agent/think-mode（Runbook/キュー運用）の入口。
 - `ops/OPS_AGENT_PLAYBOOK.md`: 低知能エージェントでも迷わないための運用ルール（lock/SoT/削除/パッチ）。
+- `ops/OPS_SHARED_ASSET_STORE.md`: 生成資産を共有ストレージ（Tailscale常駐）へ集約する仕様（SoTはworkspacesのまま）。
 - `apps/ui-backend/tools/README.md` (Reference): UI運用ツール群（start_manager / assets_sync 等）の補足。
 - `apps/remotion/README.md` (Reference): Remotion（CapCut互換）の出力ワークフロー。
 - `apps/remotion/REMOTION_PLAN.md` (Reference): Remotion（CapCut互換）実装計画メモ（現行実装に合わせて随時更新）。
@@ -155,6 +156,7 @@
 - `plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md` (Draft): ディスク軽量化（生成物/ログ/キャッシュの定期整理）。
 - `plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md` (Active): SlackやりとりをGitへ“安全に”要約アーカイブ（PM Inbox）。
 - `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md` (Draft): サムネ作成・編集を「高品質×高速×スケール」させる計画（Spec-first/SoT分離/UI-CLI統合）。
+- `plans/PLAN_REMOTION_MAINLINE.md` (Draft): Remotion本線化（CapCut級の自動レンダー）計画。
 
 ### 3.5 テンプレ
 - `plans/PLAN_TEMPLATE.md`: 新規計画書作成テンプレ。

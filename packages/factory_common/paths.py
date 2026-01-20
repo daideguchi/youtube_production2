@@ -60,6 +60,44 @@ def offload_root() -> Optional[Path]:
         return None
     return Path(override).expanduser().resolve()
 
+
+def shared_storage_root() -> Optional[Path]:
+    """
+    Optional shared storage root (e.g., Tailscale-mounted always-on storage).
+
+    Env override:
+      - YTM_SHARED_STORAGE_ROOT
+    """
+    override = os.getenv("YTM_SHARED_STORAGE_ROOT")
+    if not override:
+        return None
+    return Path(override).expanduser().resolve()
+
+
+def shared_storage_namespace() -> str:
+    """
+    Shared storage namespace (repo identifier).
+
+    Env override:
+      - YTM_SHARED_STORAGE_NAMESPACE
+
+    Default:
+      - repo_root().name
+    """
+    override = str(os.getenv("YTM_SHARED_STORAGE_NAMESPACE") or "").strip()
+    return override or repo_root().name
+
+
+def shared_storage_base() -> Optional[Path]:
+    """
+    Base directory under shared storage for this repo's artifacts.
+    Returns None if shared storage is not configured.
+    """
+    root = shared_storage_root()
+    if root is None:
+        return None
+    return root / shared_storage_namespace()
+
 def _norm_channel(ch: str) -> str:
     return str(ch).upper()
 

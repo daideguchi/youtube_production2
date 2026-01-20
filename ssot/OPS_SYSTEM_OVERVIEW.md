@@ -139,11 +139,12 @@
 - 下流（CapCut/AutoDraft/UI）は **必ず** `workspaces/audio/final/{CH}/{NNN}/` を読む
 - `audio_prep/` は中間（残骸は規約に沿って削除してよい）
 
-### 2.5 Video（SRT→画像→CapCut）
+### 2.5 Video（SRT→画像→run_dir→CapCut/Remotion）
 
 正規入口（代表）
 - `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.factory ...`
 - `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.auto_capcut_run ...`
+  - Remotion（レンダー）: `./ops remotion help`
 
 正本の固定
 - run単位の正本: `workspaces/video/runs/{run_id}/`
@@ -163,10 +164,17 @@
 - `YT_PUBLISH_SHEET` を正本として、ローカルは参照/実行のみ
 - `python3 scripts/youtube_publisher/publish_from_sheet.py --max-rows 1 --run`
 
-### 2.8 Remotion（実験/未主線）
+### 2.8 Remotion（本線化ロードマップ）
 
-- 現状はCapCut主線の代替候補（未本番）
-- 運用入口としては `python3 scripts/ops/render_remotion_batch.py` を固定
+- 価値の中核: CapCut級の動画を **Remotionで自動生成**できる状態を作る（本線化）。
+- 現行の運用入口（固定）: `./ops remotion render-batch -- --channel CHxx --videos 001-029 --run`
+- 計画（SSOT）: `ssot/plans/PLAN_REMOTION_MAINLINE.md`
+- 実装/使い方（Reference）: `apps/remotion/README.md`, `apps/remotion/REMOTION_PLAN.md`
+
+### 2.9 共有ストレージ（資産ミラー）
+
+- 生成した最終成果物（L1）は共有ストレージへ集約する（SoTは `workspaces/**` のまま）。
+- 仕様（SSOT）: `ssot/ops/OPS_SHARED_ASSET_STORE.md`
 
 ---
 

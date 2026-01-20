@@ -66,7 +66,8 @@ notes: <消し忘れ防止の一言>
 
 ### Phase B. Script Pipeline（台本生成）
 - P0:
-  - 台本工場（入口固定/5モード）: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <mode> ...`
+  - 台本工場（入口固定/5モード）: `./ops script <mode> -- --channel CHxx --video NNN`
+    - （互換）`./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <mode> ...`
   - 生成主線: `python -m script_pipeline.cli next/run-all --channel CHxx --video NNN`
   - 長尺（セクション分割）: `python3 scripts/ops/a_text_section_compose.py --channel CHxx --video NNN --apply --run-validation`
   - 超長尺（Marathon）: `python3 scripts/ops/a_text_marathon_compose.py --channel CHxx --video NNN --duration-minutes 120 --apply`
@@ -76,17 +77,20 @@ notes: <消し忘れ防止の一言>
 
 ### Phase C. Audio / TTS（音声・SRT）
 - P0:
-  - 正規: `python -m script_pipeline.cli audio --channel CHxx --video NNN`
+  - 正規: `./ops audio -- --channel CHxx --video NNN`
+    - （互換）`python -m script_pipeline.cli audio --channel CHxx --video NNN`
   - 直叩き（必要時）: `PYTHONPATH=\".:packages\" python3 -m audio_tts.scripts.run_tts --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled.md`
 
-### Phase D. Video（SRT→画像→CapCut）
+### Phase D. Video（SRT→画像→run_dir→CapCut/Remotion）
 - P0:
   - 正規: `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.factory ...`
   - 詳細制御: `PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.auto_capcut_run --channel CHxx --srt <srt> --run-name <run_name> ...`
 
-### Phase D'. Remotion（未主線/実験）
-- P0（運用上の入口として固定）:
-  - バッチ再レンダ: `python3 scripts/ops/render_remotion_batch.py --help`
+### Phase D'. Remotion（本線化: 自動レンダー）
+- P0（入口固定）:
+  - 計画（SSOT）: `ssot/plans/PLAN_REMOTION_MAINLINE.md`
+  - バッチ再レンダ: `./ops remotion render-batch -- --channel CHxx --videos 001-029 --run`
+    - （互換）`python3 scripts/ops/render_remotion_batch.py --help`
 
 ### Phase E. Thumbnails（独立動線）
 - P0:

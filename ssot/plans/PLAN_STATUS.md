@@ -28,6 +28,7 @@ SSOT 配下の計画書（`PLAN_*.md`）が増えてきたため、**状態（Dr
 - `plans/PLAN_LLM_USAGE_MODEL_EVAL.md`（最終更新 2025-12-12）: LLM コスト/トークン/モデル適性の評価。
 - `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md`（最終更新 2025-12-29）: サムネ作成・編集を「高品質×高速×スケール」させる計画。
 - `plans/PLAN_OPS_PERFORMANCE_BOTTLENECKS.md`（最終更新 2025-12-29）: 処理が遅い/詰まる課題の集約（DoD付き）。
+- `plans/PLAN_REMOTION_MAINLINE.md`（最終更新 2026-01-20）: Remotion本線化（CapCut級の自動レンダー）計画。
 
 ## Completed（完了/参照）
 `ssot/completed/` を参照。

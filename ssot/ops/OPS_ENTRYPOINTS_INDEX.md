@@ -25,6 +25,10 @@
   - Episode Asset Pack（画像束）復元（CH/動画で検索）: `./ops archive episode-asset-pack-restore --channel CHxx --video NNN --run`
   - 投稿済み（進捗=投稿済み）削除: `./ops archive published --channel CHxx --audio --video-runs --delete --run --yes`
   - 正本: `ssot/ops/OPS_VIDEO_ASSET_PACK.md` / `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md` / `ssot/ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`
+- 共有ストレージ同期（L1ミラー）:
+  - `./ops shared sync -- --src <path> [--kind <kind>] [--channel CHxx --video NNN] --run`
+  - 要求: `YTM_SHARED_STORAGE_ROOT`（未設定/未マウントなら停止）
+  - 正本: `ssot/ops/OPS_SHARED_ASSET_STORE.md`
 - 迷子/復帰:
   - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
   - “最新の実行” ポインタ（keep-latest）: `./ops latest --channel CHxx --video NNN`
@@ -308,6 +312,9 @@
 	    - `POST /api/agent-org/board/area`（ownership更新）
 - Slack通知/返信（オプション）:
   - 設定: `ssot/ops/OPS_ENV_VARS.md` の「Slack通知」参照（Webhook/Bot両対応）
+  - 質問送信（thread_ts保存; 取りこぼし防止）: `./ops slack ask -- --subject "..." --body "..."`
+    - ローカル保存: `workspaces/logs/ops/slack_asks/ask_map.json`（ask_id→thread_ts）
+  - 返信確認（確実）: `./ops slack poll -- --ask-id <ask__...> --write-memos`
   - 報告送信: `python3 scripts/ops/slack_notify.py --text "..."`
   - Slack返信の取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
   - チャンネル履歴の棚卸（エラー抽出）: `python3 scripts/ops/slack_notify.py --history --history-grep '(error|failed|traceback)' --history-limit 200`
@@ -368,11 +375,14 @@
 - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli semantic-align --channel CHxx --video NNN`（意味整合: タイトル/サムネ訴求 ↔ 台本コア を定性的にチェック/修正）
   - 運用SoT: `ssot/ops/OPS_SEMANTIC_ALIGNMENT.md`
 
-### 3.9 Remotion（実験ライン / 再レンダ）
+### 3.9 Remotion（本線化: 自動レンダー）
+- 計画（SSOT）: `ssot/plans/PLAN_REMOTION_MAINLINE.md`
 - UI（補助 / 3100起動）: `/video-remotion` → 「Studio (3100) 起動」ボタン（`POST /api/remotion/restart_preview`）
   - deps未導入なら: `(cd apps/remotion && npm ci)`
 - 直接レンダ（1本）: `node apps/remotion/scripts/render.js --help`
-- バッチレンダ（容量節約・lock尊重・report出力）: `python3 scripts/ops/render_remotion_batch.py --help`
+- 統一CLI（正本入口）: `./ops remotion help`
+  - バッチレンダ（容量節約・lock尊重・report出力）: `./ops remotion render-batch -- --channel CHxx --videos 001-029 --run`
+  - （互換）`python3 scripts/ops/render_remotion_batch.py --help`
 
 ---
 

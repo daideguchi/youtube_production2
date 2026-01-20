@@ -887,6 +887,10 @@ def _print_list() -> None:
     print("    ./ops video audit-fix-drafts -- <args for -m video_pipeline.tools.audit_fix_drafts>")
     print("    ./ops video validate-prompts   # prompt template registry check (P1)")
     print("")
+    print("  Remotion (auto render):")
+    print("    ./ops remotion help")
+    print("    ./ops remotion render-batch -- --channel CHxx --videos 001-029 --run")
+    print("")
     print("  Thumbnails:")
     print("    ./ops thumbnails help")
     print("    ./ops thumbnails build -- --channel CHxx --videos 001 002 ...")
@@ -937,6 +941,9 @@ def _print_list() -> None:
     print("  Archive (capacity / restore helpers):")
     print("    ./ops archive episode-asset-pack --channel CHxx --video NNN --push --offload --run")
     print("    ./ops archive published --channel CHxx --audio --video-runs --delete --run --yes")
+    print("")
+    print("  Shared storage (L1 mirror; requires YTM_SHARED_STORAGE_ROOT):")
+    print("    ./ops shared sync -- --src <path> --kind <kind> [--channel CHxx --video NNN] --run")
     print("")
     print("  YouTube (paste-ready meta):")
     print("    ./ops youtube meta --channel CHxx --video NNN")
@@ -1098,6 +1105,20 @@ def cmd_archive(args: argparse.Namespace) -> int:
         return _run(["python3", "scripts/ops/release_archive.py", *forwarded])
 
     print(f"unknown archive action: {action}", file=sys.stderr)
+    return 2
+
+
+def cmd_shared(args: argparse.Namespace) -> int:
+    """
+    Shared storage helpers (explicit; SoT mirror only).
+    """
+    action = str(getattr(args, "action", "") or "").strip()
+    forwarded = _strip_leading_double_dash(list(getattr(args, "args", None) or []))
+
+    if action == "sync":
+        return _run(["python3", "scripts/ops/shared_storage_sync.py", "sync", *forwarded])
+
+    print(f"unknown shared action: {action}", file=sys.stderr)
     return 2
 
 
@@ -1279,6 +1300,15 @@ def cmd_slack(args: argparse.Namespace) -> int:
     if action == "pm-loop":
         inner = ["python3", "scripts/ops/slack_pm_loop.py", "run", *forwarded]
         return _run(inner)
+    if action == "ask":
+        inner = ["python3", "scripts/ops/slack_ask.py", "ask", *forwarded]
+        return _run(inner)
+    if action == "poll":
+        inner = ["python3", "scripts/ops/slack_ask.py", "poll", *forwarded]
+        return _run(inner)
+    if action == "inbox-sync":
+        inner = ["python3", "scripts/ops/slack_inbox_sync.py", "sync", *forwarded]
+        return _run(inner)
     print(f"unknown slack action: {action}", file=sys.stderr)
     return 2
 
@@ -1355,6 +1385,19 @@ def cmd_video(args: argparse.Namespace) -> int:
         inner = ["python3", "-m", "video_pipeline.tools.apply_image_source_mix", *forwarded]
         return _run(inner)
     print(f"unknown video action: {action}", file=sys.stderr)
+    return 2
+
+
+def cmd_remotion(args: argparse.Namespace) -> int:
+    forwarded = _strip_leading_double_dash(list(args.args))
+    action = str(args.action or "").strip()
+    if action == "render-batch":
+        inner = ["python3", "scripts/ops/render_remotion_batch.py", *forwarded]
+        return _run(inner)
+    if action == "help":
+        inner = ["python3", "scripts/ops/render_remotion_batch.py", "--help"]
+        return _run(inner)
+    print(f"unknown remotion action: {action}", file=sys.stderr)
     return 2
 
 
@@ -2222,6 +2265,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying video tool (use '--' before flags)")
     sp.set_defaults(func=cmd_video)
 
+    sp = sub.add_parser("remotion", help="remotion helpers (render batch)")
+    sp.add_argument("action", choices=["render-batch", "help"], help="remotion operation")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/render_remotion_batch.py (use '--' before flags)")
+    sp.set_defaults(func=cmd_remotion)
+
     sp = sub.add_parser("thumbnails", help="thumbnail operations")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
     sp.add_argument("action", choices=["build", "retake", "qc", "sync-inventory", "analyze", "help"])
@@ -2241,9 +2289,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/agent_runner.py (use '--' before flags)")
     sp.set_defaults(func=cmd_agent)
 
-    sp = sub.add_parser("slack", help="slack helpers (PM loop / inbox triage)")
-    sp.add_argument("action", choices=["pm-loop"], help="slack operation")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/slack_pm_loop.py run (use '--' before flags)")
+    sp = sub.add_parser("slack", help="slack helpers (ask/poll/PM loop/inbox sync)")
+    sp.add_argument("action", choices=["ask", "poll", "pm-loop", "inbox-sync"], help="slack operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to the underlying slack tool (use '--' before flags)",
+    )
     sp.set_defaults(func=cmd_slack)
 
     sp = sub.add_parser("progress", help="derived episode progress view (read-only)")
@@ -2283,6 +2335,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying archive tool (no '--' needed)")
     sp.set_defaults(func=cmd_archive)
+
+    sp = sub.add_parser("shared", help="shared storage helpers (SoT mirror; explicit)")
+    sp.add_argument("action", choices=["sync"], help="shared storage operation")
+    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/shared_storage_sync.py (use '--' before flags)")
+    sp.set_defaults(func=cmd_shared)
 
     sp = sub.add_parser("clear-brain", help="clear Antigravity 'memory' artifacts (safe by default)")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/antigravity_clear_brain.py (use '--' before flags)")

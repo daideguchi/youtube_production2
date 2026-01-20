@@ -81,6 +81,9 @@
 - `packages/script_pipeline/job_runner.py` の通知（`scripts/notifications.py`）も同じ Slack 設定を使う（Webhook/Bot 両対応）。
 - Slack返信の取り込み（オプション; Bot方式のみ）:
   - 目的: Slackスレッド返信で dd の意思決定を返し、repo作業へ反映しやすくする（copy/pasteミス防止）。
+  - 固定（ask_id→thread_ts をローカル保存）:
+    - 質問送信: `./ops slack ask -- --subject "..." --body "..."`
+    - 返信確認: `./ops slack poll -- --ask-id <ask__...> --write-memos`
   - 送信（thread_ts取得）: `python3 scripts/ops/slack_notify.py --text "...(報告本文)..." --out-json workspaces/logs/ops/slack_sent.json --print-ts`
   - 返信取り込み（memos化）: `python3 scripts/ops/slack_notify.py --poll-thread <thread_ts> --poll-write-memos`
     - 取り込み先: `workspaces/logs/agent_tasks/coordination/memos/`（UIのBoard/Overviewから参照できる）
@@ -215,6 +218,14 @@
 - `YTM_OFFLOAD_ROOT`（省略可）: 退避先ルート（例: `/Volumes/SSD/ytm_offload`）
   - 対象: `./ops archive episode-asset-pack --offload ...`
   - 退避物のパイプライン参照はしない（復元/再利用は人間が選ぶ）
+
+### 共有ストレージ（Tailscale常駐ストレージ）
+
+- `YTM_SHARED_STORAGE_ROOT`（省略可）: 共有ストレージ root（例: `/Volumes/ytm_share`）
+  - 目的: 最終成果物（L1）を共有ストレージへ **ミラー/退避** して複数マシンで再利用する
+  - 注意: 共有ストレージは SoT ではない（パイプラインが共有側を参照して動く運用はしない）
+  - 仕様: `ssot/ops/OPS_SHARED_ASSET_STORE.md`
+- `YTM_SHARED_STORAGE_NAMESPACE`（省略可）: 共有側の名前空間（未指定時は `repo_root().name`）
 
 ## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
 `packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/search_results.json` に保存される。
