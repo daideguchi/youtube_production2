@@ -17,6 +17,14 @@
 - **禁止: API→THINK の自動フォールバック**（APIが失敗したら停止して報告。勝手にルートを変えない）。
 - **codex exec は別ルート**。台本（`script_*`）の自動生成/書き換えに使わない（混線防止）。
 
+## 0.05 一覧（Blueprint→Writer→Validate の固定配線）
+
+| フェーズ | 主担当 | 入口（固定） | 入力SoT（固定） | 出力SoT（固定） | 合否ゲート（固定） |
+| --- | --- | --- | --- | --- | --- |
+| Blueprint（調査→構成→設計図） | 対話型AIエージェント（Codex） | `./ops script resume -- --channel CHxx --video NNN --until script_master_plan --max-iter 6` | `content/analysis/research/*` + `content/outline.md` | `content/analysis/master_plan.json` | placeholder無し（research/outline/master_plan が揃う） |
+| Writer（本文Aテキスト） | 対話型AIエージェント | `./ops claude script -- --channel CHxx --video NNN --run`（DEFAULT） | FULL prompt + Blueprint bundle（自動追記） | `content/assembled_human.md`（正本）+ `content/assembled.md`（mirror） | Blueprint必須 / 既定=sonnet 4.5 / 失敗時の順序=Gemini→qwen |
+| Validate（script_validation） | 対話型AIエージェント（THINK/pending） | `./ops script resume -- --channel CHxx --video NNN --until script_validation --max-iter 6` | AテキストSoT（`assembled_human.md`） | `workspaces/scripts/{CH}/{NNN}/status.json`（stage更新）+ logs | `script_validation` が pass するまで rerun |
+
 ## 0.1 設計図（Blueprint）= Codex（Webサーチ＋構成） （固定）
 
 入口（固定）:

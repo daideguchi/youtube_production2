@@ -223,6 +223,34 @@ def _poll_until_reply(
         time.sleep(max(1, int(interval_sec or 10)))
 
 
+def _poll_summary(poll_json_path: Path) -> dict[str, Any]:
+    """
+    Best-effort: extract a small, human-readable summary from slack_notify poll JSON.
+    This makes it obvious (to humans and automation) whether a reply was captured.
+    """
+    try:
+        obj = _load_json(poll_json_path)
+    except Exception:
+        return {}
+    if not isinstance(obj, dict):
+        return {}
+    reply_count = int(obj.get("reply_count") or 0)
+    replies = obj.get("replies") if isinstance(obj.get("replies"), list) else []
+    preview: list[dict[str, Any]] = []
+    if isinstance(replies, list):
+        for r in replies[-3:]:
+            if not isinstance(r, dict):
+                continue
+            preview.append(
+                {
+                    "ts": str(r.get("ts") or "").strip(),
+                    "user": str(r.get("user") or "").strip(),
+                    "text": str(r.get("text") or "")[:400],
+                }
+            )
+    return {"reply_count": reply_count, "replies_preview": preview}
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Ask on Slack and persist thread ts for reliable polling.")
     sp = ap.add_subparsers(dest="cmd", required=True)
@@ -260,7 +288,9 @@ def main(argv: Optional[list[str]] = None) -> int:
             interval_sec=int(args.poll_interval_sec or 15),
             write_memos=bool(args.write_memos),
         )
-        print(json.dumps({"ask_id": rec.ask_id, "thread_ts": rec.thread_ts, "poll_json": str(out)}, ensure_ascii=False))
+        payload = {"ask_id": rec.ask_id, "thread_ts": rec.thread_ts, "poll_json": str(out)}
+        payload.update(_poll_summary(Path(out)))
+        print(json.dumps(payload, ensure_ascii=False))
         return 0
 
     if cmd == "poll":
@@ -285,7 +315,9 @@ def main(argv: Optional[list[str]] = None) -> int:
             interval_sec=15,
             write_memos=bool(args.write_memos),
         )
-        print(json.dumps({"ask_id": ask_id, "thread_ts": thread_ts, "poll_json": str(out)}, ensure_ascii=False))
+        payload = {"ask_id": ask_id, "thread_ts": thread_ts, "poll_json": str(out)}
+        payload.update(_poll_summary(Path(out)))
+        print(json.dumps(payload, ensure_ascii=False))
         return 0
 
     print(f"unknown cmd: {cmd}", file=sys.stderr)
