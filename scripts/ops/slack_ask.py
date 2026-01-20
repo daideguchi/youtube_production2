@@ -75,7 +75,7 @@ def _force_bot_mode_env() -> dict[str, str]:
 @dataclass(frozen=True)
 class AskRecord:
     ask_id: str
-    channel: str
+    channel: str  # effective channel id/name used for the ask
     thread_ts: str
     created_at: str
     subject: str
@@ -121,6 +121,9 @@ def _send_ask(*, ask_id: str, subject: str, body: str, channel: str) -> AskRecor
         raise SystemExit(rc)
 
     resp = _load_json(send_json)
+    channel_effective = ""
+    if isinstance(resp, dict):
+        channel_effective = str(resp.get("channel") or "").strip()
     ts = ""
     if isinstance(resp, dict):
         ts = str(resp.get("ts") or "").strip()
@@ -129,9 +132,12 @@ def _send_ask(*, ask_id: str, subject: str, body: str, channel: str) -> AskRecor
     if not ts:
         raise SystemExit("[slack_ask] could not determine thread ts from Slack response")
 
+    if not channel_effective:
+        channel_effective = str(channel or "").strip()
+
     rec = AskRecord(
         ask_id=ask_id,
-        channel=channel,
+        channel=channel_effective,
         thread_ts=ts,
         created_at=_now_iso_utc(),
         subject=subject,
@@ -141,7 +147,7 @@ def _send_ask(*, ask_id: str, subject: str, body: str, channel: str) -> AskRecor
     m["asks"][ask_id] = {
         "ask_id": ask_id,
         "created_at": rec.created_at,
-        "channel": channel,
+        "channel": channel_effective,
         "thread_ts": ts,
         "subject": subject,
         "send_json": str(send_json),
@@ -160,6 +166,30 @@ def _poll_thread(*, ask_id: str, thread_ts: str, channel: str, oldest: str, writ
     if rc != 0:
         raise SystemExit(rc)
     return out_json
+
+
+def _maybe_backfill_channel_from_send_json(ent: dict[str, Any]) -> str:
+    """
+    Backfill the Slack channel id/name from the stored send JSON (best-effort).
+
+    Rationale:
+    - Early versions of slack_ask stored channel="" when the operator omitted --channel.
+    - Polling requires a channel id/name; Slack API needs it.
+    """
+    ch = str(ent.get("channel") or "").strip()
+    if ch:
+        return ch
+    send_json = str(ent.get("send_json") or "").strip()
+    if not send_json:
+        return ""
+    try:
+        resp = _load_json(Path(send_json))
+    except Exception:
+        return ""
+    if not isinstance(resp, dict):
+        return ""
+    ch2 = str(resp.get("channel") or "").strip()
+    return ch2
 
 
 def _poll_until_reply(
@@ -242,7 +272,11 @@ def main(argv: Optional[list[str]] = None) -> int:
             print(f"[slack_ask] unknown ask_id: {ask_id}", file=sys.stderr)
             return 2
         thread_ts = str(ent.get("thread_ts") or "").strip()
-        channel = str(args.channel or "").strip() or str(ent.get("channel") or "").strip()
+        channel = str(args.channel or "").strip() or _maybe_backfill_channel_from_send_json(ent)
+        if channel and (str(ent.get("channel") or "").strip() != channel):
+            # Persist backfill for future polls (local-only).
+            ent["channel"] = channel
+            _save_map(m)
         out = _poll_until_reply(
             ask_id=ask_id,
             thread_ts=thread_ts,
@@ -260,4 +294,3 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

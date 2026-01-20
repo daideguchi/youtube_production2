@@ -149,60 +149,22 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
   - `YTM_CODEX_EXEC_PROFILE`（default: `claude-code`） / `YTM_CODEX_EXEC_MODEL`（省略可）
   - 使う場合は `YTM_EMERGENCY_OVERRIDE=1` を同時にセットして「この実行だけ」例外扱いにする
 
-### 2.5 本文モデルの「1スイッチ切替」設計（DeepSeek ⇄ Mistral ⇄ GLM-4.7）
+### 2.5 LLM API ルート（台本では “明示した実行だけ”）— SSOT
 
-要件:
-- 既定は **DeepSeek v3.2 exp（thinking ON）**（コストと品質のバランス）。
-- Mistral / GLM-4.7 などに **スイッチ1つ**で切替できる（検証しやすく、混乱しない）。
-- モデル名をコード/プロンプトに直書きしない（設定に集約し、差分が追える）。
+固定ルール:
+- 台本本文（Aテキスト）の既定ルートは **CLI（Claude→Gemini→qwen）**。APIは **明示した実行だけ**使う。
+  - 入口: `./ops api script <MODE> -- --channel CHxx --video NNN`
+- **API失敗→停止**（THINKへ自動フォールバックしない / 勝手に別ルートへ逃げない）。
+- **モデル/プロバイダの恒久変更はしない**（SSOT更新 + オーナーの明示指示が揃うまで、エージェントは変更しない）。
 
-SSOT配置（正本）:
-- 数字スロット（運用の主レバー）: `configs/llm_model_slots.yaml`（個別上書き: `configs/llm_model_slots.local.yaml`）
-- タスク別のモデル指定: `configs/llm_task_overrides.yaml`（`script_*` の override）
-- モデルID/プロバイダ登録（SSOT）:
-  - `configs/llm_router.yaml`（provider/model 定義）
-  - `configs/llm_model_codes.yaml`（運用コード→model_key 解決）
-  - 注: `configs/llm.yml` は legacy（互換/テスト用）であり、通常運用のルーティングSSOTではない
+設定の正本:
+- APIルーティング: `configs/llm_router.yaml`
+- 台本 task の上書き（必要時のみ）: `configs/llm_task_overrides.yaml`
+- 入口スイッチ（どこで動かすか）: `configs/llm_exec_slots.yaml`（`LLM_EXEC_SLOT`）
 
-設計方針（“1スイッチ”を崩さない）:
-- **Aテキスト本文に関わる task は、同一の「本文モデルプロファイル」を参照する**（タスクごとにモデルを散らさない）。
-  - 対象例: `script_chapter_draft`, `script_chapter_review`, `script_a_text_quality_fix`,
-    `script_a_text_quality_shrink`, `script_a_text_quality_extend`, `script_a_text_final_polish`,
-    `script_semantic_alignment_fix` など（本文を書き換える可能性があるもの）。
-- **切替レバーは1つに統一**し、複数の方式を併用しない（運用の混乱防止）。
-  - 切替レバー（迷わない/壊さない）: **数字スロット** `LLM_MODEL_SLOT`（または入口CLIの `--llm-slot`）で **この実行だけ**切替する。
-    - repoのYAMLを触らずに比較できる（ロールバック事故を避ける）。モデル名の書き換えもしない。
-    - 入口（例）:
-      - `python3 scripts/ops/script_runbook.py … --llm-slot 4`
-      - `python -m script_pipeline.cli … --llm-slot 2`
-    - 互換（暫定）: `--llm-model 2` のように **数字だけ**渡した場合も slot として解釈する。
-  - `LLM_FORCE_MODELS` / `--llm-model fw-g-1` のような **明示モデル指定は緊急デバッグ用途のみ**（運用では増やさない）。
-  - 既定の更新（恒久切替）が必要な場合は、`configs/llm_model_slots.yaml` の slot 定義を更新する（個別環境の差分は `configs/llm_model_slots.local.yaml`）。
-
-モデルプロファイルの契約（Aテキスト本文用）:
-- **thinking 必須**（内容生成/修正は推論品質が支配的）。
-- chain-of-thought を本文に混ぜない（“最終出力のみ”を抽出できる設定を前提にする）。
-- 最大出力が大きいこと（長文でも `finish_reason=length` でループしない）。
-
-モデル方針（本文/台本）:
-- **既定は slot 0**（`configs/llm_model_slots.yaml`）。
-  - 非台本の一般タスクは slot の `tiers` に従う（運用の切替は `--llm-slot <N>` / `LLM_MODEL_SLOT=<N>`）。
-  - **台本（`script_*`）は slot ではなく task override を正にする**（次項）。
-
-- **台本（`script_*`）は `configs/llm_task_overrides.yaml` の `models` を正として固定**（=モデル名直書き運用を撲滅）。
-  - 既定: `script-main-1`（Fireworks / DeepSeek v3.2 exp）
-  - thinking 固定: `options.extra_body.reasoning.enabled=true` + `exclude=true`（本文に混入させない）
-  - fallback は `allow_fallback=true` の task のみ（例: `script_semantic_alignment_fix` / `script_a_text_quality_fix` など）
-  - 重要: `models` を指定した task は **slot より優先**（slot は未pin の task/tier のみに適用）
-
-- Fireworks（text/台本）運用:
-  - 既定で有効（必要キー: `.env` の `FIREWORKS_SCRIPT`。gitには絶対に入れない）
-  - 止血スイッチ: `YTM_DISABLE_FIREWORKS_TEXT=1`（Fireworksを完全無効化。incident時のみ）
-  - `script_*` は API 停止時に **即停止**（THINK フォールバックしない / “勝手に別モデルへ逃げない”）
-
-観測（比較で迷わない）:
-- 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に残す。
-- トークン/回数は `workspaces/logs/llm_usage.jsonl`（`routing_key=CHxx-NNN`）で集計する（人間が読める証跡）。
+観測（固定）:
+- 1本ごとの provider/model は `workspaces/scripts/{CH}/{NNN}/status.json: stages.*.details.llm_calls` に記録する。
+- トークン/回数は `workspaces/logs/llm_usage.jsonl` に集計される。
 
 ---
 

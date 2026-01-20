@@ -26,6 +26,20 @@
 
 ---
 
+## 0.1 CapCut級の定義（品質仕様 / 固定）
+
+この Plan で言う「CapCut級」は、次を満たす状態を指す（= 実装のゴールを曖昧にしない）。
+
+- **字幕**: 読める（縁取り/背景/行数/改行が崩れない）+ チャンネルpresetで固定できる
+- **帯（belt）**: 4行日本語でも崩れない + チャンネルpresetで固定できる
+- **カット**: 画像切替が “音声に追従” している（cues/chapters の契約どおり）
+- **動き**: Ken Burns / クロスフェード等の “軽い動き” を preset でオン/オフできる
+- **破綻しない**: 欠損（画像/音声/SRT/JSON）や危険値（ASCII混入/空字幕/無限尺）で必ず止まる
+
+非ゴール（初期）:
+- “CapCutの全機能” の再現（エフェクト/テンプレ網羅）
+- 人手での細かい手動編集を前提にしたワークフロー
+
 ## 1) DoD（完了条件）
 
 ### D1: 単発レンダーが安定
@@ -57,6 +71,21 @@
 
 ---
 
+## 2.1 I/O契約（Remotion run_dir / 固定）
+
+Remotion は `workspaces/video/runs/<run_id>` を入力SoTにする（= “どのレンダラでも同じ入力”）。
+
+- 入力SoT（例）:
+  - `workspaces/video/runs/<run_id>/episode_info.json`
+  - `workspaces/video/runs/<run_id>/chapters.json`
+  - `workspaces/video/runs/<run_id>/image_cues.json`
+  - `workspaces/video/runs/<run_id>/belt_config.json`
+  - `workspaces/audio/final/{CH}/{NNN}/CHxx-NNN.wav` + `.srt`
+- 出力SoT（固定）:
+  - `workspaces/video/runs/<run_id>/remotion/output/final.mp4`
+
+このI/O契約は `ssot/ops/OPS_IO_SCHEMAS.md` / `ssot/ops/DATA_LAYOUT.md` を正とする。
+
 ## 3) マイルストーン（実装順）
 
 ### M0: 入口の一本化（迷子ゼロ）
@@ -82,9 +111,14 @@
 
 ---
 
-## 4) 決定すべき点（Owner確認待ち）
+## 4) 確定事項（固定）
 
-- 共有ストレージのマウント先（`YTM_SHARED_STORAGE_ROOT` の実体）
+- 共有ストレージのマウント先（固定）: `YTM_SHARED_STORAGE_ROOT=/Volumes/workspace/doraemon/workspace/lenovo_share`
+- 共有側の置き場所（固定）: `$YTM_SHARED_STORAGE_ROOT/uploads/$YTM_SHARED_STORAGE_NAMESPACE/`
+  - 既定namespace: `factory_commentary`
+
+## 5) 決定すべき点（Owner確認待ち）
+
 - “本線” の定義:
   - Remotionを既定にするタイミング（いつから `CapCut=fallback` にするか）
   - publish前に必須とする品質チェック（D2の“ズレ許容”の閾値）

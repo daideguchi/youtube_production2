@@ -83,7 +83,7 @@ def _validate_channel(channel: Optional[str]) -> Optional[str]:
     if not channel:
         return None
     ch = str(channel).strip().upper()
-    if not re.fullmatch(r"CH\\d{2}", ch):
+    if not re.fullmatch(r"CH\d{2}", ch):
         raise SystemExit(f"Invalid --channel: {channel!r} (expected CHxx)")
     return ch
 
@@ -92,7 +92,7 @@ def _validate_video(video: Optional[str]) -> Optional[str]:
     if not video:
         return None
     v = _z3(str(video).strip())
-    if not re.fullmatch(r"\\d{3}", v):
+    if not re.fullmatch(r"\d{3}", v):
         raise SystemExit(f"Invalid --video: {video!r} (expected NNN)")
     return v
 

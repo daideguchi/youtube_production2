@@ -26,6 +26,10 @@
 
 この工程で Codex（対話型AIエージェント）が確定させる成果物（正本）:
 
+補足（THINK/pending の形）:
+- `./ops script resume ...` は THINK（既定）では **pending を作って停止**する。
+  - `workspaces/logs/agent_tasks/pending/script_*__*.json`（runbook を読んで対話型AIエージェントが埋める）
+
 | Blueprint stage | pending task（THINKで生成） | 出力SoT（正本） | 用途 |
 | --- | --- | --- | --- |
 | topic_research（調査/根拠） | `script_topic_research__*` | `content/analysis/research/search_results.json` / `wikipedia_summary.json` / `research_brief.md` / `references.json` | 本文に URL/脚注を入れずに、根拠はここへ集約する |
@@ -38,14 +42,14 @@
 
 ## 0.2 台本本文（Aテキスト）を作る “6ルート” （固定表）
 
-| ルート | 実行主体 | 入口 | 入力SoT | 出力SoT | 禁止/注意 |
-| --- | --- | --- | --- | --- | --- |
-| LLM API が作る | パイプライン | `./ops api script <MODE> -- --channel CHxx --video NNN` | planning + SSOT | `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（/human があれば優先） | **API失敗→停止**（THINKへ自動フォールバック禁止） |
-| 対話型AIが Claude CLI を操って作る（既定） | 対話型AIエージェント | `./ops claude script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | 既定=sonnet 4.5。Opus は指示時のみ。Claudeリミット時は Gemini 3 Flash Preview → qwen。**Blueprint必須**（FULL prompt + blueprint bundle を自動追記） |
-| 対話型AIが Gemini CLI を操って作る | 対話型AIエージェント | `./ops gemini script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。サイレントfallback禁止 |
-| 対話型AIが qwen -p を操って作る（最終フォールバック） | 対話型AIエージェント | `./ops qwen script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。**qwen-oauth固定**。**`--auth-type`/`--qwen-model/--model/-m` 禁止**（別課金/別プロバイダへ逃げない） |
-| codex exec（非対話）を使う | 非対話CLI | `./ops codex <cmd> ...` | SSOT/設定 | （台本本文には使わない） | **script_* は対象外/禁止**（混線防止） |
-| antigravity を使う | 入力SoT（prompt） | `prompts/antigravity_gemini/**` | MASTER+FULL prompt | （上の Gemini/Qwen/API が読む） | prompt は git-tracked（勝手に改変しない） |
+| 位置付け | ルート | 実行主体 | 入口 | 入力SoT | 出力SoT | 禁止/注意 |
+| --- | --- | --- | --- | --- | --- | --- |
+| DEFAULT | Claude CLI で作る（既定） | 対話型AIエージェント | `./ops claude script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | 既定=sonnet 4.5。Opus は指示時のみ。Claudeリミット時は Gemini 3 Flash Preview → qwen。**Blueprint必須**（FULL prompt + blueprint bundle を自動追記） |
+| FALLBACK-1 | Gemini CLI で作る | 対話型AIエージェント | `./ops gemini script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。サイレントfallback禁止 |
+| FALLBACK-2 | qwen -p で作る（最終フォールバック） | 対話型AIエージェント | `./ops qwen script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。**qwen-oauth固定**。**`--auth-type`/`--qwen-model/--model/-m` 禁止**（別課金/別プロバイダへ逃げない） |
+| EXPLICIT | LLM API が作る | パイプライン | `./ops api script <MODE> -- --channel CHxx --video NNN` | planning + SSOT | `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（/human があれば優先） | **API失敗→停止**（THINKへ自動フォールバック禁止） |
+| INPUT-SOT | antigravity（prompt SoT） | 入力SoT（prompt） | `prompts/antigravity_gemini/**` | MASTER+FULL prompt | （上の Claude/Gemini/Qwen/API が読む） | prompt は git-tracked（勝手に改変しない） |
+| FORBIDDEN | codex exec（非対話） | 非対話CLI | `./ops codex <cmd> ...` | SSOT/設定 | （台本本文には使わない） | **script_* は対象外/禁止**（混線防止） |
 
 ## 1. 目的（DoD）
 - Aテキスト（`assembled_human.md`）を正本として用意し、`script_validation` まで完了させる。

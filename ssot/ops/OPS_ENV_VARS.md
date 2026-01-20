@@ -221,7 +221,7 @@
 
 ### 共有ストレージ（Tailscale常駐ストレージ）
 
-- `YTM_SHARED_STORAGE_ROOT`（省略可）: 共有ストレージ root（例: `/Volumes/ytm_share`）
+- `YTM_SHARED_STORAGE_ROOT`（省略可）: 共有ストレージ root（例: `/Volumes/workspace/doraemon/workspace/lenovo_share`）
   - 目的: 最終成果物（L1）を共有ストレージへ **ミラー/退避** して複数マシンで再利用する
   - 注意: 共有ストレージは SoT ではない（パイプラインが共有側を参照して動く運用はしない）
   - 仕様: `ssot/ops/OPS_SHARED_ASSET_STORE.md`

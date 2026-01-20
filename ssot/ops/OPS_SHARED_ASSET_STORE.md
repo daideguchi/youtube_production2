@@ -22,15 +22,15 @@
 共有ストレージのマウント先は環境変数で指定する。
 
 - `YTM_SHARED_STORAGE_ROOT`（必須）: 共有ストレージ root（絶対パス）
-  - 例: `/Volumes/ytm_share`（Tailscale経由の常駐ストレージをマウント）
+  - 例: `/Volumes/workspace/doraemon/workspace/lenovo_share`（Tailscale経由の常駐ストレージをマウント）
 
 命名空間（repo識別）は次の順で決める:
 
 1. `YTM_SHARED_STORAGE_NAMESPACE`（指定時のみ。未指定なら2へ）
 2. `repo_root().name`（既定: `factory_commentary`）
 
-共有側のベース:
-`$YTM_SHARED_STORAGE_ROOT/$YTM_SHARED_STORAGE_NAMESPACE/`
+共有側のベース（固定）:
+`$YTM_SHARED_STORAGE_ROOT/uploads/$YTM_SHARED_STORAGE_NAMESPACE/`
 
 ---
 

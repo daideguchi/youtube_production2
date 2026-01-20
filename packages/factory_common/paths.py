@@ -96,7 +96,12 @@ def shared_storage_base() -> Optional[Path]:
     root = shared_storage_root()
     if root is None:
         return None
-    return root / shared_storage_namespace()
+    # Convention: shared root is the mounted share (e.g. ".../lenovo_share"),
+    # and artifacts are placed under "uploads/<namespace>/" so they are visible
+    # via the /files UI on the always-on host.
+    if root.name == "uploads":
+        return root / shared_storage_namespace()
+    return root / "uploads" / shared_storage_namespace()
 
 def _norm_channel(ch: str) -> str:
     return str(ch).upper()
