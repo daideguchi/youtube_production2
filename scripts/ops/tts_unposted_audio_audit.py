@@ -2,7 +2,7 @@
 """
 tts_unposted_audio_audit.py — audit unposted episodes that already have final audio.
 
-Goal (NO LLM):
+Goal (LLM API 不使用):
 - Find episodes where existing audio likely has reading issues (VOICEVOX mismatch vs MeCab baseline).
 - For VOICEPEAK, auto-proof is impossible → provide risk indicators (unknown/ASCII/digits).
 - Detect stale audio (A-text updated after audio was generated) to prioritize regeneration.
@@ -10,7 +10,7 @@ Goal (NO LLM):
 
 SSOT:
 - Audio/TTS ops: ssot/ops/OPS_AUDIO_TTS.md
-- Manual reading audit: ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md
+- Annotation flow (VOICEVOX/VOICEPEAK): ssot/ops/OPS_TTS_ANNOTATION_FLOW.md
 
 Usage:
   ./scripts/with_ytm_env.sh python3 scripts/ops/tts_unposted_audio_audit.py --write-latest

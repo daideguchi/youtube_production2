@@ -133,7 +133,27 @@ def is_trivial_diff(expected: str, actual: str) -> bool:
     norm_expected = normalize_for_compare(str(expected))
     norm_actual = normalize_for_compare(str(actual))
 
-    return norm_expected == norm_actual
+    if norm_expected == norm_actual:
+        return True
+
+    # SSOT: Particle pronunciation orthography (は=ワ/ハ, へ=エ/ヘ) should not trip fail-fast
+    # mismatch detection. We cannot safely do a blind replace in normalize_for_compare because it
+    # would corrupt real words (e.g., 一発=イチハツ). Instead, treat them as equivalent only when
+    # they are the *only* differences between two normalized strings.
+    #
+    # This is used for comparing MeCab vs VOICEVOX kana strings; it does not rewrite the script.
+    if len(norm_expected) == len(norm_actual):
+        allowed_pairs = {("ワ", "ハ"), ("ハ", "ワ"), ("エ", "ヘ"), ("ヘ", "エ")}
+        for a, b in zip(norm_expected, norm_actual):
+            if a == b:
+                continue
+            if (a, b) in allowed_pairs:
+                continue
+            break
+        else:
+            return True
+
+    return False
 
 
 def _is_numeric_surface(surface: str) -> bool:

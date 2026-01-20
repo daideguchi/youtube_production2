@@ -480,13 +480,56 @@ def _find_video_input_file(channel: str, filename: str) -> Path | None:
 
 
 def main() -> None:
-    skip_tts_reading = os.environ.get("SKIP_TTS_READING", "0") not in ("0", "", None)
     args = parse_args()
     from factory_common.routing_lockdown import (
         assert_no_llm_model_overrides,
         assert_task_overrides_unchanged,
         lockdown_active,
     )
+
+    # Policy: TTS reading LLM (auditor) is disabled by default.
+    # 推論/判断は対話型AIエージェントが担当し、VOICEVOXは prepass mismatch=0 を合格条件にする。
+    # - Default: SKIP_TTS_READING=1
+    # - Under routing lockdown (default ON): SKIP_TTS_READING=0 is forbidden (prevents accidental LLM path).
+    skip_tts_reading = os.environ.get("SKIP_TTS_READING", "1") not in ("0", "", None)
+    if lockdown_active() and not skip_tts_reading:
+        raise SystemExit(
+            "\n".join(
+                [
+                    "[POLICY] Forbidden: SKIP_TTS_READING=0 under YTM_ROUTING_LOCKDOWN=1.",
+                    "- required: SKIP_TTS_READING=1 (読みLLM（auditor）禁止; 推論=対話型AIエージェント / 辞書+override+prepass mismatch=0)",
+                    "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only)",
+                ]
+            )
+        )
+
+    # Policy: engine must be SSOT-driven (no ad-hoc overrides under lockdown).
+    # Engine selection is derived from:
+    # - packages/script_pipeline/audio/channels/<CH>/voice_config.json
+    # - packages/audio_tts/configs/routing.json (script_override / channel_override / engine_default)
+    if lockdown_active():
+        if args.engine_override:
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[POLICY] Forbidden: --engine-override under YTM_ROUTING_LOCKDOWN=1.",
+                        "- policy: Engine is auto-decided by SSOT (voice_config.json / routing.json).",
+                        "- fix: remove --engine-override; change SSOT configs if needed.",
+                        "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only)",
+                    ]
+                )
+            )
+        if (os.getenv("ENGINE_DEFAULT_OVERRIDE") or "").strip():
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[POLICY] Forbidden: ENGINE_DEFAULT_OVERRIDE under YTM_ROUTING_LOCKDOWN=1.",
+                        "- policy: Engine is auto-decided by SSOT (voice_config.json / routing.json).",
+                        "- fix: unset ENGINE_DEFAULT_OVERRIDE and rerun.",
+                        "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only)",
+                    ]
+                )
+            )
 
     # Lockdown policy (default ON): forbid ad-hoc model overrides that cause drift across agents.
     assert_no_llm_model_overrides(context="audio_tts.run_tts (startup)")
@@ -581,7 +624,18 @@ def main() -> None:
             else:
                 print(f"[VoicepeakDict] already up-to-date: {res.dst}")
         except Exception as e:
-            print(f"[WARN] Voicepeak dict sync failed (continuing): {e}")
+            msg = "\n".join(
+                [
+                    "[POLICY] Voicepeak dict sync failed.",
+                    f"- error: {e}",
+                    "- SoT: packages/audio_tts/data/voicepeak/dic.json",
+                    "- fix: run `PYTHONPATH='.:packages' python3 -m audio_tts.scripts.sync_voicepeak_user_dict` and rerun",
+                    "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only)",
+                ]
+            )
+            if lockdown_active():
+                raise SystemExit(msg)
+            print(f"[WARN] {msg}")
 
     if engine == "voicevox" and not args.finalize_existing:
         vv_url = cfg.voicevox_url

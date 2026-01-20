@@ -44,7 +44,7 @@
   - Writer:
     - `packages/factory_common/llm_client.py`（LLMClient。legacy スキーマ: `ts`, `task`, `provider`, `model`, `usage`）
     - `packages/factory_common/llm_router.py`（LLMRouter。router スキーマ: `status`, `task`, `provider`, `model`, `chain`, `latency_ms`, `usage?`, `error?`, `retry?`, `cache?`, `routing?`, `timestamp`）
-    - `packages/factory_common/llm_api_failover.py`（API失敗→THINKフォールバック: `status=api_failover_*`, `task_id`, `pending?`, `runbook?`。注: `script_*` はフォールバックしない）
+    - （legacy/無効）`packages/factory_common/llm_api_failover.py`（旧: API失敗→THINK 自動フォールバック。現行ポリシーでは **禁止**）
   - 形式: 1行JSON（複数スキーマ混在。将来的に schema_version で統一予定）
 - `routing`（省略可）:
     - `LLM_AZURE_SPLIT_RATIO` が設定されている場合、Azure/非Azure の振り分け情報（policy/ratio/bucket/preferred_provider/routing_key）を出力する
@@ -52,11 +52,11 @@
   - 種別: **L1**
 
 - `workspaces/logs/agent_tasks/{pending,results,completed}/*.json`  
-  - Writer: `packages/factory_common/agent_mode.py`, `scripts/agent_runner.py`, `packages/factory_common/llm_api_failover.py`
+  - Writer: `packages/factory_common/agent_mode.py`, `scripts/agent_runner.py`
   - 役割: agent/think-mode の **キュー/結果キャッシュ**（enqueue → complete → rerun）
   - 関連:
-    - `workspaces/logs/agent_tasks/coordination/memos/*.json`（申し送り/フォールバック通知）
-      - Writer: `packages/factory_common/llm_api_failover.py`, `scripts/agent_org.py`
+    - `workspaces/logs/agent_tasks/coordination/memos/*.json`（申し送り）
+      - Writer: `scripts/agent_org.py`
       - Reader: `python scripts/agent_org.py memos`, `python scripts/agent_org.py memo-show <MEMO_ID>`
     - `workspaces/logs/agent_tasks/coordination/locks/*.json`（作業スコープロック; 省略可）
       - Writer/Reader: `scripts/agent_org.py`

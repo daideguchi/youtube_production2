@@ -26,7 +26,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 - CH02 を「サムネ=Gemini / 台本=共通 / 動画内画像=Flux schnell」で回す（例）: `g-1_script-main-1_f-1`
 - THINK MODE で回す（例）: `g-1_script-main-1_f-1@x3`
   - 意味: `LLM_EXEC_SLOT=3`（`configs/llm_exec_slots.yaml`）
-  - 注: `script_*` は THINK/AGENT では実行しない（固定ルール）。台本は `@x0` で実行する。
+  - 注: THINK はデフォルト運用（pending）。台本も含め、**対話型AIエージェントが仕上げて進める**（API失敗→THINK 自動切替は禁止）。
 
 ### 0.1 コード早見表（画像）
 
@@ -87,7 +87,7 @@ UI（`/model-policy`）では、この3点セットを **1つのコード**で�
 ### 台本（script_*）
 - **台本は task override で固定**（= `configs/llm_task_overrides.yaml`）
 - UI/デバッグ上書きは `configs/llm_task_overrides.local.yaml`（git管理しない）にのみ書く（SSOTの破壊防止）
-- `script_*` は **失敗時に停止・記録**（THINK へフォールバックしない）
+- `script_*` は **失敗時に停止・記録**（自動フォールバックで続行しない）
 
 ### 画像（動画用 / サムネ）
 - **画像コード**: `configs/image_model_slots.yaml`
@@ -179,12 +179,9 @@ SoT（正本）:
 禁止（通常運用）:
 - `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY` を恒久セットしない（ロックダウンで停止）。
 
-許可（incident/debug のみ・その実行だけ）:
-- `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 ./ops thumbnails build -- --channel CHxx --videos 001 002 ...`
-
-備考:
-- **許可（サムネ）**: サムネ背景生成（`thumbnail_image_gen`）に限り Gemini 3 系の画像モデルは **使っても良い**（必要時のみ明示して使う）。
-  - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ./ops thumbnails build -- --channel CHxx --videos 001 002 ...`
+固定（運用）:
+- サムネ背景生成（`thumbnail_image_gen`）は **Gemini 2.5 Flash Image（g-1）固定**。
+- `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` による上書きは運用では使わない（ロックダウンで停止 / debugでも使わない）。
 
 ---
 
@@ -196,11 +193,8 @@ SoT（正本）:
   - `belt_generation`（Bテキスト）
   - `visual_prompt_refine`（画像プロンプト整形）
   - `visual_thumbnail_caption`（サムネ要約）
-- `tts_segment`（TTS分割）
-- TTS（`tts_*`）は **AIエージェント（Codex）主担当**（pending運用; D-013）:
-  - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`
-  - 互換: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
-  - 注: ここで言う「Codex」は **codex exec（`@x1`）ではない**（別物）。TTSは codex exec へ寄せない。
+- TTS（読み/分割/ポーズ等）: **推論=対話型AIエージェント / 読みLLM無効**（VOICEVOX: prepass mismatch=0 / VOICEPEAK: prepass→合成→サンプル再生OK）。`SKIP_TTS_READING=1` が既定/必須（`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止）。
+  - 正本入口: `./ops audio -- --channel CHxx --video NNN`
 - これらは `configs/llm_router.yaml` の `tasks.<task>.tier` で tier が決まり、
   **tier は `LLM_MODEL_SLOT`（`configs/llm_model_slots.yaml`）でモデルコードに解決**される。
 - 一覧はUI `/model-policy` の「その他のLLM処理（共通）」表で確認する。

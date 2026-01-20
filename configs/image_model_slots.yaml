@@ -11,9 +11,12 @@ schema_version: 1
 #   - `channels.<CH>.image_generation.model_key`
 # - Thumbnails: `workspaces/thumbnails/templates.json`
 #   - `templates[].image_model_key`
+# - Policy (lockdown default):
+#   - Thumbnails are fixed to `g-1` in normal ops (override禁止 / 逸脱防止ガードあり).
+#   - Other `thumbnail_image_gen` mappings are for debug/reference only.
 # - Runtime env override:
 #   - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=g-1`
-#   - `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4`
+#   - (forbidden) `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=...`  ※通常運用では使わない（必要なら `YTM_EMERGENCY_OVERRIDE=1`）
 #
 # Notes:
 # - No secrets here. Per-machine overrides belong in:
@@ -31,7 +34,7 @@ slots:
 
   g-3:
     label: gemini_3_pro_image_preview
-    description: Gemini 3 Pro Image Preview (thumbnails allowed; video images blocked under lockdown).
+    description: Gemini 3 Pro Image Preview (debug/reference; thumbnails are fixed to g-1 under lockdown).
     tasks:
       image_generation: gemini_3_pro_image_preview
       visual_image_gen: gemini_3_pro_image_preview

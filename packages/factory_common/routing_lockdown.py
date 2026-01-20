@@ -21,7 +21,7 @@ def routing_lockdown_enabled() -> bool:
     Operator safety switch.
 
     Default: ON (prevents non-slot "ad-hoc overrides" that cause drift across agents).
-    Set `YTM_ROUTING_LOCKDOWN=0` to temporarily restore legacy behavior.
+    Note: `YTM_ROUTING_LOCKDOWN=0` は通常運用では使わない（debug/緊急のみ）。
     """
     raw = (os.getenv("YTM_ROUTING_LOCKDOWN") or "").strip()
     if raw == "":
@@ -65,7 +65,7 @@ def assert_env_absent(env_names: Iterable[str], *, context: str, hint: str) -> N
                 "- policy: Use numeric slots/codes only (no model-name or direct mode overrides).",
                 f"- hint: {hint}",
                 "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for this run (debug only)",
-                "- legacy: set YTM_ROUTING_LOCKDOWN=0 to disable lockdown (not recommended)",
+                "- note: YTM_ROUTING_LOCKDOWN=0 は通常運用では禁止（必要なら emergency override を明示）",
             ]
         )
     )

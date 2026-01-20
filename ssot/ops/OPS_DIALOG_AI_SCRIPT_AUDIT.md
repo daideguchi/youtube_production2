@@ -6,7 +6,7 @@
 - 台本が修正された後も、同じ品質で再査定して **状態A→B→再確定** が回るように、監査の入出力を固定する。
 
 絶対制約（この監査の前提）:
-- **LLM API を呼ばない**（コスト暴発の防止）。この監査は対話AI（人間レビュー相当）が行う。
+- **LLM API を呼ばない**（コスト暴発の防止）。この監査は **対話型AIエージェントが判定**する（オーナーのレビューは必須ではない）。
 - 台本本文を **機械的にテコ入れして合格扱いにしない**（末尾トリム/追記挿入/重複削除/末尾補完などは禁止）。
   - 内容に触れる決定論修正は禁止（正本: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md` / `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`）。
 - `redo_script` / `redo_note`（要対応の編集判断）は **この監査の出力**として扱い、整合スタンプ（`metadata.alignment`）や他の機械処理で自動上書きしない。
@@ -71,7 +71,7 @@ Script SoT = `workspaces/scripts/{CH}/{NNN}/status.json`
 `verdict` の意味:
 - `pass`: `redo_script=false`（監査OK）
 - `fail`: `redo_script=true`（明確にNG）
-- `grey`: `redo_script=true`（グレー。対話AIの追加精査 or 人間確認が必要）
+- `grey`: `redo_script=true`（グレー。対話型AIエージェントが追加精査し、オーナー指示が必要な場合はエスカレーション）
 
 ---
 

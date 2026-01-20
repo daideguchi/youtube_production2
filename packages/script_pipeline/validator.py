@@ -1,6 +1,7 @@
 """Validate required outputs for stages in the new script_pipeline."""
 from __future__ import annotations
 
+import json
 import os
 import re
 import unicodedata
@@ -10,6 +11,7 @@ from typing import Dict, List, Any, Tuple
 from factory_common.paths import audio_final_dir, script_data_root
 
 from .sot import load_status
+from .tools.channel_registry import find_channel_dir
 
 DATA_ROOT = script_data_root()
 
@@ -48,6 +50,32 @@ _DUMMY_A_TEXT_MARKERS = (
     "ダミー本文を配置しています",
 )
 
+_SLEEP_CHANNEL_TAG_MARKERS = ("#睡眠用", "#寝落ち")
+_SLEEP_FRAMING_ANY_MARKERS = (
+    "寝落ち",
+    "睡眠用",
+    "安眠",
+    "眠りへ誘う",
+    "眠りへ導く",
+    "眠りへ",
+)
+_SLEEP_FRAMING_TAIL_MARKERS = (
+    "おやすみなさい",
+    "ゆっくりお休みください",
+    "ゆっくりお休み",
+    "布団に入る前",
+    "布団に入って",
+    "布団に入った",
+    "布団に入ると",
+    "布団の中で",
+    "眠れなかった",
+    "眠れなくて",
+    "眠りへ",
+    "寝落ち",
+    "睡眠用",
+    "安眠",
+)
+
 
 def _unicode_desc(ch: str) -> str:
     return f"U+{ord(ch):04X} {unicodedata.name(ch, 'UNKNOWN')}"
@@ -82,6 +110,39 @@ def _infer_channel_from_metadata(metadata: Dict[str, Any]) -> str:
         if m2:
             return f"CH{m2.group(1)}".upper()
     return ""
+
+def _is_sleep_channel(channel: str) -> bool:
+    """
+    Heuristic SSOT:
+    - Sleep channels explicitly opt-in via `#睡眠用` / `#寝落ち` in youtube_description/default_tags.
+    """
+    ch = str(channel or "").strip().upper()
+    if not ch:
+        return False
+    try:
+        channel_dir = find_channel_dir(ch)
+    except Exception:
+        channel_dir = None
+    if channel_dir is None:
+        return False
+    info_path = channel_dir / "channel_info.json"
+    if not info_path.exists():
+        return False
+    try:
+        data = json.loads(info_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    parts: List[str] = []
+    yd = data.get("youtube_description")
+    if isinstance(yd, str) and yd.strip():
+        parts.append(yd)
+    tags = data.get("default_tags")
+    if isinstance(tags, list):
+        parts.extend(str(t) for t in tags if t)
+    elif isinstance(tags, str) and tags.strip():
+        parts.append(tags)
+    blob = "\n".join(parts)
+    return any(tok in blob for tok in _SLEEP_CHANNEL_TAG_MARKERS)
 
 
 def _parse_int(value: Any) -> int | None:
@@ -129,6 +190,12 @@ def _strip_trailing_pause_lines(text: str) -> str:
             changed = True
     return "\n".join(lines).rstrip()
 
+def _find_line_number(text: str, needle: str) -> int | None:
+    idx = (text or "").find(needle)
+    if idx < 0:
+        return None
+    return (text[:idx].count("\n") + 1) if text else None
+
 
 def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
@@ -138,6 +205,7 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
     normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
     lines = normalized.split("\n")
     channel = _infer_channel_from_metadata(metadata)
+    sleep_channel = _is_sleep_channel(channel) if channel else False
 
     issues: List[Dict[str, Any]] = []
     stats: Dict[str, Any] = {
@@ -149,10 +217,43 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
         + normalized.count("』"),
         "paren_marks": normalized.count("（") + normalized.count("）") + normalized.count("(") + normalized.count(")"),
     }
+    if channel:
+        stats["channel"] = channel
+        stats["sleep_channel"] = sleep_channel
 
     if not normalized.strip():
         issues.append({"code": "empty_script", "message": "A-text is empty", "severity": "error"})
         return issues, stats
+
+    # Sleep-framing contamination guard (non-sleep channels).
+    if channel and not sleep_channel:
+        tail = _strip_trailing_pause_lines(normalized)
+        tail_window = tail[-500:] if len(tail) > 500 else tail
+        for marker in _SLEEP_FRAMING_TAIL_MARKERS:
+            if marker in tail_window:
+                line = _find_line_number(normalized, marker)
+                issues.append(
+                    {
+                        "code": "sleep_framing_contamination",
+                        "message": f"Sleep-framing marker found in tail: {marker}",
+                        "line": line,
+                        "severity": "error",
+                    }
+                )
+                break
+        else:
+            for marker in _SLEEP_FRAMING_ANY_MARKERS:
+                if marker in normalized:
+                    line = _find_line_number(normalized, marker)
+                    issues.append(
+                        {
+                            "code": "sleep_framing_contamination",
+                            "message": f"Sleep-framing marker found: {marker}",
+                            "line": line,
+                            "severity": "error",
+                        }
+                    )
+                    break
 
     target_min = _parse_int(metadata.get("target_chars_min"))
     target_max = _parse_int(metadata.get("target_chars_max"))
@@ -209,6 +310,14 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 "code": "too_many_parentheses",
                 "message": f"parentheses (（）/()) total {stats['paren_marks']} > guideline {paren_max}",
                 "severity": "warning",
+            }
+        )
+    if channel and (not sleep_channel) and stats["pause_lines"] > 15:
+        issues.append(
+            {
+                "code": "too_many_pause_lines",
+                "message": f"pause lines (`---`) total {stats['pause_lines']} > limit 15 for non-sleep channels",
+                "severity": "error",
             }
         )
 

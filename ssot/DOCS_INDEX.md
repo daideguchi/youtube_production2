@@ -83,7 +83,7 @@
 - `ops/OPS_DIALOG_AI_SCRIPT_AUDIT.md`: 対話AIによる台本監査（LLM API禁止 / 企画整合+流れを目視で確定し redo_script を運用）。
 - `ops/OPS_AUDIO_TTS.md`: 音声（TTS）運用手順とSoT/cleanup。
 - `ops/OPS_TTS_ANNOTATION_FLOW.md`: TTSアノテーション（読み/分割/ポーズ等）の運用フローと証跡。
-- `ops/OPS_TTS_UNPOSTED_AUDIO_AUDIT.md`: 未投稿×既存音声の一括再監査（NO LLM / 再現可能）。
+- `ops/OPS_TTS_UNPOSTED_AUDIO_AUDIT.md`: 未投稿×既存音声の一括再監査（LLM API 不使用 / 再現可能）。
 - `ops/OPS_SRT_LINEBREAK_FORMAT.md`: SRT字幕の改行整形（意味/語彙は不変、改行のみで視認性を上げる）。
 - `packages/audio_tts/docs/SRT_SYNC_PROTOCOL.md` (Reference): 音声final（SRT/WAV）と video_pipeline 入力同期の契約メモ。
 - `ops/OPS_PLANNING_CSV_WORKFLOW.md`: 企画/進捗CSV（Planning SoT）の運用手順。
@@ -108,7 +108,7 @@
 - `ops/OPS_GH_RELEASES_ARCHIVE.md`: GitHub Releases を“重い物置き”にする（manifest/index + push/pull）。
 - `ops/OPS_VIDEO_RUNS_ARCHIVE_RESTORE.md`: Video runs（run_dir）の依存/参照とアーカイブ/復旧の正本。
 - `ops/OPS_VIDEO_ASSET_PACK.md`: 編集ソフト非依存の「エピソード資産束」（Git追跡）。CapCut以外の制作ルートもここに寄せる。
-- `ops/OPS_TTS_MANUAL_READING_AUDIT.md`: 読みLLMを使わない手動TTS監査の完全手順（全候補確認・証跡ルール）。
+- `ops/OPS_TTS_MANUAL_READING_AUDIT.md` (Reference): VOICEVOX読み監査の深掘り手順（詳細/背景）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
 - `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md` (Reference): 全チャンネル共通 CapCutドラフト生成SOP（auto_capcut_run / safe_image_swap）。
 - `packages/video_pipeline/config/channel_config_spec.md` (Reference): `packages/video_pipeline/config/channel_presets.json` / `capcut_settings` の仕様メモ（実装参照）。

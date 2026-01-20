@@ -3,7 +3,7 @@ Agent-mode support for replacing API LLM calls with a queue.
 
 Goal:
 - Replace API LLM calls with an "enqueue → complete → rerun" workflow.
-- Keep the switch opt-in via env vars (default remains API).
+- Default execution mode is controlled by `LLM_EXEC_SLOT` (see `configs/llm_exec_slots.yaml`); do not assume API.
 
 Key env vars (SSOT: ssot/ops/OPS_ENV_VARS.md):
 - LLM_EXEC_SLOT=0|3|4 (recommended; stable)
@@ -14,7 +14,7 @@ Key env vars (SSOT: ssot/ops/OPS_ENV_VARS.md):
 - LLM_AGENT_QUEUE_DIR=/abs/or/relative/path (default: workspaces/logs/agent_tasks)
 - LLM_AGENT_NAME=Mike (optional; used for claimed_by/completed_by metadata)
 - LLM_AGENT_TASKS=comma,separated,task,names (optional; exact allowlist)
-- LLM_AGENT_TASK_PREFIXES=script_,tts_ (optional; prefix allowlist)
+- LLM_AGENT_TASK_PREFIXES=script_ (optional; prefix allowlist)
 - LLM_AGENT_EXCLUDE_TASKS=image_generation (optional; exact blocklist)
 - LLM_AGENT_EXCLUDE_PREFIXES=visual_ (optional; prefix blocklist)
 - LLM_AGENT_RUNBOOKS_CONFIG=path/to/config (default: configs/agent_runbooks.yaml)
@@ -349,19 +349,6 @@ def maybe_handle_agent_mode(
     """
     t = str(task or "").strip()
     mode = _llm_mode()
-    if t.startswith("script_") and mode in {"agent", "think"}:
-        raise SystemExit(
-            "\n".join(
-                [
-                    "[POLICY] script_* tasks must not run in THINK/AGENT mode.",
-                    f"- task: {t}",
-                    f"- mode: {mode}",
-                    "- rule: 台本は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。",
-                    "- action: rerun with exec-slot=0 (API)",
-                    "  - ./scripts/with_ytm_env.sh --exec-slot 0 ...",
-                ]
-            )
-        )
     if not agent_mode_enabled_for_task(task):
         return None
 

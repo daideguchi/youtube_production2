@@ -30,11 +30,12 @@ def make_cues(
         return cues
 
     # IMPORTANT: Mechanical splitting is forbidden.
-    # If you want to stop API LLM usage, use THINK MODE failover instead of degrading quality.
+    # If you want to stop external LLM API usage, choose THINK/AGENT upfront so calls are queued
+    # and completed by the interactive agent (no API→THINK auto failover).
     if os.getenv("SRT2IMAGES_DISABLE_CONTEXT_LLM") == "1":
         raise RuntimeError(
             "SRT2IMAGES_DISABLE_CONTEXT_LLM=1 is set, but mechanical splitting fallback is forbidden. "
-            "Unset this env var and rerun (or use THINK MODE failover via the agent queue)."
+            "Unset this env var and rerun (use THINK mode upfront to queue tasks if you want to avoid external LLM calls)."
         )
 
     # 🚨 重要：LLM文脈理解システムを使用

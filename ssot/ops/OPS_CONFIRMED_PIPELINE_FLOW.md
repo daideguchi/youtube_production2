@@ -240,15 +240,18 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
     - **Aテキスト（台本/表示SoT）は変更しない**（TTS目的で触らない）。
     - 読み注釈が混入している場合（例: `刈羽郡、かりわぐん` / `大河内正敏（おおこうちまさとし）`）は **B生成で重複部分のみ決定的に除去**し、辞書/overrideで読みを固定する。
     - 数字/英字も **B側で決定的にカナ化**して MeCab/VOICEVOX の読みを一致させる（局所辞書の無限増殖を防ぐ）。
-    - 手順: まず `--prepass`（wav生成なし）で mismatch=0 を確認 → その後に合成へ。
-      - 詳細runbook: `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md`
+    - 手順（engine別）:
+      - VOICEVOX: `--prepass`（wav生成なし）で mismatch=0 → その後に合成へ
+      - VOICEPEAK: `--prepass` → B点検（ASCII/数字ゼロ）→ 合成 → `afplay` で要所確認OK（証跡を残す）
+      - 詳細SoT: `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md`
       - チャンネル一括: `python3 scripts/batch_regenerate_tts.py --channel CHxx --prepass --skip-tts-reading --min-video 1 --max-video 30`
-  - **出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
+- **出典/脚注/URLなどのメタ情報を混入させない**（字幕に出る/読み上げる事故の根本原因）
     - 禁止例: `([戦国ヒストリー][13])` / `[13]` / `https://...` / `Wikipedia/ウィキペディア` を出典として直接書く表現
     - 出典は本文ではなく `content/analysis/research/references.json` 等へ集約する
     - 混入している場合は `scripts/sanitize_a_text.py` で退避→除去→同期してから再生成する
-- LLM（読み/分割/ポーズ等）:
-  - `packages/audio_tts/tts/llm_adapter.py` → `packages/factory_common/llm_router.py`（tasks: `tts_*`）
+- 読みLLM（auditor/reading resolution）:
+  - 実装（`tts_*`）は存在するが **運用では使わない（推論=対話型AIエージェント / 読みLLM無効）**。
+  - 既定: `SKIP_TTS_READING=1`（`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止。必要な場合のみ `YTM_EMERGENCY_OVERRIDE=1` を明示してから）
 - Voiceエンジン:
   - VOICEVOX / Voicepeak / ElevenLabs を `packages/audio_tts/tts/routing.py` で決定。
 

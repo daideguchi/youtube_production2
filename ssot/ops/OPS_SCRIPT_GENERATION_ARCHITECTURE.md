@@ -7,8 +7,11 @@
 前提:
 - 台本は全て AIナレーション用の Aテキスト。
 - ポーズ記号は `---` のみ（1行単独）。それ以外の区切りは使わない。
-- **Aテキスト本文（`content/chapters/*.md` / `content/assembled*.md`）の生成・修正は常に LLM API で行う**（本文taskのルーティングは `configs/llm_task_overrides.yaml` が正本）。
-  - Codex exec は本文を書かない（読み取り/判定/提案はOK。ただし本文へ混入させない）。
+- **Aテキスト本文（`content/chapters/*.md` / `content/assembled*.md`）の生成・修正は、対話型AIエージェントが「明示ルート」で行う**（サイレントfallback禁止）。
+  - 既定（CLI）: `./ops claude script -- --channel CHxx --video NNN --run`（model: sonnet / fallback: Gemini 3 Flash Preview → qwen-oauth）
+  - 明示API（この実行だけ）: `./ops api script <MODE> -- --channel CHxx --video NNN`（API失敗→THINK自動フォールバックは禁止）
+  - Codex exec（非対話CLI）は本文を書かない（読み取り/判定/提案はOK。ただし本文へ混入させない）。
+  - **Blueprint必須**: Writer CLI は `topic_research`/`script_outline`/`script_master_plan` の成果物（outline/research/master_plan）が揃うまで停止し、FULL prompt に blueprint bundle を自動追記してから執筆に入る（例外は `YTM_EMERGENCY_OVERRIDE=1` の明示実行のみ）。
 - ルール正本: `ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`
 - 台本量産ロジック（単一SSOT）: `ssot/ops/OPS_SCRIPT_PIPELINE_SSOT.md`（本書はアーキテクチャ詳細）
 
@@ -33,7 +36,8 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 ### 2.1 SSOTパターン（骨格固定）
 - 正本: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
 - チャンネルとタイトルから「構成パターン」を選び、セクション構成と字数配分を決定する。
-- ここは決定論（コード）で作る。LLMに設計させない。
+- ここは決定論（コード）で作る（骨格/字数配分はLLMに設計させない）。
+- 各企画の **細かい構成（設計図）** は Codex（対話型AIエージェント）が作る（Webサーチ→`topic_research`→`script_outline`→`script_master_plan`）。入口/表は `ssot/agent_runbooks/RUNBOOK_JOB_SCRIPT_PIPELINE.md` を正とする。
 - CH07など「逸話必須」パターンでは、plan に `core_episode.safe_retelling` を含め、台本の中心エピソードは **その1件だけ**を中心に深掘りする（別の概念や逸話へ分散させない）。
 
 ### 2.2 単発生成（執筆）
@@ -111,24 +115,29 @@ LLMに「自由に長文を書かせる」と、ほぼ必ず以下が起きる:
 ### 2.4 LLM実行ルーティング（Codex exec / LLM API）— SSOT
 
 狙い:
-- **本文品質（自然な日本語）を守る**: Aテキスト本文は LLM API で統一し、Codex の言い回し混入を構造でゼロにする。
-- **コスト最適化**: Codex（`xhigh`）を「非本文タスク」に最大限活用し、使えないときは即 API に落ちる。
-- **恒久依存を避ける**: Codex を完全にOFFにしても完走できる（API-only ルートを常時確保）。
+- **迷わない/勝手に逸れない**: ルートは “明示” で選ぶ。サイレントフォールバックで別ルートへ逃げない。
+- **THINK がデフォルト**: 外部LLM APIは勝手に呼ばない（pending を作って止める）。
+- **台本（本文）は対話型AIエージェントが仕上げる**: Claude CLI（sonnet 4.5 既定）/ Gemini CLI / `qwen -p` / 明示したAPI を使う（微調整も対話型AIが担当）。
 
 定義:
 - **Aテキスト本文**: 視聴者に読み上げる本文（`assembled.md` / `chapters/*.md`）。
 - **非本文（Aテキスト以外）**: 企画分析、調査メモ、アウトライン、品質判定レポート、JSON、字幕/画像/サムネ生成プロンプトなど。
 
 固定ルール（壊さないための境界）:
-1) **本文を書く/直すのは LLM API だけ**
+1) **本文（Aテキスト）に Codex exec を混ぜない**
    - 対象: 本文生成・本文リライト・本文短縮/追記・最終整形・意味整合Fix など、本文ファイルを書き換える可能性がある task。
-   - Codex exec に渡してはいけない（本文に Codex の言い回しが混入しうるため）。
-2) **Codex exec は「非本文」タスクのみ（codex-first）**
-   - 目的: `xhigh` 推論での分析/構造化/判定/抽出を、追加のAPIコストを増やさずに回す。
-   - 失敗/無効化/タイムアウト時は LLM API にフォールバックして続行する（パイプライン停止を避ける）。
-   - 本文に影響する入力（outline/brief等）を作る場合は、出力を **構造化（JSON/箇条書き/短文）** に寄せ、長い散文を生成しない（スタイル汚染を避ける）。
-3) **API-only ルートを常に成立させる（Codexはオプション）**
-   - 事故/レート制限/契約変更に備え、Codexを完全にOFFにしても量産が止まらないことを要件とする。
+   - 禁止: codex exec（非対話CLI）で本文を自動生成/書換（文体ドリフト/混線防止）。
+2) **自動フォールバック禁止（明示して止める）**
+   - 禁止: API失敗→THINK の自動フォールバック（失敗したら停止して報告）。
+   - 固定: qwen は **qwen-oauth** だけ使う（qwen で Claude/Gemini/OpenAI を使わない）。
+   - 禁止: qwen の auth-type 切替（`--auth-type`）。
+   - 禁止: qwen の model/provider 指定（`--model` / `-m` / `--qwen-model`）。このrepoでは物理的にブロックする（`qwen -p` 固定）。Claude を qwen 経由で呼ばない（Claudeは `./ops claude script`）。
+3) **ルート選択（入口固定）**
+   - 既定（THINK）: `./ops script <MODE> -- --channel CHxx --video NNN`（pending）
+   - 明示API: `./ops api script <MODE> -- --channel CHxx --video NNN`
+   - 明示CLI（Claude; 既定）: `./ops claude script -- --channel CHxx --video NNN --run`
+   - 明示CLI（Gemini）: `./ops gemini script -- --channel CHxx --video NNN --run`
+   - 明示CLI（Qwen）: `./ops qwen script -- --channel CHxx --video NNN --run`
 
 運用スイッチ（迷わないための最小セット）:
 - 切替（入口固定）: **exec-slot** で切替（モデル名/環境変数の直書きを増やさない）

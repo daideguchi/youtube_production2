@@ -5,6 +5,7 @@ schema_version: 1
 default_runbook: ssot/agent_runbooks/RUNBOOK_GENERIC_LLM_TASK.md
 
 task_prefix:
+  script_: ssot/agent_runbooks/RUNBOOK_JOB_SCRIPT_PIPELINE.md
   web_search_: ssot/agent_runbooks/RUNBOOK_WEB_SEARCH.md
   tts_: ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md
   visual_: ssot/agent_runbooks/RUNBOOK_GENERIC_LLM_TASK.md

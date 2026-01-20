@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-a_text_quality_scan.py — batch quality scan for unposted A-text (NO LLM).
+a_text_quality_scan.py — batch quality scan for unposted A-text (LLM API 不使用).
 
 Goal:
 - Detect *obvious breakage* deterministically (A-text contract errors).

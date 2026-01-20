@@ -55,7 +55,7 @@ def qa_check(payload: Dict[str, object], model: str | None = None, api_key: str 
             raise ValueError("Failed to parse JSON from QA response")
             
     except SystemExit:
-        # LLM failover-to-think may raise SystemExit to stop the process for queued tasks.
+        # THINK/AGENT mode may raise SystemExit to stop the process for queued tasks.
         # QAは補助機能なので、パイプラインを止めずに「問題なし（未判定）」として継続する。
         return {"issues": []}
     except Exception:

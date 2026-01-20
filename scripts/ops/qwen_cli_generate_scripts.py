@@ -340,15 +340,51 @@ def _planning_row(channel: str, video: str) -> Dict[str, str]:
 
 
 def _find_qwen_bin(explicit: str | None) -> str:
+    """
+    Policy: in this repository, qwen must be invoked via the repo shim:
+      scripts/bin/qwen
+    The shim enforces qwen-oauth and blocks provider/model switching.
+    """
+    shim = repo_paths.repo_root() / "scripts" / "bin" / "qwen"
     if explicit:
-        p = Path(explicit)
+        p = Path(str(explicit)).expanduser()
         if not p.exists():
             raise SystemExit(f"qwen not found at --qwen-bin: {explicit}")
+        if p.resolve() != shim.resolve():
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[POLICY] Forbidden --qwen-bin (must use repo shim).",
+                        f"- got: {p}",
+                        f"- required: {shim}",
+                    ]
+                )
+            )
         return str(p)
-    found = shutil.which("qwen")
-    if found:
-        return found
-    raise SystemExit("qwen CLI not found. Install `qwen` and ensure it is on PATH.")
+    if shim.exists():
+        return str(shim)
+    raise SystemExit(f"qwen shim not found: {shim}")
+
+
+def _validate_qwen_model(raw: str | None) -> str | None:
+    """
+    Safety policy:
+    - `--qwen-model` is DISABLED in this repository.
+    - Use `qwen -p` without model/provider overrides.
+    """
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    raise SystemExit(
+        "\n".join(
+            [
+                "[POLICY] Forbidden --qwen-model (model/provider override is disabled).",
+                f"- got: {s}",
+                "- fix: rerun WITHOUT --qwen-model (use qwen default)",
+                "- rule: 台本の外部CLIは Claude CLI（既定）/ Gemini CLI / `qwen -p`（Qwen）を明示して使う。qwen 経由で別プロバイダへ逃げない。",
+            ]
+        )
+    )
 
 
 def _run_qwen_cli(*, qwen_bin: str, prompt: str, model: str | None, cwd: Path, timeout_sec: int) -> tuple[int, str, str, float]:
@@ -858,7 +894,7 @@ def main(argv: List[str]) -> int:
     parser.add_argument("--run", action="store_true", help="Actually run qwen and write outputs (default: dry-run)")
     parser.add_argument("--overwrite", action="store_true", help="Overwrite existing assembled_human.md")
     parser.add_argument("--qwen-bin", default="", help="Path to qwen binary (default: resolve from PATH)")
-    parser.add_argument("--qwen-model", default="", help="Optional qwen model name (passed to -m)")
+    parser.add_argument("--qwen-model", default="", help=argparse.SUPPRESS)
     parser.add_argument("--timeout-sec", type=int, default=1800)
     parser.add_argument("--scratch-dir", default="/tmp/qwen_cli_scratch")
 
@@ -870,7 +906,7 @@ def main(argv: List[str]) -> int:
         raise SystemExit("No videos to process. Provide --videos, e.g. 058-093")
 
     qwen_bin = _find_qwen_bin(args.qwen_bin or None)
-    qwen_model = (str(args.qwen_model).strip() or None) if args.qwen_model else None
+    qwen_model = _validate_qwen_model(args.qwen_model)
     scratch_dir = Path(str(args.scratch_dir))
     dry_run = not bool(args.run)
 

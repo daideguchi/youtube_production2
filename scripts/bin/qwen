@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Repo policy guard:
+# - qwen is allowed only as `qwen -p ...` (no model/provider override).
+# - Auth is fixed to qwen-oauth (do not use other paid providers via qwen).
+# - This blocks accidental/unauthorized backend switching via `--auth-type` / `--model` / `-m`.
+
+for arg in "$@"; do
+  case "${arg}" in
+    --auth-type|--auth-type=*)
+      echo "❌ [POLICY] Forbidden: qwen auth-type switching flags in this repo." >&2
+      echo "    - got arg: ${arg}" >&2
+      echo "    - rule: qwen is qwen-oauth only (no anthropic/openai/gemini/vertex-ai via qwen)." >&2
+      echo "    - use: Claude = \`claude\` CLI, Gemini = \`gemini\` CLI, Qwen = plain \`qwen\` (oauth)" >&2
+      exit 3
+      ;;
+    --model|-m|--model=*|-m*)
+      echo "❌ [POLICY] Forbidden: qwen model/provider override flags in this repo." >&2
+      echo "    - got arg: ${arg}" >&2
+      echo "    - rule: use plain \`qwen -p\` only (no --model/-m)." >&2
+      exit 3
+      ;;
+  esac
+done
+
+shim_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+IFS=':' read -r -a path_parts <<< "${PATH:-}"
+for p in "${path_parts[@]}"; do
+  [[ -z "${p}" ]] && continue
+  # Skip this shim directory to avoid recursion.
+  if [[ "${p}" == "${shim_dir}" ]]; then
+    continue
+  fi
+  if [[ -x "${p}/qwen" ]]; then
+    exec "${p}/qwen" --auth-type qwen-oauth "$@"
+  fi
+done
+
+echo "❌ qwen CLI not found on PATH (after shim)." >&2
+exit 127

@@ -8,6 +8,7 @@ Purpose:
 - Provide an explicit, operator-invoked route to generate/patch A-text via `gemini` CLI.
 - Keep it safe-by-default (dry-run unless --run).
 - Write A-text SoT to: workspaces/scripts/{CH}/{NNN}/content/assembled_human.md
+- Mirror to: workspaces/scripts/{CH}/{NNN}/content/assembled.md
 
 Notes:
 - This is NOT a silent fallback for script_pipeline. Operators must invoke it explicitly.
@@ -33,6 +34,7 @@ from _bootstrap import bootstrap
 bootstrap(load_env=False)
 
 from factory_common import paths as repo_paths  # noqa: E402
+from script_pipeline.validator import validate_a_text  # noqa: E402
 
 
 def _utc_now_iso() -> str:
@@ -104,8 +106,74 @@ def _a_text_spoken_char_count(text: str) -> int:
     return len(compact.strip())
 
 
+_SLEEP_GUARD_TAG_MARKERS = ("#睡眠用", "#寝落ち")
+
+
+def _channel_opted_in_sleep_framing(channel: str) -> bool:
+    """
+    SSOT: sleep-framing is opt-in per channel.
+    Treat a channel as sleep-allowed only when its channel_info explicitly includes
+    '#睡眠用' or '#寝落ち' in youtube_description/default_tags.
+    """
+    ch = str(channel or "").strip().upper()
+    if not re.fullmatch(r"CH\d{2}", ch):
+        return False
+    root = repo_paths.repo_root() / "packages" / "script_pipeline" / "channels"
+    info_path: Optional[Path] = None
+    try:
+        for p in root.glob(f"{ch}-*/channel_info.json"):
+            info_path = p
+            break
+    except Exception:
+        info_path = None
+    if info_path is None or not info_path.exists():
+        return False
+    try:
+        data = json.loads(info_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    parts: List[str] = []
+    yd = data.get("youtube_description")
+    if isinstance(yd, str) and yd.strip():
+        parts.append(yd)
+    tags = data.get("default_tags")
+    if isinstance(tags, list):
+        parts.extend(str(t) for t in tags if t)
+    elif isinstance(tags, str) and tags.strip():
+        parts.append(tags)
+    blob = "\n".join(parts)
+    return any(tok in blob for tok in _SLEEP_GUARD_TAG_MARKERS)
+
+
+def _sleep_framing_issue(*, a_text: str, assembled_path: Path) -> Optional[Dict[str, Any]]:
+    # Deterministic check (no LLM): reuse script_pipeline.validate_a_text SSOT guard.
+    issues, _stats = validate_a_text(str(a_text or ""), {"assembled_path": str(assembled_path)})
+    for it in issues:
+        if isinstance(it, dict) and str(it.get("code") or "") == "sleep_framing_contamination":
+            return it
+    return None
+
+
+def _sleep_guard_instruction() -> str:
+    # Keep this short; the prompt file already carries most rules.
+    return (
+        "重要: この台本は睡眠用ではない。視聴者を眠らせる目的の呼びかけ・使い方の提示は禁止。"
+        "末尾は物語として完結させ、睡眠/寝落ち/安眠/布団/おやすみ/ゆっくりお休み 等の誘導で締めない。"
+    )
+
+
 def _parse_target_chars_min(prompt: str) -> Optional[int]:
     m = re.search(r"\btarget_chars_min\s*:\s*(\d{3,})\b", str(prompt or ""), flags=re.IGNORECASE)
+    if not m:
+        return None
+    try:
+        return int(m.group(1))
+    except Exception:
+        return None
+
+
+def _parse_target_chars_max(prompt: str) -> Optional[int]:
+    m = re.search(r"\btarget_chars_max\s*:\s*(\d{3,})\b", str(prompt or ""), flags=re.IGNORECASE)
     if not m:
         return None
     try:
@@ -162,6 +230,110 @@ def _strip_edge_pause_lines(text: str) -> str:
     return out + ("\n" if out else "")
 
 
+def _continue_instruction(*, add_min: int, add_max: int, total_min: int | None, total_max: int | None) -> str:
+    lo = int(max(0, add_min))
+    hi = int(max(lo, add_max))
+    total_range = ""
+    if total_min is not None and total_max is not None and total_min > 0 and total_max > 0:
+        total_range = f"（全体は必ず {int(total_min)}〜{int(total_max)} 字）"
+    return (
+        "指示: <<<CURRENT_A_TEXT_START>>> の直後から、自然につながる『続きだけ』を書いてください。"
+        "要約・言い換え連打・前文の繰り返しは禁止。"
+        f"今から書く追加分は必ず {lo}〜{hi} 字{total_range}。"
+        "最後は物語として完結し、句点などで確実に閉じてください。"
+    )
+
+
+def _extend_until_min(
+    *,
+    gemini_bin: str,
+    base_prompt: str,
+    base_instruction: str | None,
+    model: str | None,
+    sandbox: bool,
+    approval_mode: str | None,
+    yolo: bool,
+    home_dir: Path | None,
+    timeout_sec: int,
+    logs_dir: Path,
+    script_id: str,
+    a_text: str,
+    min_spoken_chars: int,
+    target_chars_min: int | None,
+    target_chars_max: int | None,
+    max_continue_rounds: int,
+) -> tuple[str, Optional[str]]:
+    """
+    Extend an A-text by asking gemini CLI to continue from CURRENT_A_TEXT.
+    Returns (extended_text, error_reason).
+    """
+    combined = _normalize_newlines(a_text).rstrip() + "\n"
+    for cont in range(1, max(0, int(max_continue_rounds)) + 1):
+        spoken = _a_text_spoken_char_count(combined)
+        if spoken >= int(min_spoken_chars):
+            return combined, None
+
+        need_min = int(min_spoken_chars) - spoken
+        if target_chars_max is not None and target_chars_max > 0:
+            need_max = max(need_min, int(target_chars_max) - spoken)
+        else:
+            need_max = need_min + 1800
+
+        instruction_parts: List[str] = []
+        if base_instruction:
+            instruction_parts.append(str(base_instruction).strip())
+        instruction_parts.append(
+            _continue_instruction(add_min=need_min, add_max=need_max, total_min=target_chars_min, total_max=target_chars_max)
+        )
+        cont_prompt = _build_prompt(
+            base_prompt=base_prompt,
+            instruction="\n\n".join([p for p in instruction_parts if p]).strip(),
+            include_current=True,
+            current_a_text=combined,
+        )
+
+        cont_prompt_log = logs_dir / f"gemini_cli_prompt__cont{cont:02d}.txt"
+        cont_stdout_log = logs_dir / f"gemini_cli_stdout__cont{cont:02d}.txt"
+        cont_stderr_log = logs_dir / f"gemini_cli_stderr__cont{cont:02d}.txt"
+        _write_text(cont_prompt_log, cont_prompt)
+
+        rc, stdout, stderr, _elapsed = _run_gemini_cli(
+            gemini_bin=gemini_bin,
+            prompt=cont_prompt,
+            model=model,
+            sandbox=sandbox,
+            approval_mode=approval_mode,
+            yolo=yolo,
+            home_dir=home_dir,
+            timeout_sec=timeout_sec,
+        )
+        _write_text(cont_stdout_log, stdout)
+        _write_text(cont_stderr_log, stderr)
+        if rc != 0:
+            return combined, f"{script_id}: gemini_exit={rc} (see {cont_stderr_log})"
+
+        chunk = _normalize_newlines(stdout).rstrip() + "\n"
+        reject_reason = _reject_obviously_non_script(chunk)
+        if reject_reason:
+            return combined, f"{script_id}: rejected_output={reject_reason} (see {cont_stdout_log})"
+
+        cleaned = _strip_edge_pause_lines(chunk)
+        if not cleaned.strip():
+            return combined, f"{script_id}: rejected_output=empty_continuation (see {cont_stdout_log})"
+        cleaned_compact = cleaned.strip()
+        # If the model repeats a large chunk verbatim, do not append; try the next continuation round.
+        if len(cleaned_compact) >= 200 and cleaned_compact in combined:
+            continue
+
+        combined = combined.rstrip() + "\n\n" + cleaned
+        combined = combined.rstrip() + "\n"
+
+    return (
+        combined,
+        f"{script_id}: rejected_output=too_short_after_continuations min={min_spoken_chars} spoken={_a_text_spoken_char_count(combined)}",
+    )
+
+
 def _parse_section_splits(expr: str) -> List[tuple[int, int]]:
     raw = str(expr or "").strip()
     if not raw:
@@ -186,6 +358,174 @@ def _parse_section_splits(expr: str) -> List[tuple[int, int]]:
 
 def _ensure_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
+
+
+def _blueprint_paths(channel: str, video: str) -> Dict[str, Path]:
+    base = repo_paths.video_root(channel, video)
+    return {
+        "outline": base / "content" / "outline.md",
+        "master_plan": base / "content" / "analysis" / "master_plan.json",
+        "research_brief": base / "content" / "analysis" / "research" / "research_brief.md",
+        "references": base / "content" / "analysis" / "research" / "references.json",
+        "search_results": base / "content" / "analysis" / "research" / "search_results.json",
+        "wikipedia_summary": base / "content" / "analysis" / "research" / "wikipedia_summary.json",
+        "status": base / "status.json",
+    }
+
+
+def _is_outline_placeholder(text: str) -> bool:
+    norm = _normalize_newlines(text).strip()
+    return norm == "# Outline\n\n1. Intro\n2. Body\n3. Outro\n"
+
+
+def _is_research_brief_placeholder(text: str) -> bool:
+    norm = _normalize_newlines(text)
+    return norm.startswith("# Research Brief") and "- Finding 1" in norm and "- Finding 2" in norm
+
+
+def _truncate_for_prompt(text: str, *, max_chars: int) -> str:
+    s = str(text or "")
+    if len(s) <= max_chars:
+        return s
+    return s[:max_chars].rstrip() + "\n\n[TRUNCATED]\n"
+
+
+def _ensure_blueprint_ready(*, channel: str, video: str, require: bool) -> tuple[bool, str]:
+    if str(os.getenv("YTM_EMERGENCY_OVERRIDE") or "").strip() == "1":
+        return True, ""
+
+    p = _blueprint_paths(channel, video)
+    missing: List[str] = []
+    problems: List[str] = []
+
+    outline = p["outline"]
+    if not outline.exists():
+        missing.append(str(outline))
+    else:
+        try:
+            if _is_outline_placeholder(outline.read_text(encoding="utf-8")):
+                problems.append(f"outline is placeholder: {outline}")
+        except Exception:
+            problems.append(f"outline unreadable: {outline}")
+
+    master_plan = p["master_plan"]
+    if not master_plan.exists():
+        missing.append(str(master_plan))
+    else:
+        try:
+            obj = json.loads(master_plan.read_text(encoding="utf-8"))
+            if not isinstance(obj, dict):
+                problems.append(f"master_plan.json invalid JSON: {master_plan}")
+        except Exception:
+            problems.append(f"master_plan.json invalid JSON: {master_plan}")
+
+    brief = p["research_brief"]
+    if not brief.exists():
+        missing.append(str(brief))
+    else:
+        try:
+            if _is_research_brief_placeholder(brief.read_text(encoding="utf-8")):
+                problems.append(f"research_brief is placeholder: {brief}")
+        except Exception:
+            problems.append(f"research_brief unreadable: {brief}")
+
+    refs = p["references"]
+    if not refs.exists():
+        missing.append(str(refs))
+    else:
+        try:
+            obj = json.loads(refs.read_text(encoding="utf-8"))
+            if not isinstance(obj, list) or len(obj) == 0:
+                problems.append(f"references.json empty/invalid: {refs}")
+        except Exception:
+            problems.append(f"references.json invalid JSON: {refs}")
+
+    search = p["search_results"]
+    if not search.exists():
+        missing.append(str(search))
+    else:
+        try:
+            so = json.loads(search.read_text(encoding="utf-8"))
+        except Exception:
+            so = None
+        hits = so.get("hits") if isinstance(so, dict) else None
+        prov = str(so.get("provider") or "").strip() if isinstance(so, dict) else ""
+        if prov == "disabled" and (not isinstance(hits, list) or len(hits) == 0):
+            problems.append(f"search_results.json is placeholder (provider=disabled, hits=0): {search}")
+
+    if missing or problems:
+        msg = "\n".join(
+            [
+                "[POLICY] Blueprint not ready (Codex must finish research+outline before Writer runs).",
+                f"- episode: {str(channel).upper()}-{_z3(video)}",
+                "- required stages: topic_research -> script_outline -> script_master_plan",
+                "",
+                "Fix (canonical):",
+                f"  ./ops script resume -- --channel {str(channel).upper()} --video {_z3(video)} --until script_master_plan --max-iter 6",
+                "",
+                "If you need to inject sources manually (no web provider):",
+                f"  python3 scripts/ops/research_bundle.py template --channel {str(channel).upper()} --video {_z3(video)} > /tmp/research_bundle.json",
+                "  # fill /tmp/research_bundle.json with sources, then:",
+                "  python3 scripts/ops/research_bundle.py apply --bundle /tmp/research_bundle.json",
+                "",
+                "Missing:",
+                *([f"  - {m}" for m in missing] if missing else ["  - (none)"]),
+                "Problems:",
+                *([f"  - {p2}" for p2 in problems] if problems else ["  - (none)"]),
+                "",
+                "Emergency override (debug only): set YTM_EMERGENCY_OVERRIDE=1 for this run.",
+            ]
+        )
+        if require:
+            raise SystemExit(msg)
+        return False, msg
+
+    wiki = p["wikipedia_summary"]
+    appendix_parts: List[str] = []
+    appendix_parts.append("<<<BLUEPRINT_BUNDLE_START>>>")
+    appendix_parts.append("以下は Codex が確定させた設計図/根拠（SoT）です。本文にURL/脚注/参照番号は出さない。")
+    appendix_parts.append(f"- episode: {str(channel).upper()}-{_z3(video)}")
+    appendix_parts.append("")
+    try:
+        appendix_parts.append("## Outline (content/outline.md)")
+        appendix_parts.append(_truncate_for_prompt(outline.read_text(encoding="utf-8"), max_chars=14000).strip())
+        appendix_parts.append("")
+    except Exception:
+        pass
+    try:
+        appendix_parts.append("## Research brief (content/analysis/research/research_brief.md)")
+        appendix_parts.append(_truncate_for_prompt(brief.read_text(encoding="utf-8"), max_chars=14000).strip())
+        appendix_parts.append("")
+    except Exception:
+        pass
+    try:
+        appendix_parts.append("## References (content/analysis/research/references.json)")
+        appendix_parts.append(_truncate_for_prompt(refs.read_text(encoding="utf-8"), max_chars=9000).strip())
+        appendix_parts.append("")
+    except Exception:
+        pass
+    try:
+        appendix_parts.append("## Web search results (content/analysis/research/search_results.json)")
+        appendix_parts.append(_truncate_for_prompt(search.read_text(encoding="utf-8"), max_chars=9000).strip())
+        appendix_parts.append("")
+    except Exception:
+        pass
+    try:
+        if wiki.exists():
+            appendix_parts.append("## Wikipedia summary (content/analysis/research/wikipedia_summary.json)")
+            appendix_parts.append(_truncate_for_prompt(wiki.read_text(encoding="utf-8"), max_chars=9000).strip())
+            appendix_parts.append("")
+    except Exception:
+        pass
+    try:
+        appendix_parts.append("## Master plan (content/analysis/master_plan.json)")
+        appendix_parts.append(_truncate_for_prompt(master_plan.read_text(encoding="utf-8"), max_chars=9000).strip())
+        appendix_parts.append("")
+    except Exception:
+        pass
+    appendix_parts.append("<<<BLUEPRINT_BUNDLE_END>>>")
+    appendix = "\n".join([x for x in appendix_parts if str(x).strip()]).strip() + "\n"
+    return True, appendix
 
 
 def _prompt_path(channel: str, video: str) -> Path:
@@ -397,16 +737,25 @@ def cmd_run(args: argparse.Namespace) -> int:
         script_id = f"{channel}-{vv}"
         prompt_path = _prompt_path(channel, vv)
         out_path = _output_a_text_path(channel, vv)
+        mirror_path = out_path.with_name("assembled.md")
         logs_dir = _logs_dir(channel, vv)
 
         if not prompt_path.exists():
             raise SystemExit(f"Prompt not found: {prompt_path} ({script_id})")
 
         base_prompt = _read_text(prompt_path)
+        ok_blueprint, blueprint_payload = _ensure_blueprint_ready(channel=channel, video=vv, require=bool(args.run))
+        if ok_blueprint and blueprint_payload:
+            base_prompt = (base_prompt.rstrip() + "\n\n" + blueprint_payload.strip()).strip() + "\n"
         current = _read_current_a_text(channel, vv) if bool(args.include_current) else None
+        sleep_opt_in = _channel_opted_in_sleep_framing(channel)
+        sleep_guard_enabled = (not sleep_opt_in) and (not bool(getattr(args, "allow_sleep_framing", False)))
+        instruction = str(args.instruction or "").strip()
+        if sleep_guard_enabled:
+            instruction = (instruction + "\n\n" + _sleep_guard_instruction()).strip() if instruction else _sleep_guard_instruction()
         final_prompt = _build_prompt(
             base_prompt=base_prompt,
-            instruction=str(args.instruction) if args.instruction else None,
+            instruction=instruction if instruction else None,
             include_current=bool(args.include_current),
             current_a_text=current,
         )
@@ -433,11 +782,17 @@ def cmd_run(args: argparse.Namespace) -> int:
                 if settings_path is not None:
                     print(f"- gemini_settings: {settings_path}")
             print(f"- prompt: {prompt_path}")
+            if ok_blueprint:
+                print(f"- blueprint: OK")
+            else:
+                print(f"- blueprint: MISSING (run: ./ops script resume -- --channel {channel} --video {vv} --until script_master_plan --max-iter 6)")
             print(f"- output: {out_path}")
             if args.include_current:
                 print("- include_current: true")
             if args.instruction:
                 print("- instruction: (provided)")
+            if sleep_guard_enabled:
+                print("- sleep_guard: enabled (non-sleep channel)")
             print("")
             continue
 
@@ -562,58 +917,216 @@ def cmd_run(args: argparse.Namespace) -> int:
                 },
             )
         else:
-            rc, stdout, stderr, elapsed = _run_gemini_cli(
-                gemini_bin=gemini_bin,
-                prompt=final_prompt,
-                model=args.gemini_model,
-                sandbox=bool(args.gemini_sandbox),
-                approval_mode=str(args.gemini_approval_mode) if args.gemini_approval_mode else None,
-                yolo=bool(args.gemini_yolo),
-                home_dir=home_dir,
-                timeout_sec=int(args.timeout_sec),
-            )
+            detected_min = _parse_target_chars_min(final_prompt)
+            detected_max = _parse_target_chars_max(final_prompt)
+            min_spoken_chars = int(args.min_spoken_chars or 0)
+            if min_spoken_chars <= 0 and detected_min:
+                min_spoken_chars = int(detected_min)
 
-            _write_text(stdout_log, stdout)
-            _write_text(stderr_log, stderr)
-            _write_json(
-                meta_log,
-                {
-                    "schema_version": 1,
-                    "tool": "gemini_cli_generate_scripts",
-                    "at": _utc_now_iso(),
-                    "script_id": script_id,
-                    "prompt_path": str(prompt_path),
-                    "output_path": str(out_path),
-                    "gemini_bin": gemini_bin,
-                    "gemini_model": args.gemini_model,
-                    "gemini_sandbox": bool(args.gemini_sandbox),
-                    "gemini_approval_mode": args.gemini_approval_mode,
-                    "gemini_yolo": bool(args.gemini_yolo),
-                    "gemini_use_user_home": bool(args.gemini_use_user_home),
-                    "gemini_auth_type": str(args.gemini_auth_type),
-                    "gemini_home_dir": str(home_dir) if home_dir is not None else "",
-                    "timeout_sec": int(args.timeout_sec),
-                    "elapsed_sec": elapsed,
-                    "exit_code": rc,
-                },
-            )
+            max_attempts = max(1, int(getattr(args, "max_attempts", 5) or 5))
+            max_continue_rounds = int(getattr(args, "max_continue_rounds", 0) or 0)
 
-            if rc != 0:
-                failures.append(f"{script_id}: gemini_exit={rc} (see {stderr_log})")
-                continue
+            success = False
+            last_failure: Optional[str] = None
 
-            a_text = _normalize_newlines(stdout).rstrip() + "\n"
-            reject_reason = _reject_obviously_non_script(a_text)
-            if reject_reason:
-                failures.append(f"{script_id}: rejected_output={reject_reason} (see {stdout_log})")
-                continue
+            for attempt in range(1, max_attempts + 1):
+                retry_hint = ""
+                if attempt > 1:
+                    retry_hint = (
+                        "再試行: 直前の出力が不合格。"
+                        "本文のみを出力し、ルール説明/見出し/箇条書き/番号リスト/マーカー文字列/段落重複を絶対に出さない。"
+                    )
+                attempt_instruction = instruction
+                if retry_hint:
+                    attempt_instruction = (attempt_instruction + "\n\n" + retry_hint).strip() if attempt_instruction else retry_hint
+                if attempt_instruction:
+                    attempt_instruction = (attempt_instruction + f"\nretry_attempt: {attempt}").strip()
+
+                attempt_prompt = _build_prompt(
+                    base_prompt=base_prompt,
+                    instruction=attempt_instruction if attempt_instruction else None,
+                    include_current=bool(args.include_current),
+                    current_a_text=current,
+                )
+
+                attempt_prompt_log = logs_dir / f"gemini_cli_prompt__attempt{attempt:02d}.txt"
+                attempt_stdout_log = logs_dir / f"gemini_cli_stdout__attempt{attempt:02d}.txt"
+                attempt_stderr_log = logs_dir / f"gemini_cli_stderr__attempt{attempt:02d}.txt"
+                attempt_meta_log = logs_dir / f"gemini_cli_meta__attempt{attempt:02d}.json"
+                _write_text(prompt_log, attempt_prompt)
+                _write_text(attempt_prompt_log, attempt_prompt)
+
+                rc, stdout, stderr, elapsed = _run_gemini_cli(
+                    gemini_bin=gemini_bin,
+                    prompt=attempt_prompt,
+                    model=args.gemini_model,
+                    sandbox=bool(args.gemini_sandbox),
+                    approval_mode=str(args.gemini_approval_mode) if args.gemini_approval_mode else None,
+                    yolo=bool(args.gemini_yolo),
+                    home_dir=home_dir,
+                    timeout_sec=int(args.timeout_sec),
+                )
+
+                _write_text(stdout_log, stdout)
+                _write_text(stderr_log, stderr)
+                _write_text(attempt_stdout_log, stdout)
+                _write_text(attempt_stderr_log, stderr)
+                _write_json(
+                    meta_log,
+                    {
+                        "schema_version": 1,
+                        "tool": "gemini_cli_generate_scripts",
+                        "at": _utc_now_iso(),
+                        "script_id": script_id,
+                        "prompt_path": str(prompt_path),
+                        "output_path": str(out_path),
+                        "gemini_bin": gemini_bin,
+                        "gemini_model": args.gemini_model,
+                        "gemini_sandbox": bool(args.gemini_sandbox),
+                        "gemini_approval_mode": args.gemini_approval_mode,
+                        "gemini_yolo": bool(args.gemini_yolo),
+                        "gemini_use_user_home": bool(args.gemini_use_user_home),
+                        "gemini_auth_type": str(args.gemini_auth_type),
+                        "gemini_home_dir": str(home_dir) if home_dir is not None else "",
+                        "timeout_sec": int(args.timeout_sec),
+                        "elapsed_sec": elapsed,
+                        "exit_code": rc,
+                        "attempt": attempt,
+                    },
+                )
+                _write_json(
+                    attempt_meta_log,
+                    {
+                        "schema_version": 1,
+                        "tool": "gemini_cli_generate_scripts",
+                        "at": _utc_now_iso(),
+                        "script_id": script_id,
+                        "prompt_path": str(prompt_path),
+                        "output_path": str(out_path),
+                        "gemini_bin": gemini_bin,
+                        "gemini_model": args.gemini_model,
+                        "gemini_sandbox": bool(args.gemini_sandbox),
+                        "gemini_approval_mode": args.gemini_approval_mode,
+                        "gemini_yolo": bool(args.gemini_yolo),
+                        "gemini_use_user_home": bool(args.gemini_use_user_home),
+                        "gemini_auth_type": str(args.gemini_auth_type),
+                        "gemini_home_dir": str(home_dir) if home_dir is not None else "",
+                        "timeout_sec": int(args.timeout_sec),
+                        "elapsed_sec": elapsed,
+                        "exit_code": rc,
+                        "attempt": attempt,
+                    },
+                )
+
+                if rc != 0:
+                    last_failure = f"{script_id}: gemini_exit={rc} (see {attempt_stderr_log})"
+                    continue
+
+                a_text = _normalize_newlines(stdout).rstrip() + "\n"
+                reject_reason = _reject_obviously_non_script(a_text)
+                if reject_reason:
+                    last_failure = f"{script_id}: rejected_output={reject_reason} (see {attempt_stdout_log})"
+                    continue
+
+                if min_spoken_chars > 0 and not bool(args.allow_short):
+                    spoken_chars = _a_text_spoken_char_count(a_text)
+                    if spoken_chars < min_spoken_chars and max_continue_rounds > 0:
+                        a_text, err = _extend_until_min(
+                            gemini_bin=gemini_bin,
+                            base_prompt=base_prompt,
+                            base_instruction=attempt_instruction if attempt_instruction else None,
+                            model=str(args.gemini_model or "").strip() if args.gemini_model else None,
+                            sandbox=bool(args.gemini_sandbox),
+                            approval_mode=str(args.gemini_approval_mode) if args.gemini_approval_mode else None,
+                            yolo=bool(args.gemini_yolo),
+                            home_dir=home_dir,
+                            timeout_sec=int(args.timeout_sec),
+                            logs_dir=logs_dir,
+                            script_id=script_id,
+                            a_text=a_text,
+                            min_spoken_chars=min_spoken_chars,
+                            target_chars_min=detected_min,
+                            target_chars_max=detected_max,
+                            max_continue_rounds=max_continue_rounds,
+                        )
+                        if err:
+                            last_failure = err
+                            continue
+                        spoken_chars = _a_text_spoken_char_count(a_text)
+                    if spoken_chars < min_spoken_chars:
+                        last_failure = (
+                            f"{script_id}: rejected_output=too_short spoken_chars={spoken_chars} < min={min_spoken_chars} "
+                            f"(see {attempt_stdout_log})"
+                        )
+                        continue
+
+                if sleep_guard_enabled:
+                    issue = _sleep_framing_issue(a_text=a_text, assembled_path=mirror_path)
+                    if issue:
+                        marker_msg = str(issue.get("message") or "").strip()
+                        suffix = f" {marker_msg}" if marker_msg else ""
+                        last_failure = (
+                            f"{script_id}: rejected_output=sleep_framing_contamination{suffix} (see {attempt_stdout_log})"
+                        )
+                        continue
+
+                issues, _stats = validate_a_text(a_text, {"assembled_path": str(mirror_path)})
+                hard_errors = [it for it in issues if isinstance(it, dict) and str(it.get("severity") or "") == "error"]
+                if hard_errors:
+                    codes = ", ".join(sorted({str(it.get("code") or "") for it in hard_errors if it.get("code")}))
+                    last_failure = f"{script_id}: rejected_output=script_validation_error codes=[{codes}] (see {attempt_stdout_log})"
+                    continue
+
+                backup_human = _backup_if_diff(out_path, a_text)
+                backup_mirror = _backup_if_diff(mirror_path, a_text)
+                _write_text(out_path, a_text)
+                _write_text(mirror_path, a_text)
+
+                backup_note = ""
+                if backup_human:
+                    backup_note = f" (backup: {backup_human.name})"
+                elif backup_mirror:
+                    backup_note = f" (backup: {backup_mirror.name})"
+                print(f"[OK] {script_id} -> {out_path} + {mirror_path}{backup_note}")
+                success = True
+                last_failure = None
+                break
+
+            if not success and last_failure:
+                failures.append(last_failure)
+            continue
 
         detected_min = _parse_target_chars_min(final_prompt)
+        detected_max = _parse_target_chars_max(final_prompt)
         min_spoken_chars = int(args.min_spoken_chars or 0)
         if min_spoken_chars <= 0 and detected_min:
             min_spoken_chars = int(detected_min)
         if min_spoken_chars > 0 and not bool(args.allow_short):
             spoken_chars = _a_text_spoken_char_count(a_text)
+            max_continue_rounds = int(getattr(args, "max_continue_rounds", 0) or 0)
+            if spoken_chars < min_spoken_chars and max_continue_rounds > 0:
+                a_text, err = _extend_until_min(
+                    gemini_bin=gemini_bin,
+                    base_prompt=base_prompt,
+                    base_instruction=instruction if instruction else None,
+                    model=str(args.gemini_model or "").strip() if args.gemini_model else None,
+                    sandbox=bool(args.gemini_sandbox),
+                    approval_mode=str(args.gemini_approval_mode) if args.gemini_approval_mode else None,
+                    yolo=bool(args.gemini_yolo),
+                    home_dir=home_dir,
+                    timeout_sec=int(args.timeout_sec),
+                    logs_dir=logs_dir,
+                    script_id=script_id,
+                    a_text=a_text,
+                    min_spoken_chars=min_spoken_chars,
+                    target_chars_min=detected_min,
+                    target_chars_max=detected_max,
+                    max_continue_rounds=max_continue_rounds,
+                )
+                if err:
+                    failures.append(err)
+                    continue
+                spoken_chars = _a_text_spoken_char_count(a_text)
             if spoken_chars < min_spoken_chars:
                 failures.append(
                     f"{script_id}: rejected_output=too_short spoken_chars={spoken_chars} < min={min_spoken_chars} "
@@ -621,11 +1134,33 @@ def cmd_run(args: argparse.Namespace) -> int:
                 )
                 continue
 
-        backup = _backup_if_diff(out_path, a_text)
-        _write_text(out_path, a_text)
+        if sleep_guard_enabled:
+            issue = _sleep_framing_issue(a_text=a_text, assembled_path=mirror_path)
+            if issue:
+                marker_msg = str(issue.get("message") or "").strip()
+                suffix = f" {marker_msg}" if marker_msg else ""
+                failures.append(f"{script_id}: rejected_output=sleep_framing_contamination{suffix} (see {stdout_log})")
+                continue
 
-        backup_note = f" (backup: {backup.name})" if backup else ""
-        print(f"[OK] {script_id} -> {out_path}{backup_note}")
+        # Deterministic SSOT validation (no LLM): reject if any hard errors remain.
+        issues, _stats = validate_a_text(a_text, {"assembled_path": str(mirror_path)})
+        hard_errors = [it for it in issues if isinstance(it, dict) and str(it.get("severity") or "") == "error"]
+        if hard_errors:
+            codes = ", ".join(sorted({str(it.get("code") or "") for it in hard_errors if it.get("code")}))
+            failures.append(f"{script_id}: rejected_output=script_validation_error codes=[{codes}] (see {stdout_log})")
+            continue
+
+        backup_human = _backup_if_diff(out_path, a_text)
+        backup_mirror = _backup_if_diff(mirror_path, a_text)
+        _write_text(out_path, a_text)
+        _write_text(mirror_path, a_text)
+
+        backup_note = ""
+        if backup_human:
+            backup_note = f" (backup: {backup_human.name})"
+        elif backup_mirror:
+            backup_note = f" (backup: {backup_mirror.name})"
+        print(f"[OK] {script_id} -> {out_path} + {mirror_path}{backup_note}")
 
     if failures:
         print("[ERROR] Some items failed:", file=sys.stderr)
@@ -649,6 +1184,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--include-current", dest="include_current", action="store_true", help="Include current A-text in the prompt")
     sp.add_argument("--instruction", default="", help="Optional operator instruction appended to the prompt")
     sp.add_argument(
+        "--allow-sleep-framing",
+        action="store_true",
+        help="Allow sleep-framing phrases even for non-opt-in channels (NOT recommended)",
+    )
+    sp.add_argument(
         "--split-sections",
         default="",
         help="Generate in multiple parts by section ranges, e.g. '1-4,5-7' (cannot be used with --include-current)",
@@ -663,6 +1203,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--allow-short",
         action="store_true",
         help="Allow overwriting even if output is below target_chars_min / --min-spoken-chars (not recommended)",
+    )
+    sp.add_argument(
+        "--max-attempts",
+        type=int,
+        default=5,
+        help="Max attempts per episode when output is rejected (default: 5)",
+    )
+    sp.add_argument(
+        "--max-continue-rounds",
+        type=int,
+        default=3,
+        help="If output is too short, ask gemini to continue up to N rounds (default: 3). Set 0 to disable.",
     )
 
     sp.add_argument("--gemini-bin", default="", help="Explicit gemini binary path (optional)")

@@ -1,7 +1,7 @@
-# OPS_TTS_UNPOSTED_AUDIO_AUDIT — 未投稿×既存音声の再監査（NO LLM / 再現可能）
+# OPS_TTS_UNPOSTED_AUDIO_AUDIT — 未投稿×既存音声の再監査（LLM API 不使用 / 再現可能）
 
 ## 目的
-未投稿（Planningの `進捗` が投稿済み以外）で、すでに `workspaces/audio/final/` に音声が存在する回について、以下を **決定論（NO LLM）** で一括監査する。
+未投稿（Planningの `進捗` が投稿済み以外）で、すでに `workspaces/audio/final/` に音声が存在する回について、以下を **決定論（LLM API 不使用）** で一括監査する。
 
 - **VOICEVOX**: `log.json` の `voicevox(kana)` と、Bテキストに対する期待読み（`get_mecab_reading`）の不一致を検出（= 誤読/変換漏れの高確度シグナル）
 - **VOICEPEAK**: 自動で誤読確定できないため、**リスク指標**（未知トークン/ASCII/数字）を集計
@@ -73,7 +73,7 @@ SKIP_TTS_READING=1 PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/ru
   - 文脈で読みが揺れる/一般語（例: `怒り`, `焦る`, `内側`, `出せ` など）
   - 1文字サーフェス、助詞含みの短語など（局所のほうが安全）
 
-昇格は **人間の承認（pending運用）** を前提に行う（正本: `ssot/ops/OPS_AUDIO_TTS.md`）。
+昇格は **対話型AIエージェントが判定して確定**する（自動昇格は禁止。正本: `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md`）。
 
 ### 3) VOICEPEAK は“誤読確定”ではなく“要注意指標”
 VOICEPEAK は `audio_query.kana` が無いので、監査は「未知/ASCII/数字」の指標に留まる。
@@ -86,7 +86,7 @@ VOICEPEAK は `audio_query.kana` が無いので、監査は「未知/ASCII/数�
 ## CapCut注意: 音声を再生成したら「画像タイムライン」もズレる
 TTSを `--force-overwrite-final` で作り直すと、**SRTが変わる** → run_dir の `image_cues.json` と CapCut の srt2images_* トラックがズレる。
 
-そのため、音声を更新した回で CapCut ドラフトが存在する場合は、次をセットで実行する（NO LLM / 画像生成なし）:
+そのため、音声を更新した回で CapCut ドラフトが存在する場合は、次をセットで実行する（LLM API 不使用 / 画像生成なし）:
 
 1) run_dir を final SRT に合わせて retime（cues/manifest を更新）:
 ```bash
@@ -109,4 +109,4 @@ python3 scripts/ops/ch02_sync_capcut_after_tts.py --min-video 42 --max-video 82
 
 ## 関連SSOT
 - 音声/TTS全体: `ssot/ops/OPS_AUDIO_TTS.md`
-- 手動読み監査（pending運用）: `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md`
+- アノテーション確定フロー（VOICEVOX/VOICEPEAK）: `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md`

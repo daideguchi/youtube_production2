@@ -413,9 +413,26 @@ def main():
 
                     entry = manifest.get(rel, {"path": rel, "type": f.suffix.lstrip("."), "checked": False})
                     entry["type"] = f.suffix.lstrip(".")
-                    entry["size"] = f.stat().st_size
-                    if f.suffix.lower() != ".wav" or args.hash_wav:
-                        entry["hash"] = sha1(f)
+                    broken_symlink = False
+                    try:
+                        if f.is_symlink():
+                            broken_symlink = not f.exists()
+                            st = f.lstat()
+                        else:
+                            st = f.stat()
+                        entry["size"] = int(st.st_size)
+                    except Exception:
+                        entry["size"] = 0
+                        broken_symlink = True
+
+                    if broken_symlink:
+                        entry["broken_symlink"] = True
+
+                    if (f.suffix.lower() != ".wav" or args.hash_wav) and not broken_symlink:
+                        try:
+                            entry["hash"] = sha1(f)
+                        except Exception:
+                            entry["hash"] = entry.get("hash") or ""
                     else:
                         entry["hash"] = entry.get("hash") or ""
                     entry["orphan"] = True

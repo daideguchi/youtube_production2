@@ -54,6 +54,17 @@ python scripts/agent_org.py lock 'packages/video_pipeline/tools/**' --mode no_to
   lock は既定で board note を自動投稿する（不要なら `--no-announce`）。
   lock の作成/解除は `locks/lease.lock`（flock）で直列化され、レースで二重取得しにくい（UI/API/Orchestrator/CLI 共通）。
 
+### 2.2.1 重要: ルーティングSSOT（モデル/課金/品質）への lock は強制ガードあり
+`configs/llm_router.yaml` / `configs/llm_task_overrides.yaml` / `configs/llm_model_*` / `packages/factory_common/llm_router.py` 等は、
+並列運用で最も事故りやすい（モデルすり替え/課金/品質劣化）ため、`agent_org.py lock` が **デフォルトで取得をブロック**する。
+
+- 例外（非常時のみ）: どうしても lock する場合は **明示 opt-in** が必須:
+```bash
+YTM_EMERGENCY_OVERRIDE=1 python3 scripts/agent_org.py lock configs/llm_router.yaml --ttl-min 60 --note "SSOT: <why>"
+```
+- `--note` は必須（理由が無い lock は取れない）
+- 通常運用では **触らない / lock しない**。例外は board/memo で **明示承認（オーナー判断）** を取得した実行のみ。
+
 3) lock の履歴（JSON）が増えすぎたら（オプション: 整理）:
 ```bash
 python scripts/agent_org.py locks-prune --older-than-days 30 --dry-run
@@ -222,8 +233,9 @@ SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI�
 ### 4.1 台本→音声→動画（主線）
 入口は `ssot/ops/OPS_ENTRYPOINTS_INDEX.md` を正とする。
 
-- 台本（入口固定）: `./ops api script <MODE> -- --channel CHxx --video NNN`（台本はAPI固定）
-- 音声: `./ops audio --llm think -- --channel CHxx --video NNN`
+- 台本: `./ops script <MODE> -- --channel CHxx --video NNN`（THINKデフォルト / pending）
+  - 明示API: `./ops api script <MODE> -- --channel CHxx --video NNN`
+- 音声: `./ops audio -- --channel CHxx --video NNN`（THINKデフォルト）
 - 動画/CapCut: `./ops video auto-capcut -- --channel CHxx --video NNN`
 - 迷ったら:
   - `./ops patterns list`（パターン索引）
@@ -238,8 +250,8 @@ SSOT は **UI（read-only表示）** と一体です。SSOTだけ更新してUI�
 # pendingが消えたら、同じ ./ops think ... を再実行して続行
 ```
 注:
-- 台本（`script_*`）は LLM API（Fireworks）固定のため `./ops think script ...` は禁止（policyで停止する）。
-- `script_*` は **API失敗時に自動でTHINKへ落ちない**（即停止・記録が正）。
+- 台本（`script_*`）も THINK の対象（pending）。本文生成は **対話型AIエージェントが外部CLI（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`）または明示API** で仕上げる（`--llm codex` は使わない）。
+- **禁止: API→THINK の自動フォールバック**（APIが失敗したら停止して報告。勝手にルートを変えない）。
 
 ### 4.3 “確実ゴミ”の削除（強制手順）
 1) `rg` で参照ゼロ確認（Docs言及は除外してよい）  

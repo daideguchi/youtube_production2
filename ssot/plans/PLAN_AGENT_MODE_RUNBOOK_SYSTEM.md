@@ -39,13 +39,11 @@
 正本: `ssot/ops/OPS_ENV_VARS.md`
 
 - `LLM_EXEC_SLOT`（標準）:
-  - `0`（デフォルト）: 既存の API LLM 呼び出し
-  - `3`（THINK MODE）: pending を作って停止（安全デフォルトで intercept）
+  - `3`（デフォルト / THINK MODE）: pending を作って停止（安全デフォルトで intercept）
+  - `0`（明示API）: 既存の API LLM 呼び出し
   - `4`（AGENT MODE）: pending を作って停止（明示）
 - 互換/緊急用: `LLM_MODE=api|agent|think`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
-- API失敗時のTHINK MODEフォールバック（重要ルール）:
-  - デフォルト有効: API LLM が失敗したら自動で pending を作って停止（= THINK MODEで続行可能）
-  - 無効化: `LLM_EXEC_SLOT=5`（非scriptのみ。`script_*` は例外で停止）
+- **禁止: API失敗→THINK の自動フォールバック**（失敗したら停止して報告。pending は最初から THINK/AGENT で出す）
 - 担当エージェント名（agent_org/agent_runner write系では必須）:
   - `LLM_AGENT_NAME=...`（例: `LLM_AGENT_NAME=Mike`）
     - pending に `claimed_by` / `claimed_at` を自動付与

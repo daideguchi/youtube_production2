@@ -28,6 +28,7 @@ _local_archives/
 *.pyc
 *.pyo
 *.bak
+workspaces/planning/channels/*.csv.bak.*
 *~
 *.mp4
 *.wav

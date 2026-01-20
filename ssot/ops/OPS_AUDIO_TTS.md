@@ -93,7 +93,7 @@
 ### 2.1 読みだけ先に確認（prepass）
 - `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ... --prepass`
   - 目的: wavを作らず `log.json` を作って読み候補を監査する
-  - 監査手順は `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md`
+  - 監査/修正の正本は `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md`（engine別の合格条件まで固定）
 
 ### 2.2 一部だけ作り直す（indices）
 - `... --indices 3,10`（0-based）
@@ -163,11 +163,17 @@ backend (`apps/ui-backend/backend/main.py:_run_audio_tts`) は成功時に以下
 
 詳細な確定フロー/辞書運用ルールは `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md` を正本とする。
 
+重要（迷子防止 / 固定）:
+- **エンジンは自動決定**（`packages/script_pipeline/audio/channels/CHxx/voice_config.json` → `script_override` → default）。通常運用で `ENGINE_DEFAULT_OVERRIDE` や `--engine-override` を使わない。
+- **VOICEVOX**: `--prepass` で **mismatch=0** を機械的に証明できる（=誤読ゼロを決定論で固定できる）。
+- **VOICEPEAK**: `audio_query.kana` が無いので mismatch=0 は証明できない。代わりに **B側を安全形に寄せる + サンプル再生で確認**（手順は 7.3）。
+
 ### 7.0 運用フロー（標準 / 全話を効率よく回す）
 
 1) **prepassで“読めるか”だけ先に潰す**（wavを作らない）  
+   - 単発: `./ops audio -- --channel CHxx --video NNN --prepass`
    - `python3 scripts/batch_regenerate_tts.py --channel CHxx --prepass --skip-tts-reading --min-video 1 --max-video 30 [--allow-unvalidated]`  
-   - `--skip-tts-reading` は auditor（LLM）を無効化するためのNO LLMモード（mismatchは検出してfail-fastする）。
+   - `--skip-tts-reading` は auditor（読みLLM）を無効化するフラグ（mismatchは検出してfail-fastする）。
 2) mismatch が出たら、修正は **B側**で次の順に最小で行う  
    - 全CH共通で一意（例: `口業→クゴウ`）→ `global_knowledge_base.json`  
    - CH内だけ一意 → `reading_dict/CHxx.yaml`  
@@ -261,6 +267,9 @@ VOICEPEAK は VOICEVOX のような `audio_query.kana` が無いため、**自�
    - 注意: **曖昧語/1文字surfaceは取り込まない**（誤爆防止）
 3) （オプション）テンポ改善: `comma_policy: "particles"` で助詞直後の `、` をB側だけ間引く（字幕は維持）
 4) VOICEPEAK CLI へ入力（行/文で分割して安定化。CLI呼び出しはロックで直列化）
+5) **サンプル再生で誤読チェック（必須）**（VOICEPEAKは機械的にmismatch=0を証明できないため）
+   - `afplay workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav`
+   - 証跡: `workspaces/scripts/{CH}/{NNN}/audio_prep/voicepeak_manual_check.txt` に `OK/NG + 理由1行`
 
 **Bテキストの理想（VOICEPEAK）**
 - 生テキストに ASCII/数字を残さない（B側でカナ化済みにする）。
@@ -284,7 +293,7 @@ VOICEPEAK は VOICEVOX のような `audio_query.kana` が無いため、**自�
 ### 8.3 追加先の決め方（最小で回す）
 - **コードで解決できるもの**（数字/英字/重複読み注釈除去）は辞書を増やさない（B決定論に寄せる）。
 - 辞書に入れるのは「読みが1つに確定できる」ものだけ（D-014）。
-  - 全チャンネルで一意（確定語/人間レビュー済） → `packages/audio_tts/data/global_knowledge_base.json`
+  - 全チャンネルで一意（確定語/昇格済・対話型AIエージェント判定） → `packages/audio_tts/data/global_knowledge_base.json`
   - そのチャンネルで一意 → `packages/audio_tts/data/reading_dict/CHxx.yaml`
   - その回だけ/文脈依存 → `audio_prep/local_token_overrides.json`（位置指定; 最終手段） / `audio_prep/local_reading_dict.json`（フレーズのみ）
 - 昇格ルール（乱立防止・効果最大化）:

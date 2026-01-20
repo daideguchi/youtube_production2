@@ -60,11 +60,12 @@ LLMコスト制御（重要）:
 - status.json の stages が pending/failed/processing のまま
 
 復帰コマンド（固定）:
-- `./ops resume script -- --llm api --channel CHxx --video NNN`
+- `./ops resume script -- --llm think --channel CHxx --video NNN`（標準: pending）
+- `./ops resume script -- --llm api --channel CHxx --video NNN`（明示API）
 
 注意（固定ルール）:
-- 台本（`script_*`）は **LLM API（Fireworks）固定**。THINK/AGENT（pending代行）で台本を書かない。
-  - `./ops think script ...` / `./ops resume script -- --llm think ...` は policy で停止する（誤運用防止）。
+- **禁止: API→THINK の自動フォールバック**。API ルートが失敗したら **停止して報告**する（勝手にルートを変えない）。
+- 台本（`script_*`）の本文生成は、対話型AIが **外部CLI（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`）または明示API** で仕上げる（`--llm codex` は使わない）。
 
 ---
 
@@ -75,8 +76,8 @@ LLMコスト制御（重要）:
 - TTS が途中で落ちた
 
 復帰コマンド（固定）:
-- `./ops resume audio -- --llm think --channel CHxx --video NNN`
-- `./ops resume audio -- --llm api --channel CHxx --video NNN`
+- `./ops resume audio -- --channel CHxx --video NNN`（推論=対話型AIエージェント / 読みLLM無効: `SKIP_TTS_READING=1`）
+  - `YTM_ROUTING_LOCKDOWN=1`（既定）下で `SKIP_TTS_READING=0` は禁止。例外は `YTM_EMERGENCY_OVERRIDE=1` を明示した実行のみ。
 
 ---
 
@@ -96,7 +97,7 @@ LLMコスト制御（重要）:
 - 実行後に `./ops episode ensure -- --channel CHxx --video NNN` を自動で走らせ、run選択/リンク集を確定させる
 
 注意:
-- audio final が無いと復帰できない → 先に `./ops resume audio -- --llm <MODE> --channel CHxx --video NNN`
+- audio final が無いと復帰できない → 先に `./ops resume audio -- --channel CHxx --video NNN`
 
 ---
 

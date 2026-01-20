@@ -1533,17 +1533,29 @@ def _patch_tokens_with_words(
         ("会", "いたく", "ない"): "あいたくない",
         ("趙", "州", "は"): "じょうしゅうわ",
         ("疲れ", "果て", "、"): "つかれはてて",
+        ("艶", "や", "か"): "つややか",
+        ("癒", "や", "す"): "いやす",
+        ("何", "げ", "ない"): "なにげない",
+        ("強", "張っ", "た"): "こわばった",
+        ("労", "わっ", "て"): "いたわって",
+        ("何", "十", "本"): "なんじゅっぽん",
     }
     B_PATCH_SPAN_2: dict[tuple[str, str], str] = {
         ("事実", "返し"): "じじつがえし",
+        ("押し", "付け"): "おしつけ",
         ("趙", "州"): "じょうしゅう",
         ("禅", "寺"): "ぜんでら",
         ("荘", "子"): "そうし",
         ("善", "友"): "ぜんゆう",
+        ("加", "齢"): "かれい",
+        ("茶", "葉"): "ちゃば",
         ("容れ", "物"): "いれもの",
+        ("汚そ", "う"): "よごそう",
+        ("植え", "替え"): "うえかえ",
         ("関わり", "方"): "かかわりかた",
         ("刻", "一刻"): "こくいっこく",
         ("際", "断"): "さいだん",
+        ("解こ", "う"): "とこう",
         ("抜き", "去り"): "ぬきさり",
         ("微", "笑み"): "ほほえみ",
         ("加", "虐心"): "かぎゃくしん",
@@ -1554,9 +1566,26 @@ def _patch_tokens_with_words(
         ("いつも", "通り"): "いつもどおり",
         ("怒ろ", "う"): "おころう",
         ("引き", "方"): "ひきかた",
+        ("仏", "様"): "ほとけさま",
+        ("突き立て", "、"): "つきたてて",
         ("脱ぎ捨て", "、"): "ぬぎすてて",
         ("楽", "さ"): "らくさ",
         ("締", "まり"): "しまり",
+        ("粗", "探し"): "あらさがし",
+        ("消し", "去り"): "けしさり",
+        ("助け", "よう"): "たすけよう",
+        ("助けよ", "う"): "たすけよう",
+        ("立ち", "止まれ"): "たちどまれ",
+        ("強", "張り"): "こわばり",
+        ("頑", "な"): "かたくな",
+        ("ささくれ", "立ち"): "ささくれだち",
+        ("他", "人事"): "たにんごと",
+        ("一", "線"): "いっせん",
+        ("一", "等地"): "いっとうち",
+        ("一", "客"): "いっきゃく",
+        ("一", "坪"): "ひとつぼ",
+        ("一", "皿"): "ひとさら",
+        ("何", "本"): "なんぼん",
     }
 
     parts: List[str] = []
@@ -1789,9 +1818,39 @@ def _patch_tokens_with_words(
             i += 2
             continue
 
+        # - こんな/そんな/あんな話: VOICEVOX が「バナシ」側へ濁ることがあるため、「はなし」を確定。
+        if surface == "話" and reading_mecab == "ハナシ" and prev_surface in {"こんな", "そんな", "あんな"} and span_ok(i, i):
+            parts.append("はなし")
+            i += 1
+            continue
+
         # - 未払い: VOICEVOX が「ミバライ」側へ寄るため、「みはらい」を確定。
         if surface == "未払い" and reading_mecab == "ミハライ":
             parts.append("みはらい")
+            i += 1
+            continue
+
+        # - 離れ: VOICEVOX が「バナレ」側へ濁ることがあるため、「はなれ」を確定。
+        if surface == "離れ" and base == "離れる" and reading_mecab == "ハナレ" and span_ok(i, i):
+            parts.append("はなれ")
+            i += 1
+            continue
+
+        # - 主: VOICEVOX が「オモ」側へ誤読することがあるため、MeCab が「アルジ」のときだけ「あるじ」を確定。
+        if surface == "主" and reading_mecab == "アルジ" and span_ok(i, i):
+            parts.append("あるじ")
+            i += 1
+            continue
+
+        # - 加齢: MeCab が「か弱い」と混同することがあるため、「かれい」を確定。
+        if surface == "加齢" and reading_mecab == "カヨワイ" and span_ok(i, i):
+            parts.append("かれい")
+            i += 1
+            continue
+
+        # - 捨（仏教用語）: MeCab が読めないことがあるため、引用文脈（捨と）では「シャ」を確定。
+        if surface == "捨" and next_surface == "と" and span_ok(i, i):
+            parts.append("シャ")
             i += 1
             continue
 
@@ -1828,6 +1887,11 @@ def _patch_tokens_with_words(
         # - 妬ま(妬む): VOICEVOX が「ソネマ」側へ寄るため、B側で「ねたま」を確定。
         if base == "妬む" and surface == "妬ま" and reading_mecab == "ネタマ" and span_ok(i, i):
             parts.append("ねたま")
+            i += 1
+            continue
+        # - 妬ん(妬む): VOICEVOX が「ソネン」側へ寄るため、B側で「ねたん」を確定。
+        if base == "妬む" and surface == "妬ん" and reading_mecab == "ネタン" and span_ok(i, i):
+            parts.append("ねたん")
             i += 1
             continue
 
@@ -1885,9 +1949,21 @@ def _patch_tokens_with_words(
             i += 1
             continue
 
-        # - 空そのもの: 「空」が「クウ」側へ寄るため、「そら」に寄せる。
-        if surface == "空" and next_surface == "その" and span_ok(i, i):
+        # - 刻々: VOICEVOX は「コクコク」側へ寄るため、MeCab が「コッコク」のときは「こくこく」を確定。
+        if surface == "刻々" and reading_mecab == "コッコク" and span_ok(i, i):
+            parts.append("こくこく")
+            i += 1
+            continue
+
+        # - 空: VOICEVOX が「ク/クウ」側へ寄ることがあるため、MeCab が「ソラ」のときは「そら」を確定。
+        if surface == "空" and reading_mecab == "ソラ" and span_ok(i, i):
             parts.append("そら")
+            i += 1
+            continue
+
+        # - 蔓: VOICEVOX が「ズル」側へ濁ることがあるため、「つる」を確定。
+        if surface == "蔓" and reading_mecab == "ツル" and span_ok(i, i):
+            parts.append("つる")
             i += 1
             continue
 
@@ -2002,6 +2078,12 @@ def _patch_tokens_with_words(
         # - 逃げ去る: 「去り」が濁るのを避け、「さり」を確定。
         if surface == "去り" and base == "去る" and reading_mecab == "サリ" and span_ok(i, i):
             parts.append("さり")
+            i += 1
+            continue
+
+        # - 取っ(取る): VOICEVOX が「ドッ」側へ寄ることがあるため、「とっ」を確定。
+        if surface == "取っ" and base == "取る" and reading_mecab == "トッ" and span_ok(i, i):
+            parts.append("とっ")
             i += 1
             continue
 
@@ -2291,6 +2373,11 @@ def _patch_tokens_with_words(
             parts.append("さめ")
             i += 1
             continue
+        # - 冷え(冷える): VOICEVOX が「ビエ」側へ濁ることがあるため、B側で「ひえ」を確定。
+        if surface == "冷え" and base == "冷える" and reading_mecab == "ヒエ":
+            parts.append("ひえ")
+            i += 1
+            continue
 
         # - 留まっ(留まる): 「留まる」は「とどまる」側へ寄るため、B側で「とどまっ」を確定。
         if surface == "留まっ" and base == "留まる" and reading_mecab == "トマッ":
@@ -2321,6 +2408,11 @@ def _patch_tokens_with_words(
             parts.append("あいだ")
             i += 1
             continue
+        # - 何十年もの間: MeCab が「ものマ」側へ寄るため、「あいだ」を確定。
+        if surface == "間" and reading_mecab == "マ" and prev_surface == "もの":
+            parts.append("あいだ")
+            i += 1
+            continue
 
         # - コナトゥス: 小さい「ゥ」表記が比較で揺れるため、「コナトス」へ正規化。
         if surface == "コナトゥス":
@@ -2343,6 +2435,12 @@ def _patch_tokens_with_words(
         # - こんな風に: 「風(かぜ)」の誤読を避けるため、「こんな/そんな/あんな + 風 + に」は「ふう」に寄せる。
         if surface == "風" and next_surface == "に" and prev_surface in {"こんな", "そんな", "あんな"} and reading_mecab == "カゼ":
             parts.append("ふう")
+            i += 1
+            continue
+
+        # - 手: VOICEVOX が「シュ」側へ寄ることがあるため、助詞前は「て」を確定。
+        if surface == "手" and reading_mecab == "テ" and next_surface in {"を", "が", "は", "も", "に", "で", "へ", "から", "まで", "の", "と"}:
+            parts.append("て")
             i += 1
             continue
 
@@ -2444,7 +2542,7 @@ def _patch_tokens_with_words(
             continue
 
         # - 罰: 「罰(バチ)」の揺れを避け、「ばつ」を確定（罰当たり等の複合語は除外）。
-        if surface == "罰" and reading_mecab == "バチ" and next_surface in {"を", "が", "は", "も", "に", "で", "など", "や", "と", "。", "、"}:
+        if surface == "罰" and reading_mecab == "バチ" and next_surface in {"を", "が", "は", "も", "に", "で", "の", "など", "や", "と", "。", "、"}:
             parts.append("ばつ")
             i += 1
             continue
@@ -2768,13 +2866,7 @@ def _patch_tokens_with_words(
             parts.append("えがき")
             i += 1
             continue
-        if (
-            base == "放す"
-            and surface == "放す"
-            and prev_prev_surface == "手"
-            and prev_surface == "を"
-            and reading_mecab == "ホカス"
-        ):
+        if base == "放す" and surface == "放す" and reading_mecab == "ホカス":
             parts.append("ハナス")
             i += 1
             continue
@@ -2957,8 +3049,8 @@ def _patch_tokens_with_words(
                 parts.append("ガ")
                 i += 1
                 continue
-        # 「何と言う」は話し言葉だと「ナン」が自然。
-        if surface == "何" and next_surface == "と":
+        # 「何と言う/何という」は話し言葉だと「ナン」が自然。
+        if surface == "何" and next_surface in {"と", "という"}:
             parts.append("ナン")
             i += 1
             continue
@@ -2992,6 +3084,11 @@ def _patch_tokens_with_words(
         # 例外: 「怒りっぽい」等は「オコリ」側が自然。
         if surface == "怒り" and reading_mecab == "イカリ":
             parts.append("オコリ" if next_surface.startswith("っぽ") else "イカリ")
+            i += 1
+            continue
+        # 「今」は VOICEVOX が「コン」側へ寄ることがあるため、B側で「いま」を確定。
+        if surface == "今" and reading_mecab == "イマ":
+            parts.append("いま")
             i += 1
             continue
         # 「今」は文脈で MeCab が「コン」になり得るが、多くは「イマ」が自然。

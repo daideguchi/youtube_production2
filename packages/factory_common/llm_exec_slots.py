@@ -166,31 +166,12 @@ def codex_exec_enabled_override() -> Optional[bool]:
 
 def effective_api_failover_to_think() -> bool:
     """
-    Effective API→THINK failover toggle for non-script tasks.
-
-    Priority:
-      1) explicit env LLM_API_FAILOVER_TO_THINK / LLM_API_FALLBACK_TO_THINK
-      2) exec-slot api_failover_to_think (if present)
-      3) default: True
+    Policy: API→THINK *auto failover* is forbidden in this repository.
+    If the API route fails, it must stop and report; it must not silently switch routes.
     """
     assert_env_absent(
         ["LLM_API_FAILOVER_TO_THINK", "LLM_API_FALLBACK_TO_THINK"],
         context="llm_exec_slots.effective_api_failover_to_think",
-        hint="Use LLM_EXEC_SLOT=5 to disable failover (non-script tasks). Default is ON.",
+        hint="Auto failover is forbidden. Choose THINK upfront (LLM_EXEC_SLOT=3) or explicit API (LLM_EXEC_SLOT=0).",
     )
-    # Absolute ops rule:
-    # - Under routing lockdown, non-script tasks must always fail over to THINK mode on API failure.
-    # - This prevents silent provider/model drift and keeps the pipeline moving without rewriting configs.
-    if lockdown_active():
-        return True
-    raw = (os.getenv("LLM_API_FAILOVER_TO_THINK") or os.getenv("LLM_API_FALLBACK_TO_THINK") or "").strip()
-    if raw != "":
-        return raw.lower() not in {"0", "false", "no", "off"}
-
-    cfg = load_llm_exec_slots_config()
-    active = active_llm_exec_slot_id()
-    slot_id = int(active.get("id") or 0)
-    ent = _slot_entry(cfg, slot_id) or None
-    if isinstance(ent, dict) and "api_failover_to_think" in ent:
-        return _boolish(ent.get("api_failover_to_think"))
-    return True
+    return False

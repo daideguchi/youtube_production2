@@ -323,7 +323,7 @@ def _ops_force_exec_slot() -> int | None:
 
     Note:
     - This is an ops wrapper feature; it only affects processes spawned by `./ops`.
-    - Script pipeline remains API-only and ignores this override (policy).
+    - Script pipeline ignores this override (policy; use `--llm api|think`).
     """
     raw = (os.getenv("YTM_OPS_FORCE_EXEC_SLOT") or "").strip()
     if not raw:
@@ -365,7 +365,7 @@ def _ops_default_llm_mode() -> str:
     if forced:
         return forced
     raw = os.getenv("YTM_OPS_DEFAULT_LLM") or os.getenv("YTM_DEFAULT_LLM") or ""
-    return _normalize_llm_mode(raw) or "api"
+    return _normalize_llm_mode(raw) or "think"
 
 
 def _apply_forced_llm(llm: str | None) -> str:
@@ -711,17 +711,14 @@ def _maybe_print_ops_tips(args: argparse.Namespace, *, llm: str, exec_slot: int 
         print(f"[ops] note: {note} for cmd={cmd}{(' op=' + op) if op else ''}.", file=sys.stderr)
         return
 
-    # Script pipeline is API-only (fixed safety rule).
-    # Avoid printing generic THINK/CODEX/API tips that would mislead operators.
+    # Script pipeline tips: script_* runs in THINK (pending) by default; codex is not supported.
     is_script = (cmd == "script") or (cmd == "resume" and op == "script")
-    if is_script:
-        if eff != "api":
-            print("[ops] POLICY: script pipeline is API-only (no THINK/CODEX).", file=sys.stderr)
-            print("[ops] action: use `./ops api script ...` / `./ops api resume script ...`.", file=sys.stderr)
-            return
-        print("[ops] API MODE: script pipeline is API-only (no THINK/CODEX).", file=sys.stderr)
-        print("[ops] help: `./ops patterns list` / `./ops latest --channel CHxx --video NNN`", file=sys.stderr)
+    if is_script and eff == "codex":
+        print("[ops] POLICY: script pipeline does not support `--llm codex`.", file=sys.stderr)
+        print("[ops] action: use default THINK (`./ops script ...`) or explicit API (`./ops api script ...`).", file=sys.stderr)
         return
+    if is_script and eff == "api":
+        print("[ops] note: script pipeline is running in API mode (no API→THINK auto failover).", file=sys.stderr)
 
     if eff == "think":
         qdir = _fmt_relpath(_agent_queue_dir())
@@ -852,7 +849,7 @@ def _print_list() -> None:
     print("    ./ops think <cmd> ...   # force --llm think (no external LLM API spend)")
     print("    ./ops api   <cmd> ...   # force --llm api")
     print("    ./ops codex <cmd> ...   # force --llm codex (explicit)")
-    print("    tip: export YTM_OPS_DEFAULT_LLM=think  # make THINK the default when --llm is omitted")
+    print("    note: default is THINK when --llm is omitted")
     print("")
     print("  Session bookkeeping (start/end; for interrupted work):")
     print('    ./ops session start --name dd-<area>-01 --role worker --doing "..." --next "..."')
@@ -872,12 +869,13 @@ def _print_list() -> None:
     print("")
     print("  Script (runbook):")
     print("    ./ops script <MODE> -- --channel CHxx --video NNN")
-    print("    ./ops api script <MODE> -- --channel CHxx --video NNN   # 台本はAPI固定（THINK/CODEX禁止）")
-    print("    ./ops gemini script --channel CHxx --video NNN --run     # 手動/明示: Gemini CLIで本文生成（dry-run既定）")
+    print("    ./ops api script <MODE> -- --channel CHxx --video NNN   # 明示API（必要なときだけ）")
+    print("    ./ops claude script -- --channel CHxx --video NNN --run  # 明示: Claude CLI（sonnet 4.5既定; limit→Gemini3flash→qwen; dry-run既定）")
+    print("    ./ops gemini script -- --channel CHxx --video NNN --run  # 明示: Gemini CLI（フォールバック用; dry-run既定）")
+    print("    ./ops qwen   script -- --channel CHxx --video NNN --run  # 明示: qwen CLI（最終フォールバック; model/provider指定は禁止）")
     print("")
     print("  Audio/TTS:")
     print("    ./ops audio -- --channel CHxx --video NNN")
-    print("    ./ops audio --llm think -- --channel CHxx --video NNN")
     print("")
     print("  Video / CapCut (SRT→画像→Draft):")
     print("    ./ops video factory -- <args for -m video_pipeline.tools.factory>")
@@ -914,10 +912,11 @@ def _print_list() -> None:
     print("")
     print("  Recovery (fixed commands):")
     print("    ./ops resume episode -- --channel CHxx --video NNN")
-    print("    ./ops resume script -- --llm api --channel CHxx --video NNN   # 台本はAPI固定")
-    print("    ./ops resume audio -- --llm think --channel CHxx --video NNN")
-    print("    ./ops resume video -- --llm think --channel CHxx --video NNN")
-    print("    ./ops resume thumbnails -- --llm think --channel CHxx")
+    print("    ./ops resume script -- --channel CHxx --video NNN")
+    print("    ./ops resume script -- --llm api --channel CHxx --video NNN   # 明示API（必要なときだけ）")
+    print("    ./ops resume audio -- --channel CHxx --video NNN")
+    print("    ./ops resume video -- --channel CHxx --video NNN")
+    print("    ./ops resume thumbnails -- --channel CHxx")
     print("    ./ops episode ensure -- --channel CHxx --video NNN   # same as resume episode (explicit)")
     print("")
     print("  Reconcile (stable; dry-run by default):")
@@ -1158,17 +1157,34 @@ def cmd_cmd(args: argparse.Namespace) -> int:
 
 def cmd_script(args: argparse.Namespace) -> int:
     llm = _apply_forced_llm(args.llm)
-    if llm != "api":
-        print("[POLICY] script pipeline is API-only (no THINK/CODEX).", file=sys.stderr)
-        print("- rule: 台本（script_*）は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。", file=sys.stderr)
-        print("- action: rerun with `./ops api script ...` (or `--llm api`)", file=sys.stderr)
-        return 2
-    # Policy: never run the script pipeline with an ops-level exec-slot override.
-    if _ops_force_exec_slot() not in (None, 0):
-        print("[ops] NOTE: ignoring --exec-slot for script pipeline (API-only; exec_slot forced to 0).", file=sys.stderr)
     forwarded = _strip_leading_double_dash(list(args.args))
     inner = ["python3", "scripts/ops/script_runbook.py", args.mode, *forwarded]
-    return _run(inner, env=_env_with_llm_exec_slot(0))
+    if llm == "codex":
+        print("[POLICY] script pipeline does not support `--llm codex`.", file=sys.stderr)
+        print("- action: use default THINK (`./ops script ...`) or explicit API (`./ops api script ...`).", file=sys.stderr)
+        return 2
+    # Policy: never run the script pipeline with an ops-level exec-slot override.
+    if _ops_force_exec_slot() is not None:
+        print("[ops] NOTE: ignoring --exec-slot for script pipeline (use `--llm api|think`).", file=sys.stderr)
+    return _run_with_llm_mode(llm, inner)
+
+
+def cmd_claude(args: argparse.Namespace) -> int:
+    """
+    Claude helpers.
+    NOTE:
+    - This is an explicit, operator-invoked route. It is NOT a silent fallback for script_pipeline.
+    - LLM mode / exec-slot is irrelevant here (runs the external `claude` CLI via helper script).
+    """
+    target = str(getattr(args, "target", "") or "").strip().lower()
+    forwarded = _strip_leading_double_dash(list(getattr(args, "args", []) or []))
+
+    if target == "script":
+        inner = ["python3", "scripts/ops/claude_cli_generate_scripts_full_prompt.py", "run", *forwarded]
+        return _run(inner)
+
+    print(f"unknown claude target: {target}", file=sys.stderr)
+    return 2
 
 
 def cmd_gemini(args: argparse.Namespace) -> int:
@@ -1186,6 +1202,25 @@ def cmd_gemini(args: argparse.Namespace) -> int:
         return _run(inner)
 
     print(f"unknown gemini target: {target}", file=sys.stderr)
+    return 2
+
+
+def cmd_qwen(args: argparse.Namespace) -> int:
+    """
+    Qwen helpers.
+    NOTE:
+    - This is an explicit, operator-invoked route. It is NOT a silent fallback for script_pipeline.
+    - LLM mode / exec-slot is irrelevant here (runs the external `qwen` CLI via helper script).
+    - Model/provider overrides are forbidden by policy in this repo.
+    """
+    target = str(getattr(args, "target", "") or "").strip().lower()
+    forwarded = _strip_leading_double_dash(list(getattr(args, "args", []) or []))
+
+    if target == "script":
+        inner = ["python3", "scripts/ops/qwen_cli_generate_scripts_full_prompt.py", "run", *forwarded]
+        return _run(inner)
+
+    print(f"unknown qwen target: {target}", file=sys.stderr)
     return 2
 
 
@@ -1763,15 +1798,14 @@ def cmd_resume(args: argparse.Namespace) -> int:
 
     if target == "script":
         eff = _apply_forced_llm(llm)
-        if eff != "api":
-            print("[POLICY] resume script is API-only (no THINK/CODEX).", file=sys.stderr)
-            print("- rule: 台本（script_*）は LLM API（Fireworks）固定。Codex/agent 代行で台本を書かない。", file=sys.stderr)
-            print("- action: rerun with `./ops api resume script ...` (or add `--llm api`)", file=sys.stderr)
-            return 2
-        if _ops_force_exec_slot() not in (None, 0):
-            print("[ops] NOTE: ignoring --exec-slot for script pipeline (API-only; exec_slot forced to 0).", file=sys.stderr)
         inner = ["python3", "scripts/ops/script_runbook.py", "resume", *forwarded]
-        return _run(inner, env=_env_with_llm_exec_slot(0))
+        if eff == "codex":
+            print("[POLICY] resume script does not support `--llm codex`.", file=sys.stderr)
+            print("- action: use THINK (`./ops resume script ...`) or explicit API (`./ops api resume script ...`).", file=sys.stderr)
+            return 2
+        if _ops_force_exec_slot() is not None:
+            print("[ops] NOTE: ignoring --exec-slot for script pipeline (use `--llm api|think`).", file=sys.stderr)
+        return _run_with_llm_mode(eff, inner)
 
     if target == "audio":
         inner = ["python3", "-m", "script_pipeline.cli", "audio", *forwarded]
@@ -2097,6 +2131,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/script_runbook.py (use '--' before flags)")
     sp.set_defaults(func=cmd_script)
 
+    sp = sub.add_parser("claude", help="Claude helpers (explicit; no silent fallback)")
+    sp.add_argument("target", choices=["script"], help="claude operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to scripts/ops/claude_cli_generate_scripts_full_prompt.py run (use '--' before flags; dry-run by default)",
+    )
+    sp.set_defaults(func=cmd_claude)
+
     sp = sub.add_parser("gemini", help="Gemini helpers (explicit; no silent fallback)")
     sp.add_argument("target", choices=["script"], help="gemini operation")
     sp.add_argument(
@@ -2105,6 +2148,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="args passed to scripts/ops/gemini_cli_generate_scripts.py run (use '--' before flags; dry-run by default)",
     )
     sp.set_defaults(func=cmd_gemini)
+
+    sp = sub.add_parser("qwen", help="Qwen helpers (explicit; no silent fallback)")
+    sp.add_argument("target", choices=["script"], help="qwen operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to scripts/ops/qwen_cli_generate_scripts_full_prompt.py run (use '--' before flags; dry-run by default)",
+    )
+    sp.set_defaults(func=cmd_qwen)
 
     sp = sub.add_parser("audio", help="audio/TTS wrapper (script_pipeline.cli audio)")
     sp.add_argument("--llm", choices=["api", "think", "codex"], default=_ops_default_llm_mode())
@@ -2306,7 +2358,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         llm = _ops_default_llm_mode()
     llm = _apply_forced_llm(llm)
     exec_slot = _exec_slot_for_llm(llm)
-    # ops-level exec-slot override (advanced) — do not apply to script pipeline (API-only policy).
+    # ops-level exec-slot override (advanced) — do not apply to script pipeline (policy; use --llm api|think).
     is_script_pipeline = cmd_name == "script" or (
         cmd_name == "resume" and str(getattr(args, "target", "") or "").strip().lower() == "script"
     )

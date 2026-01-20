@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Dialog-AI script audit helper (NO LLM API).
+Dialog-AI script audit helper (LLM API 禁止).
 
 This tool never calls any LLM routers. It only:
 - enumerates episodes (status.json + planning CSV),

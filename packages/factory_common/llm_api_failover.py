@@ -101,14 +101,13 @@ def maybe_failover_to_think(
     failure: Dict[str, Any],
 ) -> Optional[Dict[str, Any]]:
     """
-    When API LLM calls fail, fall back to the agent queue.
+    Legacy stub (kept for compatibility/log maps).
 
-    - If results already exist for the computed task_id, return them.
-    - Otherwise create pending + stop (SystemExit).
+    Policy: API→THINK 自動フォールバックは禁止。
+    - API ルートが失敗したら停止して報告する（勝手にルートを変えない）。
+    - THINK が必要なら最初から THINK/AGENT で実行する。
     """
-    # Fixed safety rule:
-    # - Never fail over script pipeline tasks to THINK MODE.
-    #   台本（script_*）は LLM API 固定で、失敗時は停止して原因を直す。
+    return None
     t = str(task or "").strip()
     if t.startswith("script_"):
         return None

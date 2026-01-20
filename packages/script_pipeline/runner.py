@@ -3375,6 +3375,8 @@ def rebuild_a_text_from_patterns(
             pass
     st.status = "script_in_progress"
     try:
+        st.metadata["a_text_origin"] = "llm_rebuild"
+        st.metadata["a_text_origin_reason"] = str(reason or "").strip() or "manual_rebuild"
         note = str(st.metadata.get("redo_note") or "").strip()
         msg = f"AテキストをSSOTパターンから再構築しました ({str(reason or '').strip() or 'manual_rebuild'})"
         if not note:
@@ -5687,7 +5689,7 @@ def _run_llm(stage: str, base: Path, st: Status, sd: Dict[str, Any], templates: 
         return True
 
     except SystemExit as e:
-        # THINK/AGENT または failover_to_think の pending を、固定パスartifactにも落とす
+        # THINK/AGENT の pending を、固定パスartifactにも落とす
         try:
             write_llm_text_artifact(
                 artifact_path,
@@ -6417,6 +6419,22 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         stage_details.setdefault("plan_source", "ssot_patterns")
         stage_details.setdefault("title_for_plan", title_for_plan)
 
+        if (
+            _truthy_env("YTM_ROUTING_LOCKDOWN", "1")
+            and _truthy_env("SCRIPT_MASTER_PLAN_LLM", "0")
+            and str(os.getenv("YTM_EMERGENCY_OVERRIDE") or "").strip() != "1"
+        ):
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[POLICY] Forbidden: SCRIPT_MASTER_PLAN_LLM=1 under YTM_ROUTING_LOCKDOWN=1.",
+                        "- master_plan のLLM補助は通常運用で使わない（コスト/混線事故の原因）。",
+                        "- fix: unset SCRIPT_MASTER_PLAN_LLM (default 0) and rerun.",
+                        "- debug override: set YTM_EMERGENCY_OVERRIDE=1 for this run only.",
+                    ]
+                )
+            )
+
         llm_enabled = _truthy_env("SCRIPT_MASTER_PLAN_LLM", "0") and os.getenv("SCRIPT_PIPELINE_DRY", "0") != "1"
         llm_task = str(os.getenv("SCRIPT_MASTER_PLAN_LLM_TASK") or "").strip()
         llm_attempted = bool(stage_details.get("llm_attempted"))
@@ -6870,7 +6888,12 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
         # - NOTE: This is provenance of the *drafting stage*, not who edited the final file in UI.
         draft_source = "api"
         try:
-            if canonical_path.resolve() == human_path.resolve():
+            origin = str((st.metadata or {}).get("a_text_origin") or "").strip().lower()
+            if origin == "llm_rebuild":
+                # a-text-rebuild writes assembled_human.md as SoT, but it is still an automated draft.
+                # Treat as codex_exec to allow aggressive rewriting when the quality gate fails.
+                draft_source = "codex_exec"
+            elif canonical_path.resolve() == human_path.resolve():
                 draft_source = "human"
             else:
                 used_codex = False
@@ -7438,7 +7461,7 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
                                 total_max = min(total_max, cur_room)
                                 total_min = min(total_min, total_max)
 
-                            # Avoid output truncation / THINK-mode failover on very large shortages:
+                            # Avoid output truncation / early-stop on very large shortages:
                             # cap each expand pass so we can converge over multiple passes.
                             try:
                                 max_total_addition = int(
@@ -12130,7 +12153,10 @@ def run_stage(channel: str, video: str, stage_name: str, title: str | None = Non
             # Draft provenance (used to force naturalization when Codex wrote the chapter drafts).
             draft_source = "api"
             try:
-                if canonical_path.resolve() == human_path.resolve():
+                origin = str((st.metadata or {}).get("a_text_origin") or "").strip().lower()
+                if origin == "llm_rebuild":
+                    draft_source = "codex_exec"
+                elif canonical_path.resolve() == human_path.resolve():
                     draft_source = "human"
                 else:
                     used_codex = False
@@ -13223,7 +13249,7 @@ def run_next(channel: str, video: str, title: str | None = None) -> Status:
     try:
         return run_stage(channel, video, stage_name, title=st.metadata.get("title") or title)
     except SystemExit as exc:
-        # If a stage exits early (THINK/AGENT pending, failover, artifact mismatch, etc),
+        # If a stage exits early (THINK/AGENT pending, policy stop, artifact mismatch, etc),
         # ensure status.json does not remain "processing".
         try:
             cur = load_status(channel, video)

@@ -261,6 +261,10 @@ def annotate_tokens(payload: Dict[str, object], model: str | None = None, api_ke
         return {"token_annotations": annotations}
         
     except BaseException as e:
+        # THINK/AGENT mode uses SystemExit to stop the process after writing a pending task.
+        # Do not swallow it, otherwise we silently bypass the required operator/agent step.
+        if isinstance(e, SystemExit):  # pragma: no cover
+            raise
         if isinstance(e, KeyboardInterrupt):  # pragma: no cover
             raise
         last_err = e

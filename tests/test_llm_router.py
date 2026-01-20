@@ -30,12 +30,11 @@ def _make_router(monkeypatch, *, models):
     return router, lr
 
 
-def test_strict_model_keys_disables_codex_and_tries_only_first_then_fails_over_to_think(monkeypatch):
+def test_strict_model_keys_disables_codex_and_tries_only_first_then_raises(monkeypatch):
     router, lr = _make_router(monkeypatch, models=["m1", "m2"])
 
     invoked = []
     codex_calls = {"n": 0}
-    think_calls = {"n": 0}
 
     def _codex(**_kw):
         codex_calls["n"] += 1
@@ -43,37 +42,29 @@ def test_strict_model_keys_disables_codex_and_tries_only_first_then_fails_over_t
 
     monkeypatch.setattr(lr, "try_codex_exec", _codex)
 
-    def _think_failover(**_kw):
-        think_calls["n"] += 1
-        return {"content": "THINK", "model": "think", "provider": "think", "chain": ["think"]}
-
-    monkeypatch.setattr(lr, "maybe_failover_to_think", _think_failover)
-
     def _invoke(self, _provider, _client, _model_conf, _messages, return_raw=False, **_kwargs):
         invoked.append(_model_conf.get("model_name"))
         raise RuntimeError("provider_fail")
 
     monkeypatch.setattr(lr.LLMRouter, "_invoke_provider", _invoke, raising=True)
 
-    res = router.call_with_raw(
-        task="unit_test_task",
-        messages=[{"role": "user", "content": "hello"}],
-        model_keys=["m1", "m2"],
-    )
+    with pytest.raises(RuntimeError):
+        router.call_with_raw(
+            task="unit_test_task",
+            messages=[{"role": "user", "content": "hello"}],
+            model_keys=["m1", "m2"],
+        )
 
-    # Strict-by-default: try ONLY the first model; then fail over to THINK MODE (non-script tasks).
+    # Strict-by-default: try ONLY the first model; then fail (no API→THINK auto failover).
     assert invoked == ["m1"]
-    assert think_calls["n"] == 1
     assert codex_calls["n"] == 0
-    assert res["content"] == "THINK"
 
 
-def test_allow_fallback_true_with_model_keys_tries_multiple_then_fails_over_to_think(monkeypatch):
+def test_allow_fallback_true_with_model_keys_tries_multiple_then_raises(monkeypatch):
     router, lr = _make_router(monkeypatch, models=["m1", "m2"])
 
     invoked = []
     codex_calls = {"n": 0}
-    think_calls = {"n": 0}
 
     def _codex(**_kw):
         codex_calls["n"] += 1
@@ -81,42 +72,28 @@ def test_allow_fallback_true_with_model_keys_tries_multiple_then_fails_over_to_t
 
     monkeypatch.setattr(lr, "try_codex_exec", _codex)
 
-    def _think_failover(**_kw):
-        think_calls["n"] += 1
-        return {"content": "THINK", "model": "think", "provider": "think", "chain": ["think"]}
-
-    monkeypatch.setattr(lr, "maybe_failover_to_think", _think_failover)
-
     def _invoke(self, _provider, _client, _model_conf, _messages, return_raw=False, **_kwargs):
         invoked.append(_model_conf.get("model_name"))
         raise RuntimeError("provider_fail")
 
     monkeypatch.setattr(lr.LLMRouter, "_invoke_provider", _invoke, raising=True)
 
-    res = router.call_with_raw(
-        task="unit_test_task",
-        messages=[{"role": "user", "content": "hello"}],
-        model_keys=["m1", "m2"],
-        allow_fallback=True,
-    )
+    with pytest.raises(RuntimeError):
+        router.call_with_raw(
+            task="unit_test_task",
+            messages=[{"role": "user", "content": "hello"}],
+            model_keys=["m1", "m2"],
+            allow_fallback=True,
+        )
 
     assert invoked == ["m1", "m2"]
-    assert think_calls["n"] == 1
     assert codex_calls["n"] == 0
-    assert res["content"] == "THINK"
 
 
 def test_script_tasks_do_not_failover_to_think(monkeypatch):
     router, lr = _make_router(monkeypatch, models=["m1"])
 
     invoked = []
-    think_calls = {"n": 0}
-
-    def _think_failover(**_kw):
-        think_calls["n"] += 1
-        return {"content": "THINK", "model": "think", "provider": "think", "chain": ["think"]}
-
-    monkeypatch.setattr(lr, "maybe_failover_to_think", _think_failover)
 
     def _invoke(self, _provider, _client, _model_conf, _messages, return_raw=False, **_kwargs):
         invoked.append(_model_conf.get("model_name"))
@@ -132,7 +109,6 @@ def test_script_tasks_do_not_failover_to_think(monkeypatch):
         )
 
     assert invoked == ["m1"]
-    assert think_calls["n"] == 0
 
 
 def test_model_slot_overrides_tier_models_and_can_split_script_vs_non_script(monkeypatch):

@@ -193,7 +193,7 @@ def run_pipeline(args):
                     logging.info("Visual Bible empty/no-characters.")
                     
             except SystemExit as e:
-                # LLM failover-to-think may raise SystemExit to stop the process for queued tasks.
+                # THINK/AGENT mode may raise SystemExit to stop the process for queued tasks.
                 # Visual Bible is optional; do not abort the whole pipeline.
                 logging.warning("Visual Bible generation halted (SystemExit=%s); continuing without it.", e)
                 persona_text = ""

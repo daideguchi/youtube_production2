@@ -2446,3 +2446,29 @@ archive-first（repo, tracked）:
 関連:
 - 新ドラフト: `/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH12-016-【思考】考えすぎで疲れる｜思考を切るスイッチ__v3`
 - run_dir: `workspaces/video/runs/CH12-016_capcut_v3/`
+
+---
+
+## 2026-01-19
+
+### 1) `workspaces/video/input` の orphan/broken を退避してミラーを純化（local / gitignore）
+
+意図:
+- `workspaces/video/input` は `workspaces/audio/final` の **ミラー**。
+- final に存在しないファイル（孤児）が残ると誤参照・broken symlink の温床になるため、削除せず archive へ退避して input を純化する。
+
+実行:
+- orphan 退避（final に存在しない SRT/WAV）:
+  - `LLM_AGENT_NAME=dd-cleanup-01 PYTHONPATH='.:packages' python3 -m video_pipeline.tools.sync_audio_inputs --mode run --wav-policy symlink --wav-dedupe --hash-wav --orphan-policy archive`
+  - 退避先: `workspaces/video/_archive/20260119T031210Z/`
+  - 結果: orphan=70 archived=70（skipped_locked=94）
+- legacy input dir 退避（preset 名不一致 / broken symlink を含む）:
+  - `workspaces/video/input/CH12_寓話×仏教解説（CH01寄せ）` → `workspaces/video/_archive/20260119T031210Z/CH12/video_input/CH12_寓話×仏教解説（CH01寄せ）`
+  - `workspaces/video/input/CH27_CH27` → `workspaces/video/_archive/20260119T031210Z/CH27/video_input/CH27_CH27`
+
+検証:
+- `workspaces/video/input` の broken wav/srt symlink: 0
+- `du -sh workspaces/video/input`: 4.7G → 2.7G
+
+再発防止（コード）:
+- `packages/video_pipeline/tools/sync_audio_inputs.py` の orphan archive で broken symlink を扱えるように修正（`stat()` で落ちない）

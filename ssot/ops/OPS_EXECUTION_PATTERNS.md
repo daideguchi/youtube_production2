@@ -36,7 +36,7 @@ LLMコスト制御（最重要）:
 | --- | --- | --- | --- |
 | `PAT-OPS-THINK-001` | OPS | 外部LLMを使わず進めたい | `./ops think ...` / `./ops agent ...` |
 | `PAT-OPS-RECOVER-001` | OPS | 落ちた/迷子/最新不明 | `./ops progress` → `./ops reconcile` → `./ops resume ...` |
-| `PAT-AUDIO-TTS-001` | AUDIO | 音声+SRTを作る/復帰 | `./ops audio --llm think -- --channel CHxx --video NNN` |
+| `PAT-AUDIO-TTS-001` | AUDIO | 音声+SRTを作る/復帰 | `./ops audio -- --channel CHxx --video NNN` |
 | `PAT-VIDEO-DRAFT-001` | VIDEO | SRT→画像→CapCutドラフト | `./ops video auto-capcut -- ...` |
 | `PAT-VIDEO-REGEN-001` | VIDEO | 画像が欠損/失敗/差し替え | `./ops video regen-images -- ...` |
 | `PAT-VIDEO-AUDIT-FIX-DRAFTS-001` | VIDEO | placeholder/重複/プロンプト事故の修復 | `./ops video audit-fix-drafts -- ...` |
@@ -106,7 +106,7 @@ LLMコスト制御（最重要）:
 
 典型手順:
 1) まずTHINKで走らせる（例）:
-   - `./ops think audio -- --channel CHxx --video NNN`
+   - `./ops think script resume -- --channel CHxx --video NNN`
    - `./ops think video auto-capcut -- --channel CHxx --video NNN`
 2) pending が出たら、キューを見る:
    - `./ops agent list`
@@ -120,7 +120,7 @@ LLMコスト制御（最重要）:
 
 注意:
 - THINK MODEは「外部LLM APIを呼ばない」ための運用レイヤ。品質を落とすための “簡略化” ではない。
-- 台本（`script_*`）は LLM API（Fireworks）固定のため、`./ops think script ...` は禁止（policyで停止する）。台本を作る日は `./ops api script ...` を使う。
+- 台本（`script_*`）も THINK の対象。pending を埋めるときに **Claude CLI（sonnet 4.5 既定。リミット時は Gemini 3 Flash Preview → `qwen -p`）/ 明示API** を使って本文を仕上げる（勝手なフォールバックは禁止）。
 
 関連SSOT:
 - `ssot/agent_runbooks/README.md`
@@ -140,9 +140,10 @@ LLMコスト制御（最重要）:
    - `./ops think reconcile --channel CHxx --video NNN --run`
 4) まだ直らない場合は、固定の復帰コマンドを直接叩く:
    - `./ops resume episode -- --channel CHxx --video NNN`
-   - `./ops resume script -- --llm api --channel CHxx --video NNN`（台本はAPI固定）
-   - `./ops resume audio -- --llm think --channel CHxx --video NNN`
-   - `./ops resume video -- --llm think --channel CHxx --video NNN`
+   - `./ops resume script -- --channel CHxx --video NNN`
+     - 明示API: `./ops resume script -- --llm api --channel CHxx --video NNN`
+  - `./ops resume audio -- --channel CHxx --video NNN`（推論=対話型AIエージェント / 読みLLM無効: `SKIP_TTS_READING=1`）
+   - `./ops resume video -- --channel CHxx --video NNN`
 
 検証:
 - `./ops history --tail 50 --channel CHxx --video NNN --failed-only`
@@ -175,11 +176,11 @@ LLMコスト制御（最重要）:
   - 参照キー: `result/pending/runbook/queue`（それぞれの意味を本文に明記する）
   - 例（抜粋）:
     ```text
-    [agent_task] COMPLETE task=tts_reading episode=CHxx-NNN
+    [agent_task] COMPLETE task=script_outline episode=CHxx-NNN
 
     何が終わった？
-    - task: tts_reading（...）
-    - task_id: tts_reading__...
+    - task: script_outline（...）
+    - task_id: script_outline__...
     - episode: CHxx-NNN
     - agent: dd-...
 
@@ -203,13 +204,11 @@ LLMコスト制御（最重要）:
 - `workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav/.srt` を揃える。
 
 入口（固定）:
-- `./ops audio --llm think -- --channel CHxx --video NNN`
-
-THINK（外部LLM APIコストを使わない）:
-- `./ops think audio -- --channel CHxx --video NNN`
+- `./ops audio -- --channel CHxx --video NNN`
+  - 固定: **推論=対話型AIエージェント / 読みLLM無効**（`SKIP_TTS_READING=1` が既定/必須。`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止）
 
 失敗/途中落ちの復帰（固定）:
-- `./ops resume audio -- --llm think --channel CHxx --video NNN`
+- `./ops resume audio -- --channel CHxx --video NNN`
 
 検証:
 - `./ops progress --channel CHxx --videos NNN --format summary`

@@ -15,6 +15,7 @@ from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 from factory_common.image_client import ImageClient, ImageGenerationError, ImageTaskOptions
+from factory_common.routing_lockdown import assert_env_absent, lockdown_active
 from script_pipeline.thumbnails.io_utils import PngOutputMode, save_png_atomic
 
 
@@ -334,6 +335,26 @@ def generate_background_with_retries(
 ) -> BackgroundGenerationResult:
     result = None
     last_exc: Optional[Exception] = None
+    assert_env_absent(
+        ["IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN"],
+        context="thumbnail_image_gen (image_layer.generate_background_with_retries)",
+        hint="サムネ背景は Gemini 2.5 Flash Image 固定。override を外して再実行。",
+    )
+    if lockdown_active():
+        mk = str(model_key or "").strip()
+        allowed = {"img-gemini-flash-1", "g-1"}
+        if mk and mk not in allowed:
+            raise RuntimeError(
+                "\n".join(
+                    [
+                        "[LOCKDOWN] Forbidden thumbnail image model_key detected.",
+                        f"- model_key: {mk}",
+                        f"- allowed: {', '.join(sorted(allowed))}",
+                        "- policy: サムネ背景は Gemini 2.5 Flash Image 固定（勝手なモデル切替/フォールバック禁止）。",
+                        "- hint: テンプレ/設定を修正してから再実行（debugのみ: YTM_EMERGENCY_OVERRIDE=1）。",
+                    ]
+                )
+            )
     override = (os.getenv("IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN") or "").strip()
     effective_model_key = override or model_key
     attempts = max(1, int(max_attempts))

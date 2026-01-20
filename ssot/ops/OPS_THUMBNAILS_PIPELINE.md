@@ -24,30 +24,12 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
   - AI生成テンプレ（prompt/model）と、チャンネル別の設定（layer_specs 等）を管理。
   - `templates[].image_model_key` は背景生成に使う ImageClient の **model selector**（model key もしくは slot code）。
     - model key 正本: `configs/image_models.yaml: models.*`
-    - slot code 正本: `configs/image_model_slots.yaml`（例: `f-4`）
-    - 運用既定（現行）: **Gemini 2.5 Flash Image**（`g-1` / `img-gemini-flash-1`）
-      - ポリシー: サムネは **Gemini > FLUX max**（サイレント切替はしない）
-      - 補足（コスト/待ち）: 量産は Gemini Batch を優先し、即時の比較/リテイクは `i-1`（Imagen 4 Fast）を使う（正本: `ssot/DECISIONS.md:D-016`）
-      - 例外（許可）: サムネ背景生成（`thumbnail_image_gen`）に限り **Gemini 3**（例: `gemini_3_pro_image_preview`）の利用を許可する（必要時のみ明示して使う）。
-        - 注意: 動画内画像（`visual_image_gen`）では Gemini 3 は禁止（別SSOT: `ssot/ops/OPS_CHANNEL_MODEL_ROUTING.md`）。
-  - Fireworks（画像）キー運用（固定）:
-    - 台本用（`FIREWORKS_SCRIPT*`）とは **別プール**（`FIREWORKS_IMAGE*`）で運用する（コスト/枯渇の混線防止）
-      - ただし現行運用では **Fireworks（text/台本）は無効**（`YTM_DISABLE_FIREWORKS_TEXT=1`）
-    - キーローテ（オプション）: `~/.ytm/secrets/fireworks_image_keys.txt`
-      - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
-      - token-free状態更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`
-    - 並列運用: 同一キーの同時利用を避けるため、画像生成は **key lease** で排他する（`FIREWORKS_KEYS_LEASE_DIR` 参照）
-
-    - 非常時（Gemini が使えない/止める必要がある場合）:
-      - **サイレント切替は禁止**（正本: `ssot/DECISIONS.md:D-002`）。切替は必ず明示する。
-    - サムネ背景生成だけ FLUX max に切替する場合は、タスク強制で固定する:
-      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
-    - 即時の比較/リテイクで Imagen 4 Fast に切替する場合も、同様に明示する:
-      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=i-1 python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
-    - サムネ背景生成で Gemini 3 を使う場合（許可・明示）:
-      - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview python3 scripts/thumbnails/build.py build --channel CH01 --engine layer_specs --videos 257 --regen-bg --force`
-    - 事故防止のため `allow_fallback` は有効化しない（明示 `model_key` は strict 固定）。
-    - 期間が長い場合は `.gitignore` 対象の `configs/*.local.*`（例: `configs/image_models.local.yaml`, `configs/image_model_slots.local.yaml`）で切替してよい（コミットしない）。
+    - slot code 正本: `configs/image_model_slots.yaml`（例: `g-1` / `img-gemini-flash-1`）
+    - 運用ルール（固定）:
+      - **サムネ背景生成（`thumbnail_image_gen`）は Gemini 2.5 Flash Image 固定**（`g-1` / `img-gemini-flash-1`）
+      - **禁止: モデル上書き/別モデルへの切替**（`IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` 等のoverrideは禁止）
+      - まとめて処理（バッチ運用）: `scripts/thumbnails/build.py build --videos ...` / `retake` で複数動画を一括処理する
+      - 例外ルートを追加する場合は、先に SSOT（`ssot/DECISIONS.md`）で合意してから導線を追加する（勝手に切替しない）
 
 ### 1.2 ローカル合成（Compiler）SoT
 - Stylepack（組版スタイル）: `workspaces/thumbnails/compiler/stylepacks/*.yaml`

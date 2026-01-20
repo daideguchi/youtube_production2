@@ -428,6 +428,11 @@ def main() -> None:
         env = os.environ.copy()
         env.pop("PYTHONPATH", None)
 
+        # Policy: TTS reading LLM (auditor) is disabled by default.
+        # 推論/判断は対話型AIエージェントが担当し、VOICEVOXは prepass mismatch=0 を合格条件にする。
+        # Explicitly set in the wrapper env to prevent accidental LLM paths in downstream run_tts.
+        env.setdefault("SKIP_TTS_READING", "1")
+
         env.setdefault("VOICEPEAK_CLI_GLOBAL_LOCK", "1")
         env.setdefault("VOICEPEAK_CLI_COOLDOWN_SEC", "0.35")
         env.setdefault("VOICEPEAK_CLI_TIMEOUT_SEC", "45")

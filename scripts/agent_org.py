@@ -820,6 +820,53 @@ def cmd_memo_show(args: argparse.Namespace) -> int:
     return 0
 
 
+def _truthy_env(name: str) -> bool:
+    raw = (os.getenv(str(name)) or "").strip()
+    if raw == "":
+        return False
+    return raw.lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _emergency_override_enabled() -> bool:
+    """
+    Reuse the global operator bypass flag as an explicit "I know what I'm doing" signal.
+
+    Why:
+    - Locking SSOT routing/config files is high risk in multi-agent operation.
+    - Require an explicit opt-in so accidental locks (→ accidental edits) are blocked by default.
+    """
+    return _truthy_env("YTM_EMERGENCY_OVERRIDE")
+
+
+_PROTECTED_LOCK_SCOPES: list[str] = [
+    # LLM routing SSOT (model selection / spend / quality)
+    "configs/llm_router.yaml",
+    "configs/llm_task_overrides.yaml",
+    "configs/llm_model_codes.yaml",
+    "configs/llm_model_slots.yaml",
+    "configs/llm_exec_slots.yaml",
+    "configs/llm_tier_candidates.yaml",
+    "configs/llm_tier_mapping.yaml",
+    "configs/llm.yml",
+    "configs/llm.local.yml",
+    # Image routing SSOT (spend / quality)
+    "configs/image_models.yaml",
+    "configs/image_model_slots.yaml",
+    "configs/image_task_overrides.yaml",
+    # Router implementation (policy & safety gates)
+    "packages/factory_common/llm_router.py",
+]
+
+
+def _find_protected_scope_hits(scopes: list[str]) -> list[str]:
+    hits: list[str] = []
+    for sc in scopes:
+        for protected in _PROTECTED_LOCK_SCOPES:
+            if _scopes_may_intersect(str(sc), protected):
+                hits.append(protected)
+    return sorted(set(hits))
+
+
 def cmd_lock(args: argparse.Namespace) -> int:
     q = Path(args.queue_dir) if args.queue_dir else get_queue_dir()
     agent = _require_agent_name(args, action="lock")
@@ -829,6 +876,25 @@ def cmd_lock(args: argparse.Namespace) -> int:
     if not scopes:
         print("at least one scope is required")
         return 2
+
+    protected_hits = _find_protected_scope_hits(scopes)
+    if protected_hits:
+        note = str(getattr(args, "note", "") or "").strip()
+        if not _emergency_override_enabled():
+            print("[blocked] lock scopes include protected SSOT routing/config paths:", file=sys.stderr)
+            for h in protected_hits:
+                print(f"  - {h}", file=sys.stderr)
+            print("", file=sys.stderr)
+            print("Policy:", file=sys.stderr)
+            print("- These paths control model routing/spend/quality and must not be edited ad-hoc.", file=sys.stderr)
+            print("- To proceed, you MUST opt-in explicitly for this run:", file=sys.stderr)
+            print("    YTM_EMERGENCY_OVERRIDE=1 python3 scripts/agent_org.py lock ... --note \"SSOT: <why>\"", file=sys.stderr)
+            print("- If you didn't mean to touch routing/config, narrow your scope and retry.", file=sys.stderr)
+            return 3
+        if not note:
+            print("[blocked] missing --note for protected SSOT routing/config lock.", file=sys.stderr)
+            print("Hint: add a human-readable reason, e.g. --note \"SSOT: update routing for <incident>\"", file=sys.stderr)
+            return 3
 
     ttl_int = None
     ttl_warned = False

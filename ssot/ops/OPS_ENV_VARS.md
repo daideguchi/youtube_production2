@@ -41,17 +41,17 @@
 
 通知フォーマット（agent_task; 固定）:
 ````text
-[agent_task] COMPLETE task=tts_reading episode=CH27-001
+    [agent_task] COMPLETE task=script_outline episode=CH27-001
 
 完了（agent_task）
-- task: tts_reading（TTS読み監査（VOICEVOXの読みOK/NG判定））
+    - task: script_outline（台本アウトライン生成）
 - episode: CH27-001
 - agent: dd-tts-01
 - meaning: results.json を保存（pending は completed へ移動）
-- task_id: tts_reading__<hash>
+- task_id: script_outline__<hash>
 
 サマリ
-- summary: ok=4 ng=0 skip=0
+    - summary: done=1
 
 次にやること
 - 同じコマンドを再実行（次工程: TTS生成へ続行）
@@ -59,18 +59,18 @@
 
 参照（困ったらここを見る）
 - Pages共有URL（/ep）: https://OWNER.github.io/REPO/ep/CH27/001/
-- Pagesモバイル入口（/m; 推奨）: https://OWNER.github.io/REPO/m/ （/ep へ誘導）
+- Pagesモバイル入口（/m）: https://OWNER.github.io/REPO/m/ （/ep へ誘導）
 - Pages Script Viewer: https://OWNER.github.io/REPO/?id=CH27-001
 - Pages 書庫（Releases）: https://OWNER.github.io/REPO/archive/?q=CH27-001
-- runbook: `ssot/agent_runbooks/RUNBOOK_AUDIO_TTS.md`
-- result: `workspaces/logs/agent_tasks/results/tts_reading__<hash>.json`
-- pending: `workspaces/logs/agent_tasks/pending/tts_reading__<hash>.json (moved to completed)`
-- completed: `workspaces/logs/agent_tasks/completed/tts_reading__<hash>.json`
+    - runbook: `ssot/agent_runbooks/RUNBOOK_JOB_SCRIPT_PIPELINE.md`
+    - result: `workspaces/logs/agent_tasks/results/script_outline__<hash>.json`
+    - pending: `workspaces/logs/agent_tasks/pending/script_outline__<hash>.json (moved to completed)`
+    - completed: `workspaces/logs/agent_tasks/completed/script_outline__<hash>.json`
 - queue: `workspaces/logs/agent_tasks`
 
 再実行コマンド
 ```bash
-./scripts/with_ytm_env.sh python3 packages/audio_tts/scripts/run_tts.py --channel CH27 --video 001 --input workspaces/scripts/CH27/001/content/assembled.md
+    ./ops script resume -- --channel CH27 --video 001
 ```
 ````
 
@@ -93,25 +93,24 @@
     - 同期: `python3 scripts/ops/slack_inbox_sync.py sync`（出力: `ssot/history/HISTORY_slack_pm_inbox.md`）
 - `./ops` の “迷わない” レバー（オプション）:
   - `./ops think <cmd> ...` / `./ops api <cmd> ...` / `./ops codex <cmd> ...` を使う（`--llm` の付け忘れを物理的に防ぐ）
-  - `YTM_OPS_DEFAULT_LLM=think|api|codex` を設定すると、`./ops` で `--llm` を省略した時の既定を切り替えられる（例: 「今日は外部APIを使わない」→ `think`）
+  - `YTM_OPS_DEFAULT_LLM=think|api|codex`（省略可）: `./ops` で `--llm` を省略した時の既定を切り替える（通常運用は **think** を既定に固定し、APIは明示で使う）
   - `YTM_OPS_TIPS=0` で `./ops` のヒント表示（stderr）を無効化できる（default: ON）
-- モデル選択は **モデル名ではなく数字スロット**で行う（モデル名の書き換え禁止）。
-  - `LLM_MODEL_SLOT`（default: `0`）: `configs/llm_model_slots.yaml` の `slots` から選ぶ
-  - 個別調整は `configs/llm_model_slots.local.yaml`（git管理しない）で上書きする
+  - モデル選択は **モデル名ではなく数字スロット**で行う（モデル名の書き換え禁止）。
+    - `LLM_MODEL_SLOT`（default: `0`）: `configs/llm_model_slots.yaml` の `slots` から選ぶ
+    - 個別調整（local slots overlay）は通常運用では禁止（ロックダウンで停止）。例外は `YTM_EMERGENCY_OVERRIDE=1` を明示した実行のみ。
   - スロット内で参照するモデルは **model code**（`open-k-1` / `fw-d-1` 等）に統一する（正本: `configs/llm_model_codes.yaml`）。
   - 入口固定: `./scripts/with_ytm_env.sh --llm-slot 2 python3 ...`（または `./scripts/with_ytm_env.sh 2 python3 ...`）
-  - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗時は非`script_*`はTHINKへ）
+  - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗したら **停止して報告**。勝手にルート変更しない）
   - 注:
-    - `script_*` は THINK フォールバックしない（API停止時は即停止・記録）
     - `script_*` は **既定は Fireworks 固定**（`script-main-1` / DeepSeek v3.2 exp + thinking）。pin は `configs/llm_task_overrides.yaml` が正（slotは未pinのtask/tierのみ）
 - 実行モード選択は **exec slot** で行う（env直書きの増殖を防ぐ）。
-  - `LLM_EXEC_SLOT`（default: `0`）: `configs/llm_exec_slots.yaml` の `slots` から選ぶ
+  - `LLM_EXEC_SLOT`（default: `3` / THINK）: `configs/llm_exec_slots.yaml` の `slots` から選ぶ
   - 例:
     - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`（THINK MODE: pendingを作る）
     - `./scripts/with_ytm_env.sh --exec-slot 1 python3 ...`（codex exec を強制ON）
     - `./scripts/with_ytm_env.sh x3 2 python3 ...`（shorthand: `xN`=exec slot, `N`=model slot）
   - 優先順位（互換/緊急用）:
-    - `YTM_ROUTING_LOCKDOWN=0` または `YTM_EMERGENCY_OVERRIDE=1` のときだけ、明示の env（`LLM_MODE` / `YTM_CODEX_EXEC_*` / `LLM_API_FAILOVER_TO_THINK` 等）が勝つ
+    - `YTM_EMERGENCY_OVERRIDE=1` のときだけ、明示の env（`LLM_MODE` / `YTM_CODEX_EXEC_*` 等）が勝つ（`YTM_ROUTING_LOCKDOWN=0` は通常運用で使わない）
     - 通常運用（lockdown ON）では、これらの env は **検出した時点で停止**（ブレ防止）。slot を使う
     - slot は「安全なデフォルト」として適用される
 - **運用ロック（ブレ防止）**: `YTM_ROUTING_LOCKDOWN=1`（default: ON）
@@ -119,7 +118,7 @@
   - ON のとき、次の “非スロット上書き” は **検出した時点で停止**（事故防止）:
     - モデル系: `LLM_FORCE_MODELS` / `LLM_FORCE_MODEL`（※数字だけならslot互換として許可） / `LLM_FORCE_TASK_MODELS_JSON`
     - オプション系: `LLM_FORCE_TASK_OPTIONS_JSON`（温度など; 緊急デバッグ専用）
-    - 実行系: `LLM_MODE` / `LLM_API_FAILOVER_TO_THINK` / `LLM_API_FALLBACK_TO_THINK` / `YTM_CODEX_EXEC_*`
+    - 実行系: `LLM_MODE` / `YTM_CODEX_EXEC_*`
     - 隠し切替（禁止）: `YTM_SCRIPT_ALLOW_OPENROUTER` / `LLM_ENABLE_TIER_CANDIDATES_OVERRIDE`
   - SSOT保護: `configs/llm_task_overrides.yaml` は運用中に書き換えない（モデル名の書き換え事故防止）
     - ロックダウンONでは「未コミット差分がある」だけで停止する（`scripts/with_ytm_env.sh` / 主要entrypointで検知）
@@ -136,10 +135,10 @@
     - サムネ: `workspaces/thumbnails/templates.json` の `templates[].image_model_key`
     - incident/debug（その実行だけ）: `IMAGE_CLIENT_FORCE_MODEL_KEY_<TASK>=f-1`（例: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1`）
       - 注意: `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY*` を恒久セットする運用は禁止（ロックダウンONで停止）。「その実行だけ」prefixで明示する。
-  - **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`, `openrouter_gemini_3_pro_image_preview`）。
-    - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
-  - **許可（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は Gemini 3 系を使っても良い（必要時のみ明示して使う）。
-    - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ...`
+      - 例外（固定）: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN`（サムネ）は **固定ルールで禁止**（debugのみ: `YTM_EMERGENCY_OVERRIDE=1`）。
+- **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`, `openrouter_gemini_3_pro_image_preview`）。
+  - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
+- **固定（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は **Gemini 2.5 Flash Image（g-1）固定**。`IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` による上書きは運用では使わない（ロックダウンで停止 / debugのみ `YTM_EMERGENCY_OVERRIDE=1`）。
   - 省略可: `IMAGE_CLIENT_MODEL_SLOTS_PATH` で slot 定義ファイルを差し替えできる（検証/一時切替用途）
 
 ## 主な必須キー（抜粋）
@@ -171,7 +170,7 @@
       - `FIREWORKS_BUDGET_MAX_CALLS_TOTAL` / `FIREWORKS_BUDGET_MAX_TOKENS_TOTAL`: プロセス全体の上限
       - いずれかを設定すると、上限到達後は Fireworks を **停止**（他プロバイダへ自動フォールバックしない）
     - 動作: まず `FIREWORKS_SCRIPT` を使い、Fireworks が `401/402/403/412` 等で失敗したら **同一プロバイダ内で** 次キーへ切替して再試行する。
-      - それでも全滅した場合は停止（`script_*` は THINK フォールバックしない。runbookに従って復旧）。
+      - それでも全滅した場合は停止（自動で別ルートへ切替しない。runbookに従って復旧）。
   - 並列運用（固定）: **同一キーの同時利用は禁止**（エージェント間排他）
     - lease dir: `~/.ytm/secrets/fireworks_key_leases/`（override: `FIREWORKS_KEYS_LEASE_DIR`）
     - TTL: `FIREWORKS_SCRIPT_KEY_LEASE_TTL_SEC` / `FIREWORKS_IMAGE_KEY_LEASE_TTL_SEC`（default: `1800`）
@@ -195,7 +194,8 @@
   - 例: `python3 scripts/ops/llm_usage_report.py --channel CH10 --video 010 --task-prefix script_`
 - TTS（省略可）: `YTM_TTS_KEEP_CHUNKS=1` をセットすると、TTS成功後も `workspaces/audio/final/**/chunks/` を残す（デフォルトは削除）。
 - TTS（運用）:
-  - `SKIP_TTS_READING=1`（default: 0）: 読みLLM経路を完全にスキップし、辞書/override + 手動監査で運用する。
+  - `SKIP_TTS_READING=1`（default: 1 / 読みLLM無効）: 読みLLM（auditor）経路を完全にスキップし、辞書/override + **対話型AIエージェント（THINK）の推論**で運用する（オーナーのレビューは必須ではない）。
+  - `SKIP_TTS_READING=0` は **禁止**（`YTM_ROUTING_LOCKDOWN=1` では使わない）。必要な場合のみ `YTM_EMERGENCY_OVERRIDE=1` を明示してから。
   - 誤読防止（常時ON）: VOICEVOX実読と期待読みが1件でもズレたら停止し、`workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json` を出力する（誤読混入を禁止）。
 
 ## 書庫/退避（容量対策）
@@ -278,7 +278,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - `workspaces/scripts/{CH}/{NNN}/content/analysis/master_plan.json`
 
 有効化（デフォルトOFF）:
-- `SCRIPT_MASTER_PLAN_LLM`（default: `0`）: `1` で LLM による設計図サマリ生成を試す（失敗しても自動で決定論に戻して続行）。
+- `SCRIPT_MASTER_PLAN_LLM`（default: `0`）: `1` で LLM による設計図サマリ生成を試す。**`YTM_ROUTING_LOCKDOWN=1` では禁止**（事故防止）。例外は `YTM_EMERGENCY_OVERRIDE=1` を明示した実行のみ。
 - `SCRIPT_MASTER_PLAN_LLM_TASK`（default: 空）: 使う task key（`configs/llm_router.yaml: tasks`）。例: `script_master_plan_opus`（Opus専用に作る）。
 - `SCRIPT_MASTER_PLAN_LLM_CHANNELS`（default: 空）: 実行を許可するチャンネルの allowlist（例: `CH10`）。`all` または `*` で全チャンネル（注意: コスト暴走リスクが上がるため通常運用では使わない）。
 
@@ -381,12 +381,11 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - Codex管理シェル（`CODEX_MANAGED_BY_NPM=1`）では、`configs/codex_exec.yaml:auto_enable_when_codex_managed=true` のとき **自動で有効**になる（未設定時の既定挙動）。
 - **境界（固定）**: Aテキスト本文（`chapters/*.md` / `assembled*.md`）を書き換える可能性がある task は **Codex exec に回さない**。
   - 対象（例）: `script_chapter_draft`, `script_cta`, `script_format`, `script_chapter_review`, `script_a_text_*`, `script_semantic_alignment_fix`
-  - 理由: Codex の言い回しが本文へ混入する事故を構造的に防ぐ（本文は常に LLM API 側で統一）
+  - 理由: codex exec は非対話CLIで混線しやすいため。**台本本文は対話型AIエージェントが（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`。/ 明示API）で仕上げる**。
   - SoT: `configs/codex_exec.yaml: selection.exclude_tasks`
-- 固定: `script_*` は Codex exec 対象外（台本文体/モデル混入防止）。台本は LLM API（Fireworks）固定。
-- 固定（用語）: 「Codex（AIエージェント）」と「codex exec（非対話CLI）」は別物。TTSは前者（pending運用）に寄せる。
-- 既定（tracked）: `tts_*` は Codex exec 対象外。TTS（`voicevox_kana`）は **AIエージェント（Codex）主担当**として pending を解決する。
-  - 入口固定: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
+- 固定: `script_*` は Codex exec 対象外（台本のルート混線防止）。
+- 固定（用語）: 「Codex（AIエージェント）」と「codex exec（非対話CLI）」は別物。
+- TTS（運用）は **推論=対話型AIエージェント / 読みLLM無効**（辞書/override + `--prepass` mismatch=0 の決定論ガード）。`SKIP_TTS_READING=1` が既定/必須（`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止）。
 - Codex exec の対象は `configs/codex_exec.yaml: selection.include_task_prefixes` に一致する **非台本** task のみ（例: `visual_*`）。
 - 例外（固定）: `image_generation`, `web_search_openrouter` は Codex exec 対象外（既定でも除外）。
   - 詳細SSOT: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`（2.4）
@@ -440,8 +439,8 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - CLIでの上書き: `python scripts/agent_runner.py --agent-name Mike claim <TASK_ID>`
 
 ### 対象タスクの絞り込み（省略可）
-- `LLM_AGENT_TASKS`（省略可）: 例 `tts_reading,visual_image_cues_plan`（完全一致 allowlist）
-- `LLM_AGENT_TASK_PREFIXES`（省略可）: 例 `tts_,visual_,title_,belt_`（prefix allowlist）
+- `LLM_AGENT_TASKS`（省略可）: 例 `script_outline,visual_image_cues_plan`（完全一致 allowlist）
+- `LLM_AGENT_TASK_PREFIXES`（省略可）: 例 `script_,visual_,title_,belt_`（prefix allowlist）
 - `LLM_AGENT_EXCLUDE_TASKS`（省略可）: 例 `image_generation`（完全一致 blocklist）
 - `LLM_AGENT_EXCLUDE_PREFIXES`（省略可）: 例 `visual_`（prefix blocklist）
 
@@ -451,7 +450,7 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 ### 実行例
 - THINK MODE（一発）:
   - `./scripts/think.sh --all-text -- <command> [args...]`
-  - 注: `script_*`（台本）は THINK/AGENT の対象外。台本は `LLM_EXEC_SLOT=0`（API）で実行する。
+  - 注: THINK は「pending を作って止める」ための運用。台本も含め、対話型AIエージェントが埋めて進める。
 - agent-mode（手動）:
   - `export LLM_EXEC_SLOT=4`
   - `export LLM_AGENT_TASK_PREFIXES=visual_`
@@ -480,13 +479,9 @@ Runbook/キュー運用の正本: `ssot/plans/PLAN_AGENT_MODE_RUNBOOK_SYSTEM.md`
 - `YTM_BROLL_MAX_W`（default: `1280`）, `YTM_BROLL_MAX_H`（default: `720`）: 候補選定で **過大解像度（例: 1080p/4K）を避ける**ための上限
 - `YTM_BROLL_MIN_BYTES`（default: `50000`）: 壊れた/空のmp4をキャッシュヒット扱いしないための最小サイズ
 
-## 重要ルール: 非`script_*` は API LLM が死んだら THINK MODE で続行（`script_*` は例外）
-- デフォルト: **有効**（未設定でもON）
-- 無効化（**デバッグ専用**）: `LLM_EXEC_SLOT=5`（api_failover_off。非scriptのみ。`script_*` は例外で停止）
-  - **ロックダウン中（`YTM_ROUTING_LOCKDOWN=1`）は非`script_*` の failover は必ずON**（絶対ルール / OFFにできない）
-  - OFF にする必要があるのは緊急デバッグ時のみ（`YTM_EMERGENCY_OVERRIDE=1` の上で使う）
-- 互換/緊急: `LLM_API_FAILOVER_TO_THINK=0`（通常運用のロックダウンONでは停止。使うなら `YTM_EMERGENCY_OVERRIDE=1`）
-- `LLM_FAILOVER_MEMO_DISABLE=1`（オプション）: フォールバック時の全体向け memo 自動作成を無効化
+## 重要ルール: API→THINK の自動フォールバックは禁止
+- 方針: API ルートが失敗したら **停止して報告**する（勝手に THINK/pending へ切り替えない）。
+- 備考: THINK は **最初から明示して選ぶ**（`./ops think ...` など）。失敗時の“自動切替”には使わない。
 
 ### 失敗時に見る場所
 - pending: `workspaces/logs/agent_tasks/pending/*.json`（または `LLM_AGENT_QUEUE_DIR`）

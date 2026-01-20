@@ -203,7 +203,7 @@ UI/CLI は “同じ関数” を呼ぶ。
 - safe area / テキストfitルール（layer_specs側に集約）
 
 ### 5.8 検証（lint/validate）の入口を固定
-チャンネル増に伴う“設定ミス”を、人間レビュー前に機械で止める。
+チャンネル増に伴う“設定ミス”を、対話型AIエージェントの最終判断前に機械で止める。
 
 最低限チェックすること:
 - templates.json の参照整合（default_template_id / layer_specs ids / registry）

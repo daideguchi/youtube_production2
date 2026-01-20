@@ -137,6 +137,84 @@ patterns:
           content_notes: "励ましの言い換え連打は禁止。持ち帰り行動は1つだけ。最後は完結させる。"
 
   # -------------------------
+  # CH28/CH29（シニア体験談・ストーリー）
+  # -------------------------
+  - id: ch28_senior_community_wear_drama_v1
+    channels: ["CH28"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "関係を壊さずに、心を守る距離を作る。"
+      modern_example_policy:
+        # 物語チャンネルの「登場人物」は必須。誤検知で落ちないよう上限は緩めにする。
+        max_examples: 2
+        example_1_hint: "主人公（私）＋相手1名。モブは背景化して増やさない。"
+      sections:
+        - name: 導入（結末の一場面）
+          char_budget: 800
+          goal: 結末ワンカットを先に見せ、理由回収へ引き込む
+          content_notes: "挨拶/自己紹介は入れない。結末は言い切らず、違和感で掴む。"
+        - name: 背景（長期×一瞬）
+          char_budget: 950
+          goal: 昔は良かった記憶＋今の差で落差を作る
+          content_notes: "年数/年齢/季節/距離感を早めに入れる。説明過多にしない。"
+        - name: 棘の積み上げ①
+          char_budget: 1350
+          goal: 小さな棘を複数回で共感を積む
+          content_notes: "ランチ会/旅行/サークル/近所づきあい。生活音/手元/距離感で現実味。"
+        - name: 棘の積み上げ②
+          char_budget: 1350
+          goal: 内面→外界→内面の往復で摩耗を現実として見せる
+          content_notes: "セリフで水増ししない。反撃は短く、静かに線を引く。"
+        - name: 決定打
+          char_budget: 1100
+          goal: 戻れない一言/場面で破局を必然にする
+          content_notes: "スカッと勝利ではなく、静かな終わりとして描く。"
+        - name: 再定義と余韻
+          char_budget: 1200
+          goal: 見方を1つだけ言語化し、行動1つ＋象徴アイテムで静かに着地
+          content_notes: "励ましの言い換え連打は禁止。持ち帰り行動は1つだけ。最後は完結。"
+
+  - id: ch29_family_guilt_boundary_drama_v1
+    channels: ["CH29"]
+    triggers:
+      any: []
+      all: []
+      none: []
+    plan:
+      core_message_template: "罪悪感を増やさずに、線を引く距離を持つ。"
+      modern_example_policy:
+        max_examples: 2
+        example_1_hint: "主人公（私）＋子ども世代の相手1名。孫/配偶者は背景の1行に留める。"
+      sections:
+        - name: 導入（結末の一場面）
+          char_budget: 850
+          goal: 結末ワンカットを先に見せ、理由回収へ引き込む
+          content_notes: "挨拶/自己紹介は入れない。スマホ/LINE/封筒など象徴を置く。"
+        - name: 背景（長期×一瞬）
+          char_budget: 950
+          goal: 昔は良かった記憶＋今の差（距離/役割/期待）を短く置く
+          content_notes: "年数/年齢/生活の変化を早めに。相手を悪役化しない。"
+        - name: 棘の積み上げ①
+          char_budget: 1400
+          goal: 小さな棘を複数回で積み上げる
+          content_notes: "頼まれごと/急かすLINE/当たり前の期待/感謝の欠如/比較。"
+        - name: 棘の積み上げ②
+          char_budget: 1400
+          goal: 内面→外界→内面の往復で罪悪感を見せる
+          content_notes: "セリフは短く。主人公の反撃は長くしない（静かに線を引く）。"
+        - name: 決定打
+          char_budget: 1150
+          goal: 戻れない一言/場面で破局が必然になる
+          content_notes: "家庭崩壊煽りにしない。『戻れなさ』を事実として描く。"
+        - name: 再定義と余韻
+          char_budget: 1200
+          goal: 見方を1つだけ言語化し、具体的な一手1つで静かに着地
+          content_notes: "行動は小さく。相手を裁かず、自分を守る距離に落とす。"
+
+  # -------------------------
   # CH01（人生の道標）
   # -------------------------
   - id: ch01_historical_proof_bridge_v1

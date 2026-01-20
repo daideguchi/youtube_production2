@@ -12,6 +12,9 @@ if [[ -x "$VENV_DIR/bin/python3" || -x "$VENV_DIR/bin/python" ]]; then
   export PATH="$VENV_DIR/bin:$PATH"
 fi
 
+# Repo command shims (policy guards).
+export PATH="$ROOT_DIR/scripts/bin:$PATH"
+
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "❌ .env not found at $ENV_FILE" >&2
   exit 1
@@ -29,12 +32,18 @@ set +a
 export YTM_WEB_SEARCH_PROVIDER
 
 # Routing lockdown (default: ON) to prevent ad-hoc overrides that cause drift across agents.
-# - Set YTM_ROUTING_LOCKDOWN=0 to temporarily restore legacy behavior.
-# - Set YTM_EMERGENCY_OVERRIDE=1 for one-off debugging (not for normal ops).
+# - YTM_ROUTING_LOCKDOWN=0 は通常運用では禁止（迷子/逸脱の温床）。必要なら必ず `YTM_EMERGENCY_OVERRIDE=1` を明示する。
+# - YTM_EMERGENCY_OVERRIDE=1 は one-off debugging 専用（通常運用では使わない）。
 : "${YTM_ROUTING_LOCKDOWN:=1}"
 : "${YTM_EMERGENCY_OVERRIDE:=0}"
 export YTM_ROUTING_LOCKDOWN
 export YTM_EMERGENCY_OVERRIDE
+
+if [[ "${YTM_ROUTING_LOCKDOWN}" == "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]]; then
+  echo "❌ [POLICY] Forbidden: YTM_ROUTING_LOCKDOWN=0 in normal ops." >&2
+  echo "    必要なら one-off で YTM_EMERGENCY_OVERRIDE=1 を明示してください（通常運用では使わない）。" >&2
+  exit 3
+fi
 
 # Fireworks(text) is used for script writing by default.
 # Incident stopgap:
@@ -46,7 +55,7 @@ export YTM_DISABLE_FIREWORKS_TEXT
 #
 # - LLM model slot (what model code each tier uses):
 #     LLM_MODEL_SLOT   (configs/llm_model_slots.yaml)
-# - LLM exec slot (where/how it runs: api/codex exec/think/agent/failover):
+# - LLM exec slot (where/how it runs: api/codex exec/think/agent):
 #     LLM_EXEC_SLOT    (configs/llm_exec_slots.yaml)
 #
 # Examples:
@@ -115,7 +124,36 @@ while [[ $# -ge 1 ]]; do
       break
       ;;
   esac
-done
+	done
+
+# Policy: forbid qwen model/provider overrides (even for absolute-path qwen).
+if [[ $# -ge 1 ]]; then
+  _cmd0="$1"
+  _base="$(basename "$_cmd0")"
+  if [[ "${_base}" == "qwen" ]]; then
+    # Force use of repo shim (qwen-oauth only); do not bypass via absolute path.
+    _qwen_shim="$ROOT_DIR/scripts/bin/qwen"
+    if [[ "${_cmd0}" == /* && "${_cmd0}" != "${_qwen_shim}" ]]; then
+      echo "❌ [POLICY] Forbidden: calling non-shim qwen binary in this repo: ${_cmd0}" >&2
+      echo "    Use the repo shim (qwen-oauth only): ${_qwen_shim}" >&2
+      exit 3
+    fi
+    for _a in "$@"; do
+      case "${_a}" in
+        --auth-type|--auth-type=* )
+          echo "❌ [POLICY] qwen auth-type switching flags are forbidden in this repo: ${_a}" >&2
+          echo "    qwen is qwen-oauth only. Use Claude via \`claude\` CLI (subscription), not qwen." >&2
+          exit 3
+          ;;
+        --model|-m|--model=*|-m*)
+          echo "❌ [POLICY] qwen model/provider override flags are forbidden in this repo: ${_a}" >&2
+          echo "    Use plain qwen -p (no --model/-m)." >&2
+          exit 3
+          ;;
+      esac
+    done
+  fi
+fi
 
 # Hard-stop on forbidden overrides (drift prevention).
 if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]]; then
@@ -129,7 +167,7 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
     echo "      - text LLM: LLM_MODEL_SLOT (configs/llm_model_slots.yaml)" >&2
     echo "      - video images: packages/video_pipeline/config/channel_presets.json" >&2
     echo "      - thumbnails: workspaces/thumbnails/templates.json" >&2
-    echo "      - one-off thumbnail override: IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview ..." >&2
+    echo "      - thumbnails: fixed policy (no IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN override)" >&2
     echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
     exit 3
   fi
@@ -142,6 +180,21 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
       echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
       exit 3
     fi
+    if ! git -C "$ROOT_DIR" diff --quiet -- "configs/llm_router.yaml" 2>/dev/null; then
+      echo "❌ [LOCKDOWN] Uncommitted changes detected: configs/llm_router.yaml" >&2
+      echo "    モデルルーティング正本の書き換えは禁止です。slot/code 運用に戻し、revert してください。" >&2
+      echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+      exit 3
+    fi
+  fi
+  # Hard-stop: local model slot overlays are a major drift source during parallel ops.
+  # Use tracked slots/codes (configs/llm_model_slots.yaml + configs/llm_model_codes.yaml) instead.
+  if [[ -f "$ROOT_DIR/configs/llm_model_slots.local.yaml" ]]; then
+    echo "❌ [LOCKDOWN] Forbidden local routing overlay detected: configs/llm_model_slots.local.yaml" >&2
+    echo "    並列運用中のモデル切替は slot/code で統一します（local slots overlay は禁止）。" >&2
+    echo "    対処: ファイルを削除/退避して再実行してください。" >&2
+    echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+    exit 3
   fi
   # Hard-ban: azure_gpt5_mini must never be selected via task overrides (fallbackでも不可).
   if [[ -f "$ROOT_DIR/configs/llm_task_overrides.yaml" ]]; then
@@ -155,8 +208,16 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
     echo "❌ [LOCKDOWN] LLM_MODE is forbidden. Use LLM_EXEC_SLOT / --exec-slot instead." >&2
     exit 3
   fi
+  if [[ -n "${ENGINE_DEFAULT_OVERRIDE:-}" ]]; then
+    echo "❌ [LOCKDOWN] ENGINE_DEFAULT_OVERRIDE is forbidden. Engine must be SSOT-driven (auto-decided)." >&2
+    echo "    SoT:" >&2
+    echo "      - packages/script_pipeline/audio/channels/<CH>/voice_config.json" >&2
+    echo "      - packages/audio_tts/configs/routing.json (script_override/channel_override/engine_default)" >&2
+    echo "    emergency: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+    exit 3
+  fi
   if [[ -n "${LLM_API_FAILOVER_TO_THINK:-}" || -n "${LLM_API_FALLBACK_TO_THINK:-}" ]]; then
-    echo "❌ [LOCKDOWN] LLM_API_FAILOVER_TO_THINK is forbidden. Use LLM_EXEC_SLOT (e.g. slot 5 = failover OFF)." >&2
+    echo "❌ [LOCKDOWN] LLM_API_FAILOVER_TO_THINK/LLM_API_FALLBACK_TO_THINK is forbidden. Auto failover is forbidden; choose THINK upfront (LLM_EXEC_SLOT=3) or explicit API (LLM_EXEC_SLOT=0)." >&2
     exit 3
   fi
   FORCE_ALL="${LLM_FORCE_MODELS:-${LLM_FORCE_MODEL:-}}"
@@ -200,11 +261,11 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
     echo "      - thumbnails:   workspaces/thumbnails/templates.json" >&2
     echo "    one-off (per-run):" >&2
     echo "      - IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=f-1 ./ops video ..." >&2
-    echo "      - IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=f-4 ./ops thumbnails ..." >&2
+    echo "      - thumbnails: NO override (fixed policy; use templates.json)" >&2
     exit 3
   fi
-  # Policy: Gemini 3 image models are forbidden for *video images* (visual_image_gen),
-  # but allowed for thumbnails (thumbnail_image_gen).
+  # Policy: Gemini 3 image models are forbidden for *video images* (visual_image_gen).
+  # Thumbnails (thumbnail_image_gen) are fixed-policy and must not be overridden via env.
   for v in IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION IMAGE_CLIENT_FORCE_MODEL_KEY; do
     _val="${!v:-}"
     if [[ -z "${_val}" ]]; then
@@ -214,19 +275,32 @@ if [[ "${YTM_ROUTING_LOCKDOWN}" != "0" && "${YTM_EMERGENCY_OVERRIDE}" == "0" ]];
       *gemini-3*|*gemini_3* )
         echo "❌ [LOCKDOWN] Forbidden image model override detected: ${v}=${_val}" >&2
         echo "    動画内画像（visual_image_gen）での Gemini 3 系は使用禁止です。img-gemini-flash-1（=g-1）等の許可モデルを使ってください。" >&2
-        echo "    ※サムネ（thumbnail_image_gen）で Gemini 3 を使う場合は IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN を使う（global/visual には入れない）。" >&2
+        echo "    ※サムネ（thumbnail_image_gen）は固定運用（Gemini 2.5 Flash Image / g-1）。override は使いません。" >&2
         echo "    debug only: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
         exit 3
         ;;
     esac
   done
+  # Hard-stop: thumbnail override is forbidden under lockdown (drift/quality/cost prevention).
+  if [[ -n "${IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN:-}" ]]; then
+    echo "❌ [LOCKDOWN] Forbidden thumbnail override detected: IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=${IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN}" >&2
+    echo "    サムネ（thumbnail_image_gen）は固定運用（Gemini 2.5 Flash Image / g-1）。override は使いません。" >&2
+    echo "    debug only: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+    exit 3
+  fi
   # Also forbid passing the override via `env FOO=... command` style args.
   for _arg in "$@"; do
     case "${_arg}" in
       IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=*gemini-3*|IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=*gemini_3*|IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION=*gemini-3*|IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION=*gemini_3*|IMAGE_CLIENT_FORCE_MODEL_KEY=*gemini-3*|IMAGE_CLIENT_FORCE_MODEL_KEY=*gemini_3* )
         echo "❌ [LOCKDOWN] Forbidden image model override detected in command args: ${_arg}" >&2
         echo "    動画内画像（visual_image_gen）での Gemini 3 系は使用禁止です。img-gemini-flash-1（=g-1）等の許可モデルを使ってください。" >&2
-        echo "    ※サムネ（thumbnail_image_gen）で Gemini 3 を使う場合は IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN を使う（global/visual には入れない）。" >&2
+        echo "    ※サムネ（thumbnail_image_gen）は固定運用（Gemini 2.5 Flash Image / g-1）。override は使いません。" >&2
+        echo "    debug only: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
+        exit 3
+        ;;
+      IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=* )
+        echo "❌ [LOCKDOWN] Forbidden thumbnail override detected in command args: ${_arg}" >&2
+        echo "    サムネ（thumbnail_image_gen）は固定運用（Gemini 2.5 Flash Image / g-1）。override は使いません。" >&2
         echo "    debug only: YTM_EMERGENCY_OVERRIDE=1（この実行だけ例外。通常運用では使わない）" >&2
         exit 3
         ;;

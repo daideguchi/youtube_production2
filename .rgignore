@@ -14,3 +14,6 @@ ssot/completed/**
 
 # Cleanup execution log is a long-running audit trail; usually noise for code searches.
 ssot/ops/OPS_CLEANUP_EXECUTION_LOG.md
+
+# Temp snapshots (e.g. CI smoke copies) can contain stale SSOT copies.
+workspaces/_tmp/**

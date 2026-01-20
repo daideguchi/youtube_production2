@@ -118,7 +118,8 @@ Web検索 provider（実装側: env）:
   - `disabled`: 検索しない（空の `search_results.json` を書く）
   - `brave`: Brave Search API（`BRAVE_SEARCH_API_KEY` が必要）
   - `openrouter`: LLMRouter task `web_search_openrouter`（OpenRouter経由）
-    - 重要: OpenRouter残高不足等で失敗すると、設定によっては agent_tasks に pending を作って停止する（SSOT: `RUNBOOK_THINK_MODE_OPERATOR` 参照）
+    - 重要: OpenRouter残高不足等で失敗したら **停止して報告**する（API→THINK の自動フォールバックは禁止）。
+      - 外部APIを叩かずに進めたい場合は、最初から `YTM_WEB_SEARCH_PROVIDER=agent` を明示する（pending運用）。
   - `agent`: **外部APIを叩かず** agent_tasks に pending を作って停止する（OpenRouter検索を止めている期間のデフォルト運用）
     - runbook: `ssot/agent_runbooks/RUNBOOK_WEB_SEARCH.md`
   - `auto`: `brave` キーがあれば brave → なければ openrouter → どちらもなければ disabled
@@ -244,7 +245,8 @@ flowchart LR
 - 自動検出: `packages/script_pipeline/validator.py` は **行全体が** `姓名、年齢(歳/才)。` の形（例: `田村幸子、六十七歳。`）を `ch01_fictional_person_intro` としてエラー扱いにする。  
   - `ブッダが29歳のとき…` のような **文中の年齢言及**は対象外（通常の日本語の文として書く）。
 - 台本パイプライン（`script_*`）は **Codex exec を使わない**（本文/非本文を問わず）。`configs/codex_exec.yaml` で `script_*` を除外し、文体ドリフトを防ぐ。
-  - 注: `LLM_EXEC_SLOT=3/4`（THINK/AGENT）では `script_*` は停止する（台本は `--exec-slot 0` で実行）。
+  - 注: 台本は **THINK がデフォルト**（pending）。本文生成は対話型AIエージェントが **Claude CLI（sonnet 4.5 既定。リミット時は Gemini 3 Flash Preview → `qwen -p`）/ 明示API** で仕上げる。
+  - 追記: `qwen -p` は **model/provider 指定禁止**（`--model` / `--qwen-model`）。勝手に別プロバイダへ逃げない。
 
 ルール:
 - 補助がタイトルと食い違っている/内容汚染が疑われる場合は、**タイトルを正として補助を無視**する（ズレ事故を安く止める）。
@@ -284,7 +286,7 @@ flowchart LR
 ### 2.1.1 緊急（Fireworks/OpenRouterが使えない）: Gemini Batchで台本本文だけ生成
 前提:
 - **サイレントfallbackは禁止**（正本: `ssot/DECISIONS.md` の `D-002`）。
-- `script_*` を Codex exec / THINK / AGENT に流して「とりあえず完了」はしない（品質ドリフト防止）。
+- **自動切替は禁止**（APIが死んだら別ルートへ逃げない）。Gemini Batch は **明示して選ぶ**台本生成ルート。
 
 運用（固定導線）:
 1) 下準備（プロンプト作成）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_script_prompts.py build --channel CHxx --videos NNN-NNN`
@@ -296,16 +298,19 @@ flowchart LR
 3) 完了待ち → Batch fetch: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
 4) 復旧後: `script_validation` を再実行して品質ゲートを通す（LLM品質/意味整合/ファクトチェック）
 
-### 2.1.2 手動（明示）: Gemini CLIで本文を書く（SoT=assembled_human.md）
+### 2.1.2 明示（対話型AI）: CLIで本文を書く（SoT=assembled_human.md）
 前提:
-- これは `script_pipeline` の自動生成ではなく、「人間が本文（Aテキスト）を用意する」導線。
-- **サイレントfallbackは禁止**。必要時のみ明示コマンドで使う（Batchの代替/補助）。
+- これは `script_pipeline` の自動生成ではなく、**対話型AIエージェントが本文（Aテキスト）を用意する**導線。
+- **サイレントfallbackは禁止**（失敗したら停止して報告）。フォールバックは **明示ルート**で行う。
 
 入口（固定）:
-- `./ops gemini script --channel CHxx --video NNN --run`（デフォルトはdry-run）
+- 既定（Claude CLI）: `./ops claude script -- --channel CHxx --video NNN --run`
+- フォールバック（Gemini CLI）: `./ops gemini script -- --channel CHxx --video NNN --run --gemini-model gemini-3-flash-preview`
+- 最終フォールバック（qwen）: `./ops qwen script -- --channel CHxx --video NNN --run`
 
 I/O（固定）:
 - 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別）
+- 追記（自動）: Blueprint bundle（`workspaces/scripts/{CH}/{NNN}/content/outline.md` / `content/analysis/research/*` / `content/analysis/master_plan.json`）。**未完/placeholder なら Writer は停止**（例外は `YTM_EMERGENCY_OVERRIDE=1` の明示実行のみ）。
 - 出力（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（`assembled.md` は mirror 扱い）
 
 次にやること（必須）:
@@ -365,6 +370,7 @@ I/O（固定）:
 
 安全弁（コスト暴走防止）:
 - **デフォルトOFF**
+- **`YTM_ROUTING_LOCKDOWN=1` では禁止**（事故防止）。必要な場合のみ `YTM_EMERGENCY_OVERRIDE=1` を明示してから。
 - **1エピソード1回だけ**（失敗しても再試行しない）
 - **allowlist必須**（`SCRIPT_MASTER_PLAN_LLM_CHANNELS` 未指定なら実行しない）
 - task の tier は **1モデルのみ**（複数モデル候補/強制チェーン指定がある場合は自動スキップ）
@@ -423,7 +429,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
 補足（内部/詳細制御）:
 - `./scripts/with_ytm_env.sh python3 -m script_pipeline.cli reset --channel CHxx --video NNN --wipe-research`
 
-### 4.2 人間が本文（assembled_human）を直した
+### 4.2 対話型AIエージェントが本文（assembled_human）を直した
 固定ルール:
 - 以降（音声/動画）は必ず再生成。
 - まず `script_validation` を再実行して品質を担保してから音声へ進む。
@@ -481,7 +487,7 @@ Redo は「何を正本として残すか」を固定しないと、参照が内
   - **途中で止まっても無駄撃ちしない（コスト最重要）**:
     - 同一入力（=同一 fingerprint）で前回 `fail` だった場合でも、Fixer の出力（`content/analysis/quality_gate/fix_latest.md`）が残っていれば、次回 `script_validation` は **そこを起点に再開**して収束を試みる（同じJudge→Fixを最初から繰り返さない）。
     - 例外: SSOT/プロンプト更新で fingerprint が変わった場合は、古い fix を起点にしない（ルールが変わったため）。
-  - それでもNGなら pending で止め、人間が `assembled_human.md` を直す
+  - それでもNGなら pending で止め、**対話型AIエージェント**が `assembled_human.md` を直す。エスカレーション条件: チャンネル方針/リスク判断が絡むときはオーナーへ相談
   - コストを優先して短く止めたい場合は `SCRIPT_VALIDATION_LLM_MAX_ROUNDS=2` に下げる
   - 最終磨き込み（重要）: Judge/Fix で合格した本文に対し、**最大1回** “全体ポリッシュ（全文の自然化）” を実行してトーン統一・反復抑制を行う（`SCRIPT_VALIDATION_FINAL_POLISH=auto|0|1`）。
     - 既定: 台本本文を生成する `script_*` は Codex exec では実行しない（品質安定のため）。最終磨き込みは通常どおり `auto` 判定で実行する。

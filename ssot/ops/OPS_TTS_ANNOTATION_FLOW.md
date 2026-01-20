@@ -27,7 +27,7 @@
 ## 辞書の箱（これ以上増やさない）
 上ほど安全/下ほど最終手段（後勝ち・強い）。
 
-1) **グローバル確定語**（全CH共通・昇格レビュー必須）  
+1) **グローバル確定語**（全CH共通・昇格は対話型AIエージェントが判定して確定。自動昇格は禁止）  
    - SoT: `packages/audio_tts/data/global_knowledge_base.json`
    - engine同期（入口固定）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
 2) **チャンネル確定語**（そのCHでのみ一意）  
@@ -52,20 +52,40 @@
    - `SKIP_TTS_READING=1 PYTHONPATH=".:packages" python3 packages/audio_tts/scripts/run_tts.py --channel CHxx --video NNN --input workspaces/scripts/CHxx/NNN/content/assembled_human.md --prepass`（無い場合は `assembled.md`）
    - mismatch が出た場合も `audio_prep/log.json` は残す（候補抽出/原因調査用）。最終的に mismatch=0 になるまで修正してから合成へ。
 4) mismatch が0になったら合成（wav/srt）へ進む
-5) 公式辞書へ反映したい語は「確定語だけ」人間レビュー→昇格→sync
+5) 公式辞書へ反映したい語は「確定語だけ」**対話型AIエージェントが判定して昇格**→sync
+   - VOICEVOX 深掘り手順（Reference）: `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md`
 
 ### VOICEPEAK（自動で誤読確定できない）
-- VOICEPEAK は `audio_query.kana` が無いので、VOICEVOXのように「誤読確定」ができない。
-- 方針:
-  - 確定語は repo の辞書 SoT に集約し、起動時に **add-only sync** で配布先へ反映する（手動運用をやめる）。
-  - 読みの最終確認はサンプル再生（pending運用）。
+- VOICEPEAK は `audio_query.kana` が無いので、VOICEVOXのように **mismatch=0（誤読ゼロ）を機械的に証明できない**。
+- そのため、運用上の「合格」は **(1) Bを安全形へ寄せる（決定論） + (2) サンプル再生で確認（実行者が `afplay` を実行し、結果をテキストで記録。判定/次アクションは対話型AIエージェント）** の2本立てで固定する。
+
+手順（VOICEPEAK）:
+1) prepass（B確定のみ。wavは作らない）
+   - `./ops audio -- --channel CHxx --video NNN --prepass`
+   - 生成物:
+     - `workspaces/scripts/{CH}/{NNN}/audio_prep/script_sanitized.txt`（B）
+     - `workspaces/scripts/{CH}/{NNN}/audio_prep/log.json`（`engine=voicepeak` を確認）
+2) 辞書同期（必須・勝手にローカル辞書を育てない）
+   - SoT: `packages/audio_tts/data/voicepeak/dic.json`
+   - `run_tts` は起動時に **add-only sync** を行う（失敗したら停止するのが正）
+   - 手動同期（必要時のみ）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicepeak_user_dict`
+3) リスク点検（決定論）
+   - `script_sanitized.txt` に **生のASCII/数字が残っていない**（残っていたら辞書/overrideで潰す）
+   - 例:
+     - `rg -n \"[A-Za-z]\" workspaces/scripts/{CH}/{NNN}/audio_prep/script_sanitized.txt`
+     - `rg -n \"\\d\" workspaces/scripts/{CH}/{NNN}/audio_prep/script_sanitized.txt`
+4) 合成（wav/srt）
+   - `./ops audio -- --channel CHxx --video NNN`
+5) サンプル再生チェック（必須）
+   - `afplay workspaces/audio/final/{CH}/{NNN}/{CH}-{NNN}.wav`（先頭〜要所を確認）
+   - 証跡（迷子防止）: `workspaces/scripts/{CH}/{NNN}/audio_prep/voicepeak_manual_check.txt` に `OK/NG + 理由1行` を残す（例: `OK 2026-01-19 no misreads in spot-check`）
 
 辞書の正本:
 - SoT: `packages/audio_tts/data/voicepeak/dic.json`
 - Sync: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicepeak_user_dict [--dry-run]`
 
-## 昇格（pending運用）の判断基準
-**自動昇格は禁止**。候補は出せるが、昇格は人間レビューで確定する。
+## 昇格（対話型AIエージェント判定）の判断基準
+**自動昇格は禁止**。候補は出せるが、昇格は **対話型AIエージェントが判定して確定**する。
 
 - 昇格OK（グローバル/CH辞書）:
   - 固有名詞/略語/ASCII（例: Amazon, SpaceX, CPU, OS）

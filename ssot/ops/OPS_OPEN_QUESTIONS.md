@@ -135,7 +135,8 @@
   - 手動コマンド（必要時のみ）
 - 重要:
   - secrets（token/channel/thread）は **gitに固定しない**
-  - `codex exec` と “AIエージェント（agent/pending）” を混同しない（台本はAPI固定）
+  - `codex exec`（非対話CLI）と “対話型AIエージェント（THINK/pending）” を混同しない
+    - 台本（`script_*`）は **THINK がデフォルト**（pending）。本文生成は対話型AIが **外部CLI（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`）または明示API** で仕上げる。
 
 ---
 

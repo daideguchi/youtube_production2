@@ -24,11 +24,11 @@
 | D-019 | P0 | CLI-onlyの定義（pending含む） | **CLI-only=CLIで“成果物+状態”を確定**（THINK/AGENT pending運用を正規工程に含める） | Done |
 | D-018 | P0 | 台本生成の緊急代替（Gemini Batch） | **master+個別プロンプト生成→Gemini Batch→assembled反映**（サイレントfallback禁止） | Proposed |
 | D-003 | P0 | Publish→ローカル投稿済みロック | **publisherに“オプションフラグで”同期**（忘れ事故を防ぐ） | Proposed |
-| D-013 | P0 | TTSのCodex（agent vs codex exec） | **TTSはAIエージェントCodex（pending）固定 / codex execと区別** | Done |
+| D-013 | P0 | TTS運用ルート（推論=対話型AIエージェント / 読みLLM無効） | **`SKIP_TTS_READING=1` 必須（VOICEVOX: prepass mismatch=0 / VOICEPEAK: prepass→合成→サンプル再生OK）** | Done |
 | D-014 | P0 | TTS辞書登録（ユニーク誤読/曖昧語） | **ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正** | Done |
 | D-015 | P1 | Slack→Git書庫（PM Inbox） | **Slack→memos→git要約（hash keyで識別 / IDは残さない）** | Proposed |
 | D-016 | P1 | 画像生成のコスト/待ち（Batch vs Sync） | **量産=Gemini Batch優先 / 即時=Imagen 4 Fast**（サイレント切替禁止） | Done |
-| D-017 | P2 | 台本LLMのBatch化（Fireworks） | **当面は非Batch（既存のAPI主線）/ Phase2で検討** | Done |
+| D-017 | P2 | 台本LLMのBatch化（Fireworks） | **当面は「本文は対話型AIが明示ルートで仕上げる」/ Batch化はPhase2** | Done |
 | D-004 | P1 | `script_validation` 品質ゲートround | **既定=3**（必要時のみ明示で増やす） | Proposed |
 | D-005 | P1 | 意味整合の自動修正範囲 | **outlineのみbounded / validationは手動適用** | Proposed |
 | D-006 | P2 | Video入口の一本化 | **`auto_capcut_run` 主線固定**（capcut engine stub は運用対象外） | Proposed |
@@ -97,7 +97,7 @@
   - 代わりに、**CLIが発行する `pending task` を契約**として扱い、CLIで `complete` して確定させる。
 - 正本入口は `./ops` に統一する（`./ops list` を唯一の入口索引として扱う）。
 - `./ops` の passthrough 系コマンドで `--channel` などのフラグを渡す場合は、**必ず `--` 区切りを入れる**。
-  - 例: `./ops audio --llm think -- --channel CHxx --video NNN`
+  - 例: `./ops audio -- --channel CHxx --video NNN`（推論=対話型AIエージェント / 読みLLM無効: `SKIP_TTS_READING=1`）
 
 ### Rationale（根拠）
 - UI/人間手作業/対話AIが混ざっても、**「確定の瞬間」をCLIに寄せれば再現性と監査が成立**する。
@@ -142,30 +142,30 @@
 
 ---
 
-## D-013（P0）TTSの「Codex」をどう固定する？（AIエージェント vs codex exec）
+## D-013（P0）TTS運用ルート（推論=対話型AIエージェント / 読みLLM無効）
 
 ### Decision
-- **TTS（`tts_*` / `voicevox_kana`）は AIエージェント（Codex）主担当（pending運用）に固定**し、**codex exec（非対話CLI）とは明確に区別**する。
+- 音声/TTS の「アノテーション確定」は **推論=対話型AIエージェント** が担当し、読みLLM（auditor）は使わない（`SKIP_TTS_READING=1`）。
+- 合否条件（固定）:
+  - VOICEVOX: `--prepass` で mismatch=0（`reading_mismatches__*.json` が出ない）
+  - VOICEPEAK: `--prepass` → B安全形（ASCII/数字が残らない）→ 合成 → `afplay` で要所確認OK（証跡を残す）
+- `YTM_ROUTING_LOCKDOWN=1`（default）では `SKIP_TTS_READING=0` を禁止し、誤って LLM 経路へ流れないようにする。例外は `YTM_EMERGENCY_OVERRIDE=1` を明示した実行のみ。
 
 ### Plan（手順）
-1) TTSは THINK MODE を入口にする（pendingを作って止める）
-   - 例: `./ops audio --llm think -- --channel CHxx --video NNN`（互換: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`）
-2) pending は Codex（AIエージェント）が runbook に沿って output を作って `complete` → rerun
-3) **用語固定**:
-   - 「Codex（AIエージェント）」= pending の output を作る担当
-   - 「codex exec」= `codex exec` コマンドによる自動実行レイヤ（別物。TTSには寄せない）
+1) prepass（wav作らない）: `./ops audio -- --channel CHxx --video NNN --prepass`
+2) engine を確認（`audio_prep/log.json` の `engine`）→ 分岐（SoT: `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md`）
+3) VOICEVOX: mismatch が出たら停止→辞書/overrideでB側を修正→ prepass を繰り返して mismatch=0 → 合成
+4) VOICEPEAK: B点検（ASCII/数字ゼロ）→ 合成→ `afplay` で要所確認OK（証跡を残す）
 
 ### Rationale（根拠）
-- TTSの `voicevox_kana` は “読み/誤読/根拠” の判断が重要で、雑な自動化は事故になりやすい。
-- 「Codex」という言葉が “AIエージェント” と “codex exec（非対話CLI）” の両方を指し得て混乱源になるため、**先に言葉を固定**するほうが事故を減らせる。
-- 台本（`script_*`）は API固定なので、TTSも “勝手に別経路へ流れない” 形（pending運用）に寄せると整合が取れる。
+- 誤読は後工程（動画/公開）でのやり直しコストが最大になるため、**決定論 + fail-fast** が最も安全。
+- LLM 経路はコスト/再現性/逸脱（勝手な切替）のリスクが高く、並列運用の混乱源になりやすい。
 
 ### Alternatives（代替案）
-- A) codex exec をTTSに使う（不採用）: 自動化の成功/失敗が運用理解に依存しやすく、混乱しやすい。
-- B) LLM APIでTTS補助を完結する（不採用）: コスト/品質/再現性の面で “止めて直す” 運用と相性が悪い。
+- A) `SKIP_TTS_READING=0` で LLM 読み補助を使う（不採用/緊急デバッグのみ）: コスト/再現性/逸脱のリスクが高い。
 
 ### Impact（影響/作業）
-- SSOT/Guide/UIの文言を「Codex agent」と「codex exec」で分離し、誤解が起きない導線に更新する。
+- SSOT/Runbook/入口コマンドを `SKIP_TTS_READING=1` 前提へ統一し、違反時は停止するガードを実装する。
 
 ---
 
@@ -190,7 +190,7 @@
 2) 「曖昧語」は辞書に入れない（例）
    - 例: 「人」「辛い」「行った」「怒り」など（文脈で読みが変わり得る/誤登録の影響が大きい）
 3) VOICEPEAK/VOICEVOX の“公式辞書（ユーザー辞書）”は、上記SoTから **同期**して使う（運用の利便性のため）
-   - VOICEPEAK: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（`run_tts` 開始時にも追記同期を試行する。失敗しても停止しない）
+   - VOICEPEAK: `python3 -m audio_tts.scripts.sync_voicepeak_user_dict`（`run_tts` 開始時にも追記同期を試行する。`YTM_ROUTING_LOCKDOWN=1` では失敗したら停止）
    - VOICEVOX（運用固定: グローバルのみ）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --global-only --overwrite`
    - VOICEVOX（必要時: CH語も同期）: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.sync_voicevox_user_dict --channel CHxx --overwrite`
 
@@ -232,7 +232,7 @@
 - Tool: `scripts/ops/slack_inbox_sync.py` を追加（要約Inbox生成）
 
 ### Impact（影響/作業）
-- `ssot/ops/OPS_AUDIO_TTS.md` / `ssot/ops/OPS_TTS_MANUAL_READING_AUDIT.md` に辞書運用（A/B/C）を明記して固定する。
+- `ssot/ops/OPS_AUDIO_TTS.md` / `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md` に辞書運用（A/B/C）を明記して固定する。
 
 ---
 
@@ -251,8 +251,10 @@
   - slot code（例）: `i-1`（Imagen 4 Fast）
 - 固定ルール:
   - **サイレント切替は禁止**（正本: `D-002`）。Batch⇄Syncの切替は slot code / model_key で必ず明示する。
-  - Batch は Gemini provider のみ対応（Imagen / OpenRouter / Fireworks は対象外）。対象外の model_key の場合は **ログに明示した上で direct にフォールバック**し、運用上の取り違えを防ぐ。
+  - Batch は Gemini provider のみ対応（Imagen / OpenRouter / Fireworks は対象外）。
+    - 対象外の model_key で `batch` を選んだ場合は **停止（hard-stop）** して、運用者が `direct` を明示して再実行する（勝手にフォールバックしない）。
   - 目標（動画内画像）: Batch運用が実装できたら、必要なチャンネルから `image_generation.model_key` を **Gemini系（g-1）へ寄せる**（FLUX は必要時の明示選択へ。削除はしない）。
+  - 注（サムネ）: サムネ背景生成は **Gemini 2.5 Flash Image 固定**。比較/リテイク目的の別モデル切替はしない（別SSOT: `ssot/ops/OPS_THUMBNAILS_PIPELINE.md`）。
 
 ### Rationale（根拠）
 - 量産は「安さ」が最重要だが、即時作業は「待ち」がボトルネックになるため、両方を同じ既定にすると運用が破綻しやすい。
@@ -272,17 +274,21 @@
 ## D-017（P2）台本LLM（Fireworks）のBatch化はやるべき？（コスト vs 複雑さ）
 
 ### Decision
-- **当面は “既存のAPI主線（非Batch）” を維持**し、台本パイプラインのBatch化は **Phase2で検討**する。
+- **当面は「台本本文は対話型AIエージェントが仕上げる」運用を主線**にし、台本パイプライン内部のBatch化（Fireworks Batch等）は **Phase2で検討**する。
 
 ### Plan（手順）
 - いま（Phase1）:
-  - `script_*` は引き続き **LLM API（Fireworks / `script-main-1`）固定**で実行する（no fallback）。
-  - Batch導入のために “別経路（Codex exec / THINK）” へ流すことはしない（台本はAPI固定）。
+  - デフォルト: THINK（pending）で回す（勝手に外部LLM APIを叩かない）。
+  - 台本本文（Aテキスト）は、対話型AIエージェントが次のいずれか **明示ルート**で作る:
+    - Gemini CLI（明示）: `./ops gemini script -- --channel CHxx --video NNN --run`
+    - `qwen -p`（運用で選択）
+    - LLM API（必要時のみ明示）: `./ops api script <MODE> -- --channel CHxx --video NNN`
+  - 禁止: API失敗→THINK の自動フォールバック（止めて報告）。
 - Phase2（やるなら）:
   - **stage単位のバッチ**（例: 1ステージを複数動画でまとめて submit → 完了待ち → 回収して次ステージへ）として設計する。
   - 必須要件:
     - 出力契約（どのファイルに何を書くか）が明確で、`status.json` で **resume** できる
-    - `models=[script-main-1]` を強制し、勝手なモデル切替/フォールバックを許さない
+    - 勝手なモデル切替/フォールバックを許さない（明示運用）
     - 失敗時は “止めて報告”（silent fallback禁止）
 
 ### Rationale（根拠）

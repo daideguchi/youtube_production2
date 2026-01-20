@@ -1,9 +1,12 @@
-# OPS_TTS_MANUAL_READING_AUDIT (SSOT)
+# OPS_TTS_MANUAL_READING_AUDIT — VOICEVOX読み監査（Reference）
+
+> ⚠ 正本: `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md` / `ssot/ops/OPS_AUDIO_TTS.md` / `ssot/DECISIONS.md`（D-013/D-014）。  
+> 本書は VOICEVOX の深掘り手順/背景の参考。衝突した場合は正本が優先。
 
 - 最終更新日: 2026-01-11  
-- 目的: **LLM読み監査を使わず**、エージェントが手動推論で VOICEVOX 読み誤りをゼロに近づけるための再現性100%手順書。  
+- 目的: **読みLLM（auditor）を使わず**、対話型AIエージェントが推論して VOICEVOX 読み誤りをゼロに近づけるための手順メモ。  
 - 適用範囲: `packages/audio_tts/scripts/run_tts.py` による strict TTS パイプライン（VOICEVOX）。  
-- 本書は **手動監査の唯一の正本**。運用・引き継ぎは必ず本書に従う。
+- 運用の正本は `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md`。本書は参考（VOICEVOX深掘り）。
 
 ---
 

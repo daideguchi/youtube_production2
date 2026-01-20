@@ -16,10 +16,11 @@
 - 主線（Happy Path）:
   1) Planning（入力SoT）→ 2) Script（A-text/台本）→ 3) TTS（Bテキスト/voicevox_kana）→ 4) Video（CapCut）→ 5) Publish
 - 事故防止の固定ルール（最重要）:
-  - **台本（`script_*`）は LLM API（Fireworks/DeepSeek）固定**。**Codex/THINK/AGENT に流さない**（失敗時も停止して原因を直す）。
-  - **TTS（`tts_*`）は AIエージェント（Codex）主担当**（THINK/AGENT の pending 運用で止めて直す）。
-    - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`（互換: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`）
-    - 注: ここで言う「Codex」は **codex exec（非対話CLI）ではない**（別物）。TTSは codex exec へ寄せない。
+  - **THINK がデフォルト**（= pending を作って止める。対話型AIエージェント/人間が埋めて進める）。
+  - **禁止: API→THINK の自動フォールバック**（APIルートが失敗したら停止して報告。勝手にルートを変えない）。
+- **台本（`script_*`）は “対話型AIエージェントが仕上げる”**（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`。APIは明示時のみ）。微調整も対話型AIが担当。※ `qwen` の model/provider 指定（`--model`/`-m`）は禁止。
+  - **音声/TTS（アノテーション確定）は 推論=対話型AIエージェント / 読みLLM無効**（辞書/override + `--prepass` mismatch=0 の決定論ガード）。
+    - 正本入口: `./ops audio -- --channel CHxx --video NNN`（`SKIP_TTS_READING=1` が既定/必須。`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止）
     - 読み修正の辞書運用は **D-014** に従う（ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正）。
   - **勝手なモデル/プロバイダ切替や自動ローテは禁止**（切替はコード/スロットで明示）。
 - 迷ったら（まずここ）:

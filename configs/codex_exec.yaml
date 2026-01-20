@@ -8,9 +8,9 @@
 # Safety:
 # - `codex exec` is always run with `--sandbox read-only` and must not write to repo/workspaces.
 # - Never route any **台本パイプライン task** (`script_*`) through Codex exec.
-#   台本は LLM API（Fireworks / DeepSeek）固定にして、文体ドリフトを防ぐ。
-# - IMPORTANT (TTS): `tts_*` は AIエージェント（Codex）主担当（pending運用）に寄せる。
-#   ここでの codex exec（非対話CLI）とは別物なので、TTSを codex exec へ寄せない。
+#   台本本文（Aテキスト）は「対話型AIエージェントが明示ルート（Gemini CLI / qwen -p / 明示API）」で仕上げる（勝手に別ルートへ逃げない）。
+# - IMPORTANT (TTS): 音声/TTS は `run_tts` の SSOT/辞書/override + prepass で進める。
+#   読みLLM（auditor）を使う経路や、TTSを codex exec に寄せる運用はしない。
 # - Non-A-text tasks (research/outline/validation reports/visual planning) can attempt Codex first and fall back
 #   to the existing LLMRouter API path.
 #

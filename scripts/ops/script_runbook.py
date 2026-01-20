@@ -98,19 +98,18 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
     """
     # Compatibility shim (operator ergonomics):
     # - Some operators reach for `--llm api|think|codex` (used by `./ops`).
-    # - Script pipeline is API-only; we accept `--llm api` as a convenience and block others.
+    # - Script pipeline supports THINK(default)/API. Codex exec is not supported for scripts.
     raw_llm = getattr(args, "llm", None)
     if raw_llm is not None and str(raw_llm).strip() != "":
         llm = str(raw_llm).strip().lower()
-        if llm != "api":
+        if llm == "codex":
             raise SystemExit(
-                "[POLICY] script pipeline is API-only (no THINK/AGENT/Codex for A-text).\n"
-                "- rule: 台本（script_*）は LLM API（Fireworks/DeepSeek）固定。Codex/agent 代行で台本を書かない。\n"
-                "- action: rerun with `./ops api script ...` (or omit --llm / use --llm api)."
+                "[POLICY] script pipeline does not support `--llm codex`.\n"
+                "- action: use default THINK (`./ops script ...`) or explicit API (`./ops api script ...`)."
             )
-        # Force API exec-slot unless explicitly overridden via --exec-slot.
+        # Map `--llm` to exec-slot unless explicitly overridden via --exec-slot.
         if getattr(args, "exec_slot", None) is None:
-            os.environ["LLM_EXEC_SLOT"] = "0"
+            os.environ["LLM_EXEC_SLOT"] = "3" if llm == "think" else "0"
 
     if getattr(args, "llm_slot", None) is not None:
         try:
@@ -234,27 +233,12 @@ def _apply_llm_overrides_from_args(args: argparse.Namespace) -> None:
         os.environ["LLM_FORCE_TASK_OPTIONS_JSON"] = json.dumps(task_opts, ensure_ascii=False)
 
 
-def _assert_script_api_only() -> None:
-    from factory_common.llm_exec_slots import active_llm_exec_slot_id, effective_llm_mode
-
-    mode = str(effective_llm_mode() or "").strip().lower()
-    if mode == "api":
-        return
-    slot = active_llm_exec_slot_id()
-    raise SystemExit(
-        "[POLICY] script pipeline is API-only (no THINK/AGENT).\n"
-        f"- effective llm_mode: {mode}\n"
-        f"- LLM_EXEC_SLOT: {slot.get('id')} (source={slot.get('source')})\n"
-        "- action: rerun with `./ops api script ...` (or `--exec-slot 0`)."
-    )
-
-
 def _add_llm_override_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument(
         "--llm",
-        choices=["api", "think", "codex"],
+        choices=["api", "think"],
         default=None,
-        help="(compat) LLM mode hint. NOTE: script pipeline is API-only; use `api`.",
+        help="(compat) LLM mode hint (default: THINK). Use `api` only when you explicitly want API execution.",
     )
     p.add_argument(
         "--llm-model",
@@ -269,7 +253,7 @@ def _add_llm_override_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument(
         "--exec-slot",
         type=int,
-        help="Force numeric LLM exec slot (sets LLM_EXEC_SLOT). Controls api/think/agent/codex exec/failover.",
+        help="Force numeric LLM exec slot (sets LLM_EXEC_SLOT). Controls api/think/agent and codex exec override.",
     )
     p.add_argument(
         "--llm-task-model",
@@ -1568,7 +1552,6 @@ def main() -> int:
     assert_no_llm_model_overrides(context="script_runbook.py (startup)")
     assert_task_overrides_unchanged(context="script_runbook.py (startup)")
     _apply_llm_overrides_from_args(args)
-    _assert_script_api_only()
     return int(args.func(args))
 
 

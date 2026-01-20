@@ -47,7 +47,7 @@ DocType: Register（台帳 / 未確定）
 方針（SSOT / `ssot/DECISIONS.md:D-010`）:
 - LLM routing の正本は **`configs/llm_router.yaml` + `configs/llm_task_overrides.yaml`（+ codes/slots）**。
 - `configs/llm.yml` + `factory_common.llm_config` / `factory_common.llm_client` は **互換/テスト用の legacy**（通常運用では使わない）。
-  - 迷子防止: **ロックダウン（`YTM_ROUTING_LOCKDOWN=1` / default ON）では legacy 経由の実行を停止**し、解除は `YTM_ROUTING_LOCKDOWN=0` または `YTM_EMERGENCY_OVERRIDE=1` のみ（debug only）。
+  - 迷子防止: **ロックダウン（`YTM_ROUTING_LOCKDOWN=1` / default ON）では legacy 経由の実行を停止**し、解除は `YTM_EMERGENCY_OVERRIDE=1` のみ（debug only / 通常運用では使わない）。
 - 削除は別PRで archive-first 手順に従って実施する（tracked 削除ログ必須）。
 
 時点情報（created/updated; `git log --follow` 根拠）:

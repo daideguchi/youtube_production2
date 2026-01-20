@@ -3876,9 +3876,8 @@ def _load_llm_agent_mode(repo: Path) -> Dict[str, Any]:
         mode = (os.getenv("LLM_MODE") or "").strip().lower() or "api"
         if mode not in {"api", "agent", "think"}:
             mode = "api"
-        failover_raw = (os.getenv("LLM_API_FAILOVER_TO_THINK") or "").strip()
-        # Default is ON (even when unset).
-        failover_to_think = True if not failover_raw else _boolish(failover_raw)
+        # Policy: API→THINK auto failover is disabled (forbidden). If API fails, it must stop and report.
+        failover_to_think = False
 
     queue_dir = (os.getenv("LLM_AGENT_QUEUE_DIR") or "").strip()
     if not queue_dir:
@@ -3905,7 +3904,6 @@ def _load_llm_exec_slots(repo: Path) -> Dict[str, Any]:
     This slot controls:
       - LLM_MODE (api/think/agent)
       - Codex exec enable override (YTM_CODEX_EXEC_ENABLED)
-      - API→THINK failover enable override (LLM_API_FAILOVER_TO_THINK)
     """
     default_path = repo / "configs" / "llm_exec_slots.yaml"
     local_path = repo / "configs" / "llm_exec_slots.local.yaml"

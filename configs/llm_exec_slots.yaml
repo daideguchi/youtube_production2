@@ -9,10 +9,9 @@ schema_version: 1
 # What this controls:
 # - execution mode: api | think | agent
 # - Codex exec layer (read-only) enable/disable override
-# - API → THINK failover enable/disable override (non-script only; script_* still stops)
 #
 # Usage:
-# - Default (slot 0): no env needed
+# - Default (slot 3): no env needed
 # - Force: LLM_EXEC_SLOT=3 ./scripts/with_ytm_env.sh python3 ...
 # - Or:   ./scripts/with_ytm_env.sh --exec-slot 3 python3 ...
 #
@@ -22,7 +21,7 @@ schema_version: 1
 # - When `YTM_ROUTING_LOCKDOWN=0` or `YTM_EMERGENCY_OVERRIDE=1`, explicit env overrides may take precedence.
 # - Per-machine overrides belong in: configs/llm_exec_slots.local.yaml
 
-default_slot: 0
+default_slot: 3
 
 slots:
   0:
@@ -31,7 +30,7 @@ slots:
       Normal run.
       - mode: API
       - codex exec: follow configs/codex_exec.yaml (and local override)
-      - API→THINK failover: default ON
+      - Policy: API→THINK auto failover is forbidden (fails must stop + report)
     llm_mode: api
 
   1:
@@ -40,8 +39,8 @@ slots:
       Force codex exec ON (for eligible tasks) before API.
       - mode: API
       - codex exec: forced ON
-      - NOTE: `codex exec`（非対話CLI）は「AIエージェントCodex（pending運用）」とは別物。
-        TTS（`tts_*`）は codex exec に寄せず、`./scripts/think.sh --tts -- ...` で pending を作って解決する。
+      - NOTE: `codex exec`（非対話CLI）は「対話型AIエージェントの作業」とは別物。
+        TTS（音声/TTS）は **読みLLM（auditor）禁止**（推論=対話型AIエージェント / 辞書+override+prepass mismatch=0 を合格条件にする）。
     llm_mode: api
     codex_exec:
       enabled: true
@@ -61,6 +60,7 @@ slots:
     description: |
       THINK MODE (agent queue).
       - API is not called; pending is created for target tasks
+      - 推論/判断の主担当は対話型AIエージェント（人間レビュー必須ではない）
     llm_mode: think
 
   4:
@@ -70,14 +70,8 @@ slots:
     llm_mode: agent
 
   5:
-    label: api_failover_off
+    label: legacy_noop
     description: |
-      Disable API→THINK failover for non-script tasks.
-      (script_* still stops on API failure.)
-      - mode: API
-      - api→think failover: OFF
-      Note:
-      - Under `YTM_ROUTING_LOCKDOWN=1` (default), non-script failover is forced ON (absolute rule).
-        To truly disable failover, run with `YTM_EMERGENCY_OVERRIDE=1` (debug only).
+      Legacy / no-op (kept for compatibility).
+      - Policy: API→THINK auto failover is forbidden (never enabled).
     llm_mode: api
-    api_failover_to_think: false

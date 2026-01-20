@@ -956,22 +956,16 @@ def _generate_images_via_gemini_batch(
     if len(selectors) == 1:
         selector = next(iter(selectors))
     elif len(selectors) > 1:
-        logging.warning(
-            "nanobanana mode=batch: multiple image_model_key detected (%s). Falling back to direct.",
-            ", ".join(sorted(selectors)),
+        raise ImageGenerationError(
+            "\n".join(
+                [
+                    "nanobanana mode=batch requires a single image_model_key.",
+                    f"- detected: {', '.join(sorted(selectors))}",
+                    "- policy: batch→direct の自動フォールバックは禁止（明示運用）。",
+                    "- action: rerun with `--nanobanana direct` (or unify image_model_key).",
+                ]
+            )
         )
-        generate_image_batch(
-            cues=cues,
-            mode="direct",
-            concurrency=1,
-            force=force,
-            width=width,
-            height=height,
-            retry_until_success=retry_until_success,
-            max_retries=max_retries,
-            placeholder_text=placeholder_text,
-        )
-        return
 
     env_selector = (os.getenv("IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN") or "").strip() or None
     selector = selector or env_selector
@@ -983,24 +977,18 @@ def _generate_images_via_gemini_batch(
 
     # Only Gemini (generateContent image models) are batchable via this interface.
     if provider != "gemini" or not model_name or model_name.startswith("imagen"):
-        logging.warning(
-            "nanobanana mode=batch: provider/model not batchable (provider=%s model=%s model_key=%s). Falling back to direct.",
-            provider or "?",
-            model_name or "?",
-            model_key,
+        raise ImageGenerationError(
+            "\n".join(
+                [
+                    "nanobanana mode=batch: provider/model not batchable.",
+                    f"- provider: {provider or '?'}",
+                    f"- model: {model_name or '?'}",
+                    f"- model_key: {model_key}",
+                    "- policy: batch→direct の自動フォールバックは禁止（明示運用）。",
+                    "- action: rerun with `--nanobanana direct` (or choose a batchable Gemini image model).",
+                ]
+            )
         )
-        generate_image_batch(
-            cues=cues,
-            mode="direct",
-            concurrency=1,
-            force=force,
-            width=width,
-            height=height,
-            retry_until_success=retry_until_success,
-            max_retries=max_retries,
-            placeholder_text=placeholder_text,
-        )
-        return
 
     # Placeholder detection threshold (default: 60KB). Keep consistent with UI validation.
     try:

@@ -4,10 +4,11 @@
 # - When the command stops due to pending tasks, it prints the queue and (optionally) writes bundle files.
 #
 # Usage:
-#   ./scripts/think.sh [--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--loop] [--] <command> [args...]
+#   ./scripts/think.sh [--visual|--all-text] [--agent-name <name>] [--no-bundle] [--loop] [--] <command> [args...]
 #
-# Examples:
-#   ./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CH06 --video 033
+# NOTE:
+#   TTS は運用ルートとして **読みLLM（auditor）禁止**です（推論=対話型AIエージェント / `./ops audio ...` / `SKIP_TTS_READING=1`）。
+#   `--tts` で tts_* を pending 化する運用は廃止しました。
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -15,7 +16,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Defaults: intercept ALL LLM tasks (avoid paid external LLM API spend),
 # while excluding non-text/expensive image generation tasks.
 #
-# You can narrow interception with --script/--tts/--visual/--all-text.
+# You can narrow interception with --script/--visual/--all-text.
 PREFIXES_DEFAULT=""
 EXCLUDE_TASKS_DEFAULT="visual_image_gen,image_generation"
 AUTO_BUNDLE=1
@@ -32,12 +33,12 @@ usage() {
 THINK MODE — "エージェントが思考するモード"
 
 Usage:
-  ./scripts/think.sh [--tts|--visual|--all-text] [--agent-name <name>] [--no-bundle] [--] <command> [args...]
+  ./scripts/think.sh [--visual|--all-text] [--agent-name <name>] [--no-bundle] [--] <command> [args...]
 
 Options:
-  --tts           Only intercept tts_* tasks
+  --script        Only intercept script_* tasks (台本)
   --visual        Only intercept visual_* tasks (text only; image_generation is excluded)
-  --all-text      Intercept tts_/visual_/title_/belt_ (non-script text tasks)
+  --all-text      Intercept visual_/title_/belt_ (non-script text tasks)
   --agent-name <name>
                  Set LLM_AGENT_NAME for claim/completed_by metadata
   --no-bundle     Do not generate bundle markdown files for pending tasks
@@ -49,29 +50,28 @@ Options:
 Notes:
   - Results are written under workspaces/logs/agent_tasks/ (or LLM_AGENT_QUEUE_DIR)
   - Use python scripts/agent_runner.py list/show/prompt/chat/bundle/complete to manage tasks.
-  - Fixed policy: script_* (台本) is NOT supported in THINK/AGENT mode. Use exec-slot=0 (API) for script pipeline.
 USAGE
 }
 
 while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --script)
-      echo "[POLICY] --script is no longer supported. script_* (台本) must run in exec-slot=0 (API)." >&2
-      echo "action: rerun without THINK MODE (e.g., ./scripts/with_ytm_env.sh --exec-slot 0 ...)" >&2
-      exit 2
-      ;;
-    --tts)
-      PREFIXES="tts_"
-      shift
-      ;;
-    --visual)
-      PREFIXES="visual_"
-      shift
-      ;;
-    --all-text)
-      PREFIXES="tts_,visual_,title_,belt_"
-      shift
-      ;;
+	  case "$1" in
+	    --script)
+	      PREFIXES="script_"
+	      shift
+	      ;;
+		    --tts)
+		      echo "[POLICY] Forbidden: --tts (TTS pending運用は廃止 / 読みLLM（auditor）禁止)." >&2
+		      echo "  - use: ./ops audio -- --channel CHxx --video NNN  (SKIP_TTS_READING=1 既定)" >&2
+		      exit 2
+		      ;;
+	    --visual)
+	      PREFIXES="visual_"
+	      shift
+	      ;;
+	    --all-text)
+	      PREFIXES="visual_,title_,belt_"
+	      shift
+	      ;;
     --agent-name)
       if [[ -z "${2:-}" ]]; then
         echo "missing value for --agent-name" >&2

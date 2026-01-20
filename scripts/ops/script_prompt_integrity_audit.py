@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-script_prompt_integrity_audit.py — prompt loading/source-of-truth consistency audit (NO LLM).
+script_prompt_integrity_audit.py — prompt loading/source-of-truth consistency audit (LLM API 不使用).
 
 Why:
 - Prompt data is intentionally stored in multiple places for UI/ops convenience:
@@ -467,4 +467,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

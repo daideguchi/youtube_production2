@@ -501,7 +501,7 @@ def main() -> int:
                 )
             except SystemExit as exc:
                 if args.continue_on_failover:
-                    first_line = str(exc).splitlines()[0] if str(exc) else "THINK MODE failover"
+                    first_line = str(exc).splitlines()[0] if str(exc) else "THINK MODE (queued)"
                     print(f"[queue] {target.channel_id}/{vid} {first_line}")
                     continue
                 raise

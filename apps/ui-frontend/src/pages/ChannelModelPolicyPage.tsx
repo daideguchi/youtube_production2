@@ -150,7 +150,6 @@ function humanExecSlotLabel(entry: ExecSlotEntry | null, id: number | null): str
   if (mode === "api" || !mode) {
     if (entry?.codex_exec_enabled === true) return "API + codex exec 優先";
     if (entry?.codex_exec_enabled === false) return "API（codex exec 無効）";
-    if (entry?.api_failover_to_think === false) return "API（failover OFF / デバッグ）";
     return "API（通常）";
   }
   const desc = firstSentence(String(entry?.description ?? ""));
@@ -944,7 +943,6 @@ export function ChannelModelPolicyPage() {
   );
 
   const llmModeNow = String(agentMode?.mode ?? "api").trim().toLowerCase() || "api";
-  const llmFailoverToThink = agentMode?.failover_to_think === undefined ? true : Boolean(agentMode.failover_to_think);
   const codexEnabled = isCodexExecEnabled(codexExec);
   const codexEnabledSource = String(codexExec?.effective?.enabled_source ?? "").trim();
   const codexProfileEffective = String(codexExec?.effective?.profile ?? codexExec?.profile ?? "").trim();
@@ -958,7 +956,6 @@ export function ChannelModelPolicyPage() {
   const execActiveLabel = String(execActive?.label ?? "").trim();
   const execActiveSource = String(execActive?.source ?? "").trim();
   const execCodexOverride = (execSlots as any)?.effective?.codex_exec_enabled_override;
-  const execFailoverEffective = (execSlots as any)?.effective?.api_failover_to_think;
 
   const llmModelCountsByProvider = useMemo(() => {
     const out: Record<string, number> = {};
@@ -1462,7 +1459,7 @@ export function ChannelModelPolicyPage() {
                         <span className="mono">
                           {typeof execCodexOverride === "boolean" ? (execCodexOverride ? "ON" : "OFF") : "—"}
                         </span>{" "}
-                        / API failover=<span className="mono">{typeof execFailoverEffective === "boolean" ? (execFailoverEffective ? "ON" : "OFF") : llmFailoverToThink ? "ON" : "OFF"}</span>
+                        / API auto-failover=<span className="mono">FORBIDDEN</span>
                       </div>
                     </div>
                   </td>
@@ -1565,8 +1562,8 @@ export function ChannelModelPolicyPage() {
                         実行モード=<span className="mono" style={{ fontWeight: 900 }}>{llmModeNow}</span>
                       </div>
                       <div className="muted small-text">
-                        queue=<span className="mono">{String(agentMode?.queue_dir ?? "workspaces/logs/agent_tasks")}</span> / API failover=
-                        <span className="mono">{llmFailoverToThink ? "ON" : "OFF"}</span>
+                        queue=<span className="mono">{String(agentMode?.queue_dir ?? "workspaces/logs/agent_tasks")}</span> / API auto-failover=
+                        <span className="mono">FORBIDDEN</span>
                       </div>
                     </div>
                   </td>
@@ -1596,13 +1593,6 @@ export function ChannelModelPolicyPage() {
                       <button
                         type="button"
                         className="workspace-button workspace-button--ghost workspace-button--compact"
-                        onClick={() => void copyToClipboard("export LLM_EXEC_SLOT=5")}
-                      >
-                        exec-slot 5（failover OFF / debug）
-                      </button>
-                      <button
-                        type="button"
-                        className="workspace-button workspace-button--ghost workspace-button--compact"
                         onClick={() =>
                           void copyToClipboard(
                             "./scripts/think.sh --visual -- python3 packages/video_pipeline/tools/auto_capcut_run.py --channel CH06 --srt /path/to/input.srt --dry-run"
@@ -1626,7 +1616,7 @@ export function ChannelModelPolicyPage() {
                     <div className="muted small-text" style={{ marginTop: 6, lineHeight: 1.55 }}>
                       ※ 通常運用では <span className="mono">LLM_MODE</span> / <span className="mono">LLM_API_FAILOVER_TO_THINK</span> は使いません（ブレ防止のためロックダウンで停止します）。
                       <br />
-                      ※ ロックダウン中は非<span className="mono">script_*</span> の failover は <b>ON固定</b> です（exec-slot 5 は緊急デバッグ時に <span className="mono">YTM_EMERGENCY_OVERRIDE=1</span> の上でのみ有効）。
+                      ※ 重要: <b>API→THINK の自動フォールバックは禁止</b>（失敗したら停止して報告）。pending が必要なら最初から THINK（exec-slot 3）を選びます。
                     </div>
                   </td>
                   <td style={{ padding: "10px 10px", borderBottom: "1px solid rgba(148,163,184,0.12)" }}>
@@ -2506,10 +2496,10 @@ export function ChannelModelPolicyPage() {
           <details>
           <summary style={{ cursor: "pointer", fontWeight: 900 }}>実行スロット（llm_exec_slots.yaml）</summary>
           <div className="muted small-text" style={{ marginTop: 8, lineHeight: 1.6 }}>
-            <span className="mono">LLM_EXEC_SLOT</span> は「どこで動くか（api / think / agent / codex exec / failover）」を数字で切替えるレバーです。
+            <span className="mono">LLM_EXEC_SLOT</span> は「どこで動くか（api / think / agent / codex exec）」を数字で切替えるレバーです。
             通常運用ではこれだけを使います（ロックダウンONでは <span className="mono">LLM_MODE</span> / <span className="mono">YTM_CODEX_EXEC_*</span> などの直接上書きは停止）。
             <br />
-            ロックダウン中は非<span className="mono">script_*</span> の failover は <b>ON固定</b>（OFFにするのは緊急デバッグ時のみ）。
+            重要: <b>API→THINK の自動フォールバックは禁止</b>（失敗したら停止して報告）。pending が必要なら最初から THINK を選びます。
           </div>
 
           <div style={{ marginTop: 10 }} className="main-alert">
@@ -2519,8 +2509,7 @@ export function ChannelModelPolicyPage() {
               {execActiveLabel ? ` (${execActiveLabel})` : ""}
             </div>
             <div className="muted small-text" style={{ lineHeight: 1.7 }}>
-              mode=<span className="mono">{llmModeNow}</span> / API failover=<span className="mono">{llmFailoverToThink ? "ON" : "OFF"}</span> / codex exec=
-              <span className="mono">{codexEnabled ? "ON" : "OFF"}</span>
+              mode=<span className="mono">{llmModeNow}</span> / API auto-failover=<span className="mono">FORBIDDEN</span> / codex exec=<span className="mono">{codexEnabled ? "ON" : "OFF"}</span>
             </div>
           </div>
 
@@ -2544,11 +2533,9 @@ export function ChannelModelPolicyPage() {
                     const desc = String(s?.description ?? "").trim();
                     const llmMode = String(s?.llm_mode ?? "").trim();
                     const codexOverride = s?.codex_exec_enabled;
-                    const apiFailover = s?.api_failover_to_think;
                     const effectParts: string[] = [];
                     if (llmMode) effectParts.push(`mode=${llmMode}`);
                     if (typeof codexOverride === "boolean") effectParts.push(`codex=${codexOverride ? "ON" : "OFF"}`);
-                    if (typeof apiFailover === "boolean") effectParts.push(`failover=${apiFailover ? "ON" : "OFF"}`);
                     const effect = effectParts.length > 0 ? effectParts.join(" / ") : "—";
                     return (
                       <tr key={`exec-slot-${String(id ?? "x")}`}>

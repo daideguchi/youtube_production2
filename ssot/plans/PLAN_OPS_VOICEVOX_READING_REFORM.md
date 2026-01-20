@@ -2,19 +2,29 @@
 
 > Plan metadata
 > - Plan ID: **PLAN_OPS_VOICEVOX_READING_REFORM**
-> - ステータス: Active
+> - ステータス: Superseded（参照用 / 運用正本ではない）
 > - 担当/レビュー: Codex（最終更新者）
 > - 対象範囲 (In Scope): `audio_tts` の VOICEVOX 読み誤り対策、SRT/Bテキスト生成経路
 > - 非対象 (Out of Scope): 台本生成ロジックの刷新、投稿/動画編集 UI
 - 最終更新日: 2025-12-11
 
-> VOICEVOX 読み誤り対策の正本。旧 SSOT は `ssot_old/` に退避済みで、以後の更新・TODO 管理は本書のみで行う。
+> ⚠ 重要: **現行運用の正本**は `ssot/DECISIONS.md` の **D-013** と `ssot/ops/OPS_TTS_ANNOTATION_FLOW.md`。
+> 本書には過去の設計案（読み裁定LLM 等）が残るが、`YTM_ROUTING_LOCKDOWN=1`（既定）では **運用しない**。
+> 運用は **読みLLM（auditor）禁止**（推論=対話型AIエージェント / `SKIP_TTS_READING=1` 必須 / `SKIP_TTS_READING=0` は禁止）で進める。
 
 ## 1. 目的と適用範囲
 - 目的: VOICEVOX を用いた audio_tts パイプラインでの誤読・不自然抑揚を、LLM/MeCab/VOICEVOX の三者比較で検出・矯正する。
 - 適用: `audio_tts` の Strict pipeline（例: `packages/audio_tts/scripts/run_tts.py` / `strict_orchestrator.run_strict_pipeline`）全般（A テキスト→ SRT → 音声/SRT 出力）。
 
-## 1.1 最新方針（2025-12-11 再確定・実装済み）
+## 1.1 現行運用（2026-01 / 正本: D-013）
+- 運用正: **読みLLM（auditor）禁止**（推論=対話型AIエージェント / `SKIP_TTS_READING=1` 既定/必須、辞書/override + `--prepass` mismatch=0 を合格条件にする）
+- 禁止: `YTM_ROUTING_LOCKDOWN=1`（既定）下で `SKIP_TTS_READING=0` / `tts_*`（読み裁定LLM 等）へ流す
+- 入口: `./ops audio -- --channel CHxx --video NNN`（必要に応じて `--prepass` から）
+- 失敗時: 停止して報告（API→THINK 自動フォールバックは禁止）
+
+### 1.1.1 旧案（参考 / 運用無効）
+- 以下は 2025-12 時点の設計案メモ（読み裁定LLM 等の記述を含む）。
+- 現行運用では使わない。検証が必要な場合のみ `YTM_EMERGENCY_OVERRIDE=1` を明示し、実行ログを残してから扱う。
 - Ruby LLM の役割は「surface単位で VOICEVOX の読みが OK/NG を判定し、NG のときだけカナを返す」だけ。文を書き換えない。
 - 1動画あたりの Ruby LLM は構造的に最大2コール / surface 最大40件（batch20×2）に固定。パラメータキャップではなく仕様。
 - 送信対象は hazard レベルAのみ（英数字/数値/未知語/固有名詞/ハザード辞書）。レベルB（単なる block_diff）は `include_level_b=True` のときだけ。
@@ -23,11 +33,12 @@
 - KanaPatch は positions で全出現に適用し、accent_phrases で align。失敗時は長さクリップ＋fallback理由をログ。
 - vocab LLM は本番パイプラインから切り離し（enable_vocab=False デフォルト）。辞書育成はオフラインバッチ前提にする。
 - ログ: `tts_voicevox_reading.jsonl` に selected/adopted/rejected/calls、surface/mecab/voicevox/ruby、reason（hazard/trivial_skipped/banned/align_fallback 等）を記録し、集計でコール数≤2/件数≤40を確認する。
-- **実行モード（固定）**（更新: 2026-01-10 / `ssot/DECISIONS.md:D-013`）:
-  - TTS/Bテキスト系（`tts_*` / `voicevox_kana`）は **AIエージェント（Codex / pending運用）** を正とする（例: `./scripts/think.sh --tts -- <cmd>` または `LLM_EXEC_SLOT=3/4`）。
-  - 注: ここで言う Codex は **codex exec（非対話CLI）ではない**（別物）。TTSを codex exec へ寄せない。
-  - 失敗時は **LLM APIへ自動フォールバックしない**（停止して原因を残す）。
-  - 比較/デバッグでAPI実行する場合のみ `LLM_EXEC_SLOT=0` を明示して実行する（通常運用で勝手に切り替えない）。
+- **実行モード（運用固定）**（更新: 2026-01 / `ssot/DECISIONS.md:D-013`）:
+  - **読みLLM（auditor）禁止**: `SKIP_TTS_READING=1`（既定/必須）
+  - 入口: `./ops audio -- --channel CHxx --video NNN`（必要に応じて `--prepass` から）
+  - 禁止: `YTM_ROUTING_LOCKDOWN=1`（既定）下で `SKIP_TTS_READING=0`（誤って読みLLMへ流れる事故を防ぐ）
+  - 失敗時は停止して報告（API→THINK 自動フォールバックは禁止）
+  - 比較/デバッグで読みLLM経路を触るのは緊急時のみ（`YTM_EMERGENCY_OVERRIDE=1` を明示してから）
 - **誤読ゼロ運用（グローバル確定）**:
   - `SKIP_TTS_READING=1`（読みLLM完全OFF）運用では、VOICEVOX の実読（`audio_query.kana`）と期待読み（MeCab+辞書/override）を突合する。
   - 1件でも不一致があれば **fail-fastで停止** し、`workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json` を出力して修正の入口にする（誤読混入を禁止）。
@@ -35,8 +46,8 @@
 ## 2. 現行実装サマリ（実コード優先）
 - Aテキスト前処理: `factory_common.text_sanitizer.strip_meta_from_script`（Strict pipeline が使用）
 - セグメント化: `packages/audio_tts/tts/strict_segmenter.py::strict_segmentation`
-- 読み裁定（Twin-Engine + LLM batch）: `packages/audio_tts/tts/arbiter.py::resolve_readings_strict` → `packages/audio_tts/tts/auditor.py`
-- 監査プロンプト枠: `tts/auditor.py` は hazard/辞書/トリビアル差分ゲート後の語彙をまとめて `tts_reading` にバッチ送信し、学習結果をチャンネル辞書に即反映する。【F:packages/audio_tts/tts/auditor.py†L8-L219】
+- 読み裁定（運用）: `packages/audio_tts/tts/arbiter.py::resolve_readings_strict`（辞書/override + strict mismatch の決定論）。`SKIP_TTS_READING=1` が既定/必須。
+- 参考（運用無効）: `tts/auditor.py` の `tts_reading`（読み裁定LLM）経路は設計/実験の痕跡として残るが、`YTM_ROUTING_LOCKDOWN=1`（既定）では使わない（必要時のみ `YTM_EMERGENCY_OVERRIDE=1` を明示して検証）。
 - VOICEVOX 合成: `tts/synthesis.py::voicevox_synthesis(_chunks)` が `/audio_query`→`/synthesis` を実行し `accent_phrases` を保持可能。`apply_kana_patches` で moras を上書きでき、`voicevox_synthesis` は `patches`、`voicevox_synthesis_chunks` は `patches_by_block` を受け取って `/synthesis` に渡す。【F:packages/audio_tts/tts/synthesis.py】
 - データクラス: `tts/reading_structs.py` にルビ・リスク・カナパッチの共通型（`RubyToken`, `RiskySpan`, `KanaPatch` 等）と LLM 呼び出しスケルトンが定義済み。【F:packages/audio_tts/tts/reading_structs.py†L1-L86】
 - テスト: `packages/audio_tts/tests/test_apply_kana_patches.py` がパッチ適用の no-op/範囲内/範囲外/`correct_moras` 優先を検証。【F:packages/audio_tts/tests/test_apply_kana_patches.py†L1-L86】

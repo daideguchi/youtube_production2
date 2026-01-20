@@ -12,7 +12,11 @@
 - **ハードコード禁止**: コードにモデル名（例: `gpt-5-mini`）を直書きしない。
 - **タスクキーで呼ぶ**: `LLMRouter.call(task=..., messages=...)` の `task` がSoT。
 - **切替は設定で**: モデル切替/コスト最適化は `configs/*.yml|*.yaml` 側で完結させる。
-- **無断でモデルを追加/切替しない**: `configs/llm*.yml` / `configs/image_models.yaml` の tier 候補やモデルキーを、指示なしで増やしたり順序変更しない（特に画像生成は運用/課金/品質に直結するため厳禁）。例外は SSOT 更新 + 人間レビュー承認後のみ。
+- **無断でモデルを追加/切替しない**: `configs/llm*.yml` / `configs/image_models.yaml` の tier 候補やモデルキーを、指示なしで増やしたり順序変更しない（特に画像生成は運用/課金/品質に直結するため厳禁）。例外は **SSOT 更新 + 明示承認（オーナー指示）** 後のみ。
+- **ロックダウンの強制ガード**（事故防止）:
+  - `YTM_ROUTING_LOCKDOWN=1`（default）では、`configs/llm_router.yaml` の未コミット変更がある状態で実行を開始できない（即停止）。
+  - `configs/llm_model_slots.local.yaml` は drift 源のため lock down 下では **禁止**（存在した時点で即停止）。
+  - 例外は `YTM_EMERGENCY_OVERRIDE=1`（この実行だけ）。通常運用では使わない。
 - **ログは必ず残す**: `workspaces/logs/llm_usage.jsonl`（集計）に集約し、他の散発ログはL3として短期保持。
 
 ---
@@ -33,7 +37,7 @@
 - `configs/llm_model_slots.yaml`
   - **数字スロット** `LLM_MODEL_SLOT`（tier→モデルコード）でブレなく切替える（モデル名を書き換えない）
 - `configs/llm_exec_slots.yaml`
-  - **数字スロット** `LLM_EXEC_SLOT`（api/think/agent/codex exec/failover）で「どこで動くか」を固定
+  - **数字スロット** `LLM_EXEC_SLOT`（api/think/agent/codex exec）で「どこで動くか」を固定（API→THINK 自動フォールバックは禁止）
 
 ### 1.1.1 変更後の固定チェック（必須）
 - 最短（入口固定）: `./ops ssot check`（内部: `scripts/ops/pre_push_final_check.py`）
@@ -107,12 +111,10 @@
 - 「一貫性」: 画像プロンプトのガードレール +（Kontextは）参照画像（input_image）で人物/場面のブレを抑える。
 - 一時切替（ファイル編集なし / その実行だけ）:
   - 動画内画像: `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN=g-1`（Gemini）/ `f-1`（Flux schnell）/ `f-4`（Flux max）
-  - サムネ: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=g-1`（Gemini）/ `f-4`（Flux max）
 - 注意: ロックダウン運用（`YTM_ROUTING_LOCKDOWN=1`）では `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY*` を恒久セットしない（混乱/コスト事故の原因）。prefix で「その実行だけ」明示する。
 - **禁止（動画内画像）**: `visual_image_gen`（動画内画像）では Gemini 3 系の画像モデルは使わない（例: `gemini_3_pro_image_preview`）。
   - `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY_IMAGE_GENERATION` / `IMAGE_CLIENT_FORCE_MODEL_KEY` に `gemini-3` / `gemini_3` を含む値を入れた時点で停止する（ガードあり）。
-- **許可（サムネ）**: `thumbnail_image_gen`（サムネ背景生成）は Gemini 3 系を使ってよい（必要時のみ、明示して使う）。
-  - 例: `IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN=gemini_3_pro_image_preview`
+- **固定（サムネ）**: サムネ背景生成は **Gemini 2.5 Flash Image（g-1）固定**。`IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` による上書きは運用では使わない（debugのみ `YTM_EMERGENCY_OVERRIDE=1`）。
 
 ---
 
@@ -131,17 +133,10 @@
 - `script_a_text_quality_judge` / `script_a_text_quality_fix`: `script_validation` の QC（judge→fix）。モデルは `script-main-1` 固定（自動フォールバックしない）。
 
 ### 3.2 TTS（音声）
-- `tts_annotate`: 注釈付け（json_object）
-- `tts_text_prepare`: 前処理（json_object）
-- `tts_segment`: セグメント分割（json_object）
-- `tts_pause`: 間の推定（json_object）
-- `tts_reading`: 読み解決（重い推論）
-- 実行（固定）:
-  - `tts_*` は **AIエージェント（Codex）主担当**（`voicevox_kana` の差分/読み推論を Codex 側へ寄せる）。
-  - 入口固定: `./scripts/think.sh --tts -- python -m script_pipeline.cli audio --channel CHxx --video NNN`
-    - これにより `tts_*` は **pending で停止**し、Codex（AIエージェント）が output を作って `complete` → rerun する。
-    - 注: ここで言う「Codex」は **codex exec（非対話CLI）ではない**（別物）。TTSは codex exec へ寄せない。
-  - 比較/デバッグで API 実行が必要な場合のみ、THINK MODE を使わずに実行する（通常運用で勝手に切り替えない）。
+- 運用正: **推論=対話型AIエージェント / 読みLLM無効**（VOICEVOX: `--prepass` mismatch=0 / VOICEPEAK: `--prepass`→合成→サンプル再生OK）。
+- 入口: `./ops audio -- --channel CHxx --video NNN`（同等: `python -m script_pipeline.cli audio --channel CHxx --video NNN`）
+- 固定: `SKIP_TTS_READING=1`（`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止。例外は `YTM_EMERGENCY_OVERRIDE=1` を明示した実行のみ）
+- 注: `tts_*`（`tts_reading` 等）は“実装/実験の痕跡”として残っているが、運用では使わない（誤用防止ガードあり）。
 
 ### 3.3 Video/Visual（画像文脈・プロンプト）
 - `visual_section_plan`: セクション設計
@@ -186,19 +181,17 @@
     - 互換: `LLM_FORCE_MODELS=2`（legacy）が入っていても **スロット2** として扱われる（運用は `LLM_MODEL_SLOT` を使う）
   - 重要:
     - スロットは strict 扱い（既定: 先頭モデルのみ）。複数モデルを試すのは `allow_fallback=true` を明示した時だけ
-    - 非`script_*` は API 失敗時に THINK へ（モデル/プロバイダの自動すり替えはしない）
-    - `script_*` は THINK へ行かない（API停止時は即停止・記録）。運用切替は slot 定義で固定する（`YTM_SCRIPT_ALLOW_OPENROUTER` はロックダウンONでは禁止）
+    - **禁止: API失敗→THINK の自動フォールバック**（失敗したら停止して報告。pending は最初から THINK/AGENT で出す）
+    - 台本（`script_*`）は **THINK がデフォルト**（pending）。本文生成は **対話型AIエージェントが外部CLI（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`）または明示API** で仕上げる。
     - 注: 本repoでは “モデル指定は model code（`fw-d-1` 等）” が正。`or_`/`fw_` などの内部キーは運用では使わない。
 
 - **実行モード（どこで動くか）も slot で固定（運用のブレ防止）**
-  - `LLM_EXEC_SLOT=0`（default）: 通常（api / codex_exec.yaml に従う / failover既定ON）
+  - `LLM_EXEC_SLOT=3`（default）: THINK MODE（pending を作る）
+  - `LLM_EXEC_SLOT=0`: API（明示実行。失敗時は停止して報告。自動フォールバックしない）
   - `LLM_EXEC_SLOT=1`: codex exec 強制ON（許可taskのみ）
   - `LLM_EXEC_SLOT=2`: codex exec 強制OFF
-  - `LLM_EXEC_SLOT=3`: THINK MODE（pending を作る）
   - `LLM_EXEC_SLOT=4`: AGENT MODE（pending を作る）
-  - `LLM_EXEC_SLOT=5`: API→THINK failover をOFF（**デバッグ専用**）
-    - **ロックダウン中（`YTM_ROUTING_LOCKDOWN=1`）は非`script_*` の failover は必ずON**（オフにできない / 絶対ルール）
-    - OFF にする必要があるのは緊急デバッグ時のみ（`YTM_EMERGENCY_OVERRIDE=1` の上で使う）
+  - `LLM_EXEC_SLOT=5`: legacy（互換用。特別な意味は持たない）
   - 使い方（例）:
     - `./scripts/with_ytm_env.sh --exec-slot 3 python3 ...`
     - `python -m script_pipeline.cli run-all --channel CH06 --video 033 --exec-slot 3`

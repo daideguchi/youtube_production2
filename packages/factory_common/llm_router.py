@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 
 from factory_common.llm_param_guard import sanitize_params
 from factory_common.agent_mode import maybe_handle_agent_mode
-from factory_common.llm_api_failover import maybe_failover_to_think
 from factory_common.llm_api_cache import (
     cache_enabled_for_task as _api_cache_enabled_for_task,
     cache_path as _api_cache_path,
@@ -1646,6 +1645,24 @@ class LLMRouter:
             context=f"llm_router._call_internal({task})",
             hint="Use slots/codes + SSOT task routing. Debug only: YTM_EMERGENCY_OVERRIDE=1.",
         )
+
+        # Policy: TTS annotation is NOT an LLM task route under normal ops.
+        # - 読みLLM（auditor）を勝手に叩かない（推論/判断は対話型AIエージェントが担当）。
+        # - VOICEVOXは prepass mismatch=0 を合格条件にする。
+        # - tts_* tasks are implementation/experiments and are forbidden under routing lockdown.
+        if lockdown_active() and str(task or "").startswith("tts_"):
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[LOCKDOWN] Forbidden task under normal ops: tts_*",
+                        f"- task: {task}",
+                        "- policy: 読みLLM（auditor）禁止（推論=対話型AIエージェント / SKIP_TTS_READING=1 / 辞書+override+prepass mismatch=0）",
+                        "- hint: use `./ops audio -- --channel CHxx --video NNN --prepass` and fix dict/overrides",
+                        "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for debug only",
+                    ]
+                )
+            )
+
         models = self.get_models_for_task(task, model_keys_override=model_keys)
         if not models:
             raise ValueError(f"No models available for task: {task}")
@@ -1663,9 +1680,7 @@ class LLMRouter:
         #
         # Policy:
         # - When a model chain is explicitly pinned, NEVER expand the chain beyond that explicit set.
-        # - For non-script tasks, API failures may still fail over to THINK MODE (agent queue), because that
-        #   does not change the chosen LLM model chain.
-        # - For `script_*` tasks, do NOT fail over to THINK MODE; STOP and log (operational rule).
+        # - API failures must STOP and report. There is no API→THINK auto failover.
         #
         # What counts as "explicit":
         # - call(..., model_keys=[...]) was provided
@@ -2401,24 +2416,6 @@ class LLMRouter:
                 "timestamp": time.time(),
             }
         )
-        allow_think_failover = not str(task or "").startswith("script_")
-        if allow_think_failover:
-            failover = maybe_failover_to_think(
-                task=task,
-                messages=messages,
-                options=base_options,
-                response_format=response_format,
-                return_raw=return_raw,
-                failure={
-                    "error": str(last_error) if last_error is not None else None,
-                    "error_class": last_error_class,
-                    "status_code": last_status,
-                    "chain": tried,
-                },
-            )
-            if failover is not None:
-                return failover
-
         hint = ""
         if strict_model_selection and not allow_fallback_effective:
             hint = (

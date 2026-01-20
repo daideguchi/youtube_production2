@@ -46,8 +46,12 @@
   - `./ops patterns show PAT-VIDEO-DRAFT-001`
   - 正本: `ssot/ops/OPS_EXECUTION_PATTERNS.md`
 - 代表例（P0ラッパー）:
-  - Script: `./ops api script <MODE> -- --channel CHxx --video NNN`（台本はAPI固定）
-  - Audio: `./ops audio --llm think -- --channel CHxx --video NNN`
+  - Script（デフォルト）: `./ops script <MODE> -- --channel CHxx --video NNN`
+    - 明示API: `./ops api script <MODE> -- --channel CHxx --video NNN`
+    - 明示CLI（Claude; 既定）: `./ops claude script -- --channel CHxx --video NNN --run`
+    - 明示CLI（Gemini）: `./ops gemini script -- --channel CHxx --video NNN --run`
+    - 明示CLI（Qwen）: `./ops qwen script -- --channel CHxx --video NNN --run`
+  - Audio: `./ops audio -- --channel CHxx --video NNN`
   - Publish: `./ops publish -- --max-rows 1 --run --also-lock-local`
 - LLM実行の明示（重要）:
   - `--llm think`: **外部LLM APIコストを使わない**（agent queue に pending を作る → `./ops agent ...` で埋める）
@@ -68,7 +72,8 @@
   - CLI（正本入口）: `./ops idea help`
   - 運用SSOT: `ssot/ops/OPS_IDEA_CARDS.md`
 - 台本（Script / 入口固定）:
-  - 正本入口: `./ops api script <MODE> -- --channel CHxx --video NNN`
+  - 正本入口（デフォルト）: `./ops script <MODE> -- --channel CHxx --video NNN`
+  - 明示API: `./ops api script <MODE> -- --channel CHxx --video NNN`
   - 実体: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py <MODE> ...`
   - 運用モード正本（new/redo-full/resume/rewrite/seed-expand）: `ssot/ops/OPS_SCRIPT_FACTORY_MODES.md`
   - カオス復旧（複数エージェント競合の止血）: `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`
@@ -78,17 +83,30 @@
     - master: `prompts/antigravity_gemini/MASTER_PROMPT.md`
     - individual/full: `prompts/antigravity_gemini/CHxx/CHxx_NNN_{PROMPT|FULL_PROMPT}.md`
   - Batch submit: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py submit --channel CHxx --videos NNN-NNN`
-  - Batch fetch（assembled反映）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
-- 台本（手動/明示; Gemini CLIで本文を書く）:
-  - 入口: `./ops gemini script --channel CHxx --video NNN --run`（デフォルトはdry-run）
+- Batch fetch（assembled反映）: `./scripts/with_ytm_env.sh python3 scripts/ops/gemini_batch_generate_scripts.py fetch --manifest <path> --write`
+- 台本（手動/明示; Claude CLIで本文を書く / 既定）:
+  - 入口: `./ops claude script -- --channel CHxx --video NNN --run`（デフォルトはdry-run）
   - 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別の結合）
   - 出力（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
-  - 注意: **サイレントfallbackは禁止**。必要時のみ明示コマンドで使う（Batchの代替/補助）。
+  - 既定モデル: sonnet 4.5（Opusはオーナー指示時のみ）。Claudeリミット時は **Gemini 3 Flash Preview → qwen** の順にフォールバックする。
+- 台本（手動/明示; Gemini CLIで本文を書く / フォールバック）:
+  - 入口: `./ops gemini script -- --channel CHxx --video NNN --run --gemini-model gemini-3-flash-preview`（デフォルトはdry-run）
+  - 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別の結合）
+  - 出力（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
+  - 注意: **サイレントfallbackは禁止**。必要時のみ明示コマンドで使う。
+- 台本（手動/明示; qwen CLIで本文を書く / 最終フォールバック）:
+  - 入口: `./ops qwen script -- --channel CHxx --video NNN --run`（デフォルトはdry-run）
+  - 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`
+  - 出力（SoT）: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`
+  - 固定: **qwen-oauthのみ**（qwen で Claude/Gemini/OpenAI を使わない）。
+  - 禁止: `qwen` の auth-type 切替（`--auth-type`）。
+  - 禁止: `qwen` の model/provider 指定（`--model` / `-m` / `--qwen-model`）。このrepoでは物理的にブロックされる（= 別プロバイダへ逃げない）。
 - 音声（Audio/TTS）:
-  - 正本入口: `./ops audio --llm think -- --channel CHxx --video NNN`
+  - 正本入口: `./ops audio -- --channel CHxx --video NNN`
   - 互換（同等）: `python -m script_pipeline.cli audio --channel CHxx --video NNN`
   - 直叩き: `PYTHONPATH=".:packages" python3 -m audio_tts.scripts.run_tts ...`
-  - 未投稿×既存音声の再監査（NO LLM / aggregated）:
+  - 固定（運用）: **推論=対話型AIエージェント / 読みLLM無効**（`SKIP_TTS_READING=1` が既定/必須）。`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止（必要な場合のみ `YTM_EMERGENCY_OVERRIDE=1` を明示してから）。
+  - 未投稿×既存音声の再監査（LLM API 不使用 / aggregated）:
     - `./scripts/with_ytm_env.sh python3 scripts/ops/tts_unposted_audio_audit.py --write-latest`
     - SoT: `ssot/ops/OPS_TTS_UNPOSTED_AUDIO_AUDIT.md`
 - 動画（SRT→画像→CapCut）:
