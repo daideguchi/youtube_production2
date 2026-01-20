@@ -15,7 +15,7 @@ Purpose:
 
 Policy (SSOT):
 - Default CLI backend: Claude (model: Sonnet 4.5).
-- Opus is allowed only when explicitly instructed (pass --claude-model opus).
+- Opus is allowed only when explicitly instructed, and requires `YTM_ALLOW_CLAUDE_OPUS=1` for this run.
 - If Claude is rate-limited/unavailable: fallback to Gemini 3 Flash Preview, then to qwen.
 
 Safety:
@@ -352,6 +352,27 @@ _CLAUDE_ALLOWED_ALIASES = {"sonnet", "opus"}
 _CLAUDE_DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
 
 
+def _env_truthy(name: str) -> bool:
+    return str(os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _assert_opus_allowed(model: str) -> None:
+    low = str(model or "").strip().lower()
+    if low == "opus" or low.startswith("claude-opus-4-5-"):
+        if not _env_truthy("YTM_ALLOW_CLAUDE_OPUS"):
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[POLICY] Forbidden: Claude Opus is not allowed by default.",
+                        f"- got --claude-model: {model}",
+                        "- rule: Opus is allowed only when explicitly instructed by the owner.",
+                        "- allow: set YTM_ALLOW_CLAUDE_OPUS=1 for THIS run, then retry.",
+                        "- default: omit --claude-model (Sonnet 4.5 pinned) or use --claude-model sonnet.",
+                    ]
+                )
+            )
+
+
 def _validate_claude_model(raw: str | None) -> str:
     """
     Policy:
@@ -363,8 +384,10 @@ def _validate_claude_model(raw: str | None) -> str:
         return _CLAUDE_DEFAULT_MODEL
     low = s.lower()
     if low in _CLAUDE_ALLOWED_ALIASES:
+        _assert_opus_allowed(low)
         return low
     if re.fullmatch(r"claude-(sonnet|opus)-4-5-\d{8}", low):
+        _assert_opus_allowed(s)
         return s
     raise SystemExit(
         "\n".join(
@@ -372,7 +395,7 @@ def _validate_claude_model(raw: str | None) -> str:
                 "[POLICY] Forbidden --claude-model (unsupported).",
                 f"- got: {s}",
                 "- allowed: sonnet | opus | claude-sonnet-4-5-YYYYMMDD | claude-opus-4-5-YYYYMMDD",
-                f"- note: default is {_CLAUDE_DEFAULT_MODEL}. Use opus only when explicitly instructed.",
+                f"- note: default is {_CLAUDE_DEFAULT_MODEL}. Opus requires YTM_ALLOW_CLAUDE_OPUS=1.",
             ]
         )
     )
@@ -600,6 +623,7 @@ def _run_claude_cli(
         cmd += ["--model", str(model)]
 
     env = dict(os.environ)
+    env.pop("ANTHROPIC_API_KEY", None)
     env.setdefault("NO_COLOR", "1")
 
     start = time.time()
@@ -1114,7 +1138,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument(
         "--claude-model",
         default=_CLAUDE_DEFAULT_MODEL,
-        help=f"Claude model alias/name (default: {_CLAUDE_DEFAULT_MODEL}). Use opus only when explicitly instructed.",
+        help=f"Claude model alias/name (default: {_CLAUDE_DEFAULT_MODEL}). Opus requires YTM_ALLOW_CLAUDE_OPUS=1 and explicit owner instruction.",
     )
     sp.add_argument("--timeout-sec", type=int, default=1800, help="Timeout seconds per episode (default: 1800)")
     sp.set_defaults(func=cmd_run)

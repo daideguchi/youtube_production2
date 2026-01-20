@@ -334,7 +334,10 @@ flowchart LR
 - `claude -p 'OKとだけ返して' --tools ''`
 
 失敗時の切り分け（まずここ）:
-- `Invalid API key · Fix external API key` が出る場合、Claude Code 側の認証（外部APIキー/サブスクtoken）が壊れている。**`claude setup-token` でサブスクtokenを再設定**してから再実行する（本repoの Claude CLI ツールは `.env` を読まず、原則としてClaude Codeのログイン状態に依存する）。
+- `Invalid API key · Fix external API key` は、多くの場合 **環境変数 `ANTHROPIC_API_KEY` が優先されていて、その値が無効**な状態。
+  - 値を表示せずに確認: `test -n \"${ANTHROPIC_API_KEY-}\" && echo 'ANTHROPIC_API_KEY is set'`
+  - 一発回避（このコマンドだけ外す）: `env -u ANTHROPIC_API_KEY claude -p 'ping' --tools ''`
+  - 以後ずっと（サブスクtokenで使う）: `unset ANTHROPIC_API_KEY` → 必要なら `claude setup-token` でサブスクtokenを再設定
 
 I/O（固定）:
 - 入力: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`（master+個別）
