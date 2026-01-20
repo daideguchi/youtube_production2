@@ -38,10 +38,52 @@ bootstrap(load_env=False)
 
 from factory_common import paths as repo_paths  # noqa: E402
 from script_pipeline.validator import validate_a_text  # noqa: E402
+from script_pipeline.tools.channel_registry import find_channel_dir  # noqa: E402
 
 
 _SLEEP_MARKERS_STRICT = ("おやすみ", "寝落ち", "睡眠用", "安眠", "布団", "眠れ")
 _TIMEJUMP_MARKERS = ("次の日", "翌日", "翌朝", "数日後", "数週間後", "数ヶ月後", "数年後", "翌週", "翌月", "来週", "来月")
+
+
+_CHANNEL_DEFAULTS: dict[str, dict[str, int]] = {
+    # CH06 scripts are long-form by design (15k-20k) and already use 6-8 pause lines.
+    "CH06": {"default_target_min": 15000, "default_target_max": 20000, "max_pause_lines": 8},
+}
+
+
+def _load_channel_polish_prompt(channel: str) -> str:
+    """
+    Load channel-global polish instructions (optional).
+
+    Convention:
+      packages/script_pipeline/channels/CHxx-*/polish_prompt.txt
+    """
+    ch = str(channel or "").strip().upper()
+    try:
+        ch_dir = find_channel_dir(ch)
+    except Exception:
+        ch_dir = None
+    if not ch_dir:
+        return ""
+    p = ch_dir / "polish_prompt.txt"
+    if not p.exists():
+        return ""
+    try:
+        return _read_text(p).strip()
+    except Exception:
+        return ""
+
+
+def _compose_instruction(*, channel: str, operator_instruction: str) -> Optional[str]:
+    parts: List[str] = []
+    ch_prompt = _load_channel_polish_prompt(channel)
+    if ch_prompt:
+        parts.append(ch_prompt)
+    op = str(operator_instruction or "").strip()
+    if op:
+        parts.append(op)
+    combined = "\n\n".join(parts).strip()
+    return combined if combined else None
 
 
 def _utc_now_iso() -> str:
@@ -378,21 +420,45 @@ def _build_editor_prompt(
 
 
 _CLAUDE_ALLOWED_ALIASES = {"sonnet", "opus"}
+_CLAUDE_DEFAULT_MODEL = "claude-sonnet-4-5-20250929"
+
+
+def _env_truthy(name: str) -> bool:
+    return str(os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _assert_opus_allowed(model: str) -> None:
+    low = str(model or "").strip().lower()
+    if low == "opus" or low.startswith("claude-opus-4-5-"):
+        if not _env_truthy("YTM_ALLOW_CLAUDE_OPUS"):
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[POLICY] Forbidden: Claude Opus is not allowed by default.",
+                        f"- got --claude-model: {model}",
+                        "- allow: set YTM_ALLOW_CLAUDE_OPUS=1 for THIS run (owner instruction required), then retry.",
+                        f"- default: {_CLAUDE_DEFAULT_MODEL}",
+                    ]
+                )
+            )
 
 
 def _validate_claude_model(raw: str | None) -> str:
     low = str(raw or "").strip().lower()
     if not low:
-        return "sonnet"
+        return _CLAUDE_DEFAULT_MODEL
     if low in _CLAUDE_ALLOWED_ALIASES:
+        _assert_opus_allowed(low)
         return low
     if re.fullmatch(r"claude-(sonnet|opus)-4-5-\d{8}", low):
+        _assert_opus_allowed(low)
         return low
     raise SystemExit(
         "\n".join(
             [
                 "[POLICY] Forbidden --claude-model (unsupported).",
                 "- allowed: sonnet | opus | claude-sonnet-4-5-YYYYMMDD | claude-opus-4-5-YYYYMMDD",
+                f"- note: Opus requires YTM_ALLOW_CLAUDE_OPUS=1. Default is {_CLAUDE_DEFAULT_MODEL}.",
             ]
         )
     )
@@ -620,6 +686,15 @@ def cmd_run(args: argparse.Namespace) -> int:
     if not re.fullmatch(r"CH\d{2}", channel):
         raise SystemExit(f"Invalid --channel: {channel!r}")
 
+    # Apply channel-specific defaults only when the operator did not override.
+    ch_defaults = _CHANNEL_DEFAULTS.get(channel)
+    if ch_defaults:
+        if int(getattr(args, "default_target_min", 0) or 0) == 6000 and int(getattr(args, "default_target_max", 0) or 0) == 8000:
+            args.default_target_min = int(ch_defaults["default_target_min"])
+            args.default_target_max = int(ch_defaults["default_target_max"])
+        if int(getattr(args, "max_pause_lines", 0) or 0) == 5:
+            args.max_pause_lines = int(ch_defaults["max_pause_lines"])
+
     videos: List[str] = []
     if args.video:
         videos = [_z3(args.video)]
@@ -632,6 +707,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     claude_model = _validate_claude_model(args.claude_model)
 
     failures: List[str] = []
+    extra_instruction = _compose_instruction(channel=channel, operator_instruction=str(args.instruction or ""))
     for vv in videos:
         script_id = f"{channel}-{vv}"
         draft_path = _draft_a_text_path(channel, vv)
@@ -677,7 +753,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                 target_min=target_min,
                 target_max=target_max,
                 max_pause_lines=int(args.max_pause_lines),
-                extra_instruction=str(args.instruction or "").strip() or None,
+                extra_instruction=extra_instruction,
                 retry_hint=retry_hint,
             )
 
@@ -834,7 +910,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--timeout-sec", type=int, default=1800, help="Timeout seconds per episode (default: 1800)")
 
     sp.add_argument("--claude-bin", default="", help="Explicit claude binary path (optional)")
-    sp.add_argument("--claude-model", default="sonnet", help="Claude model alias/name (default: sonnet)")
+    sp.add_argument(
+        "--claude-model",
+        default=_CLAUDE_DEFAULT_MODEL,
+        help=f"Claude model alias/name (default: {_CLAUDE_DEFAULT_MODEL}). Opus requires YTM_ALLOW_CLAUDE_OPUS=1 and explicit owner instruction.",
+    )
 
     sp.add_argument("--max-pause-lines", type=int, default=5, help="Max `---` lines allowed in output (default: 5)")
     sp.add_argument("--default-target-min", type=int, default=6000, help="Fallback target_chars_min if status.json missing")
