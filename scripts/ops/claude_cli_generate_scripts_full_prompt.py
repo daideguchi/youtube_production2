@@ -719,6 +719,7 @@ _LIMIT_PATTERNS = [
     # Rate/usage limits
     r"\brate[- ]?limit\b",
     r"\busage limit\b",
+    r"\bhit your limit\b",
     r"\bquota\b",
     r"\bresource_exhausted\b",
     r"\btoo many requests\b",
