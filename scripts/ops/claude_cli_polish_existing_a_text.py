@@ -798,6 +798,14 @@ def _build_retry_hint(last_failure: str) -> str:
                 "- 途中で途切れた文を残さない。本文のみを出力。",
             ]
         )
+    if "duplicate_paragraph" in lf:
+        return "\n".join(
+            [
+                "再試行: 直前の出力に同一段落の重複があり不合格。",
+                "- 同じ内容の段落を二重に書かない（重複した段落は統合/削除して1回にする）。",
+                "- 新しい事件/設定/人物を増やさず、本文のみを出力。",
+            ]
+        )
     if lf.startswith("rejected_output=too_short"):
         return "\n".join(
             [
