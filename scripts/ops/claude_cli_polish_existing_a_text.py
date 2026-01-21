@@ -18,6 +18,10 @@ Policy:
 - This tool uses the user's Claude CLI session (subscription auth). It intentionally ignores ANTHROPIC_API_KEY
   to avoid unintended paid API usage.
 - No LLM router usage.
+
+Note:
+- When Claude CLI hits a subscription rate limit, operators may choose `--engine gemini`
+  to continue polishing via Gemini CLI with the same SSOT validator and channel polish prompt.
 """
 
 import argparse
@@ -41,7 +45,9 @@ from script_pipeline.validator import validate_a_text  # noqa: E402
 from script_pipeline.tools.channel_registry import find_channel_dir  # noqa: E402
 
 
-_SLEEP_MARKERS_STRICT = ("おやすみ", "寝落ち", "睡眠用", "安眠", "布団", "眠れ")
+# NOTE: This tool is for polishing A-text for narration.
+# We keep the sleep-framing guard intentionally strict to avoid "sleepy ambience" contamination.
+_SLEEP_MARKERS_STRICT = ("おやすみ", "寝落ち", "睡眠用", "安眠", "布団", "眠れ", "眠")
 _TIMEJUMP_MARKERS = ("次の日", "翌日", "翌朝", "数日後", "数週間後", "数ヶ月後", "数年後", "翌週", "翌月", "来週", "来月")
 
 
@@ -201,7 +207,9 @@ def _truncate_for_prompt(text: str, *, max_chars: int) -> str:
     s = str(text or "")
     if len(s) <= max_chars:
         return s
-    return s[:max_chars].rstrip() + "\n\n[TRUNCATED]\n"
+    # NOTE: Do NOT append markers like "[TRUNCATED]" inside prompt payloads.
+    # Some LLM CLIs echo them into the output, causing validator failures.
+    return s[:max_chars].rstrip() + "\n"
 
 
 def _strip_code_fences(text: str) -> str:
@@ -265,6 +273,8 @@ def _has_consecutive_pause(text: str) -> bool:
 
 def _looks_like_meta_output(text: str) -> bool:
     s = _normalize_newlines(text)
+    if "[TRUNCATED]" in s:
+        return True
     if "<<<" in s or ">>>" in s:
         return True
     if re.search(r"^\s*#{1,6}\s+\S", s, flags=re.MULTILINE):
@@ -319,6 +329,7 @@ def _build_continue_prompt(
     max_pause_lines: int,
     add_min: int,
     add_max: int,
+    extra_instruction: str | None,
 ) -> str:
     ch = str(channel).strip().upper()
     vv = _z3(video)
@@ -327,11 +338,13 @@ def _build_continue_prompt(
         f"- 動画: {vv}",
         f"- 文字数: 必ず {int(target_min)}〜{int(target_max)} 字（本文のみ）",
         f"- 区切り: `---` は最大 {int(max_pause_lines)} 回、連続禁止、末尾に置かない",
-        "- 禁止: 睡眠誘導フレーミング（寝落ち/睡眠用/安眠/布団/おやすみ/眠れない 等）",
+        "- 禁止: 睡眠誘導フレーミング（寝落ち/睡眠用/安眠/布団/おやすみ/眠れ/眠る/眠り 等）",
+        "- 禁止: 時間ジャンプ語（次の日/翌日/翌朝/数日後/数週間後/数ヶ月後/数年後/翌週/翌月/来週/来月）",
         "- 禁止: 見出し/箇条書き/手順/番号リスト/メタ言及/まとめ/ルール説明",
-        "- 登場人物: 主人公＋相手1名（他は背景）。固有名詞の増殖禁止",
+        "- 禁止: DRAFTにない新しい事件/設定/登場人物/固有名詞/数字を追加しない（増やさない）",
         "- 出力: 追加分（続き）だけ。本文の再掲禁止",
     ]
+    inst = str(extra_instruction or "").strip()
     return "\n".join(
         [
             "あなたは日本語のYouTubeナレーション台本（Aテキスト）の編集者です。",
@@ -347,10 +360,13 @@ def _build_continue_prompt(
             _truncate_for_prompt(master_plan_json, max_chars=1200).rstrip(),
             "",
             "<<<CURRENT_A_TEXT_START>>>",
-            _truncate_for_prompt(current_a_text, max_chars=12000).rstrip(),
+            _truncate_for_prompt(current_a_text, max_chars=28000).rstrip(),
             "<<<CURRENT_A_TEXT_END>>>",
             "",
             _continue_instruction(add_min=add_min, add_max=add_max, total_min=target_min, total_max=target_max),
+            "",
+            "【追加指示】" if inst else "【追加指示】（なし）",
+            inst if inst else "",
             "",
             "出力は追加分（続き）の本文のみ。",
         ]
@@ -378,9 +394,10 @@ def _build_editor_prompt(
         f"- 動画: {vv}",
         f"- 文字数: 必ず {int(target_min)}〜{int(target_max)} 字（本文のみ）",
         f"- 区切り: `---` は最大 {int(max_pause_lines)} 回、連続禁止、末尾に置かない",
-        "- 禁止: 睡眠誘導フレーミング（寝落ち/睡眠用/安眠/布団/おやすみ/眠れない 等）",
+        "- 禁止: 睡眠誘導フレーミング（寝落ち/睡眠用/安眠/布団/おやすみ/眠れ/眠る/眠り 等）",
+        "- 禁止: 時間ジャンプ語（次の日/翌日/翌朝/数日後/数週間後/数ヶ月後/数年後/翌週/翌月/来週/来月）",
         "- 禁止: 見出し/箇条書き/手順/番号リスト/メタ言及/まとめ/ルール説明",
-        "- 登場人物: 主人公＋相手1名（他は背景）。固有名詞の増殖禁止",
+        "- 禁止: DRAFTにない新しい事件/設定/登場人物/固有名詞/数字を追加しない（増やさない）",
         "- 方針: 出来事は増やさず、重複/冗長/説教臭さを減らしつつ、削った分は同じ場面の具体描写で埋めて必ず指定字数を満たす（短縮禁止・視聴者満足度最優先）",
         "- 出力: リライト後の本文のみ（前置き無し）",
     ]
@@ -408,7 +425,7 @@ def _build_editor_prompt(
             "",
             "【DRAFT（この内容をベースに推敲）】",
             "<<<DRAFT_START>>>",
-            _truncate_for_prompt(draft, max_chars=12000).rstrip(),
+            _truncate_for_prompt(draft, max_chars=28000).rstrip(),
             "<<<DRAFT_END>>>",
             "",
             "【追加指示】" if inst else "【追加指示】（なし）",
@@ -515,6 +532,139 @@ def _run_claude_cli(*, claude_bin: str, prompt: str, model: str, timeout_sec: in
         return 124, str(getattr(e, "stdout", "") or ""), str(getattr(e, "stderr", "") or ""), float(elapsed)
 
 
+def _find_gemini_bin(explicit: str | None) -> str:
+    if explicit and str(explicit).strip():
+        p = Path(str(explicit).strip())
+        if p.exists() and os.access(str(p), os.X_OK):
+            return str(p)
+        raise SystemExit(f"gemini not found at --gemini-bin: {explicit}")
+    found = shutil.which("gemini")
+    if found:
+        return found
+    raise SystemExit("gemini CLI not found. Install `gemini` and ensure it is on PATH.")
+
+
+def _run_gemini_cli(
+    *,
+    gemini_bin: str,
+    prompt: str,
+    model: str,
+    sandbox: bool,
+    timeout_sec: int,
+) -> tuple[int, str, str, float]:
+    cmd: List[str] = [gemini_bin, "--output-format", "text"]
+    if str(model or "").strip():
+        cmd += ["--model", str(model).strip()]
+    if bool(sandbox):
+        cmd.append("--sandbox")
+
+    env = dict(os.environ)
+    env.setdefault("NO_COLOR", "1")
+
+    _ensure_dir(_scratch_dir())
+
+    start = time.time()
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=str(prompt),
+            text=True,
+            capture_output=True,
+            cwd=str(_scratch_dir()),
+            env=env,
+            timeout=max(1, int(timeout_sec)),
+        )
+        elapsed = time.time() - start
+        return int(proc.returncode), str(proc.stdout or ""), str(proc.stderr or ""), float(elapsed)
+    except subprocess.TimeoutExpired as e:
+        elapsed = time.time() - start
+        return 124, str(getattr(e, "stdout", "") or ""), str(getattr(e, "stderr", "") or ""), float(elapsed)
+
+
+def _run_external_cli(
+    *,
+    engine: str,
+    bin_path: str,
+    prompt: str,
+    model: str,
+    timeout_sec: int,
+    gemini_sandbox: bool,
+) -> tuple[int, str, str, float]:
+    low = str(engine or "").strip().lower()
+    if low == "claude":
+        return _run_claude_cli(claude_bin=bin_path, prompt=prompt, model=str(model or ""), timeout_sec=int(timeout_sec))
+    if low == "gemini":
+        return _run_gemini_cli(
+            gemini_bin=bin_path,
+            prompt=prompt,
+            model=str(model or ""),
+            sandbox=bool(gemini_sandbox),
+            timeout_sec=int(timeout_sec),
+        )
+    raise SystemExit(f"Invalid --engine: {engine!r} (allowed: claude | gemini)")
+
+
+def _build_retry_hint(last_failure: str) -> str:
+    lf = str(last_failure or "").strip()
+    if not lf:
+        return ""
+    if lf.startswith("rejected_output=timejump_marker:"):
+        hit = lf.split("rejected_output=timejump_marker:", 1)[-1].strip()
+        return "\n".join(
+            [
+                f"再試行: 直前の出力に時間ジャンプ語（{hit}）が含まれて不合格。",
+                f"- {hit} を含む言い回しを完全に避け、該当箇所を別の表現に言い換える（例: その後 / 間もなく / ほどなくして）",
+                "- 禁止語: 次の日/翌日/翌朝/数日後/数週間後/数ヶ月後/数年後/翌週/翌月/来週/来月",
+                "- それ以外は DRAFT の出来事/年号/固有名詞/数字/証拠の順序 を維持し、本文のみを出力。",
+            ]
+        )
+    if lf.startswith("rejected_output=sleep_marker:"):
+        hit = lf.split("rejected_output=sleep_marker:", 1)[-1].strip()
+        return "\n".join(
+            [
+                f"再試行: 直前の出力に睡眠誘導語（{hit}）が含まれて不合格。",
+                "- 睡眠用/安眠/寝落ち/布団/おやすみ 等の語彙や雰囲気を混入させない。",
+                "- 本文のみを出力。",
+            ]
+        )
+    if "sleep_framing_contamination" in lf:
+        return "\n".join(
+            [
+                "再試行: 直前の出力が『睡眠用』系フレーミング混入で不合格。",
+                "- 眠る/眠り/眠れ/安眠/寝落ち/布団/おやすみ 等の語彙や比喩を使わない。",
+                "- 事件/記録/証拠の語りに集中し、本文のみを出力。",
+            ]
+        )
+    if "rejected_output=meta_or_structure" in lf:
+        return "再試行: 直前の出力にメタ/見出し/箇条書き等が混入して不合格。本文のみを出力。"
+    if "incomplete_ending" in lf:
+        return "\n".join(
+            [
+                "再試行: 直前の出力が未完で不合格（文が途中で切れている/末尾が閉じていない）。",
+                "- 末尾は必ず句点（。など）で閉じて完結させる。",
+                "- 途中で途切れた文を残さない。本文のみを出力。",
+            ]
+        )
+    if lf.startswith("rejected_output=too_short"):
+        return "\n".join(
+            [
+                f"再試行: 直前の出力が短すぎて不合格（{lf}）。",
+                "- DRAFT の内容を省略しない。削った箇所があるなら戻す。",
+                "- 新しい事件/設定/人物を増やさず、同じ出来事の中で『記録/数値/手順/矛盾/現場描写』を具体化して字数を満たす。",
+                "- 本文のみを出力。",
+            ]
+        )
+    if lf.startswith("rejected_output=too_long"):
+        return "\n".join(
+            [
+                f"再試行: 直前の出力が長すぎて不合格（{lf}）。",
+                "- 新規の追加はせず、重複・言い換え・同内容の繰り返しを削って規定内に収める。",
+                "- 本文のみを出力。",
+            ]
+        )
+    return f"再試行: 直前の出力が不合格（{lf}）。不合格原因を確実に解消して本文のみを出力。"
+
+
 def _build_validator_metadata(*, channel: str, video: str, assembled_path: Path) -> Dict[str, Any]:
     md = dict(_load_status_metadata(channel, video))
     md["assembled_path"] = str(assembled_path)
@@ -590,8 +740,12 @@ def _validate_output(
 
 def _extend_until_min(
     *,
-    claude_bin: str,
-    claude_model: str,
+    engine: str,
+    bin_path: str,
+    model: str,
+    gemini_sandbox: bool,
+    log_prefix: str,
+    extra_instruction: str | None,
     channel: str,
     video: str,
     logs_dir: Path,
@@ -626,6 +780,7 @@ def _extend_until_min(
             max_pause_lines=max_pause_lines,
             add_min=need_min,
             add_max=need_max,
+            extra_instruction=extra_instruction,
         )
         retry_hint: Optional[str] = None
         appended = False
@@ -635,21 +790,23 @@ def _extend_until_min(
             if retry_hint:
                 cont_prompt = cont_prompt.rstrip() + "\n\n" + retry_hint.strip() + "\n"
 
-            cont_prompt_log = logs_dir / f"claude_polish_prompt__cont{cont:02d}{suffix}.txt"
-            cont_stdout_log = logs_dir / f"claude_polish_stdout__cont{cont:02d}{suffix}.txt"
-            cont_stderr_log = logs_dir / f"claude_polish_stderr__cont{cont:02d}{suffix}.txt"
+            cont_prompt_log = logs_dir / f"{log_prefix}_prompt__cont{cont:02d}{suffix}.txt"
+            cont_stdout_log = logs_dir / f"{log_prefix}_stdout__cont{cont:02d}{suffix}.txt"
+            cont_stderr_log = logs_dir / f"{log_prefix}_stderr__cont{cont:02d}{suffix}.txt"
             _write_text(cont_prompt_log, cont_prompt)
 
-            rc, stdout, stderr, _elapsed = _run_claude_cli(
-                claude_bin=claude_bin,
+            rc, stdout, stderr, _elapsed = _run_external_cli(
+                engine=engine,
+                bin_path=bin_path,
                 prompt=cont_prompt,
-                model=claude_model,
+                model=model,
                 timeout_sec=int(timeout_sec),
+                gemini_sandbox=bool(gemini_sandbox),
             )
             _write_text(cont_stdout_log, stdout)
             _write_text(cont_stderr_log, stderr)
             if rc != 0:
-                retry_hint = f"再試行: claude_exit={rc}。本文のみで、禁止語を入れず、続きだけを書き直すこと。"
+                retry_hint = f"再試行: {engine}_exit={rc}。本文のみで、禁止語を入れず、続きだけを書き直すこと。"
                 continue
 
             chunk = _strip_edge_pause_lines(_strip_code_fences(stdout))
@@ -703,8 +860,18 @@ def cmd_run(args: argparse.Namespace) -> int:
     if not videos:
         raise SystemExit("No videos specified")
 
-    claude_bin = _find_claude_bin(args.claude_bin)
-    claude_model = _validate_claude_model(args.claude_model)
+    engine = str(getattr(args, "engine", "claude") or "claude").strip().lower()
+    if engine not in ("claude", "gemini"):
+        raise SystemExit("Invalid --engine (allowed: claude | gemini)")
+
+    if engine == "claude":
+        bin_path = _find_claude_bin(args.claude_bin)
+        model = _validate_claude_model(args.claude_model)
+    else:
+        bin_path = _find_gemini_bin(getattr(args, "gemini_bin", ""))
+        model = str(getattr(args, "gemini_model", "") or "").strip()
+
+    log_prefix = "claude_polish" if engine == "claude" else "gemini_polish"
 
     failures: List[str] = []
     extra_instruction = _compose_instruction(channel=channel, operator_instruction=str(args.instruction or ""))
@@ -733,16 +900,16 @@ def cmd_run(args: argparse.Namespace) -> int:
             continue
 
         _ensure_dir(logs_dir)
-        prompt_log = logs_dir / "claude_polish_prompt.txt"
-        stdout_log = logs_dir / "claude_polish_stdout.txt"
-        stderr_log = logs_dir / "claude_polish_stderr.txt"
-        meta_log = logs_dir / "claude_polish_meta.json"
+        prompt_log = logs_dir / f"{log_prefix}_prompt.txt"
+        stdout_log = logs_dir / f"{log_prefix}_stdout.txt"
+        stderr_log = logs_dir / f"{log_prefix}_stderr.txt"
+        meta_log = logs_dir / f"{log_prefix}_meta.json"
 
         last_failure: Optional[str] = None
         for attempt in range(1, max(1, int(args.max_attempts)) + 1):
             retry_hint = None
             if attempt > 1 and last_failure:
-                retry_hint = f"再試行: 直前の出力が不合格（{last_failure}）。不合格原因を確実に解消して本文のみを出力。"
+                retry_hint = _build_retry_hint(last_failure)
 
             prompt = _build_editor_prompt(
                 channel=channel,
@@ -757,60 +924,56 @@ def cmd_run(args: argparse.Namespace) -> int:
                 retry_hint=retry_hint,
             )
 
-            attempt_prompt_log = logs_dir / f"claude_polish_prompt__attempt{attempt:02d}.txt"
-            attempt_stdout_log = logs_dir / f"claude_polish_stdout__attempt{attempt:02d}.txt"
-            attempt_stderr_log = logs_dir / f"claude_polish_stderr__attempt{attempt:02d}.txt"
-            attempt_meta_log = logs_dir / f"claude_polish_meta__attempt{attempt:02d}.json"
+            attempt_prompt_log = logs_dir / f"{log_prefix}_prompt__attempt{attempt:02d}.txt"
+            attempt_stdout_log = logs_dir / f"{log_prefix}_stdout__attempt{attempt:02d}.txt"
+            attempt_stderr_log = logs_dir / f"{log_prefix}_stderr__attempt{attempt:02d}.txt"
+            attempt_meta_log = logs_dir / f"{log_prefix}_meta__attempt{attempt:02d}.json"
             _write_text(prompt_log, prompt)
             _write_text(attempt_prompt_log, prompt)
 
-            rc, stdout, stderr, elapsed = _run_claude_cli(
-                claude_bin=claude_bin,
+            rc, stdout, stderr, elapsed = _run_external_cli(
+                engine=engine,
+                bin_path=bin_path,
                 prompt=prompt,
-                model=claude_model,
+                model=model,
                 timeout_sec=int(args.timeout_sec),
+                gemini_sandbox=bool(getattr(args, "gemini_sandbox", False)),
             )
             _write_text(stdout_log, stdout)
             _write_text(stderr_log, stderr)
             _write_text(attempt_stdout_log, stdout)
             _write_text(attempt_stderr_log, stderr)
+            meta_payload: Dict[str, Any] = {
+                "schema_version": 1,
+                "tool": "claude_cli_polish_existing_a_text",
+                "engine": engine,
+                "at": _utc_now_iso(),
+                "script_id": script_id,
+                "draft_path": str(draft_path),
+                "output_path": str(out_path),
+                "timeout_sec": int(args.timeout_sec),
+                "elapsed_sec": elapsed,
+                "exit_code": rc,
+                "attempt": attempt,
+            }
+            if engine == "claude":
+                meta_payload["claude_bin"] = bin_path
+                meta_payload["claude_model"] = model
+            else:
+                meta_payload["gemini_bin"] = bin_path
+                meta_payload["gemini_model"] = model
+                meta_payload["gemini_sandbox"] = bool(getattr(args, "gemini_sandbox", False))
             _write_json(
                 meta_log,
-                {
-                    "schema_version": 1,
-                    "tool": "claude_cli_polish_existing_a_text",
-                    "at": _utc_now_iso(),
-                    "script_id": script_id,
-                    "draft_path": str(draft_path),
-                    "output_path": str(out_path),
-                    "claude_bin": claude_bin,
-                    "claude_model": claude_model,
-                    "timeout_sec": int(args.timeout_sec),
-                    "elapsed_sec": elapsed,
-                    "exit_code": rc,
-                    "attempt": attempt,
-                },
+                meta_payload,
             )
             _write_json(
                 attempt_meta_log,
-                {
-                    "schema_version": 1,
-                    "tool": "claude_cli_polish_existing_a_text",
-                    "at": _utc_now_iso(),
-                    "script_id": script_id,
-                    "draft_path": str(draft_path),
-                    "output_path": str(out_path),
-                    "claude_bin": claude_bin,
-                    "claude_model": claude_model,
-                    "timeout_sec": int(args.timeout_sec),
-                    "elapsed_sec": elapsed,
-                    "exit_code": rc,
-                    "attempt": attempt,
-                },
+                meta_payload,
             )
 
             if rc != 0:
-                last_failure = f"claude_exit={rc}"
+                last_failure = f"{engine}_exit={rc}"
                 continue
 
             ok, result = _validate_output(
@@ -821,7 +984,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                 target_min=target_min,
                 target_max=target_max,
                 max_pause_lines=int(args.max_pause_lines),
-                allow_too_short=True,
+                allow_too_short=(engine == "claude"),
             )
             if not ok:
                 last_failure = result
@@ -829,10 +992,14 @@ def cmd_run(args: argparse.Namespace) -> int:
 
             final_text = str(result)
 
-            if _a_text_spoken_char_count(final_text) < int(target_min) and int(args.max_continue_rounds) > 0:
+            if engine == "claude" and _a_text_spoken_char_count(final_text) < int(target_min) and int(args.max_continue_rounds) > 0:
                 extended, err = _extend_until_min(
-                    claude_bin=claude_bin,
-                    claude_model=claude_model,
+                    engine=engine,
+                    bin_path=bin_path,
+                    model=model,
+                    gemini_sandbox=bool(getattr(args, "gemini_sandbox", False)),
+                    log_prefix=log_prefix,
+                    extra_instruction=extra_instruction,
                     channel=channel,
                     video=vv,
                     logs_dir=logs_dir,
@@ -892,12 +1059,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="claude_cli_polish_existing_a_text.py", description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    sp = sub.add_parser("run", help="polish existing A-text via claude CLI (dry-run by default)")
+    sp = sub.add_parser("run", help="polish existing A-text via external CLI (dry-run by default)")
     sp.add_argument("--channel", required=True, help="e.g. CH28")
     mg = sp.add_mutually_exclusive_group(required=True)
     mg.add_argument("--video", help="e.g. 002")
     mg.add_argument("--videos", help="e.g. 001-030 or 1,2,3")
-    sp.add_argument("--run", action="store_true", help="Execute claude and overwrite assembled_human.md (default: dry-run)")
+    sp.add_argument("--run", action="store_true", help="Execute external CLI and overwrite assembled_human.md (default: dry-run)")
 
     sp.add_argument("--instruction", default="", help="Optional operator instruction appended to the editor prompt")
     sp.add_argument("--max-attempts", type=int, default=3, help="Max attempts per episode (default: 3)")
@@ -905,9 +1072,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--max-continue-rounds",
         type=int,
         default=2,
-        help="If output is too short, ask Claude to continue up to N rounds (default: 2). Set 0 to disable.",
+        help="If output is too short, ask the LLM CLI to continue up to N rounds (default: 2). Set 0 to disable.",
     )
     sp.add_argument("--timeout-sec", type=int, default=1800, help="Timeout seconds per episode (default: 1800)")
+
+    sp.add_argument(
+        "--engine",
+        default="claude",
+        choices=["claude", "gemini"],
+        help="Which external CLI to use (default: claude). Use gemini when Claude is rate-limited.",
+    )
 
     sp.add_argument("--claude-bin", default="", help="Explicit claude binary path (optional)")
     sp.add_argument(
@@ -915,6 +1089,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=_CLAUDE_DEFAULT_MODEL,
         help=f"Claude model alias/name (default: {_CLAUDE_DEFAULT_MODEL}). Opus requires YTM_ALLOW_CLAUDE_OPUS=1 and explicit owner instruction.",
     )
+
+    sp.add_argument("--gemini-bin", default="", help="Explicit gemini binary path (optional)")
+    sp.add_argument("--gemini-model", default="", help="Gemini model passed to gemini --model (optional)")
+    sp.add_argument("--gemini-sandbox", action="store_true", help="Run gemini CLI with --sandbox (recommended)")
 
     sp.add_argument("--max-pause-lines", type=int, default=5, help="Max `---` lines allowed in output (default: 5)")
     sp.add_argument("--default-target-min", type=int, default=6000, help="Fallback target_chars_min if status.json missing")
