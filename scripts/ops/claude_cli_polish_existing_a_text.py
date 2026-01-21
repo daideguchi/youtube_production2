@@ -50,6 +50,19 @@ from script_pipeline.tools.channel_registry import find_channel_dir  # noqa: E40
 # false positives like "不眠" that are not "sleepy ambience" framing.
 _SLEEP_MARKERS_STRICT = ("おやすみ", "寝落ち", "睡眠用", "安眠", "布団", "眠れ")
 _TIMEJUMP_MARKERS = ("次の日", "翌日", "翌朝", "数日後", "数週間後", "数ヶ月後", "数年後", "翌週", "翌月", "来週", "来月")
+_TIMEJUMP_REWRITE = {
+    "次の日": "その後",
+    "翌日": "その後",
+    "翌朝": "その後",
+    "数日後": "しばらくして",
+    "数週間後": "しばらくして",
+    "数ヶ月後": "しばらくして",
+    "数年後": "やがて",
+    "翌週": "その後",
+    "翌月": "その後",
+    "来週": "その後",
+    "来月": "その後",
+}
 
 
 _CHANNEL_DEFAULTS: dict[str, dict[str, int]] = {
@@ -266,6 +279,20 @@ def _has_timejump_markers(text: str) -> Optional[str]:
         if m in text:
             return m
     return None
+
+
+def _rewrite_timejump_markers(text: str) -> tuple[str, list[tuple[str, str]]]:
+    """
+    Soft-fix for models that keep emitting forbidden time-jump strings.
+    Only rewrites the explicit banned markers; meaning stays "time passed" but less explicit.
+    """
+    out = str(text or "")
+    applied: list[tuple[str, str]] = []
+    for src, dst in _TIMEJUMP_REWRITE.items():
+        if src in out:
+            out = out.replace(src, dst)
+            applied.append((src, dst))
+    return out, applied
 
 
 def _has_consecutive_pause(text: str) -> bool:
@@ -700,6 +727,7 @@ def _validate_output(
     target_max: int,
     max_pause_lines: int,
     allow_too_short: bool,
+    auto_fix_timejump: bool,
 ) -> tuple[bool, str]:
     cleaned = _strip_edge_pause_lines(_strip_code_fences(a_text))
     if _looks_like_meta_output(cleaned):
@@ -708,6 +736,9 @@ def _validate_output(
     sleep_hit = _has_sleep_markers(cleaned)
     if sleep_hit:
         return False, f"rejected_output=sleep_marker:{sleep_hit}"
+
+    if auto_fix_timejump:
+        cleaned, _applied = _rewrite_timejump_markers(cleaned)
 
     time_hit = _has_timejump_markers(cleaned)
     if time_hit:
@@ -986,6 +1017,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                 target_max=target_max,
                 max_pause_lines=int(args.max_pause_lines),
                 allow_too_short=(engine == "claude"),
+                auto_fix_timejump=bool(getattr(args, "auto_fix_timejump", False)),
             )
             if not ok:
                 last_failure = result
@@ -1027,6 +1059,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                 target_max=target_max,
                 max_pause_lines=int(args.max_pause_lines),
                 allow_too_short=False,
+                auto_fix_timejump=bool(getattr(args, "auto_fix_timejump", False)),
             )
             if not ok2:
                 last_failure = result2
@@ -1094,6 +1127,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--gemini-bin", default="", help="Explicit gemini binary path (optional)")
     sp.add_argument("--gemini-model", default="", help="Gemini model passed to gemini --model (optional)")
     sp.add_argument("--gemini-sandbox", action="store_true", help="Run gemini CLI with --sandbox (recommended)")
+
+    sp.add_argument(
+        "--auto-fix-timejump",
+        action="store_true",
+        help="Auto-rewrite forbidden time-jump markers in output (useful for Gemini fallback).",
+    )
 
     sp.add_argument("--max-pause-lines", type=int, default=5, help="Max `---` lines allowed in output (default: 5)")
     sp.add_argument("--default-target-min", type=int, default=6000, help="Fallback target_chars_min if status.json missing")
