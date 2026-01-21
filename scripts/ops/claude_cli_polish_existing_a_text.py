@@ -20,7 +20,8 @@ Policy:
 - No LLM router usage.
 
 Note:
-- When Claude CLI hits a subscription rate limit, operators may choose `--engine gemini`
+- When Claude CLI hits a subscription rate limit, operators may choose `--engine gemini`.
+- When both Claude/Gemini are rate-limited, operators may choose `--engine qwen` (repo shim).
   to continue polishing via Gemini CLI with the same SSOT validator and channel polish prompt.
 """
 
@@ -582,6 +583,53 @@ def _find_gemini_bin(explicit: str | None) -> str:
     raise SystemExit("gemini CLI not found. Install `gemini` and ensure it is on PATH.")
 
 
+def _find_qwen_bin(explicit: str | None) -> str:
+    """
+    Policy: in this repository, qwen must be invoked via the repo shim:
+      scripts/bin/qwen
+    The shim enforces qwen-oauth and blocks provider/model switching.
+    """
+    shim = repo_paths.repo_root() / "scripts" / "bin" / "qwen"
+    if explicit and str(explicit).strip():
+        p = Path(str(explicit)).expanduser()
+        if not p.exists():
+            raise SystemExit(f"qwen not found at --qwen-bin: {explicit}")
+        if p.resolve() != shim.resolve():
+            raise SystemExit(
+                "\n".join(
+                    [
+                        "[POLICY] Forbidden --qwen-bin (must use repo shim).",
+                        f"- got: {p}",
+                        f"- required: {shim}",
+                    ]
+                )
+            )
+        return str(p)
+    if shim.exists():
+        return str(shim)
+    raise SystemExit(f"qwen shim not found: {shim}")
+
+
+def _validate_qwen_model(raw: str | None) -> str | None:
+    """
+    Safety policy:
+    - `--qwen-model` is DISABLED in this repository.
+    - Use `qwen -p` without model/provider overrides.
+    """
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    raise SystemExit(
+        "\n".join(
+            [
+                "[POLICY] Forbidden --qwen-model (model/provider override is disabled).",
+                f"- got: {s}",
+                "- fix: rerun WITHOUT --qwen-model (use qwen default)",
+            ]
+        )
+    )
+
+
 def _run_gemini_cli(
     *,
     gemini_bin: str,
@@ -621,6 +669,46 @@ def _run_gemini_cli(
         return 124, _coerce_text(getattr(e, "stdout", "")), _coerce_text(getattr(e, "stderr", "")), float(elapsed)
 
 
+def _run_qwen_cli(
+    *,
+    qwen_bin: str,
+    prompt: str,
+    sandbox: bool,
+    approval_mode: str,
+    timeout_sec: int,
+) -> tuple[int, str, str, float]:
+    cmd: List[str] = [qwen_bin, "--output-format", "text", "--chat-recording", "false"]
+    if bool(sandbox):
+        cmd.append("--sandbox")
+    am = str(approval_mode or "").strip()
+    if am:
+        cmd += ["--approval-mode", am]
+    cmd += ["-p", str(prompt)]
+
+    env = dict(os.environ)
+    env.setdefault("NO_COLOR", "1")
+
+    _ensure_dir(_scratch_dir())
+
+    start = time.time()
+    try:
+        proc = subprocess.run(
+            cmd,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+            cwd=str(_scratch_dir()),
+            env=env,
+            timeout=max(1, int(timeout_sec)),
+        )
+        elapsed = time.time() - start
+        return int(proc.returncode), _coerce_text(proc.stdout), _coerce_text(proc.stderr), float(elapsed)
+    except subprocess.TimeoutExpired as e:
+        elapsed = time.time() - start
+        return 124, _coerce_text(getattr(e, "stdout", "")), _coerce_text(getattr(e, "stderr", "")), float(elapsed)
+
+
 def _run_external_cli(
     *,
     engine: str,
@@ -629,6 +717,8 @@ def _run_external_cli(
     model: str,
     timeout_sec: int,
     gemini_sandbox: bool,
+    qwen_sandbox: bool,
+    qwen_approval_mode: str,
 ) -> tuple[int, str, str, float]:
     low = str(engine or "").strip().lower()
     if low == "claude":
@@ -641,7 +731,15 @@ def _run_external_cli(
             sandbox=bool(gemini_sandbox),
             timeout_sec=int(timeout_sec),
         )
-    raise SystemExit(f"Invalid --engine: {engine!r} (allowed: claude | gemini)")
+    if low == "qwen":
+        return _run_qwen_cli(
+            qwen_bin=bin_path,
+            prompt=prompt,
+            sandbox=bool(qwen_sandbox),
+            approval_mode=str(qwen_approval_mode or ""),
+            timeout_sec=int(timeout_sec),
+        )
+    raise SystemExit(f"Invalid --engine: {engine!r} (allowed: claude | gemini | qwen)")
 
 
 def _build_retry_hint(last_failure: str) -> str:
@@ -788,6 +886,8 @@ def _extend_until_min(
     bin_path: str,
     model: str,
     gemini_sandbox: bool,
+    qwen_sandbox: bool,
+    qwen_approval_mode: str,
     log_prefix: str,
     extra_instruction: str | None,
     channel: str,
@@ -846,6 +946,8 @@ def _extend_until_min(
                 model=model,
                 timeout_sec=int(timeout_sec),
                 gemini_sandbox=bool(gemini_sandbox),
+                qwen_sandbox=bool(qwen_sandbox),
+                qwen_approval_mode=str(qwen_approval_mode or ""),
             )
             _write_text(cont_stdout_log, stdout)
             _write_text(cont_stderr_log, stderr)
@@ -905,17 +1007,30 @@ def cmd_run(args: argparse.Namespace) -> int:
         raise SystemExit("No videos specified")
 
     engine = str(getattr(args, "engine", "claude") or "claude").strip().lower()
-    if engine not in ("claude", "gemini"):
-        raise SystemExit("Invalid --engine (allowed: claude | gemini)")
+    if engine not in ("claude", "gemini", "qwen"):
+        raise SystemExit("Invalid --engine (allowed: claude | gemini | qwen)")
+
+    gemini_sandbox = bool(getattr(args, "gemini_sandbox", False))
+    qwen_sandbox = bool(getattr(args, "qwen_sandbox", True))
+    qwen_approval_mode = str(getattr(args, "qwen_approval_mode", "") or "").strip()
 
     if engine == "claude":
         bin_path = _find_claude_bin(args.claude_bin)
         model = _validate_claude_model(args.claude_model)
-    else:
+    elif engine == "gemini":
         bin_path = _find_gemini_bin(getattr(args, "gemini_bin", ""))
         model = str(getattr(args, "gemini_model", "") or "").strip()
+    else:
+        bin_path = _find_qwen_bin(getattr(args, "qwen_bin", ""))
+        _validate_qwen_model(getattr(args, "qwen_model", ""))
+        model = ""
 
-    log_prefix = "claude_polish" if engine == "claude" else "gemini_polish"
+    if engine == "claude":
+        log_prefix = "claude_polish"
+    elif engine == "gemini":
+        log_prefix = "gemini_polish"
+    else:
+        log_prefix = "qwen_polish"
 
     failures: List[str] = []
     extra_instruction = _compose_instruction(channel=channel, operator_instruction=str(args.instruction or ""))
@@ -981,7 +1096,9 @@ def cmd_run(args: argparse.Namespace) -> int:
                 prompt=prompt,
                 model=model,
                 timeout_sec=int(args.timeout_sec),
-                gemini_sandbox=bool(getattr(args, "gemini_sandbox", False)),
+                gemini_sandbox=bool(gemini_sandbox),
+                qwen_sandbox=bool(qwen_sandbox),
+                qwen_approval_mode=str(qwen_approval_mode or ""),
             )
             _write_text(stdout_log, stdout)
             _write_text(stderr_log, stderr)
@@ -1003,10 +1120,14 @@ def cmd_run(args: argparse.Namespace) -> int:
             if engine == "claude":
                 meta_payload["claude_bin"] = bin_path
                 meta_payload["claude_model"] = model
-            else:
+            elif engine == "gemini":
                 meta_payload["gemini_bin"] = bin_path
                 meta_payload["gemini_model"] = model
-                meta_payload["gemini_sandbox"] = bool(getattr(args, "gemini_sandbox", False))
+                meta_payload["gemini_sandbox"] = bool(gemini_sandbox)
+            else:
+                meta_payload["qwen_bin"] = bin_path
+                meta_payload["qwen_sandbox"] = bool(qwen_sandbox)
+                meta_payload["qwen_approval_mode"] = str(qwen_approval_mode or "")
             _write_json(
                 meta_log,
                 meta_payload,
@@ -1020,6 +1141,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                 last_failure = f"{engine}_exit={rc}"
                 continue
 
+            allow_too_short = bool(engine == "claude") or bool(engine == "qwen" and int(args.max_continue_rounds) > 0)
             ok, result = _validate_output(
                 channel=channel,
                 video=vv,
@@ -1028,7 +1150,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                 target_min=target_min,
                 target_max=target_max,
                 max_pause_lines=int(args.max_pause_lines),
-                allow_too_short=(engine == "claude"),
+                allow_too_short=bool(allow_too_short),
                 auto_fix_timejump=bool(getattr(args, "auto_fix_timejump", False)),
             )
             if not ok:
@@ -1037,12 +1159,14 @@ def cmd_run(args: argparse.Namespace) -> int:
 
             final_text = str(result)
 
-            if engine == "claude" and _a_text_spoken_char_count(final_text) < int(target_min) and int(args.max_continue_rounds) > 0:
+            if allow_too_short and _a_text_spoken_char_count(final_text) < int(target_min) and int(args.max_continue_rounds) > 0:
                 extended, err = _extend_until_min(
                     engine=engine,
                     bin_path=bin_path,
                     model=model,
-                    gemini_sandbox=bool(getattr(args, "gemini_sandbox", False)),
+                    gemini_sandbox=bool(gemini_sandbox),
+                    qwen_sandbox=bool(qwen_sandbox),
+                    qwen_approval_mode=str(qwen_approval_mode or ""),
                     log_prefix=log_prefix,
                     extra_instruction=extra_instruction,
                     channel=channel,
@@ -1125,8 +1249,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument(
         "--engine",
         default="claude",
-        choices=["claude", "gemini"],
-        help="Which external CLI to use (default: claude). Use gemini when Claude is rate-limited.",
+        choices=["claude", "gemini", "qwen"],
+        help="Which external CLI to use (default: claude). Use gemini when Claude is rate-limited. Use qwen when both Claude/Gemini are rate-limited.",
     )
 
     sp.add_argument("--claude-bin", default="", help="Explicit claude binary path (optional)")
@@ -1139,6 +1263,21 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--gemini-bin", default="", help="Explicit gemini binary path (optional)")
     sp.add_argument("--gemini-model", default="", help="Gemini model passed to gemini --model (optional)")
     sp.add_argument("--gemini-sandbox", action="store_true", help="Run gemini CLI with --sandbox (recommended)")
+
+    sp.add_argument("--qwen-bin", default="", help="Explicit qwen binary path (optional)")
+    sp.add_argument("--qwen-model", default="", help=argparse.SUPPRESS)
+    sp.add_argument(
+        "--qwen-sandbox",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Run qwen CLI with --sandbox (default: true)",
+    )
+    sp.add_argument(
+        "--qwen-approval-mode",
+        choices=["default", "plan", "auto-edit", "yolo"],
+        default="",
+        help="Qwen CLI approval mode (avoid 'plan' for long-form text generation)",
+    )
 
     sp.add_argument(
         "--auto-fix-timejump",
