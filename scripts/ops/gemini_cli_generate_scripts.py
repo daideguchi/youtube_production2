@@ -136,7 +136,26 @@ _ENDING_POLISH_TRIGGER_MARKERS = (
     "深く息",
     "息を吸",
     "息を吐",
+    "闇",
+    "暗闇",
     "夜の闇",
+    "夜の帳",
+    "夜の空気",
+    "夜が更け",
+    "今夜",
+    "眠る",
+    "寝る",
+    "翌日",
+    "次の日",
+    "翌朝",
+    "次の朝",
+    "明日の朝",
+    "明日",
+    "昨日",
+    "大切なのは",
+    "ポイント",
+    "まとめ",
+    "コツ",
     "静かな夜",
     "安らぎ",
     "誓",
@@ -153,17 +172,27 @@ def _tail_cut_for_ending_polish(text: str) -> tuple[str, str, str]:
       replace the whole cliché closing segment at once.
     """
     normalized = _normalize_newlines(text)
-    default_prefix, _default_tail, _default_ctx = _tail_cut_by_sentences(normalized, sentences=3)
+    # Default to the last 3 sentences, but expand when the tail is too tiny to rewrite cleanly.
+    default_sentences = 3
+    default_prefix, default_tail, default_ctx = _tail_cut_by_sentences(normalized, sentences=default_sentences)
+    while default_sentences < 6 and _a_text_spoken_char_count(default_tail) < 160:
+        default_sentences += 1
+        default_prefix, default_tail, default_ctx = _tail_cut_by_sentences(normalized, sentences=default_sentences)
     default_cut = len(default_prefix)
 
-    window_start = max(0, len(normalized) - 1800)
+    # Keep the replacement scope tight: we only want to rewrite the closing segment.
+    # Too-wide windows can delete too much and risk falling below target_chars_min.
+    # The last ~800 chars typically covers the final paragraph while avoiding mid-tail
+    # markers that appear earlier as normal narration.
+    window_start = max(0, len(normalized) - 800)
     marker_positions: List[int] = []
     for marker in _ENDING_POLISH_TRIGGER_MARKERS:
-        pos = normalized.rfind(marker)
-        if pos >= window_start:
+        # Find the earliest occurrence within the tail window (not the last).
+        pos = normalized.find(marker, window_start)
+        if pos >= 0:
             marker_positions.append(pos)
     if not marker_positions:
-        return _tail_cut_by_sentences(normalized, sentences=3)
+        return default_prefix, default_tail, default_ctx
 
     marker_pos = min(marker_positions)
     ends = [m.end() for m in _SENTENCE_END_RE.finditer(normalized)]
@@ -236,6 +265,142 @@ def _count_sentences(text: str) -> int:
     return len(_SENTENCE_END_RE.findall(str(text or "")))
 
 
+def _tail_only_retry_hint(last_failure: str) -> str:
+    lf = str(last_failure or "")
+    if "tail_contains_banned_marker" in lf or "ending_cliche_or_banned_leftover" in lf:
+        m = re.search(r"banned=([^\\s]+)", lf)
+        banned = f"（禁止語: {m.group(1)}）" if m else ""
+        return f"前回: 禁止語/常套句/時間ジャンプが残った{banned}。禁止語は一切出さず、必ず言い換える。"
+    if "tail_sentence_count_invalid" in lf:
+        return "前回: 文数が範囲外。3〜8文に収め、短い文を分割しすぎない（名詞だけの短文も作らない）。"
+    if "tail_not_ending_period" in lf:
+        return "前回: 末尾が「。」で終わっていない。最後は必ず「。」で終える。"
+    if "tail_too_short_relative" in lf or "tail_too_short" in lf:
+        m = re.search(r"min_tail=(\\d+)", lf)
+        need = f"（最低{m.group(1)}字以上）" if m else ""
+        return f"前回: 末尾が短すぎた{need}。出来事を増やさず、同じ結末のまま具体描写と行動を足して字数を満たす。"
+    if "tail_too_long_relative" in lf:
+        m = re.search(r"max_tail=(\\d+)", lf)
+        limit = f"（最大{m.group(1)}字まで）" if m else ""
+        return f"前回: 末尾が長すぎた{limit}。出来事を増やさず、具体描写を残しつつ簡潔に詰める。"
+    if "tail_contains_list_or_heading" in lf:
+        return "前回: 箇条書き/見出しっぽい形が混じった。地の文だけで書く。"
+    return "前回: ルール違反があった。制約を厳守して書き直す。"
+
+
+def _compact_tail_to_max_sentences(text: str, *, max_sentences: int) -> str:
+    """
+    Heuristic: when the model over-splits into many short sentences (e.g. 「財布、鍵、ハンカチ。」),
+    merge the shortest sentences into the previous one until we fit within max_sentences.
+    """
+    t = _normalize_newlines(str(text or "")).strip()
+    if not t:
+        return ""
+
+    parts = re.split(r"([。！？])", t)
+    sents: List[str] = []
+    for i in range(0, len(parts) - 1, 2):
+        frag = (str(parts[i] or "") + str(parts[i + 1] or "")).strip()
+        if frag:
+            sents.append(frag)
+    tail = str(parts[-1] or "").strip()
+    if tail:
+        sents.append(tail)
+
+    max_n = max(1, int(max_sentences))
+    if len(sents) <= max_n:
+        return t
+
+    def _score_shortness(x: str) -> int:
+        try:
+            return int(_a_text_spoken_char_count(x))
+        except Exception:
+            return len(str(x or ""))
+
+    while len(sents) > max_n and len(sents) >= 2:
+        idx = min(range(1, len(sents)), key=lambda i: _score_shortness(sents[i]))
+        prev = str(sents[idx - 1] or "").strip()
+        cur = str(sents[idx] or "").strip()
+        if not prev:
+            sents[idx - 1] = cur
+            del sents[idx]
+            continue
+        if not cur:
+            del sents[idx]
+            continue
+
+        prev_end = prev[-1] if prev else ""
+        cur_end = cur[-1] if cur else ""
+        if prev_end in "。！？":
+            prev_body = prev[:-1]
+        else:
+            prev_body = prev
+        if cur_end in "。！？":
+            cur_body = cur[:-1]
+            end = cur_end
+        else:
+            cur_body = cur
+            end = "。"
+
+        # A tiny bit of Japanese glue for common verb endings.
+        if prev_body.endswith("する"):
+            prev_body = prev_body[:-2] + "すると"
+        elif prev_body.endswith("した"):
+            prev_body = prev_body[:-2] + "すると"
+        elif prev_body.endswith("なる"):
+            prev_body = prev_body[:-2] + "なると"
+
+        merged = (prev_body.rstrip() + "、" + cur_body.lstrip() + end).strip()
+        sents[idx - 1] = merged
+        del sents[idx]
+
+    out = "".join([x.strip() for x in sents if str(x or "").strip()]).strip()
+    if out and not out.endswith("。"):
+        out += "。"
+    return out
+
+
+def _sanitize_tail_only_output(text: str) -> str:
+    """
+    Last-resort cleanup for tail-only polish when the model echoes banned cliché words.
+    This does NOT add new events; it only swaps obvious markers to safer phrasing.
+    """
+    out = _normalize_newlines(str(text or "")).strip()
+    if not out:
+        return ""
+
+    # Longer phrases first (avoid partial replacements like 呼吸 inside 深呼吸).
+    subs = (
+        ("夜の闇", "暗がり"),
+        ("夜の帳", "暗がり"),
+        ("夜の空気", "空気"),
+        ("静かな夜", "静かな時間"),
+        ("良い夜", "落ち着いた時間"),
+        ("優しい夜", "落ち着いた時間"),
+        ("夜が更け", "時間がたち"),
+        ("明日の朝", "朝"),
+        ("昨日よりも", "前よりも"),
+        ("深呼吸", "深く息を吸って"),
+        ("呼吸", "息"),
+        ("今夜", "その夜"),
+        ("昨日", "前"),
+        ("味方", "支え"),
+        ("のように", ""),
+        ("みたいに", ""),
+    )
+    for src, dst in subs:
+        out = out.replace(src, dst)
+
+    out = re.sub(r"誓い", "決めたこと", out)
+    out = re.sub(r"誓った", "決めた", out)
+    out = re.sub(r"誓う", "決める", out)
+    out = re.sub(r"闇", "暗がり", out)
+    out = re.sub(r"、、+", "、", out)
+    out = re.sub(r"、。", "。", out)
+    out = re.sub(r"\n{3,}", "\n\n", out)
+    return out.strip()
+
+
 _TAIL_ONLY_BANNED_SUBSTRINGS = (
     "---",
     "おやすみ",
@@ -257,6 +422,7 @@ _TAIL_ONLY_BANNED_SUBSTRINGS = (
     "次の日",
     "翌朝",
     "次の朝",
+    "明日の朝",
     "昨日",
     "朝食",
     "来週",
@@ -276,6 +442,13 @@ _TAIL_ONLY_BANNED_SUBSTRINGS = (
     "味方",
     "静かな夜",
     "夜の闇",
+    "夜の帳",
+    "夜の空気",
+    "夜の中",
+    "夜が更け",
+    "今夜",
+    "良い夜",
+    "優しい夜",
 )
 
 
@@ -285,6 +458,8 @@ def _build_tail_only_prompt(
     video: str,
     context_end: str,
     old_tail: str,
+    min_required_tail_chars: int,
+    max_allowed_tail_chars: int,
     symbol_candidates: List[str],
     operator_instruction: str | None,
     attempt: int,
@@ -300,24 +475,55 @@ def _build_tail_only_prompt(
     constraints = (
         "【出力】\n"
         "- 出力は「新しい末尾」だけ。前置き/注釈/見出し/箇条書きは禁止。\n"
-        "- 2〜4文。文末は必ず「。」で終える。\n"
+        "- 3〜8文。文末は必ず「。」で終える。\n"
+        "- 文を切りすぎない。名詞だけの短い文（例: 財布、鍵、ハンカチ。）を連打しない。\n"
         "- 分量: 現行の末尾と同程度の分量（短くしすぎない）。\n"
         "- 最後は『具体行動1つ + 既出の象徴アイテム1つ』で閉じる。\n"
-        "- 禁止: 呼吸/闇/誓い/自分の味方 など抽象ワードで締めること。『静かな夜』『夜の闇』等の常套句で締めない。\n"
+        "- 禁止: 呼吸/闇/誓い/自分の味方 など抽象ワードで締めること。『静かな夜』『夜の闇』『夜の空気』『夜の帳』『夜が更け』『今夜』等の常套句で締めない。\n"
         "- 禁止: おやすみ/寝落ち/睡眠用/安眠/布団/ベッド/枕/寝室/就寝/入眠/熟睡/眠り/眠る/眠れ/寝る 等。\n"
-        "- 禁止: 翌日/次の日/翌朝/次の朝/昨日/朝食/来週/来月/数日後/数週間後/数ヶ月後/数年後/それから数… など時間ジャンプ。\n"
+        "- 禁止: 翌日/次の日/翌朝/次の朝/明日の朝/昨日/朝食/来週/来月/数日後/数週間後/数ヶ月後/数年後/それから数… など時間ジャンプ。\n"
         "- 禁止: まとめ/ポイント/コツ/大切なのは/次に/最後に 等の手順口調。\n"
         "- 禁止: 会話の引用符「」を新たに増やす（末尾は地の文で閉じる）。\n"
         "- 末尾を二重にしない（同じ余韻を繰り返さない）。\n"
-        "- 文体: 自然で平易。難しい比喩/気取った言い回し/抽象名詞の連打は避け、短く分かる言葉で。\n"
+        "- 文体: 自然で平易。文数は3〜8文で収める（8文を超えない）。字数が足りない場合は文を増やしすぎず、1文に具体描写を入れて調整する（長すぎる一文は避ける）。難しい比喩/気取った言い回し/抽象名詞の連打は避け、分かる言葉で。\n"
     )
+    old_tail_chars = _a_text_spoken_char_count(str(old_tail or ""))
+    min_required = max(0, int(min_required_tail_chars or 0))
+    max_allowed = max(0, int(max_allowed_tail_chars or 0))
+    length_hint = ""
+    if old_tail_chars > 0:
+        base_lo = max(80, int(old_tail_chars) - 30)
+        lo = min(150, int(base_lo))
+        hi = int(old_tail_chars) + 150
+        if min_required > 0:
+            lo = max(int(lo), int(min_required))
+            hi = max(int(hi), int(lo) + 150)
+        if max_allowed > 0:
+            hi = min(int(hi), int(max_allowed))
+            lo = min(int(lo), int(hi))
+            length_hint = (
+                f"- 字数条件（必須）: 現行末尾は約{old_tail_chars}字（空白除外）。新しい末尾は最低{lo}字以上、最大{hi}字まで。目安は{old_tail_chars}字前後。\n"
+            )
+        else:
+            length_hint = (
+                f"- 字数条件（必須）: 現行末尾は約{old_tail_chars}字（空白除外）。新しい末尾は最低{lo}字以上、目安は{old_tail_chars}字前後（±150字）。\n"
+            )
+    elif min_required > 0:
+        lo = max(80, int(min_required))
+        if max_allowed > 0:
+            lo = min(int(lo), int(max_allowed))
+            length_hint = (
+                f"- 字数条件（必須）: 新しい末尾は最低{lo}字以上、最大{int(max_allowed)}字まで（空白除外）。\n"
+            )
+        else:
+            length_hint = f"- 字数条件（必須）: 新しい末尾は最低{lo}字以上（空白除外、短くしすぎない）。\n"
     candidates = ""
     if symbol_candidates:
         candidates = "【象徴アイテム候補（既出から1つだけ選ぶ）】\n" + " / ".join(symbol_candidates[:8]) + "\n"
     prompt_parts: List[str] = [
         header,
         f"channel: {channel}\nvideo: {video}\nretry_attempt: {attempt}\n",
-        constraints,
+        constraints + (length_hint or ""),
     ]
     if operator_instruction:
         prompt_parts.append("【追加指示】\n" + str(operator_instruction).strip() + "\n")
@@ -915,6 +1121,78 @@ def _run_gemini_cli(
     return int(proc.returncode), str(proc.stdout or ""), str(proc.stderr or ""), float(elapsed)
 
 
+_GEMINI_CAPACITY_EXHAUSTED_MARKERS = (
+    "No capacity available for model",
+    "MODEL_CAPACITY_EXHAUSTED",
+    "RESOURCE_EXHAUSTED",
+    "TerminalQuotaError",
+    "Quota exceeded",
+    "You have exhausted your daily quota",
+    "You exceeded your current quota",
+    "code: 429",
+)
+
+
+def _is_gemini_capacity_exhausted(stderr: str) -> bool:
+    blob = str(stderr or "")
+    return any(tok in blob for tok in _GEMINI_CAPACITY_EXHAUSTED_MARKERS)
+
+
+def _find_qwen_bin() -> str:
+    shim = repo_paths.repo_root() / "scripts" / "bin" / "qwen"
+    if shim.exists() and os.access(shim, os.X_OK):
+        return str(shim)
+
+    for p in str(os.environ.get("PATH") or "").split(os.pathsep):
+        if not p:
+            continue
+        cand = Path(p) / "qwen"
+        if cand.exists() and os.access(cand, os.X_OK):
+            return str(cand)
+    raise SystemExit("qwen CLI not found. Install `qwen` and ensure it is on PATH (or use scripts/bin/qwen).")
+
+
+def _run_qwen_cli(
+    *,
+    qwen_bin: str,
+    prompt: str,
+    sandbox: bool,
+    approval_mode: str | None,
+    timeout_sec: int,
+) -> tuple[int, str, str, float]:
+    # qwen_bin is the repo shim; auth-type/model/provider switching is enforced there.
+    cmd: List[str] = [qwen_bin, "--output-format", "text"]
+    if sandbox:
+        cmd.append("--sandbox")
+    if approval_mode:
+        cmd += ["--approval-mode", str(approval_mode)]
+
+    env = dict(os.environ)
+    env.setdefault("NO_COLOR", "1")
+
+    # Defensive: our scratch dir may be pruned by external cleanup between episodes.
+    _ensure_dir(_scratch_dir())
+
+    start = time.time()
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=str(prompt),
+            text=True,
+            capture_output=True,
+            cwd=str(_scratch_dir()),
+            env=env,
+            timeout=max(1, int(timeout_sec)),
+        )
+        elapsed = time.time() - start
+        return int(proc.returncode), str(proc.stdout or ""), str(proc.stderr or ""), float(elapsed)
+    except subprocess.TimeoutExpired as e:
+        elapsed = time.time() - start
+        stdout = str(e.stdout or "")
+        stderr = (str(e.stderr or "") + f"\n[timeout] seconds={int(timeout_sec)}\n").strip() + "\n"
+        return 124, stdout, stderr, float(elapsed)
+
+
 def _backup_if_diff(path: Path, new_text: str) -> Optional[Path]:
     if not path.exists():
         return None
@@ -1169,12 +1447,20 @@ def cmd_run(args: argparse.Namespace) -> int:
             tail_old = ""
             tail_context_end = ""
             tail_symbols: List[str] = []
+            tail_prefix_chars = 0
+            tail_min_required = 0
+            tail_max_allowed = 0
             if tail_only and current:
                 tail_prefix, tail_old, tail_context_end = _tail_cut_for_ending_polish(current)
                 tail_symbols = _extract_symbol_candidates(current)
+                tail_prefix_chars = _a_text_spoken_char_count(tail_prefix)
                 if not str(tail_old).strip():
                     failures.append(f"{script_id}: tail_only_empty_tail (cannot cut ending)")
                     continue
+                if min_spoken_chars > 0 and tail_prefix_chars > 0:
+                    tail_min_required = max(0, int(min_spoken_chars) - int(tail_prefix_chars))
+                if detected_max is not None and tail_prefix_chars > 0:
+                    tail_max_allowed = max(0, int(detected_max) - int(tail_prefix_chars))
 
             for attempt in range(1, max_attempts + 1):
                 retry_hint = ""
@@ -1183,6 +1469,21 @@ def cmd_run(args: argparse.Namespace) -> int:
                         "再試行: 直前の出力が不合格。"
                         "本文のみを出力し、ルール説明/見出し/箇条書き/番号リスト/マーカー文字列/段落重複を絶対に出さない。"
                     )
+                    if (
+                        tail_only
+                        and tail_min_required > 0
+                        and last_failure
+                        and ("tail_too_short_relative" in last_failure or "rejected_output=too_short" in last_failure)
+                    ):
+                        length_hint = (
+                            f"字数が足りない。新しい末尾は最低{tail_min_required}字以上（空白除外）。"
+                            "文数は3〜8文のまま、1文に具体描写を足して増やす。"
+                        )
+                        if int(tail_min_required) >= 420:
+                            length_hint += "目安: 7〜8文にし、各文は60〜90字程度で書く。"
+                        retry_hint = retry_hint + "\n" + length_hint
+                    if tail_only and last_failure:
+                        retry_hint = (retry_hint + "\n" + _tail_only_retry_hint(last_failure)).strip()
                 attempt_instruction = instruction
                 if retry_hint:
                     attempt_instruction = (attempt_instruction + "\n\n" + retry_hint).strip() if attempt_instruction else retry_hint
@@ -1195,6 +1496,8 @@ def cmd_run(args: argparse.Namespace) -> int:
                         video=vv,
                         context_end=tail_context_end,
                         old_tail=tail_old,
+                        min_required_tail_chars=tail_min_required,
+                        max_allowed_tail_chars=tail_max_allowed,
                         symbol_candidates=tail_symbols,
                         operator_instruction=attempt_instruction if attempt_instruction else None,
                         attempt=attempt,
@@ -1225,6 +1528,37 @@ def cmd_run(args: argparse.Namespace) -> int:
                     timeout_sec=int(args.timeout_sec),
                 )
 
+                fallback: Dict[str, Any] | None = None
+                # Tail-only polish should be robust even when gemini is rate-limited or quota-exhausted:
+                # fall back to qwen for ANY gemini non-zero exit in tail-only mode.
+                if rc != 0 and (tail_only or _is_gemini_capacity_exhausted(stderr)):
+                    qwen_bin = _find_qwen_bin()
+                    qwen_approval_mode: str | None = None
+                    if args.gemini_approval_mode:
+                        qwen_approval_mode = str(args.gemini_approval_mode).strip()
+                        if qwen_approval_mode == "auto_edit":
+                            qwen_approval_mode = "auto-edit"
+
+                    qrc, qout, qerr, qelapsed = _run_qwen_cli(
+                        qwen_bin=qwen_bin,
+                        prompt=attempt_prompt,
+                        sandbox=True,
+                        approval_mode=qwen_approval_mode,
+                        timeout_sec=int(args.timeout_sec),
+                    )
+                    fallback = {
+                        "provider": "qwen",
+                        "qwen_bin": qwen_bin,
+                        "qwen_sandbox": True,
+                        "qwen_approval_mode": qwen_approval_mode or "",
+                        "elapsed_sec": qelapsed,
+                        "exit_code": qrc,
+                    }
+                    stdout = qout
+                    stderr = (str(stderr or "").rstrip() + "\n\n[fallback:qwen]\n" + str(qerr or "").lstrip()).strip() + "\n"
+                    elapsed = float(elapsed) + float(qelapsed)
+                    rc = int(qrc)
+
                 _write_text(stdout_log, stdout)
                 _write_text(stderr_log, stderr)
                 _write_text(attempt_stdout_log, stdout)
@@ -1250,6 +1584,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                         "elapsed_sec": elapsed,
                         "exit_code": rc,
                         "attempt": attempt,
+                        "fallback": fallback or {},
                     },
                 )
                 _write_json(
@@ -1273,6 +1608,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                         "elapsed_sec": elapsed,
                         "exit_code": rc,
                         "attempt": attempt,
+                        "fallback": fallback or {},
                     },
                 )
 
@@ -1286,25 +1622,75 @@ def cmd_run(args: argparse.Namespace) -> int:
                     if _reject_obviously_non_script(tail_out):
                         last_failure = f"{script_id}: rejected_output=empty_tail (see {attempt_stdout_log})"
                         continue
-                    if any(tok in tail_out for tok in _TAIL_ONLY_BANNED_SUBSTRINGS):
-                        last_failure = f"{script_id}: rejected_output=tail_contains_banned_marker (see {attempt_stdout_log})"
-                        continue
+                    banned_hits = [tok for tok in _TAIL_ONLY_BANNED_SUBSTRINGS if tok in tail_out]
+                    if banned_hits:
+                        sanitized = _sanitize_tail_only_output(tail_out)
+                        if sanitized and sanitized != tail_out:
+                            leftover = [tok for tok in _TAIL_ONLY_BANNED_SUBSTRINGS if tok in sanitized]
+                            if not leftover:
+                                tail_out = sanitized
+                            else:
+                                last_failure = (
+                                    f"{script_id}: rejected_output=tail_contains_banned_marker banned={','.join(leftover[:8])} "
+                                    f"(see {attempt_stdout_log})"
+                                )
+                                continue
+                        else:
+                            last_failure = (
+                                f"{script_id}: rejected_output=tail_contains_banned_marker banned={','.join(banned_hits[:8])} "
+                                f"(see {attempt_stdout_log})"
+                            )
+                            continue
                     if re.search(r"(?m)^\\s*(#|[-*]\\s|・)", tail_out):
                         last_failure = f"{script_id}: rejected_output=tail_contains_list_or_heading (see {attempt_stdout_log})"
                         continue
-                    if _count_sentences(tail_out) < 2 or _count_sentences(tail_out) > 4:
+                    sentence_count = _count_sentences(tail_out)
+                    if sentence_count > 8:
+                        tail_out = _compact_tail_to_max_sentences(tail_out, max_sentences=8)
+                        sentence_count = _count_sentences(tail_out)
+                    if sentence_count < 3 or sentence_count > 8:
                         last_failure = f"{script_id}: rejected_output=tail_sentence_count_invalid (see {attempt_stdout_log})"
                         continue
                     if not tail_out.endswith("。"):
                         last_failure = f"{script_id}: rejected_output=tail_not_ending_period (see {attempt_stdout_log})"
                         continue
+                    old_tail_chars = _a_text_spoken_char_count(tail_old)
+                    new_tail_chars = _a_text_spoken_char_count(tail_out)
+                    if old_tail_chars > 0:
+                        # Keep overall script length >= target_chars_min (min_spoken_chars).
+                        need_tail = 0
+                        if min_spoken_chars > 0 and tail_prefix_chars > 0:
+                            need_tail = max(0, int(min_spoken_chars) - int(tail_prefix_chars))
+                        # Allow tightening a bloated ending. Use a dynamic minimum based on the
+                        # current tail length, while still ensuring the merged script stays above
+                        # the channel's minimum length.
+                        min_tail_base = min(150, max(80, int(old_tail_chars) - 30))
+                        min_tail = max(int(min_tail_base), int(need_tail))
+                        if new_tail_chars < min_tail:
+                            last_failure = (
+                                f"{script_id}: rejected_output=tail_too_short_relative "
+                                f"min_tail={min_tail} new_tail={new_tail_chars} "
+                                f"(see {attempt_stdout_log})"
+                            )
+                            continue
+                        if tail_max_allowed > 0 and new_tail_chars > tail_max_allowed:
+                            last_failure = (
+                                f"{script_id}: rejected_output=tail_too_long_relative "
+                                f"max_tail={tail_max_allowed} new_tail={new_tail_chars} "
+                                f"(see {attempt_stdout_log})"
+                            )
+                            continue
                     a_text = (tail_prefix + tail_out.lstrip()).rstrip() + "\n"
                     # Only guard the very end: we don't want to reject body text that
                     # legitimately mentions e.g. 「深呼吸」 earlier. Our goal here is
                     # to avoid cliché closings in the final segment.
                     tail_window = a_text[-500:] if len(a_text) > 500 else a_text
-                    if any(tok in tail_window for tok in _TAIL_ONLY_BANNED_SUBSTRINGS):
-                        last_failure = f"{script_id}: rejected_output=ending_cliche_or_banned_leftover (see {attempt_stdout_log})"
+                    leftover_hits = [tok for tok in _TAIL_ONLY_BANNED_SUBSTRINGS if tok in tail_window]
+                    if leftover_hits:
+                        last_failure = (
+                            f"{script_id}: rejected_output=ending_cliche_or_banned_leftover banned={','.join(leftover_hits[:8])} "
+                            f"(see {attempt_stdout_log})"
+                        )
                         continue
                     _write_text(stdout_log, a_text)
                 else:
