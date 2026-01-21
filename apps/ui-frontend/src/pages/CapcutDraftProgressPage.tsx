@@ -635,7 +635,9 @@ export function CapcutDraftProgressPage() {
                             ? "CapCut 作成中"
                             : "CapCut 未生成";
 
-                  const imageLink = row.runId ? `/image-timeline?project=${encodeURIComponent(row.runId)}` : "";
+                  const imageLink = row.video
+                    ? `/image-timeline?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(row.video)}`
+                    : "";
                   const capcutLink = row.runId
                     ? `/capcut-edit/production?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(row.video)}&project=${encodeURIComponent(row.runId)}`
                     : `/capcut-edit/draft?channel=${encodeURIComponent(channel)}&video=${encodeURIComponent(row.video)}`;

@@ -316,6 +316,28 @@ def _find_duplicate_visual_focus(sections: List["PlannedSection"]) -> Dict[str, 
     return {k: v for k, v in seen.items() if len(v) > 1}
 
 
+_TIME_CLICHE_PATTERN = re.compile(
+    r"(?:"
+    r"pocket\s*watch|hourglass|stopwatch|timer|\bclock\b|"
+    r"時計|懐中時計|砂時計|ストップウォッチ|タイマー"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _find_time_cliche_sections(sections: List["PlannedSection"]) -> List[int]:
+    """
+    SSOT: Avoid generic timepiece symbolism as a default filler (time -> watch/clock/hourglass).
+    This is a *plan* quality gate (LLM output), not an image prompt rewrite.
+    """
+    hits: List[int] = []
+    for idx, sec in enumerate(sections, start=1):
+        hay = f"{sec.visual_focus} {sec.refined_prompt}".strip()
+        if hay and _TIME_CLICHE_PATTERN.search(hay):
+            hits.append(idx)
+    return hits
+
+
 def plan_sections_via_router(
     *,
     segments: List[Dict[str, Any]],
@@ -417,6 +439,7 @@ Script:
     attempt_note = ""
     last_repeats: Dict[str, List[int]] = {}
     last_missing_refined: List[int] = []
+    last_time_cliche: List[int] = []
     for attempt in range(2):
         prompt_run = prompt
         if attempt_note:
@@ -471,28 +494,32 @@ Script:
 
         repeats = _find_duplicate_visual_focus(sections)
         missing_refined = [i for i, s in enumerate(sections, start=1) if not str(s.refined_prompt or "").strip()]
-        if not repeats and not missing_refined:
+        time_cliche = _find_time_cliche_sections(sections)
+        if not repeats and not missing_refined and not time_cliche:
             return sections
 
         last_repeats = repeats
         last_missing_refined = missing_refined
+        last_time_cliche = time_cliche
         logger.warning(
-            "cues_plan: plan issues detected (attempt=%d, unique_repeats=%d, missing_refined=%d). Retrying once.",
+            "cues_plan: plan issues detected (attempt=%d, unique_repeats=%d, missing_refined=%d, time_cliche=%d). Retrying once.",
             attempt + 1,
             len(repeats),
             len(missing_refined),
+            len(time_cliche),
         )
         attempt_note = (
             "IMPORTANT: Fix your previous output.\n"
             "- `refined_prompt` is REQUIRED for every section (short English scene prompt; no text in image).\n"
             "- `visual_focus` must be distinct and faithful to THAT section.\n"
             "- Do NOT reuse the same main prop/symbol/location across sections.\n"
+            "- Avoid generic timepiece symbolism as default filler; depict concrete actions/places/props grounded in the section.\n"
             "Return ONLY the full JSON object in the original schema."
         )
 
     raise RuntimeError(
         "visual_image_cues_plan output is not acceptable "
-        f"(unique_repeats={len(last_repeats)}, missing_refined_prompt={len(last_missing_refined)}). "
+        f"(unique_repeats={len(last_repeats)}, missing_refined_prompt={len(last_missing_refined)}, time_cliche={len(last_time_cliche)}). "
         "Use THINK/AGENT mode and edit visual_cues_plan.json manually."
     )
 

@@ -54,13 +54,15 @@ export const Timeline: React.FC<Props> = ({
   const mainScale = layout?.beltMainScale ?? 1.3;
   const subScale = layout?.beltSubScale ?? 1.25;
   const gapScale = layout?.beltGapScale ?? 1.15;
-  const beltTopPct = layout?.beltTopPct ?? 0;
+  const beltTopPct = layout?.beltTopPct ?? 82;
+  const beltAlign: "left" | "right" = layout?.beltAlign === "right" ? "right" : "left";
+  const beltTheme = String(layout?.beltTheme || "").trim() || "default";
   const mainBeltShadowX = Math.round(8 * mainScale);
   const mainBeltShadowY = Math.round(10 * mainScale);
   const mainBeltShadowBlur = Math.round(10 * mainScale);
   const mainBeltShadow = `${mainBeltShadowX}px ${mainBeltShadowY}px ${mainBeltShadowBlur}px rgba(0,0,0,0.36)`;
-  // If beltTopPct is near 0, anchor to the top-left with a small inset.
-  // Default inset ensures the belt's shadow isn't visibly clipped on the top/left edges.
+  // If beltTopPct is near 0, anchor to the top edge with a small inset.
+  // Default inset ensures the belt's shadow isn't visibly clipped on the edges.
   const computedInsetPx = Math.round(
     Math.max(
       2,
@@ -68,10 +70,35 @@ export const Timeline: React.FC<Props> = ({
     ),
   );
   const beltInsetPx = Math.round(layout?.beltInsetPx ?? computedInsetPx);
-  const beltAnchoredTopLeft = beltTopPct <= 2;
-  const beltTop = beltAnchoredTopLeft ? beltInsetPx : `${beltTopPct}%`;
-  const beltLeft = beltAnchoredTopLeft ? beltInsetPx : 0;
-  const beltMaxWidth = beltAnchoredTopLeft ? `calc(100% - ${beltInsetPx * 2}px)` : "92%";
+  const beltAnchoredTop = beltTopPct <= 2;
+  const beltTop = beltAnchoredTop ? beltInsetPx : `${beltTopPct}%`;
+  const beltSideInset = beltAnchoredTop ? beltInsetPx : 0;
+  const beltMaxWidth = beltAnchoredTop ? `calc(100% - ${beltInsetPx * 2}px)` : "92%";
+  const themeCh02Blue = beltTheme === "ch02_blue";
+  const mainBeltBackground = themeCh02Blue
+    ? "linear-gradient(180deg, rgba(59,130,246,0.98) 0%, rgba(29,78,216,0.98) 100%)"
+    : "linear-gradient(180deg, #f3b25a 0%, #d37726 100%)";
+  const mainBeltBorder = themeCh02Blue ? "rgba(191,219,254,0.85)" : "#e59500";
+  const mainBeltTextColor = themeCh02Blue ? "#f8fafc" : "#2d1a00";
+  const mainBeltTextStroke = themeCh02Blue ? "1.2px rgba(0,0,0,0.28)" : "0.8px rgba(0,0,0,0.45)";
+  const mainBeltTextShadow = themeCh02Blue
+    ? "0 4px 14px rgba(0,0,0,0.45)"
+    : [
+        "0 0 2px rgba(245,241,231,0.9)",
+        "0 0 4px rgba(245,241,231,0.9)",
+        "0 0 6px rgba(202,255,122,0.9)",
+        "0 3px 0 rgba(120,60,0,0.95)",
+        "0 6px 10px rgba(0,0,0,0.6)",
+      ].join(", ");
+  const mainBeltFont = themeCh02Blue
+    ? "\"Noto Sans JP\", system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
+    : "\"RocknRoll One\", \"Yomogi\", \"Noto Sans JP\", system-ui, sans-serif";
+  const subBeltBackground = themeCh02Blue
+    ? "linear-gradient(180deg, rgba(30,64,175,0.94) 0%, rgba(37,99,235,0.94) 100%)"
+    : "linear-gradient(180deg, #f9a600 0%, #d87a1f 100%)";
+  const subBeltBorder = themeCh02Blue ? "rgba(147,197,253,0.72)" : "rgba(200, 110, 25, 0.95)";
+  const subBeltTextColor = themeCh02Blue ? "#f8fafc" : "#1b0e00";
+  const subBeltFont = themeCh02Blue ? "\"Noto Sans JP\", system-ui, sans-serif" : "\"RocknRoll One\", \"Yomogi\", \"Noto Sans JP\", system-ui, sans-serif";
   const firstSubtitle = React.useMemo(() => {
     if (!subtitles || subtitles.length === 0) return "";
     const sorted = [...subtitles].sort((a, b) => a.start - b.start);
@@ -142,14 +169,15 @@ export const Timeline: React.FC<Props> = ({
         style={{
           position: "absolute",
           top: beltTop,
-          left: beltLeft,
+          ...(beltAlign === "right"
+            ? { right: beltSideInset, left: "auto", alignItems: "flex-end" as const }
+            : { left: beltSideInset, right: "auto", alignItems: "flex-start" as const }),
           zIndex: 4,
           display: "flex",
           flexDirection: "column",
           gap: 8 * gapScale,
           pointerEvents: "none",
           justifyContent: "flex-start",
-          alignItems: "flex-start",
           maxWidth: beltMaxWidth,
           boxSizing: "border-box",
         }}
@@ -157,14 +185,14 @@ export const Timeline: React.FC<Props> = ({
         {t >= openingOffset && (
           <div
             style={{
-              alignSelf: "flex-start",
+              alignSelf: beltAlign === "right" ? "flex-end" : "flex-start",
               padding: `${12 * mainScale}px ${22 * mainScale}px`,
               position: "relative",
               display: "inline-flex",
-              background: "linear-gradient(180deg, #f3b25a 0%, #d37726 100%)",
+              background: mainBeltBackground,
               borderRadius: 14 * mainScale,
               boxShadow: mainBeltShadow,
-              border: `${1.8 * mainScale}px solid #e59500`,
+              border: `${1.8 * mainScale}px solid ${mainBeltBorder}`,
             }}
           >
             <span
@@ -174,20 +202,14 @@ export const Timeline: React.FC<Props> = ({
                 display: "inline-block",
                 padding: `${8 * mainScale}px ${18 * mainScale}px`,
                 borderRadius: 12 * mainScale,
-                fontFamily: "\"RocknRoll One\", \"Yomogi\", \"Noto Sans JP\", system-ui, sans-serif",
+                fontFamily: mainBeltFont,
                 fontWeight: 900,
                 fontSize: 36 * mainScale,
                 lineHeight: 1.05,
                 letterSpacing: "0.06em",
-                color: "#2d1a00",
-                WebkitTextStroke: "0.8px rgba(0,0,0,0.45)",
-                textShadow: [
-                  "0 0 2px rgba(245,241,231,0.9)",
-                  "0 0 4px rgba(245,241,231,0.9)",
-                  "0 0 6px rgba(202,255,122,0.9)",
-                  "0 3px 0 rgba(120,60,0,0.95)",
-                  "0 6px 10px rgba(0,0,0,0.6)",
-                ].join(", "),
+                color: mainBeltTextColor,
+                WebkitTextStroke: mainBeltTextStroke,
+                textShadow: mainBeltTextShadow,
               }}
             >
               {mainLabel || " "}
@@ -209,12 +231,12 @@ export const Timeline: React.FC<Props> = ({
                 style={{
                   padding: `${16 * subScale}px ${22 * subScale}px`,
                   borderRadius: 14 * subScale,
-                  background: "linear-gradient(180deg, #f9a600 0%, #d87a1f 100%)",
-                  color: "#1b0e00",
+                  background: subBeltBackground,
+                  color: subBeltTextColor,
                   fontSize: 32 * subScale,
                   fontWeight: 820,
                   boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-                  border: "1.6px solid rgba(200, 110, 25, 0.95)",
+                  border: `1.6px solid ${subBeltBorder}`,
                   lineHeight: 1.08,
                   letterSpacing: "0.02em",
                   textShadow: [
@@ -223,7 +245,7 @@ export const Timeline: React.FC<Props> = ({
                     "0 1px 2px rgba(0,0,0,0.35)",
                     "0 3px 6px rgba(0,0,0,0.4)",
                   ].join(", "),
-                  fontFamily: "\"RocknRoll One\", \"Yomogi\", \"Noto Sans JP\", system-ui, sans-serif",
+                  fontFamily: subBeltFont,
                 }}
               >
                 {formatBeltLabel(active.text)}

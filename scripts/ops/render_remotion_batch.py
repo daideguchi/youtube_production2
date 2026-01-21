@@ -18,6 +18,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -115,6 +116,77 @@ def _run_node(cmd: list[str], *, cwd: Path, dry_run: bool) -> int:
     return int(proc.returncode)
 
 
+def _run_cmd(cmd: list[str], *, cwd: Path, dry_run: bool) -> int:
+    print(f"[render_remotion_batch] $ {' '.join(cmd)}", flush=True)
+    if dry_run:
+        return 0
+    proc = subprocess.run(cmd, cwd=str(cwd), check=False)
+    return int(proc.returncode)
+
+
+def _run_shared_offload_remotion_mp4(
+    *,
+    channel: str,
+    video: str,
+    run_id: str,
+    symlink_back: bool,
+    overwrite: bool,
+    ignore_locks: bool,
+    run: bool,
+) -> int:
+    """
+    Call shared offload in its own dry-run/run mode.
+    - `run=False` does not write (but still validates shared root + prints plan).
+    - No silent fallback: missing shared root -> non-zero exit.
+    """
+    # Policy: shared store requires configured/mounted shared storage.
+    base = repo_paths.shared_storage_base()
+    if base is None:
+        print("[POLICY] Missing YTM_SHARED_STORAGE_ROOT (shared store requested).", file=sys.stderr)
+        return 3
+    if not base.exists() or not base.is_dir():
+        print(f"[POLICY] Shared storage base is not a directory: {base}", file=sys.stderr)
+        return 3
+
+    local_mp4 = repo_paths.video_run_dir(run_id) / "remotion" / "output" / "final.mp4"
+    if not run:
+        # Dry-run safety: if mp4 is not present yet, print intended destination and succeed.
+        # (Actual copy happens after render when `run=True`.)
+        if not local_mp4.exists():
+            dest = base / "remotion_mp4" / channel / video / f"{run_id}.mp4"
+            print("[DRY-RUN] shared store (remotion_mp4)")
+            print(f"- src (expected): {local_mp4}")
+            print(f"- dest: {dest}")
+            if symlink_back:
+                print("- post: symlink-back")
+            return 0
+
+    cmd: list[str] = [
+        "python3",
+        "scripts/ops/shared_storage_offload_episode.py",
+        "--channel",
+        channel,
+        "--video",
+        video,
+        "--include-remotion",
+        "--run-id",
+        run_id,
+        "--skip-script",
+        "--skip-audio",
+    ]
+    if symlink_back:
+        cmd.append("--symlink-back")
+    if overwrite:
+        cmd.append("--overwrite")
+    if ignore_locks:
+        cmd.append("--ignore-locks")
+    if run:
+        cmd.append("--run")
+    print(f"[render_remotion_batch] $ {' '.join(cmd)}", flush=True)
+    proc = subprocess.run(cmd, cwd=str(REPO_ROOT), check=False)
+    return int(proc.returncode)
+
+
 def _cleanup_after_success(*, run_dir: Path, final_out: Path, clean: bool, locks: list, dry_run: bool) -> list[str]:
     if not clean:
         return []
@@ -175,11 +247,25 @@ def render_one(
     clean: bool,
     dry_run: bool,
     locks: list,
+    shared_store: bool,
+    shared_symlink_back: bool,
+    shared_overwrite: bool,
+    shared_ignore_locks: bool,
+    allow_missing_images: bool,
 ) -> RenderResult:
     run_id = f"{channel}-{video}{run_suffix}"
     run_dir = repo_paths.video_run_dir(run_id)
     if not run_dir.exists():
         return RenderResult(video=video, run_id=run_id, status="failed", note=f"run_dir_missing:{_rel(run_dir)}")
+
+    # Preflight: minimal run_dir contract for Remotion.
+    required = [
+        run_dir / "image_cues.json",
+        run_dir / "belt_config.json",
+    ]
+    missing = [p for p in required if not p.exists()]
+    if missing:
+        return RenderResult(video=video, run_id=run_id, status="failed", note="run_inputs_missing:" + ",".join([_rel(p) for p in missing]))
 
     out_dir = run_dir / "remotion" / "output"
     final_out = out_dir / "final.mp4"
@@ -191,7 +277,35 @@ def render_one(
 
     if not force and _is_nonempty_file(final_out):
         notes = _cleanup_after_success(run_dir=run_dir, final_out=final_out, clean=clean, locks=locks, dry_run=dry_run)
+        if shared_store:
+            rc = _run_shared_offload_remotion_mp4(
+                channel=channel,
+                video=video,
+                run_id=run_id,
+                symlink_back=bool(shared_symlink_back),
+                overwrite=bool(shared_overwrite),
+                ignore_locks=bool(shared_ignore_locks),
+                run=not bool(dry_run),
+            )
+            if rc != 0:
+                return RenderResult(
+                    video=video,
+                    run_id=run_id,
+                    status="failed",
+                    out_mp4=_rel(final_out),
+                    note=f"shared_store_failed:rc={rc}",
+                    returncode=rc,
+                )
         return RenderResult(video=video, run_id=run_id, status="skipped", out_mp4=_rel(final_out), note=";".join(notes) or None)
+
+    # Safety: never render into a shared-storage symlink.
+    # If a previous run used --shared-symlink-back, final.mp4 is a symlink to shared storage.
+    # On re-render (i.e., we are not skipping), unlink it so Remotion writes a local file first.
+    if final_out.exists() and final_out.is_symlink():
+        if dry_run:
+            print(f"[render_remotion_batch] note: will unlink symlink before render: {_rel(final_out)}", flush=True)
+        else:
+            final_out.unlink()
 
     audio_dir = repo_paths.audio_final_dir(channel, video)
     wav = audio_dir / f"{channel}-{video}.wav"
@@ -201,7 +315,8 @@ def render_one(
     if not srt.exists():
         return RenderResult(video=video, run_id=run_id, status="failed", note=f"srt_missing:{_rel(srt)}")
 
-    out_dir.mkdir(parents=True, exist_ok=True)
+    if not dry_run:
+        out_dir.mkdir(parents=True, exist_ok=True)
 
     cmd: list[str] = [
         "node",
@@ -221,6 +336,8 @@ def render_one(
         "--bgm-fade",
         str(bgm_fade),
     ]
+    if not bool(allow_missing_images):
+        cmd += ["--fail-on-missing"]
     if chunk_sec > 0:
         cmd += ["--chunk-sec", str(chunk_sec)]
     if resume_chunks:
@@ -230,10 +347,51 @@ def render_one(
     if rc != 0:
         return RenderResult(video=video, run_id=run_id, status="failed", out_mp4=_rel(final_out), returncode=rc, note="render_failed")
 
+    if dry_run:
+        if shared_store:
+            rc2 = _run_shared_offload_remotion_mp4(
+                channel=channel,
+                video=video,
+                run_id=run_id,
+                symlink_back=bool(shared_symlink_back),
+                overwrite=bool(shared_overwrite),
+                ignore_locks=bool(shared_ignore_locks),
+                run=False,
+            )
+            if rc2 != 0:
+                return RenderResult(
+                    video=video,
+                    run_id=run_id,
+                    status="failed",
+                    out_mp4=_rel(final_out),
+                    note=f"shared_store_failed:rc={rc2}",
+                    returncode=rc2,
+                )
+        return RenderResult(video=video, run_id=run_id, status="ok", out_mp4=_rel(final_out), note="dry-run", returncode=0)
+
     if not _is_nonempty_file(final_out, min_bytes=1024 * 256):
         return RenderResult(video=video, run_id=run_id, status="failed", out_mp4=_rel(final_out), returncode=rc, note="output_missing")
 
     notes = _cleanup_after_success(run_dir=run_dir, final_out=final_out, clean=clean, locks=locks, dry_run=dry_run)
+    if shared_store:
+        rc2 = _run_shared_offload_remotion_mp4(
+            channel=channel,
+            video=video,
+            run_id=run_id,
+            symlink_back=bool(shared_symlink_back),
+            overwrite=bool(shared_overwrite),
+            ignore_locks=bool(shared_ignore_locks),
+            run=not bool(dry_run),
+        )
+        if rc2 != 0:
+            return RenderResult(
+                video=video,
+                run_id=run_id,
+                status="failed",
+                out_mp4=_rel(final_out),
+                note=f"shared_store_failed:rc={rc2}",
+                returncode=rc2,
+            )
     return RenderResult(video=video, run_id=run_id, status="ok", out_mp4=_rel(final_out), note=";".join(notes) or None, returncode=rc)
 
 
@@ -250,6 +408,11 @@ def main() -> int:
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--no-clean", action="store_true")
     ap.add_argument("--stop-on-error", action="store_true")
+    ap.add_argument("--allow-missing-images", action="store_true", help="Allow missing images (debug only; default fails)")
+    ap.add_argument("--shared-store", action="store_true", help="Offload Remotion final.mp4 to shared storage (no silent fallback)")
+    ap.add_argument("--shared-symlink-back", action="store_true", help="After verified shared store, symlink-back local mp4 (requires --shared-store)")
+    ap.add_argument("--shared-overwrite", action="store_true", help="Overwrite shared destination if exists (use with caution)")
+    ap.add_argument("--shared-ignore-locks", action="store_true", help="Ignore coordination locks for shared store (debug only)")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--run", action="store_true")
     ap.add_argument("--ignore-locks", action="store_true")
@@ -257,6 +420,9 @@ def main() -> int:
 
     if not args.run:
         args.dry_run = True
+
+    if bool(args.shared_symlink_back) and not bool(args.shared_store):
+        raise SystemExit("[POLICY] --shared-symlink-back requires --shared-store.")
 
     channel = str(args.channel).strip().upper()
     videos_spec = list(args.videos or []) or ["1-29"]
@@ -281,6 +447,11 @@ def main() -> int:
             clean=not bool(args.no_clean),
             dry_run=bool(args.dry_run),
             locks=locks,
+            shared_store=bool(args.shared_store),
+            shared_symlink_back=bool(args.shared_symlink_back),
+            shared_overwrite=bool(args.shared_overwrite),
+            shared_ignore_locks=bool(args.shared_ignore_locks),
+            allow_missing_images=bool(args.allow_missing_images),
         )
         results.append(r)
         print(f"[render_remotion_batch] {r.run_id}: {r.status}", flush=True)
@@ -307,6 +478,11 @@ def main() -> int:
             "dry_run": bool(args.dry_run),
             "run": bool(args.run),
             "ignore_locks": bool(args.ignore_locks),
+            "allow_missing_images": bool(args.allow_missing_images),
+            "shared_store": bool(args.shared_store),
+            "shared_symlink_back": bool(args.shared_symlink_back),
+            "shared_overwrite": bool(args.shared_overwrite),
+            "shared_ignore_locks": bool(args.shared_ignore_locks),
         },
         "results": [r.__dict__ for r in results],
     }

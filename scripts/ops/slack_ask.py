@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -251,6 +252,83 @@ def _poll_summary(poll_json_path: Path) -> dict[str, Any]:
     return {"reply_count": reply_count, "replies_preview": preview}
 
 
+def _poll_history_for_ask(
+    *,
+    ask_id: str,
+    thread_ts: str,
+    channel: str,
+    subject: str,
+    write_memos: bool,
+) -> tuple[Optional[Path], dict[str, Any]]:
+    """
+    Fallback when the owner did NOT reply in-thread.
+
+    Strategy:
+    - poll recent channel history (after thread_ts)
+    - grep for ask_id (and, as a backup, the subject)
+    - ignore the original ask message itself (ts == thread_ts)
+    """
+    if not channel:
+        return None, {}
+
+    _ensure_dir(_ask_store_dir())
+    out_json = _ask_store_dir() / f"{ask_id}__history.json"
+
+    grep = str(ask_id).strip()
+    if not grep:
+        return None, {}
+
+    args = [
+        "--history",
+        "--history-oldest",
+        thread_ts,
+        "--history-limit",
+        "50",
+        "--history-grep",
+        grep,
+        "--history-include-replies",
+        "--history-out-json",
+        str(out_json),
+    ]
+    if write_memos:
+        args.append("--history-write-memos")
+
+    rc = _run_slack_notify(args, channel=channel)
+    if rc != 0:
+        return out_json, {"history_match_count": 0, "history_matches_preview": []}
+
+    try:
+        obj = _load_json(out_json)
+    except Exception:
+        return out_json, {"history_match_count": 0, "history_matches_preview": []}
+
+    msgs = obj.get("messages") if isinstance(obj, dict) else None
+    if not isinstance(msgs, list):
+        msgs = []
+
+    matches: list[dict[str, Any]] = []
+    for m in msgs:
+        if not isinstance(m, dict):
+            continue
+        ts = str(m.get("ts") or "").strip()
+        if ts == str(thread_ts).strip():
+            continue
+        text = str(m.get("text") or "")
+        if not re.search(re.escape(ask_id), text, flags=re.IGNORECASE):
+            if subject and (subject.lower() not in text.lower()):
+                continue
+        matches.append(
+            {
+                "ts": ts,
+                "user": str(m.get("user") or "").strip(),
+                "text": text[:400],
+            }
+        )
+
+    preview = matches[-3:]
+    return out_json, {"history_match_count": len(matches), "history_matches_preview": preview}
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Ask on Slack and persist thread ts for reliable polling.")
     sp = ap.add_subparsers(dest="cmd", required=True)
@@ -290,6 +368,17 @@ def main(argv: Optional[list[str]] = None) -> int:
         )
         payload = {"ask_id": rec.ask_id, "thread_ts": rec.thread_ts, "poll_json": str(out)}
         payload.update(_poll_summary(Path(out)))
+        if int(payload.get("reply_count") or 0) <= 0:
+            hist_json, hist_summary = _poll_history_for_ask(
+                ask_id=rec.ask_id,
+                thread_ts=rec.thread_ts,
+                channel=rec.channel,
+                subject=rec.subject,
+                write_memos=bool(args.write_memos),
+            )
+            if hist_json is not None:
+                payload["history_json"] = str(hist_json)
+            payload.update(hist_summary)
         print(json.dumps(payload, ensure_ascii=False))
         return 0
 
@@ -317,6 +406,17 @@ def main(argv: Optional[list[str]] = None) -> int:
         )
         payload = {"ask_id": ask_id, "thread_ts": thread_ts, "poll_json": str(out)}
         payload.update(_poll_summary(Path(out)))
+        if int(payload.get("reply_count") or 0) <= 0:
+            hist_json, hist_summary = _poll_history_for_ask(
+                ask_id=ask_id,
+                thread_ts=thread_ts,
+                channel=channel,
+                subject=str(ent.get("subject") or "").strip(),
+                write_memos=bool(args.write_memos),
+            )
+            if hist_json is not None:
+                payload["history_json"] = str(hist_json)
+            payload.update(hist_summary)
         print(json.dumps(payload, ensure_ascii=False))
         return 0
 

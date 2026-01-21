@@ -34,6 +34,7 @@ import random
 import re
 import secrets
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -49,7 +50,7 @@ except Exception:
 
 tool_bootstrap(load_env=False)
 
-from factory_common.paths import video_capcut_local_drafts_root, video_runs_root  # noqa: E402
+from factory_common.paths import script_data_root, video_capcut_local_drafts_root, video_runs_root  # noqa: E402
 
 
 CAP_ASSETS_SUBDIR = Path("assets/image")
@@ -438,6 +439,367 @@ def refine_run_refined_prompts(
     return updated, failed
 
 
+def _truncate_chars(text: str, limit: int) -> str:
+    s = _one_line(text)
+    lim = int(limit or 0)
+    if lim <= 0 or len(s) <= lim:
+        return s
+    if lim == 1:
+        return "…"
+    return s[: lim - 1].rstrip() + "…"
+
+
+def _fallback_refined_prompt_from_cue(*, cue: Dict[str, Any], refined_max_chars: int) -> str:
+    """
+    Deterministic fallback for Gemini/LLM failures.
+    We intentionally avoid symbolic/abstract props (timepieces, coins) and avoid forbidden words
+    (people/hands/text/etc) by construction.
+    """
+
+    def _stable_seed(s: str) -> int:
+        h = 2166136261
+        for ch in str(s or "")[:512]:
+            h ^= ord(ch)
+            h = (h * 16777619) & 0xFFFFFFFF
+        return int(h)
+
+    try:
+        idx = int(cue.get("index") or 0)
+    except Exception:
+        idx = 0
+
+    text = _one_line(str(cue.get("text") or ""))
+    summary = _one_line(str(cue.get("summary") or ""))
+    hay = f"{summary} {text}".strip()
+    seed = _stable_seed(hay) ^ (idx & 0xFFFFFFFF)
+    rng = random.Random(seed)
+
+    # Pick a concrete setting based on simple Japanese keyword cues.
+    if any(tok in hay for tok in ["電車", "通勤", "車内", "ホーム"]):
+        setting = "empty commuter train seat by the window"
+    elif any(tok in hay for tok in ["寝室", "ベッド", "就寝", "眠", "夜"]):
+        setting = "quiet bedroom at night"
+    elif any(tok in hay for tok in ["キッチン", "台所", "料理"]):
+        setting = "small kitchen counter in a quiet apartment"
+    elif any(tok in hay for tok in ["部屋", "自宅", "家", "室内"]):
+        setting = rng.choice(["quiet room with soft lamp light", "simple desk in a quiet room"])
+    elif any(tok in hay for tok in ["外", "街", "散歩", "公園"]):
+        setting = rng.choice(["quiet residential street at dawn", "empty park path with soft morning haze"])
+    else:
+        setting = rng.choice(["simple desk by a window", "quiet room with soft indirect light"])
+
+    # Choose a subject grounded in common CH02 language without relying on symbols.
+    subject_parts: List[str] = []
+    if any(tok in hay for tok in ["スマホ", "スマートフォン", "携帯"]):
+        subject_parts.append(
+            rng.choice(
+                [
+                    "smartphone placed screen-side down",
+                    "smartphone resting screen-side down",
+                    "smartphone screen-off on the surface",
+                ]
+            )
+        )
+    else:
+        subject_parts.append(rng.choice(["closed notebook with a plain cover", "plain ceramic mug", "simple tabletop"]))
+
+    if any(tok in hay for tok in ["イヤホン", "ヘッドホン", "音楽"]):
+        subject_parts.append(rng.choice(["earbuds coiled neatly beside it", "headphones resting nearby"]))
+    if any(tok in hay for tok in ["テレビ", "TV"]):
+        subject_parts.append(rng.choice(["TV powered off in the background", "remote control placed beside it"]))
+    if any(tok in hay for tok in ["静けさ", "無音", "沈黙"]):
+        subject_parts.append(rng.choice(["still air and soft shadows", "a calm, undisturbed surface"]))
+
+    subject = ", ".join([p for p in subject_parts if p]).strip(", ").strip()
+    if not subject:
+        subject = "simple tabletop with soft shadows"
+
+    shot = rng.choice(["close-up", "medium shot", "wide shot", "3/4 angle shot", "overhead shot"])
+    lighting = rng.choice(
+        [
+            "soft warm lamp glow, shallow depth of field",
+            "soft sunrise light, shallow depth of field",
+            "low-key cinematic lighting, shallow depth of field",
+        ]
+    )
+    # Ensure one line, bounded length.
+    rp = f"{shot} {setting}: {subject}. {lighting}."
+    return _truncate_chars(_one_line(rp), int(refined_max_chars) or 240)
+
+
+def _gemini_cli_response_text(*, prompt: str, model: str, timeout_sec: int) -> str:
+    env = os.environ.copy()
+    if not env.get("GEMINI_API_KEY") and env.get("VERTEX_AI_API_KEY"):
+        env["GEMINI_API_KEY"] = env["VERTEX_AI_API_KEY"]
+
+    cmd = ["gemini", "-m", str(model or "").strip(), "-o", "json", str(prompt or "")]
+    # gemini CLI may include "project workspace" context based on CWD. Use a temp dir to keep tokens/cost low.
+    cwd = "/tmp" if Path("/tmp").exists() else tempfile.gettempdir()
+    proc = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=int(timeout_sec), cwd=cwd)
+    stdout = str(proc.stdout or "")
+    stderr = str(proc.stderr or "")
+
+    if proc.returncode != 0:
+        raise RuntimeError(
+            "Gemini CLI refine failed\n"
+            f"  cmd={cmd}\n"
+            f"  exit={proc.returncode}\n"
+            f"  stdout_head={stdout[:500]}\n"
+            f"  stderr_head={stderr[:500]}\n"
+        )
+
+    # gemini CLI may print the wrapper JSON to stdout or stderr depending on environment.
+    combined = stdout if "{" in stdout else (stdout + "\n" + stderr)
+    start = combined.find("{")
+    if start >= 0:
+        try:
+            wrapper = json.loads(combined[start:])
+        except Exception:
+            wrapper = None
+        if isinstance(wrapper, dict):
+            resp = wrapper.get("response")
+            if isinstance(resp, str) and resp.strip():
+                return resp
+    return (stdout.strip() or stderr.strip())
+
+
+def _gemini_refine_chunk(
+    *,
+    cues: List[Dict[str, Any]],
+    channel: str,
+    gemini_model: str,
+    gemini_timeout_sec: int,
+    refined_max_chars: int,
+    require_personless: bool,
+    forbid_text: bool,
+    avoid_props: str,
+) -> Dict[int, str]:
+    time_cliche_re = re.compile(
+        r"(?:pocket\\s*watch|hourglass|stopwatch|timer|\\bclock\\b|\\bwatch\\b|時計|懐中時計|砂時計|ストップウォッチ|タイマー)",
+        re.IGNORECASE,
+    )
+    items: List[Dict[str, Any]] = []
+    for cue in cues:
+        if not isinstance(cue, dict) or cue.get("asset_relpath"):
+            continue
+        try:
+            idx = int(cue.get("index") or 0)
+        except Exception:
+            continue
+        if idx <= 0:
+            continue
+        item: Dict[str, Any] = {
+            "index": idx,
+            "summary": _truncate_chars(str(cue.get("summary") or ""), 80),
+            "text": _truncate_chars(str(cue.get("text") or ""), 260),
+            "visual_focus": _truncate_chars(str(cue.get("visual_focus") or ""), 140),
+            "ignore_visual_focus": bool(time_cliche_re.search(str(cue.get("visual_focus") or ""))),
+            "emotional_tone": _truncate_chars(str(cue.get("emotional_tone") or ""), 24),
+            "role_tag": _truncate_chars(str(cue.get("role_tag") or ""), 24),
+            "section_type": _truncate_chars(str(cue.get("section_type") or ""), 24),
+            "shot_hint": _truncate_chars(str(cue.get("shot_hint") or ""), 80),
+        }
+        existing = _one_line(str(cue.get("refined_prompt") or ""))
+        if existing:
+            item["existing_refined_prompt"] = _truncate_chars(existing, 240)
+        items.append(item)
+
+    if not items:
+        return {}
+
+    avoid_list = [_one_line(p) for p in str(avoid_props or "").split(",")]
+    avoid_list = [p for p in avoid_list if p]
+    if len(avoid_list) > 18:
+        avoid_list = avoid_list[:18]
+
+    constraints = {
+        "refined_max_chars": int(refined_max_chars),
+        "require_personless": bool(require_personless),
+        "forbid_text": bool(forbid_text),
+        "avoid_props": avoid_list,
+        "format_hint": "<shot> <setting>: <subject>. <lighting>. Cinematic, high-detail, shallow depth of field.",
+    }
+    payload = {"channel": str(channel or "").strip().upper(), "constraints": constraints, "items": items}
+
+    prompt = (
+        "You refine per-cue image prompts for generating cinematic B-roll images for YouTube.\n"
+        "Return ONLY JSON. No markdown. No commentary.\n"
+        "Each refined_prompt must be one line and MUST describe a concrete, unique subject per cue.\n"
+        "Prefer everyday, concrete scenes grounded in the cue text; avoid generic symbolic filler.\n"
+        "If ignore_visual_focus=true for an item, do NOT reuse visual_focus; derive a concrete everyday scene from the Japanese cue text instead.\n"
+        "Never include humans/people/hands/faces when require_personless=true.\n"
+        "Never include any text/letters/numbers/signage/logos/UI/screens when forbid_text=true.\n\n"
+        "Input JSON:\n"
+        f"{json.dumps(payload, ensure_ascii=False)}\n\n"
+        "Output JSON ONLY as a flat object mapping index -> refined_prompt:\n"
+        "{\"1\":\"...\",\"2\":\"...\"}\n"
+    )
+
+    raw = _gemini_cli_response_text(
+        prompt=prompt, model=str(gemini_model or "").strip(), timeout_sec=int(gemini_timeout_sec)
+    )
+    obj = _extract_json_object(raw)
+    if not obj:
+        # Some responses may be a bare JSON array: [{"index":..,"refined_prompt":..}, ...]
+        cleaned = str(raw or "").strip()
+        try:
+            parsed = json.loads(cleaned)
+        except Exception:
+            start = cleaned.find("[")
+            end = cleaned.rfind("]")
+            parsed = None
+            if start >= 0 and end > start:
+                try:
+                    parsed = json.loads(cleaned[start : end + 1])
+                except Exception:
+                    parsed = None
+        if isinstance(parsed, list):
+            obj = {"items": parsed}
+    if not obj:
+        raise RuntimeError("Gemini CLI refine: invalid JSON output")
+
+    out: Dict[int, str] = {}
+    items_obj = obj.get("items")
+    if isinstance(items_obj, list):
+        for it in items_obj:
+            if not isinstance(it, dict):
+                continue
+            try:
+                idx = int(it.get("index") or 0)
+            except Exception:
+                continue
+            rp = str(it.get("refined_prompt") or it.get("prompt") or "").strip()
+            rp = _one_line(rp)
+            if idx > 0 and rp:
+                out[idx] = rp
+        return out
+
+    # Fallback: allow {"43": "...", "44": "..."} style.
+    for k, v in obj.items():
+        ks = str(k).strip()
+        if not ks.isdigit():
+            continue
+        rp = _one_line(str(v or ""))
+        if rp:
+            out[int(ks)] = rp
+    return out
+
+
+def refine_run_refined_prompts_gemini(
+    *,
+    run_dir: Path,
+    indices: List[int],
+    channel: str,
+    gemini_model: str,
+    gemini_timeout_sec: int,
+    refined_max_chars: int,
+    require_personless: bool,
+    forbid_text: bool,
+    avoid_props: str,
+    forbidden_re: Optional[re.Pattern[str]],
+    dry_run: bool,
+) -> Tuple[int, int]:
+    cues_path = run_dir / "image_cues.json"
+    payload = json.loads(cues_path.read_text(encoding="utf-8"))
+    cues = _load_cues(cues_path)
+    if not cues:
+        raise RuntimeError(f"No cues: {cues_path}")
+
+    wanted = set(int(i) for i in indices)
+    targets: List[Dict[str, Any]] = []
+    for cue in cues:
+        if not isinstance(cue, dict) or cue.get("asset_relpath"):
+            continue
+        try:
+            idx = int(cue.get("index") or 0)
+        except Exception:
+            continue
+        if idx in wanted:
+            targets.append(cue)
+
+    if not targets:
+        return 0, 0
+
+    updated = 0
+    failed = 0
+    failed_details: Dict[int, str] = {}
+    cliche_prop_re = re.compile(
+        r"(?:pocket\\s*watch|hourglass|stopwatch|timer|metronome|\\bclock\\b|\\bwatch\\b|"
+        r"coin\\s+jar|piggy\\s*bank|\\bcoins?\\b|"
+        r"時計|懐中時計|砂時計|ストップウォッチ|タイマー|メトロノーム|貯金箱|コイン)",
+        re.IGNORECASE,
+    )
+
+    def _refine_chunk_with_fallback(chunk: List[Dict[str, Any]]) -> Dict[int, str]:
+        try:
+            return _gemini_refine_chunk(
+                cues=chunk,
+                channel=channel,
+                gemini_model=str(gemini_model or "").strip(),
+                gemini_timeout_sec=int(gemini_timeout_sec),
+                refined_max_chars=int(refined_max_chars),
+                require_personless=bool(require_personless),
+                forbid_text=bool(forbid_text),
+                avoid_props=str(avoid_props or ""),
+            )
+        except Exception as e:
+            # Gemini CLI sometimes truncates JSON for large chunks; fall back to smaller batches.
+            if len(chunk) <= 1:
+                raise
+            msg = str(e)
+            retryable = isinstance(e, subprocess.TimeoutExpired) or ("invalid json output" in msg.lower())
+            if not retryable:
+                raise
+            mid = max(1, len(chunk) // 2)
+            out: Dict[int, str] = {}
+            out.update(_refine_chunk_with_fallback(chunk[:mid]))
+            out.update(_refine_chunk_with_fallback(chunk[mid:]))
+            return out
+
+    # Keep Gemini chunks small to avoid CLI truncation and long wall-clock time.
+    chunk_size = 8
+    for start in range(0, len(targets), chunk_size):
+        chunk = targets[start : start + chunk_size]
+        mapping = _refine_chunk_with_fallback(chunk)
+        for cue in chunk:
+            if not isinstance(cue, dict):
+                continue
+            try:
+                idx = int(cue.get("index") or 0)
+            except Exception:
+                continue
+            rp = _one_line(str(mapping.get(idx, "") or ""))
+            reason = _validate_refined_prompt(prompt=rp, forbidden_re=forbidden_re) if rp else "missing"
+            if not reason and cliche_prop_re.search(rp):
+                reason = "cliche_prop"
+            if reason:
+                fallback = _fallback_refined_prompt_from_cue(cue=cue, refined_max_chars=int(refined_max_chars) or 240)
+                fallback_reason = _validate_refined_prompt(prompt=fallback, forbidden_re=forbidden_re)
+                if not fallback_reason:
+                    rp = fallback
+                    reason = None
+            if reason:
+                failed += 1
+                failed_details[idx] = str(reason)
+                continue
+            if cue.get("refined_prompt") != rp:
+                cue["refined_prompt"] = rp
+                updated += 1
+
+    if failed_details:
+        preview = sorted(failed_details.items())[:24]
+        preview_str = ", ".join([f"{i}:{r}" for i, r in preview])
+        more = "" if len(failed_details) <= 24 else f" (+{len(failed_details) - 24} more)"
+        print(f"  refined_prompts_gemini failed_indices={preview_str}{more}")
+
+    if dry_run:
+        return updated, failed
+
+    payload["cues"] = cues
+    _write_json_with_backup(cues_path, payload, backup_suffix="refined_prompts_gemini")
+    return updated, failed
+
+
 _SPACE_RE = re.compile(r"\s+")
 
 
@@ -615,6 +977,10 @@ def _local_refined_prompt_for_cue(
         return _one_line(s)
 
     def _topic_subject_candidates() -> List[str]:
+        # SSOT: Never synthesize subjects from fixed motif pools (topic -> symbolic prop).
+        # Local mode should only augment an existing concrete visual_focus. If visual_focus is missing/unsafe,
+        # prefer LLM-based refinement (e.g., --refine-prompts-gemini) instead of generating abstract filler.
+        return []
         # Use a larger pool than before, then pick non-deterministically.
         # NOTE: Keep phrases short and avoid forbidden words ("text", "numbers", "people", etc).
         base: Dict[str, List[str]] = {
@@ -756,7 +1122,8 @@ def _local_refined_prompt_for_cue(
     subject_candidates: List[str] = []
 
     # Prefer existing visual_focus if it is already specific and not risky.
-    if prefer_visual_focus and not ignore_visual_focus and vf and len(vf) <= 160:
+    # (Even if the caller asked to ignore visual_focus, local mode cannot safely invent a new concrete subject.)
+    if prefer_visual_focus and vf and len(vf) <= 160:
         vf_lower = vf.lower()
         risky = _contains_any_lower(
             vf_lower,
@@ -789,7 +1156,9 @@ def _local_refined_prompt_for_cue(
         if c2 and c2 not in normalized:
             normalized.append(c2)
     if not normalized:
-        normalized = [_rewrite_subject("a minimal still life with one focal object and negative space")]
+        # SSOT: Do not fall back to abstract "still life" fillers in local mode.
+        # Require an explicit concrete visual_focus, or use LLM-based refinement.
+        return ""
 
     # Choose a subject that hasn't been used recently (global across tool invocation).
     subject = ""
@@ -965,7 +1334,7 @@ def _resolve_capcut_draft_dir(*, run_dir: Path, apply_fixes: bool) -> Optional[P
         # Fallback: match by channel/video token in folder name.
         token = None
         try:
-            m = re.search(r"(CH\\d{2}-\\d{3})", run_dir.name.upper())
+            m = re.search(r"(CH\d{2}-\d{3})", run_dir.name.upper())
             token = m.group(1) if m else None
         except Exception:
             token = None
@@ -1026,7 +1395,12 @@ def _maybe_fix_capcut_link(*, run_dir: Path, apply_fixes: bool) -> Optional[Path
 
 
 def _sync_images_to_capcut(
-    *, run_dir: Path, indices: List[int], apply_fixes: bool, dry_run: bool
+    *,
+    run_dir: Path,
+    indices: List[int],
+    apply_fixes: bool,
+    backup_replaced_pngs: bool,
+    dry_run: bool,
 ) -> Tuple[int, Optional[Path]]:
     cap_root = _resolve_capcut_draft_dir(run_dir=run_dir, apply_fixes=bool(apply_fixes))
     if not cap_root:
@@ -1035,7 +1409,9 @@ def _sync_images_to_capcut(
     if not cap_assets.exists():
         return 0, None
 
-    backup_dir = None if dry_run else _backup_pngs(cap_assets, indices, prefix="_backup_replaced")
+    backup_dir = None
+    if not dry_run and bool(backup_replaced_pngs):
+        backup_dir = _backup_pngs(cap_assets, indices, prefix="_backup_replaced")
 
     copied = 0
     for i in indices:
@@ -1080,12 +1456,58 @@ def _iter_draft_runs(
         if only_capcut_drafts:
             cap = p / "capcut_draft"
             # Treat a broken symlink as a draft too (cannot sync, but still can fix run_dir/images).
-            if not (cap.exists() or cap.is_symlink()):
+            if not (cap.exists() or cap.is_symlink() or (p / "capcut_draft_info.json").exists()):
                 continue
         if (p / "image_cues.json").exists():
             runs.append(p)
     for p in sorted(runs, key=lambda x: x.name):
         yield p
+
+
+_STATUS_SELECTED_CACHE: Dict[Tuple[str, int], Optional[str]] = {}
+
+
+def _selected_run_id_from_status(*, channel: str, video_id: int) -> Optional[str]:
+    key = (str(channel or "").strip().upper(), int(video_id))
+    if key in _STATUS_SELECTED_CACHE:
+        return _STATUS_SELECTED_CACHE[key]
+    ch, vid = key
+    p = script_data_root() / ch / f"{vid:03d}" / "status.json"
+    if not p.exists():
+        _STATUS_SELECTED_CACHE[key] = None
+        return None
+    try:
+        payload = json.loads(p.read_text(encoding="utf-8"))
+        sel = (payload.get("metadata") or {}).get("video_run_id")
+        sel = str(sel).strip() if sel else None
+    except Exception:
+        sel = None
+    _STATUS_SELECTED_CACHE[key] = sel
+    return sel
+
+
+def _pick_status_run_per_video(*, channel: str, runs: List[Path], prefer_star_drafts: bool) -> List[Path]:
+    """
+    SSOT: If scripts/{CH}/{NNN}/status.json specifies metadata.video_run_id, treat it as the selection.
+    Falls back to the legacy scoring picker when status is missing or inconsistent.
+    """
+    by_video: Dict[int, List[Path]] = {}
+    for p in runs:
+        vid = _parse_video_id(run_name=p.name, channel=channel)
+        if vid is None:
+            continue
+        by_video.setdefault(vid, []).append(p)
+
+    selected: List[Path] = []
+    for vid, lst in sorted(by_video.items()):
+        status_sel = _selected_run_id_from_status(channel=channel, video_id=vid)
+        if status_sel:
+            match = [p for p in lst if p.name == status_sel]
+            if len(match) == 1:
+                selected.append(match[0])
+                continue
+        selected.extend(_pick_best_run_per_video(channel=channel, runs=lst, prefer_star_drafts=prefer_star_drafts))
+    return selected
 
 
 def _pick_best_run_per_video(
@@ -1509,7 +1931,13 @@ def _copy_indices_from_source(
 
 
 def _run_regen(
-    *, run_dir: Path, indices: List[int], channel: str, model_key: str, dry_run: bool
+    *,
+    run_dir: Path,
+    indices: List[int],
+    channel: str,
+    model_key: str,
+    regen_delete_existing: bool,
+    dry_run: bool,
 ) -> None:
     if dry_run:
         return
@@ -1524,13 +1952,23 @@ def _run_regen(
         "--indices",
         idx_arg,
         "--ensure-diversity-note",
-        "--overwrite",
         "--retry-until-success",
         "--max-retries",
         "10",
         "--timeout-sec",
         "240",
     ]
+    # Fireworks FLUX schnell is not batchable; use direct mode explicitly.
+    mk = str(model_key or "").strip().lower()
+    if mk in {"f-1", "fireworks_flux_1_schnell_fp8", "flux-1-schnell-fp8"} or "schnell" in mk:
+        cmd += ["--nanobanana", "direct"]
+    # Disk safety:
+    # - --overwrite regenerates in-place (for full-run overwrites, regenerate_images_from_cues may take a full backup).
+    # - --force deletes existing images/*.png first (destructive, avoids backup directories).
+    if bool(regen_delete_existing):
+        cmd.append("--force")
+    else:
+        cmd.append("--overwrite")
     if str(model_key or "").strip():
         cmd += ["--model-key", str(model_key).strip()]
     subprocess.run(cmd, check=True)
@@ -1558,6 +1996,12 @@ def main() -> int:
         default=True,
         action=argparse.BooleanOptionalAction,
         help="When --pick-per-video is enabled, prefer CapCut draft dirs whose folder name contains '★'.",
+    )
+    ap.add_argument(
+        "--pick-by-script-status",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="When --pick-per-video is enabled, prefer the run_dir referenced by workspaces/scripts/{CH}/{NNN}/status.json metadata.video_run_id (SSOT).",
     )
     ap.add_argument(
         "--fix-capcut-links",
@@ -1589,6 +2033,23 @@ def main() -> int:
         action=argparse.BooleanOptionalAction,
         help="If true, synthesize per-cue prompts locally (no external LLM) before regenerating.",
     )
+    ap.add_argument(
+        "--refine-prompts-gemini",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="If true, refine cue.refined_prompt via Gemini CLI (no llm_router) before regenerating images.",
+    )
+    ap.add_argument(
+        "--gemini-model",
+        default=(os.getenv("GEMINI_MODEL") or "gemini-3-flash-preview"),
+        help="Gemini model id for --refine-prompts-gemini (default: gemini-3-flash-preview).",
+    )
+    ap.add_argument(
+        "--gemini-timeout-sec",
+        type=int,
+        default=360,
+        help="Timeout seconds per Gemini CLI call (default: 360).",
+    )
     ap.add_argument("--refined-max-chars", type=int, default=260)
     ap.add_argument(
         "--placeholder-mad-threshold",
@@ -1600,6 +2061,20 @@ def main() -> int:
         "--force-all",
         action="store_true",
         help="Regenerate all non-broll image cues (even if not placeholders/duplicates).",
+    )
+    ap.add_argument(
+        "--backup-replaced-pngs",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="If true, copy images being replaced into images/_backup_replaced_<timestamp>/ before regeneration. "
+        "This can significantly increase disk usage; default is false.",
+    )
+    ap.add_argument(
+        "--regen-delete-existing",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="If true, run regenerate_images_from_cues.py with --force (delete existing PNGs before regen). "
+        "This avoids accumulating images/_backup_* directories but is destructive.",
     )
     ap.add_argument(
         "--regen-dupes",
@@ -1679,7 +2154,10 @@ def main() -> int:
     )
     ap.add_argument(
         "--avoid-props",
-        default=(os.getenv("YTM_DRAFT_AVOID_PROPS") or "clocks, watches, calendars, printed pages, labels, UI screens"),
+        default=(
+            os.getenv("YTM_DRAFT_AVOID_PROPS")
+            or "clocks, watches, hourglasses, stopwatches, timers, metronomes, calendars, coins, piggy banks, printed pages, labels, UI screens"
+        ),
         help="Comma-separated list of props to avoid in refined prompts (tends to create text/numerals).",
     )
     ap.add_argument(
@@ -1737,8 +2215,13 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="Do not write files or call APIs.")
     args = ap.parse_args()
 
-    if bool(getattr(args, "refine_prompts", False)) and bool(getattr(args, "refine_prompts_local", False)):
-        raise SystemExit("Choose only one: --refine-prompts or --refine-prompts-local.")
+    refine_flags = [
+        bool(getattr(args, "refine_prompts", False)),
+        bool(getattr(args, "refine_prompts_local", False)),
+        bool(getattr(args, "refine_prompts_gemini", False)),
+    ]
+    if sum(1 for x in refine_flags if x) > 1:
+        raise SystemExit("Choose only one: --refine-prompts, --refine-prompts-local, --refine-prompts-gemini.")
 
     channel = str(args.channel or "").strip().upper()
     global PLACEHOLDER_MAD_THRESHOLD
@@ -1749,7 +2232,7 @@ def main() -> int:
     )
 
     forbidden_re: Optional[re.Pattern[str]] = None
-    if bool(args.refine_prompts) or bool(args.refine_prompts_local):
+    if bool(args.refine_prompts) or bool(args.refine_prompts_local) or bool(getattr(args, "refine_prompts_gemini", False)):
         if str(args.forbidden_regex or "").strip():
             forbidden_re = _compile_forbidden_re(str(args.forbidden_regex).strip())
         else:
@@ -1777,9 +2260,14 @@ def main() -> int:
         )
     )
     if bool(args.pick_per_video):
-        draft_runs = _pick_best_run_per_video(
-            channel=channel, runs=draft_runs, prefer_star_drafts=bool(args.prefer_star_drafts)
-        )
+        if bool(getattr(args, "pick_by_script_status", False)):
+            draft_runs = _pick_status_run_per_video(
+                channel=channel, runs=draft_runs, prefer_star_drafts=bool(args.prefer_star_drafts)
+            )
+        else:
+            draft_runs = _pick_best_run_per_video(
+                channel=channel, runs=draft_runs, prefer_star_drafts=bool(args.prefer_star_drafts)
+            )
     print(
         f"[SCAN] runs={len(draft_runs)} channel={channel} mad_thresh={float(PLACEHOLDER_MAD_THRESHOLD)} force_all={bool(args.force_all)}"
     )
@@ -1847,7 +2335,7 @@ def main() -> int:
         # 1) If placeholders exist, try to copy from the best sibling run.
         placeholders_now = sorted(set(audit.placeholder_indices + audit.missing_indices))
         if placeholders_now:
-            if not args.dry_run:
+            if bool(args.backup_replaced_pngs) and not args.dry_run:
                 _backup_pngs(run_dir / "images", placeholders_now, prefix="_backup_replaced")
             src, ok = _best_source_run(
                 channel=channel, video_id=audit.video_id, draft_run=run_dir, indices=indices
@@ -1866,6 +2354,7 @@ def main() -> int:
                     run_dir=run_dir,
                     indices=placeholders_now,
                     apply_fixes=bool(args.fix_capcut_links) and not bool(args.dry_run),
+                    backup_replaced_pngs=bool(args.backup_replaced_pngs),
                     dry_run=bool(args.dry_run),
                 )
                 if copied2:
@@ -1955,7 +2444,7 @@ def main() -> int:
             need_regen = indices
 
         if need_regen:
-            if not args.dry_run:
+            if bool(args.backup_replaced_pngs) and not args.dry_run:
                 _backup_pngs(run_dir / "images", need_regen, prefix="_backup_replaced")
             if not str(args.model_key or "").strip():
                 cleared = _clear_cue_image_model_keys(
@@ -1977,6 +2466,21 @@ def main() -> int:
                     dry_run=bool(args.dry_run),
                 )
                 print(f"  refined_prompts_llm updated={updated} failed={failed}")
+            elif bool(getattr(args, "refine_prompts_gemini", False)):
+                updated, failed = refine_run_refined_prompts_gemini(
+                    run_dir=run_dir,
+                    indices=need_regen,
+                    channel=channel,
+                    gemini_model=str(getattr(args, "gemini_model", "") or "gemini-3-flash-preview").strip(),
+                    gemini_timeout_sec=int(getattr(args, "gemini_timeout_sec", 360) or 360),
+                    refined_max_chars=int(args.refined_max_chars),
+                    require_personless=bool(args.require_personless),
+                    forbid_text=bool(args.forbid_text),
+                    avoid_props=str(args.avoid_props),
+                    forbidden_re=forbidden_re,
+                    dry_run=bool(args.dry_run),
+                )
+                print(f"  refined_prompts_gemini updated={updated} failed={failed}")
             elif bool(args.refine_prompts_local):
                 ignore_visual_focus: Set[int] = set()
                 if bool(args.refine_ignore_vf_on_vf_dupes):
@@ -2007,6 +2511,7 @@ def main() -> int:
                 indices=need_regen,
                 channel=channel,
                 model_key=str(args.model_key),
+                regen_delete_existing=bool(args.regen_delete_existing),
                 dry_run=bool(args.dry_run),
             )
 
@@ -2025,6 +2530,7 @@ def main() -> int:
                 run_dir=run_dir,
                 indices=need_regen,
                 apply_fixes=bool(args.fix_capcut_links) and not bool(args.dry_run),
+                backup_replaced_pngs=bool(args.backup_replaced_pngs),
                 dry_run=bool(args.dry_run),
             )
             if copied:

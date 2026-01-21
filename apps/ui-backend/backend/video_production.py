@@ -207,12 +207,38 @@ else:
     @video_router.get("/projects")
     def get_projects():
         summaries = list_projects(OUTPUT_ROOT)
+        selected_cache: Dict[Tuple[str, str], Optional[str]] = {}
+
+        def _selected_run_id(channel_code: Optional[str], video_number: Optional[str]) -> Optional[str]:
+            if not channel_code or not video_number:
+                return None
+            ch = str(channel_code).strip().upper()
+            vn = str(video_number).strip().zfill(3)
+            key = (ch, vn)
+            if key in selected_cache:
+                return selected_cache[key]
+            status_path = script_data_root() / ch / vn / "status.json"
+            if not status_path.exists():
+                selected_cache[key] = None
+                return None
+            try:
+                payload = json.loads(status_path.read_text(encoding="utf-8"))
+                sel = (payload.get("metadata") or {}).get("video_run_id")
+                sel = str(sel).strip() if sel else None
+            except Exception:
+                sel = None
+            selected_cache[key] = sel
+            return sel
+
         enriched: List[Dict[str, Any]] = []
         for summary in summaries:
             data = jsonable_encoder(summary)
             source_status = _compute_source_status(data.get("id"))
             data["source_status"] = source_status
             data["planning"] = _planning_summary(source_status.get("channel"), source_status.get("video_number"))
+            selected_run_id = _selected_run_id(source_status.get("channel"), source_status.get("video_number"))
+            data["selected_run_id"] = selected_run_id
+            data["is_selected"] = bool(selected_run_id and str(data.get("id") or "") == selected_run_id)
             project_id = str(data.get("id") or "").strip()
             if project_id:
                 project_dir = (OUTPUT_ROOT / project_id).resolve()

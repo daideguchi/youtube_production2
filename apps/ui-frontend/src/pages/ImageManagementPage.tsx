@@ -127,11 +127,32 @@ function TimelineImg({ src, alt, fit }: { src: string; alt: string; fit: "cover"
 
 const IMAGE_TIMELINE_LAST_PROJECT_ID_KEY = "imageTimeline:lastProjectId";
 
+function isFluxSchnellModelKey(modelKey: string | null | undefined): boolean {
+  const mk = String(modelKey ?? "").trim().toLowerCase();
+  if (!mk) return false;
+  return mk === "f-1" || (mk.includes("flux") && mk.includes("schnell"));
+}
+
+function normalizeChannelCode(value: string | null | undefined): string {
+  const raw = String(value ?? "").trim().toUpperCase();
+  if (!raw) return "";
+  const m = raw.match(/CH\d+/);
+  return (m?.[0] ?? raw).trim();
+}
+
+function normalizeVideoNumber(value: string | null | undefined): string {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  if (!digits) return "";
+  return String(Number.parseInt(digits, 10)).padStart(3, "0");
+}
+
 export function ImageManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const timelineOnly = location.pathname === "/image-timeline";
   const selectedProjectId = (searchParams.get("project") ?? "").trim();
+  const queryChannel = normalizeChannelCode(searchParams.get("channel"));
+  const queryVideo = normalizeVideoNumber(searchParams.get("video"));
 
   const [projects, setProjects] = useState<VideoProjectSummary[]>([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
@@ -217,6 +238,17 @@ export function ImageManagementPage() {
   }, [refreshIndex]);
 
   useEffect(() => {
+    if (!timelineOnly) return;
+    if (selectedProjectId) return;
+    if (projectsLoading) return;
+    const last = (safeLocalStorage.getItem(IMAGE_TIMELINE_LAST_PROJECT_ID_KEY) ?? "").trim();
+    if (!last) return;
+    if (!projects.some((p) => p.id === last)) return;
+    handleSelectProject(last, { replace: true });
+    setTimelineStage("work");
+  }, [handleSelectProject, projects, projectsLoading, selectedProjectId, timelineOnly]);
+
+  useEffect(() => {
     void refreshDetail();
     setBanner(null);
     setPromptFilter("");
@@ -229,15 +261,31 @@ export function ImageManagementPage() {
     return channels.find((c) => c.channelId === channelId) ?? null;
   }, [channels, channelId]);
 
+  const effectiveImageModelKey = useMemo(() => {
+    const mk = (channelPreset?.imageGeneration?.modelKey ?? "").trim();
+    return mk || null;
+  }, [channelPreset?.imageGeneration?.modelKey]);
+
   const generationOptions: VideoGenerationOptions = useMemo(() => {
     return projectDetail?.generationOptions ?? DEFAULT_GENERATION_OPTIONS;
   }, [projectDetail?.generationOptions]);
 
   const effectiveStyle = useMemo(() => resolveEffectiveStyle(generationOptions, channelPreset), [generationOptions, channelPreset]);
 
+  const timelineProjects = useMemo(() => {
+    if (!timelineOnly) return projects;
+    // In timeline mode, default to the status.json-selected run per video to avoid stale/duplicate runs.
+    return projects.filter((p) => {
+      if (p.id === selectedProjectId) return true;
+      if (p.isSelected) return true;
+      // If we can't determine which run is selected, keep it visible (avoid hiding everything).
+      return !p.selectedRunId;
+    });
+  }, [projects, selectedProjectId, timelineOnly]);
+
   const projectPickerItems = useMemo(() => {
     const needle = projectSearch.trim().toLowerCase();
-    const items = projects
+    const items = timelineProjects
       .map((p) => {
         const progress = p.imageProgress;
         const required = progress?.requiredTotal ?? 0;
@@ -256,7 +304,7 @@ export function ImageManagementPage() {
       })
       .sort((a, b) => b.needs - a.needs || b.updatedMs - a.updatedMs || a.project.id.localeCompare(b.project.id));
     return items;
-  }, [projectSearch, projects]);
+  }, [projectSearch, timelineProjects]);
 
   const timelineAggregates = useMemo(() => {
     const channelNameById = new Map<string, string>();
@@ -284,7 +332,7 @@ export function ImageManagementPage() {
       }
     >();
 
-    for (const p of projects) {
+    for (const p of timelineProjects) {
       const progress = p.imageProgress;
       const requiredRaw = progress?.requiredTotal ?? 0;
       const ready = progress?.generatedReady ?? 0;
@@ -328,7 +376,7 @@ export function ImageManagementPage() {
       .sort((a, b) => b.needs - a.needs || b.total - a.total || a.channelId.localeCompare(b.channelId));
     return {
       totals: {
-        projects: projects.length,
+        projects: timelineProjects.length,
         total: totalRequired,
         ready: totalReady,
         placeholders: totalPlaceholders,
@@ -337,7 +385,7 @@ export function ImageManagementPage() {
       },
       channels: channelsSorted,
     };
-  }, [channels, projects]);
+  }, [channels, timelineProjects]);
 
   const selectedProjectPicker = useMemo(() => {
     if (!selectedProjectId) return null;
@@ -379,6 +427,68 @@ export function ImageManagementPage() {
       setTimelineStage("pick");
     }
   }, [selectedProjectId, timelineOnly]);
+
+  useEffect(() => {
+    if (!timelineOnly) return;
+    if (selectedProjectId) return;
+    if (projectsLoading) return;
+    if (!queryChannel || !queryVideo) return;
+
+    const candidates = projects.filter((p) => {
+      const ch = normalizeChannelCode(p.sourceStatus?.channel);
+      const vn = normalizeVideoNumber(p.sourceStatus?.videoNumber);
+      return ch === queryChannel && vn === queryVideo;
+    });
+    if (!candidates.length) return;
+
+    const picked =
+      candidates.find((p) => p.isSelected) ??
+      candidates.find((p) => Boolean((p.selectedRunId ?? "").trim()) && p.id === p.selectedRunId) ??
+      candidates[0];
+    if (!picked) return;
+
+    handleSelectProject(picked.id, { replace: true });
+    setTimelineStage("work");
+  }, [handleSelectProject, projects, projectsLoading, queryChannel, queryVideo, selectedProjectId, timelineOnly]);
+
+  useEffect(() => {
+    if (!timelineOnly) return;
+    if (!selectedProjectId) return;
+    if (projectsLoading) return;
+
+    // Timeline is meant to operate on the status.json-selected run per video (SSOT).
+    // If the user opened a stale run directly by URL, automatically switch to the selected run.
+    const current = projects.find((p) => p.id === selectedProjectId);
+    const canonical = (current?.selectedRunId ?? "").trim();
+    if (!canonical) return;
+    if (canonical === selectedProjectId) return;
+    if (current?.isSelected) return;
+    if (!projects.some((p) => p.id === canonical)) return;
+
+    handleSelectProject(canonical, { replace: true });
+    setTimelineStage("work");
+  }, [handleSelectProject, projects, projectsLoading, selectedProjectId, timelineOnly]);
+
+  const productionWorkspaceUrl = useMemo(() => {
+    if (!selectedProjectId) return null;
+    return `/capcut-edit/production?project=${encodeURIComponent(selectedProjectId)}`;
+  }, [selectedProjectId]);
+
+  const cuePromptDiagnostics = useMemo(() => {
+    const cues = projectDetail?.cues ?? [];
+    let fluxSchnell = 0;
+    let timeCliche = 0;
+    for (const cue of cues) {
+      const mk = cue.image_model_key ?? effectiveImageModelKey;
+      if (isFluxSchnellModelKey(mk)) fluxSchnell += 1;
+      const hasRefined = Boolean((cue.refined_prompt ?? "").trim());
+      const haystack = `${cue.prompt ?? ""}\n${hasRefined ? "" : cue.visual_focus ?? ""}`.toLowerCase();
+      if (haystack.includes("pocket watch") || haystack.includes("hourglass") || haystack.includes("clock")) {
+        timeCliche += 1;
+      }
+    }
+    return { total: cues.length, fluxSchnell, timeCliche };
+  }, [effectiveImageModelKey, projectDetail?.cues]);
 
   const cuePrompts = useMemo(() => {
     const cues = projectDetail?.cues ?? [];
@@ -703,6 +813,11 @@ export function ImageManagementPage() {
                   ← プロジェクト一覧
                 </button>
               ) : null}
+              {timelineStage === "work" && productionWorkspaceUrl ? (
+                <a className="workspace-button workspace-button--ghost" href={productionWorkspaceUrl}>
+                  Plan編集（production）へ
+                </a>
+              ) : null}
               <button type="button" className="workspace-button workspace-button--ghost" onClick={() => void refreshIndex()}>
                 一覧更新
               </button>
@@ -951,6 +1066,21 @@ export function ImageManagementPage() {
             {channelsError ? <div className="main-alert main-alert--error">{channelsError}</div> : null}
             {detailError ? <div className="main-alert main-alert--error">{detailError}</div> : null}
             {banner ? <div className={bannerClass}>{banner.message}</div> : null}
+            {timelineOnly && timelineStage === "work" && cuePromptDiagnostics.fluxSchnell > 0 && cuePromptDiagnostics.timeCliche >= 3 ? (
+              <div className="main-alert main-alert--error">
+                schnell（FLUX）cue の prompt/visual_focus に time系の定型モチーフ（例: pocket watch/clock）が多発しています。SSOT違反の可能性が高いので、
+                {productionWorkspaceUrl ? (
+                  <>
+                    <a href={productionWorkspaceUrl} style={{ marginLeft: 6 }}>
+                      visual_cues_plan の refined_prompt を修正
+                    </a>
+                    → analyze_srt / regenerate_images をやり直してください。
+                  </>
+                ) : (
+                  <>visual_cues_plan の refined_prompt を修正 → analyze_srt / regenerate_images をやり直してください。</>
+                )}
+              </div>
+            ) : null}
             {!timelineOnly && !projectsLoading && !selectedProjectId ? <div className="main-alert">まず project を選択してください。</div> : null}
             {timelineOnly && projectsLoading ? <div className="main-alert">プロジェクトを読み込み中…</div> : null}
             {timelineOnly && !projectsLoading && projects.length === 0 ? (
@@ -1377,12 +1507,13 @@ export function ImageManagementPage() {
                           ? { borderColor: "#d1fae5", background: "#d1fae5", color: "#047857" }
                           : undefined;
                       const chipLabel = status === "ready" ? "OK" : status === "placeholder" ? "仮画像" : "未作成";
-                      const assetUrl = asset ? buildImageAssetUrl({ path: asset.path, modified_at: asset.modified_at }) : null;
-                      const promptHeadline = (cue.prompt ?? "").trim().split("\n", 1)[0].slice(0, 80);
-                      return (
-                        <button
-                          key={cue.index}
-                          id={`cue-list-${cue.index}`}
+                    const assetUrl = asset ? buildImageAssetUrl({ path: asset.path, modified_at: asset.modified_at }) : null;
+                    const modelKey = cue.image_model_key ?? effectiveImageModelKey;
+                    const promptHeadline = (cue.prompt ?? "").trim().split("\n", 1)[0].slice(0, 80);
+                    return (
+                      <button
+                        key={cue.index}
+                        id={`cue-list-${cue.index}`}
                           type="button"
                           onClick={() => setActiveCueIndex(cue.index)}
                           aria-pressed={isActive}
@@ -1404,6 +1535,11 @@ export function ImageManagementPage() {
                             </div>
                             <div className="image-timeline__item-meta">
                               {formatTime(cue.start_sec)}–{formatTime(cue.end_sec)}
+                              {modelKey ? (
+                                <span className="image-timeline__small" style={{ marginLeft: 8 }}>
+                                  model: <code>{modelKey}</code>
+                                </span>
+                              ) : null}
                             </div>
                             {promptHeadline ? (
                               <div className="image-timeline__item-prompt">
@@ -1449,6 +1585,7 @@ export function ImageManagementPage() {
                     const canNext = activeCueViewIndex >= 0 && activeCueViewIndex < viewCount - 1;
                     const activePosition = activeCueViewIndex >= 0 ? activeCueViewIndex + 1 : 0;
                     const promptHeadline = promptText.split("\n", 1)[0].slice(0, 160);
+                    const modelKey = cue.image_model_key ?? effectiveImageModelKey;
                     return (
                       <>
                         <div className="image-timeline__detail-header">
@@ -1460,6 +1597,11 @@ export function ImageManagementPage() {
                             <span className="image-timeline__small">
                               {formatTime(cue.start_sec)}–{formatTime(cue.end_sec)}（{Math.max(0, cue.end_sec - cue.start_sec).toFixed(1)}s）
                             </span>
+                            {modelKey ? (
+                              <span className="image-timeline__small">
+                                model: <code>{modelKey}</code>
+                              </span>
+                            ) : null}
                             <span className="image-timeline__small">
                               {activePosition}/{viewCount}
                             </span>

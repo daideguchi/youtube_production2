@@ -18,7 +18,7 @@
 - 事故防止の固定ルール（最重要）:
   - **THINK がデフォルト**（= pending を作って止める。対話型AIエージェント/人間が埋めて進める）。
   - **禁止: API→THINK の自動フォールバック**（APIルートが失敗したら停止して報告。勝手にルートを変えない）。
-- **台本（`script_*`）は “対話型AIエージェントが仕上げる”**（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`。APIは明示時のみ）。微調整も対話型AIが担当。※ `qwen` の model/provider 指定（`--model`/`-m`）は禁止。
+- **台本（`script_*`）は “対話型AIエージェントが仕上げる”**（既定: Claude CLI=sonnet 4.5。Opus は **オーナー指示 + `YTM_ALLOW_CLAUDE_OPUS=1` の明示実行のみ**。リミット時: Gemini 3 Flash Preview → `qwen -p`。APIは明示時のみ）。微調整も対話型AIが担当。※ `qwen` の model/provider 指定（`--model`/`-m`）は禁止。
   - **音声/TTS（アノテーション確定）は 推論=対話型AIエージェント / 読みLLM無効**（辞書/override + `--prepass` mismatch=0 の決定論ガード）。
     - 正本入口: `./ops audio -- --channel CHxx --video NNN`（`SKIP_TTS_READING=1` が既定/必須。`YTM_ROUTING_LOCKDOWN=1` 下で `SKIP_TTS_READING=0` は禁止）
     - 読み修正の辞書運用は **D-014** に従う（ユニーク誤読のみ辞書へ / 曖昧語は動画ローカルで修正）。

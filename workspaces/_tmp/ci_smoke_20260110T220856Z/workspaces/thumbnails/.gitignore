@@ -1,9 +1,0 @@
-# Generated thumbnail assets are large binaries managed outside Git
-assets/
-CH*/
-_archive/*
-!_archive/
-!_archive/README.md
-
-# macOS metadata
-.DS_Store

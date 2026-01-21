@@ -1,9 +1,0 @@
-schema: ytm.planning_patch.v1
-patch_id: CH10-025__key_concept_cleanup_20251229
-target:
-  channel: CH10
-  video: '025'
-apply:
-  set:
-    キーコンセプト: 思考停止の前兆
-notes: planning_lint duplicate_key_concept_with_published を解消（人物名ではなく内容テーマをキーコンセプトに採用）。

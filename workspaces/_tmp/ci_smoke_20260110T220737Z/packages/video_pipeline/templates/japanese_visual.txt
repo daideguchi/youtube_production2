@@ -1,8 +1,0 @@
-Create a beautiful 16:9 visual image for: {summary}
-
-Ethnicity: Japanese people (Asian features, Japanese faces, Japanese appearance)
-Style: {style}, cinematic lighting, professional composition, Japanese aesthetics
-Resolution: {size}
-Requirements: NO TEXT OR WORDS in the image, pure visual storytelling, clear central subject focused on Japanese people, beautiful background, high contrast, clean design, authentic Japanese features
-
-Important: The main subjects must be clearly identifiable as Japanese people with typical Japanese/Asian facial features and appearance.

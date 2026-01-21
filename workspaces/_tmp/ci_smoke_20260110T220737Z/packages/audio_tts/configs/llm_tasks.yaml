@@ -1,7 +1,0 @@
-tasks:
-  annotate: tts_primary
-  reading: tts_primary
-  pause: tts_primary
-  segment: tts_primary
-  srt_format: tts_primary
-  katakana: tts_primary

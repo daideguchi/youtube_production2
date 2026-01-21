@@ -1,9 +1,0 @@
-schema: ytm.planning_patch.v1
-patch_id: CH02-045__key_concept_fill_20251229
-target:
-  channel: CH02
-  video: '045'
-apply:
-  set:
-    キーコンセプト: 無意識の摂取
-notes: 未採用行のキーコンセプト空欄を補完（タイトル先頭【...】を採用して運用を安定化）。

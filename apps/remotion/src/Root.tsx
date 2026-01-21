@@ -61,7 +61,7 @@ export const RemotionRoot: React.FC = () => {
         if (!run) return;
         const backendBase = `${window.location.protocol}//${window.location.hostname}:8000`;
         const runBase = `${backendBase}/api/workspaces/video/input/${encodeURIComponent(run)}`;
-        const toUrl = (rel: string) => `${runBase}/${rel.replace(/^\\/+/, "")}`;
+        const toUrl = (rel: string) => `${runBase}/${rel.replace(/^\/+/, "")}`;
 
         const fetchJson = async (rel: string) => {
           const res = await fetch(toUrl(rel));

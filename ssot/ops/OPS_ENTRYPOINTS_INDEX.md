@@ -25,9 +25,11 @@
   - Episode Asset Pack（画像束）復元（CH/動画で検索）: `./ops archive episode-asset-pack-restore --channel CHxx --video NNN --run`
   - 投稿済み（進捗=投稿済み）削除: `./ops archive published --channel CHxx --audio --video-runs --delete --run --yes`
   - 正本: `ssot/ops/OPS_VIDEO_ASSET_PACK.md` / `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md` / `ssot/ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`
-- 共有ストレージ同期（L1ミラー）:
-  - `./ops shared sync -- --src <path> [--kind <kind>] [--channel CHxx --video NNN] --run`
-  - 要求: `YTM_SHARED_STORAGE_ROOT`（未設定/未マウントなら停止）
+- 共有ストレージ保存（L1 bytes store）:
+  - 単発（正本）: `./ops shared store -- --src <path> [--kind <kind>] [--channel CHxx --video NNN] --run [--symlink-back]`
+    - 互換: `./ops shared sync -- --src <path> ...`
+  - エピソード一括（L1のみ）: `./ops shared episode -- --channel CHxx --video NNN --run [--symlink-back]`
+  - 要求: `YTM_SHARED_STORAGE_ROOT`（未設定/未マウントなら停止。サイレントfallbackしない）
   - 正本: `ssot/ops/OPS_SHARED_ASSET_STORE.md`
 - 迷子/復帰:
   - 進捗ビュー（read-only）: `./ops progress --channel CHxx --format summary`
@@ -381,7 +383,13 @@
   - deps未導入なら: `(cd apps/remotion && npm ci)`
 - 直接レンダ（1本）: `node apps/remotion/scripts/render.js --help`
 - 統一CLI（正本入口）: `./ops remotion help`
-  - バッチレンダ（容量節約・lock尊重・report出力）: `./ops remotion render-batch -- --channel CHxx --videos 001-029 --run`
+  - バッチレンダ（容量節約・lock尊重・report出力・欠損画像は停止）:
+    - `./ops remotion render-batch -- --channel CHxx --videos 001-029 --run`
+    - 共有ストレージへ保存/退避（明示）: `--shared-store`（容量を空ける: `--shared-symlink-back`）
+    - 例外（debugのみ）: 欠損画像を許す場合は `--allow-missing-images`
+  - スナップショット（layout確認; 欠損画像は停止）:
+    - `./ops remotion snapshot -- --channel CHxx --video NNN --frame 300 --run`
+    - 例外（debugのみ）: 欠損画像を許す場合は `--allow-missing-images`
   - （互換）`python3 scripts/ops/render_remotion_batch.py --help`
 
 ---

@@ -1,3 +1,0 @@
-usage: ops [-h]
-           {list,doctor,think,api,codex,cmd,script,audio,publish,planning,idea,video,thumbnails,vision,ui,agent,slack,progress,reconcile,cleanup,snapshot,history,patterns,latest,inventory,ssot,episode,resume} ...
-ops: error: argument cmd: invalid choice: 'script_a_text_quality_extend=script-fallback-mixtral-1' (choose from list, doctor, think, api, codex, cmd, script, audio, publish, planning, idea, video, thumbnails, vision, ui, agent, slack, progress, reconcile, cleanup, snapshot, history, patterns, latest, inventory, ssot, episode, resume)

@@ -11,6 +11,7 @@ process_report.py — PIDごとの「いつから/何をしているか」を可
 安全:
 - コマンドラインに token-like 文字列が混ざっていても Slack に漏れないよう自動 redact する。
 - LLMは使わない（決定論・ローカル情報のみ）。
+- **禁止（既定）**: プロセス停止/kill は無断で行わない（`--kill*` は明示ガード必須）。
 
 使い方（例）:
 - 自動検出（このrepo関連を抽出）→Slack投稿:
@@ -36,6 +37,29 @@ from _bootstrap import bootstrap
 PROJECT_ROOT = Path(bootstrap(load_env=True))
 
 _AGENT_BOARD_CACHE: Optional[Dict[str, Dict[str, Any]]] = None
+
+
+def _env_truthy(name: str) -> bool:
+    return str(os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _assert_process_kill_allowed() -> None:
+    """
+    Hard safety gate:
+    - Never kill/stop processes by default.
+    - To enable, the operator must explicitly opt-in for THIS run.
+    """
+    if not _env_truthy("YTM_ALLOW_PROCESS_KILL"):
+        raise SystemExit(
+            "\n".join(
+                [
+                    "[POLICY] Process kill is disabled by default in this repo.",
+                    "- requested: --kill / --kill-stale / --kill-stale-safe",
+                    "- allow: set YTM_ALLOW_PROCESS_KILL=1 for THIS run (and pass --yes)",
+                    "- note: do not stop owner-owned jobs without explicit permission",
+                ]
+            )
+        )
 
 
 def _now_iso_utc() -> str:
@@ -245,6 +269,22 @@ def _classify(row: ProcRow) -> tuple[str, str]:
         episode = _extract_episode_hint(cmd)
         ep_part = f" episode={episode}" if episode else ""
         return ("Script pipeline", f"script_runbook {mode}{ep_part}".strip())
+    if "claude_cli_generate_scripts_full_prompt.py" in low:
+        episode = _extract_episode_hint(cmd)
+        ep_part = f" episode={episode}" if episode else ""
+        return ("Script Writer", f"claude_script{ep_part}".strip())
+    if "gemini_cli_generate_scripts_full_prompt.py" in low:
+        episode = _extract_episode_hint(cmd)
+        ep_part = f" episode={episode}" if episode else ""
+        return ("Script Writer", f"gemini_script{ep_part}".strip())
+    if "qwen_cli_generate_scripts_full_prompt.py" in low:
+        episode = _extract_episode_hint(cmd)
+        ep_part = f" episode={episode}" if episode else ""
+        return ("Script Writer", f"qwen_script{ep_part}".strip())
+    if "packages/audio_tts/scripts/run_tts.py" in low:
+        episode = _extract_episode_hint(cmd)
+        ep_part = f" episode={episode}" if episode else ""
+        return ("Audio/TTS", f"run_tts{ep_part}".strip())
     if "script_pipeline.cli" in low and " audio" in f" {low} ":
         episode = _extract_episode_hint(cmd)
         ep_part = f" episode={episode}" if episode else ""
@@ -385,7 +425,17 @@ def _auto_match(row: ProcRow) -> bool:
         return True
     if "scripts/ops/script_runbook.py" in cmd:
         return True
+    if "scripts/ops/" in cmd:
+        return True
     if "script_pipeline.cli" in cmd and " audio" in f" {cmd.lower()} ":
+        return True
+    if "packages/audio_tts/scripts/run_tts.py" in cmd:
+        return True
+    if " qwen " in f" {cmd.lower()} ":
+        return True
+    if " claude " in f" {cmd.lower()} ":
+        return True
+    if " gemini " in f" {cmd.lower()} ":
         return True
     if "codex exec" in cmd.lower() and f"-C {PROJECT_ROOT}" in cmd:
         return True
@@ -422,6 +472,7 @@ def _render_summary(*, rows: list[ProcRow], stale_min: int) -> list[str]:
 
     priority = [
         "Script pipeline",
+        "Script Writer",
         "Audio/TTS",
         "Orchestrator",
         "Agent workers",
@@ -722,6 +773,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         suggest_kill_stale_safe=bool(getattr(args, "suggest_kill_stale_safe", False)),
         ps_error=ps_error,
     )
+
+    if bool(args.kill) or bool(args.kill_stale) or bool(getattr(args, "kill_stale_safe", False)):
+        _assert_process_kill_allowed()
 
     if bool(args.kill):
         if not requested_pids:

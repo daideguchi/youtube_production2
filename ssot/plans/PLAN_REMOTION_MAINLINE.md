@@ -50,13 +50,14 @@
 ### D2: CapCut互換レイアウト（最低限）
 - 帯/字幕/画像の位置と見え方が、チャンネルpresetで再現できる
 - `snapshot`（静止画）で比較でき、ズレが出たら preset で修正できる
+  - 固定コマンド: `./ops remotion snapshot -- --channel CHxx --video NNN --frame 300 --run`
 
 ### D3: 大規模バッチの運用が成立
 - chunkレンダー + resume が標準（中断→再実行で完成まで行ける）
 - レンダー後は不要な中間物を cleanup（容量を増やさない）
 
 ### D4: 成果物が共有ストレージへ集約できる
-- `YTM_SHARED_STORAGE_ROOT` 設定時は、`final.mp4` を共有ストレージへミラーできる
+- `YTM_SHARED_STORAGE_ROOT` 設定時は、`final.mp4` を共有ストレージへ保存/退避できる
 - 共有側に manifest（hash/params/生成日時）が残る
 
 ---
@@ -86,6 +87,20 @@ Remotion は `workspaces/video/runs/<run_id>` を入力SoTにする（= “ど�
 
 このI/O契約は `ssot/ops/OPS_IO_SCHEMAS.md` / `ssot/ops/DATA_LAYOUT.md` を正とする。
 
+## 2.2 run_dir 生成（前段）= “編集の設計図” を決定論で作る
+
+Remotion を CapCut級にするための要点は「レンダラ強化」だけではなく、前段で **編集の設計図（run_dir）を安定生成**できること。
+
+固定ルール:
+- `run_dir` の生成は **video pipeline** が担当し、レンダラ（Remotion）は **run_dir を信じて描画**する（＝責務を分離して迷子を防ぐ）
+- `image_cues.json` は “機械的等間隔分割禁止” を守り、文脈ベースの cue を正とする（SSOT）
+- 欠損/危険値（空字幕/ASCII混入/無限尺/画像ゼロ/音声ゼロ）は **レンダー前に preflight で停止**する
+
+期待する前段出力（例）:
+- `chapters.json`: セクション境界（構成の骨格）
+- `image_cues.json`: 画像差し替えの cue（音声に追従）
+- `belt_config.json`: 帯文言/行数/安全化（4行でも崩れない）
+
 ## 3) マイルストーン（実装順）
 
 ### M0: 入口の一本化（迷子ゼロ）
@@ -103,19 +118,25 @@ Remotion は `workspaces/video/runs/<run_id>` を入力SoTにする（= “ど�
 - 帯: 4行日本語の崩れゼロ（ASCII混入の即停止）
 
 ### M3: 共有ストレージ統合
-- `OPS_SHARED_ASSET_STORE` の仕様どおりに、Remotion `final.mp4` を共有ストレージへ同期
+- `OPS_SHARED_ASSET_STORE` の仕様どおりに、Remotion `final.mp4` を共有ストレージへ保存/退避
 - 共有ストレージが未設定なら **停止して報告**（サイレントでローカルに残して終わらない）
+  - 保存コマンド（固定）:
+    - 本線（レンダー後に自動保存）: `YTM_SHARED_STORAGE_ROOT=... ./ops remotion render-batch -- --channel CHxx --videos NNN --run --shared-store`
+      - 容量を空ける（明示）: `--shared-symlink-back`
+    - 直叩き（保存のみ）: `YTM_SHARED_STORAGE_ROOT=... ./ops shared episode -- --channel CHxx --video NNN --include-remotion --run-id <run_id> --run`
+      - 容量を空ける（明示）: `--symlink-back`
 
 ### M4: UI統合（後段 / 別スコープ）
 - UIで run_dir を選び、レンダー/スナップショット/比較/再実行ができる導線
 
 ---
 
-## 4) 確定事項（固定）
+## 4) 前提（固定）
 
-- 共有ストレージのマウント先（固定）: `YTM_SHARED_STORAGE_ROOT=/Volumes/workspace/doraemon/workspace/lenovo_share`
+- 共有ストレージ root は **環境変数で指定**する（コード/SSOTにマウント先を直書きしない）:
+  - `YTM_SHARED_STORAGE_ROOT=<your mounted share>`
 - 共有側の置き場所（固定）: `$YTM_SHARED_STORAGE_ROOT/uploads/$YTM_SHARED_STORAGE_NAMESPACE/`
-  - 既定namespace: `factory_commentary`
+  - 既定namespace: `factory_commentary`（= `YTM_SHARED_STORAGE_NAMESPACE` の既定）
 
 ## 5) 決定すべき点（Owner確認待ち）
 

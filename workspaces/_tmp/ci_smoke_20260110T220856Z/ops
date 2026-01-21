@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Unified entrypoint (loads .env + PYTHONPATH) for operator-friendly runs.
-exec "$ROOT_DIR/scripts/with_ytm_env.sh" \
-  python3 "$ROOT_DIR/scripts/ops/ops_cli.py" "$@"
-

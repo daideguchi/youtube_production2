@@ -1,8 +1,0 @@
-{
-  "to": [
-    "*"
-  ],
-  "subject": "LLM runtime overrides (temperature) + Fireworks lease reclaim fix",
-  "tags": "ssot,modelops,fireworks,lockdown",
-  "body": "Summary (Codex):\n\n1) SSOT / docs\n- Added: ssot/ops/OPS_LLM_RUNTIME_OVERRIDES.md (how to do per-run overrides without editing tracked routing YAML)\n- Updated: ssot/ops/OPS_ENV_VARS.md (lockdown now also treats LLM_FORCE_TASK_OPTIONS_JSON as forbidden unless emergency)\n\n2) Runtime option overrides (temperature etc)\n- New env: LLM_FORCE_TASK_OPTIONS_JSON (JSON: {task: {options...}}). Applied as an overlay above task overrides, but explicit call args still win.\n- CLI support (debug-only; requires YTM_EMERGENCY_OVERRIDE=1 under lockdown):\n  - scripts/ops/script_runbook.py: --llm-task-temperature TASK=FLOAT, --llm-task-option TASK=JSON_OBJECT\n  - python -m script_pipeline.cli: same flags\n- Guardrails:\n  - scripts/with_ytm_env.sh hard-stops if LLM_FORCE_TASK_OPTIONS_JSON is set under lockdown without emergency\n  - packages/factory_common/llm_router.py also enforces the same policy at runtime\n\n3) Fireworks key lease robustness\n- packages/factory_common/fireworks_keys.py: stale/released lease cleanup now falls back to rename when unlink is blocked.\n  This prevents stuck expired lease files -> No LLM client configured for provider fireworks on some environments.\n\nNotes\n- No changes to tracked routing SSOT (configs/llm_task_overrides.yaml) were made.\n- Incident report exists: ssot/history/HISTORY_incident_20260111_codex_unapproved_llm_task_overrides_edit.md\n"
-}

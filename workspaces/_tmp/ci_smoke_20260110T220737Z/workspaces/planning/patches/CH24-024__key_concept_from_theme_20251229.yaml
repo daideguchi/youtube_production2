@@ -1,9 +1,0 @@
-schema: ytm.planning_patch.v1
-patch_id: CH24-024__key_concept_from_theme_20251229
-target:
-  channel: CH24
-  video: '024'
-apply:
-  set:
-    キーコンセプト: 変えるのは置き方
-notes: planning_lint duplicate_key_concept_with_published を解消（企画テーマをキーコンセプトとして採用）。

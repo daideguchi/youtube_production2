@@ -1,11 +1,12 @@
-# OPS_SHARED_ASSET_STORE — 共有ストレージ（Tailscale常駐）へ生成資産を置く
+# OPS_SHARED_ASSET_STORE — 共有ストレージ（Tailscale常駐）へ生成資産を置く（保存/退避）
 
 目的:
-- この repo で生成した最終成果物（L1）を **共有ストレージ**へ集約し、複数マシン/複数人で再利用できる状態を作る。
+- この repo で生成した最終成果物（L1）を **共有ストレージへ保存**し、複数マシン/複数人で再利用できる状態を作る。
 - Mac の空き容量を保つため、重いL1は **共有側へ保存**し、ローカルは明示操作で軽量化する（例: `--symlink-back`）。
 
 非目的:
 - 中間生成物（L2/L3）まで無差別に保存すること。
+- “共有⇄ローカルの双方向同期” をすること（本書は **保存/退避** の契約）。
 - 共有が未マウントでも “勝手にローカルへフォールバックして続行” すること（停止して報告）。
 
 ---
@@ -13,16 +14,16 @@
 ## 0) 正本（SoT）
 
 - **パス契約（正本）**: `workspaces/**`（パイプラインが参照する固定パス）
-- **L1の実体（bytes）**: 共有ストレージへ保存し、ローカルは明示操作で symlink に置換して容量を空ける。
+- **L1の実体（bytes）**: 共有ストレージへ保存し、ローカルは明示操作で symlink に置換して容量を空ける（= “同期” ではなく “保存/退避”）。
 
 ---
 
-## 1) 共有ストレージ root（固定）
+## 1) 共有ストレージ root（必須: env）
 
 共有ストレージのマウント先は環境変数で指定する。
 
 - `YTM_SHARED_STORAGE_ROOT`（必須）: 共有ストレージ root（絶対パス）
-  - 例: `/Volumes/workspace/doraemon/workspace/lenovo_share`（Tailscale経由の常駐ストレージをマウント）
+  - 例: `/Volumes/ytm_share`（例。各マシンで mount 先は異なるが、パイプラインは env だけを見る）
 
 命名空間（repo識別）は次の順で決める:
 
@@ -39,7 +40,8 @@
 共有側は “ドメイン別” に置く（= 人が探せる / 自動化しやすい）。
 
 ```
-<shared_base>/
+<shared_base>/  （= $YTM_SHARED_STORAGE_ROOT/uploads/$YTM_SHARED_STORAGE_NAMESPACE/）
+  scripts/CHxx/NNN/assembled_human.md
   episode_asset_pack/CHxx/episode_asset_pack__CHxx-NNN.tgz
   remotion_mp4/CHxx/NNN/<run_id>.mp4
   thumbnails/CHxx/NNN/<variant_id>/*.png
@@ -54,9 +56,9 @@
 
 ---
 
-## 3) 同期対象（固定）
+## 3) 保存対象（固定）
 
-同期するのは “最終成果物（L1）” のみ。
+保存するのは “最終成果物（L1）” のみ。
 
 例（L1）:
 - 台本: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（存在する場合のみ）
@@ -67,7 +69,7 @@
 - サムネ: 採用された最終出力（projects.jsonで採用判定できる形）
 - 画像束: Episode Asset Pack（`scripts/ops/archive_episode_asset_pack.py`）
 
-同期しない（L2/L3）:
+保存しない（L2/L3）:
 - `workspaces/video/runs/**/images/**`（再生成可能）
 - `apps/remotion/out/**` のチャンク/一時生成物（再生成可能）
 - logs/cache（ローテ対象）
@@ -76,7 +78,7 @@
 
 ## 4) 実行ポリシー（固定）
 
-- 共有ストレージ同期は **明示実行**（サイレントで走らない）。
+- 共有ストレージ保存は **明示実行**（サイレントで走らない）。
 - `YTM_SHARED_STORAGE_ROOT` が未設定/未マウントなら **停止して報告**（勝手に別経路へ逃げない）。
 - 破壊操作（ローカル削除/置換）は **既定でしない**（必要な場合のみ `--move` / `--symlink-back` を明示し、hash検証後に実施）。
 
@@ -95,10 +97,16 @@
 
 実装入口は `./ops` に固定する（迷子防止）。
 
-- `./ops shared sync -- --src <path> [--kind <kind>] [--channel CHxx --video NNN] [--run]`
+- 正本: `./ops shared store -- --src <path> [--kind <kind>] [--channel CHxx --video NNN] [--run] [--symlink-back]`
+  - 互換: `./ops shared sync -- --src <path> ...`
   - default は dry-run（`--run` 指定時のみコピー+manifest作成）
   - `YTM_SHARED_STORAGE_ROOT` 未設定/未マウントなら停止
   - 容量を空ける（明示）: `--symlink-back`（共有へ保存→ローカルを symlink に置換）
+- エピソード一括（L1のみ; 明示）: `./ops shared episode -- --channel CHxx --video NNN [--run] [--symlink-back]`
+  - Remotion mp4 も含める（明示）: `--include-remotion --run-id <run_id>`
+- Remotion レンダー直後に自動で保存/退避（本線）:
+  - `YTM_SHARED_STORAGE_ROOT=... ./ops remotion render-batch -- --channel CHxx --videos NNN --run --shared-store`
+  - 容量を空ける（明示）: `--shared-symlink-back`
 - 既存の入口（当面）:
   - Episode Asset Pack: `python3 scripts/ops/archive_episode_asset_pack.py --help`
   - Remotion: `./ops remotion help`（同等: `python3 scripts/ops/render_remotion_batch.py --help`）

@@ -57,7 +57,9 @@ export type Position = {
 export type LayoutConfig = {
   beltTopPct?: number; // default 82
   beltHeightPct?: number; // default 16
-  beltInsetPx?: number; // when beltTopPct is near 0 (top-left anchor)
+  beltInsetPx?: number; // when beltTopPct is near 0 (top-edge anchor)
+  beltAlign?: "left" | "right"; // default left
+  beltTheme?: string; // e.g. "ch02_blue"
   subtitleBottomPx?: number; // default 120
   subtitleMaxWidthPct?: number; // default 80
   subtitleFontSize?: number; // default 34

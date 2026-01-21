@@ -105,7 +105,9 @@
   - 入口固定: `./scripts/with_ytm_env.sh --llm-slot 2 python3 ...`（または `./scripts/with_ytm_env.sh 2 python3 ...`）
   - スロット指定時は strict 扱いで、既定では先頭モデルのみ実行（失敗したら **停止して報告**。勝手にルート変更しない）
   - 注:
-    - `script_*` は **既定は Fireworks 固定**（`script-main-1` / DeepSeek v3.2 exp + thinking）。pin は `configs/llm_task_overrides.yaml` が正（slotは未pinのtask/tierのみ）
+    - 台本本文（`script_*`）の既定Writerは **CLI**（`./ops claude script ...`）。APIは `./ops api script ...` を **明示した実行だけ**使う。
+    - Opus は **オーナー指示 + `YTM_ALLOW_CLAUDE_OPUS=1` の明示実行のみ**（無い場合は停止）。
+  - `YTM_ALLOW_CLAUDE_OPUS`（default: `0`）: `./ops claude script --claude-model opus` を許可する（オーナー指示時のみ）。`.env` に恒久セットしない（その実行だけ prefix で明示）。
 - 実行モード選択は **exec slot** で行う（env直書きの増殖を防ぐ）。
   - `LLM_EXEC_SLOT`（default: `3` / THINK）: `configs/llm_exec_slots.yaml` の `slots` から選ぶ
   - 例:
@@ -219,13 +221,15 @@
   - 対象: `./ops archive episode-asset-pack --offload ...`
   - 退避物のパイプライン参照はしない（復元/再利用は人間が選ぶ）
 
-### 共有ストレージ（Tailscale常駐ストレージ）
+### 共有ストレージ（Tailscale常駐ストレージ / L1 bytes store）
 
-- `YTM_SHARED_STORAGE_ROOT`（省略可）: 共有ストレージ root（例: `/Volumes/workspace/doraemon/workspace/lenovo_share`）
-  - 目的: 最終成果物（L1）を共有ストレージへ **ミラー/退避** して複数マシンで再利用する
-  - 注意: 共有ストレージは SoT ではない（パイプラインが共有側を参照して動く運用はしない）
+- `YTM_SHARED_STORAGE_ROOT`（共有ストレージを使う場合は必須）: 共有ストレージ root（例: `/Volumes/ytm_share`）
+  - 目的: 最終成果物（L1）を共有ストレージへ **保存/退避** して複数マシンで再利用する（“双方向同期” はしない）
+  - パス契約（SoT）: パイプラインが参照するのは常に `workspaces/**`
+    - `--symlink-back` を使った場合、`workspaces/**` の該当ファイルは共有側への symlink になるため、共有が未マウントなら停止/失敗する（サイレントfallbackしない）
   - 仕様: `ssot/ops/OPS_SHARED_ASSET_STORE.md`
 - `YTM_SHARED_STORAGE_NAMESPACE`（省略可）: 共有側の名前空間（未指定時は `repo_root().name`）
+  - 共有側ベース（固定）: `$YTM_SHARED_STORAGE_ROOT/uploads/$YTM_SHARED_STORAGE_NAMESPACE/`
 
 ## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
 `packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/search_results.json` に保存される。
@@ -392,7 +396,7 @@ Wikipedia を「毎回使う/使わない」を固定すると、チャンネル
 - Codex管理シェル（`CODEX_MANAGED_BY_NPM=1`）では、`configs/codex_exec.yaml:auto_enable_when_codex_managed=true` のとき **自動で有効**になる（未設定時の既定挙動）。
 - **境界（固定）**: Aテキスト本文（`chapters/*.md` / `assembled*.md`）を書き換える可能性がある task は **Codex exec に回さない**。
   - 対象（例）: `script_chapter_draft`, `script_cta`, `script_format`, `script_chapter_review`, `script_a_text_*`, `script_semantic_alignment_fix`
-  - 理由: codex exec は非対話CLIで混線しやすいため。**台本本文は対話型AIエージェントが（既定: Claude CLI=sonnet 4.5。リミット時: Gemini 3 Flash Preview → `qwen -p`。/ 明示API）で仕上げる**。
+  - 理由: codex exec は非対話CLIで混線しやすいため。**台本本文は対話型AIエージェントが（既定: Claude CLI=sonnet 4.5。Opus は `YTM_ALLOW_CLAUDE_OPUS=1` を明示した実行のみ。リミット時: Gemini 3 Flash Preview → `qwen -p`。/ 明示API）で仕上げる**。
   - SoT: `configs/codex_exec.yaml: selection.exclude_tasks`
 - 固定: `script_*` は Codex exec 対象外（台本のルート混線防止）。
 - 固定（用語）: 「Codex（AIエージェント）」と「codex exec（非対話CLI）」は別物。

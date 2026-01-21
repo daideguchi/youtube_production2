@@ -1,8 +1,0 @@
-# Placeholder hazard dictionary for reading risk scoring.
-# term: canonical reading, score: 0-1 risk weight
-entries:
-  - term: "辛い"
-    reading: "つらい"
-    score: 0.8
-    notes: "VOICEVOX tends to read as カライ in some contexts"
-    last_seen: ""

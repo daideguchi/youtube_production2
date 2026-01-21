@@ -890,6 +890,10 @@ def _print_list() -> None:
     print("  Remotion (auto render):")
     print("    ./ops remotion help")
     print("    ./ops remotion render-batch -- --channel CHxx --videos 001-029 --run")
+    print("      - shared store (save/offload): --shared-store  (free disk: --shared-symlink-back)")
+    print("      - debug only: --allow-missing-images")
+    print("    ./ops remotion snapshot -- --channel CHxx --video NNN --frame 300 --run")
+    print("      - default: missing images => stop (debug only: --allow-missing-images)")
     print("")
     print("  Thumbnails:")
     print("    ./ops thumbnails help")
@@ -1115,8 +1119,10 @@ def cmd_shared(args: argparse.Namespace) -> int:
     action = str(getattr(args, "action", "") or "").strip()
     forwarded = _strip_leading_double_dash(list(getattr(args, "args", None) or []))
 
-    if action == "sync":
+    if action in {"sync", "store"}:
         return _run(["python3", "scripts/ops/shared_storage_sync.py", "sync", *forwarded])
+    if action == "episode":
+        return _run(["python3", "scripts/ops/shared_storage_offload_episode.py", *forwarded])
 
     print(f"unknown shared action: {action}", file=sys.stderr)
     return 2
@@ -1394,9 +1400,13 @@ def cmd_remotion(args: argparse.Namespace) -> int:
     if action == "render-batch":
         inner = ["python3", "scripts/ops/render_remotion_batch.py", *forwarded]
         return _run(inner)
-    if action == "help":
-        inner = ["python3", "scripts/ops/render_remotion_batch.py", "--help"]
+    if action == "snapshot":
+        inner = ["python3", "scripts/ops/remotion_snapshot.py", *forwarded]
         return _run(inner)
+    if action == "help":
+        rc1 = _run(["python3", "scripts/ops/render_remotion_batch.py", "--help"])
+        rc2 = _run(["python3", "scripts/ops/remotion_snapshot.py", "--help"])
+        return 0 if (rc1 == 0 and rc2 == 0) else (rc1 or rc2 or 1)
     print(f"unknown remotion action: {action}", file=sys.stderr)
     return 2
 
@@ -2265,9 +2275,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying video tool (use '--' before flags)")
     sp.set_defaults(func=cmd_video)
 
-    sp = sub.add_parser("remotion", help="remotion helpers (render batch)")
-    sp.add_argument("action", choices=["render-batch", "help"], help="remotion operation")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/render_remotion_batch.py (use '--' before flags)")
+    sp = sub.add_parser("remotion", help="remotion helpers (render batch + snapshot)")
+    sp.add_argument("action", choices=["render-batch", "snapshot", "help"], help="remotion operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to remotion tools (render-batch: scripts/ops/render_remotion_batch.py | snapshot: scripts/ops/remotion_snapshot.py; use '--' before flags)",
+    )
     sp.set_defaults(func=cmd_remotion)
 
     sp = sub.add_parser("thumbnails", help="thumbnail operations")
@@ -2336,9 +2350,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to the underlying archive tool (no '--' needed)")
     sp.set_defaults(func=cmd_archive)
 
-    sp = sub.add_parser("shared", help="shared storage helpers (SoT mirror; explicit)")
-    sp.add_argument("action", choices=["sync"], help="shared storage operation")
-    sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/shared_storage_sync.py (use '--' before flags)")
+    sp = sub.add_parser("shared", help="shared storage helpers (L1 bytes store; explicit)")
+    sp.add_argument("action", choices=["sync", "store", "episode"], help="shared storage operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to the underlying tool (use '--' before flags)",
+    )
     sp.set_defaults(func=cmd_shared)
 
     sp = sub.add_parser("clear-brain", help="clear Antigravity 'memory' artifacts (safe by default)")

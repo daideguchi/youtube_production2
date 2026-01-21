@@ -43,7 +43,7 @@
 | 工程 | 入口（正本） | ルート（固定） |
 | --- | --- | --- |
 | 台本（設計図=Codex） | `./ops script resume -- --channel CHxx --video NNN --until script_master_plan --max-iter 6` | THINK（pending）。Codex（対話型AIエージェント）が **Webサーチ→設計図（topic_research/outline/master_plan）→検証** を担当する（本文は書かない）。正本: `ssot/agent_runbooks/RUNBOOK_JOB_SCRIPT_PIPELINE.md` |
-| 台本（本文=Writer; 既定） | `./ops claude script -- --channel CHxx --video NNN --run` | 外部CLI（既定: sonnet 4.5。opusはオーナー指示時のみ。Claude失敗→Gemini 3 Flash Preview→qwen）。**Blueprint必須**（未完/placeholder なら停止）。入力SoT: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` + Blueprint bundle（outline/research/master_plan を自動追記） / 出力SoT: `content/assembled_human.md` |
+| 台本（本文=Writer; 既定） | `./ops claude script -- --channel CHxx --video NNN --run` | 外部CLI（既定: sonnet 4.5。opusは **オーナー指示 + `YTM_ALLOW_CLAUDE_OPUS=1` の明示実行のみ**。Claude失敗→Gemini 3 Flash Preview→qwen）。**Blueprint必須**（未完/placeholder なら停止）。入力SoT: `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` + Blueprint bundle（outline/research/master_plan を自動追記） / 出力SoT: `content/assembled_human.md` |
 | 台本（明示APIで回す） | `./ops api script <MODE> -- --channel CHxx --video NNN` | API（明示。API失敗→THINK自動フォールバック禁止） |
 | 台本（Gemini CLI 明示） | `./ops gemini script -- --channel CHxx --video NNN --run` | 外部CLI（明示。**Gemini 3 Flash 固定**。サイレントfallback禁止） |
 | 台本（Qwen CLI 明示） | `./ops qwen script -- --channel CHxx --video NNN --run` | 外部CLI（最終フォールバック。**qwen-oauth固定**。`--auth-type`/`--qwen-model/--model/-m` 禁止） |

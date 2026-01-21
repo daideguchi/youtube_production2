@@ -96,7 +96,7 @@ def shared_storage_base() -> Optional[Path]:
     root = shared_storage_root()
     if root is None:
         return None
-    # Convention: shared root is the mounted share (e.g. ".../lenovo_share"),
+    # Convention: shared root is the mounted share (e.g. ".../ytm_share"),
     # and artifacts are placed under "uploads/<namespace>/" so they are visible
     # via the /files UI on the always-on host.
     if root.name == "uploads":

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-shared_storage_sync.py — 共有ストレージ（Tailscale常駐）へL1成果物を同期する
+shared_storage_sync.py — 共有ストレージ（Tailscale常駐）へL1成果物を保存/退避する
 
 SSOT:
   - ssot/ops/OPS_SHARED_ASSET_STORE.md
@@ -24,6 +24,7 @@ import os
 import re
 import shutil
 import socket
+import subprocess
 import sys
 import time
 from dataclasses import dataclass
@@ -149,10 +150,29 @@ def _atomic_copy(src: Path, dest: Path, *, overwrite: bool) -> None:
     if tmp.exists():
         tmp.unlink()
     try:
-        with src.open("rb") as fsrc, tmp.open("wb") as fdst:
-            shutil.copyfileobj(fsrc, fdst, length=1024 * 1024)
-            fdst.flush()
-            os.fsync(fdst.fileno())
+        try:
+            with src.open("rb") as fsrc, tmp.open("wb") as fdst:
+                shutil.copyfileobj(fsrc, fdst, length=1024 * 1024)
+                fdst.flush()
+                os.fsync(fdst.fileno())
+        except OSError as e:
+            # Some network filesystems (SMB) can intermittently throw EIO on large writes.
+            # Fall back to rsync (more resilient; supports partial/inplace).
+            if getattr(e, "errno", None) not in (5, 22):
+                raise
+            try:
+                if tmp.exists():
+                    tmp.unlink()
+            except Exception:
+                pass
+            cmd = ["rsync", "--partial", "--inplace", str(src), str(tmp)]
+            print(f"[shared_storage_sync] copyfileobj failed (errno={getattr(e,'errno',None)}); fallback to rsync", file=sys.stderr)
+            try:
+                proc = subprocess.run(cmd, check=False)
+            except FileNotFoundError:
+                raise
+            if int(proc.returncode) != 0:
+                raise SystemExit(f"[POLICY] rsync copy failed (rc={proc.returncode}): {dest}")
         tmp.replace(dest)
     finally:
         if tmp.exists():
@@ -228,7 +248,9 @@ def cmd_sync(args: argparse.Namespace) -> int:
             print(f"- src: {plan.src}", file=sys.stderr)
             print(f"- lock_id: {lock.lock_id}", file=sys.stderr)
             print(f"- created_by: {lock.created_by}", file=sys.stderr)
-            print(f"- note: {lock.note}", file=sys.stderr)
+            note = getattr(lock, "note", None) or getattr(lock, "reason", None) or ""
+            if note:
+                print(f"- note: {note}", file=sys.stderr)
             return 2
 
     manifests_dir = _shared_base() / "manifests" / "shared_sync"
@@ -236,7 +258,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
     manifest_path = manifests_dir / manifest_name
 
     if not bool(args.run):
-        print("[DRY-RUN] shared sync")
+        print("[DRY-RUN] shared store")
         print(f"- src: {plan.src}")
         print(f"- dest: {plan.dest}")
         print(f"- sha256: {plan.sha256}")
@@ -248,6 +270,23 @@ def cmd_sync(args: argparse.Namespace) -> int:
             print("- post: move (delete local after verified copy)")
         return 0
 
+    # Idempotency: if dest already exists and matches, treat as OK (no overwrite required).
+    if plan.dest.exists() and not bool(args.overwrite):
+        try:
+            if plan.dest.is_file():
+                got = _sha256_file(plan.dest)
+                if got == plan.sha256:
+                    _write_manifest(plan, dest=manifest_path)
+                    if bool(getattr(args, "symlink_back", False)):
+                        _replace_with_symlink(plan.src, plan.dest)
+                    elif bool(getattr(args, "move", False)):
+                        plan.src.unlink()
+                    print("[OK] shared store (up-to-date)")
+                    print(f"- dest: {plan.dest}")
+                    return 0
+        except Exception:
+            pass
+
     _atomic_copy(plan.src, plan.dest, overwrite=bool(args.overwrite))
     _write_manifest(plan, dest=manifest_path)
     if bool(getattr(args, "symlink_back", False)) or bool(getattr(args, "move", False)):
@@ -256,14 +295,14 @@ def cmd_sync(args: argparse.Namespace) -> int:
             _replace_with_symlink(plan.src, plan.dest)
         else:
             plan.src.unlink()
-    print("[OK] shared sync")
+    print("[OK] shared store")
     print(f"- dest: {plan.dest}")
     print(f"- manifest: {manifest_path}")
     return 0
 
 
 def main(argv: Optional[list[str]] = None) -> int:
-    p = argparse.ArgumentParser(description="Sync/offload L1 artifacts to shared storage (keeps Mac disk free)")
+    p = argparse.ArgumentParser(description="Store/offload L1 artifacts to shared storage (keeps Mac disk free)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     sp = sub.add_parser("sync", help="sync one file to shared storage (atomic copy + manifest)")

@@ -106,6 +106,229 @@ def _a_text_spoken_char_count(text: str) -> int:
     return len(compact.strip())
 
 
+_SENTENCE_END_RE = re.compile(r"[。！？]")
+
+
+def _tail_cut_by_sentences(text: str, *, sentences: int = 3) -> tuple[str, str, str]:
+    """
+    Return (prefix, tail, context_end) where tail is the last N sentences.
+    We keep all whitespace/newlines between prefix and tail in the prefix so the
+    replacement tail can start with content immediately.
+    """
+    normalized = _normalize_newlines(text)
+    ends = [m.end() for m in _SENTENCE_END_RE.finditer(normalized)]
+    n = max(1, int(sentences))
+    if len(ends) <= n:
+        cut = 0
+    else:
+        cut = int(ends[-(n + 1)])
+    # Keep boundary whitespace in prefix.
+    while cut < len(normalized) and normalized[cut].isspace():
+        cut += 1
+    prefix = normalized[:cut]
+    tail = normalized[cut:]
+    context_end = prefix[-500:] if len(prefix) > 500 else prefix
+    return prefix, tail, context_end
+
+
+_ENDING_POLISH_TRIGGER_MARKERS = (
+    "呼吸",
+    "深く息",
+    "息を吸",
+    "息を吐",
+    "夜の闇",
+    "静かな夜",
+    "安らぎ",
+    "誓",
+    "味方",
+)
+
+
+def _tail_cut_for_ending_polish(text: str) -> tuple[str, str, str]:
+    """
+    Tail cut tuned for "ending polish":
+    - default: last 3 sentences
+    - if common closing-cliché markers appear near the end, cut from the sentence
+      that contains the earliest such marker within a tail window so we can
+      replace the whole cliché closing segment at once.
+    """
+    normalized = _normalize_newlines(text)
+    default_prefix, _default_tail, _default_ctx = _tail_cut_by_sentences(normalized, sentences=3)
+    default_cut = len(default_prefix)
+
+    window_start = max(0, len(normalized) - 1800)
+    marker_positions: List[int] = []
+    for marker in _ENDING_POLISH_TRIGGER_MARKERS:
+        pos = normalized.rfind(marker)
+        if pos >= window_start:
+            marker_positions.append(pos)
+    if not marker_positions:
+        return _tail_cut_by_sentences(normalized, sentences=3)
+
+    marker_pos = min(marker_positions)
+    ends = [m.end() for m in _SENTENCE_END_RE.finditer(normalized)]
+    cut = 0
+    for e in ends:
+        if e <= marker_pos:
+            cut = e
+            continue
+        break
+    cut = min(default_cut, cut)
+    while cut < len(normalized) and normalized[cut].isspace():
+        cut += 1
+    prefix = normalized[:cut]
+    tail = normalized[cut:]
+    context_end = prefix[-500:] if len(prefix) > 500 else prefix
+    return prefix, tail, context_end
+
+
+_SYMBOL_STOPWORDS = {
+    "私",
+    "自分",
+    "あなた",
+    "彼",
+    "彼女",
+    "娘",
+    "息子",
+    "母",
+    "父",
+    "夫",
+    "妻",
+    "孫",
+    "友達",
+    "友人",
+    "相手",
+    "人",
+    "心",
+    "気持ち",
+    "呼吸",
+    "夜",
+    "闇",
+    "一日",
+    "今日",
+    "明日",
+}
+
+
+def _extract_symbol_candidates(text: str, *, max_items: int = 8) -> List[str]:
+    """
+    Heuristic: pick short concrete-looking tokens near the end (objects/places),
+    so the model can reuse an already-present symbol item when rewriting the tail.
+    """
+    snippet = _normalize_newlines(text)[-1800:]
+    out: List[str] = []
+    for m in re.finditer(r"([一-龠々ぁ-んァ-ヶー]{1,14})(?:を|に|へ|で|と|から|まで|の)", snippet):
+        w = str(m.group(1) or "").strip()
+        if not w or w in _SYMBOL_STOPWORDS:
+            continue
+        if len(w) < 1 or len(w) > 10:
+            continue
+        if any(ch.isdigit() for ch in w):
+            continue
+        if w not in out:
+            out.append(w)
+        if len(out) >= int(max_items):
+            break
+    return out
+
+
+def _count_sentences(text: str) -> int:
+    return len(_SENTENCE_END_RE.findall(str(text or "")))
+
+
+_TAIL_ONLY_BANNED_SUBSTRINGS = (
+    "---",
+    "おやすみ",
+    "寝落ち",
+    "睡眠用",
+    "安眠",
+    "布団",
+    "ベッド",
+    "枕",
+    "寝室",
+    "就寝",
+    "入眠",
+    "熟睡",
+    "眠り",
+    "眠る",
+    "眠れ",
+    "寝る",
+    "翌日",
+    "次の日",
+    "翌朝",
+    "次の朝",
+    "昨日",
+    "朝食",
+    "来週",
+    "来月",
+    "数日後",
+    "数週間後",
+    "数ヶ月後",
+    "数年後",
+    "それから数",
+    "ポイント",
+    "まとめ",
+    "コツ",
+    "大切なのは",
+    "呼吸",
+    "闇",
+    "誓",
+    "味方",
+    "静かな夜",
+    "夜の闇",
+)
+
+
+def _build_tail_only_prompt(
+    *,
+    channel: str,
+    video: str,
+    context_end: str,
+    old_tail: str,
+    symbol_candidates: List[str],
+    operator_instruction: str | None,
+    attempt: int,
+) -> str:
+    """
+    Build a small prompt that asks Gemini to output ONLY the replacement tail.
+    """
+    header = (
+        "あなたはYouTube向けの物語台本の編集者です。\n"
+        "目的: 既存台本の末尾だけを編集して、抽象で締めがちな癖を減らし、具体で綺麗に完結させます。\n"
+        "重要: 新しい出来事/人物/場所/設定を追加しない。内容の因果と結末は維持。\n"
+    )
+    constraints = (
+        "【出力】\n"
+        "- 出力は「新しい末尾」だけ。前置き/注釈/見出し/箇条書きは禁止。\n"
+        "- 2〜4文。文末は必ず「。」で終える。\n"
+        "- 分量: 現行の末尾と同程度の分量（短くしすぎない）。\n"
+        "- 最後は『具体行動1つ + 既出の象徴アイテム1つ』で閉じる。\n"
+        "- 禁止: 呼吸/闇/誓い/自分の味方 など抽象ワードで締めること。『静かな夜』『夜の闇』等の常套句で締めない。\n"
+        "- 禁止: おやすみ/寝落ち/睡眠用/安眠/布団/ベッド/枕/寝室/就寝/入眠/熟睡/眠り/眠る/眠れ/寝る 等。\n"
+        "- 禁止: 翌日/次の日/翌朝/次の朝/昨日/朝食/来週/来月/数日後/数週間後/数ヶ月後/数年後/それから数… など時間ジャンプ。\n"
+        "- 禁止: まとめ/ポイント/コツ/大切なのは/次に/最後に 等の手順口調。\n"
+        "- 禁止: 会話の引用符「」を新たに増やす（末尾は地の文で閉じる）。\n"
+        "- 末尾を二重にしない（同じ余韻を繰り返さない）。\n"
+        "- 文体: 自然で平易。難しい比喩/気取った言い回し/抽象名詞の連打は避け、短く分かる言葉で。\n"
+    )
+    candidates = ""
+    if symbol_candidates:
+        candidates = "【象徴アイテム候補（既出から1つだけ選ぶ）】\n" + " / ".join(symbol_candidates[:8]) + "\n"
+    prompt_parts: List[str] = [
+        header,
+        f"channel: {channel}\nvideo: {video}\nretry_attempt: {attempt}\n",
+        constraints,
+    ]
+    if operator_instruction:
+        prompt_parts.append("【追加指示】\n" + str(operator_instruction).strip() + "\n")
+    if candidates:
+        prompt_parts.append(candidates)
+    prompt_parts.append("【直前の文脈（末尾に接続する直前）】\n" + str(context_end or "").rstrip() + "\n")
+    prompt_parts.append("【現行の末尾（置き換える）】\n" + str(old_tail or "").rstrip() + "\n")
+    prompt_parts.append("【新しい末尾】\n")
+    return "\n".join([p for p in prompt_parts if str(p).strip()]).strip() + "\n"
+
+
 _SLEEP_GUARD_TAG_MARKERS = ("#睡眠用", "#寝落ち")
 
 
@@ -674,6 +897,10 @@ def _run_gemini_cli(
     if home_dir is not None:
         env["HOME"] = str(home_dir)
 
+    # Defensive: our scratch dir may be pruned by external cleanup between episodes.
+    # Ensure it exists right before spawning the child process.
+    _ensure_dir(_scratch_dir())
+
     start = time.time()
     proc = subprocess.run(
         cmd,
@@ -720,6 +947,12 @@ def cmd_run(args: argparse.Namespace) -> int:
     if section_splits and bool(args.include_current):
         raise SystemExit("--split-sections cannot be used with --include-current (concatenate parts instead).")
 
+    tail_only = bool(getattr(args, "tail_only", False))
+    if tail_only and not bool(args.include_current):
+        raise SystemExit("--tail-only requires --include-current (only replace the ending; keep body as-is).")
+    if tail_only and section_splits:
+        raise SystemExit("--tail-only cannot be used with --split-sections.")
+
     videos: List[str] = []
     if args.video:
         videos = [_z3(args.video)]
@@ -748,6 +981,9 @@ def cmd_run(args: argparse.Namespace) -> int:
         if ok_blueprint and blueprint_payload:
             base_prompt = (base_prompt.rstrip() + "\n\n" + blueprint_payload.strip()).strip() + "\n"
         current = _read_current_a_text(channel, vv) if bool(args.include_current) else None
+        if tail_only and not current:
+            failures.append(f"{script_id}: tail_only_missing_current_a_text (need assembled_human.md)")
+            continue
         sleep_opt_in = _channel_opted_in_sleep_framing(channel)
         sleep_guard_enabled = (not sleep_opt_in) and (not bool(getattr(args, "allow_sleep_framing", False)))
         instruction = str(args.instruction or "").strip()
@@ -924,10 +1160,21 @@ def cmd_run(args: argparse.Namespace) -> int:
                 min_spoken_chars = int(detected_min)
 
             max_attempts = max(1, int(getattr(args, "max_attempts", 5) or 5))
-            max_continue_rounds = int(getattr(args, "max_continue_rounds", 0) or 0)
+            max_continue_rounds = 0 if tail_only else int(getattr(args, "max_continue_rounds", 0) or 0)
 
             success = False
             last_failure: Optional[str] = None
+
+            tail_prefix = ""
+            tail_old = ""
+            tail_context_end = ""
+            tail_symbols: List[str] = []
+            if tail_only and current:
+                tail_prefix, tail_old, tail_context_end = _tail_cut_for_ending_polish(current)
+                tail_symbols = _extract_symbol_candidates(current)
+                if not str(tail_old).strip():
+                    failures.append(f"{script_id}: tail_only_empty_tail (cannot cut ending)")
+                    continue
 
             for attempt in range(1, max_attempts + 1):
                 retry_hint = ""
@@ -942,12 +1189,23 @@ def cmd_run(args: argparse.Namespace) -> int:
                 if attempt_instruction:
                     attempt_instruction = (attempt_instruction + f"\nretry_attempt: {attempt}").strip()
 
-                attempt_prompt = _build_prompt(
-                    base_prompt=base_prompt,
-                    instruction=attempt_instruction if attempt_instruction else None,
-                    include_current=bool(args.include_current),
-                    current_a_text=current,
-                )
+                if tail_only:
+                    attempt_prompt = _build_tail_only_prompt(
+                        channel=channel,
+                        video=vv,
+                        context_end=tail_context_end,
+                        old_tail=tail_old,
+                        symbol_candidates=tail_symbols,
+                        operator_instruction=attempt_instruction if attempt_instruction else None,
+                        attempt=attempt,
+                    )
+                else:
+                    attempt_prompt = _build_prompt(
+                        base_prompt=base_prompt,
+                        instruction=attempt_instruction if attempt_instruction else None,
+                        include_current=bool(args.include_current),
+                        current_a_text=current,
+                    )
 
                 attempt_prompt_log = logs_dir / f"gemini_cli_prompt__attempt{attempt:02d}.txt"
                 attempt_stdout_log = logs_dir / f"gemini_cli_stdout__attempt{attempt:02d}.txt"
@@ -1022,11 +1280,40 @@ def cmd_run(args: argparse.Namespace) -> int:
                     last_failure = f"{script_id}: gemini_exit={rc} (see {attempt_stderr_log})"
                     continue
 
-                a_text = _normalize_newlines(stdout).rstrip() + "\n"
-                reject_reason = _reject_obviously_non_script(a_text)
-                if reject_reason:
-                    last_failure = f"{script_id}: rejected_output={reject_reason} (see {attempt_stdout_log})"
-                    continue
+                if tail_only:
+                    tail_out = _normalize_newlines(stdout).strip()
+                    tail_out = re.sub(r"^【[^\\n]+】\\s*", "", tail_out).strip()
+                    if _reject_obviously_non_script(tail_out):
+                        last_failure = f"{script_id}: rejected_output=empty_tail (see {attempt_stdout_log})"
+                        continue
+                    if any(tok in tail_out for tok in _TAIL_ONLY_BANNED_SUBSTRINGS):
+                        last_failure = f"{script_id}: rejected_output=tail_contains_banned_marker (see {attempt_stdout_log})"
+                        continue
+                    if re.search(r"(?m)^\\s*(#|[-*]\\s|・)", tail_out):
+                        last_failure = f"{script_id}: rejected_output=tail_contains_list_or_heading (see {attempt_stdout_log})"
+                        continue
+                    if _count_sentences(tail_out) < 2 or _count_sentences(tail_out) > 4:
+                        last_failure = f"{script_id}: rejected_output=tail_sentence_count_invalid (see {attempt_stdout_log})"
+                        continue
+                    if not tail_out.endswith("。"):
+                        last_failure = f"{script_id}: rejected_output=tail_not_ending_period (see {attempt_stdout_log})"
+                        continue
+                    a_text = (tail_prefix + tail_out.lstrip()).rstrip() + "\n"
+                    # Only guard the very end: we don't want to reject body text that
+                    # legitimately mentions e.g. 「深呼吸」 earlier. Our goal here is
+                    # to avoid cliché closings in the final segment.
+                    tail_window = a_text[-500:] if len(a_text) > 500 else a_text
+                    if any(tok in tail_window for tok in _TAIL_ONLY_BANNED_SUBSTRINGS):
+                        last_failure = f"{script_id}: rejected_output=ending_cliche_or_banned_leftover (see {attempt_stdout_log})"
+                        continue
+                    _write_text(stdout_log, a_text)
+                else:
+                    a_text = _normalize_newlines(stdout).rstrip() + "\n"
+                    _write_text(stdout_log, a_text)
+                    reject_reason = _reject_obviously_non_script(a_text)
+                    if reject_reason:
+                        last_failure = f"{script_id}: rejected_output={reject_reason} (see {attempt_stdout_log})"
+                        continue
 
                 if min_spoken_chars > 0 and not bool(args.allow_short):
                     spoken_chars = _a_text_spoken_char_count(a_text)
@@ -1070,8 +1357,23 @@ def cmd_run(args: argparse.Namespace) -> int:
                         )
                         continue
 
-                issues, _stats = validate_a_text(a_text, {"assembled_path": str(mirror_path)})
+                validator_md: Dict[str, Any] = {"assembled_path": str(mirror_path)}
+                ch = str(args.channel or "").strip().upper()
+                if ch:
+                    validator_md["channel"] = ch
+                    validator_md["channel_code"] = ch
+                if detected_min is not None:
+                    validator_md["target_chars_min"] = int(detected_min)
+                if detected_max is not None:
+                    validator_md["target_chars_max"] = int(detected_max)
+                issues, _stats = validate_a_text(a_text, validator_md)
                 hard_errors = [it for it in issues if isinstance(it, dict) and str(it.get("severity") or "") == "error"]
+                if not sleep_guard_enabled:
+                    hard_errors = [
+                        it
+                        for it in hard_errors
+                        if str(it.get("code") or "") != "sleep_framing_contamination"
+                    ]
                 if hard_errors:
                     codes = ", ".join(sorted({str(it.get("code") or "") for it in hard_errors if it.get("code")}))
                     last_failure = f"{script_id}: rejected_output=script_validation_error codes=[{codes}] (see {attempt_stdout_log})"
@@ -1143,8 +1445,19 @@ def cmd_run(args: argparse.Namespace) -> int:
                 continue
 
         # Deterministic SSOT validation (no LLM): reject if any hard errors remain.
-        issues, _stats = validate_a_text(a_text, {"assembled_path": str(mirror_path)})
+        validator_md: Dict[str, Any] = {"assembled_path": str(mirror_path)}
+        ch = str(args.channel or "").strip().upper()
+        if ch:
+            validator_md["channel"] = ch
+            validator_md["channel_code"] = ch
+        if detected_min is not None:
+            validator_md["target_chars_min"] = int(detected_min)
+        if detected_max is not None:
+            validator_md["target_chars_max"] = int(detected_max)
+        issues, _stats = validate_a_text(a_text, validator_md)
         hard_errors = [it for it in issues if isinstance(it, dict) and str(it.get("severity") or "") == "error"]
+        if not sleep_guard_enabled:
+            hard_errors = [it for it in hard_errors if str(it.get("code") or "") != "sleep_framing_contamination"]
         if hard_errors:
             codes = ", ".join(sorted({str(it.get("code") or "") for it in hard_errors if it.get("code")}))
             failures.append(f"{script_id}: rejected_output=script_validation_error codes=[{codes}] (see {stdout_log})")
@@ -1182,6 +1495,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--run", action="store_true", help="Execute gemini and write assembled_human.md (default: dry-run)")
 
     sp.add_argument("--include-current", dest="include_current", action="store_true", help="Include current A-text in the prompt")
+    sp.add_argument(
+        "--tail-only",
+        dest="tail_only",
+        action="store_true",
+        help="Polish ONLY the ending (last 2-4 sentences) while keeping the body untouched (requires --include-current)",
+    )
     sp.add_argument("--instruction", default="", help="Optional operator instruction appended to the prompt")
     sp.add_argument(
         "--allow-sleep-framing",

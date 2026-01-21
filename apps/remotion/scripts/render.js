@@ -447,6 +447,8 @@ function loadPresetLayout(channel) {
       beltTopPct: toNum(layout.beltTopPct),
       beltHeightPct: toNum(layout.beltHeightPct),
       beltInsetPx: toNum(layout.beltInsetPx),
+      beltAlign: typeof layout.beltAlign === "string" ? layout.beltAlign : undefined,
+      beltTheme: typeof layout.beltTheme === "string" ? layout.beltTheme : undefined,
       subtitleBottomPx: toNum(layout.subtitleBottomPx),
       subtitleMaxWidthPct: toNum(layout.subtitleMaxWidthPct),
       subtitleFontSize: toNum(layout.subtitleFontSize),
@@ -499,6 +501,8 @@ function resolveLayout(opts, presetLayout = {}) {
   const beltTopPct = Number.isFinite(opts.beltTop) ? opts.beltTop : toNum(presetLayout.beltTopPct);
   const beltHeightPct = Number.isFinite(opts.beltHeight) ? opts.beltHeight : toNum(presetLayout.beltHeightPct);
   const beltInsetPx = toNum(presetLayout.beltInsetPx);
+  const beltAlign = typeof presetLayout.beltAlign === "string" ? presetLayout.beltAlign : undefined;
+  const beltTheme = typeof presetLayout.beltTheme === "string" ? presetLayout.beltTheme : undefined;
   const subtitleBottomPx = Number.isFinite(opts.subtitleBottom) ? opts.subtitleBottom : toNum(presetLayout.subtitleBottomPx);
   const subtitleMaxWidthPct = Number.isFinite(opts.subtitleMaxWidth) ? opts.subtitleMaxWidth : toNum(presetLayout.subtitleMaxWidthPct);
   const subtitleFontSize = Number.isFinite(opts.subtitleFontSize) ? opts.subtitleFontSize : toNum(presetLayout.subtitleFontSize);
@@ -509,6 +513,8 @@ function resolveLayout(opts, presetLayout = {}) {
     beltTopPct,
     beltHeightPct,
     beltInsetPx,
+    beltAlign,
+    beltTheme,
     subtitleBottomPx,
     subtitleMaxWidthPct,
     subtitleFontSize,

@@ -1,9 +1,0 @@
-package-internal symlinks (archive-first)
-rev: 73dda0d3^
-
-path	target
-packages/script_pipeline/data	../../workspaces/scripts
-packages/audio_tts_v2/artifacts	(missing in git)
-packages/commentary_02_srt2images_timeline/input	../../workspaces/video/input
-packages/commentary_02_srt2images_timeline/output	../../workspaces/video/runs
-packages/commentary_02_srt2images_timeline/_capcut_drafts	(missing in git)

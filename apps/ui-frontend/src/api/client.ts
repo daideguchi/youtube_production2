@@ -1883,6 +1883,8 @@ type VideoProjectSummaryResponse = {
   draft_path?: string | null;
   channel_id?: string | null;
   channelId?: string | null;
+  selected_run_id?: string | null;
+  is_selected?: boolean | null;
   source_status?: SourceStatusResponse | null;
   planning?: VideoProjectPlanningSummaryResponse | null;
   image_progress?: VideoProjectImageProgressResponse | null;
@@ -1984,6 +1986,8 @@ function normalizeProjectSummary(raw: VideoProjectSummaryResponse): VideoProject
     draft_path: raw.draft_path,
     channel_id: raw.channel_id ?? raw.channelId ?? null,
     channelId: raw.channelId ?? raw.channel_id ?? null,
+    selectedRunId: raw.selected_run_id ?? null,
+    isSelected: Boolean(raw.is_selected),
     sourceStatus: normalizeSourceStatus(raw.source_status),
     planning: normalizeProjectPlanning(raw.planning),
     imageProgress: normalizeImageProgress(raw.image_progress),

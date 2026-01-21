@@ -667,12 +667,13 @@ def main() -> None:
     images_dir = run_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
     if args.force:
+        deleted = _delete_existing_pngs(images_dir)
+        print(f"[CLEAN] deleted_pngs={deleted} dir={images_dir}")
+    elif args.overwrite and not args.indices:
+        # Overwriting the entire run can be risky; keep a full backup for safety.
         moved, backup_dir = _backup_existing_pngs(images_dir)
         if moved and backup_dir:
             print(f"[BACKUP] moved_pngs={moved} backup_dir={backup_dir}")
-        else:
-            deleted = _delete_existing_pngs(images_dir)
-            print(f"[CLEAN] deleted_pngs={deleted} dir={images_dir}")
     force_generate = bool(args.force or args.overwrite)
 
     # Fill prompts + image_path for the subset we generate.

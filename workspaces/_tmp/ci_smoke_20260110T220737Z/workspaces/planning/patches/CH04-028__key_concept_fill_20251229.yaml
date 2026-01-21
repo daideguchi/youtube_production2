@@ -1,9 +1,0 @@
-schema: ytm.planning_patch.v1
-patch_id: CH04-028__key_concept_fill_20251229
-target:
-  channel: CH04
-  video: 028
-apply:
-  set:
-    キーコンセプト: 意識レベル200
-notes: 未採用行のキーコンセプト空欄を補完（クリック系【...】ではなく内容語で固定）。

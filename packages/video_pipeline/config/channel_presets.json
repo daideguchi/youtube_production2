@@ -56,8 +56,14 @@
         "scale": 1.03
       },
       "layout": {
-        "beltTopPct": 82,
+        "beltTopPct": 1,
         "beltHeightPct": 16,
+        "beltInsetPx": 28,
+        "beltAlign": "right",
+        "beltTheme": "ch02_blue",
+        "beltMainScale": 1.05,
+        "beltSubScale": 1.0,
+        "beltGapScale": 1.0,
         "subtitleBottomPx": 120,
         "subtitleMaxWidthPct": 80,
         "subtitleFontSize": 34

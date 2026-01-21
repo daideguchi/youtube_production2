@@ -1371,6 +1371,8 @@ export interface VideoProjectSummary {
   draft_path?: string | null;
   channel_id?: string | null;
   channelId?: string | null;
+  selectedRunId?: string | null;
+  isSelected?: boolean;
   source_status?: SourceStatus | null;
   sourceStatus?: SourceStatus | null;
   planning?: VideoProjectPlanningSummary | null;
@@ -1405,7 +1407,9 @@ export interface VideoProjectCue {
     note?: string;
   } | null;
   emotional_tone?: string | null;
+  image_model_key?: string | null;
   prompt?: string | null;
+  image_path?: string | null;
   context_reason?: string | null;
 }
 
@@ -1486,6 +1490,7 @@ export interface VisualCuesPlanSection {
   summary: string;
   visual_focus: string;
   emotional_tone: string;
+  refined_prompt: string;
   persona_needed: boolean;
   role_tag: string;
   section_type: string;

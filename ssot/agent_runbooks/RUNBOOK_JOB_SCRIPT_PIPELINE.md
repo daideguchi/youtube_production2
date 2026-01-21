@@ -11,7 +11,7 @@
 - **本文生成ルート（台本だけ例外）**: 対話型AIエージェントが **Claude CLI（sonnet 4.5 既定）** を主に使って本文（Aテキスト）を仕上げる。Claude がリミット/失敗なら **Gemini 3 Flash Preview → qwen** の順でフォールバックする。API は **明示した場合のみ**使う。
 - **設計図（Blueprint）は必須ゲート**: `./ops claude|gemini|qwen script ... --run` は **Blueprint bundle が未完/placeholder なら停止**する（=`topic_research`/`script_outline`/`script_master_plan` が揃ってから Writer を走らせる）。例外は `YTM_EMERGENCY_OVERRIDE=1` を明示した実行のみ。
 - **Writer に渡す入力は自動で増強**: FULL prompt（`prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md`）に、Blueprint bundle（outline/research/references/search/master_plan）を自動追記して Writer CLI に渡す（本文には URL/脚注/参照番号を出さない）。
-- **Opus はオーナー指示時のみ**（明示して使う）。
+- **Opus はオーナー指示時のみ**（`YTM_ALLOW_CLAUDE_OPUS=1` を明示した実行のみ。無い場合は停止）。
 - **禁止: qwen の model/provider 指定**（`--model` / `--qwen-model`）。この repo の qwen ヘルパーは model override を受け付けない（= `qwen -p` 固定）。
 - **禁止: qwen の auth-type 切替**（`--auth-type`）。この repo の qwen は **qwen-oauth 固定**（Claude/Gemini/OpenAI を qwen 経由で使わない）。
 - **禁止: API→THINK の自動フォールバック**（APIが失敗したら停止して報告。勝手にルートを変えない）。
@@ -52,7 +52,7 @@
 
 | 位置付け | ルート | 実行主体 | 入口 | 入力SoT | 出力SoT | 禁止/注意 |
 | --- | --- | --- | --- | --- | --- | --- |
-| DEFAULT | Claude CLI で作る（既定） | 対話型AIエージェント | `./ops claude script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | 既定=sonnet 4.5。Opus は指示時のみ。Claudeリミット時は Gemini 3 Flash Preview → qwen。**Blueprint必須**（FULL prompt + blueprint bundle を自動追記） |
+| DEFAULT | Claude CLI で作る（既定） | 対話型AIエージェント | `./ops claude script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | 既定=sonnet 4.5。Opus は **オーナー指示 + `YTM_ALLOW_CLAUDE_OPUS=1` の明示実行のみ**。Claudeリミット時は Gemini 3 Flash Preview → qwen。**Blueprint必須**（FULL prompt + blueprint bundle を自動追記） |
 | FALLBACK-1 | Gemini CLI で作る | 対話型AIエージェント | `./ops gemini script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。サイレントfallback禁止 |
 | FALLBACK-2 | qwen -p で作る（最終フォールバック） | 対話型AIエージェント | `./ops qwen script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。**qwen-oauth固定**。**`--auth-type`/`--qwen-model/--model/-m` 禁止**（別課金/別プロバイダへ逃げない） |
 | EXPLICIT | LLM API が作る | パイプライン | `./ops api script <MODE> -- --channel CHxx --video NNN` | planning + SSOT | `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（/human があれば優先） | **API失敗→停止**（THINKへ自動フォールバック禁止） |
@@ -68,6 +68,10 @@
 ルートA（Claude CLI / 既定・フォールバック内蔵）:
 ```bash
 ./ops claude script -- --channel CH06 --video 033 --run
+```
+Opus（オーナー指示時のみ）:
+```bash
+YTM_ALLOW_CLAUDE_OPUS=1 ./ops claude script -- --channel CH06 --video 033 --run --claude-model opus
 ```
 
 ルートB（Gemini CLI / フォールバック用に明示）:

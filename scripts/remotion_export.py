@@ -329,6 +329,9 @@ def cmd_render(args: argparse.Namespace) -> int:
     if not run_dir.exists():
         raise FileNotFoundError(f"run_dir not found: {run_dir}")
 
+    if bool(getattr(args, "shared_symlink_back", False)) and not bool(getattr(args, "shared_store", False)):
+        raise SystemExit("[POLICY] --shared-symlink-back requires --shared-store.")
+
     channel, video = _infer_episode(run_dir, args.channel)
     srt_path = _find_srt(run_dir, args.srt)
     audio_wav = _resolve_audio_wav(run_dir, channel, video, args.audio)
@@ -361,6 +364,8 @@ def cmd_render(args: argparse.Namespace) -> int:
         "--crossfade",
         str(args.crossfade),
     ]
+    if not bool(getattr(args, "allow_missing_images", False)):
+        cmd.append("--fail-on-missing")
     if channel:
         cmd += ["--channel", channel]
     if args.title:
@@ -373,6 +378,38 @@ def cmd_render(args: argparse.Namespace) -> int:
         return rc
 
     print(f"✅ Rendered mp4: {out_mp4}", flush=True)
+
+    if bool(getattr(args, "shared_store", False)):
+        if not channel or not video:
+            raise SystemExit("[POLICY] shared store requires inferable episode id (CHxx/NNN). Pass --channel and ensure run_dir name includes CHxx-NNN.")
+        run_id = run_dir.name
+        ch = channel.strip().upper()
+        vv = str(video).zfill(3)
+        dest_rel = f"remotion_mp4/{ch}/{vv}/{run_id}.mp4"
+        sync_cmd = [
+            sys.executable,
+            "scripts/ops/shared_storage_sync.py",
+            "sync",
+            "--kind",
+            "remotion_mp4",
+            "--src",
+            str(out_mp4),
+            "--channel",
+            ch,
+            "--video",
+            vv,
+            "--dest-rel",
+            dest_rel,
+            "--run",
+        ]
+        if bool(getattr(args, "shared_symlink_back", False)):
+            sync_cmd.append("--symlink-back")
+        rc2 = subprocess.run(sync_cmd, cwd=str(repo), env=env, check=False).returncode
+        if rc2 != 0:
+            print(f"❌ shared store failed (exit={rc2})", file=sys.stderr)
+            return int(rc2)
+        print("✅ shared store: remotion_mp4", flush=True)
+
     return 0
 
 
@@ -456,7 +493,10 @@ def main(argv: list[str]) -> int:
     p_render.add_argument("--fps", type=int, default=30)
     p_render.add_argument("--size", default="1920x1080")
     p_render.add_argument("--crossfade", type=float, default=0.5)
+    p_render.add_argument("--allow-missing-images", action="store_true", help="Allow missing images (debug only; default fails)")
     p_render.add_argument("--out", help="Output mp4 path (default: <run_dir>/remotion/output/final.mp4)")
+    p_render.add_argument("--shared-store", action="store_true", help="Offload mp4 to shared storage (requires YTM_SHARED_STORAGE_ROOT)")
+    p_render.add_argument("--shared-symlink-back", action="store_true", help="After shared store, symlink-back local mp4 (requires --shared-store)")
     p_render.set_defaults(func=cmd_render)
 
     p_upload = sub.add_parser("upload", help="Upload an existing mp4 to Drive and persist URL back to run_dir")

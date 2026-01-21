@@ -1436,6 +1436,7 @@ function DraftWorkspace({
         summary: "",
         visual_focus: "",
         emotional_tone: "",
+        refined_prompt: "",
         persona_needed: false,
         role_tag: "",
         section_type: "",
@@ -1495,6 +1496,15 @@ function DraftWorkspace({
                 {requiredImages > 0 ? `残り ${remainingImages}` : "cues 未検出"}
                 {placeholderImages > 0 ? ` / placeholder ${placeholderImages}` : ""}
                 {imageProgress?.mode === "none" ? " / 生成停止中" : ""}
+                {summary?.id ? (
+                  <>
+                    {" "}
+                    /{" "}
+                    <a href={`/image-timeline?project=${encodeURIComponent(summary.selectedRunId ?? summary.id)}`}>
+                      image-timeline
+                    </a>
+                  </>
+                ) : null}
               </div>
             </div>
             <div>
@@ -1797,6 +1807,24 @@ function DraftWorkspace({
                               border: "1px solid #cbd5e1",
                               padding: "8px 10px",
                             }}
+                          />
+                        </label>
+                        <label className="vp-draft-meta" style={{ display: "grid", gap: 4 }}>
+                          refined_prompt（schnellは必須）
+                          <textarea
+                            value={section.refined_prompt}
+                            onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                              updatePlanSection(index, { refined_prompt: event.target.value })
+                            }
+                            disabled={visualPlanSaving || visualPlanLoading}
+                            rows={3}
+                            style={{
+                              width: "100%",
+                              borderRadius: 10,
+                              border: "1px solid #cbd5e1",
+                              padding: "8px 10px",
+                            }}
+                            placeholder="英語: action/pose + setting/props + lighting + camera angle/distance（NO text）"
                           />
                         </label>
                       </div>

@@ -44,7 +44,7 @@ SSOT内の文章は “種類” が違うと役割も違います。混ぜて�
 - 台本（デフォルト）: `./ops script new -- --channel CHxx --video NNN`（既存なら `resume`）
   - 設計図（Blueprint; Writerの必須ゲート）: `./ops script resume -- --channel CHxx --video NNN --until script_master_plan --max-iter 6`
   - 明示APIで回す: `./ops api script new -- --channel CHxx --video NNN`
-  - 明示CLI（Claude; 既定）: `./ops claude script -- --channel CHxx --video NNN --run`（Blueprint必須。sonnet 4.5。opusは指示時のみ。リミット時は Gemini 3 Flash Preview → qwen）
+  - 明示CLI（Claude; 既定）: `./ops claude script -- --channel CHxx --video NNN --run`（Blueprint必須。sonnet 4.5。opusは **オーナー指示 + `YTM_ALLOW_CLAUDE_OPUS=1` の明示実行のみ**。リミット時は Gemini 3 Flash Preview → qwen）
   - 明示CLI（Gemini; フォールバック）: `./ops gemini script -- --channel CHxx --video NNN --run --gemini-model gemini-3-flash-preview`
   - 明示CLI（Qwen; 最終フォールバック）: `./ops qwen script -- --channel CHxx --video NNN --run`（**qwen-oauth固定**。`--auth-type`/`--model/-m` 禁止）
 - 音声（TTS / 推論=対話型AIエージェント / 読みLLM無効）: `./ops audio -- --channel CHxx --video NNN`（`SKIP_TTS_READING=1` が既定）
