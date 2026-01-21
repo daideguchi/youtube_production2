@@ -306,6 +306,21 @@ def _looks_like_meta_output(text: str) -> bool:
         return True
     if "<<<" in s or ">>>" in s:
         return True
+    # Tool / filesystem leakage (e.g., `wc -m file` output) or absolute paths.
+    if "/Users/" in s or "/home/" in s or "workspaces/_scratch/" in s:
+        return True
+    if re.search(r"(?m)^\s*\d+\s+/(?:Users|home|var)/\S+", s):
+        return True
+
+    # English/meta chatter: reject common assistant-style prefaces.
+    if re.search(r"(?im)^\s*i['’](?:m|ve|ll)\b", s):
+        return True
+    if re.search(r"(?im)^\s*i\s+(?:need|want|will|have|am|can|should|must)\b", s):
+        return True
+    if re.search(r"(?im)^\s*let\s+me\b", s):
+        return True
+    if re.search(r"(?im)^\s*as\s+an\s+ai\b", s):
+        return True
     if re.search(r"^\s*#{1,6}\s+\S", s, flags=re.MULTILINE):
         return True
     if re.search(r"^\s*(?:[-*•]|・)\s+", s, flags=re.MULTILINE):
