@@ -46,8 +46,9 @@ from script_pipeline.tools.channel_registry import find_channel_dir  # noqa: E40
 
 
 # NOTE: This tool is for polishing A-text for narration.
-# We keep the sleep-framing guard intentionally strict to avoid "sleepy ambience" contamination.
-_SLEEP_MARKERS_STRICT = ("おやすみ", "寝落ち", "睡眠用", "安眠", "布団", "眠れ", "眠")
+# We keep the sleep-framing guard strict, but avoid single-kanji bans (e.g. "眠") to prevent
+# false positives like "不眠" that are not "sleepy ambience" framing.
+_SLEEP_MARKERS_STRICT = ("おやすみ", "寝落ち", "睡眠用", "安眠", "布団", "眠れ")
 _TIMEJUMP_MARKERS = ("次の日", "翌日", "翌朝", "数日後", "数週間後", "数ヶ月後", "数年後", "翌週", "翌月", "来週", "来月")
 
 
