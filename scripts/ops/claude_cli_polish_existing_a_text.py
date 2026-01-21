@@ -521,6 +521,14 @@ def _find_claude_bin(explicit: str | None) -> str:
     raise SystemExit("claude CLI not found. Install `claude` and ensure it is on PATH.")
 
 
+def _coerce_text(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
+
+
 def _run_claude_cli(*, claude_bin: str, prompt: str, model: str, timeout_sec: int) -> tuple[int, str, str, float]:
     cmd: List[str] = [
         claude_bin,
@@ -548,16 +556,18 @@ def _run_claude_cli(*, claude_bin: str, prompt: str, model: str, timeout_sec: in
             cmd,
             input=str(prompt),
             text=True,
+            encoding="utf-8",
+            errors="replace",
             capture_output=True,
             cwd=str(_scratch_dir()),
             env=env,
             timeout=max(1, int(timeout_sec)),
         )
         elapsed = time.time() - start
-        return int(proc.returncode), str(proc.stdout or ""), str(proc.stderr or ""), float(elapsed)
+        return int(proc.returncode), _coerce_text(proc.stdout), _coerce_text(proc.stderr), float(elapsed)
     except subprocess.TimeoutExpired as e:
         elapsed = time.time() - start
-        return 124, str(getattr(e, "stdout", "") or ""), str(getattr(e, "stderr", "") or ""), float(elapsed)
+        return 124, _coerce_text(getattr(e, "stdout", "")), _coerce_text(getattr(e, "stderr", "")), float(elapsed)
 
 
 def _find_gemini_bin(explicit: str | None) -> str:
@@ -597,16 +607,18 @@ def _run_gemini_cli(
             cmd,
             input=str(prompt),
             text=True,
+            encoding="utf-8",
+            errors="replace",
             capture_output=True,
             cwd=str(_scratch_dir()),
             env=env,
             timeout=max(1, int(timeout_sec)),
         )
         elapsed = time.time() - start
-        return int(proc.returncode), str(proc.stdout or ""), str(proc.stderr or ""), float(elapsed)
+        return int(proc.returncode), _coerce_text(proc.stdout), _coerce_text(proc.stderr), float(elapsed)
     except subprocess.TimeoutExpired as e:
         elapsed = time.time() - start
-        return 124, str(getattr(e, "stdout", "") or ""), str(getattr(e, "stderr", "") or ""), float(elapsed)
+        return 124, _coerce_text(getattr(e, "stdout", "")), _coerce_text(getattr(e, "stderr", "")), float(elapsed)
 
 
 def _run_external_cli(
