@@ -63,6 +63,11 @@ through:
   reading_hira: ヨフカシ
   reading_kana: ヨフカシ
   source: manual
+雪深い:
+  accent_moras: null
+  reading_hira: ユキブカイ
+  reading_kana: ユキブカイ
+  source: manual
 大間違い:
   accent_moras: null
   reading_hira: オオマチガイ
@@ -77,6 +82,16 @@ through:
   accent_moras: null
   reading_hira: タネマキガ
   reading_kana: タネマキガ
+  source: manual
+仕事人:
+  accent_moras: null
+  reading_hira: シゴトニン
+  reading_kana: シゴトニン
+  source: manual
+払お:
+  accent_moras: null
+  reading_hira: ハラオ
+  reading_kana: ハラオ
   source: manual
 焦る:
   accent_moras: null

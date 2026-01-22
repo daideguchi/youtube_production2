@@ -2462,6 +2462,13 @@ def _patch_tokens_with_words(
             i += 1
             continue
 
+        # - 金: VOICEVOX が「キン」側へ寄ることがあるため、通常の金銭用法では「カネ」を確定。
+        #   例: 金を手にする / 金がない / 帰る金もない
+        if surface == "金" and next_surface in {"が", "を", "に", "へ", "で", "は", "も", "、", "。", "だ", "です", "だった", "でした"}:
+            parts.append("カネ")
+            i += 1
+            continue
+
         # - 蓮: MeCab が「ハチス」側になるため、B側で「はす」を確定。
         if surface == "蓮" and reading_mecab == "ハチス":
             parts.append("ハス")
@@ -3104,6 +3111,23 @@ def _patch_tokens_with_words(
         # 「今日中（きょうじゅう）」は「キョウチュウ」になりがちなのでB側で確定。
         if surface == "中" and prev_surface == "今日":
             parts.append("ジュウ")
+            i += 1
+            continue
+        # 「Xの中」は位置の意味では「ナカ」が自然（MeCab/VOICEVOXの揺れを抑える）。
+        if surface == "中" and prev_surface in {"の", "ノ"} and next_surface in {
+            "で",
+            "に",
+            "へ",
+            "を",
+            "から",
+            "まで",
+            "が",
+            "は",
+            "も",
+            "、",
+            "。",
+        }:
+            parts.append("ナカ")
             i += 1
             continue
         # 「いい人」は VOICEVOX が「イイジン」側に寄ることがあるため、語として確定。

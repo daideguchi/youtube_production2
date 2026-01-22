@@ -475,9 +475,83 @@ def _ensure_bgm_covers_duration(draft_dir: Path, logger: logging.Logger) -> None
     except Exception:
         draft_duration_us = 0
 
-    target_us = max(voice_end_us, draft_duration_us)
+    duration_changed = False
+    if voice_end_us > 0:
+        # Prefer the voiceover end over the template draft duration.
+        # Keeping the template duration causes unwanted trailing timeline (often just BGM).
+        target_us = int(voice_end_us)
+        if draft_duration_us != target_us:
+            data["duration"] = target_us
+            duration_changed = True
+    else:
+        target_us = int(draft_duration_us)
+
     if target_us <= 0:
         return
+
+    def _range_end_us(seg: dict) -> int:
+        tt = seg.get("target_timerange")
+        if not isinstance(tt, dict):
+            return 0
+        start = int(tt.get("start") or 0)
+        dur = int(tt.get("duration") or 0)
+        return start + dur
+
+    def _trim_audio_track_to_target(track: dict) -> bool:
+        """
+        Trim a non-voice audio track so no segment ends after target_us.
+        Returns True if any modification was made.
+        """
+        segs = [s for s in (track.get("segments") or []) if isinstance(s, dict)]
+        if not segs:
+            return False
+
+        segs.sort(key=lambda s: int((s.get("target_timerange") or {}).get("start") or 0))
+        changed = False
+        out: list[dict] = []
+        for seg in segs:
+            tt = seg.get("target_timerange")
+            if not isinstance(tt, dict):
+                out.append(seg)
+                continue
+            start = int(tt.get("start") or 0)
+            dur = int(tt.get("duration") or 0)
+            if dur <= 0:
+                continue
+            if start >= target_us:
+                changed = True
+                break
+            end = start + dur
+            if end > target_us:
+                new_dur = max(0, target_us - start)
+                if new_dur <= 0:
+                    changed = True
+                    break
+                if new_dur != dur:
+                    tt["duration"] = int(new_dur)
+                    st = seg.get("source_timerange")
+                    if isinstance(st, dict):
+                        st["duration"] = int(new_dur)
+                    changed = True
+                out.append(seg)
+                break
+            out.append(seg)
+
+        if changed:
+            track["segments"] = out
+        return changed
+
+    # Trim ALL non-voice audio tracks to the target duration.
+    changed_any = duration_changed
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        if tr.get("type") != "audio":
+            continue
+        if str(tr.get("name") or "") == "voiceover":
+            continue
+        if _trim_audio_track_to_target(tr):
+            changed_any = True
 
     # Pick BGM track.
     bgm_track = None
@@ -508,8 +582,6 @@ def _ensure_bgm_covers_duration(draft_dir: Path, logger: logging.Logger) -> None
     # Normalize ordering and compute current end.
     segments.sort(key=lambda s: int((s.get("target_timerange") or {}).get("start") or 0))
     current_end = max((_range_end_us(s) for s in segments), default=0)
-    if current_end >= target_us:
-        return
 
     pattern = segments[:]  # reuse template repetition pattern
     if not pattern:
@@ -557,8 +629,11 @@ def _ensure_bgm_covers_duration(draft_dir: Path, logger: logging.Logger) -> None
 
     if appended:
         bgm_track["segments"] = segments
-        content_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         logger.info("🔊 Extended BGM to %.1fmin (+%d segments)", target_us / 1_000_000 / 60.0, appended)
+        changed_any = True
+
+    if changed_any:
+        content_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def pre_flight_check(args, logger: logging.Logger) -> list[str]:
@@ -2014,10 +2089,18 @@ def apply_belt_config(belt_data, opening_offset, draft_dir, logger, title=None, 
 
         SEC = 1_000_000
         opening_offset_us = int(opening_offset * SEC)
-        total_duration_sec = belt_data.get('total_duration')
-        if total_duration_sec is None:
-            total_duration_sec = (content_data.get('duration', 0) / SEC)
-        total_duration_us = int(total_duration_sec * SEC)
+        # Prefer the actual draft duration (derived from inserted tracks) over belt_config.total_duration,
+        # which may be stale after audio/cues retiming.
+        try:
+            total_duration_sec = float(content_data.get('duration', 0) or 0) / SEC
+        except Exception:
+            total_duration_sec = 0.0
+        if not total_duration_sec:
+            try:
+                total_duration_sec = float(belt_data.get('total_duration') or 0.0)
+            except Exception:
+                total_duration_sec = 0.0
+        total_duration_us = int(float(total_duration_sec) * SEC)
 
         # belt_dataの構造を処理（ベルトなしは安全にスキップ）
         belts_raw = belt_data.get('belts')
@@ -2725,6 +2808,67 @@ def _purge_stale_managed_tracks_in_template_copy(draft_dir: Path, logger: loggin
         logger.info(f"🧼 Removed stale managed tracks from template copy: {pretty}")
 
 
+def _purge_belt_tracks_in_template_copy(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    When a channel preset disables belt, ensure the duplicated template copy does not keep
+    any belt-related text tracks (otherwise template default belt text can leak into output).
+
+    Operates on both draft_content.json and draft_info.json *before* pyJianYingDraft loads the draft.
+    """
+    removed: list[tuple[str, str, int]] = []
+
+    def _get_tracks_ref(data: dict) -> tuple[list, callable] | None:
+        if isinstance(data.get("tracks"), list):
+            return data["tracks"], lambda v: data.__setitem__("tracks", v)
+        if isinstance(data.get("script"), dict) and isinstance(data["script"].get("tracks"), list):
+            return data["script"]["tracks"], lambda v: data["script"].__setitem__("tracks", v)
+        return None
+
+    for fname in ("draft_content.json", "draft_info.json"):
+        path = draft_dir / fname
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        ref = _get_tracks_ref(data) if isinstance(data, dict) else None
+        if not ref:
+            continue
+        tracks, set_tracks = ref
+        if not isinstance(tracks, list):
+            continue
+
+        kept: list = []
+        changed = False
+        for tr in tracks:
+            if not isinstance(tr, dict):
+                kept.append(tr)
+                continue
+            name = (tr.get("name") or "").strip()
+            ttype = (tr.get("type") or "").strip()
+            segs = tr.get("segments") or []
+            seg_count = len(segs) if isinstance(segs, list) else 0
+
+            if ttype == "text" and name.startswith("belt"):
+                removed.append((fname, name, seg_count))
+                changed = True
+                continue
+            kept.append(tr)
+
+        if not changed:
+            continue
+        set_tracks(kept)
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if removed:
+        pretty = ", ".join(
+            f"{fname}:{name}({cnt})" for fname, name, cnt in sorted(removed, key=lambda x: (x[0], x[1]))
+        )
+        logger.info("🧹 Belt disabled: removed belt tracks from template copy: %s", pretty)
+
+
 def _post_flight_validate_draft(
     draft_dir: Path,
     *,
@@ -3000,6 +3144,15 @@ def main():
         if not channel_id:
             channel_id = preset.channel_id
 
+    belt_enabled = True
+    try:
+        if preset and getattr(preset, "config_model", None) and getattr(preset.config_model, "belt", None):
+            belt_enabled = bool(getattr(preset.config_model.belt, "enabled", True))
+        elif preset and isinstance(getattr(preset, "belt", None), dict):
+            belt_enabled = bool((preset.belt or {}).get("enabled", True))
+    except Exception:
+        belt_enabled = True
+
     # ----------------------------------------
     # Auto draft naming from channel CSV
     # ----------------------------------------
@@ -3119,6 +3272,8 @@ def main():
     # (If we purge after load, in-memory script.content will overwrite the JSON back.)
     _purge_generic_template_placeholders(draft_dir, logger, keep_track_names=keep_generic_text_tracks)
     _purge_stale_managed_tracks_in_template_copy(draft_dir, logger)
+    if not belt_enabled:
+        _purge_belt_tracks_in_template_copy(draft_dir, logger)
     _localize_external_audio_assets(draft_dir, logger)
 
     script = df.load_template(args.new)
@@ -3126,7 +3281,7 @@ def main():
     assets_dir.mkdir(parents=True, exist_ok=True)
 
     # If no belt_config is provided, set belt text to title as a fallback
-    if not args.belt_config and args.title:
+    if belt_enabled and (not args.belt_config) and args.title:
         _fallback_set_main_belt_title(draft_dir, args.title)
 
     # Shift existing template segments to honor opening_offset (e.g., CH01 first 3s blank)
@@ -3769,6 +3924,16 @@ def main():
     # Merge can re-introduce template carryover duplicates (notably BGM tracks).
     _dedupe_tracks_and_materials(draft_dir)
     _ensure_bgm_covers_duration(draft_dir, logger)
+
+    # Keep template effect tracks (if any) spanning the full draft duration even when belt is disabled.
+    try:
+        total_end_us = max((int(s) + int(d) for (s, d) in schedule), default=0)
+        total_duration_sec = float(total_end_us) / 1_000_000.0
+    except Exception:
+        total_duration_sec = 0.0
+    if total_duration_sec > 0:
+        adjust_effect_duration(None, total_duration_sec, draft_dir, logger)
+
     print(f"Inserted {len(cues)} images into draft: {args.new}\nLocation: {args.draft_root}/{args.new}")
 
     # ========================================
@@ -3804,7 +3969,7 @@ def main():
     # It must be defined even when --belt-config is not provided.
     layout_cfg = preset.config_model.layout if preset and preset.config_model else None
 
-    if args.belt_config:
+    if belt_enabled and args.belt_config:
         try:
             import json as _json
             belt_config_path = Path(args.belt_config)
@@ -3827,7 +3992,13 @@ def main():
 
                 # ステップ2: エフェクトのエンド位置調整
                 logger.info("✨ エフェクト終了位置を調整...")
-                total_duration_sec = belt_data.get('total_duration') or 0.0
+                # Do not trust belt_config.total_duration here; it can be stale after retiming.
+                # Use the cues-derived schedule end (already includes opening_offset).
+                try:
+                    total_end_us = max((int(s) + int(d) for (s, d) in schedule), default=0)
+                    total_duration_sec = float(total_end_us) / 1_000_000.0
+                except Exception:
+                    total_duration_sec = 0.0
                 adjust_effect_duration(None, total_duration_sec, draft_dir, logger)
 
                 # 再度同期（ポストプロセッシング後）

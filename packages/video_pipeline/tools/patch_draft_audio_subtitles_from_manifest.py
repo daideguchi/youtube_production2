@@ -22,6 +22,7 @@ import os
 import shutil
 import wave
 import warnings
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -64,6 +65,65 @@ SEC = 1_000_000
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _now_tag() -> str:
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
+def _ensure_segments_have_render_index(draft_dir: Path) -> None:
+    """
+    pyJianYingDraft template loader expects each track segment to have a
+    'render_index' field. Some real-world drafts omit it, causing KeyError
+    during load.
+
+    Patch draft_content.json in-place to add a stable fallback render_index for
+    any segment missing it. Idempotent (once fixed, no further changes).
+    """
+    content_path = draft_dir / "draft_content.json"
+    if not content_path.exists():
+        return
+
+    try:
+        content = _read_json(content_path)
+    except Exception:
+        return
+
+    tracks = content.get("tracks")
+    if not isinstance(tracks, list):
+        return
+
+    changed = False
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        segs = tr.get("segments")
+        if not isinstance(segs, list):
+            continue
+
+        tr_idx = tr.get("absolute_index") or tr.get("render_index") or tr.get("z_index") or 0
+        try:
+            tr_idx_int = int(tr_idx)
+        except Exception:
+            tr_idx_int = 0
+
+        for seg in segs:
+            if not isinstance(seg, dict):
+                continue
+            if "render_index" not in seg:
+                seg["render_index"] = tr_idx_int
+                changed = True
+
+    if not changed:
+        return
+
+    try:
+        backup_path = draft_dir / f"draft_content.json.bak_render_index_{_now_tag()}"
+        shutil.copy2(content_path, backup_path)
+    except Exception:
+        pass
+
+    content_path.write_text(json.dumps(content, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 
 def _ensure_valid_draft_content_json(draft_dir: Path) -> None:
@@ -153,6 +213,7 @@ def _ensure_unique_track_names(draft_dir: Path, channel: str) -> None:
     We pre-normalize the template tracks to unique, stable names in BOTH draft_info/content.
     """
     _ensure_valid_draft_content_json(draft_dir)
+    _ensure_segments_have_render_index(draft_dir)
     info_path = draft_dir / "draft_info.json"
     content_path = draft_dir / "draft_content.json"
     if not info_path.exists() or not content_path.exists():

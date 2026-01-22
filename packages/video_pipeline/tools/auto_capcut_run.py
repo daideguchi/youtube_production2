@@ -779,6 +779,7 @@ def main():
     # Load preset for opening_offset (and potential future defaults)
     preset = load_channel_preset(args.channel) or {}
     belt_cfg = preset.get("belt", {}) if isinstance(preset, dict) else {}
+    belt_enabled = bool(belt_cfg.get("enabled", True)) if isinstance(belt_cfg, dict) else True
     opening_offset = float(belt_cfg.get("opening_offset", 0.0))
     template_override = args.template or preset.get("capcut_template") or ""
     prompt_template_override = args.prompt_template or preset.get("prompt_template") or ""
@@ -1052,7 +1053,15 @@ def main():
     # 2) belt_config generation (optional)
     labels = args.labels or preset.get("belt_labels") or ""
 
-    resolved_belt_mode = args.belt_mode
+    resolved_belt_mode = "disabled" if (not belt_enabled) else args.belt_mode
+    if not belt_enabled:
+        # Belt disabled for this channel: ensure no stale belt_config.json is carried into draft insertion.
+        try:
+            bp = run_dir / "belt_config.json"
+            if bp.exists():
+                bp.unlink()
+        except Exception:
+            pass
     if resolved_belt_mode == "auto":
         belt_cfg = preset.get("belt", {}) or {}
         requires_cfg = bool(belt_cfg.get("requires_config", False))
@@ -1079,7 +1088,9 @@ def main():
     def build_equal():
         make_equal_split_belt(run_dir, labels, opening_offset=opening_offset)
 
-    if resolved_belt_mode == "existing":
+    if resolved_belt_mode == "disabled":
+        pass
+    elif resolved_belt_mode == "existing":
         if not (run_dir / "belt_config.json").exists():
             # Deterministic fallback: if the user provided --title, generate a simple
             # one-shot lower belt that spans the whole video (no LLM, no labels).
@@ -1268,7 +1279,7 @@ def main():
 
     # Ensure belt_config (if exists) carries the effective title as main belt
     belt_path = run_dir / "belt_config.json"
-    if belt_path.exists():
+    if belt_enabled and belt_path.exists():
         try:
             belt_data = json.loads(belt_path.read_text(encoding="utf-8"))
             if isinstance(belt_data, dict):
@@ -1286,7 +1297,7 @@ def main():
     scale = str(pos.get("scale", args.scale))
 
     belt_arg = []
-    if belt_path.exists():
+    if belt_enabled and belt_path.exists():
         belt_arg = ["--belt-config", str(belt_path)]
 
     draft_cmd = [

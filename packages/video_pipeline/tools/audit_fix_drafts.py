@@ -743,13 +743,60 @@ def refine_run_refined_prompts_gemini(
                 avoid_props=str(avoid_props or ""),
             )
         except Exception as e:
-            # Gemini CLI sometimes truncates JSON for large chunks; fall back to smaller batches.
-            if len(chunk) <= 1:
-                raise
+            # Gemini CLI can fail transiently (capacity, auth browser hang) or return truncated JSON.
+            # Never abort the whole run: split to smaller chunks, and finally fall back to a deterministic
+            # prompt per cue when Gemini is unavailable.
             msg = str(e)
-            retryable = isinstance(e, subprocess.TimeoutExpired) or ("invalid json output" in msg.lower())
-            if not retryable:
+            msg_lower = msg.lower()
+
+            is_gemini_error = "gemini cli" in msg_lower or "modelnotfounderror" in msg_lower
+            retryable = (
+                isinstance(e, subprocess.TimeoutExpired)
+                or ("invalid json output" in msg_lower)
+                or ("authentication timed out" in msg_lower)
+                or ("no capacity available" in msg_lower)
+                or ("resource_exhausted" in msg_lower)
+                or ("rate limit" in msg_lower)
+                or ("ratelimitexceeded" in msg_lower)
+                or (" 429" in msg_lower)
+                or ("status 429" in msg_lower)
+            )
+
+            if len(chunk) <= 1:
+                cue = chunk[0] if chunk else None
+                try:
+                    idx = int((cue or {}).get("index") or 0) if isinstance(cue, dict) else 0
+                except Exception:
+                    idx = 0
+                if not isinstance(cue, dict) or idx <= 0:
+                    return {}
+                fb = _fallback_refined_prompt_from_cue(cue=cue, refined_max_chars=int(refined_max_chars) or 240)
+                print(f"  refined_prompts_gemini fallback_local index={idx}")
+                return {idx: fb} if fb else {}
+
+            if not is_gemini_error:
                 raise
+
+            if not retryable:
+                # Unexpected Gemini CLI failure; fall back to per-cue deterministic prompts.
+                out2: Dict[int, str] = {}
+                for cue in chunk:
+                    if not isinstance(cue, dict) or cue.get("asset_relpath"):
+                        continue
+                    try:
+                        idx = int(cue.get("index") or 0)
+                    except Exception:
+                        continue
+                    if idx <= 0:
+                        continue
+                    fb = _fallback_refined_prompt_from_cue(
+                        cue=cue, refined_max_chars=int(refined_max_chars) or 240
+                    )
+                    if fb:
+                        out2[idx] = fb
+                print(f"  refined_prompts_gemini fallback_local count={len(out2)} (gemini_unavailable)")
+                return out2
+
             mid = max(1, len(chunk) // 2)
             out: Dict[int, str] = {}
             out.update(_refine_chunk_with_fallback(chunk[:mid]))

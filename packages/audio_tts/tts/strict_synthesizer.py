@@ -327,6 +327,9 @@ def generate_srt(
     # CH04: 目安 27字/行（読点で改行しやすくする）
     if ch == "CH04":
         default_srt_max_chars = 27
+    # CH09: 1行16字まで（2行まで）を厳守するため、cue分割も短めに寄せる。
+    if ch == "CH09":
+        default_srt_max_chars = 16
 
     srt_max_chars = max(12, _env_int("SRT_CUE_MAX_CHARS", default_srt_max_chars))
     srt_min_cue_sec = max(0.0, _env_float("SRT_CUE_MIN_SEC", 0.8))
@@ -668,7 +671,32 @@ def generate_srt(
         from audio_tts.tts.llm_adapter import format_srt_lines  # type: ignore
 
         target_len = 27 if ch == "CH04" else 24
-        cue_entries = format_srt_lines(cue_entries, model="", api_key="", target_len=target_len)
+        if ch == "CH09":
+            target_len = 16
+
+        # Enforce strict channel contracts (avoid accidental env overrides).
+        env_overrides: dict[str, str] = {}
+        if ch == "CH09":
+            env_overrides = {
+                "SRT_LINEBREAK_MAX_LINES": "2",
+                "SRT_LINEBREAK_MAX_CHARS_PER_LINE": str(target_len),
+                "SRT_LINEBREAK_OVERFLOW_CHARS": "0",
+                "SRT_LINEBREAK_MODE": "heuristic",
+            }
+
+        if env_overrides:
+            saved = {k: os.environ.get(k) for k in env_overrides}
+            os.environ.update(env_overrides)
+            try:
+                cue_entries = format_srt_lines(cue_entries, model="", api_key="", target_len=target_len)
+            finally:
+                for k, v in saved.items():
+                    if v is None:
+                        os.environ.pop(k, None)
+                    else:
+                        os.environ[k] = v
+        else:
+            cue_entries = format_srt_lines(cue_entries, model="", api_key="", target_len=target_len)
     except Exception as e:
         print(f"[SRT] linebreak formatter failed (pass-through): {e}")
 

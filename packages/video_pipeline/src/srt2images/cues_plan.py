@@ -384,6 +384,15 @@ def plan_sections_via_router(
             "- Do NOT default to sitting/meditation poses unless explicitly described; prefer standing/walking/handling simple props.\n"
         )
 
+    extra_ch13 = ""
+    if (channel_id or "").upper() == "CH13":
+        extra_ch13 = (
+            "\n"
+            "- CRITICAL FOR CH13: Prefer concrete modern Japanese daily-life relationship scenes grounded in THIS section (couple/family/neighbor, home interiors, phone calls, small everyday moments).\n"
+            "- If the script uses metaphors (e.g., 'unpaid bills'), translate them into a realistic, camera-ready scene with real props and actions (no surreal inner-body visuals).\n"
+            "- Avoid abstract-art / symbolism-only single-object shots; always include a setting and an action.\n"
+        )
+
     style_block = f"\nChannel style hints:\n{style_hint}\n" if style_hint.strip() else ""
 
     monk_policy = (
@@ -412,6 +421,7 @@ Each section must:
 {extra_rapid}
 {extra_slow}
 {extra_buddhist}
+{extra_ch13}
 Return ONLY a JSON object (no markdown) with this schema:
 {{"sections":[[start_segment,end_segment,summary,visual_focus,emotional_tone,persona_needed,role_tag,section_type,refined_prompt],...]}}
 

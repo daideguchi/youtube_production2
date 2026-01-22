@@ -1791,11 +1791,18 @@ class FireworksImageAdapter:
                     detail = (resp.text or "").strip()
                 msg = f"Fireworks Kontext get_result error {resp.status_code}: {detail}"
                 if resp.status_code == 429:
-                    raise ImageProviderRateLimitError(
-                        msg,
-                        provider="fireworks",
-                        status_code=int(resp.status_code),
-                    )
+                    # Rate limit while polling is usually transient; we already have a request_id,
+                    # so back off and keep waiting instead of failing the whole generation.
+                    last_detail = detail
+                    retry_after = resp.headers.get("Retry-After")
+                    try:
+                        retry_after_sec = float(retry_after) if retry_after else 0.0
+                    except Exception:
+                        retry_after_sec = 0.0
+                    backoff = max(delay, retry_after_sec, 2.0)
+                    time.sleep(backoff)
+                    delay = min(10.0, max(delay * 1.35, backoff))
+                    continue
                 raise ImageGenerationError(msg)
 
             try:

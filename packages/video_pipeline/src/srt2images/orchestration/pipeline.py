@@ -149,7 +149,8 @@ def run_pipeline(args):
     if channel_upper == "CH02":
         use_cues_plan = True
     # CH12: slower pacing (~25s per image) is required; prefer deterministic cues_plan.
-    if channel_upper == "CH12":
+    # CH13: user requirement is concrete, section-faithful scene prompts (avoid abstract/cliché filler).
+    if channel_upper in {"CH12", "CH13"}:
         use_cues_plan = True
         # NOTE: cues_plan is always driven by `visual_image_cues_plan` (API or THINK/AGENT pending).
 

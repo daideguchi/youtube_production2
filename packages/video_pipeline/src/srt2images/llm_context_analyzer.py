@@ -419,6 +419,7 @@ Script excerpts:
         extra_rapid = ""
         extra_ch02 = ""
         extra_ch12 = ""
+        extra_ch13 = ""
         extra_ch22_23 = ""
         # Default pacing: tie to desired average seconds (derived from target_sections/base_period).
         section_seconds_hint = "10–15"
@@ -462,6 +463,13 @@ Script excerpts:
                 "- **CRITICAL FOR CH12:** Use a calmer visual pace (aim ~25s per image). Prefer fewer, longer shots that sustain mood.\n"
                 "- Avoid rapid-fire micro cuts unless there is a clear scene change or a hard list.\n"
             )
+        elif (self.channel_id or "").upper() == "CH13":
+            extra_ch13 = (
+                "\n"
+                "- **CRITICAL FOR CH13:** Prefer concrete modern Japanese daily-life relationship scenes grounded in THIS section (couple/family/neighbor, home interiors, phone calls, small everyday moments).\n"
+                "- Avoid abstract-art / symbolism-only single-object shots; if the script uses metaphors, translate them into real props/actions in a realistic scene.\n"
+                "- `visual_focus` should be concrete and camera-ready (action + setting/props), not a vague concept.\n"
+            )
         elif (self.channel_id or "").upper() == "CH22":
             # CH22: user requirement is 30–40s per image for CapCut pacing.
             section_seconds_hint = "30–40"
@@ -491,7 +499,7 @@ Each section must:
   • Run roughly {section_seconds_hint} seconds (never longer than {force_split_seconds} seconds).
   • Capture a single idea the viewer should picture (example, anecdote, list item, metaphor, scene change, or emotional beat).
   • Be easy to illustrate without text, describing concrete subjects, objects, settings whenever possible (people only when the script requires it).
-{extra_rapid}{extra_ch02}{extra_ch12}{extra_ch22_23}
+{extra_rapid}{extra_ch02}{extra_ch12}{extra_ch13}{extra_ch22_23}
 
 Use the [index@timestamp] markers to reference SRT segments.
 
