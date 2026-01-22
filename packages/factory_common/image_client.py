@@ -1864,14 +1864,17 @@ class FireworksImageAdapter:
                 "Fireworks error 401:",
                 "Fireworks error 402:",
                 "Fireworks error 403:",
+                "Fireworks error 429:",
                 "Fireworks error 412:",
                 "Fireworks Kontext error 401:",
                 "Fireworks Kontext error 402:",
                 "Fireworks Kontext error 403:",
+                "Fireworks Kontext error 429:",
                 "Fireworks Kontext error 412:",
                 "Fireworks Kontext get_result error 401:",
                 "Fireworks Kontext get_result error 402:",
                 "Fireworks Kontext get_result error 403:",
+                "Fireworks Kontext get_result error 429:",
                 "Fireworks Kontext get_result error 412:",
             ]
             return any(n in msg for n in needles)
@@ -2117,9 +2120,11 @@ class FireworksImageAdapter:
             self.api_key_fallback = None
             try:
                 return _run_with_current_key()
-            except ImageProviderRateLimitError:
-                # Treat rate limit as provider-level; let caller handle cooldown and model fallback.
-                raise
+            except ImageProviderRateLimitError as exc:
+                # Fireworks pooled keys: 429 is often key-scoped. Try another leased key before
+                # escalating to provider-level cooldown handling.
+                last_exc = exc
+                continue
             except Exception as exc:  # noqa: BLE001
                 last_exc = exc if isinstance(exc, Exception) else Exception(str(exc))
                 if _is_key_scoped_error(last_exc):
@@ -2134,6 +2139,8 @@ class FireworksImageAdapter:
                     pass
 
         if last_exc is not None:
+            if isinstance(last_exc, ImageProviderRateLimitError):
+                raise last_exc
             raise ImageGenerationError(
                 f"Fireworks image key rotation exhausted after {key_attempts} attempts: {last_exc}"
             ) from last_exc
