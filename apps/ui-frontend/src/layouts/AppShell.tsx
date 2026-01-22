@@ -52,6 +52,7 @@ import "./audio-clean.css";
 import "./thumbnail-clean.css";
 import "./remotion-clean.css";
 import "./shell-layout-fixes.css";
+import "./shell-mobile-nav.css";
 
 export type ReadyFilter = "all" | "ready" | "not_ready";
 
@@ -503,6 +504,14 @@ export function AppShell() {
   const [searchParams, setSearchParams] = useSearchParams();
   const view = useMemo(() => determineView(location.pathname), [location.pathname]);
 
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return false;
+    }
+    return window.matchMedia("(max-width: 960px)").matches;
+  });
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   const [meta, setMeta] = useState<MetaResponse | null>(null);
 
   const [channels, setChannels] = useState<ChannelSummary[]>([]);
@@ -602,6 +611,51 @@ export function AppShell() {
   const routeChannelCode =
     channelVideoMatch?.params.channelCode ?? channelPortalMatch?.params.channelCode ?? channelMatch?.params.channelCode ?? null;
   const routeVideoNumber = channelVideoMatch?.params.video ?? null;
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return;
+    }
+    const mql = window.matchMedia("(max-width: 960px)");
+    const handleChange = () => setIsMobile(mql.matches);
+    handleChange();
+
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", handleChange);
+      return () => mql.removeEventListener("change", handleChange);
+    }
+
+    mql.addListener(handleChange);
+    return () => mql.removeListener(handleChange);
+  }, []);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [isMobile, location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!isMobile || !mobileNavOpen || typeof window === "undefined") {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobile, mobileNavOpen]);
+
+  useEffect(() => {
+    if (!isMobile || typeof document === "undefined") {
+      return;
+    }
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = mobileNavOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isMobile, mobileNavOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1438,6 +1492,7 @@ export function AppShell() {
       {
         title: "編集/品質",
         items: [
+          { key: "hqPortal", label: "HQポータル", icon: "🧭", path: "/hq" },
           { key: "dashboard", label: "ダッシュボード", icon: "📊", path: "/dashboard" },
           { key: "publishingProgress", label: "投稿進捗", icon: "📅", path: "/publishing-progress" },
           { key: "channelWorkspace", label: "台本・音声字幕管理", icon: "🎛️", path: "/channel-workspace" },
@@ -1511,14 +1566,68 @@ export function AppShell() {
     return parts[parts.length - 1] ?? null;
   }, [meta]);
 
+  const toggleMobileNav = useCallback(() => {
+    setMobileNavOpen((prev) => !prev);
+  }, []);
+
+  const sidebarClassName = useMemo(() => {
+    if (!isMobile) {
+      return "shell-sidebar";
+    }
+    const base = "shell-sidebar shell-sidebar--drawer";
+    return mobileNavOpen ? `${base} shell-sidebar--drawer-open` : base;
+  }, [isMobile, mobileNavOpen]);
+
   return (
     <div className="app-shell">
       <div className={workspaceClass}>
+        {isMobile ? (
+          <header className="shell-mobile-header">
+            <button
+              type="button"
+              className="shell-mobile-header__menu"
+              onClick={toggleMobileNav}
+              aria-label={mobileNavOpen ? "メニューを閉じる" : "メニューを開く"}
+              aria-haspopup="dialog"
+            >
+              ☰
+            </button>
+            <div className="shell-mobile-header__title">
+              <div className="shell-mobile-header__brand">AI 制作スタジオ</div>
+              <div className="shell-mobile-header__meta">
+                {selectedChannel ? selectedChannel : "未選択"}
+                {selectedVideo ? ` · ${selectedVideo}` : ""}
+              </div>
+            </div>
+            <button
+              type="button"
+              className="shell-mobile-header__home"
+              onClick={() => navigate("/dashboard")}
+              aria-label="ダッシュボードへ"
+            >
+              🏠
+            </button>
+          </header>
+        ) : null}
+
+        {isMobile && mobileNavOpen ? (
+          <button
+            type="button"
+            className="shell-mobile-backdrop"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label="メニューを閉じる"
+          />
+        ) : null}
+
         <AppSidebar
           navSections={navSections}
           pathname={location.pathname}
           buildLabel={buildLabel}
           repoLabel={repoLabel}
+          className={sidebarClassName}
+          showCloseButton={isMobile}
+          onClose={() => setMobileNavOpen(false)}
+          onNavigate={() => setMobileNavOpen(false)}
         />
 
         <main className="workspace__main">

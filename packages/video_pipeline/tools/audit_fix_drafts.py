@@ -2005,9 +2005,9 @@ def _run_regen(
         "--timeout-sec",
         "240",
     ]
-    # Fireworks FLUX schnell is not batchable; use direct mode explicitly.
+    # Fireworks FLUX is not batchable (Gemini-only); use direct mode explicitly.
     mk = str(model_key or "").strip().lower()
-    if mk in {"f-1", "fireworks_flux_1_schnell_fp8", "flux-1-schnell-fp8"} or "schnell" in mk:
+    if mk.startswith("f-") or "fireworks" in mk or "flux" in mk:
         cmd += ["--nanobanana", "direct"]
     # Disk safety:
     # - --overwrite regenerates in-place (for full-run overwrites, regenerate_images_from_cues may take a full backup).

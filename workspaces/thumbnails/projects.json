@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-01-14T23:05:03.124660+00:00",
+  "updated_at": "2026-01-22T14:31:22.897059+00:00",
   "projects": [
     {
       "channel": "CH01",
@@ -2886,6 +2886,15 @@
       "video": "001",
       "variants": [
         {
+          "id": "fs::ch26_001_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/001/00_thumb_3.png",
+          "image_path": "CH26/001/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:21.144841+00:00",
+          "updated_at": "2026-01-22T14:13:36.814261+00:00"
+        },
+        {
           "id": "fs::ch26_001_00_thumb_sample_ijin_bottomband_2line",
           "label": "00_thumb_sample_ijin_bottomband_2line",
           "status": "review",
@@ -2919,38 +2928,47 @@
           "image_url": "/thumbnails/assets/CH26/001/00_thumb.png",
           "image_path": "CH26/001/00_thumb.png",
           "created_at": "2025-12-30T00:43:34.033571+00:00",
-          "updated_at": "2025-12-30T00:43:34.033573+00:00"
+          "updated_at": "2026-01-22T14:30:13.091027+00:00"
         },
         {
           "id": "fs::ch26_001_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/001/00_thumb_1.png",
           "image_path": "CH26/001/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:16.225485+00:00",
-          "updated_at": "2025-12-29T08:07:16.713305+00:00"
+          "updated_at": "2026-01-22T14:28:12.839658+00:00"
         },
         {
           "id": "fs::ch26_001_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/001/00_thumb_2.png",
           "image_path": "CH26/001/00_thumb_2.png",
           "created_at": "2025-12-27T03:11:16.225485+00:00",
-          "updated_at": "2025-12-29T08:07:16.711038+00:00"
+          "updated_at": "2026-01-22T14:29:19.520634+00:00"
         }
       ],
       "title": "【ノイマン式】結論、成果は設計で決まる",
       "notes": "インパクト弱すぎ。もっとアップに\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2026-01-08T10:11:26.373731+00:00",
+      "updated_at": "2026-01-22T14:30:13.091028+00:00",
       "selected_variant_id": "fs::ch26_001_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2026-01-08T10:11:26.373664+00:00"
+      "status_updated_at": "2026-01-22T14:30:13.090994+00:00"
     },
     {
       "channel": "CH26",
       "video": "002",
       "variants": [
+        {
+          "id": "fs::ch26_002_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/002/00_thumb_3.png",
+          "image_path": "CH26/002/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:22.984649+00:00",
+          "updated_at": "2026-01-22T14:14:10.574801+00:00"
+        },
         {
           "id": "fs::ch26_002_00_thumb_sample_ijin_bottomband_2line",
           "label": "00_thumb_sample_ijin_bottomband_2line",
@@ -2985,38 +3003,47 @@
           "image_url": "/thumbnails/assets/CH26/002/00_thumb.png",
           "image_path": "CH26/002/00_thumb.png",
           "created_at": "2025-12-30T00:43:53.974580+00:00",
-          "updated_at": "2025-12-30T00:43:53.974582+00:00"
+          "updated_at": "2026-01-22T14:30:15.858336+00:00"
         },
         {
           "id": "fs::ch26_002_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/002/00_thumb_1.png",
           "image_path": "CH26/002/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:31.479194+00:00",
-          "updated_at": "2025-12-29T08:07:23.115552+00:00"
+          "updated_at": "2026-01-22T14:28:14.771836+00:00"
         },
         {
           "id": "fs::ch26_002_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/002/00_thumb_2.png",
           "image_path": "CH26/002/00_thumb_2.png",
           "created_at": "2025-12-27T03:11:31.479194+00:00",
-          "updated_at": "2025-12-29T08:07:23.113579+00:00"
+          "updated_at": "2026-01-22T14:29:21.094666+00:00"
         }
       ],
       "title": "【岡潔流】本当に賢い人は情報を減らす",
       "notes": "もっとアップに。\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2026-01-08T10:11:29.247129+00:00",
+      "updated_at": "2026-01-22T14:30:15.858337+00:00",
       "selected_variant_id": "fs::ch26_002_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2026-01-08T10:11:29.247106+00:00"
+      "status_updated_at": "2026-01-22T14:30:15.858327+00:00"
     },
     {
       "channel": "CH26",
       "video": "003",
       "variants": [
+        {
+          "id": "fs::ch26_003_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/003/00_thumb_3.png",
+          "image_path": "CH26/003/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:24.634082+00:00",
+          "updated_at": "2026-01-22T14:14:12.397987+00:00"
+        },
         {
           "id": "fs::ch26_003_00_thumb_sample_ijin_bottomband_2line",
           "label": "00_thumb_sample_ijin_bottomband_2line",
@@ -3051,38 +3078,47 @@
           "image_url": "/thumbnails/assets/CH26/003/00_thumb.png",
           "image_path": "CH26/003/00_thumb.png",
           "created_at": "2025-12-30T00:44:12.849101+00:00",
-          "updated_at": "2025-12-30T00:44:12.849103+00:00"
+          "updated_at": "2026-01-22T14:30:18.590767+00:00"
         },
         {
           "id": "fs::ch26_003_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/003/00_thumb_1.png",
           "image_path": "CH26/003/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:44.880019+00:00",
-          "updated_at": "2025-12-29T08:07:29.317087+00:00"
+          "updated_at": "2026-01-22T14:28:16.377969+00:00"
         },
         {
           "id": "fs::ch26_003_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/003/00_thumb_2.png",
           "image_path": "CH26/003/00_thumb_2.png",
           "created_at": "2025-12-27T03:11:44.880019+00:00",
-          "updated_at": "2025-12-29T08:07:29.315016+00:00"
+          "updated_at": "2026-01-22T14:29:22.659751+00:00"
         }
       ],
       "title": "【チューリング式】結論、手順を外に出すと進む",
       "notes": "偉人はもっと下に、アップに\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2026-01-08T10:11:31.979880+00:00",
+      "updated_at": "2026-01-22T14:30:18.590768+00:00",
       "selected_variant_id": "fs::ch26_003_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2026-01-08T10:11:31.979858+00:00"
+      "status_updated_at": "2026-01-22T14:30:18.590747+00:00"
     },
     {
       "channel": "CH26",
       "video": "004",
       "variants": [
+        {
+          "id": "fs::ch26_004_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/004/00_thumb_3.png",
+          "image_path": "CH26/004/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:26.619233+00:00",
+          "updated_at": "2026-01-22T14:14:14.671326+00:00"
+        },
         {
           "id": "fs::ch26_004_00_thumb_sample_ijin_bottomband_2line",
           "label": "00_thumb_sample_ijin_bottomband_2line",
@@ -3117,38 +3153,56 @@
           "image_url": "/thumbnails/assets/CH26/004/00_thumb.png",
           "image_path": "CH26/004/00_thumb.png",
           "created_at": "2025-12-30T00:44:31.360245+00:00",
-          "updated_at": "2025-12-30T00:44:31.360247+00:00"
+          "updated_at": "2026-01-22T14:30:21.202713+00:00"
         },
         {
           "id": "fs::ch26_004_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/004/00_thumb_1.png",
           "image_path": "CH26/004/00_thumb_1.png",
           "created_at": "2025-12-27T03:11:58.614833+00:00",
-          "updated_at": "2025-12-29T08:07:35.435193+00:00"
+          "updated_at": "2026-01-22T14:28:18.462081+00:00"
         },
         {
           "id": "fs::ch26_004_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/004/00_thumb_2.png",
           "image_path": "CH26/004/00_thumb_2.png",
           "created_at": "2025-12-27T03:11:58.614833+00:00",
-          "updated_at": "2025-12-29T08:07:35.433302+00:00"
+          "updated_at": "2026-01-22T14:29:24.227576+00:00"
         }
       ],
       "title": "【シャノン式】重要な変数だけ残せ：全部は無理だ",
       "notes": "偉人はもっとアップに\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2026-01-08T10:11:34.614313+00:00",
+      "updated_at": "2026-01-22T14:30:21.202715+00:00",
       "selected_variant_id": "fs::ch26_004_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2026-01-08T10:11:34.614289+00:00"
+      "status_updated_at": "2026-01-22T14:30:21.202704+00:00"
     },
     {
       "channel": "CH26",
       "video": "005",
       "variants": [
+        {
+          "id": "fs::ch26_005_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/005/00_thumb.png",
+          "image_path": "CH26/005/00_thumb.png",
+          "created_at": "2026-01-22T14:30:23.249317+00:00",
+          "updated_at": "2026-01-22T14:30:23.249319+00:00"
+        },
+        {
+          "id": "fs::ch26_005_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/005/00_thumb_3.png",
+          "image_path": "CH26/005/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:27.994080+00:00",
+          "updated_at": "2026-01-22T14:14:16.384269+00:00"
+        },
         {
           "id": "fs::ch26_005_00_thumb_sample_ijin_bottomband_2line",
           "label": "00_thumb_sample_ijin_bottomband_2line",
@@ -3179,32 +3233,41 @@
         {
           "id": "fs::ch26_005_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/005/00_thumb_1.png",
           "image_path": "CH26/005/00_thumb_1.png",
           "created_at": "2025-12-27T03:38:43.952700+00:00",
-          "updated_at": "2025-12-29T08:07:40.315120+00:00"
+          "updated_at": "2026-01-22T14:28:19.775744+00:00"
         },
         {
           "id": "fs::ch26_005_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/005/00_thumb_2.png",
           "image_path": "CH26/005/00_thumb_2.png",
           "created_at": "2025-12-27T03:38:43.952700+00:00",
-          "updated_at": "2025-12-29T08:07:40.313127+00:00"
+          "updated_at": "2026-01-22T14:29:25.456478+00:00"
         }
       ],
       "title": "【ゲーム理論】期待値で選べ：一回で揺れるな",
-      "updated_at": "2026-01-08T10:11:36.702910+00:00",
+      "updated_at": "2026-01-22T14:30:23.249324+00:00",
       "selected_variant_id": "fs::ch26_005_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2026-01-08T10:11:36.702888+00:00"
+      "status_updated_at": "2026-01-22T14:30:23.249298+00:00"
     },
     {
       "channel": "CH26",
       "video": "006",
       "variants": [
+        {
+          "id": "fs::ch26_006_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/006/00_thumb_3.png",
+          "image_path": "CH26/006/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:29.718503+00:00",
+          "updated_at": "2026-01-22T14:14:17.911561+00:00"
+        },
         {
           "id": "fs::ch26_006_00_thumb_sample_ijin_bottomband_2line",
           "label": "00_thumb_sample_ijin_bottomband_2line",
@@ -3239,67 +3302,94 @@
           "image_url": "/thumbnails/assets/CH26/006/00_thumb.png",
           "image_path": "CH26/006/00_thumb.png",
           "created_at": "2025-12-30T00:44:49.636641+00:00",
-          "updated_at": "2025-12-30T00:44:49.636643+00:00"
+          "updated_at": "2026-01-22T14:30:25.387139+00:00"
         },
         {
           "id": "fs::ch26_006_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/006/00_thumb_1.png",
           "image_path": "CH26/006/00_thumb_1.png",
           "created_at": "2025-12-27T03:38:55.373351+00:00",
-          "updated_at": "2025-12-29T08:07:46.306828+00:00"
+          "updated_at": "2026-01-22T14:28:21.468360+00:00"
         },
         {
           "id": "fs::ch26_006_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/006/00_thumb_2.png",
           "image_path": "CH26/006/00_thumb_2.png",
           "created_at": "2025-12-27T03:38:55.373351+00:00",
-          "updated_at": "2025-12-29T08:07:46.305021+00:00"
+          "updated_at": "2026-01-22T14:29:26.764600+00:00"
         }
       ],
       "title": "【サイモン式】最適解を捨てると成果が増える",
       "notes": "偉人は中心に。（もっと右に配置）\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2026-01-08T10:11:39.416743+00:00",
+      "updated_at": "2026-01-22T14:30:25.387141+00:00",
       "selected_variant_id": "fs::ch26_006_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2026-01-08T10:11:39.416570+00:00"
+      "status_updated_at": "2026-01-22T14:30:25.387129+00:00"
     },
     {
       "channel": "CH26",
       "video": "007",
       "variants": [
         {
+          "id": "fs::ch26_007_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/007/00_thumb.png",
+          "image_path": "CH26/007/00_thumb.png",
+          "created_at": "2026-01-22T14:30:27.469538+00:00",
+          "updated_at": "2026-01-22T14:30:27.469539+00:00"
+        },
+        {
+          "id": "fs::ch26_007_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/007/00_thumb_3.png",
+          "image_path": "CH26/007/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:31.152280+00:00",
+          "updated_at": "2026-01-22T14:14:19.830916+00:00"
+        },
+        {
           "id": "fs::ch26_007_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/007/00_thumb_1.png",
           "image_path": "CH26/007/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:08.236850+00:00",
-          "updated_at": "2025-12-29T08:07:51.806245+00:00"
+          "updated_at": "2026-01-22T14:28:22.960284+00:00"
         },
         {
           "id": "fs::ch26_007_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/007/00_thumb_2.png",
           "image_path": "CH26/007/00_thumb_2.png",
           "created_at": "2025-12-27T03:39:08.236850+00:00",
-          "updated_at": "2025-12-29T08:07:51.803936+00:00"
+          "updated_at": "2026-01-22T14:29:28.132197+00:00"
         }
       ],
       "title": "【ドラッカー流】結論、成果の定義が先だ",
-      "updated_at": "2025-12-29T08:07:51.806247+00:00",
+      "updated_at": "2026-01-22T14:30:27.469541+00:00",
       "selected_variant_id": "fs::ch26_007_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:07:51.806239+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:27.469521+00:00"
     },
     {
       "channel": "CH26",
       "video": "008",
       "variants": [
+        {
+          "id": "fs::ch26_008_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/008/00_thumb_3.png",
+          "image_path": "CH26/008/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:33.359323+00:00",
+          "updated_at": "2026-01-22T14:14:21.790062+00:00"
+        },
         {
           "id": "fs::ch26_008_00_thumb",
           "label": "thumb_00",
@@ -3307,32 +3397,32 @@
           "image_url": "/thumbnails/assets/CH26/008/00_thumb.png",
           "image_path": "CH26/008/00_thumb.png",
           "created_at": "2025-12-30T00:45:05.671769+00:00",
-          "updated_at": "2025-12-30T00:45:05.671771+00:00"
+          "updated_at": "2026-01-22T14:30:29.458199+00:00"
         },
         {
           "id": "fs::ch26_008_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/008/00_thumb_1.png",
           "image_path": "CH26/008/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:21.332372+00:00",
-          "updated_at": "2025-12-29T08:07:57.117139+00:00"
+          "updated_at": "2026-01-22T14:28:24.743040+00:00"
         },
         {
           "id": "fs::ch26_008_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/008/00_thumb_2.png",
           "image_path": "CH26/008/00_thumb_2.png",
           "created_at": "2025-12-27T03:39:21.332372+00:00",
-          "updated_at": "2025-12-29T08:07:57.114762+00:00"
+          "updated_at": "2026-01-22T14:29:29.672745+00:00"
         }
       ],
       "title": "【孫子の型】最悪を先に固定すると迷いが消える",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:30:29.458201+00:00",
       "selected_variant_id": "fs::ch26_008_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "status_updated_at": "2026-01-22T14:30:29.458188+00:00",
       "notes": "もっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -3340,189 +3430,297 @@
       "video": "009",
       "variants": [
         {
+          "id": "fs::ch26_009_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/009/00_thumb_3.png",
+          "image_path": "CH26/009/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:35.561534+00:00",
+          "updated_at": "2026-01-22T14:14:23.825321+00:00"
+        },
+        {
           "id": "fs::ch26_009_00_thumb",
           "label": "thumb_00",
           "status": "review",
           "image_url": "/thumbnails/assets/CH26/009/00_thumb.png",
           "image_path": "CH26/009/00_thumb.png",
           "created_at": "2025-12-30T00:45:28.719087+00:00",
-          "updated_at": "2025-12-30T00:45:28.719089+00:00"
+          "updated_at": "2026-01-22T14:30:32.055288+00:00"
         },
         {
           "id": "fs::ch26_009_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/009/00_thumb_1.png",
           "image_path": "CH26/009/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:36.636749+00:00",
-          "updated_at": "2025-12-29T08:08:03.727420+00:00"
+          "updated_at": "2026-01-22T14:28:26.921395+00:00"
         },
         {
           "id": "fs::ch26_009_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/009/00_thumb_2.png",
           "image_path": "CH26/009/00_thumb_2.png",
           "created_at": "2025-12-27T03:39:36.636749+00:00",
-          "updated_at": "2025-12-29T08:08:03.724975+00:00"
+          "updated_at": "2026-01-22T14:29:31.151126+00:00"
         }
       ],
       "title": "【マキャヴェリ式】結論、判断は感情から切り離せ",
       "notes": "もっと偉人の顔はアップ\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:30:32.055289+00:00",
       "selected_variant_id": "fs::ch26_009_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
+      "status_updated_at": "2026-01-22T14:30:32.055279+00:00"
     },
     {
       "channel": "CH26",
       "video": "010",
       "variants": [
         {
+          "id": "fs::ch26_010_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/010/00_thumb.png",
+          "image_path": "CH26/010/00_thumb.png",
+          "created_at": "2026-01-22T14:30:34.295630+00:00",
+          "updated_at": "2026-01-22T14:30:34.295631+00:00"
+        },
+        {
+          "id": "fs::ch26_010_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/010/00_thumb_3.png",
+          "image_path": "CH26/010/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:37.057413+00:00",
+          "updated_at": "2026-01-22T14:14:25.191752+00:00"
+        },
+        {
           "id": "fs::ch26_010_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/010/00_thumb_1.png",
           "image_path": "CH26/010/00_thumb_1.png",
           "created_at": "2025-12-27T03:39:50.496505+00:00",
-          "updated_at": "2025-12-29T08:08:09.469592+00:00"
+          "updated_at": "2026-01-22T14:28:28.446251+00:00"
         },
         {
           "id": "fs::ch26_010_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/010/00_thumb_2.png",
           "image_path": "CH26/010/00_thumb_2.png",
           "created_at": "2025-12-27T03:39:50.496505+00:00",
-          "updated_at": "2025-12-29T08:08:09.467669+00:00"
+          "updated_at": "2026-01-22T14:29:32.375545+00:00"
         }
       ],
       "title": "【デカルト式】複雑ほど先に骨格を置け",
-      "updated_at": "2025-12-29T08:08:09.469593+00:00",
+      "updated_at": "2026-01-22T14:30:34.295633+00:00",
       "selected_variant_id": "fs::ch26_010_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:08:09.469583+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:34.295606+00:00"
     },
     {
       "channel": "CH26",
       "video": "011",
       "variants": [
         {
+          "id": "fs::ch26_011_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/011/00_thumb.png",
+          "image_path": "CH26/011/00_thumb.png",
+          "created_at": "2026-01-22T14:30:36.900789+00:00",
+          "updated_at": "2026-01-22T14:30:36.900791+00:00"
+        },
+        {
+          "id": "fs::ch26_011_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/011/00_thumb_3.png",
+          "image_path": "CH26/011/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:38.715455+00:00",
+          "updated_at": "2026-01-22T14:14:27.247853+00:00"
+        },
+        {
           "id": "fs::ch26_011_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/011/00_thumb_1.png",
           "image_path": "CH26/011/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:02.542979+00:00",
-          "updated_at": "2025-12-29T08:08:15.470074+00:00"
+          "updated_at": "2026-01-22T14:28:30.043260+00:00"
         },
         {
           "id": "fs::ch26_011_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/011/00_thumb_2.png",
           "image_path": "CH26/011/00_thumb_2.png",
           "created_at": "2025-12-27T03:40:02.542979+00:00",
-          "updated_at": "2025-12-29T08:08:15.468276+00:00"
+          "updated_at": "2026-01-22T14:29:33.813854+00:00"
         }
       ],
       "title": "【カント流】結論、ルールが先だ",
-      "updated_at": "2025-12-29T08:08:15.470075+00:00",
+      "updated_at": "2026-01-22T14:30:36.900793+00:00",
       "selected_variant_id": "fs::ch26_011_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:08:15.470070+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:36.900765+00:00"
     },
     {
       "channel": "CH26",
       "video": "012",
       "variants": [
         {
+          "id": "fs::ch26_012_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/012/00_thumb.png",
+          "image_path": "CH26/012/00_thumb.png",
+          "created_at": "2026-01-22T14:30:38.993997+00:00",
+          "updated_at": "2026-01-22T14:30:38.993999+00:00"
+        },
+        {
+          "id": "fs::ch26_012_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/012/00_thumb_3.png",
+          "image_path": "CH26/012/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:40.497817+00:00",
+          "updated_at": "2026-01-22T14:14:28.401616+00:00"
+        },
+        {
           "id": "fs::ch26_012_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/012/00_thumb_1.png",
           "image_path": "CH26/012/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:16.612139+00:00",
-          "updated_at": "2025-12-29T08:08:21.028298+00:00"
+          "updated_at": "2026-01-22T14:28:31.835970+00:00"
         },
         {
           "id": "fs::ch26_012_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/012/00_thumb_2.png",
           "image_path": "CH26/012/00_thumb_2.png",
           "created_at": "2025-12-27T03:40:16.612139+00:00",
-          "updated_at": "2025-12-29T08:08:21.026352+00:00"
+          "updated_at": "2026-01-22T14:29:35.052540+00:00"
         }
       ],
       "title": "【ニーチェ式】成果は“強さ”ではなく“整い”だ",
-      "updated_at": "2025-12-29T08:08:21.028302+00:00",
+      "updated_at": "2026-01-22T14:30:38.994000+00:00",
       "selected_variant_id": "fs::ch26_012_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:08:21.028291+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:38.993972+00:00"
     },
     {
       "channel": "CH26",
       "video": "013",
       "variants": [
         {
+          "id": "fs::ch26_013_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/013/00_thumb.png",
+          "image_path": "CH26/013/00_thumb.png",
+          "created_at": "2026-01-22T14:30:41.373688+00:00",
+          "updated_at": "2026-01-22T14:30:41.373689+00:00"
+        },
+        {
+          "id": "fs::ch26_013_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/013/00_thumb_3.png",
+          "image_path": "CH26/013/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:42.544562+00:00",
+          "updated_at": "2026-01-22T14:14:30.420320+00:00"
+        },
+        {
           "id": "fs::ch26_013_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/013/00_thumb_1.png",
           "image_path": "CH26/013/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:28.654650+00:00",
-          "updated_at": "2025-12-29T08:08:27.630459+00:00"
+          "updated_at": "2026-01-22T14:28:33.990640+00:00"
         },
         {
           "id": "fs::ch26_013_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/013/00_thumb_2.png",
           "image_path": "CH26/013/00_thumb_2.png",
           "created_at": "2025-12-27T03:40:28.654650+00:00",
-          "updated_at": "2025-12-29T08:08:27.627468+00:00"
+          "updated_at": "2026-01-22T14:29:36.401079+00:00"
         }
       ],
       "title": "【ユング的】最悪を言葉にすると動ける",
-      "updated_at": "2025-12-29T08:08:27.630460+00:00",
+      "updated_at": "2026-01-22T14:30:41.373691+00:00",
       "selected_variant_id": "fs::ch26_013_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:08:27.630450+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:41.373665+00:00"
     },
     {
       "channel": "CH26",
       "video": "014",
       "variants": [
         {
+          "id": "fs::ch26_014_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/014/00_thumb.png",
+          "image_path": "CH26/014/00_thumb.png",
+          "created_at": "2026-01-22T14:30:43.764412+00:00",
+          "updated_at": "2026-01-22T14:30:43.764413+00:00"
+        },
+        {
+          "id": "fs::ch26_014_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/014/00_thumb_3.png",
+          "image_path": "CH26/014/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:44.282213+00:00",
+          "updated_at": "2026-01-22T14:14:31.795517+00:00"
+        },
+        {
           "id": "fs::ch26_014_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/014/00_thumb_1.png",
           "image_path": "CH26/014/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:40.199643+00:00",
-          "updated_at": "2025-12-29T08:08:33.547295+00:00"
+          "updated_at": "2026-01-22T14:28:35.686630+00:00"
         },
         {
           "id": "fs::ch26_014_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/014/00_thumb_2.png",
           "image_path": "CH26/014/00_thumb_2.png",
           "created_at": "2025-12-27T03:40:40.199643+00:00",
-          "updated_at": "2025-12-29T08:08:33.538193+00:00"
+          "updated_at": "2026-01-22T14:29:37.747853+00:00"
         }
       ],
       "title": "【フロイト流】進めない原因は能力じゃない",
-      "updated_at": "2025-12-29T08:08:33.547296+00:00",
+      "updated_at": "2026-01-22T14:30:43.764415+00:00",
       "selected_variant_id": "fs::ch26_014_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:08:33.547285+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:43.764391+00:00"
     },
     {
       "channel": "CH26",
       "video": "015",
       "variants": [
+        {
+          "id": "fs::ch26_015_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/015/00_thumb_3.png",
+          "image_path": "CH26/015/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:45.591486+00:00",
+          "updated_at": "2026-01-22T14:14:33.451463+00:00"
+        },
         {
           "id": "fs::ch26_015_00_thumb",
           "label": "thumb_00",
@@ -3530,67 +3728,94 @@
           "image_url": "/thumbnails/assets/CH26/015/00_thumb.png",
           "image_path": "CH26/015/00_thumb.png",
           "created_at": "2025-12-30T00:45:51.052980+00:00",
-          "updated_at": "2025-12-30T00:45:51.052981+00:00"
+          "updated_at": "2026-01-22T14:30:46.450213+00:00"
         },
         {
           "id": "fs::ch26_015_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/015/00_thumb_1.png",
           "image_path": "CH26/015/00_thumb_1.png",
           "created_at": "2025-12-27T03:40:54.613228+00:00",
-          "updated_at": "2025-12-29T08:08:40.119023+00:00"
+          "updated_at": "2026-01-22T14:28:36.983711+00:00"
         },
         {
           "id": "fs::ch26_015_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/015/00_thumb_2.png",
           "image_path": "CH26/015/00_thumb_2.png",
           "created_at": "2025-12-27T03:40:54.613228+00:00",
-          "updated_at": "2025-12-29T08:08:40.117232+00:00"
+          "updated_at": "2026-01-22T14:29:39.218981+00:00"
         }
       ],
       "title": "【スミス式】期待値で選べ：損を減らせ",
       "notes": "偉人はもっと右。中心に配置せよ\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:30:46.450215+00:00",
       "selected_variant_id": "fs::ch26_015_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
+      "status_updated_at": "2026-01-22T14:30:46.450198+00:00"
     },
     {
       "channel": "CH26",
       "video": "016",
       "variants": [
         {
+          "id": "fs::ch26_016_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/016/00_thumb.png",
+          "image_path": "CH26/016/00_thumb.png",
+          "created_at": "2026-01-22T14:30:48.598628+00:00",
+          "updated_at": "2026-01-22T14:30:48.598629+00:00"
+        },
+        {
+          "id": "fs::ch26_016_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/016/00_thumb_3.png",
+          "image_path": "CH26/016/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:47.279896+00:00",
+          "updated_at": "2026-01-22T14:14:34.761932+00:00"
+        },
+        {
           "id": "fs::ch26_016_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/016/00_thumb_1.png",
           "image_path": "CH26/016/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:06.371302+00:00",
-          "updated_at": "2025-12-29T08:08:45.258450+00:00"
+          "updated_at": "2026-01-22T14:28:38.621249+00:00"
         },
         {
           "id": "fs::ch26_016_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/016/00_thumb_2.png",
           "image_path": "CH26/016/00_thumb_2.png",
           "created_at": "2025-12-27T03:41:06.371302+00:00",
-          "updated_at": "2025-12-29T08:08:45.256422+00:00"
+          "updated_at": "2026-01-22T14:29:40.470514+00:00"
         }
       ],
       "title": "【ケインズ式】一回の上下で判断を変えるな",
-      "updated_at": "2025-12-29T08:08:45.258451+00:00",
+      "updated_at": "2026-01-22T14:30:48.598634+00:00",
       "selected_variant_id": "fs::ch26_016_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:08:45.258445+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:48.598590+00:00"
     },
     {
       "channel": "CH26",
       "video": "017",
       "variants": [
+        {
+          "id": "fs::ch26_017_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/017/00_thumb_3.png",
+          "image_path": "CH26/017/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:49.258109+00:00",
+          "updated_at": "2026-01-22T14:14:36.201467+00:00"
+        },
         {
           "id": "fs::ch26_017_00_thumb",
           "label": "thumb_00",
@@ -3598,38 +3823,47 @@
           "image_url": "/thumbnails/assets/CH26/017/00_thumb.png",
           "image_path": "CH26/017/00_thumb.png",
           "created_at": "2025-12-30T00:46:06.939219+00:00",
-          "updated_at": "2025-12-30T00:46:06.939221+00:00"
+          "updated_at": "2026-01-22T14:30:51.509879+00:00"
         },
         {
           "id": "fs::ch26_017_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/017/00_thumb_1.png",
           "image_path": "CH26/017/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:17.980703+00:00",
-          "updated_at": "2025-12-29T08:08:50.486030+00:00"
+          "updated_at": "2026-01-22T14:28:40.463585+00:00"
         },
         {
           "id": "fs::ch26_017_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/017/00_thumb_2.png",
           "image_path": "CH26/017/00_thumb_2.png",
           "created_at": "2025-12-27T03:41:17.980703+00:00",
-          "updated_at": "2025-12-29T08:08:50.484271+00:00"
+          "updated_at": "2026-01-22T14:29:41.756305+00:00"
         }
       ],
       "title": "【ダ・ヴィンチ式】仮を早く置け：更新で仕上げろ",
       "notes": "偉人をもっと大きく、少し下。\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:30:51.509884+00:00",
       "selected_variant_id": "fs::ch26_017_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
+      "status_updated_at": "2026-01-22T14:30:51.509855+00:00"
     },
     {
       "channel": "CH26",
       "video": "018",
       "variants": [
+        {
+          "id": "fs::ch26_018_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/018/00_thumb_3.png",
+          "image_path": "CH26/018/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:51.308407+00:00",
+          "updated_at": "2026-01-22T14:14:37.637278+00:00"
+        },
         {
           "id": "fs::ch26_018_00_thumb",
           "label": "thumb_00",
@@ -3637,67 +3871,94 @@
           "image_url": "/thumbnails/assets/CH26/018/00_thumb.png",
           "image_path": "CH26/018/00_thumb.png",
           "created_at": "2025-12-30T00:46:27.413477+00:00",
-          "updated_at": "2025-12-30T00:46:27.413478+00:00"
+          "updated_at": "2026-01-22T14:30:53.743979+00:00"
         },
         {
           "id": "fs::ch26_018_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/018/00_thumb_1.png",
           "image_path": "CH26/018/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:32.496714+00:00",
-          "updated_at": "2025-12-29T08:08:55.778666+00:00"
+          "updated_at": "2026-01-22T14:28:42.401254+00:00"
         },
         {
           "id": "fs::ch26_018_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/018/00_thumb_2.png",
           "image_path": "CH26/018/00_thumb_2.png",
           "created_at": "2025-12-27T03:41:32.496714+00:00",
-          "updated_at": "2025-12-29T08:08:55.775797+00:00"
+          "updated_at": "2026-01-22T14:29:43.130083+00:00"
         }
       ],
       "title": "【キュリー式】結論、測定が更新を速くする",
       "notes": "偉人はめちゃくちゃインパクト強くしたい。大きく明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:30:53.743980+00:00",
       "selected_variant_id": "fs::ch26_018_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00"
+      "status_updated_at": "2026-01-22T14:30:53.743970+00:00"
     },
     {
       "channel": "CH26",
       "video": "019",
       "variants": [
         {
+          "id": "fs::ch26_019_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/019/00_thumb.png",
+          "image_path": "CH26/019/00_thumb.png",
+          "created_at": "2026-01-22T14:30:56.470501+00:00",
+          "updated_at": "2026-01-22T14:30:56.470503+00:00"
+        },
+        {
+          "id": "fs::ch26_019_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/019/00_thumb_3.png",
+          "image_path": "CH26/019/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:52.690889+00:00",
+          "updated_at": "2026-01-22T14:14:39.549524+00:00"
+        },
+        {
           "id": "fs::ch26_019_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/019/00_thumb_1.png",
           "image_path": "CH26/019/00_thumb_1.png",
           "created_at": "2025-12-27T03:41:45.906731+00:00",
-          "updated_at": "2025-12-29T08:09:04.903632+00:00"
+          "updated_at": "2026-01-22T14:28:43.793996+00:00"
         },
         {
           "id": "fs::ch26_019_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/019/00_thumb_2.png",
           "image_path": "CH26/019/00_thumb_2.png",
           "created_at": "2025-12-27T03:41:45.906731+00:00",
-          "updated_at": "2025-12-29T08:09:04.899803+00:00"
+          "updated_at": "2026-01-22T14:29:44.638597+00:00"
         }
       ],
       "title": "【ファラデー流】成果は仕組みで積み上がる",
-      "updated_at": "2025-12-29T08:09:04.903634+00:00",
+      "updated_at": "2026-01-22T14:30:56.470507+00:00",
       "selected_variant_id": "fs::ch26_019_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:09:04.903626+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:30:56.470474+00:00"
     },
     {
       "channel": "CH26",
       "video": "020",
       "variants": [
+        {
+          "id": "fs::ch26_020_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/020/00_thumb_3.png",
+          "image_path": "CH26/020/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:54.979011+00:00",
+          "updated_at": "2026-01-22T14:14:41.892356+00:00"
+        },
         {
           "id": "fs::ch26_020_00_thumb",
           "label": "thumb_00",
@@ -3705,32 +3966,32 @@
           "image_url": "/thumbnails/assets/CH26/020/00_thumb.png",
           "image_path": "CH26/020/00_thumb.png",
           "created_at": "2025-12-30T00:46:51.778565+00:00",
-          "updated_at": "2025-12-30T00:46:51.778566+00:00"
+          "updated_at": "2026-01-22T14:30:59.521936+00:00"
         },
         {
           "id": "fs::ch26_020_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/020/00_thumb_1.png",
           "image_path": "CH26/020/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:00.091727+00:00",
-          "updated_at": "2025-12-29T08:09:14.577079+00:00"
+          "updated_at": "2026-01-22T14:28:46.117240+00:00"
         },
         {
           "id": "fs::ch26_020_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/020/00_thumb_2.png",
           "image_path": "CH26/020/00_thumb_2.png",
           "created_at": "2025-12-27T03:42:00.091727+00:00",
-          "updated_at": "2025-12-29T08:09:14.573871+00:00"
+          "updated_at": "2026-01-22T14:29:46.234917+00:00"
         }
       ],
       "title": "【ダーウィン式】結論、更新の反復が成果を作る",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:30:59.521937+00:00",
       "selected_variant_id": "fs::ch26_020_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "status_updated_at": "2026-01-22T14:30:59.521922+00:00",
       "notes": "もっと偉人を明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -3738,92 +3999,155 @@
       "video": "021",
       "variants": [
         {
+          "id": "fs::ch26_021_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/021/00_thumb.png",
+          "image_path": "CH26/021/00_thumb.png",
+          "created_at": "2026-01-22T14:31:01.336181+00:00",
+          "updated_at": "2026-01-22T14:31:01.336182+00:00"
+        },
+        {
+          "id": "fs::ch26_021_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/021/00_thumb_3.png",
+          "image_path": "CH26/021/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:56.248719+00:00",
+          "updated_at": "2026-01-22T14:14:43.315425+00:00"
+        },
+        {
           "id": "fs::ch26_021_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/021/00_thumb_1.png",
           "image_path": "CH26/021/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:11.411000+00:00",
-          "updated_at": "2025-12-29T08:09:21.272227+00:00"
+          "updated_at": "2026-01-22T14:28:47.580844+00:00"
         },
         {
           "id": "fs::ch26_021_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/021/00_thumb_2.png",
           "image_path": "CH26/021/00_thumb_2.png",
           "created_at": "2025-12-27T03:42:11.411000+00:00",
-          "updated_at": "2025-12-29T08:09:21.270091+00:00"
+          "updated_at": "2026-01-22T14:29:47.373225+00:00"
         }
       ],
       "title": "【エジソン式】結論、更新回数が成果を決める",
-      "updated_at": "2025-12-29T08:09:21.272229+00:00",
+      "updated_at": "2026-01-22T14:31:01.336184+00:00",
       "selected_variant_id": "fs::ch26_021_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:09:21.272218+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:31:01.336157+00:00"
     },
     {
       "channel": "CH26",
       "video": "022",
       "variants": [
         {
+          "id": "fs::ch26_022_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/022/00_thumb.png",
+          "image_path": "CH26/022/00_thumb.png",
+          "created_at": "2026-01-22T14:31:03.455762+00:00",
+          "updated_at": "2026-01-22T14:31:03.455764+00:00"
+        },
+        {
+          "id": "fs::ch26_022_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/022/00_thumb_3.png",
+          "image_path": "CH26/022/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:57.940825+00:00",
+          "updated_at": "2026-01-22T14:14:45.010961+00:00"
+        },
+        {
           "id": "fs::ch26_022_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/022/00_thumb_1.png",
           "image_path": "CH26/022/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:24.427300+00:00",
-          "updated_at": "2025-12-29T08:09:28.341739+00:00"
+          "updated_at": "2026-01-22T14:28:49.666058+00:00"
         },
         {
           "id": "fs::ch26_022_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/022/00_thumb_2.png",
           "image_path": "CH26/022/00_thumb_2.png",
           "created_at": "2025-12-27T03:42:24.427300+00:00",
-          "updated_at": "2025-12-29T08:09:28.331766+00:00"
+          "updated_at": "2026-01-22T14:29:48.721630+00:00"
         }
       ],
       "title": "【ジョブズ流】重要な2つだけ残せ",
-      "updated_at": "2025-12-29T08:09:28.341740+00:00",
+      "updated_at": "2026-01-22T14:31:03.455766+00:00",
       "selected_variant_id": "fs::ch26_022_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:09:28.341730+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:31:03.455739+00:00"
     },
     {
       "channel": "CH26",
       "video": "023",
       "variants": [
         {
+          "id": "fs::ch26_023_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/023/00_thumb.png",
+          "image_path": "CH26/023/00_thumb.png",
+          "created_at": "2026-01-22T14:31:05.172955+00:00",
+          "updated_at": "2026-01-22T14:31:05.172957+00:00"
+        },
+        {
+          "id": "fs::ch26_023_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/023/00_thumb_3.png",
+          "image_path": "CH26/023/00_thumb_3.png",
+          "created_at": "2026-01-22T10:15:59.750666+00:00",
+          "updated_at": "2026-01-22T14:14:47.303954+00:00"
+        },
+        {
           "id": "fs::ch26_023_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/023/00_thumb_1.png",
           "image_path": "CH26/023/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:37.461170+00:00",
-          "updated_at": "2025-12-29T08:09:34.544079+00:00"
+          "updated_at": "2026-01-22T14:28:51.447925+00:00"
         },
         {
           "id": "fs::ch26_023_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/023/00_thumb_2.png",
           "image_path": "CH26/023/00_thumb_2.png",
           "created_at": "2025-12-27T03:42:37.461170+00:00",
-          "updated_at": "2025-12-29T08:09:34.542088+00:00"
+          "updated_at": "2026-01-22T14:29:49.773243+00:00"
         }
       ],
       "title": "【マスク式】結論、順序を整えると止まらない",
-      "updated_at": "2025-12-29T08:09:34.544080+00:00",
+      "updated_at": "2026-01-22T14:31:05.172959+00:00",
       "selected_variant_id": "fs::ch26_023_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:09:34.544073+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:31:05.172937+00:00"
     },
     {
       "channel": "CH26",
       "video": "024",
       "variants": [
+        {
+          "id": "fs::ch26_024_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/024/00_thumb_3.png",
+          "image_path": "CH26/024/00_thumb_3.png",
+          "created_at": "2026-01-22T10:16:01.874444+00:00",
+          "updated_at": "2026-01-22T14:14:49.750325+00:00"
+        },
         {
           "id": "fs::ch26_024_00_thumb",
           "label": "thumb_00",
@@ -3831,32 +4155,32 @@
           "image_url": "/thumbnails/assets/CH26/024/00_thumb.png",
           "image_path": "CH26/024/00_thumb.png",
           "created_at": "2025-12-30T00:47:05.969197+00:00",
-          "updated_at": "2025-12-30T00:47:05.969198+00:00"
+          "updated_at": "2026-01-22T14:31:06.799663+00:00"
         },
         {
           "id": "fs::ch26_024_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/024/00_thumb_1.png",
           "image_path": "CH26/024/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:49.004417+00:00",
-          "updated_at": "2025-12-29T08:09:40.622030+00:00"
+          "updated_at": "2026-01-22T14:28:53.554428+00:00"
         },
         {
           "id": "fs::ch26_024_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/024/00_thumb_2.png",
           "image_path": "CH26/024/00_thumb_2.png",
           "created_at": "2025-12-27T03:42:49.004417+00:00",
-          "updated_at": "2025-12-29T08:09:40.619977+00:00"
+          "updated_at": "2026-01-22T14:29:50.779006+00:00"
         }
       ],
       "title": "【ポーター式】目的関数を決めよ：全部は捨てろ",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:31:06.799664+00:00",
       "selected_variant_id": "fs::ch26_024_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "status_updated_at": "2026-01-22T14:31:06.799654+00:00",
       "notes": "偉人をもっと右に（つまり中央に）。そしてもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -3864,34 +4188,61 @@
       "video": "025",
       "variants": [
         {
+          "id": "fs::ch26_025_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/025/00_thumb.png",
+          "image_path": "CH26/025/00_thumb.png",
+          "created_at": "2026-01-22T14:31:09.051709+00:00",
+          "updated_at": "2026-01-22T14:31:09.051711+00:00"
+        },
+        {
+          "id": "fs::ch26_025_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/025/00_thumb_3.png",
+          "image_path": "CH26/025/00_thumb_3.png",
+          "created_at": "2026-01-22T10:16:03.848938+00:00",
+          "updated_at": "2026-01-22T14:14:52.482581+00:00"
+        },
+        {
           "id": "fs::ch26_025_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/025/00_thumb_1.png",
           "image_path": "CH26/025/00_thumb_1.png",
           "created_at": "2025-12-27T03:42:59.827355+00:00",
-          "updated_at": "2025-12-29T08:09:47.089101+00:00"
+          "updated_at": "2026-01-22T14:28:55.606499+00:00"
         },
         {
           "id": "fs::ch26_025_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "approved",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/025/00_thumb_2.png",
           "image_path": "CH26/025/00_thumb_2.png",
           "created_at": "2025-12-27T03:42:59.827355+00:00",
-          "updated_at": "2025-12-29T08:09:47.086898+00:00"
+          "updated_at": "2026-01-22T14:29:52.020657+00:00"
         }
       ],
       "title": "【ベゾス流】結論、基準がないから止まる",
-      "updated_at": "2025-12-29T08:09:47.089102+00:00",
+      "updated_at": "2026-01-22T14:31:09.051713+00:00",
       "selected_variant_id": "fs::ch26_025_00_thumb_1",
-      "status": "approved",
-      "status_updated_at": "2025-12-29T08:09:47.089095+00:00"
+      "status": "review",
+      "status_updated_at": "2026-01-22T14:31:09.051673+00:00"
     },
     {
       "channel": "CH26",
       "video": "026",
       "variants": [
+        {
+          "id": "fs::ch26_026_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/026/00_thumb_3.png",
+          "image_path": "CH26/026/00_thumb_3.png",
+          "created_at": "2026-01-22T10:16:05.438731+00:00",
+          "updated_at": "2026-01-22T14:14:54.207364+00:00"
+        },
         {
           "id": "fs::ch26_026_00_thumb",
           "label": "thumb_00",
@@ -3899,32 +4250,32 @@
           "image_url": "/thumbnails/assets/CH26/026/00_thumb.png",
           "image_path": "CH26/026/00_thumb.png",
           "created_at": "2025-12-30T00:47:31.973687+00:00",
-          "updated_at": "2025-12-30T07:04:20.375844+00:00"
+          "updated_at": "2026-01-22T14:31:12.848846+00:00"
         },
         {
           "id": "fs::ch26_026_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/026/00_thumb_1.png",
           "image_path": "CH26/026/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:11.960825+00:00",
-          "updated_at": "2025-12-29T08:09:54.864371+00:00"
+          "updated_at": "2026-01-22T14:28:57.188575+00:00"
         },
         {
           "id": "fs::ch26_026_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/026/00_thumb_2.png",
           "image_path": "CH26/026/00_thumb_2.png",
           "created_at": "2025-12-27T03:43:11.960825+00:00",
-          "updated_at": "2025-12-29T08:09:54.861337+00:00"
+          "updated_at": "2026-01-22T14:29:53.594796+00:00"
         }
       ],
       "title": "【ダリオ式】手順を外に出せ：再現性を作れ",
-      "updated_at": "2025-12-30T07:04:20.375845+00:00",
+      "updated_at": "2026-01-22T14:31:12.848849+00:00",
       "selected_variant_id": "fs::ch26_026_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T07:04:20.375830+00:00",
+      "status_updated_at": "2026-01-22T14:31:12.848780+00:00",
       "notes": "もっと偉人を明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -3932,38 +4283,47 @@
       "video": "027",
       "variants": [
         {
+          "id": "fs::ch26_027_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/027/00_thumb_3.png",
+          "image_path": "CH26/027/00_thumb_3.png",
+          "created_at": "2026-01-22T10:16:06.586503+00:00",
+          "updated_at": "2026-01-22T14:14:56.115072+00:00"
+        },
+        {
           "id": "fs::ch26_027_00_thumb",
           "label": "thumb_00",
           "status": "review",
           "image_url": "/thumbnails/assets/CH26/027/00_thumb.png",
           "image_path": "CH26/027/00_thumb.png",
           "created_at": "2025-12-30T00:47:55.447852+00:00",
-          "updated_at": "2025-12-30T00:47:55.447854+00:00"
+          "updated_at": "2026-01-22T14:31:15.556535+00:00"
         },
         {
           "id": "fs::ch26_027_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/027/00_thumb_1.png",
           "image_path": "CH26/027/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:24.202855+00:00",
-          "updated_at": "2025-12-29T08:10:01.503437+00:00"
+          "updated_at": "2026-01-22T14:28:58.417775+00:00"
         },
         {
           "id": "fs::ch26_027_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/027/00_thumb_2.png",
           "image_path": "CH26/027/00_thumb_2.png",
           "created_at": "2025-12-27T03:43:24.202855+00:00",
-          "updated_at": "2025-12-29T08:10:01.500548+00:00"
+          "updated_at": "2026-01-22T14:29:55.123642+00:00"
         }
       ],
       "title": "【デミング式】結論、平均を上げるのが最強",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:31:15.556536+00:00",
       "selected_variant_id": "fs::ch26_027_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "status_updated_at": "2026-01-22T14:31:15.556526+00:00",
       "notes": "偉人はもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -3971,38 +4331,47 @@
       "video": "028",
       "variants": [
         {
+          "id": "fs::ch26_028_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/028/00_thumb_3.png",
+          "image_path": "CH26/028/00_thumb_3.png",
+          "created_at": "2026-01-22T10:16:07.845594+00:00",
+          "updated_at": "2026-01-22T14:14:57.737546+00:00"
+        },
+        {
           "id": "fs::ch26_028_00_thumb",
           "label": "thumb_00",
           "status": "review",
           "image_url": "/thumbnails/assets/CH26/028/00_thumb.png",
           "image_path": "CH26/028/00_thumb.png",
           "created_at": "2025-12-30T00:48:16.724796+00:00",
-          "updated_at": "2025-12-30T00:48:16.724797+00:00"
+          "updated_at": "2026-01-22T14:31:18.185875+00:00"
         },
         {
           "id": "fs::ch26_028_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/028/00_thumb_1.png",
           "image_path": "CH26/028/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:37.154009+00:00",
-          "updated_at": "2025-12-29T08:10:08.382350+00:00"
+          "updated_at": "2026-01-22T14:28:59.744119+00:00"
         },
         {
           "id": "fs::ch26_028_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/028/00_thumb_2.png",
           "image_path": "CH26/028/00_thumb_2.png",
           "created_at": "2025-12-27T03:43:37.154009+00:00",
-          "updated_at": "2025-12-29T08:10:08.380140+00:00"
+          "updated_at": "2026-01-22T14:29:56.476476+00:00"
         }
       ],
       "title": "【TPSの型】冗長性で崩れない仕組みを作れ",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:31:18.185880+00:00",
       "selected_variant_id": "fs::ch26_028_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "status_updated_at": "2026-01-22T14:31:18.185860+00:00",
       "notes": "偉人はもっと下にずらす\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -4010,34 +4379,61 @@
       "video": "029",
       "variants": [
         {
+          "id": "fs::ch26_029_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/029/00_thumb.png",
+          "image_path": "CH26/029/00_thumb.png",
+          "created_at": "2026-01-22T14:31:20.210940+00:00",
+          "updated_at": "2026-01-22T14:31:20.210941+00:00"
+        },
+        {
+          "id": "fs::ch26_029_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/029/00_thumb_3.png",
+          "image_path": "CH26/029/00_thumb_3.png",
+          "created_at": "2026-01-22T10:16:09.123990+00:00",
+          "updated_at": "2026-01-22T14:14:59.313723+00:00"
+        },
+        {
           "id": "fs::ch26_029_00_thumb_1",
-          "label": "00_thumb_1",
+          "label": "顔B（実在）",
           "status": "review",
           "image_url": "/thumbnails/assets/CH26/029/00_thumb_1.png",
           "image_path": "CH26/029/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:47.989830+00:00",
-          "updated_at": "2026-01-06T01:55:22.769519+00:00"
+          "updated_at": "2026-01-22T14:29:01.277919+00:00"
         },
         {
           "id": "fs::ch26_029_00_thumb_2",
-          "label": "00_thumb_2",
+          "label": "顔A（背景）",
           "status": "review",
           "image_url": "/thumbnails/assets/CH26/029/00_thumb_2.png",
           "image_path": "CH26/029/00_thumb_2.png",
           "created_at": "2025-12-27T03:43:47.989830+00:00",
-          "updated_at": "2026-01-05T18:46:11.177348+00:00"
+          "updated_at": "2026-01-22T14:29:57.640077+00:00"
         }
       ],
       "title": "【コヴィー流】重要な2つだけ残せ",
-      "updated_at": "2026-01-06T01:55:22.769520+00:00",
+      "updated_at": "2026-01-22T14:31:20.210951+00:00",
       "selected_variant_id": "fs::ch26_029_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2026-01-06T01:55:22.769499+00:00"
+      "status_updated_at": "2026-01-22T14:31:20.210923+00:00"
     },
     {
       "channel": "CH26",
       "video": "030",
       "variants": [
+        {
+          "id": "fs::ch26_030_00_thumb_3",
+          "label": "追加（FluxMax）",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH26/030/00_thumb_3.png",
+          "image_path": "CH26/030/00_thumb_3.png",
+          "created_at": "2026-01-22T10:16:10.941082+00:00",
+          "updated_at": "2026-01-22T14:15:00.966912+00:00"
+        },
         {
           "id": "fs::ch26_030_00_thumb",
           "label": "thumb_00",
@@ -4045,32 +4441,32 @@
           "image_url": "/thumbnails/assets/CH26/030/00_thumb.png",
           "image_path": "CH26/030/00_thumb.png",
           "created_at": "2025-12-30T00:48:37.885653+00:00",
-          "updated_at": "2025-12-30T00:48:37.885655+00:00"
+          "updated_at": "2026-01-22T14:31:22.897035+00:00"
         },
         {
           "id": "fs::ch26_030_00_thumb_1",
           "label": "顔B（実在）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/030/00_thumb_1.png",
           "image_path": "CH26/030/00_thumb_1.png",
           "created_at": "2025-12-27T03:43:59.517457+00:00",
-          "updated_at": "2025-12-29T08:10:22.565567+00:00"
+          "updated_at": "2026-01-22T14:29:03.184644+00:00"
         },
         {
           "id": "fs::ch26_030_00_thumb_2",
           "label": "顔A（背景）",
-          "status": "in_progress",
+          "status": "review",
           "image_url": "/thumbnails/assets/CH26/030/00_thumb_2.png",
           "image_path": "CH26/030/00_thumb_2.png",
           "created_at": "2025-12-27T03:43:59.517457+00:00",
-          "updated_at": "2025-12-29T08:10:22.562595+00:00"
+          "updated_at": "2026-01-22T14:29:59.085845+00:00"
         }
       ],
       "title": "【セネカ式】結論、基準がないから焦る",
-      "updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "updated_at": "2026-01-22T14:31:22.897038+00:00",
       "selected_variant_id": "fs::ch26_030_00_thumb_1",
       "status": "review",
-      "status_updated_at": "2025-12-30T00:48:39.329618+00:00",
+      "status_updated_at": "2026-01-22T14:31:22.897017+00:00",
       "notes": "偉人はもっと明るく\n修正済み: engine=layer_specs_v3 bg(b=1.15 c=1.08 s=1.04 g=0.92) / QC=contactsheet_ch26_comment_set.png / 2025-12-30T00:43:08.144835+00:00"
     },
     {
@@ -19754,6 +20150,576 @@
       "updated_at": "2026-01-11T08:14:54.850039+00:00",
       "notes": null,
       "selected_variant_id": "fs::ch31_030_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "031",
+      "variants": [
+        {
+          "id": "fs::ch22_031_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/031/00_thumb.png",
+          "image_path": "CH22/031/00_thumb.png",
+          "created_at": "2026-01-21T08:16:59.737667+00:00",
+          "updated_at": "2026-01-21T08:16:59.737669+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:16:59.737634+00:00",
+      "updated_at": "2026-01-21T08:16:59.737670+00:00",
+      "selected_variant_id": "fs::ch22_031_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "032",
+      "variants": [
+        {
+          "id": "fs::ch22_032_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/032/00_thumb.png",
+          "image_path": "CH22/032/00_thumb.png",
+          "created_at": "2026-01-21T08:18:26.625901+00:00",
+          "updated_at": "2026-01-21T08:18:26.625902+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:18:26.625870+00:00",
+      "updated_at": "2026-01-21T08:18:26.625904+00:00",
+      "selected_variant_id": "fs::ch22_032_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "033",
+      "variants": [
+        {
+          "id": "fs::ch22_033_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/033/00_thumb.png",
+          "image_path": "CH22/033/00_thumb.png",
+          "created_at": "2026-01-21T08:18:54.204960+00:00",
+          "updated_at": "2026-01-21T08:18:54.204963+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:18:54.204930+00:00",
+      "updated_at": "2026-01-21T08:18:54.204964+00:00",
+      "selected_variant_id": "fs::ch22_033_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "034",
+      "variants": [
+        {
+          "id": "fs::ch22_034_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/034/00_thumb.png",
+          "image_path": "CH22/034/00_thumb.png",
+          "created_at": "2026-01-21T08:23:41.428735+00:00",
+          "updated_at": "2026-01-21T08:23:41.428737+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:23:41.428704+00:00",
+      "updated_at": "2026-01-21T08:23:41.428738+00:00",
+      "selected_variant_id": "fs::ch22_034_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "035",
+      "variants": [
+        {
+          "id": "fs::ch22_035_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/035/00_thumb.png",
+          "image_path": "CH22/035/00_thumb.png",
+          "created_at": "2026-01-21T08:25:42.307386+00:00",
+          "updated_at": "2026-01-21T08:25:42.307388+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:25:42.307359+00:00",
+      "updated_at": "2026-01-21T08:25:42.307389+00:00",
+      "selected_variant_id": "fs::ch22_035_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "037",
+      "variants": [
+        {
+          "id": "fs::ch22_037_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/037/00_thumb.png",
+          "image_path": "CH22/037/00_thumb.png",
+          "created_at": "2026-01-21T08:28:01.081139+00:00",
+          "updated_at": "2026-01-21T08:28:01.081140+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:28:01.081108+00:00",
+      "updated_at": "2026-01-21T08:28:01.081142+00:00",
+      "selected_variant_id": "fs::ch22_037_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "039",
+      "variants": [
+        {
+          "id": "fs::ch22_039_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/039/00_thumb.png",
+          "image_path": "CH22/039/00_thumb.png",
+          "created_at": "2026-01-21T08:30:58.569608+00:00",
+          "updated_at": "2026-01-21T08:30:58.569610+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:30:58.569555+00:00",
+      "updated_at": "2026-01-21T08:30:58.569612+00:00",
+      "selected_variant_id": "fs::ch22_039_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "040",
+      "variants": [
+        {
+          "id": "fs::ch22_040_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/040/00_thumb.png",
+          "image_path": "CH22/040/00_thumb.png",
+          "created_at": "2026-01-21T08:31:51.276904+00:00",
+          "updated_at": "2026-01-21T08:31:51.276906+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:31:51.276854+00:00",
+      "updated_at": "2026-01-21T08:31:51.276908+00:00",
+      "selected_variant_id": "fs::ch22_040_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "036",
+      "variants": [
+        {
+          "id": "fs::ch22_036_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/036/00_thumb.png",
+          "image_path": "CH22/036/00_thumb.png",
+          "created_at": "2026-01-21T08:33:10.764326+00:00",
+          "updated_at": "2026-01-21T08:33:10.764329+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:33:10.764234+00:00",
+      "updated_at": "2026-01-21T08:33:10.764332+00:00",
+      "selected_variant_id": "fs::ch22_036_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "038",
+      "variants": [
+        {
+          "id": "fs::ch22_038_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/038/00_thumb.png",
+          "image_path": "CH22/038/00_thumb.png",
+          "created_at": "2026-01-21T08:34:41.804173+00:00",
+          "updated_at": "2026-01-21T08:34:41.804176+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:34:41.804098+00:00",
+      "updated_at": "2026-01-21T08:34:41.804180+00:00",
+      "selected_variant_id": "fs::ch22_038_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "041",
+      "variants": [
+        {
+          "id": "fs::ch22_041_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/041/00_thumb.png",
+          "image_path": "CH22/041/00_thumb.png",
+          "created_at": "2026-01-21T08:36:24.235228+00:00",
+          "updated_at": "2026-01-21T08:36:24.235233+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:36:24.235189+00:00",
+      "updated_at": "2026-01-21T08:36:24.235235+00:00",
+      "selected_variant_id": "fs::ch22_041_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "042",
+      "variants": [
+        {
+          "id": "fs::ch22_042_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/042/00_thumb.png",
+          "image_path": "CH22/042/00_thumb.png",
+          "created_at": "2026-01-21T08:38:41.943894+00:00",
+          "updated_at": "2026-01-21T08:38:41.943896+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:38:41.943835+00:00",
+      "updated_at": "2026-01-21T08:38:41.943897+00:00",
+      "selected_variant_id": "fs::ch22_042_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "043",
+      "variants": [
+        {
+          "id": "fs::ch22_043_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/043/00_thumb.png",
+          "image_path": "CH22/043/00_thumb.png",
+          "created_at": "2026-01-21T08:39:34.548142+00:00",
+          "updated_at": "2026-01-21T08:39:34.548144+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:39:34.548086+00:00",
+      "updated_at": "2026-01-21T08:39:34.548145+00:00",
+      "selected_variant_id": "fs::ch22_043_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "045",
+      "variants": [
+        {
+          "id": "fs::ch22_045_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/045/00_thumb.png",
+          "image_path": "CH22/045/00_thumb.png",
+          "created_at": "2026-01-21T08:45:31.886108+00:00",
+          "updated_at": "2026-01-21T08:45:31.886111+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:45:31.886049+00:00",
+      "updated_at": "2026-01-21T08:45:31.886113+00:00",
+      "selected_variant_id": "fs::ch22_045_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "044",
+      "variants": [
+        {
+          "id": "fs::ch22_044_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/044/00_thumb.png",
+          "image_path": "CH22/044/00_thumb.png",
+          "created_at": "2026-01-21T08:47:35.238284+00:00",
+          "updated_at": "2026-01-21T08:47:35.238286+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:47:35.238251+00:00",
+      "updated_at": "2026-01-21T08:47:35.238288+00:00",
+      "selected_variant_id": "fs::ch22_044_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "046",
+      "variants": [
+        {
+          "id": "fs::ch22_046_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/046/00_thumb.png",
+          "image_path": "CH22/046/00_thumb.png",
+          "created_at": "2026-01-21T08:49:01.089157+00:00",
+          "updated_at": "2026-01-21T08:49:01.089159+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:49:01.089125+00:00",
+      "updated_at": "2026-01-21T08:49:01.089161+00:00",
+      "selected_variant_id": "fs::ch22_046_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "047",
+      "variants": [
+        {
+          "id": "fs::ch22_047_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/047/00_thumb.png",
+          "image_path": "CH22/047/00_thumb.png",
+          "created_at": "2026-01-21T08:49:44.769530+00:00",
+          "updated_at": "2026-01-21T08:49:44.769532+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:49:44.769476+00:00",
+      "updated_at": "2026-01-21T08:49:44.769533+00:00",
+      "selected_variant_id": "fs::ch22_047_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "049",
+      "variants": [
+        {
+          "id": "fs::ch22_049_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/049/00_thumb.png",
+          "image_path": "CH22/049/00_thumb.png",
+          "created_at": "2026-01-21T08:58:31.230255+00:00",
+          "updated_at": "2026-01-21T08:58:31.230283+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T08:58:31.229729+00:00",
+      "updated_at": "2026-01-21T08:58:31.230302+00:00",
+      "selected_variant_id": "fs::ch22_049_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "050",
+      "variants": [
+        {
+          "id": "fs::ch22_050_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/050/00_thumb.png",
+          "image_path": "CH22/050/00_thumb.png",
+          "created_at": "2026-01-21T09:01:59.850510+00:00",
+          "updated_at": "2026-01-21T09:01:59.850512+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:01:59.850470+00:00",
+      "updated_at": "2026-01-21T09:01:59.850516+00:00",
+      "selected_variant_id": "fs::ch22_050_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "048",
+      "variants": [
+        {
+          "id": "fs::ch22_048_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/048/00_thumb.png",
+          "image_path": "CH22/048/00_thumb.png",
+          "created_at": "2026-01-21T09:02:56.177084+00:00",
+          "updated_at": "2026-01-21T09:02:56.177086+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:02:56.177050+00:00",
+      "updated_at": "2026-01-21T09:02:56.177088+00:00",
+      "selected_variant_id": "fs::ch22_048_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "052",
+      "variants": [
+        {
+          "id": "fs::ch22_052_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/052/00_thumb.png",
+          "image_path": "CH22/052/00_thumb.png",
+          "created_at": "2026-01-21T09:08:37.585310+00:00",
+          "updated_at": "2026-01-21T09:08:37.585313+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:08:37.585281+00:00",
+      "updated_at": "2026-01-21T09:08:37.585315+00:00",
+      "selected_variant_id": "fs::ch22_052_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "053",
+      "variants": [
+        {
+          "id": "fs::ch22_053_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/053/00_thumb.png",
+          "image_path": "CH22/053/00_thumb.png",
+          "created_at": "2026-01-21T09:09:15.258890+00:00",
+          "updated_at": "2026-01-21T09:09:15.258892+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:09:15.258850+00:00",
+      "updated_at": "2026-01-21T09:09:15.258893+00:00",
+      "selected_variant_id": "fs::ch22_053_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "054",
+      "variants": [
+        {
+          "id": "fs::ch22_054_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/054/00_thumb.png",
+          "image_path": "CH22/054/00_thumb.png",
+          "created_at": "2026-01-21T09:12:55.387214+00:00",
+          "updated_at": "2026-01-21T09:12:55.387216+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:12:55.387170+00:00",
+      "updated_at": "2026-01-21T09:12:55.387217+00:00",
+      "selected_variant_id": "fs::ch22_054_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "055",
+      "variants": [
+        {
+          "id": "fs::ch22_055_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/055/00_thumb.png",
+          "image_path": "CH22/055/00_thumb.png",
+          "created_at": "2026-01-21T09:16:15.378085+00:00",
+          "updated_at": "2026-01-21T09:16:15.378100+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:16:15.377947+00:00",
+      "updated_at": "2026-01-21T09:16:15.378108+00:00",
+      "selected_variant_id": "fs::ch22_055_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "051",
+      "variants": [
+        {
+          "id": "fs::ch22_051_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/051/00_thumb.png",
+          "image_path": "CH22/051/00_thumb.png",
+          "created_at": "2026-01-21T09:17:18.298719+00:00",
+          "updated_at": "2026-01-21T09:17:18.298720+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:17:18.298681+00:00",
+      "updated_at": "2026-01-21T09:17:18.298722+00:00",
+      "selected_variant_id": "fs::ch22_051_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "056",
+      "variants": [
+        {
+          "id": "fs::ch22_056_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/056/00_thumb.png",
+          "image_path": "CH22/056/00_thumb.png",
+          "created_at": "2026-01-21T09:19:13.026959+00:00",
+          "updated_at": "2026-01-21T09:19:13.026961+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:19:13.026929+00:00",
+      "updated_at": "2026-01-21T09:19:13.026963+00:00",
+      "selected_variant_id": "fs::ch22_056_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "057",
+      "variants": [
+        {
+          "id": "fs::ch22_057_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/057/00_thumb.png",
+          "image_path": "CH22/057/00_thumb.png",
+          "created_at": "2026-01-21T09:20:05.008095+00:00",
+          "updated_at": "2026-01-21T09:20:05.008097+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:20:05.008026+00:00",
+      "updated_at": "2026-01-21T09:20:05.008098+00:00",
+      "selected_variant_id": "fs::ch22_057_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "058",
+      "variants": [
+        {
+          "id": "fs::ch22_058_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/058/00_thumb.png",
+          "image_path": "CH22/058/00_thumb.png",
+          "created_at": "2026-01-21T09:24:20.751089+00:00",
+          "updated_at": "2026-01-21T09:24:20.751091+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:24:20.751027+00:00",
+      "updated_at": "2026-01-21T09:24:20.751093+00:00",
+      "selected_variant_id": "fs::ch22_058_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "059",
+      "variants": [
+        {
+          "id": "fs::ch22_059_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/059/00_thumb.png",
+          "image_path": "CH22/059/00_thumb.png",
+          "created_at": "2026-01-21T09:25:08.219295+00:00",
+          "updated_at": "2026-01-21T09:25:08.219297+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:25:08.219260+00:00",
+      "updated_at": "2026-01-21T09:25:08.219298+00:00",
+      "selected_variant_id": "fs::ch22_059_00_thumb"
+    },
+    {
+      "channel": "CH22",
+      "video": "060",
+      "variants": [
+        {
+          "id": "fs::ch22_060_00_thumb",
+          "label": "thumb_00",
+          "status": "review",
+          "image_url": "/thumbnails/assets/CH22/060/00_thumb.png",
+          "image_path": "CH22/060/00_thumb.png",
+          "created_at": "2026-01-21T09:25:50.221021+00:00",
+          "updated_at": "2026-01-21T09:25:50.221023+00:00"
+        }
+      ],
+      "status": "review",
+      "status_updated_at": "2026-01-21T09:25:50.220993+00:00",
+      "updated_at": "2026-01-21T09:25:50.221024+00:00",
+      "selected_variant_id": "fs::ch22_060_00_thumb"
     }
   ]
 }

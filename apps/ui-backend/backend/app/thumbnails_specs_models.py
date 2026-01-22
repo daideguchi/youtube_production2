@@ -21,7 +21,7 @@ class ThumbnailThumbSpecUpdateRequest(BaseModel):
 class ThumbnailThumbSpecResponse(BaseModel):
     exists: bool
     path: Optional[str] = None
-    schema: Optional[str] = None
+    schema_: Optional[str] = Field(default=None, alias="schema")
     channel: str
     video: str
     overrides: Dict[str, Any] = Field(default_factory=dict)
@@ -43,7 +43,7 @@ class ThumbnailTextLineSpecUpdateRequest(BaseModel):
 class ThumbnailTextLineSpecResponse(BaseModel):
     exists: bool
     path: Optional[str] = None
-    schema: str = THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1
+    schema_: str = Field(default=THUMBNAIL_TEXT_LINE_SPEC_SCHEMA_V1, alias="schema")
     channel: str
     video: str
     stable: str
@@ -79,10 +79,9 @@ class ThumbnailElementsSpecUpdateRequest(BaseModel):
 class ThumbnailElementsSpecResponse(BaseModel):
     exists: bool
     path: Optional[str] = None
-    schema: str = THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1
+    schema_: str = Field(default=THUMBNAIL_ELEMENTS_SPEC_SCHEMA_V1, alias="schema")
     channel: str
     video: str
     stable: str
     elements: List[ThumbnailElementPayload] = Field(default_factory=list)
     updated_at: Optional[str] = None
-

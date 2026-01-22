@@ -383,11 +383,6 @@ except Exception as e:  # pragma: no cover - optional router
     _llm_usage_import_error = e
 
 try:
-    import google.generativeai as genai
-except Exception:  # pragma: no cover - optional dependency
-    genai = None
-
-try:
     from openai import OpenAI
 except Exception:  # pragma: no cover - optional dependency
     OpenAI = None

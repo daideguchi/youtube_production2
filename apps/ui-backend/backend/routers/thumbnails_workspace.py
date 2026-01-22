@@ -72,6 +72,8 @@ router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
 
 @router.get("", response_model=ThumbnailOverviewResponse)
 def get_thumbnail_overview():
+    from backend import main as backend_main
+
     projects_path = _resolve_thumbnail_projects_path()
 
     try:

@@ -17,7 +17,7 @@ THUMBNAIL_ASSETS_DIR = ssot_thumbnails_root() / "assets"
 def _coerce_video_from_dir(name: str) -> Optional[str]:
     if not name:
         return None
-    match = re.match(r"(\\d+)", name.strip())
+    match = re.match(r"(\d+)", name.strip())
     if not match:
         return None
     return match.group(1).zfill(3)

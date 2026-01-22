@@ -21,6 +21,10 @@ global:
       alpha_bottom: 0.92
   fonts:
     top_white_bench_priority:
+      - 'Hiragino Sans W6'
+      - 'ヒラギノ角ゴシック W6'
+      - 'Hiragino Kaku Gothic ProN W6'
+      - 'ヒラギノ角ゴ ProN W6'
       - 'Hiragino Mincho ProN W6'
       - 'ヒラギノ明朝 ProN W6'
       - 'Toppan Bunkyu Mincho'
@@ -59,12 +63,13 @@ templates:
         box: [0.0730, 0.0650, 0.8540, 0.2000]
         font: top_white_bench_priority
         fill: white_fill
-        base_size_px: 160
+        base_size_px: 180
         align: center
         valign: top
-        tracking: -20
+        tracking: -16
         max_lines: 1
-        stroke: false
+        stroke: true
+        stroke_width_px: 12
         shadow: true
         shadow_override: {alpha: 0.78, offset_px: [0,6], blur_px: 16}
         glow: false
@@ -90,12 +95,13 @@ templates:
         box: [0.0200, 0.0200, 0.9600, 0.2600]
         font: top_white_bench_priority
         fill: white_fill
-        base_size_px: 240
+        base_size_px: 270
         align: center
         valign: top
-        tracking: -12
+        tracking: -10
         max_lines: 1
-        stroke: false
+        stroke: true
+        stroke_width_px: 12
         shadow: true
         shadow_override: {alpha: 0.82, offset_px: [0,6], blur_px: 16}
         glow: false
@@ -106,12 +112,13 @@ templates:
         box: [0.0730, 0.0650, 0.8540, 0.2000]
         font: top_white_bench_priority
         fill: white_fill
-        base_size_px: 150
+        base_size_px: 170
         align: center
         valign: top
-        tracking: -18
+        tracking: -16
         max_lines: 1
-        stroke: false
+        stroke: true
+        stroke_width_px: 12
         shadow: true
         shadow_override: {alpha: 0.78, offset_px: [0,6], blur_px: 16}
         glow: false
@@ -136,12 +143,13 @@ templates:
         box: [0.0730, 0.0650, 0.8540, 0.2000]
         font: top_white_bench_priority
         fill: white_fill
-        base_size_px: 160
+        base_size_px: 180
         align: center
         valign: top
-        tracking: -20
+        tracking: -16
         max_lines: 1
-        stroke: false
+        stroke: true
+        stroke_width_px: 12
         shadow: true
         shadow_override: {alpha: 0.78, offset_px: [0,6], blur_px: 16}
         glow: false

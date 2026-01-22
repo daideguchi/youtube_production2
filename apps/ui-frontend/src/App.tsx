@@ -2,6 +2,7 @@ import "./App.css";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./layouts/AppShell";
 import { DashboardPage } from "./pages/DashboardPage";
+import { HqPortalPage } from "./pages/HqPortalPage";
 import { PublishingProgressPage } from "./pages/PublishingProgressPage";
 import { WorkflowPage } from "./pages/WorkflowPage";
 import { ScriptFactoryPage } from "./pages/ScriptFactoryPage";
@@ -52,6 +53,7 @@ function App() {
     <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route element={<AppShell />}>
+        <Route path="/hq" element={<HqPortalPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/publishing-progress" element={<PublishingProgressPage />} />
         <Route path="/audit" element={<AuditPage />} />

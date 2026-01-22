@@ -68,7 +68,7 @@ type StatusFilter = "all" | "draft" | "in_progress" | "review" | "approved" | "a
 
 type ThumbnailWorkspaceTab = "bulk" | "projects" | "gallery" | "qc" | "templates" | "library" | "channel";
 
-type GalleryVariantMode = "selected" | "all" | "two_up";
+type GalleryVariantMode = "selected" | "all" | "two_up" | "three_up";
 
 type ThumbnailGalleryItem = {
   key: string;
@@ -784,7 +784,7 @@ function getProjectKey(project: ThumbnailProject): string {
 
 function parseGalleryVariantMode(value: string | null | undefined): GalleryVariantMode | null {
   const v = (value ?? "").trim();
-  if (v === "selected" || v === "all" || v === "two_up") {
+  if (v === "selected" || v === "all" || v === "two_up" || v === "three_up") {
     return v;
   }
   return null;
@@ -1120,6 +1120,20 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     );
   }, [activeChannel]);
 
+  const channelHasThreeUpVariants = useMemo(() => {
+    if (!activeChannel) {
+      return false;
+    }
+    return activeChannel.projects.some((project) =>
+      (project.variants ?? []).some((variant) => {
+        return (
+          hasThumbFileSuffix(variant.image_path, "00_thumb_3.png") ||
+          hasThumbFileSuffix(variant.image_url, "00_thumb_3.png")
+        );
+      })
+    );
+  }, [activeChannel]);
+
   useEffect(() => {
     const channelCode = activeChannel?.channel;
     if (!channelCode) {
@@ -1129,14 +1143,24 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     const storageKey = `ui.thumbnails.gallery_variant_mode.${channelCode}`;
     const stored = parseGalleryVariantMode(safeLocalStorage.getItem(storageKey));
     if (stored) {
-      // Prefer "two_up" for channels that are known to ship 2 fixed renders
-      // (00_thumb_1 / 00_thumb_2). This matches the expected CH26 flow (30*2=60).
-      const resolved = stored === "selected" && channelHasTwoUpVariants ? "two_up" : stored;
+      // Prefer fixed-slot views for channels that ship multiple stable variants.
+      const resolved = (() => {
+        if (stored !== "selected") {
+          return stored;
+        }
+        if (channelHasThreeUpVariants) {
+          return "three_up";
+        }
+        if (channelHasTwoUpVariants) {
+          return "two_up";
+        }
+        return stored;
+      })();
       setGalleryVariantMode((current) => (current === resolved ? current : resolved));
       return;
     }
-    setGalleryVariantMode(channelHasTwoUpVariants ? "two_up" : "selected");
-  }, [activeChannel?.channel, channelHasTwoUpVariants]);
+    setGalleryVariantMode(channelHasThreeUpVariants ? "three_up" : channelHasTwoUpVariants ? "two_up" : "selected");
+  }, [activeChannel?.channel, channelHasThreeUpVariants, channelHasTwoUpVariants]);
 
   useEffect(() => {
     const channelCode = activeChannel?.channel;
@@ -1148,18 +1172,20 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   }, [activeChannel?.channel, galleryVariantMode]);
 
   useEffect(() => {
-    if (galleryVariantMode !== "two_up") {
+    if (galleryVariantMode !== "two_up" && galleryVariantMode !== "three_up") {
       return;
     }
     const projectCount = activeChannel?.projects.length ?? 0;
     if (!projectCount) {
       return;
     }
-    const target = Math.max(DEFAULT_GALLERY_LIMIT, projectCount * 2);
+    const perProject = galleryVariantMode === "three_up" ? 3 : 2;
+    const target = Math.max(DEFAULT_GALLERY_LIMIT, projectCount * perProject);
     setGalleryLimit((prev) => (prev >= target ? prev : target));
   }, [activeChannel?.channel, activeChannel?.projects.length, galleryVariantMode]);
 
   const isTwoUpMode = galleryVariantMode === "two_up";
+  const isThreeUpMode = galleryVariantMode === "three_up";
 
   const galleryItems: ThumbnailGalleryItem[] = useMemo(() => {
     if (!activeChannel) {
@@ -1178,6 +1204,27 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         for (const variant of variants) {
           items.push({ key: `${projectKey}#${variant.id}`, project, variant });
         }
+        continue;
+      }
+      if (galleryVariantMode === "three_up") {
+        items.push({
+          key: `${projectKey}#thumb_1`,
+          project,
+          variant: findVariantByThumbFile(project, "00_thumb_1.png"),
+          slotLabel: "00_thumb_1",
+        });
+        items.push({
+          key: `${projectKey}#thumb_2`,
+          project,
+          variant: findVariantByThumbFile(project, "00_thumb_2.png"),
+          slotLabel: "00_thumb_2",
+        });
+        items.push({
+          key: `${projectKey}#thumb_3`,
+          project,
+          variant: findVariantByThumbFile(project, "00_thumb_3.png"),
+          slotLabel: "00_thumb_3",
+        });
         continue;
       }
       if (galleryVariantMode === "two_up") {
@@ -2001,8 +2048,10 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         <div>
           <h3>ギャラリー</h3>
           <p>
-            {galleryVariantMode === "two_up"
-              ? "00_thumb_1/00_thumb_2（2案）を一覧表示します。"
+            {galleryVariantMode === "three_up"
+              ? "00_thumb_1/00_thumb_2/00_thumb_3（3案）を一覧表示します。"
+              : galleryVariantMode === "two_up"
+                ? "00_thumb_1/00_thumb_2（2案）を一覧表示します。"
               : galleryVariantMode === "all"
                 ? "全バリアントを一覧表示し、ZIPでまとめてダウンロードできます。"
                 : "選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。"}{" "}
@@ -2010,7 +2059,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
               （{Math.min(galleryItems.length, galleryLimit)} / {galleryItems.length}枚）
             </span>
           </p>
-          {channelHasTwoUpVariants && galleryVariantMode !== "two_up" ? (
+          {channelHasThreeUpVariants && galleryVariantMode !== "three_up" ? (
+            <p className="muted small-text" style={{ marginTop: 6 }}>
+              このチャンネルは <strong>3案（00_thumb_1/00_thumb_2/00_thumb_3）</strong> を持っています。{" "}
+              <button type="button" className="link-button" onClick={() => setGalleryVariantMode("three_up")}>
+                3案を表示
+              </button>
+            </p>
+          ) : channelHasTwoUpVariants && galleryVariantMode !== "two_up" ? (
             <p className="muted small-text" style={{ marginTop: 6 }}>
               このチャンネルは <strong>2案（00_thumb_1/00_thumb_2）</strong> を持っています。{" "}
               <button type="button" className="link-button" onClick={() => setGalleryVariantMode("two_up")}>
@@ -2029,6 +2085,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
               <option value="selected">選択中のみ</option>
               <option value="all">全バリアント</option>
               <option value="two_up">2案（00_thumb_1/2）</option>
+              {channelHasThreeUpVariants ? <option value="three_up">3案（00_thumb_1/2/3）</option> : null}
             </select>
           </label>
           <input
@@ -2087,7 +2144,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             if (!base) {
               return slotLabel;
             }
-            if (isTwoUpMode && slotLabel) {
+            if ((isTwoUpMode || isThreeUpMode) && slotLabel) {
               return `${slotLabel} / ${base}`;
             }
             return base;
@@ -2101,11 +2158,13 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                   <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
                     {project.title ?? "（タイトル未設定）"}
                   </div>
-                  {isTwoUpMode && slotLabel ? <div className="thumbnail-gallery-card__variant">{slotLabel}</div> : null}
+                  {(isTwoUpMode || isThreeUpMode) && slotLabel ? (
+                    <div className="thumbnail-gallery-card__variant">{slotLabel}</div>
+                  ) : null}
                   <div className="thumbnail-gallery-card__note">
-                    {isTwoUpMode && slotLabel ? `${slotLabel} 未生成` : "サムネ未登録"}
+                    {(isTwoUpMode || isThreeUpMode) && slotLabel ? `${slotLabel} 未生成` : "サムネ未登録"}
                   </div>
-                  {isTwoUpMode && slotLabel ? (
+                  {(isTwoUpMode || isThreeUpMode) && slotLabel ? (
                     <div className="thumbnail-gallery-card__buttons">
                       <button
                         type="button"
@@ -2140,7 +2199,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
           }
 
           const stableForEdit = (() => {
-            if (isTwoUpMode && slotLabel) {
+            if ((isTwoUpMode || isThreeUpMode) && slotLabel) {
               return slotLabel;
             }
             if (
@@ -2156,6 +2215,13 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
               hasThumbFileSuffix(selectedVariant.preview_url, "00_thumb_2.png")
             ) {
               return "00_thumb_2";
+            }
+            if (
+              hasThumbFileSuffix(selectedVariant.image_path, "00_thumb_3.png") ||
+              hasThumbFileSuffix(selectedVariant.image_url, "00_thumb_3.png") ||
+              hasThumbFileSuffix(selectedVariant.preview_url, "00_thumb_3.png")
+            ) {
+              return "00_thumb_3";
             }
             return null;
           })();
@@ -2358,25 +2424,25 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
 	                    >
 	                      調整（ドラッグ）
 	                    </button>
-	                    {isTwoUpMode ? (
-	                      <button
-	                        type="button"
-	                        className="btn btn--ghost"
-	                        onClick={() =>
-	                          handleOpenLayerTuningDialog(project, {
-	                            stable: stableForEdit,
-	                            initialSelectedAsset: "text",
-	                            cardKey,
-	                          })
-	                        }
-	                      >
-	                        文字を編集
-	                      </button>
-	                    ) : (
-	                      <button
-	                        type="button"
-	                        className="btn btn--ghost"
-	                        onClick={() => handleOpenGalleryCopyEdit(project)}
+                    {isTwoUpMode || isThreeUpMode ? (
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() =>
+                          handleOpenLayerTuningDialog(project, {
+                            stable: stableForEdit,
+                            initialSelectedAsset: "text",
+                            cardKey,
+                          })
+                        }
+                      >
+                        文字を編集
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn--ghost"
+                        onClick={() => handleOpenGalleryCopyEdit(project)}
 	                      >
 	                        文字を編集
 	                      </button>
@@ -3161,9 +3227,13 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       project: ThumbnailProject,
       options?: { stable?: string | null; initialSelectedAsset?: "bg" | "portrait" | "text"; cardKey?: string }
     ) => {
-      const supportsTwoUp = galleryVariantMode === "two_up" || channelHasTwoUpVariants;
-      const stableCandidate = supportsTwoUp ? normalizeThumbnailStableId(options?.stable) : null;
-      const stable = supportsTwoUp ? stableCandidate ?? "00_thumb_1" : null;
+      const supportsStableVariants =
+        galleryVariantMode === "two_up" ||
+        galleryVariantMode === "three_up" ||
+        channelHasTwoUpVariants ||
+        channelHasThreeUpVariants;
+      const stableCandidate = supportsStableVariants ? normalizeThumbnailStableId(options?.stable) : null;
+      const stable = supportsStableVariants ? stableCandidate ?? "00_thumb_1" : null;
       const projectKey = getProjectKey(project);
       const cardKey = String(options?.cardKey || "").trim() || projectKey;
       const initialSelectedAsset = options?.initialSelectedAsset ?? "bg";
@@ -3192,7 +3262,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
       });
       setProjectFeedback(cardKey, null);
     },
-    [channelHasTwoUpVariants, galleryVariantMode, setProjectFeedback]
+    [channelHasThreeUpVariants, channelHasTwoUpVariants, galleryVariantMode, setProjectFeedback]
   );
 
   useEffect(() => {
@@ -3242,9 +3312,10 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         if (!base) {
           return base;
         }
-        if (/#thumb_[12]$/.test(base)) {
-          const suffix = nextStable === "00_thumb_2" ? "#thumb_2" : "#thumb_1";
-          return base.replace(/#thumb_[12]$/, suffix);
+        if (/#thumb_[123]$/.test(base)) {
+          const suffix =
+            nextStable === "00_thumb_3" ? "#thumb_3" : nextStable === "00_thumb_2" ? "#thumb_2" : "#thumb_1";
+          return base.replace(/#thumb_[123]$/, suffix);
         }
         return base;
       })();
@@ -7694,9 +7765,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
 	                </div>
 	                <h2>サムネ調整（Layer Specs）</h2>
 	                <p className="thumbnail-planning-dialog__meta">{layerTuningDialog.projectTitle}</p>
-	                {channelHasTwoUpVariants || galleryVariantMode === "two_up" ? (
+                {channelHasTwoUpVariants ||
+                channelHasThreeUpVariants ||
+                galleryVariantMode === "two_up" ||
+                galleryVariantMode === "three_up" ? (
 	                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginTop: 8 }}>
-	                    <span className="muted small-text">2案:</span>
+	                    <span className="muted small-text">
+	                      {channelHasThreeUpVariants || galleryVariantMode === "three_up" ? "3案:" : "2案:"}
+	                    </span>
 	                    <button
 	                      type="button"
 	                      className={`btn btn--ghost ${layerTuningDialog.stable === "00_thumb_1" ? "is-active" : ""}`}
@@ -7713,6 +7789,16 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
 	                    >
 	                      00_thumb_2
 	                    </button>
+	                    {channelHasThreeUpVariants || galleryVariantMode === "three_up" ? (
+	                      <button
+	                        type="button"
+	                        className={`btn btn--ghost ${layerTuningDialog.stable === "00_thumb_3" ? "is-active" : ""}`}
+	                        onClick={() => handleLayerTuningStableChange("00_thumb_3")}
+	                        disabled={layerTuningDialog.loading || layerTuningDialog.saving || layerTuningDialog.building}
+	                      >
+	                        00_thumb_3
+	                      </button>
+	                    ) : null}
 	                  </div>
 	                ) : null}
 	              </header>

@@ -15,9 +15,13 @@ const mockMode = searchParams.get('mock') === '1';
 // basenameを動的に設定
 const getRouterBasename = (): string => {
   const currentPath = window.location.pathname;
-  const basePath = '/youtube_production2';
-  const hasBasePath = currentPath === basePath || currentPath.startsWith(`${basePath}/`);
-  return hasBasePath ? basePath : '/';
+  const basePaths = ['/youtube_production2', '/ui'];
+  for (const basePath of basePaths) {
+    if (currentPath === basePath || currentPath.startsWith(`${basePath}/`)) {
+      return basePath;
+    }
+  }
+  return '/';
 };
 
 root.render(

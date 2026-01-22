@@ -209,35 +209,6 @@ function resolveScriptPolicy(catalog: SsotCatalog | null): ScriptPolicyInfo {
   };
 }
 
-type VideoImagePolicy = { requirement: string };
-
-const VIDEO_IMAGE_POLICY_DEFAULT: VideoImagePolicy = {
-  requirement: "デフォ: img-flux-schnell-1（= f-1）",
-};
-
-const VIDEO_IMAGE_POLICY_BY_CHANNEL: Record<string, VideoImagePolicy> = {
-  CH01: {
-    requirement: "絶対に高品質: img-flux-max-1（= f-4） or img-gemini-flash-1（= g-1）",
-  },
-  CH02: {
-    requirement: "img-flux-pro-1（= f-3） or img-flux-max-1（= f-4）",
-  },
-  CH04: {
-    requirement: "img-flux-pro-1（= f-3） / img-flux-max-1（= f-4） / img-gemini-flash-1（= g-1）",
-  },
-  CH06: {
-    requirement: "img-flux-pro-1（= f-3） / img-flux-max-1（= f-4） / img-gemini-flash-1（= g-1）",
-  },
-  CH08: {
-    requirement: "schnellメインでOK: img-flux-schnell-1（= f-1）",
-  },
-};
-
-function resolveVideoImagePolicy(code: string): VideoImagePolicy {
-  const key = String(code || "").trim().toUpperCase();
-  return VIDEO_IMAGE_POLICY_BY_CHANNEL[key] ?? VIDEO_IMAGE_POLICY_DEFAULT;
-}
-
 function videoRequirementShort(code: string): { label: string; tone: "normal" | "warn" } {
   const key = String(code || "").trim().toUpperCase();
   if (key === "CH01") return { label: "要件: 高品質必須", tone: "warn" };
@@ -245,12 +216,6 @@ function videoRequirementShort(code: string): { label: string; tone: "normal" | 
   if (key === "CH04" || key === "CH06") return { label: "要件: 高品質OK", tone: "normal" };
   if (key === "CH08") return { label: "要件: 速度優先OK", tone: "normal" };
   return { label: "要件: デフォルト", tone: "normal" };
-}
-
-function resolvePolicyNowAssumption(code: string): string {
-  const key = String(code || "").trim().toUpperCase();
-  if (key === "CH08") return "いまは Gemini（g-1）で回す（品質要件が緩いのでOK）";
-  return "いまは Gemini（g-1）で回す";
 }
 
 function resolveSsotModelOverrides(catalog: SsotCatalog | null | undefined): Array<{ env: string; task: string; selector: string }> {

@@ -1409,6 +1409,7 @@ export interface VideoProjectCue {
   emotional_tone?: string | null;
   image_model_key?: string | null;
   prompt?: string | null;
+  refined_prompt?: string | null;
   image_path?: string | null;
   context_reason?: string | null;
 }

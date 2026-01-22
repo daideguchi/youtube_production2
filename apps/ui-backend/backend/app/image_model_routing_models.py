@@ -46,7 +46,7 @@ class ChannelImageModelRouting(BaseModel):
 
 
 class ImageModelRoutingResponse(BaseModel):
-    schema: str = IMAGE_MODEL_ROUTING_SCHEMA_V1
+    schema_: str = Field(default=IMAGE_MODEL_ROUTING_SCHEMA_V1, alias="schema")
     generated_at: str
     blocked_model_keys: List[str] = Field(default_factory=list)
     models: List[ImageModelKeyInfo] = Field(default_factory=list)
@@ -57,4 +57,3 @@ class ImageModelRoutingResponse(BaseModel):
 class ImageModelRoutingUpdate(BaseModel):
     thumbnail_model_key: Optional[str] = None
     video_image_model_key: Optional[str] = None
-

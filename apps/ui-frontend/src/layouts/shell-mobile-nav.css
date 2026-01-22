@@ -1,0 +1,169 @@
+/*
+  Mobile navigation (drawer + top bar) for AppShell.
+  Loaded after `shell-layout-fixes.css` to safely override layout defaults.
+*/
+
+.shell-mobile-header {
+  display: none;
+}
+
+.shell-mobile-backdrop {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .workspace {
+    gap: 12px;
+  }
+
+  .workspace__main {
+    padding: 0 12px calc(28px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+  }
+
+  .main-content {
+    border-radius: 14px;
+  }
+
+  .main-content--workspace {
+    padding: 16px;
+  }
+
+  .workspace-button {
+    padding: 12px 18px;
+    min-height: 44px;
+  }
+
+  .shell-mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    background: rgba(17, 19, 24, 0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    box-sizing: border-box;
+  }
+
+  .shell-mobile-header__menu,
+  .shell-mobile-header__home {
+    appearance: none;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(248, 250, 252, 0.06);
+    color: rgba(248, 250, 252, 0.92);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 18px;
+    line-height: 1;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .shell-mobile-header__menu:active,
+  .shell-mobile-header__home:active {
+    background: rgba(248, 250, 252, 0.12);
+  }
+
+  .shell-mobile-header__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .shell-mobile-header__brand {
+    font-weight: 700;
+    font-size: 14px;
+    color: rgba(248, 250, 252, 0.95);
+    line-height: 1.2;
+  }
+
+  .shell-mobile-header__meta {
+    font-size: 12px;
+    color: rgba(226, 232, 240, 0.72);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .shell-mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    border: 0;
+    padding: 0;
+    margin: 0;
+    z-index: 70;
+  }
+
+  .shell-sidebar.shell-sidebar--drawer {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100svh;
+    width: min(340px, 88vw);
+    max-width: 88vw;
+    transform: translateX(-110%);
+    transition: transform 0.22s ease;
+    z-index: 75;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    border-right: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+  }
+
+  .shell-sidebar.shell-sidebar--drawer.shell-sidebar--drawer-open {
+    transform: translateX(0);
+  }
+
+  .shell-sidebar__header {
+    position: relative;
+    padding-right: 56px;
+  }
+
+  .shell-sidebar__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    appearance: none;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(248, 250, 252, 0.06);
+    color: rgba(248, 250, 252, 0.92);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 20px;
+    line-height: 1;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .shell-sidebar__close:active {
+    background: rgba(248, 250, 252, 0.12);
+  }
+
+  .shell-sidebar--drawer .shell-nav__item {
+    padding: 12px 12px;
+    font-size: 14px;
+  }
+
+  .shell-sidebar--drawer .shell-nav__section-title {
+    font-size: 10px;
+  }
+}

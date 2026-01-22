@@ -9,6 +9,10 @@ interface AppSidebarProps {
   pathname: string;
   repoLabel?: string | null;
   buildLabel?: string | null;
+  className?: string;
+  showCloseButton?: boolean;
+  onClose?: () => void;
+  onNavigate?: () => void;
 }
 
 export const AppSidebar = memo(function AppSidebar({
@@ -16,6 +20,10 @@ export const AppSidebar = memo(function AppSidebar({
   pathname,
   repoLabel,
   buildLabel,
+  className,
+  showCloseButton,
+  onClose,
+  onNavigate,
 }: AppSidebarProps) {
   const isChannelWorkspaceRoute =
     Boolean(matchPath("/channels/:channelCode/videos/:video", pathname) || matchPath("/channels/:channelCode", pathname)) ||
@@ -24,8 +32,13 @@ export const AppSidebar = memo(function AppSidebar({
   const isAudioIntegrityRoute = pathname.startsWith("/audio-integrity");
 
   return (
-    <aside className="shell-sidebar">
+    <aside className={className ?? "shell-sidebar"}>
       <div className="shell-sidebar__header">
+        {showCloseButton && onClose ? (
+          <button type="button" className="shell-sidebar__close" onClick={onClose} aria-label="メニューを閉じる">
+            ×
+          </button>
+        ) : null}
         <div className="shell-sidebar__brand">
           <span className="shell-avatar" aria-hidden>
             QC
@@ -57,6 +70,9 @@ export const AppSidebar = memo(function AppSidebar({
                   <NavLink
                     key={item.key}
                     to={item.path}
+                    onClick={() => {
+                      onNavigate?.();
+                    }}
                     className={({ isActive }) => {
                       const active =
                         isActive ||

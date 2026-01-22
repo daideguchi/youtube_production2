@@ -108,7 +108,7 @@ class ThumbnailCommentPatchOpResponse(BaseModel):
 
 
 class ThumbnailCommentPatchResponse(BaseModel):
-    schema: str = THUMBNAIL_COMMENT_PATCH_SCHEMA_V1
+    schema_: str = Field(default=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1, alias="schema")
     target: ThumbnailCommentPatchTargetResponse
     confidence: float = 0.0
     clarifying_questions: List[str] = Field(default_factory=list)
@@ -120,4 +120,3 @@ class ThumbnailCommentPatchResponse(BaseModel):
 class ThumbnailCommentPatchRequest(BaseModel):
     comment: str
     include_thumb_caption: bool = False
-

@@ -1,0 +1,132 @@
+.hq-portal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hq-portal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hq-portal__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.hq-portal__subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: rgba(100, 116, 139, 0.95);
+  line-height: 1.5;
+}
+
+.hq-portal__header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hq-portal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.hq-portal__card {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  padding: 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hq-portal__card h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.hq-portal__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.hq-portal__links a.workspace-button {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hq-portal__meta {
+  font-size: 12px;
+  color: rgba(71, 85, 105, 0.9);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.hq-portal__hint {
+  font-size: 12px;
+  color: rgba(71, 85, 105, 0.9);
+}
+
+.hq-portal__card--wide {
+  grid-column: 1 / -1;
+}
+
+.hq-portal__switch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.hq-portal__switch {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  padding: 12px 12px;
+  background: rgba(15, 23, 42, 0.03);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hq-portal__switch:active {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.hq-portal__switch-label {
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.9);
+}
+
+.hq-portal__switch-url {
+  font-size: 11px;
+  color: rgba(71, 85, 105, 0.92);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 960px) {
+  .hq-portal {
+    margin: 0;
+    max-width: none;
+  }
+}
+
