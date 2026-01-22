@@ -318,23 +318,87 @@ def _find_duplicate_visual_focus(sections: List["PlannedSection"]) -> Dict[str, 
 
 _TIME_CLICHE_PATTERN = re.compile(
     r"(?:"
-    r"pocket\s*watch|hourglass|stopwatch|timer|\bclock\b|"
+    r"pocket\s*watch|hourglass|stopwatch|\btimer\b|\bclock\b|"
     r"時計|懐中時計|砂時計|ストップウォッチ|タイマー"
     r")",
     re.IGNORECASE,
 )
 
+_TIMEPIECE_CATEGORIES: tuple[tuple[str, re.Pattern[str], re.Pattern[str]], ...] = (
+    (
+        "pocket_watch",
+        re.compile(r"(?:pocket\s*watch|懐中時計)", re.IGNORECASE),
+        re.compile(r"(?:pocket\s*watch|懐中時計)", re.IGNORECASE),
+    ),
+    (
+        "hourglass",
+        re.compile(r"(?:hourglass|砂時計)", re.IGNORECASE),
+        re.compile(r"(?:hourglass|砂時計)", re.IGNORECASE),
+    ),
+    (
+        "stopwatch",
+        re.compile(r"(?:stopwatch|ストップウォッチ)", re.IGNORECASE),
+        re.compile(r"(?:stopwatch|ストップウォッチ)", re.IGNORECASE),
+    ),
+    (
+        "timer",
+        re.compile(r"(?:\btimer\b|タイマー)", re.IGNORECASE),
+        re.compile(r"(?:\btimer\b|タイマー)", re.IGNORECASE),
+    ),
+    (
+        "clock",
+        re.compile(r"(?:\bclock\b|時計)", re.IGNORECASE),
+        re.compile(r"(?:\bclock\b|時計|腕時計|壁掛け時計|目覚まし時計)", re.IGNORECASE),
+    ),
+)
 
-def _find_time_cliche_sections(sections: List["PlannedSection"]) -> List[int]:
+
+def _slice_segment_text(segments: Optional[List[Dict[str, Any]]], start_segment: int, end_segment: int) -> str:
+    if not segments:
+        return ""
+    start = max(1, int(start_segment))
+    end = min(len(segments), int(end_segment))
+    if end < start:
+        return ""
+    parts: List[str] = []
+    for seg in segments[start - 1 : end]:
+        t = str(seg.get("text") or "").strip()
+        if t:
+            parts.append(t)
+    return " ".join(parts)
+
+
+def _timepiece_is_grounded_in_script(prompt_text: str, script_text: str) -> bool:
     """
-    SSOT: Avoid generic timepiece symbolism as a default filler (time -> watch/clock/hourglass).
+    Allow timepieces only when the corresponding section of the script mentions them.
+
+    This avoids false positives for scenes like "枕元に置いた時計..." while still
+    blocking generic symbolic fillers (e.g., pocket watch/hourglass) unless mentioned.
+    """
+    for _, prompt_pat, script_pat in _TIMEPIECE_CATEGORIES:
+        if prompt_pat.search(prompt_text) and not script_pat.search(script_text):
+            return False
+    return True
+
+
+def _find_time_cliche_sections(
+    sections: List["PlannedSection"], *, segments: Optional[List[Dict[str, Any]]] = None
+) -> List[int]:
+    """
+    SSOT: Avoid generic timepiece symbolism as a default filler (time -> watch/clock/hourglass),
+    unless the corresponding script section explicitly mentions that timepiece.
+
     This is a *plan* quality gate (LLM output), not an image prompt rewrite.
     """
     hits: List[int] = []
     for idx, sec in enumerate(sections, start=1):
         hay = f"{sec.visual_focus} {sec.refined_prompt}".strip()
-        if hay and _TIME_CLICHE_PATTERN.search(hay):
-            hits.append(idx)
+        if not hay or not _TIME_CLICHE_PATTERN.search(hay):
+            continue
+        script_text = _slice_segment_text(segments, sec.start_segment, sec.end_segment)
+        if script_text and _timepiece_is_grounded_in_script(hay, script_text):
+            continue
+        hits.append(idx)
     return hits
 
 
@@ -504,7 +568,7 @@ Script:
 
         repeats = _find_duplicate_visual_focus(sections)
         missing_refined = [i for i, s in enumerate(sections, start=1) if not str(s.refined_prompt or "").strip()]
-        time_cliche = _find_time_cliche_sections(sections)
+        time_cliche = _find_time_cliche_sections(sections, segments=segments)
         if not repeats and not missing_refined and not time_cliche:
             return sections
 

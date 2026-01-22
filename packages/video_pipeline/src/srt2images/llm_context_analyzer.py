@@ -74,6 +74,119 @@ class LLMContextAnalyzer:
                     logging.warning("SRT2IMAGES_VISUAL_BIBLE_PATH set but file not found: %s", p)
         LLM_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
+    def _truncate_summary(self, text: str, limit: int = 160) -> str:
+        t = " ".join(str(text or "").split())
+        return t if len(t) <= limit else t[: limit - 1].rstrip() + "…"
+
+    def _is_good_boundary(self, text: str) -> bool:
+        s = str(text or "").strip()
+        if not s:
+            return False
+        # Strip closing quotes/brackets commonly used at sentence ends.
+        while s and s[-1] in {"」", "』", "”", "\"", ")", "）"}:
+            s = s[:-1].rstrip()
+        return bool(s) and s[-1] in {"。", "！", "？", "!", "?"}
+
+    def _heuristic_partition(
+        self,
+        segments: List[Dict],
+        *,
+        target_sections: int,
+        desired_avg: float,
+    ) -> List[SectionBreak]:
+        """
+        Heuristic (non-LLM) sectioning fallback.
+
+        IMPORTANT:
+        - Mechanical equal-interval splitting is forbidden.
+        - This fallback cuts at sentence boundaries and natural pauses between SRT segments whenever possible.
+        """
+        if not segments:
+            return []
+
+        target_sections = max(1, int(target_sections or 0))
+        if target_sections > len(segments):
+            target_sections = len(segments)
+
+        out: List[SectionBreak] = []
+        start_idx = 0
+        for _ in range(target_sections):
+            if start_idx >= len(segments):
+                break
+            remaining_sections = max(1, target_sections - len(out))
+            # Ensure at least one segment remains per future section.
+            max_end_idx = len(segments) - remaining_sections
+            if max_end_idx < start_idx:
+                max_end_idx = start_idx
+
+            if remaining_sections == 1:
+                best_idx = len(segments) - 1
+                reason = "heuristic_tail"
+            else:
+                remaining_time = float(segments[-1]["end"]) - float(segments[start_idx]["start"])
+                target_sec = remaining_time / float(remaining_sections)
+
+                max_dur = float(self._max_section_seconds(desired_avg))
+                min_dur = max(self.MIN_SECTION_SECONDS, min(max_dur * 0.8, target_sec * 0.6))
+
+                # Advance to the earliest index that reaches min duration.
+                end_idx = start_idx
+                while end_idx < max_end_idx and (float(segments[end_idx]["end"]) - float(segments[start_idx]["start"])) < min_dur:
+                    end_idx += 1
+
+                # Search forward for a better boundary (sentence end / pause) without exceeding max_dur.
+                best_idx = end_idx
+                best_score: float | None = None
+                i = end_idx
+                while i <= max_end_idx:
+                    dur = float(segments[i]["end"]) - float(segments[start_idx]["start"])
+                    if dur > max_dur:
+                        break
+
+                    txt = str(segments[i].get("text") or "").strip()
+                    score = -abs(dur - target_sec)
+                    if self._is_good_boundary(txt):
+                        score += 6.0
+                        if txt.rstrip().endswith("。"):
+                            score += 2.0
+
+                    # Prefer natural pauses (subtitle gaps) when available.
+                    if i + 1 < len(segments):
+                        gap = float(segments[i + 1]["start"]) - float(segments[i]["end"])
+                        if gap > 0.35:
+                            score += min(3.0, gap)
+
+                    if best_score is None or score > best_score:
+                        best_score = score
+                        best_idx = i
+                    i += 1
+
+                reason = "heuristic_sentence_boundary"
+
+            if best_idx < start_idx:
+                best_idx = start_idx
+
+            combined = " ".join(
+                str(s.get("text") or "").strip()
+                for s in segments[start_idx : best_idx + 1]
+                if str(s.get("text") or "").strip()
+            )
+            out.append(
+                SectionBreak(
+                    start_segment=start_idx,
+                    end_segment=best_idx,
+                    reason=reason,
+                    emotional_tone="",
+                    summary=self._truncate_summary(combined),
+                    visual_focus="",
+                    section_type="story",
+                    persona_needed=True,
+                )
+            )
+            start_idx = best_idx + 1
+
+        return out
+
     def analyze_story_sections(self, segments: List[Dict], target_sections: int = 20) -> List[SectionBreak]:
         """
         ストーリー全体を分析して自然なセクション境界を決定
@@ -127,13 +240,30 @@ class LLMContextAnalyzer:
                 logging.info("CH22 semantic sectioning complete: %d sections", len(out))
                 return out
 
-        initial_sections = self._generate_initial_sections(segments, target_sections)
+        try:
+            initial_sections = self._generate_initial_sections(segments, target_sections)
+        except Exception as e:
+            if self.strict_mode:
+                raise
+            logging.warning("LLM sectioning failed; falling back to heuristic partition: %s", e)
+            initial_sections = self._heuristic_partition(
+                segments,
+                target_sections=int(target_sections),
+                desired_avg=float(desired_avg),
+            )
 
-        # IMPORTANT: Mechanical fallback segmentation is forbidden.
+        if not initial_sections and not self.strict_mode:
+            logging.warning("LLM sectioning produced zero sections; falling back to heuristic partition")
+            initial_sections = self._heuristic_partition(
+                segments,
+                target_sections=int(target_sections),
+                desired_avg=float(desired_avg),
+            )
+
         if not initial_sections:
             raise RuntimeError(
-                "🚨 LLM segmentation produced zero sections. "
-                "Mechanical fallback is DISABLED; fix the LLM call/prompt/parsing and rerun."
+                "🚨 Segmentation produced zero sections. "
+                "Fix the LLM call/prompt/parsing (or heuristic partition inputs) and rerun."
             )
 
         refined = self._refine_overlong_sections(segments, initial_sections, target_sections, desired_avg)
