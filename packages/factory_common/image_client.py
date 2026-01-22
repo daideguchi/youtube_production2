@@ -2105,7 +2105,7 @@ class FireworksImageAdapter:
                 "image",
                 purpose=f"image:{str(options.task or '')}:{model_name}",
                 ttl_sec=int(lease_ttl_sec),
-                preflight=True,
+                preflight=False,
             )
             if lease is None:
                 break

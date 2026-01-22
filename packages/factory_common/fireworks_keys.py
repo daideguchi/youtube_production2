@@ -5,6 +5,7 @@ import json
 import os
 import re
 import socket
+import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -16,6 +17,8 @@ import requests
 from factory_common.paths import secrets_root
 
 _FW_KEY_RE = re.compile(r"^fw_[A-Za-z0-9_-]{10,}$")
+_RR_LOCK = threading.Lock()
+_RR_CURSOR_BY_POOL: Dict[str, int] = {}
 
 
 def _utc_now_iso() -> str:
@@ -547,7 +550,23 @@ def acquire_key(
             continue
         scored.append((rank, idx, k))
 
-    for _rank, _idx, k in sorted(scored, key=lambda x: (x[0], x[1])):
+    ordered = sorted(scored, key=lambda x: (x[0], x[1]))
+    if not ordered:
+        return None
+
+    best_rank = ordered[0][0]
+    best = [t for t in ordered if t[0] == best_rank]
+    rest = [t for t in ordered if t[0] != best_rank]
+
+    start = 0
+    if len(best) > 1:
+        with _RR_LOCK:
+            cur = int(_RR_CURSOR_BY_POOL.get(p, 0))
+            start = cur % len(best)
+            _RR_CURSOR_BY_POOL[p] = cur + 1
+    rotated = best[start:] + best[:start] + rest
+
+    for _rank, _idx, k in rotated:
         lease = _try_acquire_lease(pool=p, key=k, ttl_sec=int(ttl_sec), purpose=purpose)
         if lease is None:
             continue
