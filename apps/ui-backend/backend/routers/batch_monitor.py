@@ -24,6 +24,9 @@ VIDEO_RUNS_ROOT = repo_paths.video_runs_root()
 BATCH_ROOT = LOGS_ROOT / "batch"
 
 _RUN_LINE_RE = re.compile(r"^\[(RUN|SKIP)\]\s+([A-Za-z0-9_-]+)\s*$")
+_RUN_DIR_IN_LINE_RE = re.compile(r"workspaces/video/runs/([A-Za-z0-9_.-]+)")
+_CHANNEL_IN_LINE_RE = re.compile(r"\bCH\d{2}\b")
+_EP_IN_RUN_ID_RE = re.compile(r"^CH\d+-([0-9]{3})\b")
 
 
 def _utc_now_iso() -> str:
@@ -138,6 +141,15 @@ def _last_run_from_log_tail(lines: List[str]) -> Tuple[Optional[str], Optional[s
         last_kind = m.group(1)
         last_run = m.group(2)
         break
+    if last_run:
+        return last_run, last_kind
+
+    # Fallback: infer run_dir name from tool logs (e.g. "Executing: ... --out .../workspaces/video/runs/<run>")
+    for line in reversed(lines):
+        m = _RUN_DIR_IN_LINE_RE.search(line)
+        if not m:
+            continue
+        return m.group(1), "RUN"
     return last_run, last_kind
 
 
@@ -163,6 +175,18 @@ def _list_audio_final_episodes(channel: str) -> List[str]:
 def _run_dir_for_episode(channel: str, ep: str) -> Path:
     ch = str(channel or "").strip().upper()
     no = str(ep or "").strip().zfill(3)
+    prefix = f"{ch}-{no}_"
+    try:
+        cands = [p for p in VIDEO_RUNS_ROOT.glob(prefix + "*") if p.is_dir()]
+    except Exception:
+        cands = []
+    if cands:
+        try:
+            cands.sort(key=lambda p: float(p.stat().st_mtime), reverse=True)
+        except Exception:
+            pass
+        return cands[0]
+    # Backward-compatible stable name (older runs)
     return VIDEO_RUNS_ROOT / f"{ch}-{no}_fluxmax_grouped"
 
 
@@ -279,6 +303,11 @@ def batch_status(batch_id: Optional[str] = Query(None, description="workspaces/l
     for line in log_tail:
         m = _RUN_LINE_RE.match(line.strip())
         if not m:
+            # Also accept plain "CHxx" tokens in logs (works even when the batch doesn't write [RUN] lines).
+            for tok in _CHANNEL_IN_LINE_RE.findall(line):
+                t = str(tok or "").strip().upper()
+                if t and t not in seen_channels:
+                    seen_channels.add(t)
             continue
         rid = m.group(2)
         ch = _infer_channel_code(rid)
@@ -299,10 +328,9 @@ def batch_status(batch_id: Optional[str] = Query(None, description="workspaces/l
             "pending": max(0, len(eps) - done),
         }
         if current_run and _infer_channel_code(current_run) == ch:
-            # current_run is like CH28-021_fluxmax_grouped
-            parts = str(current_run).split("-", 2)
-            if len(parts) >= 2:
-                progress[ch]["current_episode"] = parts[1]
+            m = _EP_IN_RUN_ID_RE.match(str(current_run))
+            if m:
+                progress[ch]["current_episode"] = m.group(1)
 
     # Detect "stalled" when log isn't updated.
     stalled = False
@@ -522,4 +550,3 @@ def batch_monitor_ui():
 </html>
 """.strip(),
     )
-
