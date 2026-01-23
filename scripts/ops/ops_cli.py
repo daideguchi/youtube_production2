@@ -856,6 +856,11 @@ def _print_list() -> None:
     print("    ./ops session end --name dd-<area>-01")
     print("    ./ops session list --open-only --all-agents")
     print("")
+    print("  Env (.env; local secret file):")
+    print("    ./ops env status")
+    print("    ./ops env protect|unprotect")
+    print("    ./ops env recover --dry-run   # apply: --apply")
+    print("")
     print("  Planning (CSV):")
     print("    ./ops planning lint -- --channel CHxx --write-latest")
     print("    ./ops planning sanitize -- --channel CHxx --write-latest   # dry-run")
@@ -1064,6 +1069,65 @@ def cmd_doctor(_args: argparse.Namespace) -> int:
     except Exception:
         pass
     return 0
+
+
+def cmd_env(args: argparse.Namespace) -> int:
+    from scripts.ops.env_ops import env_status, find_env_candidates, format_mtime_utc, protect_env, recover_env_from_candidate, unprotect_env
+
+    action = str(getattr(args, "action", "") or "").strip().lower()
+    if action == "status":
+        st = env_status()
+        payload = {
+            "path": str(st.path),
+            "exists": bool(st.exists),
+            "mode": str(st.mode_str),
+            "octal_mode": str(st.octal_mode),
+            "protected": bool(st.protected),
+        }
+        if bool(getattr(args, "json", False)):
+            print(json.dumps(payload, ensure_ascii=False))
+            return 0
+        for k in ["path", "exists", "mode", "octal_mode", "protected"]:
+            print(f"{k}\t{payload[k]}")
+        return 0
+
+    if action == "protect":
+        protect_env()
+        st = env_status()
+        print(f"protected\t{1 if st.protected else 0}\tpath={st.path}")
+        return 0
+
+    if action == "unprotect":
+        unprotect_env()
+        st = env_status()
+        print(f"protected\t{1 if st.protected else 0}\tpath={st.path}")
+        return 0
+
+    if action == "recover":
+        source = str(getattr(args, "source", "auto") or "auto").strip().lower()
+        dry_run = bool(getattr(args, "dry_run", False)) or not bool(getattr(args, "apply", False))
+        overwrite = bool(getattr(args, "overwrite", False))
+
+        candidates = find_env_candidates(source=source)
+        if not candidates:
+            print("no candidates found (searched editor history only; no secrets printed)", file=sys.stderr)
+            print("try: restore from TimeMachine / your notes / password manager, or reconstruct from .env.example", file=sys.stderr)
+            return 2
+
+        best = candidates[0]
+        print(f"candidate_path\t{best.path}")
+        print(f"candidate_mtime_utc\t{format_mtime_utc(best.mtime)}")
+        print(f"candidate_bytes\t{best.size_bytes}")
+        print(f"candidate_assign_lines\t{best.assign_lines}")
+        print(f"candidate_known_key_hits\t{best.known_key_hits}")
+        print(f"candidate_sha256_prefix\t{best.sha256_prefix}")
+
+        msg = recover_env_from_candidate(candidate=best, apply=(not dry_run), overwrite=overwrite)
+        print(msg)
+        return 0 if "restored:" in msg or "dry-run:" in msg or "skip:" in msg else 1
+
+    print(f"unknown env action: {action}", file=sys.stderr)
+    return 2
 
 
 def cmd_session(args: argparse.Namespace) -> int:
@@ -2155,6 +2219,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("doctor", help="run preflight/env checks")
     sp.set_defaults(func=cmd_doctor)
+
+    sp = sub.add_parser("env", help="protect/recover local .env safely (never prints values)")
+    sp.add_argument("action", choices=["status", "protect", "unprotect", "recover"], help="env operation")
+    sp.add_argument("--json", action="store_true", help="emit JSON (status only)")
+    sp.add_argument("--source", choices=["auto", "windsurf", "cursor"], default="auto", help="recovery source (recover only)")
+    sp.add_argument("--dry-run", action="store_true", help="show what would be done (recover only; default)")
+    sp.add_argument("--apply", action="store_true", help="actually write .env (recover only)")
+    sp.add_argument("--overwrite", action="store_true", help="allow overwriting existing .env (recover only; dangerous)")
+    sp.set_defaults(func=cmd_env)
 
     sp = sub.add_parser("session", help="start/end bookkeeping for interrupted work")
     sp.add_argument("action", choices=["start", "end", "list"], help="session operation")

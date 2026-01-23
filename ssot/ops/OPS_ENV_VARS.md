@@ -9,6 +9,22 @@
   - テキストLLMは `LLM_MODEL_SLOT`、画像は `channel_presets.json` / `templates.json` / `IMAGE_CLIENT_FORCE_MODEL_KEY_*`（必要時のみ）で制御する。
 - **キーはチャット/Issue/ログに貼らない**（貼った時点で漏洩扱い）。誤って共有した場合は **即ローテ/無効化**し、`.env` を更新して `python3 scripts/check_env.py --env-file .env` で再検証する。
 
+## INCIDENT: `.env` 消失時の復旧（強制）
+`.env` は git 管理されない **ローカル正本（秘密）**。消すと `./scripts/with_ytm_env.sh`（→ `./ops`）が止まり、入口が広範囲に停止する。
+
+- エージェント単独判断で `.env` を作成/削除/上書きしない（原則: 人間のみ）。必要なら **先に lock + board/memo**。
+- 消失したら:
+  1) 直ちに作業停止（破壊的操作を続けない）
+  2) `python3 scripts/agent_org.py locks --path .env` → 必要なら lock を作成
+  3) 復元（優先順）: TimeMachine / 手元控え / 1Password等 → エディタ履歴（Windsurf/Cursor） → 最終手段として `.env.example` から再構築（値は人間が埋める）
+  4) 検証（必須）:
+     - `./scripts/with_ytm_env.sh python3 scripts/check_env.py`
+     - `./ops doctor`
+     - `./ops ui status`（UI運用中の場合）
+- 再発防止（推奨）:
+  - `.env` の誤削除防止: `./ops env protect`（macOS: `chflags uchg .env`）
+  - 編集が必要な時だけ解除: `./ops env unprotect`（macOS: `chflags nouchg .env`）
+
 ## Slack通知（オプション）
 目的:
 - 長時間処理（script/audio/video/thumbnails 等）が終わった/止まった（THINK pending）タイミングで、Slackに通知して取りこぼしを防ぐ。
@@ -192,7 +208,7 @@
 
 ## チェック方法
 - `python3 packages/video_pipeline/check_gemini_key.py` で GEMINI の設定確認（.env／環境変数のみを参照）。
-- `env | grep -E \"GEMINI|OPENAI|AZURE_OPENAI\"` で export 状態を確認。
+- 値を表示せず存在確認だけ（推奨）: `./ops env status`
 - `.env` の必須キー充足は `python3 scripts/check_env.py --env-file .env` で検証できる（空文字も不足として扱う）。
 - LLMルーターのログ制御（省略可）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
   - `llm_usage.jsonl` には `routing_key`（例: `CH10-010`）が記録されるため、1本あたりの呼び出し回数/トークン量を後追いできる。

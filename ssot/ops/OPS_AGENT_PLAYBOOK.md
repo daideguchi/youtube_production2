@@ -137,6 +137,19 @@ python3 scripts/ops/git_write_lock.py unlock-for-push
 注意:
 - エージェント（Codex）は kill を使わない。手順・原因を提示して **人間判断**へエスカレーションする。
 
+### 2.2.7 重要: `.env` は最重要ローカル正本（秘密）であり、削除/上書き禁止（強制）
+`.env` は git 管理されない **ローカル正本**。消すと `./scripts/with_ytm_env.sh`（→ `./ops`）が止まり、運用が広範囲に停止する。
+
+- エージェント単独判断で `.env` を作成/削除/上書きしない（原則: 人間のみ）。
+- “キーを捨てろ/物理削除” の指示が来ても、**`.env` 自体を削除しない**。基本は「当該キーを無効化/ローテ」→ 人間が `.env` を更新。
+- どうしても `.env` に触る作業が必要な場合:
+  - 先に `python3 scripts/agent_org.py locks --path .env` で確認し、必ず lock を置く
+  - board/memo に「理由/対象/検証コマンド」を残す
+  - 検証は必ず値を出さない形で行う（例: `./scripts/with_ytm_env.sh python3 scripts/check_env.py`）
+- 推奨: `.env` の誤削除防止を有効化（macOS）:
+  - `./ops env protect`（`chflags uchg .env`）
+  - 編集が必要な時だけ `./ops env unprotect`（`chflags nouchg .env`）
+
 ### 2.3 共同メモ（単一ファイル / Shared Board）
 複数エージェントで「今なにをやっているか / 何が詰まっているか / 申し送り」を1枚に集約したい場合は `board` を使う。
 内部は **1ファイル（JSON）** で、更新はファイルロック付きの read-modify-write なので並列でも壊れにくい。

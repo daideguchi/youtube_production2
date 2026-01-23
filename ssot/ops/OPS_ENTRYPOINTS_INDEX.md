@@ -14,6 +14,10 @@
 - 一覧: `./ops list`
 - 実体（P0 launcher）: `python3 scripts/ops/ops_cli.py --help`（`./ops` が呼ぶ）
 - 事前点検: `./ops doctor`
+- `.env` 管理（事故防止）:
+  - 状態: `./ops env status`
+  - 保護（macOS）: `./ops env protect` / `./ops env unprotect`
+  - 復旧（dry-run推奨）: `./ops env recover --dry-run`（適用は `--apply`）
 - セッション記帳（start/end; 途中で落ちても復旧できる）:
   - 開始: `./ops session start --name dd-<area>-01 --role worker --doing "..." --next "..."`
   - 終了: `./ops session end --name dd-<area>-01`（Slack digestは `--slack auto` が既定）
