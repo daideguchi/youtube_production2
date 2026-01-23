@@ -432,6 +432,31 @@ def _update_state(
         return
 
 
+def record_key_status(
+    pool: str,
+    *,
+    key: str,
+    status: str,
+    http_status: Optional[int],
+    note: str = "",
+    ratelimit: Optional[Dict[str, Any]] = None,
+) -> None:
+    """
+    Persist key health info (never prints keys).
+    """
+    try:
+        _update_state(
+            pool,
+            key=key,
+            status=status,
+            http_status=http_status,
+            ratelimit=ratelimit,
+            note=note,
+        )
+    except Exception:
+        return
+
+
 def probe_key(key: str) -> Tuple[str, Optional[int], Optional[Dict[str, Any]]]:
     """
     Token-free liveness/credit probe (does not call an LLM).

@@ -2109,6 +2109,7 @@ class FireworksImageAdapter:
                 purpose=f"image:{str(options.task or '')}:{model_name}",
                 ttl_sec=int(lease_ttl_sec),
                 preflight=False,
+                allow_recheck_exhausted=False,
             )
             if lease is None:
                 break
@@ -2123,6 +2124,17 @@ class FireworksImageAdapter:
             except ImageProviderRateLimitError as exc:
                 # Fireworks pooled keys: 429 is often key-scoped. Try another leased key before
                 # escalating to provider-level cooldown handling.
+                try:
+                    if int(getattr(exc, "http_status", 0) or 0) == 429:
+                        fireworks_keys.record_key_status(
+                            "image",
+                            key=lease.key,
+                            status="exhausted",
+                            http_status=429,
+                            note="429 rate_limit during image generation",
+                        )
+                except Exception:
+                    pass
                 last_exc = exc
                 continue
             except Exception as exc:  # noqa: BLE001
