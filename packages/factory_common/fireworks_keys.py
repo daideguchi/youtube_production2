@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
-from factory_common.paths import secrets_root
+from factory_common.paths import repo_root, secrets_root
 
 _FW_KEY_RE = re.compile(r"^fw_[A-Za-z0-9_-]{10,}$")
 _RR_LOCK = threading.Lock()
@@ -120,11 +120,26 @@ def _pool_env(pool: str, *, key: str) -> str:
     return table[key]
 
 
+def _resolve_env_path(raw: str) -> Path:
+    """
+    Interpret env-provided paths deterministically.
+
+    Many tools in this repo run with different current working directories.
+    If operators provide relative paths via env vars, resolving them against
+    CWD becomes unstable. We therefore resolve relative paths against the repo
+    root.
+    """
+    p = Path(str(raw or "")).expanduser()
+    if not p.is_absolute():
+        p = repo_root() / p
+    return p.resolve()
+
+
 def keyring_path(pool: str) -> Path:
     p = _pool_slug(pool)
     raw = (os.getenv(_pool_env(p, key="keys_file")) or "").strip()
     if raw:
-        return Path(raw).expanduser().resolve()
+        return _resolve_env_path(raw)
     return secrets_root() / f"fireworks_{p}_keys.txt"
 
 
@@ -132,14 +147,14 @@ def state_path(pool: str) -> Path:
     p = _pool_slug(pool)
     raw = (os.getenv(_pool_env(p, key="state_file")) or "").strip()
     if raw:
-        return Path(raw).expanduser().resolve()
+        return _resolve_env_path(raw)
     return secrets_root() / f"fireworks_{p}_keys_state.json"
 
 
 def lease_root_dir() -> Path:
     raw = (os.getenv("FIREWORKS_KEYS_LEASE_DIR") or "").strip()
     if raw:
-        return Path(raw).expanduser().resolve()
+        return _resolve_env_path(raw)
     return secrets_root() / "fireworks_key_leases"
 
 
