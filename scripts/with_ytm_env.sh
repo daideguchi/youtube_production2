@@ -16,16 +16,15 @@ fi
 export PATH="$ROOT_DIR/scripts/bin:$PATH"
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  echo "⚠️  .env not found at $ENV_FILE (continuing without it)" >&2
-  echo "    Hint: copy $ROOT_DIR/.env.example to $ROOT_DIR/.env and fill in secrets/paths." >&2
-else
-  # shellcheck disable=SC1090
-  set -a
-  source "$ENV_FILE"
-  set +a
+  echo "❌ .env not found at $ENV_FILE" >&2
+  exit 1
 fi
 # Ensure repo imports work regardless of caller CWD/global PYTHONPATH.
 export PYTHONPATH="$ROOT_DIR:$ROOT_DIR/packages"
+## shellcheck disable=SC1090
+set -a
+source "$ENV_FILE"
+set +a
 
 # Default: disable LLM-backed web search (cost control). Override per-run if needed:
 #   YTM_WEB_SEARCH_PROVIDER=brave ./scripts/with_ytm_env.sh ...
