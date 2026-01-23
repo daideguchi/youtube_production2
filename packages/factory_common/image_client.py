@@ -2131,7 +2131,11 @@ class FireworksImageAdapter:
             )
 
         last_exc: Optional[Exception] = None
-        for attempt in range(key_attempts):
+        wait_for_lease_sec = int(os.getenv("FIREWORKS_IMAGE_WAIT_FOR_LEASE_SEC", "20") or 20)
+        wait_deadline = time.time() + float(wait_for_lease_sec) if wait_for_lease_sec > 0 else 0.0
+
+        attempt = 0
+        while attempt < key_attempts:
             lease = fireworks_keys.acquire_key(
                 "image",
                 purpose=f"image:{str(options.task or '')}:{model_name}",
@@ -2140,7 +2144,23 @@ class FireworksImageAdapter:
                 allow_recheck_exhausted=False,
             )
             if lease is None:
+                # If keys are configured but all are currently leased, wait briefly and retry.
+                if wait_for_lease_sec > 0 and time.time() < wait_deadline:
+                    try:
+                        cfg_n = len(fireworks_keys.candidate_keys("image"))
+                        leases = [
+                            o
+                            for o in fireworks_keys.list_active_leases()
+                            if str(o.get("pool") or "") == "image"
+                        ]
+                    except Exception:
+                        cfg_n = 0
+                        leases = []
+                    if cfg_n > 0 and len(leases) >= cfg_n:
+                        time.sleep(min(2.0, max(0.0, float(wait_deadline - time.time()))))
+                        continue
                 break
+            attempt += 1
 
             old_key = self.api_key
             old_fallback = self.api_key_fallback

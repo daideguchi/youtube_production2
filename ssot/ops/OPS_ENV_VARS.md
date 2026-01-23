@@ -179,6 +179,7 @@
       - 退避（使えないキーを隔離）: `python3 scripts/ops/fireworks_keyring.py --pool image quarantine --show-masked`（既定: `~/.ytm/secrets/fireworks_image_keys.quarantine.txt`）
       - 復帰（隔離から戻す）: `python3 scripts/ops/fireworks_keyring.py --pool image restore --show-masked`
     - `FIREWORKS_IMAGE_KEY_COOLDOWN_SEC`（default: `120`）: 画像生成中に `429` が出たキーを「一時クールダウン」扱いにして別キーへ切替する秒数（キーは自動削除しない）。
+    - `FIREWORKS_IMAGE_WAIT_FOR_LEASE_SEC`（default: `20`）: 全キーが他プロセスに lease 中で取得できない場合、短時間待って再試行する（並列/複数バッチ運用で placeholder を減らす）。
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
   - キーローテ（オプション）:
     - `FIREWORKS_SCRIPT_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
