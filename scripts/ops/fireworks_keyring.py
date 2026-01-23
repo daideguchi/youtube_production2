@@ -34,6 +34,9 @@ from typing import List
 from factory_common.paths import secrets_root, workspace_root
 
 
+_FW_KEY_RE = re.compile(r"^fw_[A-Za-z0-9]{20,}$")
+
+
 def _dedupe_keep_order(items: List[str]) -> List[str]:
     out: List[str] = []
     seen = set()
@@ -47,7 +50,6 @@ def _dedupe_keep_order(items: List[str]) -> List[str]:
 
 
 def _parse_keys(text: str) -> List[str]:
-    key_re = re.compile(r"^fw_[A-Za-z0-9_-]{10,}$")
     keys: List[str] = []
     for raw in str(text or "").splitlines():
         line = raw.strip()
@@ -65,7 +67,10 @@ def _parse_keys(text: str) -> List[str]:
             continue
         if not all(ord(ch) < 128 for ch in line):
             continue
-        if not key_re.match(line):
+        # Strict: only accept real Fireworks API keys.
+        # We have repeatedly seen model codes accidentally placed into keyrings (e.g., fw_kimi_*),
+        # which then causes repeated 401/412 failures and wasted retries.
+        if not _FW_KEY_RE.match(line):
             continue
         keys.append(line)
     return _dedupe_keep_order(keys)
@@ -75,7 +80,7 @@ def _extract_fw_keys_anywhere(text: str) -> List[str]:
     """
     Best-effort extractor for legacy memos (keys may be embedded in messy text).
     """
-    tokens = re.findall(r"fw_[A-Za-z0-9_-]{10,}", str(text or ""))
+    tokens = re.findall(r"fw_[A-Za-z0-9]{20,}", str(text or ""))
     return _dedupe_keep_order(tokens)
 
 
@@ -250,7 +255,12 @@ def _primary_key_from_env_for_pool(pool: str) -> str:
     if p == "script":
         return _primary_key_from_env()
     if p == "image":
-        return (os.getenv("FIREWORKS_IMAGE") or os.getenv("FIREWORKS_IMAGE_API_KEY") or "").strip()
+        return (
+            os.getenv("FIREWORKS_IMAGE")
+            or os.getenv("FIREWORKS_IMAGE_API_KEY")
+            or os.getenv("FIREWORKS_API_KEY")
+            or ""
+        ).strip()
     raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
 
 
@@ -337,6 +347,22 @@ def main() -> None:
     p_quar.add_argument("--dry-run", action="store_true", help="do not write files")
     p_quar.add_argument("--show-masked", action="store_true", help="print masked moved keys")
 
+    p_purge = sub.add_parser("purge", help="physically delete unusable keys from keyring (no quarantine)")
+    p_purge.add_argument(
+        "--status",
+        type=str,
+        default="invalid,exhausted,suspended",
+        help="comma-separated statuses to delete (based on state file)",
+    )
+    p_purge.add_argument(
+        "--match",
+        action="append",
+        default=[],
+        help="also purge keys matching pattern (e.g. fw_1234…abcd or fw_1234...abcd); repeatable",
+    )
+    p_purge.add_argument("--dry-run", action="store_true", help="do not write files")
+    p_purge.add_argument("--show-masked", action="store_true", help="print masked deleted keys")
+
     p_restore = sub.add_parser("restore", help="restore keys from quarantine back into keyring")
     p_restore.add_argument(
         "--quarantine-path",
@@ -396,6 +422,8 @@ def main() -> None:
 
     if args.cmd == "list":
         keys = _read_keys(path)
+        candidate_keys = _iter_keys_for_ops_for_pool(path, pool)
+        env_primary = _primary_key_from_env_for_pool(pool)
         state_path = _state_path_from_env_for_pool(pool)
         state = _load_state(state_path)
         states = state.get("keys") if isinstance(state.get("keys"), dict) else {}
@@ -406,7 +434,10 @@ def main() -> None:
             counts[st] = counts.get(st, 0) + 1
 
         counts_txt = " ".join([f"{k}={v}" for k, v in sorted(counts.items())])
-        print(f"count={len(keys)} path={path} state={state_path} {counts_txt}".strip())
+        print(
+            f"count={len(keys)} candidate_total={len(candidate_keys)} env_primary={1 if env_primary else 0} "
+            f"path={path} state={state_path} {counts_txt}".strip()
+        )
         if getattr(args, "show_masked", False):
             for k in keys:
                 ent = states.get(_sha256_hex(k)) if isinstance(states.get(_sha256_hex(k)), dict) else {}
@@ -494,6 +525,58 @@ def main() -> None:
         )
         for line in rows:
             print(line)
+        return
+
+    if args.cmd == "purge":
+        statuses = {
+            s.strip().lower()
+            for s in str(getattr(args, "status", "") or "").split(",")
+            if s.strip()
+        }
+        match_patterns = [str(p).strip() for p in (getattr(args, "match", []) or []) if str(p).strip()]
+
+        keys = _read_keys(path)
+        if not keys:
+            # Scrub: if the file contains only invalid lines (e.g., model codes starting with fw_),
+            # rewrite to an empty key list to physically remove them.
+            dry_run = bool(getattr(args, "dry_run", False))
+            if not dry_run:
+                _write_keys(path, [])
+            print(f"ok: purged=0 kept=0 statuses={sorted(statuses)} dry_run={dry_run} keyring={path} (scrubbed)")
+            return
+
+        state_path = _state_path_from_env_for_pool(pool)
+        state = _load_state(state_path)
+        states = state.get("keys") if isinstance(state.get("keys"), dict) else {}
+
+        deleted: List[str] = []
+        kept: List[str] = []
+        for k in keys:
+            ent = states.get(_sha256_hex(k)) if isinstance(states.get(_sha256_hex(k)), dict) else {}
+            st = str((ent or {}).get("status") or "unknown").strip().lower()
+            force = any(_matches_key(k, pat) for pat in match_patterns) if match_patterns else False
+            if force or st in statuses:
+                deleted.append(k)
+            else:
+                kept.append(k)
+
+        if not deleted:
+            tail = f" matches={match_patterns}" if match_patterns else ""
+            print(f"ok: no keys matched statuses={sorted(statuses)} (kept={len(kept)}): {path}{tail}")
+            return
+
+        dry_run = bool(getattr(args, "dry_run", False))
+        if not dry_run:
+            _write_keys(path, kept)
+
+        print(f"ok: purged={len(deleted)} kept={len(kept)} statuses={sorted(statuses)} dry_run={dry_run} keyring={path}")
+        if getattr(args, "show_masked", False):
+            for k in deleted:
+                ent = states.get(_sha256_hex(k)) if isinstance(states.get(_sha256_hex(k)), dict) else {}
+                st = str((ent or {}).get("status") or "unknown")
+                hs = (ent or {}).get("last_http_status")
+                tail = f" http={hs}" if hs is not None else ""
+                print(f"{_mask(k)}\t{st}{tail}")
         return
 
     if args.cmd == "quarantine":

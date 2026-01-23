@@ -600,6 +600,10 @@ def candidate_keys(pool: str) -> List[str]:
     primary_env = _pool_env(p, key="primary")
     alias_env = _pool_env(p, key="primary_alias")
     primary = (os.getenv(primary_env) or os.getenv(alias_env) or "").strip()
+    # Legacy/compat: some operators still set FIREWORKS_API_KEY expecting it to apply to image.
+    # We intentionally do NOT apply this to the script pool to avoid accidental cross-pool sharing.
+    if not primary and p == "image":
+        primary = (os.getenv("FIREWORKS_API_KEY") or "").strip()
 
     keys: List[str] = []
     if primary and _FW_KEY_RE.match(primary):

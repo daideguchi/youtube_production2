@@ -21,7 +21,7 @@
      - `./scripts/with_ytm_env.sh python3 scripts/check_env.py`
      - `./ops doctor`
      - `./ops ui status`（UI運用中の場合）
-- 再発防止（推奨）:
+- 再発防止（標準）:
   - `.env` の誤削除防止: `./ops env protect`（macOS: `chflags uchg .env`）
   - 編集が必要な時だけ解除: `./ops env unprotect`（macOS: `chflags nouchg .env`）
 
@@ -164,7 +164,8 @@
 
 ## 主な必須キー（抜粋）
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
-- Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / Fireworks provider用キー。互換: `FIREWORKS_API_KEY`）
+- Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / Fireworks provider用キー。互換: `FIREWORKS_IMAGE_API_KEY` / `FIREWORKS_API_KEY`）
+  - 注意: `FIREWORKS_IMAGE` は「単一キー」。複数キーは `FIREWORKS_IMAGE_KEYS(_FILE)` / keyring に入れる（`FIREWORKS_SCRIPT` に入れても画像には効かない）。
   - キーローテ（オプション）:
     - `FIREWORKS_IMAGE_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
       - 既定探索: `~/.ytm/secrets/fireworks_image_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
@@ -172,7 +173,9 @@
     - `FIREWORKS_IMAGE_KEYS`（省略可）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
     - `FIREWORKS_IMAGE_KEYS_STATE_FILE`（省略可）: キー状態（exhausted/invalid等）を保存するファイルパス。
       - 既定: `~/.ytm/secrets/fireworks_image_keys_state.json`
-      - 更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`（既定: `GET /inference/v1/models`。トークン消費なし。`412` は `suspended`）
+      - 更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`（既定: `GET /inference/v1/models`。トークン消費なし。`412` は `suspended`。`check` の `total=` は「env primary + keyring file」の合計。`list` は keyring file のみ / `candidate_total=` は env+file）
+      - 退避（使えないキーを隔離）: `python3 scripts/ops/fireworks_keyring.py --pool image quarantine --show-masked`（既定: `~/.ytm/secrets/fireworks_image_keys.quarantine.txt`）
+      - 復帰（隔離から戻す）: `python3 scripts/ops/fireworks_keyring.py --pool image restore --show-masked`
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
   - キーローテ（オプション）:
     - `FIREWORKS_SCRIPT_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
@@ -208,7 +211,7 @@
 
 ## チェック方法
 - `python3 packages/video_pipeline/check_gemini_key.py` で GEMINI の設定確認（.env／環境変数のみを参照）。
-- 値を表示せず存在確認だけ（推奨）: `./ops env status`
+- 値を表示せず存在確認だけ（標準）: `./ops env status`
 - `.env` の必須キー充足は `python3 scripts/check_env.py --env-file .env` で検証できる（空文字も不足として扱う）。
 - LLMルーターのログ制御（省略可）: `LLM_ROUTER_LOG_PATH`（デフォルト `workspaces/logs/llm_usage.jsonl`）、`LLM_ROUTER_LOG_DISABLE=1` で出力停止。
   - `llm_usage.jsonl` には `routing_key`（例: `CH10-010`）が記録されるため、1本あたりの呼び出し回数/トークン量を後追いできる。

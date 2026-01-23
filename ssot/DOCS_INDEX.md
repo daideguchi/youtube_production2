@@ -116,6 +116,7 @@
 - `agent_runbooks/README.md`: agent/think-mode（Runbook/キュー運用）の入口。
 - `ops/OPS_AGENT_PLAYBOOK.md`: 低知能エージェントでも迷わないための運用ルール（lock/SoT/削除/パッチ）。
 - `ops/OPS_SHARED_ASSET_STORE.md`: 生成資産を共有ストレージ（Tailscale常駐）へ集約する仕様（SoTはworkspacesのまま）。
+- `ops/OPS_SHARED_WORKSPACES_REMOTE_UI.md`: 共有Workspaces（SoT）で “どこからでも同じUI” を見る（リモート閲覧/運用）。
 - `apps/ui-backend/tools/README.md` (Reference): UI運用ツール群（start_manager / assets_sync 等）の補足。
 - `apps/remotion/README.md` (Reference): Remotion（CapCut互換）の出力ワークフロー。
 - `apps/remotion/REMOTION_PLAN.md` (Reference): Remotion（CapCut互換）実装計画メモ（現行実装に合わせて随時更新）。

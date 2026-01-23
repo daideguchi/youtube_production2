@@ -118,3 +118,4 @@
 - `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`（生成物分類L0-L3）
 - `ssot/ops/OPS_GH_RELEASES_ARCHIVE.md`（GitHub Releases書庫: 共有ストレージの“次段バックアップ”）
 - `ssot/ops/OPS_VIDEO_ASSET_PACK.md`（Episode Asset Pack）
+- `ssot/ops/OPS_SHARED_WORKSPACES_REMOTE_UI.md`（共有Workspaces（SoT）の置き場固定とリモートUI閲覧）
