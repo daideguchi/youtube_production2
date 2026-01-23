@@ -47,6 +47,7 @@ import { ImageModelRoutingPage } from "./pages/ImageModelRoutingPage";
 import { ChannelModelPolicyPage } from "./pages/ChannelModelPolicyPage";
 import { GhReleasesArchivePage } from "./pages/GhReleasesArchivePage";
 import { CapcutDraftProgressPage } from "./pages/CapcutDraftProgressPage";
+import { BatchMonitorPage } from "./pages/BatchMonitorPage";
 
 function App() {
   return (
@@ -99,6 +100,7 @@ function App() {
         <Route path="/audio-integrity/:channel/:video" element={<AudioIntegrityPage />} />
         <Route path="/tts-progress" element={<TtsProgressPage />} />
         <Route path="/planning" element={<PlanningPage />} />
+        <Route path="/batch-monitor" element={<BatchMonitorPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/llm-usage" element={<LlmUsagePage />} />

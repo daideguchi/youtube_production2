@@ -89,7 +89,8 @@ export type WorkspaceView =
   | "settings"
   | "modelPolicy"
   | "imageModelRouting"
-  | "llmUsage";
+  | "llmUsage"
+  | "batchMonitor";
 
 export type ShellOutletContext = {
   view: WorkspaceView;
@@ -355,6 +356,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/agent-org", pathname)) {
     return "agentOrg";
   }
+  if (matchPath("/batch-monitor", pathname)) {
+    return "batchMonitor";
+  }
   if (matchPath("/llm-usage/*", pathname) || matchPath("/llm-usage", pathname)) {
     return "llmUsage";
   }
@@ -406,6 +410,10 @@ const PLACEHOLDER_COPY: Record<
   agentBoard: {
     title: "Shared Board",
     description: "ownership/threads/レビュー/申し送りを単一ファイル(SoT)で共有するボードです。",
+  },
+  batchMonitor: {
+    title: "バッチ監視",
+    description: "workspaces/logs/batch/*.pid を検出し、実行中/停止中のバッチや現在のRUN、ログ末尾、CH別の進捗を確認します。",
   },
   promptManager: {
     title: "プロンプト管理",
@@ -1526,6 +1534,7 @@ export function AppShell() {
           { key: "benchmarks", label: "ベンチマーク", icon: "📚", path: "/benchmarks" },
           { key: "remotion", label: "Remotion（実験）", icon: "🎞️", path: "/video-remotion" },
           { key: "jobs", label: "ジョブ管理", icon: "🛰️", path: "/jobs" },
+          { key: "batchMonitor", label: "バッチ監視", icon: "📟", path: "/batch-monitor" },
           { key: "agentOrg", label: "AI Org", icon: "🤖", path: "/agent-org" },
           { key: "agentBoard", label: "Shared Board", icon: "🧷", path: "/agent-board" },
           { key: "promptManager", label: "プロンプト", icon: "🗒️", path: "/prompts" },
