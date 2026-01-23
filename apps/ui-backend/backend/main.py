@@ -343,6 +343,7 @@ from backend.routers import lock_metrics
 from backend.routers import batch_tts
 from backend.routers import batch_workflow
 from backend.routers import episode_files
+from backend.routers import batch_monitor
 from factory_common.publish_lock import (
     is_episode_published_locked,
     mark_episode_published_locked,
@@ -856,6 +857,7 @@ app.include_router(lock_metrics.router)
 app.include_router(batch_tts.router)
 app.include_router(batch_workflow.router)
 app.include_router(episode_files.router)
+app.include_router(batch_monitor.router)
 try:
     from backend.routers import prompts
 
