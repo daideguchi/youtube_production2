@@ -17,7 +17,7 @@
 - `.env` 管理（事故防止）:
   - 状態: `./ops env status`
   - 保護（macOS）: `./ops env protect` / `./ops env unprotect`
-  - 復旧（dry-run推奨）: `./ops env recover --dry-run`（適用は `--apply`）
+  - 復旧（既定: dry-run）: `./ops env recover --dry-run`（適用は `--apply`）
 - セッション記帳（start/end; 途中で落ちても復旧できる）:
   - 開始: `./ops session start --name dd-<area>-01 --role worker --doing "..." --next "..."`
   - 終了: `./ops session end --name dd-<area>-01`（Slack digestは `--slack auto` が既定）
@@ -150,6 +150,9 @@
 
 - 起動（正本入口）: `bash scripts/start_all.sh start`
   - 内部で `apps/ui-backend/tools/start_manager.py` を呼び出し、必要な同期/ヘルスチェックも実施する。
+- Acer常駐（Tailscale `/ui` 配下で公開）:
+  - `./ops ui start -- --frontend-script start:acer --supervise`
+  - ルーティング要点: `/ui`→frontend(3000), `/api`+`/thumbnails/*`→backend(8000), `/remotion/*`→frontend(3000)
 - ヘルスチェック（ガード込み）: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
 - FastAPI backend: `apps/ui-backend/backend/main.py`
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`）
