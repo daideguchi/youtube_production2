@@ -2157,4 +2157,29 @@ class FireworksImageAdapter:
             raise ImageGenerationError(
                 f"Fireworks image key rotation exhausted after {key_attempts} attempts: {last_exc}"
             ) from last_exc
-        raise ImageGenerationError("Fireworks image keys are unavailable (all leased/invalid/exhausted)")
+        cfg_n = 0
+        try:
+            cfg_n = len(fireworks_keys.candidate_keys("image"))
+        except Exception:
+            cfg_n = 0
+
+        lease_note = ""
+        try:
+            leases = [o for o in fireworks_keys.list_active_leases() if str(o.get("pool") or "") == "image"]
+            if leases:
+                now = time.time()
+                parts: List[str] = []
+                for o in leases[:3]:
+                    exp = float(o.get("expires_at") or 0.0)
+                    ttl = max(0, int(exp - now)) if exp > 0 else 0
+                    parts.append(
+                        f"pid={o.get('pid')} agent={o.get('agent')} purpose={o.get('purpose')} ttl_sec={ttl}"
+                    )
+                more = "" if len(leases) <= 3 else f" (+{len(leases) - 3} more)"
+                lease_note = " active_leases(image)=" + " | ".join(parts) + more
+        except Exception:
+            lease_note = ""
+
+        raise ImageGenerationError(
+            f"Fireworks image keys are unavailable (all leased/invalid/exhausted) configured_keys={cfg_n}.{lease_note}"
+        )
