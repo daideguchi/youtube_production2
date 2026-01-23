@@ -7,10 +7,11 @@ import os
 import re
 import shutil
 import subprocess
+import threading
 import time
 from collections import deque
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 from typing import Any, Dict, List, Optional, Tuple
 from functools import lru_cache
@@ -707,6 +708,7 @@ def _gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_pat
 # 単純なトークンバケット的なレートリミット用のキュー
 # 「直近60秒間に何回叩いたか」を見るためのもの
 _REQUEST_TIMES: deque[float] = deque()
+_REQUEST_LOCK = threading.Lock()
 
 
 def _rate_limited_gen_one(cue: Dict, mode: str, force: bool, width: int, height: int, bin_path: str | None, timeout_sec: int, config_path: str | None,
@@ -716,25 +718,24 @@ def _rate_limited_gen_one(cue: Dict, mode: str, force: bool, width: int, height:
     - max_per_minute: 1分あたりに許可する最大リクエスト数
     """
     window = 60.0  # 秒
+    sleep_for = 0.0
+    while True:
+        with _REQUEST_LOCK:
+            # 古いタイムスタンプ（60秒より前）は捨てる
+            now = time.monotonic()
+            while _REQUEST_TIMES and (now - _REQUEST_TIMES[0]) >= window:
+                _REQUEST_TIMES.popleft()
 
-    # 古いタイムスタンプ（60秒より前）は捨てる
-    now = time.monotonic()
-    while _REQUEST_TIMES and (now - _REQUEST_TIMES[0]) >= window:
-        _REQUEST_TIMES.popleft()
+            if len(_REQUEST_TIMES) < max_per_minute:
+                _REQUEST_TIMES.append(now)
+                break
 
-    # 既に上限個数記録されている場合は、古いものがウィンドウから抜けるまで sleep
-    if len(_REQUEST_TIMES) >= max_per_minute:
-        oldest = _REQUEST_TIMES[0]
-        sleep_for = window - (now - oldest)
+            oldest = _REQUEST_TIMES[0]
+            sleep_for = window - (now - oldest)
+
         if sleep_for > 0:
             time.sleep(sleep_for)
-        # sleep 後に再度古いものを掃除
-        now = time.monotonic()
-        while _REQUEST_TIMES and (now - _REQUEST_TIMES[0]) >= window:
-            _REQUEST_TIMES.popleft()
-
-    # ここまで来たら「呼んでOK」
-    _REQUEST_TIMES.append(time.monotonic())
+        sleep_for = 0.0
 
     # 実際に画像生成処理を呼び出す
     _gen_one(cue, mode, force, width, height, bin_path, timeout_sec, config_path,
@@ -1256,9 +1257,9 @@ def _generate_images_via_gemini_batch(
 def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: bool, width: int, height: int, bin_path: str | None = None, timeout_sec: int = 300, config_path: str | None = None,
                          retry_until_success: bool = False, max_retries: int = 6, placeholder_text: str | None = None):
     """
-    複数のプロンプトから画像を生成するが、
-    - **完全に直列処理（並列禁止）**
-    - かつ 1分あたりのリクエスト数を `max_per_minute` 以下に制御する
+    複数のプロンプトから画像を生成する。
+    - 1分あたりのリクエスト数を `max_per_minute` 以下に制御する
+    - `concurrency>1` の場合、可能な範囲で並列化する（personaの前フレーム連鎖が必要な場合は直列にフォールバック）
 
     max_per_minute が None の場合は、環境変数 SRT2IMAGES_IMAGE_MAX_PER_MINUTE
     （未設定なら 30）を上限として使う。
@@ -1283,42 +1284,74 @@ def generate_image_batch(cues: List[Dict], mode: str, concurrency: int, force: b
         )
         return
 
-    # ★ここが「完全直列」のポイント★
-    # ThreadPoolExecutor や asyncio.gather 等は一切使わず、
-    # 1プロンプトずつ順番に叩いていく
-    previous_image_path: str | None = None
-    for cue in cues:
-        # If persona/character consistency is required, feed the previous generated frame
-        # as an additional reference image (guide + prev). This reduces identity drift.
-        try:
-            if previous_image_path and cue.get("use_persona") is True:
-                cur_inputs = cue.get("input_images")
-                if not isinstance(cur_inputs, list):
-                    cur_inputs = []
-                # Preserve order (guide first), avoid duplicates.
-                merged_inputs: list[str] = []
-                for item in cur_inputs:
-                    s = str(item).strip()
-                    if s and s not in merged_inputs:
-                        merged_inputs.append(s)
-                if previous_image_path not in merged_inputs:
-                    merged_inputs.append(previous_image_path)
-                cue["input_images"] = merged_inputs
-        except Exception:
-            pass
+    try:
+        effective_concurrency = int(concurrency)
+    except Exception:
+        effective_concurrency = 1
+    effective_concurrency = max(1, int(effective_concurrency))
 
-        _rate_limited_gen_one(
-            cue, mode, force, width, height, bin_path, timeout_sec, config_path,
-            retry_until_success, max_retries, placeholder_text, max_per_minute
-        )
-        try:
-            out_path = cue.get("image_path")
-            if isinstance(out_path, str) and out_path:
-                p = Path(out_path)
-                if p.exists() and p.is_file():
-                    previous_image_path = str(p)
-        except Exception:
-            pass
+    needs_persona_chain = False
+    try:
+        needs_persona_chain = any(isinstance(c, dict) and c.get("use_persona") is True for c in cues)
+    except Exception:
+        needs_persona_chain = False
+
+    if effective_concurrency <= 1 or needs_persona_chain:
+        previous_image_path: str | None = None
+        for cue in cues:
+            # If persona/character consistency is required, feed the previous generated frame
+            # as an additional reference image (guide + prev). This reduces identity drift.
+            try:
+                if previous_image_path and cue.get("use_persona") is True:
+                    cur_inputs = cue.get("input_images")
+                    if not isinstance(cur_inputs, list):
+                        cur_inputs = []
+                    # Preserve order (guide first), avoid duplicates.
+                    merged_inputs: list[str] = []
+                    for item in cur_inputs:
+                        s = str(item).strip()
+                        if s and s not in merged_inputs:
+                            merged_inputs.append(s)
+                    if previous_image_path not in merged_inputs:
+                        merged_inputs.append(previous_image_path)
+                    cue["input_images"] = merged_inputs
+            except Exception:
+                pass
+
+            _rate_limited_gen_one(
+                cue, mode, force, width, height, bin_path, timeout_sec, config_path,
+                retry_until_success, max_retries, placeholder_text, max_per_minute
+            )
+            try:
+                out_path = cue.get("image_path")
+                if isinstance(out_path, str) and out_path:
+                    p = Path(out_path)
+                    if p.exists() and p.is_file():
+                        previous_image_path = str(p)
+            except Exception:
+                pass
+    else:
+        with ThreadPoolExecutor(max_workers=effective_concurrency) as ex:
+            futures = [
+                ex.submit(
+                    _rate_limited_gen_one,
+                    cue,
+                    mode,
+                    force,
+                    width,
+                    height,
+                    bin_path,
+                    timeout_sec,
+                    config_path,
+                    retry_until_success,
+                    max_retries,
+                    placeholder_text,
+                    max_per_minute,
+                )
+                for cue in cues
+            ]
+            for f in as_completed(futures):
+                f.result()
     
     # Log a summary of the image generation results
     if len(cues) > 0:

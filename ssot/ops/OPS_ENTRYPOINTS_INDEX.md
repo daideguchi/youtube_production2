@@ -51,6 +51,7 @@
     - 直叩き（同等）: `python3 scripts/ops/lint_llm_router_config.py --strict`
   - LLM直叩き検出（事故防止）: `python3 scripts/ops/llm_hardcode_audit.py --verbose`
   - Fireworks keyring（キー運用; 値は出さない）: `python3 scripts/ops/fireworks_keyring.py --help`
+    - 画像キー3本を確定同期（stdin）: `python3 scripts/ops/fireworks_keyring.py --pool image sync --src - --mode replace --require-count 3 --reset-state`
 - 処理パターン（CLIレシピSSOT）:
   - `./ops patterns list`
   - `./ops patterns show PAT-VIDEO-DRAFT-001`

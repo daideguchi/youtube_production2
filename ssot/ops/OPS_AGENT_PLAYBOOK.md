@@ -146,9 +146,18 @@ python3 scripts/ops/git_write_lock.py unlock-for-push
   - 先に `python3 scripts/agent_org.py locks --path .env` で確認し、必ず lock を置く
   - board/memo に「理由/対象/検証コマンド」を残す
   - 検証は必ず値を出さない形で行う（例: `./scripts/with_ytm_env.sh python3 scripts/check_env.py`）
-- 推奨: `.env` の誤削除防止を有効化（macOS）:
+- 標準: `.env` の誤削除防止を有効化（macOS）:
   - `./ops env protect`（`chflags uchg .env`）
   - 編集が必要な時だけ `./ops env unprotect`（`chflags nouchg .env`）
+
+### 2.2.8 重要: Fireworksキーは keyring 運用で確定（強制）
+Fireworks の APIキー（`fw_...`）は **ローカル秘密情報**。並列運用での取り違え/削除/漏洩が致命傷になる。
+
+- エージェントはキー本文を出力しない（ログ/SSOT/board/memo/patch に載せない）。
+- 複数キー運用（画像/台本）は `scripts/ops/fireworks_keyring.py` を入口にする（値は出さない）。
+  - 3本運用の確定同期（stdin）: `python3 scripts/ops/fireworks_keyring.py --pool image sync --src - --mode replace --require-count 3 --reset-state`
+  - 確認（token-free）: `python3 scripts/ops/fireworks_keyring.py --pool image check --mode models`
+- 「429が出たから捨てろ」系は **キー本文や `.env` を削除しない**。原則はクールダウン/ローテで回避し、どうしても無効化が必要なら quarantine/purge を使う（SSOTの手順に従う）。
 
 ### 2.3 共同メモ（単一ファイル / Shared Board）
 複数エージェントで「今なにをやっているか / 何が詰まっているか / 申し送り」を1枚に集約したい場合は `board` を使う。

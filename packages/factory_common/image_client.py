@@ -1879,6 +1879,34 @@ class FireworksImageAdapter:
             ]
             return any(n in msg for n in needles)
 
+        def _extract_fireworks_http_status(exc: Exception) -> Optional[int]:
+            msg = str(exc or "")
+            prefixes = [
+                "Fireworks error ",
+                "Fireworks Kontext error ",
+                "Fireworks Kontext get_result error ",
+                "Fireworks Kontext failed (",
+            ]
+            for pre in prefixes:
+                idx = msg.find(pre)
+                if idx < 0:
+                    continue
+                rest = msg[idx + len(pre) :]
+                if pre == "Fireworks Kontext failed (":
+                    # "Fireworks Kontext failed (429): ..."
+                    end = rest.find(")")
+                    code = rest[:end] if end > 0 else ""
+                else:
+                    # "Fireworks error 429: ..."
+                    code = rest[:3]
+                code = str(code).strip()
+                if code.isdigit():
+                    try:
+                        return int(code)
+                    except Exception:
+                        return None
+            return None
+
         def _run_with_current_key() -> ImageResult:
             request_ids: List[str] = []
 
@@ -2126,14 +2154,15 @@ class FireworksImageAdapter:
                 # escalating to provider-level cooldown handling.
                 try:
                     if int(getattr(exc, "http_status", 0) or 0) == 429:
+                        cooldown_sec = int(os.getenv("FIREWORKS_IMAGE_KEY_COOLDOWN_SEC", "120") or 120)
                         fireworks_keys.record_key_status(
                             "image",
                             key=lease.key,
-                            status="exhausted",
+                            status="ok",
                             http_status=429,
                             note="429 rate_limit during image generation",
+                            cooldown_sec=cooldown_sec,
                         )
-                        fireworks_keys.purge_key_from_keyring("image", key=lease.key)
                 except Exception:
                     pass
                 last_exc = exc
@@ -2141,6 +2170,29 @@ class FireworksImageAdapter:
             except Exception as exc:  # noqa: BLE001
                 last_exc = exc if isinstance(exc, Exception) else Exception(str(exc))
                 if _is_key_scoped_error(last_exc):
+                    try:
+                        hs = _extract_fireworks_http_status(last_exc)
+                        if hs == 429:
+                            cooldown_sec = int(os.getenv("FIREWORKS_IMAGE_KEY_COOLDOWN_SEC", "120") or 120)
+                            fireworks_keys.record_key_status(
+                                "image",
+                                key=lease.key,
+                                status="ok",
+                                http_status=429,
+                                note="429 rate_limit during image generation",
+                                cooldown_sec=cooldown_sec,
+                            )
+                        elif hs in (401, 402, 412):
+                            status = {401: "invalid", 402: "exhausted", 412: "suspended"}.get(int(hs), "error")
+                            fireworks_keys.record_key_status(
+                                "image",
+                                key=lease.key,
+                                status=status,
+                                http_status=int(hs),
+                                note=f"{status} during image generation",
+                            )
+                    except Exception:
+                        pass
                     continue
                 raise
             finally:

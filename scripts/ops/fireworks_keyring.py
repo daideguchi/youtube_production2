@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import List
 
 from factory_common.paths import secrets_root, workspace_root
+from factory_common.paths import repo_root
 
 
 _FW_KEY_RE = re.compile(r"^fw_[A-Za-z0-9]{20,}$")
@@ -117,6 +118,9 @@ def _default_keyring_path_for_pool(pool: str) -> Path:
 
 def _legacy_memo_path() -> Path:
     return workspace_root() / "_scratch" / "fireworks_apiメモ"
+
+def _stamp_utc() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _mask(key: str) -> str:
@@ -264,6 +268,23 @@ def _primary_key_from_env_for_pool(pool: str) -> str:
     raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
 
 
+def _inline_keys_from_env_for_pool(pool: str) -> List[str]:
+    p = str(pool or "").strip().lower()
+    if p == "script":
+        raw = (os.getenv("FIREWORKS_SCRIPT_KEYS") or "").strip()
+    elif p == "image":
+        raw = (os.getenv("FIREWORKS_IMAGE_KEYS") or "").strip()
+    else:
+        raise SystemExit(f"invalid --pool: {pool!r} (expected: script|image)")
+    out: List[str] = []
+    if raw:
+        for part in raw.split(","):
+            tok = part.strip()
+            if tok and _FW_KEY_RE.match(tok):
+                out.append(tok)
+    return _dedupe_keep_order(out)
+
+
 def _iter_keys_for_ops(keyring_path: Path) -> List[str]:
     primary = _primary_key_from_env()
     keys = [primary] if primary else []
@@ -272,9 +293,25 @@ def _iter_keys_for_ops(keyring_path: Path) -> List[str]:
 
 
 def _iter_keys_for_ops_for_pool(keyring_path: Path, pool: str) -> List[str]:
+    file_keys = _read_keys(keyring_path)
+    inline_keys = _inline_keys_from_env_for_pool(pool)
+
+    keys: List[str] = []
     primary = _primary_key_from_env_for_pool(pool)
-    keys = [primary] if primary else []
-    keys.extend(_read_keys(keyring_path))
+    if str(pool or "").strip().lower() == "image":
+        ignore_primary = (os.getenv("FIREWORKS_IMAGE_IGNORE_PRIMARY") or "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+        if ignore_primary:
+            primary = ""
+    if primary and _FW_KEY_RE.match(primary):
+        keys.append(primary)
+
+    keys.extend(inline_keys)
+    keys.extend(file_keys)
     return _dedupe_keep_order([k for k in keys if k])
 
 
@@ -382,6 +419,33 @@ def main() -> None:
 
     p_mig = sub.add_parser("migrate-from-scratch", help="one-time import from legacy memo into keyring")
     p_mig.add_argument("--src", type=str, default="", help="legacy source path (default: workspaces/_scratch/fireworks_apiメモ)")
+
+    p_sync = sub.add_parser("sync", help="sync keys from a source file into the keyring (no key printed)")
+    p_sync.add_argument(
+        "--src",
+        type=str,
+        default=".env",
+        help="source file path (default: repo root .env). Use '-' to read from stdin.",
+    )
+    p_sync.add_argument(
+        "--mode",
+        type=str,
+        default="replace",
+        choices=["replace", "merge"],
+        help="replace: keyring becomes exactly the parsed keys | merge: append new keys to existing",
+    )
+    p_sync.add_argument(
+        "--require-count",
+        type=int,
+        default=0,
+        help="when >0, abort unless the parsed unique key count matches this value",
+    )
+    p_sync.add_argument(
+        "--reset-state",
+        action="store_true",
+        help="move state file aside so keys are re-probed from scratch",
+    )
+    p_sync.add_argument("--dry-run", action="store_true", help="print counts only; do not write files")
 
     args = parser.parse_args()
     pool = str(getattr(args, "pool", "script") or "script").strip().lower()
@@ -704,6 +768,73 @@ def main() -> None:
         print(
             f"ok: extracted={len(extracted)} imported={len(src_keys)} skipped_quarantined={skipped_quarantined} "
             f"total={len(merged)} from {src} quarantine={qpath}"
+        )
+        return
+
+    if args.cmd == "sync":
+        raw = str(getattr(args, "src", "") or "").strip() or ".env"
+        src_label = ""
+        if raw == "-":
+            try:
+                src_text = os.sys.stdin.read() or ""
+            except Exception:
+                src_text = ""
+            src_keys = _parse_keys(src_text)
+            src_label = "stdin"
+        else:
+            src = Path(raw).expanduser()
+            if not src.is_absolute():
+                src = (repo_root() / src).resolve()
+            else:
+                src = src.resolve()
+            if not src.exists():
+                raise SystemExit(f"source not found: {src}")
+            src_keys = _read_keys(src)
+            src_label = str(src)
+        if not src_keys:
+            raise SystemExit(f"no keys parsed from source: {src_label}")
+
+        req = int(getattr(args, "require_count", 0) or 0)
+        if req > 0 and len(src_keys) != req:
+            raise SystemExit(f"parsed key count mismatch: got={len(src_keys)} require_count={req} src={src}")
+
+        existing = _read_keys(path)
+        mode = str(getattr(args, "mode", "replace") or "replace").strip().lower()
+        if mode == "merge":
+            merged = _dedupe_keep_order([*existing, *src_keys])
+        else:
+            merged = list(src_keys)
+
+        state_path = _state_path_from_env_for_pool(pool)
+        dry_run = bool(getattr(args, "dry_run", False))
+        reset_state = bool(getattr(args, "reset_state", False))
+
+        if dry_run:
+            print(
+                f"dry_run: mode={mode} src_keys={len(src_keys)} existing={len(existing)} "
+                f"new_total={len(merged)} keyring={path} src={src_label} reset_state={1 if reset_state else 0}"
+            )
+            return
+
+        if mode == "replace" and path.exists():
+            bak = path.with_suffix(path.suffix + f".bak.{_stamp_utc()}")
+            try:
+                path.replace(bak)
+            except Exception:
+                pass
+
+        _write_keys(path, merged)
+
+        if reset_state and state_path.exists():
+            bak = state_path.with_suffix(state_path.suffix + f".bak.{_stamp_utc()}")
+            try:
+                state_path.replace(bak)
+            except Exception:
+                pass
+
+        print(
+            f"ok: synced mode={mode} src_keys={len(src_keys)} old={len(existing)} total={len(merged)} "
+            f"keyring={path} src={src_label} reset_state={1 if reset_state else 0}"
         )
         return
 

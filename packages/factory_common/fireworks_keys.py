@@ -419,6 +419,7 @@ def _update_state(
     http_status: Optional[int],
     ratelimit: Optional[Dict[str, Any]] = None,
     note: str = "",
+    cooldown_until: Optional[float] = None,
 ) -> None:
     k = str(key or "").strip()
     if not k:
@@ -438,6 +439,7 @@ def _update_state(
         "last_checked_at": _utc_now_iso(),
         "last_http_status": int(http_status) if isinstance(http_status, int) else None,
         "note": str(note or ""),
+        "cooldown_until": float(cooldown_until) if isinstance(cooldown_until, (int, float)) else None,
         "ratelimit": ratelimit if isinstance(ratelimit, dict) and ratelimit else None,
     }
     obj["updated_at"] = _utc_now_iso()
@@ -455,11 +457,15 @@ def record_key_status(
     http_status: Optional[int],
     note: str = "",
     ratelimit: Optional[Dict[str, Any]] = None,
+    cooldown_sec: Optional[int] = None,
 ) -> None:
     """
     Persist key health info (never prints keys).
     """
     try:
+        cooldown_until = None
+        if isinstance(cooldown_sec, (int, float)) and int(cooldown_sec) > 0:
+            cooldown_until = time.time() + float(int(cooldown_sec))
         _update_state(
             pool,
             key=key,
@@ -467,6 +473,7 @@ def record_key_status(
             http_status=http_status,
             ratelimit=ratelimit,
             note=note,
+            cooldown_until=cooldown_until,
         )
     except Exception:
         return
@@ -597,6 +604,17 @@ def candidate_keys(pool: str) -> List[str]:
     Never prints keys.
     """
     p = _pool_slug(pool)
+
+    keys: List[str] = []
+    ignore_primary = False
+    if p == "image":
+        ignore_primary = (os.getenv("FIREWORKS_IMAGE_IGNORE_PRIMARY") or "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
     primary_env = _pool_env(p, key="primary")
     alias_env = _pool_env(p, key="primary_alias")
     primary = (os.getenv(primary_env) or os.getenv(alias_env) or "").strip()
@@ -605,8 +623,7 @@ def candidate_keys(pool: str) -> List[str]:
     if not primary and p == "image":
         primary = (os.getenv("FIREWORKS_API_KEY") or "").strip()
 
-    keys: List[str] = []
-    if primary and _FW_KEY_RE.match(primary):
+    if not ignore_primary and primary and _FW_KEY_RE.match(primary):
         keys.append(primary)
 
     raw_list = (os.getenv(_pool_env(p, key="keys_inline")) or "").strip()
@@ -656,17 +673,22 @@ def acquire_key(
             return 4
         return 5
 
-    scored: List[Tuple[int, int, str]] = []
+    now = time.time()
+    scored: List[Tuple[int, float, int, str]] = []
     for idx, k in enumerate(keys):
         fp = _sha256_hex(k)
         ent = st.get(fp) if isinstance(st.get(fp), dict) else {}
+        cooldown_until = (ent or {}).get("cooldown_until")
+        if isinstance(cooldown_until, (int, float)) and float(cooldown_until) > now:
+            scored.append((99, float(cooldown_until), idx, k))
+            continue
         s = str((ent or {}).get("status") or "unknown")
         rank = _status_rank(s)
         if rank == 3 and not allow_recheck_exhausted:
             continue
-        scored.append((rank, idx, k))
+        scored.append((rank, 0.0, idx, k))
 
-    ordered = sorted(scored, key=lambda x: (x[0], x[1]))
+    ordered = sorted(scored, key=lambda x: (x[0], x[1], x[2]))
     if not ordered:
         return None
 
@@ -682,7 +704,7 @@ def acquire_key(
             _RR_CURSOR_BY_POOL[p] = cur + 1
     rotated = best[start:] + best[:start] + rest
 
-    for _rank, _idx, k in rotated:
+    for _rank, _cooldown_until, _idx, k in rotated:
         lease = _try_acquire_lease(pool=p, key=k, ttl_sec=int(ttl_sec), purpose=purpose)
         if lease is None:
             continue

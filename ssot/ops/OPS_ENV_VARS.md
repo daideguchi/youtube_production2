@@ -166,16 +166,19 @@
 - Gemini: `GEMINI_API_KEY`（画像/テキスト共通）
 - Fireworks（画像）: `FIREWORKS_IMAGE`（画像生成 / Fireworks provider用キー。互換: `FIREWORKS_IMAGE_API_KEY` / `FIREWORKS_API_KEY`）
   - 注意: `FIREWORKS_IMAGE` は「単一キー」。複数キーは `FIREWORKS_IMAGE_KEYS(_FILE)` / keyring に入れる（`FIREWORKS_SCRIPT` に入れても画像には効かない）。
+  - 画像キーの推奨運用: keyring（`~/.ytm/secrets/fireworks_image_keys.txt`）に「使うキーを全部」入れる（3本運用なら3行）。必要なら `.env` 側の単一キーを無視する: `FIREWORKS_IMAGE_IGNORE_PRIMARY=1`
   - キーローテ（オプション）:
     - `FIREWORKS_IMAGE_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
       - 既定探索: `~/.ytm/secrets/fireworks_image_keys.txt`（`YTM_SECRETS_ROOT` でルート変更可）
       - 追加/整形: `python3 scripts/ops/fireworks_keyring.py --pool image add --key ...`（キーは表示しない）
+      - 一括同期（推奨; 値は出さない）: `python3 scripts/ops/fireworks_keyring.py --pool image sync --src - --mode replace --require-count 3 --reset-state`（`--src -` は stdin。macOSなら `pbpaste | ...` で投入できる）
     - `FIREWORKS_IMAGE_KEYS`（省略可）: 追加キーをカンマ区切りで列挙（例: `key1,key2,...`）。
     - `FIREWORKS_IMAGE_KEYS_STATE_FILE`（省略可）: キー状態（exhausted/invalid等）を保存するファイルパス。
       - 既定: `~/.ytm/secrets/fireworks_image_keys_state.json`
       - 更新: `python3 scripts/ops/fireworks_keyring.py --pool image check --show-masked`（既定: `GET /inference/v1/models`。トークン消費なし。`412` は `suspended`。`check` の `total=` は「env primary + keyring file」の合計。`list` は keyring file のみ / `candidate_total=` は env+file）
       - 退避（使えないキーを隔離）: `python3 scripts/ops/fireworks_keyring.py --pool image quarantine --show-masked`（既定: `~/.ytm/secrets/fireworks_image_keys.quarantine.txt`）
       - 復帰（隔離から戻す）: `python3 scripts/ops/fireworks_keyring.py --pool image restore --show-masked`
+    - `FIREWORKS_IMAGE_KEY_COOLDOWN_SEC`（default: `120`）: 画像生成中に `429` が出たキーを「一時クールダウン」扱いにして別キーへ切替する秒数（キーは自動削除しない）。
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
   - キーローテ（オプション）:
     - `FIREWORKS_SCRIPT_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。
