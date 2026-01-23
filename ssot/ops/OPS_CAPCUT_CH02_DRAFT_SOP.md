@@ -107,3 +107,9 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
 ```
 
 全て `✅` になれば CapCut側で編集/書き出しに進める。
+
+---
+
+## 関連SSOT
+
+- CapCutドラフト（編集）資産の置き場と共有運用: `ssot/ops/OPS_CAPCUT_DRAFT_STORAGE_STRATEGY.md`
