@@ -457,6 +457,78 @@ def record_key_status(
         return
 
 
+def purge_key_from_keyring(pool: str, *, key: str) -> bool:
+    """
+    Physically remove a key from the pool keyring file (never prints keys).
+    Returns True when at least one line was removed.
+    """
+    k = str(key or "").strip()
+    if not _FW_KEY_RE.match(k):
+        return False
+
+    p = _pool_slug(pool)
+    path = keyring_path(p)
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except FileNotFoundError:
+        return False
+    except Exception:
+        return False
+
+    def _extract_key_from_raw_line(raw: str) -> str:
+        try:
+            line = str(raw or "").strip()
+            if not line or line.startswith("#"):
+                return ""
+            if "=" in line:
+                _left, right = line.split("=", 1)
+                line = right.strip()
+            if "#" in line:
+                line = line.split("#", 1)[0].strip()
+            line = line.strip().strip("'\"")
+            if " " in line or "\t" in line:
+                return ""
+            if not all(ord(ch) < 128 for ch in line):
+                return ""
+            if not _FW_KEY_RE.match(line):
+                return ""
+            return line
+        except Exception:
+            return ""
+
+    removed = 0
+    kept: List[str] = []
+    for raw in text.splitlines(keepends=True):
+        if _extract_key_from_raw_line(raw) == k:
+            removed += 1
+            continue
+        kept.append(raw)
+
+    if removed <= 0:
+        return False
+
+    out = "".join(kept)
+    if out and not out.endswith("\n"):
+        out += "\n"
+
+    try:
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        tmp.write_text(out, encoding="utf-8")
+        try:
+            os.chmod(tmp, 0o600)
+        except Exception:
+            pass
+        tmp.replace(path)
+        try:
+            os.chmod(path, 0o600)
+        except Exception:
+            pass
+    except Exception:
+        return False
+
+    return True
+
+
 def probe_key(key: str) -> Tuple[str, Optional[int], Optional[Dict[str, Any]]]:
     """
     Token-free liveness/credit probe (does not call an LLM).

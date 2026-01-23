@@ -2133,6 +2133,7 @@ class FireworksImageAdapter:
                             http_status=429,
                             note="429 rate_limit during image generation",
                         )
+                        fireworks_keys.purge_key_from_keyring("image", key=lease.key)
                 except Exception:
                     pass
                 last_exc = exc
