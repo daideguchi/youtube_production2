@@ -32,6 +32,7 @@
 - 検証:
   - `./scripts/with_ytm_env.sh python3 scripts/check_env.py` が `✅ All required environment variables are set` を返すこと
   - `./ops doctor` が `.env missing` で落ちないこと
+  - 補足（混同防止）: Codex の MCP `brave-search` は `~/.codex/config.toml` 側の設定で起動する（repo の `.env` とは別系統）
 
 ## 5) 再発防止（SSOT / 仕組み）
 
@@ -47,7 +48,7 @@
 - `.env` が消えた場合の復旧手順（復元元の優先順位、検証手順）を `ssot/ops/OPS_ENV_VARS.md` に追記する。
 - 入口索引に “env 復旧/保護” を追加し、迷子を防ぐ（`ssot/ops/OPS_ENTRYPOINTS_INDEX.md`）。
 
-### C) 技術的な保護（推奨）
+### C) 技術的な保護（任意）
 
 - macOS のファイル保護（例: `chflags uchg .env`）等で **誤削除を物理的に防ぐ**運用を推奨する。
   - 解除が必要な場合のみ `chflags nouchg .env`。
@@ -55,7 +56,6 @@
 
 ## 6) アクションアイテム（実装タスク）
 
-- [ ] `./ops env ...`（status/protect/unprotect/recover）を追加し、`.env` の保護と復元を “入口” として固定する
-- [ ] `OPS_AGENT_PLAYBOOK.md` に `.env` を含む “critical local secrets” の扱い（削除禁止/lock必須/復旧手順）を追記する
+- [x] `./ops env ...`（status/protect/unprotect/recover）を追加し、`.env` の保護と復元を “入口” として固定する（実装: `main` / `69c52990`, 文言のCI修正: `d3e8667b`）
+- [x] `OPS_AGENT_PLAYBOOK.md` に `.env` を含む “critical local secrets” の扱い（削除禁止/lock必須/復旧手順）を追記する（`69c52990`）
 - [ ] 今回の生ログ/断片は `log_research/` → `backups/_incident_archives/.../` へ退避し、`ssot/history/` には本ファイルのみ残す
-
