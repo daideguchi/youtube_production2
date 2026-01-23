@@ -180,6 +180,22 @@
       - 復帰（隔離から戻す）: `python3 scripts/ops/fireworks_keyring.py --pool image restore --show-masked`
     - `FIREWORKS_IMAGE_KEY_COOLDOWN_SEC`（default: `120`）: 画像生成中に `429` が出たキーを「一時クールダウン」扱いにして別キーへ切替する秒数（キーは自動削除しない）。
     - `FIREWORKS_IMAGE_WAIT_FOR_LEASE_SEC`（default: `20`）: 全キーが他プロセスに lease 中で取得できない場合、短時間待って再試行する（並列/複数バッチ運用で placeholder を減らす）。
+  - **Fireworks画像キー3本運用（確定手順 / 迷ったらここ）**
+    - 方針: **キーは1箇所に集約**する（`FIREWORKS_IMAGE`/`FIREWORKS_IMAGE_KEYS`/keyring を混ぜない）
+    - 手順A（推奨: keyringで3本運用）:
+      - `python3 scripts/ops/fireworks_keyring.py --pool image sync --src - --mode replace --require-count 3 --reset-state`
+      - `FIREWORKS_IMAGE_IGNORE_PRIMARY=1`（`.env` の単一キーを無視したい時）
+    - 手順B（keyring が揺れる/古いプロセスが触る環境の固定運用）:
+      - `.env` に `FIREWORKS_IMAGE_KEYS` を **3本カンマ区切り**で入れる
+      - `.env` に `FIREWORKS_IMAGE_KEYS_FILE=/dev/null`（keyring file を見ない）
+      - `.env` に `FIREWORKS_IMAGE_IGNORE_PRIMARY=1`（`.env` の単一キーを無視）
+    - 並列実行（画像を3並列で回す）:
+      - `packages/video_pipeline/tools/run_pipeline.py`: `--concurrency 3`
+      - `./ops api video auto-capcut`: `--img-concurrency 3`
+    - 確認（必ず `./scripts/with_ytm_env.sh` 経由で実行すること）:
+      - `python -c "from factory_common.fireworks_keys import candidate_keys; print(len(candidate_keys('image')))"` → `3`
+      - `python scripts/ops/fireworks_keyring.py --pool image check --mode models --limit 10` → `ok=3 ... total=3`
+      - `python scripts/ops/fireworks_keyring.py --pool image list` は **keyring file のみ**（`count=0` でも `candidate_total=3` なら正常）
 - Fireworks（台本/本文）: `FIREWORKS_SCRIPT`（文章執筆 / LLMRouter provider=fireworks 用。互換: `FIREWORKS_SCRIPT_API_KEY`）
   - キーローテ（オプション）:
     - `FIREWORKS_SCRIPT_KEYS_FILE`（省略可）: 複数キーを1行1キーで列挙したファイルパス（コメント `#` 可）。

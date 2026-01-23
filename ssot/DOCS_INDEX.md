@@ -55,6 +55,7 @@
 - `ops/OPS_GIT_SAFETY.md`: Gitロールバック事故の再発防止（`.git` write-lock + push前チェック）。
 - `ops/OPS_GIT_BRANCH_POLICY.md`: ブランチ運用ルール（main/feature/snapshot を固定して迷子を防ぐ）。
 - `ops/OPS_UI_WIRING.md`: UI(React) ↔ Backend(FastAPI) の配線SSOT（route/API/SoT対応）。
+- `ops/OPS_CAPCUT_DRAFT_STORAGE_STRATEGY.md`: CapCutドラフト（編集）資産の置き場と共有運用（Hot/Warm/Cold）。
 - `ops/OPS_SSOT_SYSTEM_MAP.md`: UIで“全処理”を漏れなく可視化する（SSOT=UI(view) / フロー図 / Trace）。
 - (Register) `ops/OPS_GAPS_REGISTER.md`: SSOT ↔ 実装の乖離台帳（ズレを根拠付きで列挙し、意思決定へつなぐ）。
 - (Register) `ops/OPS_OPEN_QUESTIONS.md`: 意思決定が必要な不明点（固定ロジック化の前提を明確化）。
