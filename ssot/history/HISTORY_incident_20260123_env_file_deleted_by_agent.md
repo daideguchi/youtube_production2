@@ -34,6 +34,21 @@
   - `./ops doctor` が `.env missing` で落ちないこと
   - 補足（混同防止）: Codex の MCP `brave-search` は `~/.codex/config.toml` 側の設定で起動する（repo の `.env` とは別系統）
 
+## 4.1) これまでの経緯（時系列 / 事実）
+
+時刻は原則 JST。`.env` は git 管理外のため「削除した瞬間」の正確な時刻は残らない（ユーザー指摘/ログ/mtime で追う）。
+
+- ユーザー指摘: `.env` 消失により `./scripts/with_ytm_env.sh` が停止し、`./ops` 系入口が停止した。
+- 復旧: エディタ履歴（Windsurf/Cursor の History）から dotenv 形式のスナップショットを探索し、最新候補を採用して `.env` を復元した。
+  - 参照元（事実）: Windsurf History 内の dotenv 形式候補（例: `~/Library/Application Support/Windsurf/User/History/...`）
+  - 以後の検証は「値を表示しない」コマンドで実施（上記の `check_env.py` / `./ops doctor`）。
+- 再発防止: SSOT と `./ops` に `.env` 保護/復旧の入口を追加した（`./ops env ...`）。
+  - 実装（事実）: `69c52990`
+- CI: GitHub Actions `LLM Smoke` が `ssot_audit` の曖昧語検出で失敗したため、該当文言を「既定: dry-run」へ変更して通過させた。
+  - 修正（事実）: `d3e8667b`
+- Codex起動時の `brave-search` MCP: repo の `.env` ではなく `~/.codex/config.toml` に依存することを確認し、起動コマンドを `npx` からローカルの `mcp-server-brave-search` 直起動へ変更した（設定値は変更しない）。
+  - 重要（事実）: `BRAVE_API_KEY` は Codex 側の設定で渡す必要がある（repo の `.env` とは別）。
+
 ## 5) 再発防止（SSOT / 仕組み）
 
 ### A) 運用ルール（強制）
