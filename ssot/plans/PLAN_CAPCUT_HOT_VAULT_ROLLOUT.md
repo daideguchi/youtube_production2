@@ -109,7 +109,7 @@ Notion（同一情報の入口）:
 ### 現状スナップショット（Mac / 2026-01-26）
 - 共有（マウント）: `YTM_SHARED_STORAGE_ROOT=/Users/dd/mounts/lenovo_share_real`（`README_MOUNTPOINT.txt` があり stub = 共有ダウン）
   - `ytm_workspaces -> /Users/dd/mounts/lenovo_share_real__LOCAL_BACKUP__.../outbox/ytm_share/ytm_workspaces`（ローカル退避へのsymlink）
-- ディスク空き（重要）: `/System/Volumes/Data` 空き約 `48Gi`（使用 `89%`）
+- ディスク空き（重要）: `/System/Volumes/Data` 空き約 `20Gi`（使用 `96%`）
 - 壊れsymlink（参考・2026-01-26時点の観測）:
   - `workspaces/video/input`: 79（`.symlink_shared_backup_*` など「退避symlink」も含む）
   - `workspaces/video/runs`: 116（多くが共有アーカイブ向け）
@@ -158,7 +158,9 @@ P2（観測・運用の強化）
 ### 次アクション（このPlanで進捗管理する）
 - [x] P0-1: planning/persona の参照を 1本化（`sources.yaml` と実装の責務分離を確定）
 - [ ] P0-2: “今触るチャンネル/エピソード”のHot定義を決め、`video/input` のローカル実体を保証（不足時の取得/退避手順を固定）
-- [ ] P0-3: 容量の安全域（例: 空き < 150Gi でWARN、< 80Gi でSTOP）を決め、回収手順を固定（削除は dry-run → 承認 → run）
+- [ ] P0-3: 容量の安全域を決め、回収手順を固定（削除は dry-run → 承認 → run）
+  - 初期しきい値: WARN `<=60Gi` / STOP `<=30Gi`
+  - 判定: `./ops storage doctor` の `[disk]` と warnings を見る（stub判定と同時に確認する）
 - [ ] P1-4: LaunchAgent（CapCut purge/auto export）を棚卸しし、Hot資産が消える経路が無いことを確認
 
 Slack通知:

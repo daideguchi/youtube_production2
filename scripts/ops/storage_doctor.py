@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import socket
 from pathlib import Path
 from typing import Any
@@ -66,6 +67,19 @@ def _collect() -> dict[str, Any]:
     asset_vault_root = repo_paths.asset_vault_root()
     capcut_worksets_root = repo_paths.capcut_worksets_root()
 
+    disk_usage: dict[str, Any] = {"path": str(workspace_root)}
+    try:
+        u = shutil.disk_usage(str(workspace_root))
+        disk_usage.update(
+            {
+                "total_bytes": int(u.total),
+                "used_bytes": int(u.used),
+                "free_bytes": int(u.free),
+            }
+        )
+    except Exception:
+        pass
+
     return {
         "host": {"hostname": socket.gethostname()},
         "repo": {"root": str(_REPO_ROOT)},
@@ -88,6 +102,7 @@ def _collect() -> dict[str, Any]:
             "asset_vault_root": _p(asset_vault_root),
             "capcut_worksets_root": _p(capcut_worksets_root),
         },
+        "disk": disk_usage,
         "warnings": [],
     }
 
@@ -96,12 +111,25 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Print/validate storage path wiring (safe by default).")
     ap.add_argument("--json", action="store_true", help="Emit JSON (default: human-readable).")
     ap.add_argument("--ensure-dirs", action="store_true", help="Create missing directories for configured shared roots.")
+    ap.add_argument(
+        "--disk-warn-gib",
+        type=float,
+        default=60.0,
+        help="Warn when free disk GiB is below this threshold (default: 60).",
+    )
+    ap.add_argument(
+        "--disk-stop-gib",
+        type=float,
+        default=30.0,
+        help="Stop-level warning when free disk GiB is below this threshold (default: 30).",
+    )
     args = ap.parse_args()
 
     payload = _collect()
     warnings: list[str] = payload["warnings"]
     paths: dict[str, str | None] = payload["paths"]
     env: dict[str, str | None] = payload["env"]
+    disk: dict[str, Any] = payload.get("disk") or {}
 
     workspace_root = Path(paths["workspace_root"] or ".")
     planning_root = Path(paths["planning_root"] or ".")
@@ -178,6 +206,28 @@ def main() -> int:
     if not capcut_worksets_root.exists():
         warnings.append(f"capcut_worksets_root does not exist yet: {capcut_worksets_root} (will be created on first use).")
 
+    try:
+        free = int(disk.get("free_bytes") or 0)
+        total = int(disk.get("total_bytes") or 0)
+        free_gib = free / (1024**3)
+        used_pct = (1.0 - (free / total)) * 100 if total > 0 else None
+        disk["free_gib"] = round(free_gib, 2)
+        if used_pct is not None:
+            disk["used_pct"] = round(used_pct, 1)
+
+        if free_gib <= float(args.disk_stop_gib):
+            warnings.append(
+                f"disk free is CRITICAL: {free_gib:.2f}GiB (<= {float(args.disk_stop_gib):.2f}GiB). "
+                "Avoid large renders; run cleanup dry-run before generating new assets."
+            )
+        elif free_gib <= float(args.disk_warn_gib):
+            warnings.append(
+                f"disk free is low: {free_gib:.2f}GiB (<= {float(args.disk_warn_gib):.2f}GiB). "
+                "Plan cleanup to keep Mac work responsive."
+            )
+    except Exception:
+        pass
+
     if bool(args.ensure_dirs):
         if shared_is_stub:
             warnings.append("Refusing --ensure-dirs because shared_storage_root looks OFFLINE/STUB.")
@@ -195,6 +245,11 @@ def main() -> int:
         print("[storage_doctor]")
         for k, v in payload["paths"].items():
             print(f"- {k}: {v}")
+        if disk:
+            print("[disk]")
+            for k in ("path", "total_bytes", "used_bytes", "free_bytes", "free_gib", "used_pct"):
+                if k in disk:
+                    print(f"- {k}: {disk.get(k)}")
         if warnings:
             print("[warnings]")
             for w in warnings:
