@@ -1,0 +1,5 @@
+path	target	note
+workspaces/_tmp/venv_llm_smoke_py312/bin/python	python3.12	ci_fail_llm_smoke_tracked_symlink
+workspaces/_tmp/venv_llm_smoke_py312/bin/python3	python3.12	ci_fail_llm_smoke_tracked_symlink
+workspaces/_tmp/venv_llm_smoke_py312/bin/python3.12	/opt/homebrew/opt/python@3.12/bin/python3.12	ci_fail_llm_smoke_tracked_symlink
+workspaces/thumbnails/assets.symlink_lenovo_backup_20260124_214045	/Users/dd/mounts/lenovo_share_real/archive/mac_assets/10_YouTube_Automation/factory_commentary/workspaces/thumbnails/assets	ci_fail_llm_smoke_tracked_symlink

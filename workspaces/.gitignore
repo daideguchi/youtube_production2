@@ -9,6 +9,9 @@ video/_archive/**
 video/_capcut_drafts/**
 video/_state/**
 episodes/*
+_tmp/**
+_scratch/**
+thumbnails/*.symlink_*
 
 # Keep docs (tracked)
 !README.md

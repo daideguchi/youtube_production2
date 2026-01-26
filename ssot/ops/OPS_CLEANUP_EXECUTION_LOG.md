@@ -2544,3 +2544,28 @@ archive-first（repo, tracked）:
 検証:
 - `df -h /Users/dd` にて空き容量が増加したことを確認（実行後: avail 25Gi / 94%）。
 - `./ops progress --channel CH04 --format summary --include-hidden-runs` → issues=0（進捗・サムネ・台本は保持）。
+
+### 2) CI（LLM Smoke）失敗: tracked symlink / 誤コミット venv の除去
+
+背景:
+- GitHub Actions `LLM Smoke` が `repo_sanity_audit` で失敗（tracked symlink が git index に残っていた）。
+- 対象（symlink）:
+  - `workspaces/_tmp/venv_llm_smoke_py312/bin/python*`
+  - `workspaces/thumbnails/assets.symlink_lenovo_backup_20260124_214045`
+
+archive-first:
+- `backups/graveyard/20260126T132343Z__fix_llm_smoke_tracked_symlinks/`
+  - `tracked_symlinks_manifest.tsv`
+  - `removed_paths_manifest.tsv`
+
+実行:
+- 追跡 symlink の検出:
+  - `git ls-files -s | awk '$1==120000{print $4}' | sort`
+- git から除去（tracked削除 / working tree は残す）:
+  - `git update-index --force-remove -- workspaces/thumbnails/assets.symlink_lenovo_backup_20260124_214045`
+  - `git ls-files -z -- workspaces/_tmp/venv_llm_smoke_py312 | xargs -0 -n 100 git update-index --force-remove --`
+- 再発防止（誤コミット防止）:
+  - `workspaces/.gitignore` に `_tmp/**`, `_scratch/**`, `thumbnails/*.symlink_*` を追加
+
+検証:
+- `python3 scripts/ops/repo_sanity_audit.py --verbose` が green（tracked symlink 0）

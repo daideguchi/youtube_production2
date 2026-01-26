@@ -1,0 +1,3 @@
+path	note
+workspaces/_tmp/venv_llm_smoke_py312	accidentally_committed_venv_remove_from_git
+workspaces/thumbnails/assets.symlink_lenovo_backup_20260124_214045	backup_symlink_should_not_be_tracked
