@@ -37,6 +37,7 @@ REPO_ROOT = bootstrap(load_env=False)
 
 from factory_common import paths as repo_paths  # noqa: E402
 from factory_common.locks import default_active_locks_for_mutation, find_blocking_lock  # noqa: E402
+from factory_common.publish_lock import is_episode_published_locked  # noqa: E402
 
 
 def _now_iso_utc() -> str:
@@ -346,12 +347,27 @@ def cmd_sync(args: argparse.Namespace) -> int:
             "- action: rerun after share is mounted (or store without symlink/move)."
         )
 
+    # Unposted safety: never let "Hot/Freeze" become external-dependent via move/symlink-back.
+    ch = _validate_channel(getattr(args, "channel", None))
+    vv = _validate_video(getattr(args, "video", None))
+    if bool(args.run) and (bool(getattr(args, "symlink_back", False)) or bool(getattr(args, "move", False))) and ch and vv:
+        emergency = str(os.getenv("YTM_EMERGENCY_OVERRIDE") or "").strip() in {"1", "true", "TRUE", "yes", "YES"}
+        if not bool(getattr(args, "allow_unposted", False)) and not emergency:
+            if not is_episode_published_locked(ch, vv):
+                raise SystemExit(
+                    "[POLICY] Refusing --symlink-back/--move for an unposted episode.\n"
+                    f"- episode: {ch}-{vv}\n"
+                    "- reason: Hot/Freeze assets must keep a Mac-local real copy (no external dependency).\n"
+                    "- action: rerun without --symlink-back/--move, or mark as published (publish_lock),\n"
+                    "          or (break-glass) use --allow-unposted / YTM_EMERGENCY_OVERRIDE=1."
+                )
+
     plan = _plan_sync(
         kind=str(args.kind or "misc"),
         src=src,
         dest_rel=str(args.dest_rel or "").strip() or None,
-        channel=str(args.channel or "").strip() or None,
-        video=str(args.video or "").strip() or None,
+        channel=str(ch or "").strip() or None,
+        video=str(vv or "").strip() or None,
         shared_base=shared.base,
     )
 
@@ -435,6 +451,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--ignore-locks", action="store_true", help="ignore coordination locks (debug only)")
     sp.add_argument("--move", action="store_true", help="delete local source after verified copy (dangerous)")
     sp.add_argument("--symlink-back", action="store_true", help="replace local source with symlink to shared (dangerous)")
+    sp.add_argument(
+        "--allow-unposted",
+        action="store_true",
+        help="Allow --move/--symlink-back even if episode is unposted (NOT recommended; requires explicit intent).",
+    )
     sp.add_argument("--run", action="store_true", help="execute (default: dry-run)")
     sp.set_defaults(func=cmd_sync)
 

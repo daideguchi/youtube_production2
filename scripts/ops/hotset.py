@@ -26,7 +26,7 @@ from _bootstrap import bootstrap
 
 REPO_ROOT = bootstrap(load_env=False)
 
-from factory_common.paths import channels_csv_path, planning_root  # noqa: E402
+from factory_common.paths import channels_csv_path, planning_root, status_path  # noqa: E402
 
 
 FREEZE_SCHEMA = "ytm.hotset_freeze.v1"
@@ -65,6 +65,18 @@ def _is_published_progress(value: Any) -> bool:
     if not text:
         return False
     return ("投稿済み" in text) or ("公開済み" in text) or (text.lower() in {"published", "posted"})
+
+
+def _is_published_by_status_json(channel: str, video: str) -> bool:
+    sp = status_path(channel, video)
+    if not sp.exists():
+        return False
+    try:
+        payload = json.loads(sp.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    meta = payload.get("metadata") if isinstance(payload, dict) else None
+    return isinstance(meta, dict) and bool(meta.get("published_lock"))
 
 
 def _row_video_token(row: dict[str, str]) -> Optional[str]:
@@ -191,7 +203,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         key = (ch, vid)
         payload = {"episode": f"{ch}-{vid}", "video": vid, "progress": progress, "title": title}
 
-        if _is_published_progress(progress):
+        if _is_published_progress(progress) or _is_published_by_status_json(ch, vid):
             published.append(payload)
             continue
 
@@ -304,4 +316,3 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

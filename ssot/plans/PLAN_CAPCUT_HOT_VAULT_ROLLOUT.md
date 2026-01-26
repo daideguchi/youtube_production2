@@ -99,6 +99,7 @@ P0（止血・最優先）
 - **P0-4: “共有へ書き込む系”ツールが stub を未検知のまま走り得る**（対策済み）
   - `shared_storage_sync.py` / `shared_storage_offload_episode.py` は mountpoint stub（`README_MOUNTPOINT.txt`）や SMB未マウントを検知し、ローカルoutboxへフォールバックする
   - 共有ダウン中の `--symlink-back/--move` は拒否し、Mac側SoTが共有依存になる事故を防ぐ
+  - 未投稿（Hot/Freeze）の `--symlink-back/--move` も既定で拒否する（Macローカル実体を保持。必要なら break-glass `--allow-unposted` / `YTM_EMERGENCY_OVERRIDE=1`）
 
 P1（次点・事故の再発防止）
 - **P1-1: 壊れsymlink/退避symlinkの残骸が増えやすい**（人間が「どれが正？」で迷子になりやすい）

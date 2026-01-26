@@ -31,6 +31,7 @@ from _bootstrap import bootstrap
 REPO_ROOT = bootstrap(load_env=False)
 
 from factory_common import paths as repo_paths  # noqa: E402
+from factory_common.publish_lock import is_episode_published_locked  # noqa: E402
 
 
 def _z3(video: str) -> str:
@@ -236,6 +237,8 @@ def _run_one(item: Item, *, channel: str, video: str, args: argparse.Namespace) 
         cmd.append("--overwrite")
     if bool(args.ignore_locks):
         cmd.append("--ignore-locks")
+    if bool(getattr(args, "allow_unposted", False)):
+        cmd.append("--allow-unposted")
     if bool(args.run):
         cmd.append("--run")
     if bool(args.symlink_back) and bool(item.post_symlink_back):
@@ -247,6 +250,18 @@ def _run_one(item: Item, *, channel: str, video: str, args: argparse.Namespace) 
 def cmd_run(args: argparse.Namespace) -> int:
     ch = _norm_channel(args.channel)
     vv = _norm_video(args.video)
+
+    if bool(args.run) and bool(args.symlink_back):
+        emergency = str(os.getenv("YTM_EMERGENCY_OVERRIDE") or "").strip() in {"1", "true", "TRUE", "yes", "YES"}
+        if not bool(getattr(args, "allow_unposted", False)) and not emergency:
+            if not is_episode_published_locked(ch, vv):
+                raise SystemExit(
+                    "[POLICY] Refusing --symlink-back for an unposted episode.\n"
+                    f"- episode: {ch}-{vv}\n"
+                    "- reason: Hot/Freeze assets must keep a Mac-local real copy (no external dependency).\n"
+                    "- action: rerun without --symlink-back, or mark as published (publish_lock),\n"
+                    "          or (break-glass) use --allow-unposted / YTM_EMERGENCY_OVERRIDE=1."
+                )
 
     items = _plan_items(args)
     if not items:
@@ -297,6 +312,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--video", required=True, help="NNN")
     p.add_argument("--run", action="store_true", help="Execute (default: dry-run)")
     p.add_argument("--symlink-back", action="store_true", help="After verified copy, symlink-back heavy L1 (wav/mp4)")
+    p.add_argument(
+        "--allow-unposted",
+        action="store_true",
+        help="Allow --symlink-back even if episode is unposted (NOT recommended; requires explicit intent).",
+    )
     p.add_argument("--overwrite", action="store_true", help="Overwrite destination if exists")
     p.add_argument("--ignore-locks", action="store_true", help="Ignore coordination locks (debug only)")
     p.add_argument("--allow-missing", action="store_true", help="Skip missing artifacts instead of stopping (not recommended)")

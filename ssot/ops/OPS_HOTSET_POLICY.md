@@ -34,6 +34,7 @@
   - Planning 行が `投稿済み/公開済み`
   - または `status.json: metadata.published_lock=true`
 - ここから先だけ、容量回収（archive/delete）の検討が可能（SSOT参照）
+  - `hotset.py list` の Published 判定も上記に従う（進捗 + `published_lock`）。
 
 ---
 

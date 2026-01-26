@@ -73,6 +73,7 @@
 
 禁止（事故防止）:
 - 共有ダウン中は `--symlink-back` / `--move` を禁止（ローカルSoTを “共有依存” にしない）。
+- 未投稿（Hot/Freeze）は `--symlink-back` / `--move` を禁止（Macローカル実体を保持する）。投稿済み（publish_lock）以外で破壊操作が必要な場合は break-glass（`--allow-unposted` / `YTM_EMERGENCY_OVERRIDE=1`）を使い、必ずSSOT/Notion/Slackに理由を残す。
 
 ---
 
