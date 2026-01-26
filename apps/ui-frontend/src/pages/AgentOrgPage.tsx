@@ -637,11 +637,11 @@ export function AgentOrgPage() {
   const tabs = useMemo(
     (): Array<{ key: TabKey; label: string; count?: number }> => [
       { key: "overview", label: "概要" },
-      { key: "agents", label: "Agents", count: agents.length },
-      { key: "locks", label: "Locks", count: activeLocks.length },
-      { key: "memos", label: "Memos", count: memos.length },
-      { key: "notes", label: "Notes", count: notes.length },
-      { key: "actions", label: "Actions" },
+      { key: "agents", label: "エージェント (Agents)", count: agents.length },
+      { key: "locks", label: "ロック (Locks)", count: activeLocks.length },
+      { key: "memos", label: "メモ (Memos)", count: memos.length },
+      { key: "notes", label: "ノート (Notes)", count: notes.length },
+      { key: "actions", label: "操作 (Actions)" },
     ],
     [activeLocks.length, agents.length, memos.length, notes.length]
   );
@@ -684,7 +684,7 @@ export function AgentOrgPage() {
         </button>
 
         {tab !== "actions" ? (
-          <div className="agent-org-page__search" aria-label="Search">
+          <div className="agent-org-page__search" aria-label="検索 (Search)">
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchPlaceholder} />
             {query ? (
               <button type="button" className="agent-org-page__clear" onClick={() => setQuery("")}>
@@ -699,7 +699,7 @@ export function AgentOrgPage() {
         <div className="agent-org-page__spacer" />
 
         <label className="agent-org-page__actor">
-          <span>from</span>
+          <span>from（送信者）</span>
           <input value={actorName} onChange={(e) => setActorName(e.target.value)} />
         </label>
 
@@ -731,36 +731,36 @@ export function AgentOrgPage() {
           <h2>概要</h2>
           <div className="agent-org-page__kpis">
             <div className="agent-org-page__kpi">
-              <span>Agents</span>
+              <span>エージェント (Agents)</span>
               <strong>
-                active {agentCounts.active} / stale {agentCounts.stale} / dead {agentCounts.dead}
+                稼働(active) {agentCounts.active} / 停滞(stale) {agentCounts.stale} / 停止(dead) {agentCounts.dead}
               </strong>
             </div>
             <div className="agent-org-page__kpi">
-              <span>Locks</span>
+              <span>ロック (Locks)</span>
               <strong>
-                active {activeLocks.length} / total {locks.length}
+                有効(active) {activeLocks.length} / 合計(total) {locks.length}
               </strong>
             </div>
             <div className="agent-org-page__kpi">
-              <span>Memos</span>
+              <span>メモ (Memos)</span>
               <strong>{memos.length}</strong>
             </div>
             <div className="agent-org-page__kpi">
-              <span>Notes</span>
+              <span>ノート (Notes)</span>
               <strong>{notes.length}</strong>
             </div>
           </div>
           <details>
             <summary className="agent-org-page__meta" style={{ cursor: "pointer" }}>
-              orchestrator state JSON
+              orchestrator state JSON（オーケストレーター状態）
             </summary>
             <pre className="agent-org-page__json">{JSON.stringify(orch?.state ?? {}, null, 2)}</pre>
           </details>
           {actionResponse ? (
             <details>
               <summary className="agent-org-page__meta" style={{ cursor: "pointer" }}>
-                last response
+                last response（直近レスポンス）
               </summary>
               <pre className="agent-org-page__json">{JSON.stringify(actionResponse, null, 2)}</pre>
             </details>
@@ -771,18 +771,18 @@ export function AgentOrgPage() {
       {tab === "agents" ? (
         <div className="agent-org-page__card">
           <h2>
-            Agents <span className="agent-org-page__meta">({agentsView.length}/{agents.length})</span>
+            エージェント (Agents) <span className="agent-org-page__meta">({agentsView.length}/{agents.length})</span>
           </h2>
           {agentsView.length ? (
             <div className="agent-org-page__table-wrapper">
               <table className="agent-org-page__table">
                 <thead>
                   <tr>
-                    <th>Status</th>
-                    <th>Name</th>
-                    <th>Role</th>
+                    <th>状態 (Status)</th>
+                    <th>名前 (Name)</th>
+                    <th>役割 (Role)</th>
                     <th>PID</th>
-                    <th>Last Seen</th>
+                    <th>最終更新 (Last Seen)</th>
                     <th>ID</th>
                   </tr>
                 </thead>
@@ -799,7 +799,7 @@ export function AgentOrgPage() {
                       <td>
                         <span className="agent-org-page__mono">{a.id}</span>{" "}
                         <button type="button" className="action-chip" onClick={() => handleCopy(a.id, "agent_id")}>
-                          copy
+                          コピー
                         </button>
                       </td>
                     </tr>
@@ -808,7 +808,7 @@ export function AgentOrgPage() {
               </table>
             </div>
           ) : (
-            <div>(no agents)</div>
+            <div>(なし / no agents)</div>
           )}
         </div>
       ) : null}
@@ -816,19 +816,19 @@ export function AgentOrgPage() {
       {tab === "locks" ? (
         <div className="agent-org-page__card">
           <h2>
-            Locks <span className="agent-org-page__meta">({locksView.length}/{locks.length})</span>
+            ロック (Locks) <span className="agent-org-page__meta">({locksView.length}/{locks.length})</span>
           </h2>
           {locksView.length ? (
             <div className="agent-org-page__table-wrapper">
               <table className="agent-org-page__table">
                 <thead>
                   <tr>
-                    <th>Status</th>
-                    <th>Mode</th>
-                    <th>By</th>
-                    <th>Scopes</th>
-                    <th>Expires</th>
-                    <th>Note</th>
+                    <th>状態 (Status)</th>
+                    <th>モード (Mode)</th>
+                    <th>作成者 (By)</th>
+                    <th>スコープ (Scopes)</th>
+                    <th>期限 (Expires)</th>
+                    <th>メモ (Note)</th>
                     <th>ID</th>
                     <th></th>
                   </tr>
@@ -847,7 +847,7 @@ export function AgentOrgPage() {
                       <td>
                         <span className="agent-org-page__mono">{l.id}</span>{" "}
                         <button type="button" className="action-chip" onClick={() => handleCopy(l.id, "lock_id")}>
-                          copy
+                          コピー
                         </button>
                       </td>
                       <td>
@@ -858,7 +858,7 @@ export function AgentOrgPage() {
                             onClick={() => void handleUnlock(l.id)}
                             disabled={loading}
                           >
-                            unlock
+                            解除 (unlock)
                           </button>
                         ) : null}
                       </td>
@@ -868,7 +868,7 @@ export function AgentOrgPage() {
               </table>
             </div>
           ) : (
-            <div>(no locks)</div>
+            <div>(なし / no locks)</div>
           )}
         </div>
       ) : null}
@@ -876,7 +876,7 @@ export function AgentOrgPage() {
       {tab === "memos" ? (
         <div className="agent-org-page__card">
           <h2>
-            Memos <span className="agent-org-page__meta">({memosView.length}/{memos.length})</span>
+            メモ (Memos) <span className="agent-org-page__meta">({memosView.length}/{memos.length})</span>
           </h2>
           {memosView.length ? (
             <div className="agent-org-page__split">
@@ -884,10 +884,10 @@ export function AgentOrgPage() {
                 <table className="agent-org-page__table">
                   <thead>
                     <tr>
-                      <th>At</th>
+                      <th>日時 (At)</th>
                       <th>From</th>
                       <th>To</th>
-                      <th>Subject</th>
+                      <th>件名 (Subject)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -909,20 +909,20 @@ export function AgentOrgPage() {
 
               <div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                  <h3 style={{ margin: 0 }}>Detail</h3>
+                  <h3 style={{ margin: 0 }}>詳細 (Detail)</h3>
                   {selectedMemoId ? (
                     <button type="button" className="action-chip" onClick={() => handleCopy(selectedMemoId, "memo_id")}>
-                      copy memo_id
+                      memo_id コピー
                     </button>
                   ) : null}
                 </div>
                 <pre className="agent-org-page__json">
-                  {memoDetail ? JSON.stringify(memoDetail, null, 2) : "(select a memo)"}
+                  {memoDetail ? JSON.stringify(memoDetail, null, 2) : "(メモを選択 / select a memo)"}
                 </pre>
               </div>
             </div>
           ) : (
-            <div>(no memos)</div>
+            <div>(なし / no memos)</div>
           )}
         </div>
       ) : null}
@@ -930,7 +930,7 @@ export function AgentOrgPage() {
       {tab === "notes" ? (
         <div className="agent-org-page__card">
           <h2>
-            Notes <span className="agent-org-page__meta">({notesView.length}/{notes.length})</span>
+            ノート (Notes) <span className="agent-org-page__meta">({notesView.length}/{notes.length})</span>
           </h2>
           {notesView.length ? (
             <div className="agent-org-page__split">
@@ -938,10 +938,10 @@ export function AgentOrgPage() {
                 <table className="agent-org-page__table">
                   <thead>
                     <tr>
-                      <th>Status</th>
+                      <th>状態 (Status)</th>
                       <th>From</th>
                       <th>To</th>
-                      <th>Subject</th>
+                      <th>件名 (Subject)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -973,35 +973,35 @@ export function AgentOrgPage() {
 
               <div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                  <h3 style={{ margin: 0 }}>Detail</h3>
+                  <h3 style={{ margin: 0 }}>詳細 (Detail)</h3>
                   {selectedNoteId ? (
                     <button type="button" className="action-chip" onClick={() => handleCopy(selectedNoteId, "note_id")}>
-                      copy note_id
+                      note_id コピー
                     </button>
                   ) : null}
                 </div>
                 <pre className="agent-org-page__json">
-                  {noteDetail ? JSON.stringify(noteDetail, null, 2) : "(select a note)"}
+                  {noteDetail ? JSON.stringify(noteDetail, null, 2) : "(ノートを選択 / select a note)"}
                 </pre>
               </div>
             </div>
           ) : (
-            <div>(no notes)</div>
+            <div>(なし / no notes)</div>
           )}
         </div>
       ) : null}
 
       {tab === "actions" ? (
         <div className="agent-org-page__card">
-          <h2>Actions</h2>
+          <h2>操作 (Actions)</h2>
           <div className="agent-org-page__actions">
             <div className="agent-org-page__panel">
-              <h4>Send note</h4>
+              <h4>ノート送信 (Send note)</h4>
               <div className="agent-org-page__fields">
                 <label className="agent-org-page__field">
-                  <span>to</span>
+                  <span>to（宛先）</span>
                   <select value={noteTo} onChange={(e) => setNoteTo(e.target.value)}>
-                    <option value="">(select)</option>
+                    <option value="">(選択 / select)</option>
                     {agents.map((a) => (
                       <option key={a.id} value={a.name}>
                         {a.name} ({a.role})
@@ -1010,15 +1010,15 @@ export function AgentOrgPage() {
                   </select>
                 </label>
                 <label className="agent-org-page__field">
-                  <span>subject</span>
+                  <span>subject（件名）</span>
                   <input value={noteSubject} onChange={(e) => setNoteSubject(e.target.value)} />
                 </label>
                 <label className="agent-org-page__field">
-                  <span>ttl_min</span>
+                  <span>ttl_min（分）</span>
                   <input value={noteTtlMin} onChange={(e) => setNoteTtlMin(e.target.value)} inputMode="numeric" />
                 </label>
                 <label className="agent-org-page__field">
-                  <span>body</span>
+                  <span>body（本文）</span>
                   <textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} rows={6} />
                 </label>
                 <button
@@ -1027,7 +1027,7 @@ export function AgentOrgPage() {
                   onClick={() => void handleSendNote()}
                   disabled={loading}
                 >
-                  send
+                  送信 (send)
                 </button>
               </div>
             </div>

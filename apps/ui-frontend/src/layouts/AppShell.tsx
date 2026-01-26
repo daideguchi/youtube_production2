@@ -408,7 +408,7 @@ const PLACEHOLDER_COPY: Record<
     description: "複数AIエージェントの役割・稼働状態・ロック・メモを確認し、作業衝突を防ぎます。",
   },
   agentBoard: {
-    title: "Shared Board",
+    title: "共有ボード（Shared Board）",
     description: "ownership/threads/レビュー/申し送りを単一ファイル(SoT)で共有するボードです。",
   },
   batchMonitor: {
@@ -1514,7 +1514,7 @@ export function AppShell() {
       {
         title: "制作フロー",
         items: [
-          { key: "studio", label: "Episode Studio", icon: "🎛️", path: "/studio" },
+          { key: "studio", label: "エピソードスタジオ（Episode Studio）", icon: "🎛️", path: "/studio" },
           { key: "workflow", label: "制作フロー", icon: "🧭", path: "/workflow" },
           { key: "planning", label: "企画CSV", icon: "🗂️", path: planningLink },
           { key: "scriptFactory", label: "台本作成", icon: "📝", path: "/projects" },
@@ -1536,8 +1536,8 @@ export function AppShell() {
           { key: "remotion", label: "Remotion（実験）", icon: "🎞️", path: "/video-remotion" },
           { key: "jobs", label: "ジョブ管理", icon: "🛰️", path: "/jobs" },
           { key: "batchMonitor", label: "バッチ監視", icon: "📟", path: "/batch-monitor" },
-          { key: "agentOrg", label: "AI Org", icon: "🤖", path: "/agent-org" },
-          { key: "agentBoard", label: "Shared Board", icon: "🧷", path: "/agent-board" },
+          { key: "agentOrg", label: "AI Org（協調）", icon: "🤖", path: "/agent-org" },
+          { key: "agentBoard", label: "共有ボード（Shared Board）", icon: "🧷", path: "/agent-board" },
           { key: "promptManager", label: "プロンプト", icon: "🗒️", path: "/prompts" },
           { key: "llmUsageDashboard", label: "LLMコスト", icon: "🧮", path: "/llm-usage/dashboard" },
           { key: "llmUsage", label: "LLMログ/Override", icon: "🧠", path: "/llm-usage" },
