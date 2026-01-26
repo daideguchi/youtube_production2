@@ -14,6 +14,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
+from factory_common.path_ref import resolve_path_ref
+from factory_common.paths import capcut_draft_root
 from video_pipeline.src.config.template_registry import resolve_template_path, is_registered_template
 
 logger = logging.getLogger(__name__)
@@ -513,7 +515,13 @@ class CommandBuilder:
         if not run_dir.exists():
             raise ValueError(f"プロジェクト出力ディレクトリが存在しません: {run_dir}")
 
-        draft_root = Path(options.get("draft_root") or (context.draft_path.parent if context.draft_path else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"))
+        draft_root_opt = options.get("draft_root")
+        if draft_root_opt:
+            draft_root = Path(str(draft_root_opt)).expanduser()
+        elif context.draft_path:
+            draft_root = context.draft_path.parent
+        else:
+            draft_root = capcut_draft_root()
         requested_channel = options.get("channel") or context.channel_id
         preset = self._get_channel_preset(requested_channel)
         template_name = options.get("template") or context.template_used
@@ -667,10 +675,19 @@ class CommandBuilder:
         if not run_dir.exists():
             raise ValueError(f"run_dir が存在しません: {run_dir}")
 
-        draft_path = options.get("draft_path") or context.info.get("draft_path") or context.draft_path
-        if not draft_path:
+        draft_path: Optional[Path] = None
+        if options.get("draft_path"):
+            draft_path = Path(str(options.get("draft_path"))).expanduser()
+        elif context.draft_path:
+            draft_path = context.draft_path
+        else:
+            resolved = resolve_path_ref(context.info.get("draft_path_ref"))
+            if resolved is not None:
+                draft_path = resolved.expanduser()
+            elif context.info.get("draft_path"):
+                draft_path = Path(str(context.info.get("draft_path"))).expanduser()
+        if draft_path is None:
             raise ValueError("draft_path が指定されていません (capcut_draft_info.json の draft_path も未設定)")
-        draft_path = Path(draft_path).resolve()
         if not draft_path.exists():
             raise ValueError(f"draft が存在しません: {draft_path}")
 
@@ -838,10 +855,22 @@ class CommandBuilder:
             srt_path = srt_candidate
 
         draft_path: Optional[Path] = None
-        if info.get("draft_path"):
-            draft_candidate = Path(info["draft_path"])
-            if draft_candidate.exists():
-                draft_path = draft_candidate
+        if isinstance(info, dict):
+            ref = info.get("draft_path_ref")
+            resolved = resolve_path_ref(ref)
+            if resolved is not None:
+                try:
+                    if resolved.exists():
+                        draft_path = resolved
+                except Exception:
+                    draft_path = None
+            if draft_path is None and info.get("draft_path"):
+                draft_candidate = Path(str(info["draft_path"])).expanduser()
+                try:
+                    if draft_candidate.exists():
+                        draft_path = draft_candidate
+                except Exception:
+                    draft_path = None
 
         channel_code: Optional[str] = info.get("channel_id")
         if not channel_code and summary is not None:

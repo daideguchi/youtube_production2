@@ -16,7 +16,7 @@ from fastapi import APIRouter, HTTPException, Query, Body
 from fastapi.responses import FileResponse
 from PIL import Image
 
-from factory_common.paths import logs_root, repo_root as ssot_repo_root, video_pkg_root, video_runs_root
+from factory_common.paths import capcut_draft_root, logs_root, repo_root as ssot_repo_root, video_pkg_root, video_runs_root
 
 router = APIRouter(prefix="/api/swap", tags=["swap"])
 
@@ -27,12 +27,7 @@ HISTORY_ROOT = LOG_DIR / "history"
 THUMB_CACHE_DIR = LOG_DIR / "thumb_cache"
 WHITELIST_PATH = video_pkg_root() / "config" / "track_whitelist.json"
 IMAGE_ASSET_SUBDIR = "assets/image"
-_env_capcut_root = os.getenv("CAPCUT_DRAFT_ROOT")
-CAPCUT_ROOT = (
-    Path(_env_capcut_root).expanduser()
-    if _env_capcut_root
-    else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
-)
+CAPCUT_ROOT = capcut_draft_root()
 OUTPUT_ROOT = video_runs_root()
 IMAGE_CUES_NAME = "image_cues.json"
 PROMPT_SNAPSHOT_NAME = "prompt_snapshots.json"

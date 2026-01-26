@@ -37,6 +37,8 @@ except Exception:
 tool_bootstrap(load_env=False)
 
 from factory_common.publish_lock import is_episode_published_locked  # noqa: E402
+from factory_common.path_ref import best_effort_path_ref, resolve_path_ref  # noqa: E402
+from factory_common.paths import capcut_draft_root  # noqa: E402
 
 from video_pipeline.tools.apply_shot_variety_to_run import apply_shot_variety, _maybe_write_style_anchor  # noqa: E402
 
@@ -138,7 +140,7 @@ def _is_run_dir_locked(run_dir: Path, locks: List[ActiveLock]) -> Optional[str]:
 
 
 def _capcut_draft_root() -> Path:
-    return Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+    return capcut_draft_root()
 
 
 def _resolve_capcut_draft(run_dir: Path, *, apply_fixes: bool) -> Path:
@@ -154,7 +156,13 @@ def _resolve_capcut_draft(run_dir: Path, *, apply_fixes: bool) -> Path:
     info_path = run_dir / "capcut_draft_info.json"
     info = _read_json(info_path) if info_path.exists() else {}
     draft_name = str(info.get("draft_name") or "").strip()
+    draft_path_ref = info.get("draft_path_ref") if isinstance(info.get("draft_path_ref"), dict) else None
     draft_path = str(info.get("draft_path") or "").strip()
+
+    if draft_path_ref:
+        resolved_ref = resolve_path_ref(draft_path_ref)
+        if resolved_ref is not None and resolved_ref.exists() and resolved_ref.is_dir():
+            return resolved_ref
 
     if draft_path:
         p = Path(draft_path).expanduser()
@@ -204,6 +212,7 @@ def _resolve_capcut_draft(run_dir: Path, *, apply_fixes: bool) -> Path:
         if info_path.exists():
             try:
                 info["draft_name"] = chosen.name
+                info["draft_path_ref"] = best_effort_path_ref(chosen)
                 info["draft_path"] = str(chosen)
                 info["resolved_at"] = _utc_now_iso()
                 _write_json(info_path, info)

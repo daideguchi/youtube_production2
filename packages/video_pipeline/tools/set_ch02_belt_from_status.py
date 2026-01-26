@@ -31,7 +31,8 @@ from factory_common.paths import status_path as script_status_path
 from factory_common.paths import video_runs_root
 
 CAPCUT_DRAFT_ROOT = Path(
-    os.getenv("CAPCUT_DRAFT_ROOT")
+    os.getenv("YTM_CAPCUT_DRAFT_ROOT")
+    or os.getenv("CAPCUT_DRAFT_ROOT")
     or (Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft")
 )
 RUN_ROOT = video_runs_root()

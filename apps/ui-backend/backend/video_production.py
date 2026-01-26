@@ -25,6 +25,7 @@ from factory_common.artifacts.visual_cues_plan import VisualCuesPlanArtifactV1, 
 from factory_common.paths import (
     audio_artifacts_root,
     audio_final_dir,
+    capcut_draft_root,
     logs_root,
     planning_channels_dir,
     repo_root as ssot_repo_root,
@@ -158,12 +159,7 @@ else:
     INPUT_ROOT = audio_artifacts_root() / "final"
     CONFIG_ROOT = VIDEO_PIPELINE_ROOT / "config"
     CHANNEL_PRESETS_PATH = CONFIG_ROOT / "channel_presets.json"
-    _env_capcut_root = os.getenv("CAPCUT_DRAFT_ROOT")
-    CAPCUT_DRAFT_ROOT = (
-        Path(_env_capcut_root).expanduser()
-        if _env_capcut_root
-        else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
-    )
+    CAPCUT_DRAFT_ROOT = capcut_draft_root()
     JOB_LOG_ROOT = logs_root() / "ui_hub" / "video_production"
     CHANNEL_CODE_PATTERN = re.compile(r"([A-Za-z]{2}\d{2})", re.IGNORECASE)
     VIDEO_NUMBER_PATTERN = re.compile(r"(?:(?<=-)|(?<=_)|^)(\d{3})(?=$|[^0-9])")

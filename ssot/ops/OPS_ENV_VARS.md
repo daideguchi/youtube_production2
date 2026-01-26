@@ -269,6 +269,10 @@
 - `YTM_CAPCUT_WORKSET_ROOT`（推奨）: CapCut編集用 Workset のルート（Hot・ローカル（内蔵SSD）。外付けSSDは任意）
   - 未設定時の既定: `YTM_OFFLOAD_ROOT/capcut_worksets` → `~/capcut_worksets`
   - 共有（SMB/Tailscale）上のWorkset運用は禁止（編集体感が落ちる）
+- `YTM_CAPCUT_DRAFT_ROOT`（推奨）: CapCutドラフトroot（`com.lveditor.draft`）
+  - 互換: `CAPCUT_DRAFT_ROOT`
+  - 既定（macOS）: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft`
+  - 注意: 共有/UIホスト（Acer等）でこのパスが存在しないのは正常（HotはMacローカル前提）。manifest/log/json は PathRef（`ssot/ops/OPS_PATHREF_CONVENTION.md`）で “動的参照” を使い、他ホストでの誤判定を避ける。
 
 ## 書庫/退避（容量対策）
 

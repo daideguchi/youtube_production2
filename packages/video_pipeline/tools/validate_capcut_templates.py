@@ -32,8 +32,8 @@ from factory_common.paths import video_pkg_root  # noqa: E402
 
 
 DEFAULT_DRAFT_ROOT = (
-    Path(os.getenv("CAPCUT_DRAFT_ROOT", "")).expanduser()
-    if os.getenv("CAPCUT_DRAFT_ROOT")
+    Path((os.getenv("YTM_CAPCUT_DRAFT_ROOT") or os.getenv("CAPCUT_DRAFT_ROOT") or "")).expanduser()
+    if (os.getenv("YTM_CAPCUT_DRAFT_ROOT") or os.getenv("CAPCUT_DRAFT_ROOT"))
     else Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
 )
 DEFAULT_PRESETS_PATH = video_pkg_root() / "config" / "channel_presets.json"

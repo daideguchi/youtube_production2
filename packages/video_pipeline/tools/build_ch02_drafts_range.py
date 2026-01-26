@@ -12,6 +12,7 @@ This script ensures:
     - If neither wav nor flac exist, generates via audio_tts with SKIP_TTS_READING=1.
   - Run dir exists with image_cues.json + images/
   - CapCut draft is created from CH02-テンプレ
+  - Image source mix is applied per SSOT (flux-pro:flux-max:free=7:2:1)
   - Belt main text is patched from script status.json (SSOT)
   - Draft is validated (fail-fast)
 """
@@ -50,6 +51,14 @@ PROJECT_ROOT = video_pkg_root()
 TOOLS_DIR = PROJECT_ROOT / "tools"
 RUN_ROOT = video_runs_root()
 DEFAULT_CAPCUT_ROOT = Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+
+DEFAULT_SOURCE_MIX = {
+    "weights": "7:2:1",  # flux-pro:flux-max:free
+    "flux_pro_model_key": "f-3",
+    "flux_max_model_key": "f-4",
+    "broll_provider": "pexels",
+    "broll_min_gap_sec": 60.0,
+}
 
 
 def _z3(x: str | int) -> str:
@@ -102,6 +111,42 @@ def _run(cmd: List[str], *, env: Optional[Dict[str, str]] = None, cwd: Optional[
     proc = subprocess.run(cmd, env=env, cwd=str(cwd) if cwd else None)
     if proc.returncode != 0:
         raise SystemExit(proc.returncode)
+
+
+def _load_image_source_mix_from_sources(channel: str) -> Dict[str, object]:
+    """
+    Load CH02 image_source_mix config from SSOT `configs/sources.yaml`.
+
+    Falls back to DEFAULT_SOURCE_MIX when:
+      - file missing/unreadable
+      - channel missing
+      - image_source_mix missing/disabled
+    """
+    try:
+        import yaml  # type: ignore
+
+        src = (REPO_ROOT / "configs" / "sources.yaml").read_text(encoding="utf-8")
+        data = yaml.safe_load(src) or {}
+        ch = (data.get("channels") or {}).get(channel.upper()) or {}
+        mix = ch.get("image_source_mix") or {}
+        if not (mix.get("enabled") is True):
+            return dict(DEFAULT_SOURCE_MIX)
+        out = dict(DEFAULT_SOURCE_MIX)
+        if str(mix.get("weights") or "").strip():
+            out["weights"] = str(mix.get("weights") or "").strip()
+        # Legacy field names kept in SSOT: gemini_model_key/schnell_model_key
+        if str(mix.get("gemini_model_key") or "").strip():
+            out["flux_pro_model_key"] = str(mix.get("gemini_model_key") or "").strip()
+        if str(mix.get("schnell_model_key") or "").strip():
+            out["flux_max_model_key"] = str(mix.get("schnell_model_key") or "").strip()
+        if str(mix.get("broll_provider") or "").strip():
+            out["broll_provider"] = str(mix.get("broll_provider") or "").strip()
+        if mix.get("broll_min_gap_sec") is not None:
+            out["broll_min_gap_sec"] = float(mix.get("broll_min_gap_sec") or 0.0)
+        return out
+    except Exception:
+        return dict(DEFAULT_SOURCE_MIX)
+
 
 def _decode_flac_to_wav(flac: Path, wav: Path) -> None:
     """
@@ -172,6 +217,83 @@ def ensure_tts_final(channel: str, video: str) -> tuple[Path, Path]:
     return wav, srt
 
 
+def build_cues_only_run_dir(channel: str, run_name: str, srt: Path, *, imgdur: float) -> Path:
+    """
+    Create run_dir + image_cues.json without generating images (nanobanana=none).
+    Requires LLM exec slot set to API to avoid THINK pending (see configs/llm_exec_slots.yaml).
+    """
+    run_dir = RUN_ROOT / run_name
+    _run(
+        [
+            sys.executable,
+            str(TOOLS_DIR / "run_pipeline.py"),
+            "--srt",
+            str(srt),
+            "--out",
+            str(run_dir),
+            "--engine",
+            "none",
+            "--channel",
+            channel,
+            "--size",
+            "1920x1080",
+            "--fps",
+            "30",
+            "--imgdur",
+            str(float(imgdur)),
+            "--crossfade",
+            "0.5",
+            "--cue-mode",
+            "grouped",
+            "--nanobanana",
+            "none",
+            "--use-aspect-guide",
+        ],
+        cwd=PROJECT_ROOT,
+    )
+    return run_dir
+
+
+def apply_image_source_mix(channel: str, run_dir: Path) -> None:
+    cfg = _load_image_source_mix_from_sources(channel)
+    _run(
+        [
+            sys.executable,
+            str(TOOLS_DIR / "apply_image_source_mix.py"),
+            str(run_dir),
+            "--weights",
+            str(cfg["weights"]),
+            "--flux-pro-model-key",
+            str(cfg["flux_pro_model_key"]),
+            "--flux-max-model-key",
+            str(cfg["flux_max_model_key"]),
+            "--broll-provider",
+            str(cfg["broll_provider"]),
+            "--broll-min-gap-sec",
+            str(cfg["broll_min_gap_sec"]),
+            "--overwrite",
+        ],
+        cwd=REPO_ROOT,
+    )
+
+
+def regenerate_images_for_run(channel: str, run_dir: Path) -> None:
+    _run(
+        [
+            sys.executable,
+            str(TOOLS_DIR / "regenerate_images_from_cues.py"),
+            "--run",
+            str(run_dir),
+            "--channel",
+            channel,
+            "--nanobanana",
+            "direct",
+            "--only-missing",
+        ],
+        cwd=REPO_ROOT,
+    )
+
+
 def bootstrap_run_dir(channel: str, video: str, run_name: str, srt: Path, *, imgdur: float) -> None:
     run_dir = RUN_ROOT / run_name
     main_title = _derive_topic_from_status(channel, video)
@@ -209,7 +331,9 @@ def build_capcut_draft(
 ) -> None:
     title = _derive_capcut_title_from_status(channel, video)
     env = os.environ.copy()
-    env["CAPCUT_DRAFT_ROOT"] = str(draft_root.resolve())
+    draft_root = draft_root.expanduser()
+    env["YTM_CAPCUT_DRAFT_ROOT"] = str(draft_root)
+    env["CAPCUT_DRAFT_ROOT"] = str(draft_root)
     cmd = [
         sys.executable,
         str(TOOLS_DIR / "auto_capcut_run.py"),
@@ -227,18 +351,15 @@ def build_capcut_draft(
         "--template",
         "CH02-テンプレ",
         "--draft-root",
-        str(draft_root.resolve()),
+        str(draft_root),
         # Keep draft folder naming stable for regen runs
         "--draft-name-policy",
         "run",
     ]
 
-    if mode == "placeholder":
-        # Debug-only: assume run_dir is already bootstrapped and skip pipeline/image generation.
-        cmd += ["--resume", "--nanobanana", "none"]
-    else:
-        # Default: build real images via pipeline
-        cmd += ["--nanobanana", "batch"]
+    # This script builds images separately (source-mix + regen-images), so draft build is always resume-only.
+    # (placeholder is debug-only but also uses resume.)
+    cmd += ["--resume", "--nanobanana", "none"]
 
     _run(
         cmd,
@@ -306,7 +427,7 @@ def main() -> None:
     ap.add_argument(
         "--draft-root",
         type=Path,
-        default=Path(os.getenv("CAPCUT_DRAFT_ROOT") or DEFAULT_CAPCUT_ROOT),
+        default=Path((os.getenv("YTM_CAPCUT_DRAFT_ROOT") or os.getenv("CAPCUT_DRAFT_ROOT")) or DEFAULT_CAPCUT_ROOT),
         help="CapCut draft root. NOTE: this process may not have macOS permission to write to ~/Movies; use a writable path if needed.",
     )
     args = ap.parse_args()
@@ -329,6 +450,10 @@ def main() -> None:
         print(f"[TTS] wav={wav} srt={srt}")
         if args.mode == "placeholder":
             bootstrap_run_dir(channel, video, run_name, srt, imgdur=float(args.imgdur))
+        else:
+            run_dir = build_cues_only_run_dir(channel, run_name, srt, imgdur=float(args.imgdur))
+            apply_image_source_mix(channel, run_dir)
+            regenerate_images_for_run(channel, run_dir)
         build_capcut_draft(channel, video, run_name, srt, draft_root=args.draft_root, mode=args.mode)
 
     print("\n[DONE] All requested videos completed.")

@@ -22,7 +22,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 
 CAPCUT_DRAFT_ROOT = Path(
-    os.getenv("CAPCUT_DRAFT_ROOT")
+    os.getenv("YTM_CAPCUT_DRAFT_ROOT")
+    or os.getenv("CAPCUT_DRAFT_ROOT")
     or (Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft")
 )
 
