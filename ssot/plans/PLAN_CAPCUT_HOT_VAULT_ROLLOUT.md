@@ -37,6 +37,7 @@ Notion（同一情報の入口）:
 
 判定（簡易）:
 - `YTM_SHARED_STORAGE_ROOT/README_MOUNTPOINT.txt` が存在する場合は「共有ダウン」扱い（mountpoint stub）。
+- `./ops storage doctor` の warnings に `OFFLINE/STUB` が出る（共有依存で遅い/壊れる前に気づく）。
 
 対応:
 - 実行は `./scripts/with_ytm_env.sh ...` を使う（共有ダウン時はオフライン補助が走り、`workspaces/video/input` の壊れた symlink をローカル実体化していく）。

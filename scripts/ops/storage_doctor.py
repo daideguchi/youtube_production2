@@ -30,6 +30,7 @@ from factory_common import paths as repo_paths  # noqa: E402
 
 
 VAULT_SENTINEL_NAME = ".ytm_vault_workspaces_root.json"
+MOUNTPOINT_STUB_NAME = "README_MOUNTPOINT.txt"
 
 
 def _p(v: Path | None) -> str | None:
@@ -38,6 +39,22 @@ def _p(v: Path | None) -> str | None:
 
 def _ensure_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
+
+
+def _is_mountpoint_stub(root: Path) -> bool:
+    try:
+        return (root / MOUNTPOINT_STUB_NAME).exists()
+    except Exception:
+        return False
+
+
+def _symlink_target(path: Path) -> str | None:
+    if not path.is_symlink():
+        return None
+    try:
+        return str(os.readlink(path))
+    except Exception:
+        return None
 
 
 def _collect() -> dict[str, Any]:
@@ -104,6 +121,7 @@ def main() -> int:
     vault_workspaces_root_s = paths.get("vault_workspaces_root")
     asset_vault_root_s = paths["asset_vault_root"]
     capcut_worksets_root = Path(paths["capcut_worksets_root"] or ".")
+    shared_is_stub = False
 
     if not workspace_root.exists():
         warnings.append(f"workspace_root does not exist: {workspace_root}")
@@ -113,6 +131,13 @@ def main() -> int:
         warnings.append("YTM_SHARED_STORAGE_ROOT is not set (shared storage helpers will refuse to run).")
     else:
         shared_root = Path(shared_storage_root_s)
+        shared_is_stub = _is_mountpoint_stub(shared_root)
+        if shared_is_stub:
+            marker = shared_root / MOUNTPOINT_STUB_NAME
+            warnings.append(
+                f"shared_storage_root looks OFFLINE/STUB (marker present): {marker} "
+                "(Lenovo/NAS may be down; shared writes may be slow/unreliable)."
+            )
         if not shared_root.exists():
             warnings.append(f"shared_storage_root does not exist: {shared_root}")
         elif not shared_root.is_dir():
@@ -124,6 +149,10 @@ def main() -> int:
         warnings.append("vault_workspaces_root is not configured (set YTM_VAULT_WORKSPACES_ROOT for Mac->vault mirroring).")
     else:
         vwr = Path(str(vault_workspaces_root_s))
+        if shared_is_stub and vwr.is_symlink():
+            target = _symlink_target(vwr)
+            if target:
+                warnings.append(f"vault_workspaces_root is symlinked while share is offline: {vwr} -> {target}")
         if not vwr.exists():
             warnings.append(f"vault_workspaces_root does not exist: {vwr}")
         elif not vwr.is_dir():
@@ -150,6 +179,9 @@ def main() -> int:
         warnings.append(f"capcut_worksets_root does not exist yet: {capcut_worksets_root} (will be created on first use).")
 
     if bool(args.ensure_dirs):
+        if shared_is_stub:
+            warnings.append("Refusing --ensure-dirs because shared_storage_root looks OFFLINE/STUB.")
+            shared_storage_root_s = None
         # Only create dirs that are explicitly configured.
         if shared_storage_root_s is not None:
             if asset_vault_root_s is not None:
