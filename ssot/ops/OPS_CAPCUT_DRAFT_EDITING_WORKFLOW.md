@@ -369,6 +369,11 @@ shasum -a 256 \"$PACK\" > \"${PACK}.sha256\"
   対策: `--draft-name-policy run --no-draft-name-with-title`
 - 事故: 共有上のドラフトを直接編集してCapCutが重い/壊れる  
   対策: 編集はHotのみ。共有はDraft Pack/Exportsに限定。
+- 事故: 背景自動化（`export_mover` / `capcut_purge_archived`）で **未投稿（Hot/Freeze）のドラフトが消える**  
+  対策:
+  - `--capcut-archive-mode copy` は「アーカイブ（コピー）のみ」で、削除キューに入れない（削除しない）
+  - purge は queue に `allow_purge=true` が明示されたものだけ実行する（= `move` など “削除の明示” がある場合のみ）
+  - 迷ったら purge 系 LaunchAgent を止める（CapCut編集を守るのが最優先）
 - 事故: “共有SoT” と “Macローカルworkspaces” が二重になり、進捗が巻き戻る  
   対策: `YTM_WORKSPACE_ROOT` を共有に揃える（どうしても同期するなら一方向・手順固定）。
 
