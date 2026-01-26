@@ -76,17 +76,24 @@ SSOTリンク:
 - **Lenovo（Windows）**: `ssh lenovo-doraemon`（cmd/PowerShell実行の入口）
 - **Acer（Ubuntu）**: `ssh acer`（Tailscale）/ `ssh acer-lan`（LAN）
 
-重要（Lenovo側: 実体は外付けDへ / パスは固定）:
+重要（Lenovo側: 参照パスは固定 / 実体はC内蔵 or 外付け）:
 - **共有の入口（URL/他端末が参照するパス）は `C:\\doraemon_share` で固定**する（Acerのマウントもここを参照）。
-- 実体（容量/速度）は **Dドライブ外付け**へ逃がす。
-  - `C:\\doraemon_share\\ytm_workspaces` は `D:\\doraemon_ext\\ytm_workspaces` への **Junction**。
-  - `C:\\doraemon_share\\asset_vault` は `D:\\doraemon_ext\\asset_vault` への **Junction**。
-  - これにより **参照パスは変えずに**、実体だけ外付けへ移動できる。
+  - (EN) Keep the SMB share path stable at `C:\\doraemon_share`.
+- 実体（物理保存先）は 2モード（どちらでもOK。参照パスは不変）:
+  - **Mode A: Cドライブ（内蔵SSD）に直置き（速度/安定優先）**
+    - `C:\\doraemon_share\\ytm_workspaces` / `asset_vault` / `uploads` を **実ディレクトリ**として作る（Junction無し）
+  - **Mode B: 外付けDへ逃がす（容量優先）**
+    - `C:\\doraemon_share\\ytm_workspaces` → `D:\\doraemon_ext\\ytm_workspaces` への **Junction**
+    - `C:\\doraemon_share\\asset_vault` → `D:\\doraemon_ext\\asset_vault` への **Junction**
+    - これにより **参照パスは変えずに**、実体だけ外付けへ移動できる。
+- 認証が通らない/マウントできない場合:
+  - Lenovo側で SMBユーザ（例: `doraemon_smb`）と共有（例: `doraemon` → `C:\\doraemon_share`）を再設定し、
+  - Mac側の `~/.config/doraemon/lenovo_smb.creds` を更新する（ユーザ/パス）。
 
 以降、実パスは未確定でもOK。**ディレクトリ名と役割**だけ固定する。
 
 - `LENOVO_SHARE_ROOT`（共有ストレージroot）
-  - 実体: Lenovo外付け
+  - 実体: Lenovo（C内蔵 or 外付け）
   - Mac/Acerでマウント先は違ってよい（翻訳表で吸収）
 - `WORKSPACES_ROOT`（Factory SoT）
   - `LENOVO_SHARE_ROOT/ytm_workspaces/`
