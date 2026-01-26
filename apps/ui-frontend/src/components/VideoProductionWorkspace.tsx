@@ -53,6 +53,7 @@ import type {
 import { INTEGRITY_LABEL, getIntegrityStatusLabel } from "../copy/videoProduction";
 import { loadWorkspaceSelection, saveWorkspaceSelection } from "../utils/workspaceSelection";
 import { VideoImageVariantsPanel } from "./VideoImageVariantsPanel";
+import { VideoLiveAssetsPanel } from "./VideoLiveAssetsPanel";
 
 type StepState = { id: string; label: string; state: "done" | "active" | "todo" | "danger" };
 type PipelineStepPlan = {
@@ -1106,6 +1107,7 @@ export function VideoProductionWorkspace() {
             selectedDraft={selectedDraft}
             draftDetail={draftDetail}
             loading={projectLoading}
+            jobs={jobRecords}
             onQuickJob={handleQuickJob}
             onReplace={handleImageReplace}
             onSelectImage={setActiveImageIndex}
@@ -1272,6 +1274,7 @@ function DraftWorkspace({
   selectedDraft,
   draftDetail,
   loading,
+  jobs,
   onQuickJob,
   onReplace,
   onSelectImage,
@@ -1280,6 +1283,7 @@ function DraftWorkspace({
   selectedDraft: CapcutDraftSummary | null;
   draftDetail: CapcutDraftDetail | null;
   loading: boolean;
+  jobs: VideoJobRecord[];
   onQuickJob: (action: VideoJobCreatePayload["action"], options?: VideoJobCreatePayload["options"]) => Promise<void>;
   onReplace: (assetPath: string, file: File) => Promise<void>;
   onSelectImage: (index: number | null) => void;
@@ -1370,6 +1374,18 @@ function DraftWorkspace({
     void reloadVisualPlan();
     void reloadSrtSegments();
   }, [reloadSrtSegments, reloadVisualPlan]);
+
+  const hasActiveImageJob = useMemo(() => {
+    const isInteresting = (job: VideoJobRecord) =>
+      job.action === "regenerate_images" || job.action === "generate_image_variants";
+    return jobs.some((job) => (job.status === "running" || job.status === "queued") && isInteresting(job));
+  }, [jobs]);
+  const [liveOpen, setLiveOpen] = useState<boolean>(() => hasActiveImageJob);
+  useEffect(() => {
+    if (hasActiveImageJob) {
+      setLiveOpen(true);
+    }
+  }, [hasActiveImageJob]);
 
   if (loading && !project && !selectedDraft) {
     return (
@@ -1578,6 +1594,23 @@ function DraftWorkspace({
           onClick={() => runJob("build_capcut_draft")}
         />
       </div>
+      {projectId ? (
+        <details
+          className="vp-draft-segments"
+          open={liveOpen}
+          onToggle={(event) => {
+            const el = event.currentTarget;
+            setLiveOpen(el.open);
+          }}
+          style={{ marginTop: 12 }}
+        >
+          <summary style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
+            Live（生成中プレビュー / 倉庫）
+            {hasActiveImageJob ? <span className="vp-draft-status is-linked">ACTIVE</span> : <span className="vp-draft-meta">idle</span>}
+          </summary>
+          <VideoLiveAssetsPanel projectId={projectId} jobs={jobs} requiredImages={requiredImages} />
+        </details>
+      ) : null}
       {project?.artifacts?.items?.length ? (
         <div className="vp-draft-segments" style={{ marginTop: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import json
+import asyncio
 import os
 import sys
 from datetime import datetime
@@ -14,9 +15,9 @@ import subprocess
 import re
 
 import yaml
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File as FastAPIFile, Form, Path as FastAPIPath
+from fastapi import APIRouter, HTTPException, Query, Request, UploadFile, File as FastAPIFile, Form, Path as FastAPIPath
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
 from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 
@@ -145,6 +146,7 @@ try:
     from video_pipeline.src.data.projects import list_projects, load_project_detail  # type: ignore
     from video_pipeline.server.jobs import (  # type: ignore
         JobManager,
+        JobStatus,
         evaluate_capcut_guard,
         job_to_dict,
     )
@@ -518,6 +520,231 @@ else:
         if text and not text.endswith("\n"):
             text += "\n"
         return PlainTextResponse(text)
+
+    def _sse_event(event: str, data: Dict[str, Any]) -> str:
+        payload = json.dumps(data, ensure_ascii=False)
+        return f"event: {event}\ndata: {payload}\n\n"
+
+    def _project_rel_to_output(project_id: str, project_dir: Path, file_path: Path) -> str:
+        """Return a stable OUTPUT_ROOT-relative path even if project_dir is a symlink target."""
+        rel = file_path.relative_to(project_dir)
+        return str(Path(project_id) / rel)
+
+    def _infer_image_kind(rel_to_project: Path) -> Tuple[str, Optional[str]]:
+        parts = rel_to_project.parts
+        if not parts:
+            return "unknown", None
+        if parts[0] == "images":
+            return "final", None
+        if parts[0] == "image_variants" and len(parts) >= 2:
+            return "variant", parts[1]
+        return "other", None
+
+    def _iter_project_image_files(project_dir: Path) -> List[Tuple[Path, Path]]:
+        """Return list of (absolute_path, rel_to_project) for images under images/ and image_variants/*/images/."""
+        out: List[Tuple[Path, Path]] = []
+        images_dir = project_dir / "images"
+        if images_dir.exists() and images_dir.is_dir():
+            for p in sorted(images_dir.iterdir()):
+                if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+                    out.append((p, p.relative_to(project_dir)))
+        variants_root = project_dir / "image_variants"
+        if variants_root.exists() and variants_root.is_dir():
+            for variant_dir in sorted([p for p in variants_root.iterdir() if p.is_dir()]):
+                v_images = variant_dir / "images"
+                if not v_images.exists() or not v_images.is_dir():
+                    continue
+                for p in sorted(v_images.iterdir()):
+                    if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+                        out.append((p, p.relative_to(project_dir)))
+        return out
+
+    @video_router.get("/projects/{project_id}/assets/stream")
+    async def stream_project_assets(
+        project_id: Annotated[str, FastAPIPath(pattern=VALID_PROJECT_ID_PATTERN)],
+        request: Request,
+        include_existing: bool = Query(default=True),
+        once: bool = Query(default=False, description="Emit ready+snapshot then close (test/debug)"),
+        poll_interval: float = Query(default=0.75, ge=0.2, le=5.0),
+    ):
+        """Stream image asset changes as Server-Sent Events (SSE).
+
+        - Emits `snapshot` once (optional) then `upsert` for new/updated images.
+        - Watches `<run_dir>/images/` and `<run_dir>/image_variants/*/images/`.
+        """
+        project_dir = _resolve_project_dir(project_id)
+
+        async def _gen():
+            yield _sse_event("ready", {"project_id": project_id})
+
+            seen: Dict[str, Tuple[int, int]] = {}
+            if include_existing:
+                snapshot: List[Dict[str, Any]] = []
+                for abs_path, rel_to_project in _iter_project_image_files(project_dir):
+                    try:
+                        stat = abs_path.stat()
+                    except Exception:
+                        continue
+                    rel = _project_rel_to_output(project_id, project_dir, abs_path)
+                    kind, variant_id = _infer_image_kind(rel_to_project)
+                    seen[rel] = (stat.st_mtime_ns, stat.st_size)
+                    snapshot.append(
+                        {
+                            "path": rel,
+                            "url": f"/api/video-production/assets/{rel}",
+                            "kind": kind,
+                            "variant_id": variant_id,
+                            "size_bytes": stat.st_size,
+                            "modified_at": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                        }
+                    )
+                yield _sse_event("snapshot", {"project_id": project_id, "assets": snapshot})
+
+            if once:
+                return
+
+            last_ping = asyncio.get_running_loop().time()
+            while True:
+                if await request.is_disconnected():
+                    break
+
+                current: Dict[str, Tuple[int, int]] = {}
+                for abs_path, rel_to_project in _iter_project_image_files(project_dir):
+                    try:
+                        stat = abs_path.stat()
+                    except Exception:
+                        continue
+                    rel = _project_rel_to_output(project_id, project_dir, abs_path)
+                    current[rel] = (stat.st_mtime_ns, stat.st_size)
+                    if seen.get(rel) == current[rel]:
+                        continue
+                    kind, variant_id = _infer_image_kind(rel_to_project)
+                    seen[rel] = current[rel]
+                    yield _sse_event(
+                        "upsert",
+                        {
+                            "project_id": project_id,
+                            "asset": {
+                                "path": rel,
+                                "url": f"/api/video-production/assets/{rel}",
+                                "kind": kind,
+                                "variant_id": variant_id,
+                                "size_bytes": stat.st_size,
+                                "modified_at": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                            },
+                        },
+                    )
+
+                removed = [path for path in seen.keys() if path not in current]
+                for path in removed:
+                    seen.pop(path, None)
+                    yield _sse_event("remove", {"project_id": project_id, "path": path})
+
+                now = asyncio.get_running_loop().time()
+                if now - last_ping >= 15.0:
+                    # Comment line keeps intermediaries from buffering the stream.
+                    yield ": ping\n\n"
+                    last_ping = now
+
+                await asyncio.sleep(poll_interval)
+
+        return StreamingResponse(
+            _gen(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    @video_router.get("/jobs/{job_id}/log/stream")
+    async def stream_job_log(
+        job_id: str,
+        request: Request,
+        tail: int = Query(default=200, ge=1, le=2000),
+        poll_interval: float = Query(default=0.5, ge=0.2, le=5.0),
+    ):
+        """Stream job log output as Server-Sent Events (SSE)."""
+        record = job_manager.get_job(job_id)
+        if not record or not record.log_path:
+            raise HTTPException(status_code=404, detail="job not found")
+        log_path = record.log_path
+
+        async def _gen():
+            yield _sse_event("ready", {"job_id": job_id})
+
+            offset = 0
+            if log_path.exists():
+                try:
+                    text = log_path.read_text(encoding="utf-8", errors="ignore")
+                except Exception:
+                    text = ""
+                lines = text.splitlines()
+                if tail > 0 and len(lines) > tail:
+                    lines = lines[-tail:]
+                if lines:
+                    yield _sse_event("snapshot", {"job_id": job_id, "lines": lines})
+                try:
+                    offset = log_path.stat().st_size
+                except Exception:
+                    offset = 0
+
+            last_status = None
+            last_ping = asyncio.get_running_loop().time()
+            while True:
+                if await request.is_disconnected():
+                    break
+
+                record_now = job_manager.get_job(job_id)
+                status_now = record_now.status if record_now else None
+                if status_now != last_status and status_now is not None:
+                    last_status = status_now
+                    status_value = status_now.value if isinstance(status_now, JobStatus) else str(status_now)
+                    yield _sse_event("status", {"job_id": job_id, "status": status_value})
+
+                if log_path.exists():
+                    try:
+                        size = log_path.stat().st_size
+                    except Exception:
+                        size = 0
+                    if size < offset:
+                        offset = 0
+                    if size > offset:
+                        try:
+                            with log_path.open("rb") as fh:
+                                fh.seek(offset)
+                                chunk = fh.read()
+                                offset = fh.tell()
+                            text = chunk.decode("utf-8", errors="ignore")
+                        except Exception:
+                            text = ""
+                        if text:
+                            new_lines = [line for line in text.splitlines() if line.strip() != ""]
+                            if new_lines:
+                                yield _sse_event("lines", {"job_id": job_id, "lines": new_lines})
+
+                now = asyncio.get_running_loop().time()
+                if now - last_ping >= 15.0:
+                    yield ": ping\n\n"
+                    last_ping = now
+
+                if record_now and record_now.status in {JobStatus.SUCCEEDED, JobStatus.FAILED}:
+                    done_status = record_now.status.value if isinstance(record_now.status, JobStatus) else str(record_now.status)
+                    yield _sse_event(
+                        "done",
+                        {
+                            "job_id": job_id,
+                            "status": done_status,
+                            "exit_code": record_now.exit_code,
+                            "error": record_now.error,
+                        },
+                    )
+                    break
+
+                await asyncio.sleep(poll_interval)
+
+        return StreamingResponse(
+            _gen(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
 
     @video_router.get("/assets/{rest_path:path}")
     def serve_assets(rest_path: str):

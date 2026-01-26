@@ -42,6 +42,7 @@ import { AgentOrgPage } from "./pages/AgentOrgPage";
 import { AgentBoardPage } from "./pages/AgentBoardPage";
 import { RemotionWorkspacePage } from "./pages/RemotionWorkspacePage";
 import { ImageManagementPage } from "./pages/ImageManagementPage";
+import { ImageWarehousePage } from "./pages/ImageWarehousePage";
 import { AuditPage } from "./pages/AuditPage";
 import { ImageModelRoutingPage } from "./pages/ImageModelRoutingPage";
 import { ChannelModelPolicyPage } from "./pages/ChannelModelPolicyPage";
@@ -87,6 +88,7 @@ function App() {
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/image-management" element={<ImageManagementPage />} />
         <Route path="/image-timeline" element={<ImageManagementPage />} />
+        <Route path="/image-warehouse" element={<ImageWarehousePage />} />
         <Route path="/dictionary" element={<DictionaryPage />} />
         <Route path="/agent-org" element={<AgentOrgPage />} />
         <Route path="/agent-board" element={<AgentBoardPage />} />

@@ -71,6 +71,7 @@ export type WorkspaceView =
   | "research"
   | "thumbnails"
   | "imageManagement"
+  | "imageWarehouse"
   | "channelWorkspace"
   | "capcutDraftProgress"
   | "channelSettings"
@@ -314,6 +315,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/image-management", pathname)) {
     return "imageManagement";
   }
+  if (matchPath("/image-warehouse", pathname)) {
+    return "imageWarehouse";
+  }
   if (matchPath("/prompts", pathname)) {
     return "promptManager";
   }
@@ -459,6 +463,10 @@ const PLACEHOLDER_COPY: Record<
   imageManagement: {
     title: "画像管理",
     description: "run_dir 単位でモデル/画風/プロンプトを確認し、複数画風の画像バリアントを生成します。",
+  },
+  imageWarehouse: {
+    title: "画像倉庫（Live）",
+    description: "画像生成の進捗（生成されたファイル）をリアルタイムで一覧し、final/variantを倉庫的に確認します。",
   },
   jobs: {
     title: "バッチ実行",
@@ -1523,6 +1531,7 @@ export function AppShell() {
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: thumbnailsLink },
           { key: "imageTimeline", label: "画像タイムライン", icon: "🕒", path: "/image-timeline" },
           { key: "imageManagement", label: "画像管理", icon: "🗃️", path: "/image-management" },
+          { key: "imageWarehouse", label: "画像倉庫（Live）", icon: "📦", path: "/image-warehouse" },
         ],
       },
       {

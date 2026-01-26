@@ -35,6 +35,7 @@ from factory_common import paths as fpaths  # noqa: E402
 
 REPORT_SCHEMA = "ytm.ops.thumbnails.restore_missing_assets.v1"
 EXPECTED_SCAN_SCHEMA = "ytm.ops.thumbnails.scan_missing_assets.v1"
+DOCS_PREVIEW_EXTS = ("jpg", "jpeg", "png", "webp")
 
 
 def _now_stamp() -> str:
@@ -65,6 +66,21 @@ def _copy_atomic(src: Path, dest: Path) -> None:
     os.replace(str(tmp), str(dest))
 
 
+def _convert_to_png_atomic(src: Path, dest: Path) -> None:
+    _ensure_dir(dest.parent)
+    tmp = dest.with_suffix(dest.suffix + ".tmp")
+    try:
+        if tmp.exists() or tmp.is_symlink():
+            tmp.unlink()
+    except Exception:
+        pass
+    from PIL import Image  # noqa: WPS433
+
+    with Image.open(src) as im:
+        im.save(str(tmp), format="PNG", optimize=True)
+    os.replace(str(tmp), str(dest))
+
+
 def _logs_dir() -> Path:
     return fpaths.logs_root() / "ops" / "thumbnails_restore"
 
@@ -75,6 +91,23 @@ def _default_scan_path() -> Optional[Path]:
         return None
     scans = sorted(d.glob("scan_missing_thumbnails_assets__ALL__*.json"))
     return scans[-1] if scans else None
+
+
+def _default_docs_previews_root() -> Path:
+    return fpaths.repo_root() / "docs" / "media" / "thumbs"
+
+
+def _find_docs_preview(*, docs_root: Path, channel: str, video: str) -> Optional[Path]:
+    ch = str(channel).upper()
+    vid = str(video).zfill(3)
+    for ext in DOCS_PREVIEW_EXTS:
+        cand = docs_root / ch / f"{vid}.{ext}"
+        try:
+            if cand.exists() and cand.is_file():
+                return cand
+        except Exception:
+            continue
+    return None
 
 
 @dataclass(frozen=True)
@@ -133,6 +166,16 @@ def main() -> int:
         help="Also try <vault_workspaces_root>/thumbnails/assets as a source (if configured).",
     )
     ap.add_argument(
+        "--use-docs-previews",
+        action="store_true",
+        help="If not found in source roots, try docs/media/thumbs/<CHxx>/<NNN>.<ext> and convert to PNG (no overwrite).",
+    )
+    ap.add_argument(
+        "--docs-previews-root",
+        default="",
+        help="Override docs previews root (default: <repo_root>/docs/media/thumbs).",
+    )
+    ap.add_argument(
         "--allow-overwrite",
         action="store_true",
         help="Allow overwriting existing destination files (NOT recommended; default: skip).",
@@ -169,6 +212,14 @@ def main() -> int:
         if vault is not None:
             sources.append(vault / "thumbnails" / "assets")
 
+    docs_previews_root: Optional[Path] = None
+    if args.use_docs_previews:
+        docs_previews_root = (
+            Path(args.docs_previews_root).expanduser()
+            if str(args.docs_previews_root).strip()
+            else _default_docs_previews_root()
+        )
+
     ignore_set = {str(p).strip().lstrip("/").replace("\\", "/") for p in (args.ignore or []) if str(p).strip()}
 
     run = bool(args.run) and not bool(args.dry_run)
@@ -177,7 +228,15 @@ def main() -> int:
     _ensure_dir(out_report.parent)
 
     results: List[Dict[str, Any]] = []
-    stats = {"missing_total": 0, "restored": 0, "skipped_exists": 0, "not_found": 0, "errors": 0}
+    stats = {
+        "missing_total": 0,
+        "restored": 0,
+        "restored_from_sources": 0,
+        "restored_from_docs_previews": 0,
+        "skipped_exists": 0,
+        "not_found": 0,
+        "errors": 0,
+    }
 
     for item in _iter_missing(scan_doc):
         if item.image_path in ignore_set:
@@ -212,8 +271,36 @@ def main() -> int:
                 continue
 
         if src_hit is None:
-            stats["not_found"] += 1
-            results.append({"image_path": item.image_path, "status": "not_found"})
+            docs_hit = (
+                _find_docs_preview(docs_root=docs_previews_root, channel=item.channel, video=item.video)
+                if docs_previews_root is not None
+                else None
+            )
+            if docs_hit is None:
+                stats["not_found"] += 1
+                results.append({"image_path": item.image_path, "status": "not_found"})
+                continue
+
+            try:
+                if run:
+                    _convert_to_png_atomic(docs_hit, dest)
+                entry = {
+                    "image_path": item.image_path,
+                    "status": "restored_from_docs_preview" if run else "would_restore_from_docs_preview",
+                    "src_kind": "docs_preview",
+                    "src": str(docs_hit),
+                    "dest": str(dest),
+                    "src_sha256": _sha256(docs_hit),
+                }
+                if run:
+                    entry["dest_sha256"] = _sha256(dest)
+                    entry["dest_size_bytes"] = int(dest.stat().st_size)
+                results.append(entry)
+                stats["restored"] += 1
+                stats["restored_from_docs_previews"] += 1
+            except Exception as exc:  # noqa: BLE001
+                stats["errors"] += 1
+                results.append({"image_path": item.image_path, "status": "error", "src": str(docs_hit), "error": str(exc)})
             continue
 
         try:
@@ -222,6 +309,7 @@ def main() -> int:
             entry = {
                 "image_path": item.image_path,
                 "status": "restored" if run else "would_restore",
+                "src_kind": "source_root",
                 "src": str(src_hit),
                 "dest": str(dest),
                 "src_sha256": _sha256(src_hit),
@@ -231,6 +319,7 @@ def main() -> int:
                 entry["dest_size_bytes"] = int(dest.stat().st_size)
             results.append(entry)
             stats["restored"] += 1
+            stats["restored_from_sources"] += 1
         except Exception as exc:  # noqa: BLE001
             stats["errors"] += 1
             results.append({"image_path": item.image_path, "status": "error", "src": str(src_hit), "error": str(exc)})
@@ -241,6 +330,8 @@ def main() -> int:
         "mode": "run" if run else "dry_run",
         "scan_path": str(scan_path),
         "sources": [str(p) for p in sources],
+        "use_docs_previews": bool(docs_previews_root is not None),
+        "docs_previews_root": str(docs_previews_root) if docs_previews_root is not None else None,
         "stats": stats,
         "results": results,
     }

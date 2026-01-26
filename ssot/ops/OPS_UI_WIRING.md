@@ -88,6 +88,7 @@
 | `/capcut-edit/draft` | `apps/ui-frontend/src/pages/CapcutDraftPage.tsx` | `/api/video-production/*` | `workspaces/video/runs/**` |
 | `/capcut-edit/swap` | `apps/ui-frontend/src/pages/CapcutSwapPage.tsx` | `/api/swap/*` | `workspaces/video/runs/**` |
 | `/image-management` | `apps/ui-frontend/src/pages/ImageManagementPage.tsx` | `/api/video-production/*`（画像variants含む） | `workspaces/video/runs/**` |
+| `/image-warehouse` | `apps/ui-frontend/src/pages/ImageWarehousePage.tsx` | `/api/video-production/*`（SSE: assets/stream, log/stream） | `workspaces/video/runs/**` |
 | `/thumbnails` | `apps/ui-frontend/src/pages/ThumbnailsPage.tsx` | `/api/workspaces/thumbnails/*` | `workspaces/thumbnails/**`（QC: `assets/{CH}/library/qc/*`） |
 | `/channel-settings` | `apps/ui-frontend/src/pages/ChannelSettingsPage.tsx` | `/api/channels/register` 等 | `packages/script_pipeline/channels/**`, `workspaces/planning/**` |
 | `/prompts` | `apps/ui-frontend/src/pages/PromptManagerPage.tsx` | `/api/prompts*` | `packages/**/prompts/**` |
@@ -137,3 +138,17 @@
 - UI: `apps/ui-frontend/src/pages/PlanningPage.tsx` → `GET /api/planning/channels/{channel_code}`
 - SoT/意味:
   - `workspaces/planning/channels/CHxx.csv` を読み、UIが扱いやすい形に補助列を付与する（redo/published_lock/thumbnail/alignment等）
+
+### 4-4) VideoProduction（Live: 画像生成モニター / 倉庫）
+
+- UI:
+  - `apps/ui-frontend/src/components/VideoProductionWorkspace.tsx`（`DraftWorkspace`） → `apps/ui-frontend/src/components/VideoLiveAssetsPanel.tsx`
+  - `apps/ui-frontend/src/pages/ImageWarehousePage.tsx`（サイドバー「画像倉庫」） → `apps/ui-frontend/src/components/VideoLiveAssetsPanel.tsx`
+- 目的: 画像生成中に「画像が増えていく様子」と「ジョブのstdout」をUI上でリアルタイム可視化し、生成済み画像も“倉庫”として一覧でアクセスできるようにする。
+- Endpoint（SSE / EventSource）:
+  - `GET /api/video-production/projects/{project_id}/assets/stream`
+    - stream: `ready` → `snapshot`（既存）→ `upsert`（追加/更新）→ `remove`（削除）
+    - watch: `workspaces/video/runs/<run>/images/` + `workspaces/video/runs/<run>/image_variants/*/images/`
+  - `GET /api/video-production/jobs/{job_id}/log/stream`
+    - stream: `ready` → `snapshot`（tail）→ `lines`（追記）→ `status` → `done`
+    - source: `workspaces/logs/ui_hub/video_production/<job_id>.log`（Writer: `packages/video_pipeline/server/jobs.py`）

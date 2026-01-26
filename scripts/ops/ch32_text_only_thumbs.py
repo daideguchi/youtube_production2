@@ -37,6 +37,16 @@ from script_pipeline.thumbnails.io_utils import save_png_atomic  # noqa: E402
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont  # noqa: E402
 
+from ch32_thumb_style import (  # noqa: E402
+    Ch32ThumbStyle,
+    BoxStyle,
+    ShadowStyle,
+    apply_background_effects,
+    apply_text_texture,
+    load_style,
+    shadow_params_for_size,
+)
+
 
 REPORT_SCHEMA = "ytm.ops.thumbnails.ch32_text_only_thumbs.v1"
 
@@ -216,11 +226,8 @@ def _stroke_for_size(size: int, *, ratio: float = 0.09, min_px: int = 10, max_px
     return max(int(min_px), min(int(max_px), int(round(float(size) * float(ratio)))))
 
 
-def _shadow_params_for_size(size: int) -> tuple[int, int, int]:
-    dx = max(4, int(round(float(size) * 0.04)))
-    dy = dx
-    blur = max(2, int(round(float(size) * 0.02)))
-    return (dx, dy, blur)
+def _shadow_params_for_size(size: int, shadow: ShadowStyle) -> tuple[int, int, int]:
+    return shadow_params_for_size(int(size), shadow)
 
 
 def _fit_font_for_lines(
@@ -323,23 +330,25 @@ def _draw_line(
     font: ImageFont.FreeTypeFont,
     fill_rgba: tuple[int, int, int, int],
     stroke_width: int,
+    shadow: ShadowStyle,
 ) -> None:
     s = str(text or "").strip()
     if not s:
         return
-    dx, dy, blur = _shadow_params_for_size(int(font.size))
-    _paste_shadow_text(
-        base=base,
-        x=int(x),
-        y=int(y),
-        text=s,
-        font=font,
-        stroke_width=int(stroke_width),
-        shadow_dx=int(dx),
-        shadow_dy=int(dy),
-        shadow_blur=int(blur),
-        shadow_alpha=235,
-    )
+    if int(shadow.alpha) > 0:
+        dx, dy, blur = _shadow_params_for_size(int(font.size), shadow)
+        _paste_shadow_text(
+            base=base,
+            x=int(x),
+            y=int(y),
+            text=s,
+            font=font,
+            stroke_width=int(stroke_width),
+            shadow_dx=int(dx),
+            shadow_dy=int(dy),
+            shadow_blur=int(blur),
+            shadow_alpha=int(shadow.alpha),
+        )
     draw = ImageDraw.Draw(base)
     draw.text(
         (int(x), int(y)),
@@ -359,6 +368,7 @@ def _draw_mixed_line(
     text: str,
     font: ImageFont.FreeTypeFont,
     stroke_width: int,
+    shadow: ShadowStyle,
 ) -> None:
     s = str(text or "").strip()
     if not s:
@@ -366,22 +376,32 @@ def _draw_mixed_line(
 
     pre, post = _split_by_particle(s)
     if not post:
-        _draw_line(base=base, x=int(x), y=int(y), text=s, font=font, fill_rgba=RGBA_RED, stroke_width=int(stroke_width))
+        _draw_line(
+            base=base,
+            x=int(x),
+            y=int(y),
+            text=s,
+            font=font,
+            fill_rgba=RGBA_RED,
+            stroke_width=int(stroke_width),
+            shadow=shadow,
+        )
         return
 
-    dx, dy, blur = _shadow_params_for_size(int(font.size))
-    _paste_shadow_text(
-        base=base,
-        x=int(x),
-        y=int(y),
-        text=s,
-        font=font,
-        stroke_width=int(stroke_width),
-        shadow_dx=int(dx),
-        shadow_dy=int(dy),
-        shadow_blur=int(blur),
-        shadow_alpha=235,
-    )
+    if int(shadow.alpha) > 0:
+        dx, dy, blur = _shadow_params_for_size(int(font.size), shadow)
+        _paste_shadow_text(
+            base=base,
+            x=int(x),
+            y=int(y),
+            text=s,
+            font=font,
+            stroke_width=int(stroke_width),
+            shadow_dx=int(dx),
+            shadow_dy=int(dy),
+            shadow_blur=int(blur),
+            shadow_alpha=int(shadow.alpha),
+        )
 
     draw = ImageDraw.Draw(base)
     cur_x = int(x)
@@ -421,6 +441,10 @@ def _render_block(
     stroke_ratio: float,
     stroke_min: int,
     stroke_max: int,
+    shadow: ShadowStyle,
+    line_gap_ratio: float,
+    line_gap_min_px: int,
+    box: BoxStyle | None = None,
     mixed: bool = False,
     font_override: ImageFont.FreeTypeFont | None = None,
     stroke_width_override: int | None = None,
@@ -443,15 +467,37 @@ def _render_block(
             stroke_min=int(stroke_min),
             stroke_max=int(stroke_max),
         )
-    line_gap_px = max(12, int(round(float(font.size) * 0.08)))
+    line_gap_px = max(int(line_gap_min_px), int(round(float(font.size) * float(line_gap_ratio))))
     cur_y = int(y)
+    box_style = box if (box is not None and bool(getattr(box, "enabled", False))) else None
     for raw in lines:
         line = str(raw or "").strip()
         if not line:
             cur_y += int(font.size * 0.92) + int(line_gap_px)
             continue
-        if mixed:
-            _draw_mixed_line(base=base, x=int(x), y=int(cur_y), text=line, font=font, stroke_width=int(stroke_width))
+        if box_style is not None:
+            d = ImageDraw.Draw(base)
+            bb = d.textbbox((int(x), int(cur_y)), line, font=font, stroke_width=int(box_style.stroke_width))
+            rx0 = max(0, int(bb[0]) - int(box_style.pad_x))
+            ry0 = max(0, int(bb[1]) - int(box_style.pad_y))
+            rx1 = min(base.size[0], int(bb[2]) + int(box_style.pad_x))
+            ry1 = min(base.size[1], int(bb[3]) + int(box_style.pad_y))
+            if rx1 > rx0 and ry1 > ry0:
+                d.rounded_rectangle(
+                    (rx0, ry0, rx1, ry1),
+                    radius=int(box_style.radius),
+                    fill=box_style.fill_rgba,
+                )
+        if mixed and box_style is None:
+            _draw_mixed_line(
+                base=base,
+                x=int(x),
+                y=int(cur_y),
+                text=line,
+                font=font,
+                stroke_width=int(box_style.stroke_width if box_style is not None else stroke_width),
+                shadow=shadow,
+            )
         else:
             _draw_line(
                 base=base,
@@ -459,23 +505,30 @@ def _render_block(
                 y=int(cur_y),
                 text=line,
                 font=font,
-                fill_rgba=fill_rgba,
-                stroke_width=int(stroke_width),
+                fill_rgba=(box_style.text_rgba if box_style is not None else fill_rgba),
+                stroke_width=int(box_style.stroke_width if box_style is not None else stroke_width),
+                shadow=shadow,
             )
         cur_y += int(font.size * 0.92) + int(line_gap_px)
 
 
-def _block_height(font: ImageFont.FreeTypeFont, lines: Sequence[str]) -> int:
+def _block_height(font: ImageFont.FreeTypeFont, lines: Sequence[str], *, line_gap_ratio: float, line_gap_min_px: int) -> int:
     n = sum(1 for ln in lines if str(ln or "").strip())
     if n <= 0:
         return 0
-    line_gap_px = max(12, int(round(float(font.size) * 0.08)))
+    line_gap_px = max(int(line_gap_min_px), int(round(float(font.size) * float(line_gap_ratio))))
     line_step = int(font.size * 0.92) + int(line_gap_px)
     return int(n * line_step - line_gap_px)
 
 
-def _inter_block_gap(a: ImageFont.FreeTypeFont, b: ImageFont.FreeTypeFont) -> int:
-    return max(16, int(round(min(float(a.size), float(b.size)) * 0.14)))
+def _inter_block_gap(
+    a: ImageFont.FreeTypeFont,
+    b: ImageFont.FreeTypeFont,
+    *,
+    block_gap_ratio: float,
+    block_gap_min_px: int,
+) -> int:
+    return max(int(block_gap_min_px), int(round(min(float(a.size), float(b.size)) * float(block_gap_ratio))))
 
 
 def _iter_text_spec_from_planning(*, channel: str, limit_videos: set[str] | None) -> Iterable[ThumbTextSpecItem]:
@@ -504,7 +557,7 @@ def _iter_text_spec_from_planning(*, channel: str, limit_videos: set[str] | None
             )
 
 
-def _compose_00_thumb(*, dir_path: Path, overlay: Image.Image, run: bool) -> bool:
+def _compose_00_thumb(*, dir_path: Path, overlay: Image.Image, style: Ch32ThumbStyle, run: bool) -> bool:
     if not run:
         return False
     vid = str(dir_path.name).strip()
@@ -521,6 +574,10 @@ def _compose_00_thumb(*, dir_path: Path, overlay: Image.Image, run: bool) -> boo
         bg = im.convert("RGBA")
     if bg.size != overlay.size:
         bg = bg.resize(overlay.size, Image.Resampling.LANCZOS)
+    try:
+        bg = apply_background_effects(bg, style=style, stable_key=int("".join(ch for ch in vid if ch.isdigit()) or "0"))
+    except Exception:
+        pass
     bg.alpha_composite(overlay)
     out_path = dir_path / "00_thumb.png"
     save_png_atomic(bg.convert("RGB"), out_path, mode="final", verify=True)
@@ -533,12 +590,13 @@ def _make_text_only_png(
     item: ThumbTextSpecItem,
     font_path: str,
     font_variation: Optional[str],
+    style: Ch32ThumbStyle,
     run: bool,
     compose: bool,
 ) -> bool:
     w, h = 1920, 1080
-    text_w = int(w * 0.62)
-    pad = 64
+    pad = int(style.layout.pad_x)
+    text_w = int(w * float(style.layout.text_area_w_ratio))
 
     base = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     max_w = max(1, int(text_w - pad * 2))
@@ -566,30 +624,30 @@ def _make_text_only_png(
                 font_variation=font_variation,
                 lines=list(item.upper_lines),
                 max_w=int(max_w),
-                start_size=int(round(140 * layout_scale)),
-                min_size=64,
-                step=2,
-                stroke_ratio=0.070,
-                stroke_min=8,
-                stroke_max=18,
+                start_size=int(round(style.typography.upper.start_size * layout_scale)),
+                min_size=int(style.typography.upper.min_size),
+                step=int(style.typography.upper.step),
+                stroke_ratio=float(style.typography.upper.stroke_ratio),
+                stroke_min=int(style.typography.upper.stroke_min),
+                stroke_max=int(style.typography.upper.stroke_max),
             )
 
         if item.main_lines:
             main_boost = 1.0
-            if len(main_text) <= 2:
-                main_boost = 1.35
+            if len(main_text) <= int(style.typography.main_boost_short_len):
+                main_boost = float(style.typography.main_boost)
             font_main, sw_main = _fit_font_for_lines(
                 draw=draw,
                 font_path=font_path,
                 font_variation=font_variation,
                 lines=list(item.main_lines),
                 max_w=int(max_w),
-                start_size=int(round(560 * layout_scale * main_boost)),
-                min_size=120,
-                step=4,
-                stroke_ratio=0.105,
-                stroke_min=20,
-                stroke_max=48,
+                start_size=int(round(style.typography.main.start_size * layout_scale * main_boost)),
+                min_size=int(style.typography.main.min_size),
+                step=int(style.typography.main.step),
+                stroke_ratio=float(style.typography.main.stroke_ratio),
+                stroke_min=int(style.typography.main.stroke_min),
+                stroke_max=int(style.typography.main.stroke_max),
             )
 
         if item.lower_lines:
@@ -599,12 +657,12 @@ def _make_text_only_png(
                 font_variation=font_variation,
                 lines=list(item.lower_lines),
                 max_w=int(max_w),
-                start_size=int(round(520 * layout_scale)),
-                min_size=120,
-                step=4,
-                stroke_ratio=0.105,
-                stroke_min=20,
-                stroke_max=48,
+                start_size=int(round(style.typography.lower.start_size * layout_scale)),
+                min_size=int(style.typography.lower.min_size),
+                step=int(style.typography.lower.step),
+                stroke_ratio=float(style.typography.lower.stroke_ratio),
+                stroke_min=int(style.typography.lower.stroke_min),
+                stroke_max=int(style.typography.lower.stroke_max),
             )
 
         blocks: list[tuple[Sequence[str], ImageFont.FreeTypeFont]] = []
@@ -619,8 +677,18 @@ def _make_text_only_png(
         prev_font: ImageFont.FreeTypeFont | None = None
         for lines, fnt in blocks:
             if prev_font is not None:
-                total_h += _inter_block_gap(prev_font, fnt)
-            total_h += _block_height(fnt, lines)
+                total_h += _inter_block_gap(
+                    prev_font,
+                    fnt,
+                    block_gap_ratio=float(style.layout.block_gap_ratio),
+                    block_gap_min_px=int(style.layout.block_gap_min_px),
+                )
+            total_h += _block_height(
+                fnt,
+                lines,
+                line_gap_ratio=float(style.layout.line_gap_ratio),
+                line_gap_min_px=int(style.layout.line_gap_min_px),
+            )
             prev_font = fnt
 
         if total_h <= int(h * 0.92) or attempt >= 3:
@@ -639,17 +707,27 @@ def _make_text_only_png(
     prev_font = None
     for lines, fnt in blocks:
         if prev_font is not None:
-            total_h += _inter_block_gap(prev_font, fnt)
-        total_h += _block_height(fnt, lines)
+            total_h += _inter_block_gap(
+                prev_font,
+                fnt,
+                block_gap_ratio=float(style.layout.block_gap_ratio),
+                block_gap_min_px=int(style.layout.block_gap_min_px),
+            )
+        total_h += _block_height(
+            fnt,
+            lines,
+            line_gap_ratio=float(style.layout.line_gap_ratio),
+            line_gap_min_px=int(style.layout.line_gap_min_px),
+        )
         prev_font = fnt
     free_h = float(h - max(1, total_h))
     if len(blocks) == 1:
-        factor = 0.30
+        factor = float(style.layout.start_y_one_block)
     elif len(blocks) == 2:
-        factor = 0.40
+        factor = float(style.layout.start_y_two_blocks)
     else:
-        factor = 0.20
-    start_y = int(max(70, round(free_h * factor)))
+        factor = float(style.layout.start_y_three_blocks)
+    start_y = int(max(int(style.layout.start_y_min), round(free_h * factor) + int(style.layout.start_y_bias_px)))
     cur_y = start_y
 
     if item.upper_lines and font_upper and sw_upper:
@@ -661,25 +739,39 @@ def _make_text_only_png(
             lines=list(item.upper_lines),
             font_path=font_path,
             font_variation=font_variation,
-            start_size=int(round(140 * layout_scale)),
-            min_size=64,
-            step=2,
+            start_size=int(round(style.typography.upper.start_size * layout_scale)),
+            min_size=int(style.typography.upper.min_size),
+            step=int(style.typography.upper.step),
             fill_rgba=RGBA_WHITE,
-            stroke_ratio=0.070,
-            stroke_min=8,
-            stroke_max=18,
+            stroke_ratio=float(style.typography.upper.stroke_ratio),
+            stroke_min=int(style.typography.upper.stroke_min),
+            stroke_max=int(style.typography.upper.stroke_max),
+            shadow=style.shadow,
+            line_gap_ratio=float(style.layout.line_gap_ratio),
+            line_gap_min_px=int(style.layout.line_gap_min_px),
+            box=(style.box if bool(style.box.apply_upper) else None),
             font_override=font_upper,
             stroke_width_override=int(sw_upper),
         )
-        cur_y += _block_height(font_upper, list(item.upper_lines))
+        cur_y += _block_height(
+            font_upper,
+            list(item.upper_lines),
+            line_gap_ratio=float(style.layout.line_gap_ratio),
+            line_gap_min_px=int(style.layout.line_gap_min_px),
+        )
 
     if item.upper_lines and item.main_lines and font_upper and font_main:
-        cur_y += _inter_block_gap(font_upper, font_main)
+        cur_y += _inter_block_gap(
+            font_upper,
+            font_main,
+            block_gap_ratio=float(style.layout.block_gap_ratio),
+            block_gap_min_px=int(style.layout.block_gap_min_px),
+        )
 
     if item.main_lines and font_main and sw_main:
         main_boost = 1.0
-        if len(main_text) <= 2:
-            main_boost = 1.35
+        if len(main_text) <= int(style.typography.main_boost_short_len):
+            main_boost = float(style.typography.main_boost)
         _render_block(
             base=base,
             x=pad,
@@ -688,20 +780,34 @@ def _make_text_only_png(
             lines=list(item.main_lines),
             font_path=font_path,
             font_variation=font_variation,
-            start_size=int(round(560 * layout_scale * main_boost)),
-            min_size=120,
-            step=4,
+            start_size=int(round(style.typography.main.start_size * layout_scale * main_boost)),
+            min_size=int(style.typography.main.min_size),
+            step=int(style.typography.main.step),
             fill_rgba=main_fill,
-            stroke_ratio=0.105,
-            stroke_min=20,
-            stroke_max=48,
+            stroke_ratio=float(style.typography.main.stroke_ratio),
+            stroke_min=int(style.typography.main.stroke_min),
+            stroke_max=int(style.typography.main.stroke_max),
+            shadow=style.shadow,
+            line_gap_ratio=float(style.layout.line_gap_ratio),
+            line_gap_min_px=int(style.layout.line_gap_min_px),
+            box=(style.box if bool(style.box.apply_main) else None),
             font_override=font_main,
             stroke_width_override=int(sw_main),
         )
-        cur_y += _block_height(font_main, list(item.main_lines))
+        cur_y += _block_height(
+            font_main,
+            list(item.main_lines),
+            line_gap_ratio=float(style.layout.line_gap_ratio),
+            line_gap_min_px=int(style.layout.line_gap_min_px),
+        )
 
     if item.main_lines and item.lower_lines and font_main and font_lower:
-        cur_y += _inter_block_gap(font_main, font_lower)
+        cur_y += _inter_block_gap(
+            font_main,
+            font_lower,
+            block_gap_ratio=float(style.layout.block_gap_ratio),
+            block_gap_min_px=int(style.layout.block_gap_min_px),
+        )
 
     if item.lower_lines and font_lower and sw_lower:
         _render_block(
@@ -712,23 +818,31 @@ def _make_text_only_png(
             lines=list(item.lower_lines),
             font_path=font_path,
             font_variation=font_variation,
-            start_size=int(round(520 * layout_scale)),
-            min_size=120,
-            step=4,
+            start_size=int(round(style.typography.lower.start_size * layout_scale)),
+            min_size=int(style.typography.lower.min_size),
+            step=int(style.typography.lower.step),
             fill_rgba=RGBA_RED,
-            stroke_ratio=0.105,
-            stroke_min=20,
-            stroke_max=48,
+            stroke_ratio=float(style.typography.lower.stroke_ratio),
+            stroke_min=int(style.typography.lower.stroke_min),
+            stroke_max=int(style.typography.lower.stroke_max),
             mixed=True,
+            shadow=style.shadow,
+            line_gap_ratio=float(style.layout.line_gap_ratio),
+            line_gap_min_px=int(style.layout.line_gap_min_px),
+            box=(style.box if bool(style.box.apply_lower) else None),
             font_override=font_lower,
             stroke_width_override=int(sw_lower),
         )
 
     if not run:
         return False
+    try:
+        base = apply_text_texture(base, style=style, stable_key=int(item.video))
+    except Exception:
+        pass
     save_png_atomic(base, out_path, mode="final", verify=True)
     if bool(compose):
-        return _compose_00_thumb(dir_path=out_path.parent, overlay=base, run=True)
+        return _compose_00_thumb(dir_path=out_path.parent, overlay=base, style=style, run=True)
     return False
 
 
@@ -736,6 +850,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Build CH32 text-only thumbnail overlays (transparent PNG).")
     ap.add_argument("--channel", default="CH32")
     ap.add_argument("--videos", nargs="*", default=None, help="limit videos (e.g. 001 002). default: all in planning")
+    ap.add_argument("--style", default="", help="style JSON path (default: CH32 library/style/live.json; auto-created)")
     ap.add_argument("--run", action="store_true", help="actually write outputs")
     ap.add_argument("--compose", action="store_true", help="also write 00_thumb.png by compositing onto 10_bg.* if present")
     args = ap.parse_args(argv)
@@ -744,6 +859,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     limit_videos = None
     if args.videos:
         limit_videos = {_normalize_video(v) for v in args.videos}
+
+    style, style_path = load_style(channel=channel, style_path=str(args.style or "").strip() or None)
 
     font_path, font_variation = _pick_font_spec()
     if not font_path:
@@ -761,6 +878,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "channel": channel,
         "font_path": font_path,
         "font_variation": font_variation,
+        "style_path": str(style_path),
         "run": bool(args.run),
         "items": [],
     }
@@ -775,6 +893,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             item=it,
             font_path=font_path,
             font_variation=font_variation,
+            style=style,
             run=bool(args.run),
             compose=bool(args.compose),
         )
