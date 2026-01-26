@@ -78,10 +78,11 @@ def _derive_status(project_dir: Path, info: Dict[str, Any]) -> tuple[str, Option
     # Minimal, UI-friendly heuristics (stringly-typed; UI treats as label only).
     cues_path = project_dir / "image_cues.json"
     images_dir = project_dir / "images"
+    draft_path_ref = info.get("draft_path_ref")
     draft_path = str(info.get("draft_path") or "").strip()
-    has_draft = bool(draft_path and Path(draft_path).exists())
+    has_draft_hint = bool(draft_path_ref or draft_path)
 
-    if has_draft:
+    if has_draft_hint:
         return "capcut_ready", None
     if images_dir.exists() and _count_files(images_dir, exts=_IMAGE_EXTS) > 0:
         return "images_ready", "build_capcut_draft"
@@ -117,6 +118,7 @@ class ProjectSummary:
     last_updated: Optional[str] = None
     srt_file: Optional[str] = None
     draft_path: Optional[str] = None
+    draft_path_ref: Optional[Dict[str, Any]] = None
     channel_id: Optional[str] = None
     channelId: Optional[str] = None
 
@@ -169,6 +171,7 @@ def _load_summary(project_dir: Path) -> ProjectSummary:
     template_used = info.get("template_used") if isinstance(info.get("template_used"), str) else None
     srt_file = info.get("srt_file") if isinstance(info.get("srt_file"), str) else None
     draft_path = info.get("draft_path") if isinstance(info.get("draft_path"), str) else None
+    draft_path_ref = info.get("draft_path_ref") if isinstance(info.get("draft_path_ref"), dict) else None
 
     return ProjectSummary(
         id=project_id,
@@ -182,6 +185,7 @@ def _load_summary(project_dir: Path) -> ProjectSummary:
         last_updated=last_updated,
         srt_file=srt_file,
         draft_path=draft_path,
+        draft_path_ref=draft_path_ref,
         channel_id=channel_id,
         channelId=channel_id,
     )
@@ -314,4 +318,3 @@ def load_project_detail(output_root: Path, project_id: str) -> Optional[ProjectD
         warnings=warnings,
         layers=[],
     )
-

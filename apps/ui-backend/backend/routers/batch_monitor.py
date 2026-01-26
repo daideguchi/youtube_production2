@@ -13,6 +13,7 @@ from fastapi import APIRouter, Query
 from fastapi.responses import HTMLResponse
 
 from factory_common import paths as repo_paths
+from factory_common.path_ref import resolve_path_ref
 
 router = APIRouter(tags=["ops"])
 
@@ -235,12 +236,31 @@ def _run_status(run_dir: Path) -> Dict[str, Any]:
         out["stage"] = "initializing"
 
     # Surface the CapCut draft path if available (symlink).
-    draft_link = run_dir / "capcut_draft"
-    if draft_link.exists():
+    info_path = run_dir / "capcut_draft_info.json"
+    if info_path.exists():
         try:
-            out["capcut_draft"] = str(draft_link.resolve())
+            info = json.loads(info_path.read_text(encoding="utf-8"))
         except Exception:
-            out["capcut_draft"] = str(draft_link)
+            info = {}
+        if isinstance(info, dict):
+            ref = info.get("draft_path_ref")
+            legacy = str(info.get("draft_path") or "").strip()
+            if isinstance(ref, dict):
+                out["capcut_draft_ref"] = ref
+                resolved = resolve_path_ref(ref)
+                if resolved is not None:
+                    out["capcut_draft"] = str(resolved)
+                else:
+                    out["capcut_draft"] = f"{ref.get('root')}:{ref.get('rel')}"
+            elif legacy:
+                out["capcut_draft"] = legacy
+    else:
+        draft_link = run_dir / "capcut_draft"
+        if draft_link.exists() or draft_link.is_symlink():
+            try:
+                out["capcut_draft"] = str(draft_link.resolve())
+            except Exception:
+                out["capcut_draft"] = str(draft_link)
 
     # Tail the run log to show the current phase/cooldowns.
     srt2images_log = run_dir / "logs" / "srt2images.log"

@@ -31,6 +31,7 @@
 - `reference/REFERENCE_ssot_このプロダクト設計について.md`: 管理者の手書き設計メモ（最上位の意図・方針）。
 - `ops/DATA_LAYOUT.md`: 現行データ格納の実態（SoT/生成物の場所対応）。
 - `ops/OPS_IO_SCHEMAS.md`: フェーズ別I/Oスキーマ（実データ観測ベース）。
+- `ops/OPS_PATHREF_CONVENTION.md`: 動的参照パス（PathRef）規約（ホスト差/移設/共有不安定でも参照が壊れないための“契約”）。
 - (History) `history/HISTORY_codex-memory.md`: 変更履歴（運用ログ）。旧履歴は `_old/ssot_old/history/` を参照。
 - `history/README.md`: 履歴アーカイブ（非正本）の扱い方（旧名/旧パスが出てきたときの入口）。
 - `handoffs/README.md`: 作業完走用の引き継ぎパッケージ置き場（短期・再現性重視）。

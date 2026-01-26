@@ -13,7 +13,7 @@
 絶対ルール（運用の前提）:
 - メインは **Mac**。Hot（未投稿のCapCutドラフト/Workset/編集中素材）は **必ず Mac ローカルに実体を持つ**（「Lenovoにしか無い」はNG）。
 - 共有ストレージは容量/受け渡し/保管/ミラー用途。**落ちていても Mac 側の編集/生成を止めない**（共有への同期は復旧後に追随）。
-- 参照パスは **実体へ**: manifest/log/json 等に外部マウントの絶対パスを `resolve()` して書かない（`workspaces/**` ベースの安定パス or run_dir 内のローカルコピーを指す）。
+- 参照パスは **実体へ**: manifest/log/json 等に外部マウントの絶対パスを `resolve()` して書かない（`workspaces/**` ベースの安定パス or run_dir 内のローカルコピーを指す）。動的参照（PathRef）の規約は `ssot/ops/OPS_PATHREF_CONVENTION.md` を正とする。
 - **未投稿のドラフトは自動で消さない**: 背景自動化（`export_mover` / `capcut_purge_archived` 等）があっても、削除は “明示” があるときだけ（queue の `allow_purge=true` など）。迷ったら purge は停止して Mac の編集を守る。
 
 ---
@@ -162,7 +162,8 @@ CapCutは「どこにドラフト/キャッシュがあるか」で運用が変�
 
 - ドラフト正本（CapCutアプリ側の標準root）:
   - 既定（macOS）: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft`
-  - SSOT参照: `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md`
+  - SSOT参照: `ssot/ops/OPS_CAPCUT_DRAFT_SOP.md`
+  - 実装側メモ（補助）: `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md`
 - キャッシュ/プロキシ（CapCut設定で移せるなら、Hot側へ寄せる）:
   - “移せる/移せない” の可否だけ先に確認して記録する（パスは後でOK）
 - 書き出し（Exports）の置き場:

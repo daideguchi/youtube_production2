@@ -10,7 +10,8 @@
 
 前提:
 - CapCutの標準ドラフトroot（macOS）: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft`
-  - 参照: `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md`
+  - SSOT（内部仕様/復旧/事故防止）: `ssot/ops/OPS_CAPCUT_DRAFT_SOP.md`
+  - 実装側メモ（補助）: `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md`
 - 工場側のSoT（台本/サムネ/進捗/音声等）: `workspaces/**`（`YTM_WORKSPACE_ROOT`）
 - 共有ストレージ候補: Lenovo外付け（SMB共有）など “容量が大きく常時稼働できる” 置き場
 
@@ -64,6 +65,9 @@
 
 CapCutの「参照先を動的にする」とは、OSの絶対パスをコロコロ変えることではなく、
 **編集に必要な素材を“作業セット（Workset）”として切り出し、どのマシンでも再現できる**状態にすること。
+
+補足（JSON/manifestの参照表現）:
+- 工場側の manifest/log/json は “ホスト固有の絶対パス混入” を禁止し、動的参照（PathRef）を使う（正本: `ssot/ops/OPS_PATHREF_CONVENTION.md`）。
 
 構成（パスは未確定でもOK）:
 - Asset Vault（共有・正本）: `<LENOVO_SHARE_ROOT>/asset_vault/`

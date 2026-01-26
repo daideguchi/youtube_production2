@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from factory_common.path_ref import best_effort_path_ref
 from factory_common.paths import audio_final_dir, repo_root
 
 
@@ -28,7 +29,17 @@ def _utc_now_iso() -> str:
 
 
 def _safe_relpath(path: Path, root: Path) -> str:
-    p = path.expanduser().resolve()
+    """
+    Return a stable path string for manifests.
+
+    IMPORTANT:
+    - Do NOT `resolve()` here: resolving follows symlinks and may turn stable SoT paths
+      (e.g. `workspaces/**`) into host-specific external mount paths.
+    - We still normalize user-home and allow relative inputs.
+    """
+    p = path.expanduser()
+    if not p.is_absolute():
+        p = root / p
     try:
         return str(p.relative_to(root))
     except Exception:
@@ -123,7 +134,9 @@ def build_timeline_manifest(
     tolerance_sec: float = 1.0,
 ) -> dict[str, Any]:
     root = repo_root()
-    run_dir = run_dir.resolve()
+    run_dir = run_dir.expanduser()
+    if not run_dir.is_absolute():
+        run_dir = root / run_dir
 
     audio_dur = wav_duration_seconds(audio_wav)
     srt_end = srt_end_seconds(audio_srt)
@@ -175,9 +188,8 @@ def build_timeline_manifest(
             "sha1": sha1_file(belt_config_path),
         }
     if capcut_draft_dir and capcut_draft_dir.exists():
-        manifest["derived"]["capcut_draft"] = {
-            "path": str(capcut_draft_dir),
-        }
+        cap_ref = best_effort_path_ref(capcut_draft_dir)
+        manifest["derived"]["capcut_draft"] = {"path_ref": cap_ref} if cap_ref else {"path": str(capcut_draft_dir)}
 
     if validate:
         validate_timeline_manifest(manifest, run_dir=run_dir, tolerance_sec=tolerance_sec)

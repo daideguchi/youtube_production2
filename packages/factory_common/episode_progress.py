@@ -3,11 +3,13 @@ from __future__ import annotations
 import csv
 import json
 import os
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
+from factory_common.path_ref import is_path_ref, resolve_path_ref
 from factory_common.paths import (
     audio_final_dir,
     channels_csv_path,
@@ -300,6 +302,26 @@ def _capcut_draft_status(capcut_path: Path) -> tuple[str, Optional[str], bool]:
     Return (status, link_target, target_exists).
     status: missing | broken | ok
     """
+    # NOTE:
+    # - CapCut drafts are Hot (Mac-local). Remote UI hosts should not treat a Mac-local
+    #   draft path as "broken" just because it doesn't exist on that host.
+    # - Prefer PathRef from capcut_draft_info.json when available.
+    is_darwin = sys.platform == "darwin"
+    run_dir = capcut_path.parent
+    info_path = run_dir / "capcut_draft_info.json"
+    info = _safe_read_json(info_path) if info_path.exists() else {}
+    draft_ref = info.get("draft_path_ref") if isinstance(info, dict) else None
+    legacy_path = str(info.get("draft_path") or "").strip() if isinstance(info, dict) else ""
+
+    def _fmt_ref(ref: Any) -> Optional[str]:
+        if not is_path_ref(ref):
+            return None
+        root = str(ref.get("root") or "").strip()
+        rel = str(ref.get("rel") or "").strip()
+        if not root or not rel:
+            return None
+        return f"{root}:{rel}"
+
     if capcut_path.is_symlink():
         try:
             target = os.readlink(capcut_path)
@@ -309,12 +331,54 @@ def _capcut_draft_status(capcut_path: Path) -> tuple[str, Optional[str], bool]:
         if target:
             tp = Path(target).expanduser()
             if not tp.is_absolute():
-                tp = (capcut_path.parent / tp).resolve()
+                tp = (capcut_path.parent / tp).expanduser()
             target_exists = tp.exists()
-        return ("ok" if target_exists else "broken"), target, target_exists
+        if target_exists:
+            return "ok", target, True
+
+        # Fall back to PathRef / legacy hints when the symlink is broken on this host.
+        if is_path_ref(draft_ref):
+            root_key = str(draft_ref.get("root") or "").strip()
+            if root_key == "capcut_draft_root" and not is_darwin:
+                return "ok", _fmt_ref(draft_ref) or target or legacy_path or None, False
+            resolved = resolve_path_ref(draft_ref)
+            if resolved is not None:
+                try:
+                    if resolved.exists():
+                        return "ok", str(resolved), True
+                except Exception:
+                    pass
+
+        # Remote UI host heuristic for legacy absolute paths (keep UI from false "broken").
+        if legacy_path and ("/Movies/CapCut/" in legacy_path) and (not is_darwin):
+            return "ok", legacy_path, False
+
+        return "broken", target or legacy_path or _fmt_ref(draft_ref) or None, False
 
     if capcut_path.exists():
         return "ok", None, True
+
+    # No symlink/folder under run_dir; use capcut_draft_info.json as best-effort reference.
+    if is_path_ref(draft_ref):
+        root_key = str(draft_ref.get("root") or "").strip()
+        if root_key == "capcut_draft_root" and not is_darwin:
+            return "ok", _fmt_ref(draft_ref) or None, False
+        resolved = resolve_path_ref(draft_ref)
+        if resolved is not None:
+            try:
+                if resolved.exists():
+                    return "ok", str(resolved), True
+            except Exception:
+                pass
+    if legacy_path:
+        try:
+            lp = Path(legacy_path).expanduser()
+            if lp.exists():
+                return "ok", legacy_path, True
+        except Exception:
+            pass
+        if ("/Movies/CapCut/" in legacy_path) and (not is_darwin):
+            return "ok", legacy_path, False
 
     return "missing", None, False
 

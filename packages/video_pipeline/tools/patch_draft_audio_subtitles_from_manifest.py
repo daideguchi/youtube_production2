@@ -24,7 +24,7 @@ import wave
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 # Paths for local imports (executed from commentary package CWD often)
 try:
@@ -35,6 +35,7 @@ except Exception:
 tool_bootstrap(load_env=False)
 
 from factory_common.paths import repo_root  # noqa: E402
+from factory_common.path_ref import resolve_path_ref  # noqa: E402
 
 REPO_ROOT = repo_root()
 
@@ -485,7 +486,7 @@ def _reorder_tracks(draft_dir: Path) -> None:
 def main() -> None:
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     ap = argparse.ArgumentParser()
-    ap.add_argument("--run", required=True, help="run_dir containing timeline_manifest.json and capcut_draft symlink")
+    ap.add_argument("--run", required=True, help="run_dir containing timeline_manifest.json and capcut_draft (symlink or path_ref)")
     ap.add_argument("--draft", default="", help="Optional explicit draft dir (overrides run_dir/capcut_draft)")
     ap.add_argument("--opening-offset", type=float, default=None, help="Opening offset seconds (default: try run_dir/channel_preset.json else 0)")
     ap.add_argument(
@@ -509,12 +510,25 @@ def main() -> None:
     if args.draft:
         draft_dir = Path(args.draft).expanduser().resolve()
     else:
+        draft_dir: Optional[Path] = None
         link = run_dir / "capcut_draft"
-        if link.exists() and link.is_symlink():
-            draft_dir = link.resolve()
-        else:
+        if link.is_symlink():
+            try:
+                draft_dir = link.resolve()
+            except Exception:
+                draft_dir = None
+
+        if draft_dir is None or not draft_dir.exists():
             cap = (manifest.get("derived") or {}).get("capcut_draft") or {}
-            draft_dir = Path(cap.get("path") or "").expanduser().resolve()
+            resolved = resolve_path_ref(cap.get("path_ref"))
+            if resolved is not None:
+                draft_dir = resolved.expanduser().resolve()
+            else:
+                legacy = str(cap.get("path") or "").strip()
+                if legacy:
+                    draft_dir = Path(legacy).expanduser().resolve()
+        if draft_dir is None:
+            raise SystemExit("draft_dir not found: no capcut_draft symlink, no derived.capcut_draft.path_ref/path, and no --draft")
     if not draft_dir.exists():
         raise SystemExit(f"draft_dir not found: {draft_dir}")
 

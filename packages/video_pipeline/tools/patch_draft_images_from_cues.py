@@ -21,7 +21,7 @@ import argparse
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 try:
     from video_pipeline.tools._tool_bootstrap import bootstrap as tool_bootstrap
@@ -30,6 +30,7 @@ except Exception:
 
 tool_bootstrap(load_env=False)
 
+from factory_common.path_ref import resolve_path_ref  # noqa: E402
 from video_pipeline.tools.capcut_bulk_insert import sync_draft_info_with_content  # noqa: E402
 
 
@@ -138,7 +139,7 @@ def _retime_segments(track: dict[str, Any], cues: list[dict[str, Any]], fps: int
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--run", required=True, help="run_dir containing image_cues.json and capcut_draft symlink")
+    ap.add_argument("--run", required=True, help="run_dir containing image_cues.json and capcut_draft (symlink or draft_path_ref)")
     args = ap.parse_args()
 
     run_dir = Path(args.run).expanduser().resolve()
@@ -149,12 +150,34 @@ def main() -> None:
     if not cues_path.exists():
         raise SystemExit(f"image_cues.json not found: {cues_path}")
 
+    draft_dir: Optional[Path] = None
     draft_link = run_dir / "capcut_draft"
-    if not draft_link.exists():
-        raise SystemExit(f"capcut_draft not found: {draft_link}")
-    draft_dir = draft_link.resolve()
-    if not draft_dir.exists():
-        raise SystemExit(f"capcut_draft target not found: {draft_dir}")
+    if draft_link.is_symlink():
+        try:
+            draft_dir = draft_link.resolve()
+        except Exception:
+            draft_dir = None
+    elif draft_link.exists():
+        draft_dir = draft_link
+
+    if draft_dir is None or not draft_dir.exists():
+        info_path = run_dir / "capcut_draft_info.json"
+        info = {}
+        if info_path.exists():
+            try:
+                info = _read_json(info_path)
+            except Exception:
+                info = {}
+        resolved = resolve_path_ref((info or {}).get("draft_path_ref"))
+        if resolved is not None:
+            draft_dir = resolved.expanduser().resolve()
+        else:
+            legacy = str((info or {}).get("draft_path") or "").strip()
+            if legacy:
+                draft_dir = Path(legacy).expanduser().resolve()
+
+    if draft_dir is None or not draft_dir.exists():
+        raise SystemExit(f"capcut_draft not found (symlink/path_ref missing or not accessible): {run_dir}")
 
     content_path = draft_dir / "draft_content.json"
     info_path = draft_dir / "draft_info.json"
@@ -194,4 +217,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

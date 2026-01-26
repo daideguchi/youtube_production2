@@ -309,6 +309,23 @@ def audio_final_dir(channel: str, video: str) -> Path:
 # Video (CapCut / images) roots
 # ---------------------------------------------------------------------------
 
+def capcut_draft_root() -> Path:
+    """
+    Root directory for CapCut draft folders (com.lveditor.draft).
+
+    Env override:
+      - YTM_CAPCUT_DRAFT_ROOT
+      - CAPCUT_DRAFT_ROOT (compat)
+
+    Default (macOS):
+      - <HOME>/Movies/CapCut/User Data/Projects/com.lveditor.draft
+    """
+    override = os.getenv("YTM_CAPCUT_DRAFT_ROOT") or os.getenv("CAPCUT_DRAFT_ROOT")
+    if override:
+        # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
+        return Path(override).expanduser()
+    return Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft"
+
 
 def video_pkg_root() -> Path:
     return repo_root() / "packages" / "video_pipeline"

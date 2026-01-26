@@ -313,6 +313,38 @@ def _normalize_draft_dir_for_pyjiaying(draft_dir: Path) -> None:
             f"Draft JSON repair failed under {draft_dir} (content={content_reason}, info={info_reason})"
         )
 
+    # If the template was edited in CapCut, draft_info.json can be newer than draft_content.json.
+    # pyJianYingDraft loads from draft_content.json, so we prefer draft_info.json when it appears
+    # to be the more recent/authoritative version (large track/material mismatch).
+    try:
+        if content_path.exists() and info_path.exists():
+            c_mtime = float(content_path.stat().st_mtime)
+            i_mtime = float(info_path.stat().st_mtime)
+            if i_mtime > c_mtime + 0.5:
+                c_tracks = content_data.get("tracks") if isinstance(content_data, dict) else None
+                i_tracks = info_data.get("tracks") if isinstance(info_data, dict) else None
+                c_mats = content_data.get("materials") if isinstance(content_data, dict) else None
+                i_mats = info_data.get("materials") if isinstance(info_data, dict) else None
+
+                track_mismatch = (
+                    isinstance(c_tracks, list)
+                    and isinstance(i_tracks, list)
+                    and abs(len(c_tracks) - len(i_tracks)) >= 2
+                )
+                mat_mismatch = (
+                    isinstance(c_mats, dict)
+                    and isinstance(i_mats, dict)
+                    and any(
+                        abs(len((c_mats.get(k) or []) if isinstance(c_mats.get(k), list) else []) - len((i_mats.get(k) or []) if isinstance(i_mats.get(k), list) else [])) >= 2
+                        for k in ("videos", "audios", "texts", "effects")
+                    )
+                )
+                if track_mismatch or mat_mismatch:
+                    content_data = copy.deepcopy(info_data)
+                    info_data = copy.deepcopy(info_data)
+    except Exception:
+        pass
+
     # Defensive defaults
     if content_data.get("tracks") is None:
         content_data["tracks"] = []
@@ -636,6 +668,285 @@ def _ensure_bgm_covers_duration(draft_dir: Path, logger: logging.Logger) -> None
         content_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _drop_unwanted_bgm_by_suffix(
+    draft_dir: Path,
+    *,
+    banned_suffixes: list[str],
+    logger: logging.Logger,
+) -> None:
+    """
+    Remove specific BGM files (by filename suffix) from non-voice audio tracks.
+    This avoids accidentally carrying template BGM variants into newly built drafts.
+    """
+    if not banned_suffixes:
+        return
+
+    content_path = draft_dir / "draft_content.json"
+    data, _reason = _try_load_json_file(content_path)
+    if data is None or not isinstance(data, dict):
+        return
+
+    mats = data.get("materials")
+    if not isinstance(mats, dict):
+        return
+    audios = mats.get("audios")
+    if not isinstance(audios, list) or not audios:
+        return
+
+    banned_ids: set[str] = set()
+    for m in audios:
+        if not isinstance(m, dict):
+            continue
+        mid = m.get("id")
+        if not isinstance(mid, str) or not mid:
+            continue
+        path = m.get("path") or m.get("local_material_path") or ""
+        mname = m.get("material_name") or ""
+        base = Path(str(path)).name
+        for suf in banned_suffixes:
+            if base.endswith(suf) or str(mname).endswith(suf):
+                banned_ids.add(mid)
+                break
+
+    if not banned_ids:
+        return
+
+    tracks = data.get("tracks")
+    if not isinstance(tracks, list) or not tracks:
+        return
+
+    removed_segments = 0
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        if str(tr.get("type") or "") != "audio":
+            continue
+        if str(tr.get("name") or "") == "voiceover":
+            continue
+        segs = [s for s in (tr.get("segments") or []) if isinstance(s, dict)]
+        if not segs:
+            continue
+        keep = [s for s in segs if str(s.get("material_id") or "") not in banned_ids]
+        removed_segments += (len(segs) - len(keep))
+        tr["segments"] = keep
+
+    # Drop now-empty non-voice audio tracks.
+    tracks2 = []
+    removed_tracks = 0
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            tracks2.append(tr)
+            continue
+        if str(tr.get("type") or "") == "audio" and str(tr.get("name") or "") != "voiceover":
+            segs = tr.get("segments") or []
+            if not (isinstance(segs, list) and len(segs) > 0):
+                removed_tracks += 1
+                continue
+        tracks2.append(tr)
+    data["tracks"] = tracks2
+
+    # Remove unreferenced audio materials (including banned ones).
+    referenced: set[str] = set()
+    for tr in tracks2:
+        if not isinstance(tr, dict):
+            continue
+        for seg in tr.get("segments") or []:
+            if not isinstance(seg, dict):
+                continue
+            mid = seg.get("material_id")
+            if isinstance(mid, str) and mid:
+                referenced.add(mid)
+            extra = seg.get("extra_material_refs")
+            if isinstance(extra, list):
+                for eid in extra:
+                    if isinstance(eid, str) and eid:
+                        referenced.add(eid)
+
+    before_mats = len(audios)
+    mats["audios"] = [m for m in audios if isinstance(m, dict) and str(m.get("id") or "") in referenced]
+    removed_mats = before_mats - len(mats["audios"])
+
+    content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info(
+        "🔇 Dropped unwanted BGM by suffix: segments=%d tracks=%d materials=%d",
+        removed_segments,
+        removed_tracks,
+        removed_mats,
+    )
+
+
+def _purge_unreferenced_placeholder_video_materials(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    Remove template-carryover video materials that reference CapCut placeholder paths.
+
+    Symptom:
+      - materials.videos entries with paths like:
+          "##_draftpath_placeholder_..._##/assets/image/xxx.png"
+      - Even if unreferenced by any segments, CapCut may still treat them as
+        "missing media" / broken references.
+
+    Policy:
+      - Remove only UNREFERENCED placeholder video materials.
+      - If placeholder video materials are STILL referenced after generation,
+        fail fast (template must be fixed; otherwise the draft will be broken).
+    """
+
+    def _is_placeholder_path(p: object) -> bool:
+        return isinstance(p, str) and "##_draftpath_placeholder_" in p
+
+    def _get_tracks_list(data: dict) -> list | None:
+        if isinstance(data.get("tracks"), list):
+            return data["tracks"]
+        if isinstance(data.get("script"), dict) and isinstance(data["script"].get("tracks"), list):
+            return data["script"]["tracks"]
+        return None
+
+    def _collect_referenced_ids(tracks: list) -> set[str]:
+        referenced: set[str] = set()
+        for tr in tracks:
+            if not isinstance(tr, dict):
+                continue
+            for seg in tr.get("segments") or []:
+                if not isinstance(seg, dict):
+                    continue
+                mid = seg.get("material_id")
+                if isinstance(mid, str) and mid:
+                    referenced.add(mid)
+                extra = seg.get("extra_material_refs")
+                if isinstance(extra, list):
+                    for eid in extra:
+                        if isinstance(eid, str) and eid:
+                            referenced.add(eid)
+        return referenced
+
+    total_removed = 0
+    referenced_placeholders: list[tuple[str, str]] = []
+
+    for fname in ("draft_content.json", "draft_info.json"):
+        path = draft_dir / fname
+        data, _reason = _try_load_json_file(path)
+        if data is None or not isinstance(data, dict):
+            continue
+
+        tracks = _get_tracks_list(data)
+        if not isinstance(tracks, list):
+            continue
+        referenced = _collect_referenced_ids(tracks)
+
+        mats = data.get("materials")
+        if not isinstance(mats, dict):
+            continue
+        videos = mats.get("videos")
+        if not isinstance(videos, list) or not videos:
+            continue
+
+        kept: list = []
+        removed_here = 0
+        for m in videos:
+            if not isinstance(m, dict):
+                kept.append(m)
+                continue
+            mid = m.get("id")
+            vpath = m.get("path") or m.get("local_material_path") or ""
+
+            if _is_placeholder_path(vpath):
+                if isinstance(mid, str) and mid and mid in referenced:
+                    referenced_placeholders.append((fname, str(vpath)))
+                    kept.append(m)
+                    continue
+                removed_here += 1
+                continue
+
+            kept.append(m)
+
+        if removed_here:
+            mats["videos"] = kept
+            path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+            total_removed += removed_here
+
+    if total_removed:
+        logger.info("🧹 Purged unreferenced placeholder video materials: %d", total_removed)
+
+    if referenced_placeholders:
+        preview = ", ".join(sorted({f"{fname}:{p}" for fname, p in referenced_placeholders})[:5])
+        raise RuntimeError(
+            "Template still references placeholder video materials (will be broken). "
+            f"Fix the template draft and retry. Examples: {preview}"
+        )
+
+
+def _trim_all_tracks_to_duration(
+    draft_dir: Path,
+    *,
+    target_us: int,
+    logger: logging.Logger,
+) -> None:
+    """
+    Trim any segments in any track so nothing extends beyond target_us.
+    This prevents template tails (background/BGM) from making the timeline longer than the episode.
+    """
+    if target_us <= 0:
+        return
+
+    content_path = draft_dir / "draft_content.json"
+    data, _reason = _try_load_json_file(content_path)
+    if data is None or not isinstance(data, dict):
+        return
+
+    tracks = data.get("tracks")
+    if not isinstance(tracks, list) or not tracks:
+        return
+
+    def _trim_timerange_fields(seg: dict, new_dur: int) -> None:
+        for field in ("target_timerange", "source_timerange", "render_timerange", "material_timerange"):
+            tr = seg.get(field)
+            if isinstance(tr, dict) and "duration" in tr:
+                try:
+                    tr["duration"] = int(new_dur)
+                except Exception:
+                    pass
+
+    trimmed_segments = 0
+    dropped_segments = 0
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        segs = [s for s in (tr.get("segments") or []) if isinstance(s, dict)]
+        if not segs:
+            continue
+        segs.sort(key=lambda s: int((s.get("target_timerange") or {}).get("start") or 0))
+        out: list[dict] = []
+        for seg in segs:
+            tt = seg.get("target_timerange")
+            if not isinstance(tt, dict):
+                out.append(seg)
+                continue
+            start = int(tt.get("start") or 0)
+            dur = int(tt.get("duration") or 0)
+            if dur <= 0:
+                continue
+            if start >= target_us:
+                dropped_segments += 1
+                continue
+            end = start + dur
+            if end > target_us:
+                new_dur = max(0, target_us - start)
+                if new_dur <= 0:
+                    dropped_segments += 1
+                    continue
+                if new_dur != dur:
+                    _trim_timerange_fields(seg, new_dur)
+                    trimmed_segments += 1
+                out.append(seg)
+            else:
+                out.append(seg)
+        tr["segments"] = out
+
+    if trimmed_segments or dropped_segments:
+        content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info("✂️  Trimmed template tails to duration: trimmed=%d dropped=%d", trimmed_segments, dropped_segments)
+
+
 def pre_flight_check(args, logger: logging.Logger) -> list[str]:
     """
     Comprehensive pre-flight validation before execution.
@@ -773,6 +1084,207 @@ def parse_srt_file(srt_path: Path):
         })
     
     return subtitles
+
+
+_JP_SUB_SPLIT_STRONG = set("。！？!?")
+_JP_SUB_SPLIT_WEAK = set("、…")
+
+
+def _looks_japanese(text: str) -> bool:
+    return bool(re.search(r"[\u3040-\u30ff\u4e00-\u9fff]", str(text or "")))
+
+
+def _split_text_natural_jp(text: str, *, max_chars: int) -> list[str]:
+    """
+    Split Japanese text into smaller subtitle chunks using natural boundaries.
+
+    - Prefer sentence ends (。！？) and explicit newlines.
+    - If still too long, split on clause punctuation (、…).
+    - As a last resort, fall back to a soft wrap based on existing punctuation rules.
+    """
+    if not text:
+        return []
+    s = str(text).replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not s:
+        return []
+
+    # 1) Strong boundaries: newline / sentence end.
+    strong_parts: list[str] = []
+    buf: list[str] = []
+    for ch in s:
+        if ch == "\n":
+            part = "".join(buf).strip()
+            if part:
+                strong_parts.append(part)
+            buf = []
+            continue
+        buf.append(ch)
+        if ch in _JP_SUB_SPLIT_STRONG:
+            part = "".join(buf).strip()
+            if part:
+                strong_parts.append(part)
+            buf = []
+    tail = "".join(buf).strip()
+    if tail:
+        strong_parts.append(tail)
+
+    # 2) Weak boundaries for long chunks.
+    out: list[str] = []
+    for part in strong_parts:
+        if len(part) <= max_chars:
+            out.append(part)
+            continue
+
+        cur: list[str] = []
+        for ch in part:
+            cur.append(ch)
+            if ch in _JP_SUB_SPLIT_WEAK and len(cur) >= max(8, int(max_chars * 0.45)):
+                chunk = "".join(cur).strip()
+                if chunk:
+                    out.append(chunk)
+                cur = []
+        chunk = "".join(cur).strip()
+        if chunk:
+            out.append(chunk)
+
+    # 3) Last resort: soft wrap remaining long chunks.
+    final: list[str] = []
+    for part in out:
+        if len(part) <= max_chars:
+            final.append(part)
+            continue
+        wrapped = _wrap_subtitle_text_jp(part, max_chars=max_chars).split("\n")
+        final.extend([w.strip() for w in wrapped if w.strip()])
+
+    return [p for p in final if p]
+
+
+def _split_subtitle_entry_natural(
+    ent: dict,
+    *,
+    max_chars: int,
+    max_dur_us: int,
+    min_dur_us: int,
+) -> list[dict]:
+    """
+    Split one subtitle entry into multiple entries (within the same time range).
+
+    NOTE: Must not do equal-interval splitting; this uses punctuation boundaries and
+    allocates time proportionally to chunk length.
+    """
+    try:
+        start_us = int(ent.get("start_us"))
+        end_us = int(ent.get("end_us"))
+    except Exception:
+        return [ent]
+    text = str(ent.get("text") or "").strip()
+    dur_us = max(0, end_us - start_us)
+
+    if not text or dur_us <= 0:
+        return [ent]
+    if dur_us < min_dur_us * 2:
+        return [ent]
+    if dur_us <= max_dur_us and len(text) <= max_chars:
+        return [ent]
+    if not _looks_japanese(text):
+        return [ent]
+
+    parts = _split_text_natural_jp(text, max_chars=max_chars)
+    if len(parts) <= 1:
+        return [ent]
+
+    # Ensure feasible minimum durations by merging from the end if necessary.
+    while len(parts) > 1 and dur_us < min_dur_us * len(parts):
+        parts[-2] = f"{parts[-2]}{parts[-1]}"
+        parts.pop()
+
+    # Allocate time proportionally to chunk length (non-uniform, content-based).
+    weights = [max(1, len(p.replace("\n", "").strip())) for p in parts]
+    total = sum(weights)
+    times: list[tuple[int, int]] = []
+    acc = 0
+    t = start_us
+    for i, w in enumerate(weights):
+        if i == len(weights) - 1:
+            times.append((t, end_us))
+            break
+        acc += w
+        nxt = start_us + int(round(dur_us * acc / total))
+        times.append((t, max(t + 1, nxt)))
+        t = times[-1][1]
+
+    # Merge any too-short chunks (rare) and recompute once.
+    changed = True
+    while changed:
+        changed = False
+        for i, (a, b) in enumerate(times):
+            if b - a >= min_dur_us:
+                continue
+            if len(parts) <= 1:
+                break
+            changed = True
+            if i < len(parts) - 1:
+                parts[i] = f"{parts[i]}{parts[i+1]}"
+                parts.pop(i + 1)
+            else:
+                parts[i - 1] = f"{parts[i-1]}{parts[i]}"
+                parts.pop(i)
+            weights = [max(1, len(p.replace("\n", "").strip())) for p in parts]
+            total = sum(weights)
+            times = []
+            acc = 0
+            t = start_us
+            for j, w in enumerate(weights):
+                if j == len(weights) - 1:
+                    times.append((t, end_us))
+                    break
+                acc += w
+                nxt = start_us + int(round(dur_us * acc / total))
+                times.append((t, max(t + 1, nxt)))
+                t = times[-1][1]
+            break
+
+    out: list[dict] = []
+    base_index = int(ent.get("index") or 0)
+    for j, ((a, b), part) in enumerate(zip(times, parts)):
+        out.append(
+            {
+                "index": base_index * 100 + (j + 1),
+                "start_us": a,
+                "end_us": b,
+                "text": part,
+            }
+        )
+    return out
+
+
+def _split_subtitles_for_ch22(subs: list[dict]) -> list[dict]:
+    """
+    CH22 policy: subtitles should be more finely segmented for readability.
+
+    - Split only when an entry is long (duration or chars).
+    - Use punctuation boundaries; avoid equal-interval splitting.
+    """
+    if not subs:
+        return subs
+    max_chars = 22
+    max_dur_us = int(3.0 * 1_000_000)
+    min_dur_us = int(0.8 * 1_000_000)
+
+    out: list[dict] = []
+    for ent in subs:
+        out.extend(
+            _split_subtitle_entry_natural(
+                ent,
+                max_chars=max_chars,
+                max_dur_us=max_dur_us,
+                min_dur_us=min_dur_us,
+            )
+        )
+    # Re-index sequentially for deterministic ordering.
+    for i, ent in enumerate(out, start=1):
+        ent["index"] = i
+    return out
 
 
 _JP_PUNCT_BREAK_AFTER = set("、。！？!?…」』）》）)]】〕〉》")
@@ -1148,6 +1660,127 @@ def _merge_info_tracks_into_content(draft_dir: Path) -> None:
         content_path.write_text(_json2.dumps(content_data, ensure_ascii=False, indent=2), encoding='utf-8')
     except Exception as exc:
         logger.warning(f"Failed to merge draft_info into draft_content: {exc}")
+
+
+def _transplant_track_segments(
+    draft_dir: Path,
+    *,
+    src_track_name: str,
+    dst_track_name: str,
+    track_type: str,
+    logger: logging.Logger | None = None,
+) -> bool:
+    """
+    Move segments from src -> dst (same type), preserving the destination track metadata.
+    This is used to keep template-provided tracks (IDs/render_index/etc.) while generating
+    new segments via pyJianYingDraft on a temporary track.
+    """
+    content_path = draft_dir / "draft_content.json"
+    data, _reason = _try_load_json_file(content_path)
+    if data is None or not isinstance(data, dict):
+        return False
+
+    tracks = data.get("tracks")
+    if not isinstance(tracks, list) or not tracks:
+        return False
+
+    src_idx = None
+    dst_idx = None
+    for idx, tr in enumerate(tracks):
+        if not isinstance(tr, dict):
+            continue
+        if str(tr.get("type") or "") != str(track_type):
+            continue
+        name = str(tr.get("name") or "")
+        if name == src_track_name and src_idx is None:
+            src_idx = idx
+        if name == dst_track_name and dst_idx is None:
+            dst_idx = idx
+
+    if src_idx is None or dst_idx is None:
+        if logger:
+            logger.warning(
+                "Track transplant skipped (missing track): type=%s src=%s(%s) dst=%s(%s)",
+                track_type,
+                src_track_name,
+                src_idx,
+                dst_track_name,
+                dst_idx,
+            )
+        return False
+
+    src_track = tracks[src_idx]
+    dst_track = tracks[dst_idx]
+    dst_track["segments"] = src_track.get("segments") or []
+
+    # Remove src track safely (pop max index first)
+    for rm_idx in sorted([src_idx], reverse=True):
+        tracks.pop(rm_idx)
+
+    data["tracks"] = tracks
+    content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if logger:
+        logger.info(
+            "✅ Transplanted %s segments: %s -> %s",
+            track_type,
+            src_track_name,
+            dst_track_name,
+        )
+    return True
+
+
+def _rename_track_in_content(
+    draft_dir: Path,
+    *,
+    track_type: str,
+    old_name: str,
+    new_name: str,
+    logger: logging.Logger | None = None,
+) -> bool:
+    """
+    Rename a track in draft_content.json (and only there). draft_info.json will be synced later.
+    """
+    if not old_name or not new_name or old_name == new_name:
+        return False
+
+    content_path = draft_dir / "draft_content.json"
+    data, _reason = _try_load_json_file(content_path)
+    if data is None or not isinstance(data, dict):
+        return False
+
+    tracks = data.get("tracks")
+    if not isinstance(tracks, list) or not tracks:
+        return False
+
+    # Do not rename if a track with the target name already exists for this type.
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        if str(tr.get("type") or "") != str(track_type):
+            continue
+        if str(tr.get("name") or "") == new_name:
+            return False
+
+    changed = False
+    for tr in tracks:
+        if not isinstance(tr, dict):
+            continue
+        if str(tr.get("type") or "") != str(track_type):
+            continue
+        if str(tr.get("name") or "") != old_name:
+            continue
+        tr["name"] = new_name
+        changed = True
+        break
+
+    if not changed:
+        return False
+
+    content_path.write_text(_json2.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    if logger:
+        logger.info("✅ Renamed %s track: %s -> %s", track_type, old_name, new_name)
+    return True
 
 
 def ensure_absolute_indices(draft_dir: Path) -> None:
@@ -2739,7 +3372,12 @@ def _purge_generic_template_placeholders(
         logger.info(f"🧹 Purged generic template placeholder tracks: {pretty}")
 
 
-def _purge_stale_managed_tracks_in_template_copy(draft_dir: Path, logger: logging.Logger) -> None:
+def _purge_stale_managed_tracks_in_template_copy(
+    draft_dir: Path,
+    logger: logging.Logger,
+    *,
+    keep_srt2images_video: bool = False,
+) -> None:
     """
     Defensive cleanup: sometimes a CapCut *template* gets accidentally saved after running automation,
     leaving managed tracks inside the template (e.g. srt2images_*, subtitles_text*, voiceover*).
@@ -2784,10 +3422,16 @@ def _purge_stale_managed_tracks_in_template_copy(draft_dir: Path, logger: loggin
             segs = tr.get("segments") or []
             seg_count = len(segs) if isinstance(segs, list) else 0
 
+            # NOTE: In --inject-into-main mode, templates may intentionally include an `srt2images_*`
+            # image layer. Keep it (we'll transplant segments into it later) unless explicitly
+            # running in non-inject mode.
             is_managed = (
-                (ttype == "video" and name.startswith("srt2images_"))
-                or (ttype == "text" and name.startswith(("subtitles_text", "title_text")))
+                (ttype == "video" and name.startswith("srt2images_") and not keep_srt2images_video)
                 or (ttype == "audio" and name.startswith("voiceover"))
+                or (ttype == "text" and (
+                    name.startswith("title_text")
+                    or (name.startswith("subtitles_text") and name != "subtitles_text")
+                ))
             )
             if is_managed:
                 removed.append((fname, ttype, name, seg_count))
@@ -2869,9 +3513,77 @@ def _purge_belt_tracks_in_template_copy(draft_dir: Path, logger: logging.Logger)
         logger.info("🧹 Belt disabled: removed belt tracks from template copy: %s", pretty)
 
 
+def _purge_effect_tracks_in_template_copy(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    Remove effect tracks/materials from the duplicated template copy.
+
+    Rationale:
+      - Many CapCut effects are stored in per-user cache paths. When those cache entries
+        are missing, CapCut shows 'media missing' / broken references.
+      - For the user's requested minimal template (images + audio + subtitles), effects
+        are not needed.
+    """
+
+    removed_tracks = 0
+    cleared_effect_mats = 0
+
+    def _get_tracks_ref(data: dict) -> tuple[list, callable] | None:
+        if isinstance(data.get("tracks"), list):
+            return data["tracks"], lambda v: data.__setitem__("tracks", v)
+        if isinstance(data.get("script"), dict) and isinstance(data["script"].get("tracks"), list):
+            return data["script"]["tracks"], lambda v: data["script"].__setitem__("tracks", v)
+        return None
+
+    for fname in ("draft_content.json", "draft_info.json"):
+        path = draft_dir / fname
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        ref = _get_tracks_ref(data) if isinstance(data, dict) else None
+        if ref:
+            tracks, set_tracks = ref
+            if isinstance(tracks, list):
+                before = len(tracks)
+                tracks2 = [
+                    tr
+                    for tr in tracks
+                    if not (
+                        isinstance(tr, dict)
+                        and (
+                            str(tr.get("type") or "").strip() == "effect"
+                            or str(tr.get("name") or "").strip().startswith("effect")
+                        )
+                    )
+                ]
+                if len(tracks2) != before:
+                    removed_tracks += (before - len(tracks2))
+                    set_tracks(tracks2)
+
+        mats = data.get("materials")
+        if isinstance(mats, dict) and "effects" in mats:
+            eff = mats.get("effects")
+            if isinstance(eff, list) and eff:
+                cleared_effect_mats += len(eff)
+                mats["effects"] = []
+
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if removed_tracks or cleared_effect_mats:
+        logger.info(
+            "🧹 Purged effect tracks/materials from template copy: tracks=%d materials.effects=%d",
+            removed_tracks,
+            cleared_effect_mats,
+        )
+
+
 def _post_flight_validate_draft(
     draft_dir: Path,
     *,
+    expect_srt2images_track: bool = True,
     expect_voice: bool,
     expect_subtitles: bool,
     allow_generic_tracks: set[str] | None = None,
@@ -2895,6 +3607,7 @@ def _post_flight_validate_draft(
 
     problems: list[str] = []
     srt2_tracks = 0
+    video_tracks_with_segments = 0
     have_voiceover = False
     have_subtitles = False
     allow_generic_tracks = allow_generic_tracks or set()
@@ -2909,6 +3622,8 @@ def _post_flight_validate_draft(
 
         if ttype == "video" and name.startswith("srt2images_"):
             srt2_tracks += 1
+        if ttype == "video" and seg_count > 0:
+            video_tracks_with_segments += 1
 
         if ttype == "audio" and name == "voiceover":
             have_voiceover = True
@@ -2926,8 +3641,12 @@ def _post_flight_validate_draft(
             if seg_count > 0:
                 problems.append(f"{ttype}:{name}({seg_count})")
 
-    if srt2_tracks != 1:
-        problems.append(f"video:srt2images_* track_count={srt2_tracks}")
+    if expect_srt2images_track:
+        if srt2_tracks != 1:
+            problems.append(f"video:srt2images_* track_count={srt2_tracks}")
+    else:
+        if video_tracks_with_segments <= 0:
+            problems.append("missing video segments")
     if expect_voice and not have_voiceover:
         problems.append("missing audio:voiceover")
     if expect_subtitles and not have_subtitles:
@@ -3270,10 +3989,43 @@ def main():
 
     # Purge generic placeholder tracks from template BEFORE loading with pyJianYingDraft.
     # (If we purge after load, in-memory script.content will overwrite the JSON back.)
-    _purge_generic_template_placeholders(draft_dir, logger, keep_track_names=keep_generic_text_tracks)
-    _purge_stale_managed_tracks_in_template_copy(draft_dir, logger)
+    keep_generic_track_names = set(keep_generic_text_tracks)
+    template_background_video_track_name: str | None = None
+    if args.inject_into_main:
+        # When injecting into the template's primary image layer, keep that generic video track's
+        # segments pre-load so pyJianYingDraft will actually load the track (some versions drop
+        # empty tracks). We'll clear segments in-memory after selecting the target track.
+        try:
+            content_path = draft_dir / "draft_content.json"
+            if content_path.exists():
+                _data = _json2.loads(content_path.read_text(encoding="utf-8"))
+                _tracks = _data.get("tracks", []) or []
+                if isinstance(_tracks, list):
+                    for _tr in _tracks:
+                        if not isinstance(_tr, dict):
+                            continue
+                        if (_tr.get("type") or "") != "video":
+                            continue
+                        _name = _tr.get("name")
+                        if not isinstance(_name, str) or not _name:
+                            continue
+                        if _name.startswith("srt2images_"):
+                            continue
+                        template_background_video_track_name = _name
+                        keep_generic_track_names.add(_name)
+                        break
+        except Exception:
+            pass
+    _purge_generic_template_placeholders(draft_dir, logger, keep_track_names=keep_generic_track_names)
+    _purge_stale_managed_tracks_in_template_copy(
+        draft_dir,
+        logger,
+        keep_srt2images_video=bool(getattr(args, "inject_into_main", False)),
+    )
     if not belt_enabled:
         _purge_belt_tracks_in_template_copy(draft_dir, logger)
+    if args.inject_into_main:
+        _purge_effect_tracks_in_template_copy(draft_dir, logger)
     _localize_external_audio_assets(draft_dir, logger)
 
     script = df.load_template(args.new)
@@ -3301,43 +4053,116 @@ def main():
         logger.warning(f"⚠️ image_cues.json not found in run dir: {image_cues_src}")
 
     # Decide target track
+    insert_video_track_name: str | None = None
+    template_video_track_name: str | None = None
+
+    # Prefer an existing template image track name. For CH01 templates, the intended "画像レイヤ"
+    # is often stored as a `srt2images_*` video track.
+    def _pick_template_image_track_name() -> str | None:
+        try:
+            content_path = draft_dir / "draft_content.json"
+            if not content_path.exists():
+                return None
+            data = _json2.loads(content_path.read_text(encoding="utf-8"))
+            tracks = data.get("tracks", []) or []
+            if not isinstance(tracks, list):
+                return None
+
+            # 1) Prefer the first srt2images_* video track that has segments (template image layer).
+            for tr in tracks:
+                if not isinstance(tr, dict):
+                    continue
+                if (tr.get("type") or "") != "video":
+                    continue
+                name = tr.get("name")
+                if not isinstance(name, str) or not name:
+                    continue
+                if not name.startswith("srt2images_"):
+                    continue
+                segs = tr.get("segments") or []
+                if isinstance(segs, list) and len(segs) > 0:
+                    return name
+
+            # 2) Fallback: first non-empty video track in JSON order.
+            for tr in tracks:
+                if not isinstance(tr, dict):
+                    continue
+                if (tr.get("type") or "") != "video":
+                    continue
+                name = tr.get("name")
+                if not isinstance(name, str) or not name:
+                    continue
+                segs = tr.get("segments") or []
+                if isinstance(segs, list) and len(segs) > 0:
+                    return name
+
+            # 3) Last resort: first video track name.
+            for tr in tracks:
+                if not isinstance(tr, dict):
+                    continue
+                if (tr.get("type") or "") != "video":
+                    continue
+                name = tr.get("name")
+                if isinstance(name, str) and name:
+                    return name
+        except Exception:
+            return None
+        return None
+
+    # Prefer an existing template video track name in JSON order so we keep the intended background layer.
+    def _pick_existing_video_track_name() -> str | None:
+        try:
+            content_path = draft_dir / "draft_content.json"
+            if not content_path.exists():
+                return None
+            data = _json2.loads(content_path.read_text(encoding="utf-8"))
+            tracks = data.get("tracks", []) or []
+            if not isinstance(tracks, list):
+                return None
+            for tr in tracks:
+                if not isinstance(tr, dict):
+                    continue
+                if (tr.get("type") or "") != "video":
+                    continue
+                name = tr.get("name")
+                if not isinstance(name, str) or not name:
+                    continue
+                # Avoid managed tracks (they'll be regenerated).
+                if name.startswith("srt2images_"):
+                    continue
+                return name
+        except Exception:
+            return None
+        return None
+
+    # Always generate segments on a managed srt2images_* track (pyJianYingDraft can't append
+    # new segments into imported/template tracks directly). In --inject-into-main mode we'll
+    # transplant the generated segments into the template's primary image track and remove
+    # the temporary managed track afterwards.
+    base = f"srt2images_{run_dir.name}"
+    track_name = base
     if args.inject_into_main:
-        # Try to find an existing primary video track
-        target_track = None
-        try:
-            for name, tr in getattr(script, 'tracks', {}).items():
-                if hasattr(tr, 'type') and tr.type == Track_type.video:
-                    target_track = name
-                    break
-        except Exception:
-            target_track = None
-        if not target_track:
-            target_track = "main_video"
-            desired_index = _compute_abs_index_for_rank(draft_dir, args.rank_from_top)
-            ensure_video_track(script, name=target_track, absolute_index=desired_index)
-        track_name = target_track
-        try:
-            script.tracks[track_name].segments = []
-        except Exception:
-            pass
-    else:
-        base = f"srt2images_{run_dir.name}"
-        track_name = base
-        # Remove any existing srt2images_* video tracks to avoid duplicates
-        try:
-            for name in list(getattr(script, 'tracks', {}).keys()):
-                tr = script.tracks[name]
-                if hasattr(tr, 'type') and tr.type == Track_type.video and name.startswith(base):
-                    del script.tracks[name]
-        except Exception:
-            pass
-        desired_index = _compute_abs_index_for_rank(draft_dir, args.rank_from_top)
-        ensure_video_track(script, name=track_name, absolute_index=desired_index)
-        # Clear our track if it already has segments
-        try:
-            script.tracks[track_name].segments = []
-        except Exception:
-            pass
+        template_video_track_name = _pick_template_image_track_name()
+        if not template_video_track_name:
+            logger.warning("⚠️ --inject-into-main requested but no template video track found; keeping %s", track_name)
+
+    # Remove any existing srt2images_* video tracks to avoid duplicates
+    try:
+        for name in list(getattr(script, "tracks", {}).keys()):
+            tr = script.tracks[name]
+            if hasattr(tr, "type") and tr.type == Track_type.video and name.startswith(base):
+                del script.tracks[name]
+    except Exception:
+        pass
+
+    desired_index = _compute_abs_index_for_rank(draft_dir, args.rank_from_top)
+    ensure_video_track(script, name=track_name, absolute_index=desired_index)
+    # Clear our track if it already has segments
+    try:
+        script.tracks[track_name].segments = []
+    except Exception:
+        pass
+    insert_video_track_name = track_name
 
     # Clean previous assets/materials to avoid duplication from template
     try:
@@ -3574,8 +4399,16 @@ def main():
 
                 # Insert subtitles on a dedicated top text layer (above images)
                 subs = parse_srt_file(srt_path)
+                # CH22: finer segmentation for readability (avoid long 1-line, 5-9s chunks)
+                if subs and channel_id == "CH22":
+                    subs = _split_subtitles_for_ch22(subs)
                 if subs:
-                    sub_track_name = "subtitles_text"
+                    # In inject-into-main mode, generate subtitles on a temp track and transplant into
+                    # the template's existing 'subtitles_text' track to preserve template metadata.
+                    if args.inject_into_main:
+                        sub_track_name = f"subtitles_gen_{run_dir.name}"
+                    else:
+                        sub_track_name = "subtitles_text"
                     try:
                         # Ensure a very high absolute index so text stays on top
                         script.add_track(Track_type.text, sub_track_name, absolute_index=2_000_000)
@@ -3898,13 +4731,70 @@ def main():
             logger.error(f"❌ Voice insert verification failed: {exc}")
             sys.exit(1)
 
+    # Force duration to the cue schedule (avoid carrying long template tail).
+    try:
+        target_us = max((int(s) + int(d) for (s, d) in schedule), default=0)
+        if target_us > 0:
+            script.duration = int(target_us)
+    except Exception:
+        pass
+
     # Save back to JSON (in-place)
     script.save()
 
+    # In inject-into-main mode, move generated segments onto the template-provided tracks.
+    # This avoids creating new "image layer" or "subtitle layer" tracks in the final draft.
+    if args.inject_into_main and template_video_track_name:
+        _transplant_track_segments(
+            draft_dir,
+            src_track_name=track_name,
+            dst_track_name=template_video_track_name,
+            track_type="video",
+            logger=logger,
+        )
+        # Downstream helpers (fade injection etc.) should target the real template track.
+        track_name = template_video_track_name
+        insert_video_track_name = template_video_track_name
+        # Subtitles: transplant if we generated on a temp track.
+        temp_sub = f"subtitles_gen_{run_dir.name}"
+        transplanted_subs = _transplant_track_segments(
+            draft_dir,
+            src_track_name=temp_sub,
+            dst_track_name="subtitles_text",
+            track_type="text",
+            logger=logger,
+        )
+        if not transplanted_subs:
+            # Template may not include a subtitles_text track; rename the generated track to canonical name.
+            _rename_track_in_content(
+                draft_dir,
+                track_type="text",
+                old_name=temp_sub,
+                new_name="subtitles_text",
+                logger=logger,
+            )
+
     # Deduplicate tracks/materials (template carryover cleanup)
     _dedupe_tracks_and_materials(draft_dir)
+    # CH01: user requested to not include specific template BGM variants.
+    if bool(getattr(args, "inject_into_main", False)) and str(channel_id or "") == "CH01":
+        _drop_unwanted_bgm_by_suffix(
+            draft_dir,
+            banned_suffixes=[
+                "06_お寺の雰囲気.mp3",
+                "70_OnAPianoAcloudNatureSounds.mp3",
+            ],
+            logger=logger,
+        )
     # Enforce fixed scale on video segments
     _force_video_scale(draft_dir, float(args.scale))
+    # Trim any lingering template segments (background/BGM) to the actual episode duration.
+    try:
+        _target_us = max((int(s) + int(d) for (s, d) in schedule), default=0)
+    except Exception:
+        _target_us = 0
+    if _target_us > 0:
+        _trim_all_tracks_to_duration(draft_dir, target_us=int(_target_us), logger=logger)
 
     fade_target = args.fade_duration if args.fade_duration is not None else args.crossfade
     if not getattr(args, "disable_auto_fade", False):
@@ -3920,10 +4810,12 @@ def main():
             logger.error(f"Auto-fade injection failed: {exc}")
             sys.exit(1)
 
-    _merge_info_tracks_into_content(draft_dir)
-    # Merge can re-introduce template carryover duplicates (notably BGM tracks).
+    # IMPORTANT: Do NOT merge draft_info -> draft_content.
+    # draft_info often contains stale template tracks and merging can overwrite newly inserted segments.
+    # We instead sync draft_content -> draft_info later (sync_draft_info_with_content).
     _dedupe_tracks_and_materials(draft_dir)
-    _ensure_bgm_covers_duration(draft_dir, logger)
+    if not args.inject_into_main:
+        _ensure_bgm_covers_duration(draft_dir, logger)
 
     # Keep template effect tracks (if any) spanning the full draft duration even when belt is disabled.
     try:
@@ -3945,6 +4837,9 @@ def main():
         logger.info("✅ Image render_timerange fixed")
     else:
         logger.warning("⚠️  render_timerange fix failed - images may not display")
+
+    # Purge template-carryover placeholder video materials to avoid CapCut "missing media" warnings.
+    _purge_unreferenced_placeholder_video_materials(draft_dir, logger=logger)
 
     # ========================================
     # 🔧 CRITICAL: Sync draft_info.json with draft_content.json
@@ -4064,26 +4959,50 @@ def main():
 
     # Post-flight validation: fail hard if template placeholders leaked into the draft.
     try:
+        allow_generic_tracks = set(keep_generic_text_tracks)
+        if args.inject_into_main and insert_video_track_name:
+            # Allow writing into generic template tracks like `video_1` when explicitly requested.
+            allow_generic_tracks.add(insert_video_track_name)
+        if args.inject_into_main and template_background_video_track_name:
+            allow_generic_tracks.add(template_background_video_track_name)
         _post_flight_validate_draft(
             draft_dir,
+            expect_srt2images_track=not bool(getattr(args, "inject_into_main", False)),
             expect_voice=bool(getattr(args, "voice_file", None)),
             expect_subtitles=bool(getattr(args, "srt_file", None)),
-            allow_generic_tracks=keep_generic_text_tracks,
+            allow_generic_tracks=allow_generic_tracks,
             logger=logger,
         )
     except Exception as exc:
         logger.error(f"❌ Post-flight validation failed: {exc}")
         sys.exit(1)
 
-    # Update root_meta_info.json so CapCut UI can list the draft
+    # Update root_meta_info.json so CapCut UI can list the draft.
+    #
+    # IMPORTANT:
+    # - CapCut itself may also update this file.
+    # - Never clobber on parse failure (it can happen when reading mid-write).
+    # - Use a best-effort file lock for concurrent pipeline runs + atomic replace.
     try:
+        import os
+        from time import sleep as _sleep
+
+        try:
+            import fcntl  # type: ignore
+        except Exception:  # pragma: no cover (non-POSIX)
+            fcntl = None  # type: ignore
+
         root_meta = Path(args.draft_root) / "root_meta_info.json"
+        lock_path = root_meta.with_suffix(root_meta.suffix + ".lock")
         now_us = int(time.time() * 1_000_000)
         cover_path = draft_dir / "draft_cover.jpg"
+
         draft_id = info_data.get("draft_id") if "info_data" in locals() else None
         if not draft_id:
             import uuid
+
             draft_id = str(uuid.uuid4()).upper()
+
         entry = {
             "draft_name": args.new,
             "draft_id": draft_id,
@@ -4101,24 +5020,70 @@ def main():
             "tm_draft_modified": now_us,
             "tm_duration": 0,
         }
-        data = {"all_draft_store": []}
-        if root_meta.exists():
+
+        # Lock is best-effort: CapCut won't respect it, but our own concurrent
+        # runs will. We still handle parse failures gracefully.
+        lock_fh = lock_path.open("w", encoding="utf-8")
+        try:
+            if fcntl is not None:
+                try:
+                    fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX)
+                except Exception:
+                    pass
+
+            data: dict = {}
+            if root_meta.exists():
+                # Retry reads to avoid clobbering when the file is mid-write.
+                last_err: Exception | None = None
+                for _ in range(5):
+                    try:
+                        data = json.loads(root_meta.read_text(encoding="utf-8"))
+                        last_err = None
+                        break
+                    except Exception as exc:
+                        last_err = exc
+                        _sleep(0.05)
+                if last_err is not None:
+                    logger.warning(
+                        f"root_meta_info.json parse failed; skipping update (to avoid clobber): {last_err}"
+                    )
+                    return
+            if not isinstance(data, dict):
+                data = {}
+
+            drafts = data.get("all_draft_store", [])
+            if not isinstance(drafts, list):
+                drafts = []
+            # Drop duplicates by folder (and by id, just in case).
+            drafts = [
+                d
+                for d in drafts
+                if isinstance(d, dict)
+                and d.get("draft_fold_path") != str(draft_dir)
+                and d.get("draft_id") != draft_id
+            ]
+            drafts.append(entry)
+            data["all_draft_store"] = drafts
+
+            # Atomic replace: write to temp then replace.
+            tmp_path = root_meta.with_suffix(root_meta.suffix + f".tmp.{os.getpid()}")
+            tmp_path.write_text(
+                json.dumps(data, ensure_ascii=False, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            os.replace(tmp_path, root_meta)
+        finally:
             try:
-                data = json.loads(root_meta.read_text(encoding="utf-8"))
+                lock_fh.close()
             except Exception:
-                logger.warning("root_meta_info.json parse failed; recreating minimal structure")
-                data = {"all_draft_store": []}
-        drafts = data.get("all_draft_store", [])
-        drafts = [d for d in drafts if d.get("draft_fold_path") != str(draft_dir)]
-        drafts.append(entry)
-        data["all_draft_store"] = drafts
-        root_meta.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    except Exception:
-        logger.warning("Could not update root_meta_info.json for CapCut draft listing")
+                pass
+    except Exception as exc:
+        logger.warning(f"Could not update root_meta_info.json for CapCut draft listing: {exc}")
 
     # --- Improve discoverability in output run dir ---
     try:
         import datetime, json as _json
+        from factory_common.path_ref import best_effort_path_ref
         # Create a stable symlink from run_dir -> actual CapCut draft folder
         run_capcut_link = run_dir / 'capcut_draft'
         if run_capcut_link.exists() or run_capcut_link.is_symlink():
@@ -4134,6 +5099,7 @@ def main():
         # Also drop an info JSON for quick reference/search in run_dir
         info = {
             'draft_name': args.new,
+            'draft_path_ref': best_effort_path_ref(draft_dir),
             'draft_path': str(draft_dir),
             'created_at': datetime.datetime.now().isoformat(timespec='seconds'),
             'project_id': Path(args.run).resolve().name,

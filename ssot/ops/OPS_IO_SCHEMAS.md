@@ -15,6 +15,7 @@
 - **SoT（正本）**: その工程の真実。下流は SoT のみを参照する（例外を作るなら SoT を増やす）。
 - **Intermediate（中間）**: 再生成可能。保持/削除ルールは `PLAN_OPS_ARTIFACT_LIFECYCLE`。
 - **Schemaは“許容”で定義**: 実データには揺れがあるため、必須キー/省略可キーを明示する。
+- **参照パス規約（PathRef）**: 共有される JSON/manifest/log には “ホスト固有の絶対パス” を埋め込まない。規約は `ssot/ops/OPS_PATHREF_CONVENTION.md` を正とする。
 
 ---
 
@@ -309,7 +310,8 @@ progress（観測例）:
 用途: CapCut 側ドラフト生成の証跡
 - `created_at`: string（ISO）
 - `draft_name`: string
-- `draft_path`: string（CapCut projects path）
+- `draft_path_ref?`: dict（PathRef; 推奨。`ssot/ops/OPS_PATHREF_CONVENTION.md`）
+- `draft_path?`: string（legacy; ローカル環境の絶対パス。共有/UIの存在判定根拠にしない）
 - `project_id`: string
 - `template_used`: string
 - `srt_file`: string
@@ -354,7 +356,11 @@ derived（期待）:
 - `run_dir`: string（repo相対）
 - `image_cues`: dict
 - `belt_config?`: dict（存在時のみ）
-- `capcut_draft?`: dict（存在時のみ。CapCut projects absolute path）
+- `capcut_draft?`: dict（存在時のみ。PathRef推奨/legacy互換あり）
+
+derived.capcut_draft（期待）:
+- `path_ref?`: dict（PathRef; 推奨。`ssot/ops/OPS_PATHREF_CONVENTION.md`）
+- `path?`: string（legacy; ローカル環境の絶対パス。共有/UIの存在判定根拠にしない）
 
 derived.image_cues（期待）:
 - `path`: string（run_dir 相対）
