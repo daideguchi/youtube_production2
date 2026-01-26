@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import "./AgentBoardPanel.css";
 
 import { getAgentBoard, postAgentBoardNote, postAgentBoardStatus } from "../api/agentBoard";
-import type { AgentBoard, AgentBoardNote } from "../types/agentBoard";
+import type { AgentBoard, AgentBoardAgentStatus, AgentBoardNote } from "../types/agentBoard";
 
 type AgentBoardPanelProps = {
   actorName: string;
@@ -17,11 +17,39 @@ type ThreadSummary = {
   lastNote: AgentBoardNote;
 };
 
+type AgentStatusRow = {
+  agent: string;
+  status: AgentBoardAgentStatus;
+  updatedAt: string;
+  ageMinutes: number | null;
+  isBlocked: boolean;
+  tags: string[];
+};
+
 function formatDateTime(value?: string | null): string {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString("ja-JP", { hour12: false });
+}
+
+function parseIsoMillis(value?: string | null): number | null {
+  if (!value) return null;
+  const date = new Date(value);
+  const t = date.getTime();
+  return Number.isNaN(t) ? null : t;
+}
+
+function formatAge(ageMinutes: number | null): string {
+  if (ageMinutes == null) return "—";
+  if (ageMinutes < 1) return "<1m";
+  if (ageMinutes < 60) return `${Math.floor(ageMinutes)}m`;
+  const h = Math.floor(ageMinutes / 60);
+  const m = Math.floor(ageMinutes % 60);
+  if (h < 24) return `${h}h${m ? `${m}m` : ""}`;
+  const d = Math.floor(h / 24);
+  const rh = h % 24;
+  return `${d}d${rh ? `${rh}h` : ""}`;
 }
 
 function safeString(value: unknown): string {
@@ -31,6 +59,36 @@ function safeString(value: unknown): string {
 
 function normalizeSearch(value: string): string {
   return value.trim().toLowerCase();
+}
+
+function isBlockedStatus(status: AgentBoardAgentStatus | null | undefined): boolean {
+  const raw = safeString(status?.blocked).trim();
+  if (!raw) return false;
+  if (raw === "-") return false;
+  return true;
+}
+
+function buildAgentRows(board: AgentBoard | null): AgentStatusRow[] {
+  if (!board) return [];
+  const now = Date.now();
+  return Object.entries(board.agents ?? {})
+    .map(([agent, status]) => {
+      const updatedAt = safeString(status?.updated_at).trim();
+      const updatedMillis = parseIsoMillis(updatedAt);
+      const ageMinutes = updatedMillis == null ? null : (now - updatedMillis) / 60000;
+      const tags = Array.isArray(status?.tags)
+        ? status.tags.map((t) => safeString(t).trim()).filter(Boolean)
+        : [];
+      return {
+        agent,
+        status: status ?? {},
+        updatedAt,
+        ageMinutes,
+        isBlocked: isBlockedStatus(status),
+        tags,
+      };
+    })
+    .sort((a, b) => safeString(b.updatedAt).localeCompare(safeString(a.updatedAt)));
 }
 
 function buildThreads(board: AgentBoard | null): ThreadSummary[] {
@@ -86,12 +144,38 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
   const [statusNote, setStatusNote] = useState("");
   const [statusTags, setStatusTags] = useState("ui");
 
+  const [agentQuery, setAgentQuery] = useState("");
+  const [showBlockedOnly, setShowBlockedOnly] = useState(false);
+
   const [noteTopic, setNoteTopic] = useState("[FYI][coordination] ");
   const [noteMessage, setNoteMessage] = useState("");
   const [noteTags, setNoteTags] = useState("ui,coordination");
   const [noteReplyTo, setNoteReplyTo] = useState<string>("");
 
+  const agentRows = useMemo(() => buildAgentRows(board), [board]);
   const threads = useMemo(() => buildThreads(board), [board]);
+
+  const filteredAgentRows = useMemo(() => {
+    const q = normalizeSearch(agentQuery);
+    return agentRows.filter((row) => {
+      if (showBlockedOnly && !row.isBlocked) return false;
+      if (!q) return true;
+      const st = row.status ?? {};
+      const hay = normalizeSearch(
+        [
+          row.agent,
+          safeString(st.doing),
+          safeString(st.blocked),
+          safeString(st.next),
+          safeString(st.note),
+          row.tags.join(" "),
+        ].join(" ")
+      );
+      return hay.includes(q);
+    });
+  }, [agentQuery, agentRows, showBlockedOnly]);
+
+  const blockedCount = useMemo(() => agentRows.filter((r) => r.isBlocked).length, [agentRows]);
 
   const selectedNotes = useMemo(() => {
     if (!board || !selectedThreadId) return [];
@@ -141,6 +225,18 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    const cur = board?.agents?.[actorName];
+    if (!cur) return;
+    const anyFilled = Boolean(statusDoing.trim() || statusBlocked.trim() || statusNext.trim() || statusNote.trim());
+    if (anyFilled) return;
+    if (cur.doing) setStatusDoing(String(cur.doing));
+    if (cur.blocked) setStatusBlocked(String(cur.blocked));
+    if (cur.next) setStatusNext(String(cur.next));
+    if (cur.note) setStatusNote(String(cur.note));
+    if (Array.isArray(cur.tags) && cur.tags.length) setStatusTags(cur.tags.join(","));
+  }, [actorName, board, statusBlocked, statusDoing, statusNext, statusNote]);
 
   const submitStatus = useCallback(async () => {
     setLoading(true);
@@ -226,6 +322,64 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
       {error ? <div className="agent-board__error">Error: {error}</div> : null}
 
       <div className="agent-board__grid">
+        <div className="agent-board__panel agent-board__panel--wide">
+          <div className="agent-board__panel-title">Now</div>
+          <div className="agent-board__now-meta">
+            <span>
+              agents: <span className="agent-board__mono">{agentRows.length}</span>
+            </span>
+            <span>
+              blocked:{" "}
+              <span className={`agent-board__mono ${blockedCount ? "agent-board__danger" : ""}`}>{blockedCount}</span>
+            </span>
+            <span className="agent-board__muted">（このMacの board.json をそのまま表示）</span>
+          </div>
+          <div className="agent-board__now-controls">
+            <input
+              className="agent-board__input agent-board__input--compact"
+              placeholder="search agent/doing/blocked/next/tags…"
+              value={agentQuery}
+              onChange={(e) => setAgentQuery(e.target.value)}
+            />
+            <label className="agent-board__checkbox">
+              <input type="checkbox" checked={showBlockedOnly} onChange={(e) => setShowBlockedOnly(e.target.checked)} />
+              blocked only
+            </label>
+          </div>
+          <div className="agent-board__table-wrap">
+            <table className="agent-board__table">
+              <thead>
+                <tr>
+                  <th>agent</th>
+                  <th>doing</th>
+                  <th>blocked</th>
+                  <th>next</th>
+                  <th>tags</th>
+                  <th>age</th>
+                  <th>updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAgentRows.map((row) => {
+                  const st = row.status ?? {};
+                  const blocked = safeString(st.blocked).trim();
+                  return (
+                    <tr key={row.agent} className={row.isBlocked ? "agent-board__row--blocked" : ""}>
+                      <td className="agent-board__mono">{row.agent}</td>
+                      <td className="agent-board__note">{safeString(st.doing) || "—"}</td>
+                      <td className={`agent-board__note ${blocked ? "agent-board__danger" : ""}`}>{blocked || "—"}</td>
+                      <td className="agent-board__note">{safeString(st.next) || "—"}</td>
+                      <td className="agent-board__mono">{row.tags.length ? row.tags.join(",") : "—"}</td>
+                      <td className="agent-board__mono">{formatAge(row.ageMinutes)}</td>
+                      <td>{formatDateTime(row.updatedAt)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div className="agent-board__panel">
           <div className="agent-board__panel-title">Ownership</div>
           <div className="agent-board__table-wrap">
@@ -286,7 +440,7 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
           </div>
         </div>
 
-        <div className="agent-board__panel">
+        <div className="agent-board__panel agent-board__panel--wide">
           <div className="agent-board__panel-title">Thread</div>
           {selectedThreadId ? (
             <div className="agent-board__thread-detail">

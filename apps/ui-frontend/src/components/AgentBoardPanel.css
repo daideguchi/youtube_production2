@@ -65,8 +65,7 @@
   .agent-board__grid {
     grid-template-columns: 1fr 1fr;
   }
-  .agent-board__panel:nth-child(3),
-  .agent-board__panel:nth-child(6) {
+  .agent-board__panel--wide {
     grid-column: 1 / -1;
   }
 }
@@ -243,8 +242,43 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+.agent-board__danger {
+  color: #b3261e;
+}
+
 .agent-board__muted {
   color: #666;
   font-size: 12px;
 }
 
+.agent-board__now-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: #444;
+}
+
+.agent-board__now-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.agent-board__input--compact {
+  max-width: 520px;
+}
+
+.agent-board__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #444;
+  user-select: none;
+}
+
+.agent-board__row--blocked td {
+  background: #fff4f4;
+}

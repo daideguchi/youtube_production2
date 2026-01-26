@@ -13,7 +13,15 @@ export function AgentBoardPage() {
 
   return (
     <div style={{ padding: "16px" }}>
-      <h1 style={{ margin: "0 0 10px" }}>Shared Board</h1>
+      <h1 style={{ margin: "0 0 10px" }}>Shared Board（申し送り/進捗）</h1>
+      <div style={{ color: "#555", fontSize: 13, marginBottom: 12, lineHeight: 1.6 }}>
+        <div>
+          ここは <code>board.json</code>（このMacのローカル）をUIで見るためのページです。
+        </div>
+        <div>
+          まず <b>Now → blocked only</b> で「止まってる理由」を確認 → 次に <b>Threads</b> で詳細ログを追う、がオススメです。
+        </div>
+      </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
         <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ color: "#555" }}>from</span>
@@ -31,4 +39,3 @@ export function AgentBoardPage() {
     </div>
   );
 }
-
