@@ -99,6 +99,28 @@ Notion（同一情報の入口）:
   - violations_total=0（Hotが共有/外部only・壊れsymlink・ローカル欠損を解消）
   - warnings_total=647 は `video_run_missing`（未着手/未生成の回）で、P0違反ではない
 
+### 追記（2026-01-26T10:25Z）
+
+- `hot_assets_doctor --all-channels --limit 20` の観測（サンプル）:
+  - violations_total=20（`run_dir_symlink_broken`: 17 / `draft_missing_locally`: 3）
+  - 主に CH02（043〜）の CapCut ドラフト名の揺れ（末尾 `(2)` 等）により参照切れが再発
+- 追加で適用（P0止血）:
+  - CH01-252: `relink_capcut_draft.py` で `draft_path` を実在ドラフトへ付け替え
+    - 旧: `.../★CH01-252-...（5タイプ）`（存在しない）
+    - 新: `.../★CH01-252-...（5タ`（実在。ファイル名長の都合でOS側が切っている可能性）
+    - コマンド: `python3 scripts/ops/relink_capcut_draft.py --episode CH01-252 --draft-dir \".../★CH01-252-...（5タ\" --run`
+    - 退避: `workspaces/video/runs/CH01-252_capcut_v3/capcut_draft.symlink_backup__20260126T102501Z`
+  - 結果: CH01 は violations=0 を確認
+- CH02（043/044/045）: 既存ドラフトは存在するが、run_dir 側が旧名を参照しているため要 relink（ロック解除待ち）
+  - 実在ドラフト:
+    - `.../★CH02-043-...理由(2)`
+    - `.../★CH02-044-...脳(4)`
+    - `.../★CH02-045-...理由(5)`
+  - 適用（ロック解除後）:
+    - `python3 scripts/ops/relink_capcut_draft.py --episode CH02-043 --draft-dir \"...理由(2)\" --run`
+    - `python3 scripts/ops/relink_capcut_draft.py --episode CH02-044 --draft-dir \"...脳(4)\" --run`
+    - `python3 scripts/ops/relink_capcut_draft.py --episode CH02-045 --draft-dir \"...理由(5)\" --run`
+
 ---
 
 ## 0.3) 2026-01-26: 現状（Lenovo外付け復旧中）と、このフェーズのゴール
