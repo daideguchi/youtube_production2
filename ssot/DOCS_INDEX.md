@@ -111,6 +111,7 @@
 - `ops/OPS_VIDEO_ASSET_PACK.md`: 編集ソフト非依存の「エピソード資産束」（Git追跡）。CapCut以外の制作ルートもここに寄せる。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md` (Reference): VOICEVOX読み監査の深掘り手順（詳細/背景）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
+- `ops/OPS_CAPCUT_DRAFT_SOP.md`: CapCutドラフトの内部仕様・安全運用・復旧手順（root_meta_info.json 全損防止）。
 - `ops/OPS_CAPCUT_DRAFT_EDITING_WORKFLOW.md`: CapCutドラフト作成/編集の運用（Macメイン + 共有ストレージ連携。Draft Pack退避/復帰）。
 - `ops/OPS_HOTSET_POLICY.md`: Hot（未投稿）/Freeze（未投稿だが当面触らない）の確定ルール（削除事故防止）。
 - `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md` (Reference): 全チャンネル共通 CapCutドラフト生成SOP（auto_capcut_run / safe_image_swap）。
