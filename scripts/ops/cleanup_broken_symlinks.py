@@ -20,6 +20,7 @@ SSOT:
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import os
 from dataclasses import dataclass
@@ -95,6 +96,7 @@ def collect_candidates(
     include_archive: bool,
     include_episodes: bool,
     ignore_locks: bool,
+    path_globs: list[str],
 ) -> tuple[list[BrokenSymlink], list[dict[str, Any]]]:
     candidates: list[BrokenSymlink] = []
     skipped_locked: list[dict[str, Any]] = []
@@ -116,6 +118,13 @@ def collect_candidates(
             # Path.exists() follows the link; broken links return False.
             if p.exists():
                 continue
+            if path_globs:
+                try:
+                    rel = p.absolute().relative_to(repo_paths.repo_root()).as_posix()
+                except Exception:
+                    rel = str(p)
+                if not any(fnmatch.fnmatchcase(rel, g) for g in path_globs):
+                    continue
             blocking = find_blocking_lock(p, locks) if locks else None
             if blocking:
                 skipped_locked.append(
@@ -173,6 +182,13 @@ def main() -> int:
         action="store_true",
         help="Do not respect coordination locks (dangerous; default: respect locks).",
     )
+    ap.add_argument(
+        "--path-glob",
+        action="append",
+        default=[],
+        help="Only target symlinks whose repo-relative path matches this glob (repeatable). "
+        "Example: workspaces/video/runs/CH02-*",
+    )
     ap.add_argument("--max-print", type=int, default=120, help="Max candidates to print (default: 120).")
     args = ap.parse_args()
 
@@ -185,6 +201,7 @@ def main() -> int:
         include_archive=include_archive,
         include_episodes=bool(args.include_episodes),
         ignore_locks=bool(args.ignore_locks),
+        path_globs=[str(x).strip() for x in (args.path_glob or []) if str(x).strip()],
     )
 
     max_print = max(0, int(args.max_print))
@@ -208,6 +225,7 @@ def main() -> int:
             "archive": include_archive,
             "episodes": bool(args.include_episodes),
         },
+        "filters": {"path_globs": [str(x).strip() for x in (args.path_glob or []) if str(x).strip()]},
         "counts": {
             "candidates": len(candidates),
             "skipped_locked": len(skipped_locked),
