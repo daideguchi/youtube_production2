@@ -2569,3 +2569,19 @@ archive-first:
 
 検証:
 - `python3 scripts/ops/repo_sanity_audit.py --verbose` が green（tracked symlink 0）
+
+### 3) CI（LLM Smoke）失敗: repo root `assets/`（contactsheet画像の誤混入）を除去
+
+背景:
+- GitHub Actions `LLM Smoke` が `repo_sanity_audit` で失敗していた。
+- 原因は repo root に `assets/` ディレクトリが生成物として混入していたこと（例: `assets/CHxx/library/qc/contactsheet.png`）。
+
+実行:
+- repo root の誤混入 `assets/` を削除（tracked）:
+  - `assets/`（contactsheet 画像 26枚、合計 約192MB）
+- fix commit:
+  - `9a922663 ci(llm_smoke): remove accidental repo-root assets`
+
+検証:
+- `python3 scripts/ops/repo_sanity_audit.py --verbose` → `[ok] repo root layout drift: none`
+- `./ops ssot audit -- --strict` → `problems=0`
