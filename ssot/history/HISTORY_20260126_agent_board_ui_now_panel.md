@@ -23,3 +23,6 @@
   - `apps/ui-frontend/src/components/AgentBoardPanel.css`
   - `apps/ui-frontend/src/pages/AgentBoardPage.tsx`
 
+追記（日本語併記）:
+- UI上の主要ラベルを **日英併記** に変更（「私が見る」前提で直感性を上げる）。
+- commit: `fdf258d2`
