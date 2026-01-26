@@ -24,7 +24,7 @@ export function AgentBoardPage() {
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
         <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ color: "#555" }}>from</span>
+          <span style={{ color: "#555" }}>from（投稿者）</span>
           <input
             value={actorName}
             onChange={(e) => setActorName(e.target.value)}

@@ -305,16 +305,16 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
     <div className="agent-board">
       <div className="agent-board__header">
         <div>
-          <div className="agent-board__title">Shared Board</div>
+          <div className="agent-board__title">Shared Board（共有ボード）</div>
           <div className="agent-board__meta">
-            <span>queue: {queueDir || "—"}</span>
-            <span>path: {boardPath || "—"}</span>
-            <span>updated: {formatDateTime(board?.updated_at)}</span>
+            <span>queue（キュー）: {queueDir || "—"}</span>
+            <span>path（パス）: {boardPath || "—"}</span>
+            <span>updated（更新）: {formatDateTime(board?.updated_at)}</span>
           </div>
         </div>
         <div className="agent-board__actions">
           <button className="agent-board__btn" onClick={refresh} disabled={loading}>
-            Refresh
+            Refresh（更新）
           </button>
         </div>
       </div>
@@ -323,13 +323,13 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
 
       <div className="agent-board__grid">
         <div className="agent-board__panel agent-board__panel--wide">
-          <div className="agent-board__panel-title">Now</div>
+          <div className="agent-board__panel-title">Now（いま）</div>
           <div className="agent-board__now-meta">
             <span>
-              agents: <span className="agent-board__mono">{agentRows.length}</span>
+              agents（エージェント）: <span className="agent-board__mono">{agentRows.length}</span>
             </span>
             <span>
-              blocked:{" "}
+              blocked（詰まり）:{" "}
               <span className={`agent-board__mono ${blockedCount ? "agent-board__danger" : ""}`}>{blockedCount}</span>
             </span>
             <span className="agent-board__muted">（このMacの board.json をそのまま表示）</span>
@@ -337,26 +337,26 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
           <div className="agent-board__now-controls">
             <input
               className="agent-board__input agent-board__input--compact"
-              placeholder="search agent/doing/blocked/next/tags…"
+              placeholder="search（検索）: agent/doing/blocked/next/tags…"
               value={agentQuery}
               onChange={(e) => setAgentQuery(e.target.value)}
             />
             <label className="agent-board__checkbox">
               <input type="checkbox" checked={showBlockedOnly} onChange={(e) => setShowBlockedOnly(e.target.checked)} />
-              blocked only
+              blocked only（詰まりのみ）
             </label>
           </div>
           <div className="agent-board__table-wrap">
             <table className="agent-board__table">
               <thead>
                 <tr>
-                  <th>agent</th>
-                  <th>doing</th>
-                  <th>blocked</th>
-                  <th>next</th>
-                  <th>tags</th>
-                  <th>age</th>
-                  <th>updated</th>
+                  <th>agent（エージェント）</th>
+                  <th>doing（作業中）</th>
+                  <th>blocked（ブロッカー）</th>
+                  <th>next（次）</th>
+                  <th>tags（タグ）</th>
+                  <th>age（経過）</th>
+                  <th>updated（更新時刻）</th>
                 </tr>
               </thead>
               <tbody>
@@ -381,16 +381,16 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
         </div>
 
         <div className="agent-board__panel">
-          <div className="agent-board__panel-title">Ownership</div>
+          <div className="agent-board__panel-title">Ownership（担当）</div>
           <div className="agent-board__table-wrap">
             <table className="agent-board__table">
               <thead>
                 <tr>
-                  <th>area</th>
-                  <th>owner</th>
-                  <th>reviewers</th>
-                  <th>updated</th>
-                  <th>note</th>
+                  <th>area（領域）</th>
+                  <th>owner（担当）</th>
+                  <th>reviewers（レビュー）</th>
+                  <th>updated（更新）</th>
+                  <th>note（メモ）</th>
                 </tr>
               </thead>
               <tbody>
@@ -411,10 +411,10 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
         </div>
 
         <div className="agent-board__panel">
-          <div className="agent-board__panel-title">Threads</div>
+          <div className="agent-board__panel-title">Threads（スレッド一覧）</div>
           <input
             className="agent-board__input"
-            placeholder="search topic/agent/message…"
+            placeholder="search（検索）: topic/agent/message…"
             value={threadQuery}
             onChange={(e) => setThreadQuery(e.target.value)}
           />
@@ -441,10 +441,10 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
         </div>
 
         <div className="agent-board__panel agent-board__panel--wide">
-          <div className="agent-board__panel-title">Thread</div>
+          <div className="agent-board__panel-title">Thread（スレッド詳細）</div>
           {selectedThreadId ? (
             <div className="agent-board__thread-detail">
-              <div className="agent-board__mono agent-board__thread-id">thread_id: {selectedThreadId}</div>
+              <div className="agent-board__mono agent-board__thread-id">thread_id（スレッドID）: {selectedThreadId}</div>
               {selectedNotes.map((n) => (
                 <div key={n.id} className="agent-board__note-card">
                   <div className="agent-board__note-head">
@@ -459,19 +459,19 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
               ))}
             </div>
           ) : (
-            <div className="agent-board__muted">No thread selected.</div>
+            <div className="agent-board__muted">スレッド未選択（No thread selected）</div>
           )}
         </div>
 
         <div className="agent-board__panel">
-          <div className="agent-board__panel-title">My Status ({actorName})</div>
+          <div className="agent-board__panel-title">My Status（自分の状態） ({actorName})</div>
           <div className="agent-board__form">
             <label>
-              doing
+              doing（作業中）
               <input className="agent-board__input" value={statusDoing} onChange={(e) => setStatusDoing(e.target.value)} />
             </label>
             <label>
-              blocked
+              blocked（ブロッカー）
               <input
                 className="agent-board__input"
                 value={statusBlocked}
@@ -479,45 +479,45 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
               />
             </label>
             <label>
-              next
+              next（次）
               <input className="agent-board__input" value={statusNext} onChange={(e) => setStatusNext(e.target.value)} />
             </label>
             <label>
-              note
+              note（メモ）
               <input className="agent-board__input" value={statusNote} onChange={(e) => setStatusNote(e.target.value)} />
             </label>
             <label>
-              tags (csv)
+              tags（タグ, csv）
               <input className="agent-board__input" value={statusTags} onChange={(e) => setStatusTags(e.target.value)} />
             </label>
             <div className="agent-board__row">
               <button className="agent-board__btn" onClick={submitStatus} disabled={loading}>
-                Update
+                Update（更新）
               </button>
               <button className="agent-board__btn agent-board__btn--ghost" onClick={clearStatus} disabled={loading}>
-                Clear
+                Clear（解除）
               </button>
             </div>
           </div>
         </div>
 
         <div className="agent-board__panel">
-          <div className="agent-board__panel-title">Post Note</div>
+          <div className="agent-board__panel-title">Post Note（書き込み）</div>
           <div className="agent-board__form">
             <label>
-              topic
+              topic（件名）
               <input className="agent-board__input" value={noteTopic} onChange={(e) => setNoteTopic(e.target.value)} />
             </label>
             <label>
-              reply_to (note_id)
+              reply_to（返信先 note_id）
               <input className="agent-board__input" value={noteReplyTo} onChange={(e) => setNoteReplyTo(e.target.value)} />
             </label>
             <label>
-              tags (csv)
+              tags（タグ, csv）
               <input className="agent-board__input" value={noteTags} onChange={(e) => setNoteTags(e.target.value)} />
             </label>
             <label>
-              message
+              message（本文）
               <textarea
                 className="agent-board__textarea"
                 value={noteMessage}
@@ -527,7 +527,7 @@ export function AgentBoardPanel(props: AgentBoardPanelProps) {
             </label>
             <div className="agent-board__row">
               <button className="agent-board__btn" onClick={submitNote} disabled={loading}>
-                Post
+                Post（投稿）
               </button>
             </div>
             <div className="agent-board__muted">
