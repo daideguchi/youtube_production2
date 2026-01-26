@@ -242,6 +242,33 @@
   - `SKIP_TTS_READING=0` は **禁止**（`YTM_ROUTING_LOCKDOWN=1` では使わない）。必要な場合のみ `YTM_EMERGENCY_OVERRIDE=1` を明示してから。
   - 誤読防止（常時ON）: VOICEVOX実読と期待読みが1件でもズレたら停止し、`workspaces/scripts/{CH}/{VID}/audio_prep/reading_mismatches__*.json` を出力する（誤読混入を禁止）。
 
+## SoT / エディタ資産のパス（運用）
+
+“どこに何を保存するか” がブレると、別PC編集・URL閲覧・復旧が破綻するため、env で切替点を固定する。
+
+絶対ルール（ストレージ思想）:
+- メインは **Mac**。Hot（未投稿のCapCutドラフト/編集中素材/実行中runの入力）は **Macローカルに実体がある**こと。
+- 共有ストレージは容量/閲覧/UI/ミラー用途。外部が不安定な間は「共有にしか無い状態」を作らない（共有は復旧後に後追い同期でよい）。
+- パスは `factory_common.paths` を通し、manifest等で `Path.resolve()` による外部マウント実パスの埋め込みを避ける。
+- `YTM_SHARED_STORAGE_ROOT/README_MOUNTPOINT.txt` が存在する場合は「共有ダウン」とみなし、Macローカルで作業を継続する（ミラー/同期は復旧後）。
+
+- `YTM_WORKSPACE_ROOT`（強く推奨）: SoT（`workspaces/**`）の正本ルート
+  - 未設定時は `<repo>/workspaces`（二重SoTが発生しやすいので、常駐運用では避ける）
+  - 共有運用では `<SHARE_ROOT>/ytm_workspaces` を指す（関連: `ssot/ops/OPS_SHARED_WORKSPACES_REMOTE_UI.md`）
+- `YTM_VAULT_WORKSPACES_ROOT`（推奨: “Macローカル→保管庫ミラー” の宛先）: 保管庫側の `ytm_workspaces/` ルート
+  - 目的: Macローカル `workspaces/**` を保管庫 `ytm_workspaces/**` に **作成/更新 + 削除同期** する
+  - 初回: `./ops mirror workspaces -- --bootstrap-dest --ensure-dirs`（delete-sync事故防止のsentinel作成）
+  - 使用: `./ops mirror workspaces -- --run`（既定で planning は除外）
+- `YTM_PLANNING_ROOT`（推奨: “進捗SSOTを一本化” したい場合）: planning SoT のルート
+  - 未設定時: `<workspace_root>/planning`
+  - 使いどころ: `workspaces/**` はMacローカルのまま、`planning/` だけ共有に置きたい（進捗の巻き戻しを防ぐ）
+  - 注意: どのホスト（Mac/Acer等）でも **同じ planning を参照** すること（planningだけ二重化すると破綻する）
+- `YTM_ASSET_VAULT_ROOT`（推奨）: 共有素材庫（Asset Vault）のルート（BGM/SE/画像/フォント/テンプレ）
+  - 未設定なら（`YTM_SHARED_STORAGE_ROOT` が設定済みの場合）: `<shared_root>/asset_vault`
+- `YTM_CAPCUT_WORKSET_ROOT`（推奨）: CapCut編集用 Workset のルート（Hot・ローカル（内蔵SSD）。外付けSSDは任意）
+  - 未設定時の既定: `YTM_OFFLOAD_ROOT/capcut_worksets` → `~/capcut_worksets`
+  - 共有（SMB/Tailscale）上のWorkset運用は禁止（編集体感が落ちる）
+
 ## 書庫/退避（容量対策）
 
 用途:
@@ -265,10 +292,17 @@
 - `YTM_SHARED_STORAGE_ROOT`（共有ストレージを使う場合は必須）: 共有ストレージ root（例: `/Volumes/ytm_share`）
   - 目的: 最終成果物（L1）を共有ストレージへ **保存/退避** して複数マシンで再利用する（“双方向同期” はしない）
   - パス契約（SoT）: パイプラインが参照するのは常に `workspaces/**`
-    - `--symlink-back` を使った場合、`workspaces/**` の該当ファイルは共有側への symlink になるため、共有が未マウントなら停止/失敗する（サイレントfallbackしない）
+    - `--symlink-back` を使った場合、`workspaces/**` の該当ファイルは共有側への symlink になるため、共有が未マウントなら停止/失敗する（事故防止のため、共有ダウン中の `--symlink-back/--move` は禁止）
+  - ハイブリッド運用（推奨）:
+    - 共有が未マウント（例: `README_MOUNTPOINT.txt` があるstub）でも **Macの生成/編集は止めない**
+    - L1 bytes store は **ローカルoutboxへフォールバック**して保存を継続し、共有復旧後に後追い同期する（ログ/manifestで明示）
   - 仕様: `ssot/ops/OPS_SHARED_ASSET_STORE.md`
 - `YTM_SHARED_STORAGE_NAMESPACE`（省略可）: 共有側の名前空間（未指定時は `repo_root().name`）
   - 共有側ベース（固定）: `$YTM_SHARED_STORAGE_ROOT/uploads/$YTM_SHARED_STORAGE_NAMESPACE/`
+- `YTM_SHARED_STORAGE_FALLBACK_ROOT`（省略可）: 共有ダウン時のフォールバック先root（ローカルoutbox）
+  - 共有ダウン判定（例: `YTM_SHARED_STORAGE_ROOT/README_MOUNTPOINT.txt` があるstub / SMB未マウント）時のみ使用する
+  - 既定（自動）: `YTM_SHARED_STORAGE_ROOT/ytm_workspaces` がローカル退避先へ symlink の場合、その target 親（例: `.../outbox/ytm_share/`）を採用
+  - 上書きが必要な時だけ指定する（例: `~/doraemon_hq/magic_files/_fallback_storage/lenovo_share_unavailable`）
 
 ## Script pipeline: Web Search（topic_research の検索/ファクトチェック）
 `packages/script_pipeline/runner.py` の `topic_research` で利用され、`content/analysis/research/search_results.json` に保存される。

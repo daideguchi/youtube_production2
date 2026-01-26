@@ -21,6 +21,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -65,12 +66,87 @@ def _shared_root_or_die() -> Path:
     return root
 
 
-def _shared_base_or_die() -> Path:
-    _shared_root_or_die()
-    base = repo_paths.shared_storage_base()
-    if base is None:
-        raise SystemExit("[POLICY] Missing YTM_SHARED_STORAGE_ROOT (shared storage root is required).")
-    return base
+def _shared_base_for(root: Path) -> Path:
+    ns = repo_paths.shared_storage_namespace()
+    if root.name == "uploads":
+        return root / ns
+    return root / "uploads" / ns
+
+
+def _is_lenovo_share_stub(root: Path) -> bool:
+    try:
+        return (root / "README_MOUNTPOINT.txt").exists()
+    except Exception:
+        return False
+
+
+def _fallback_shared_root(*, configured_root: Path) -> Path:
+    override = str(os.getenv("YTM_SHARED_STORAGE_FALLBACK_ROOT") or "").strip()
+    if override:
+        return Path(override).expanduser()
+
+    try:
+        link = configured_root / "ytm_workspaces"
+        if link.is_symlink():
+            target = Path(os.readlink(link))
+            if not target.is_absolute():
+                target = (link.parent / target)
+            share_root = target.parent
+            if share_root.exists() and share_root.is_dir():
+                return share_root
+    except Exception:
+        pass
+
+    return Path.home() / "doraemon_hq" / "magic_files" / "_fallback_storage" / "lenovo_share_unavailable"
+
+
+@dataclass(frozen=True)
+class SharedCtx:
+    configured_root: Path
+    effective_root: Path
+    base: Path
+    offline_fallback: bool
+    offline_reason: str | None
+
+
+def _resolve_shared_ctx(*, run: bool) -> SharedCtx:
+    configured = _shared_root_or_die()
+    offline = False
+    reason: str | None = None
+    if _is_lenovo_share_stub(configured):
+        offline = True
+        reason = "mountpoint stub detected (README_MOUNTPOINT.txt)"
+    elif sys.platform == "darwin":
+        if "lenovo_share" in str(configured):
+            # mirror logic from shared_storage_sync.py (best-effort)
+            try:
+                proc = subprocess.run(
+                    ["/sbin/mount"],
+                    capture_output=True,
+                    text=True,
+                    errors="replace",
+                    check=False,
+                )
+                mp = os.path.realpath(str(configured))
+                needle = f" on {mp} "
+                mounted = any(needle in line and "(smbfs," in line for line in (proc.stdout or "").splitlines())
+            except Exception:
+                mounted = False
+            if not mounted:
+                offline = True
+                reason = "Lenovo SMB share not mounted (smbfs not detected)"
+
+    effective = configured if not offline else _fallback_shared_root(configured_root=configured)
+    base = _shared_base_for(effective)
+    if bool(run) and bool(offline):
+        (base / "manifests").mkdir(parents=True, exist_ok=True)
+    return SharedCtx(
+        configured_root=configured,
+        effective_root=effective,
+        base=base,
+        offline_fallback=bool(offline),
+        offline_reason=reason,
+    )
 
 
 @dataclass(frozen=True)
@@ -140,14 +216,6 @@ def _plan_items(args: argparse.Namespace) -> list[Item]:
     return items
 
 
-def _dest_for(item: Item, *, channel: str, video: str) -> Path:
-    base = _shared_base_or_die()
-    if item.dest_rel:
-        rel = Path(str(item.dest_rel).lstrip("/"))
-        return base / rel
-    return base / item.kind / channel / video / item.src.name
-
-
 def _run_one(item: Item, *, channel: str, video: str, args: argparse.Namespace) -> int:
     cmd = [
         sys.executable,
@@ -184,16 +252,32 @@ def cmd_run(args: argparse.Namespace) -> int:
     if not items:
         raise SystemExit("[POLICY] No L1 artifacts selected/found for this episode.")
 
-    # Validate shared storage early (no silent fallback).
-    _shared_base_or_die()
+    shared = _resolve_shared_ctx(run=bool(args.run))
+    if bool(shared.offline_fallback) and bool(args.run) and bool(args.symlink_back):
+        raise SystemExit(
+            "[POLICY] Refusing --symlink-back while shared storage is offline.\n"
+            f"- configured_root: {shared.configured_root}\n"
+            f"- fallback_root:   {shared.effective_root}\n"
+            "- action: rerun after share is mounted (or run without --symlink-back)."
+        )
 
     if not bool(args.run):
+        if bool(shared.offline_fallback):
+            print("[OFFLINE] shared episode offload (fallback)")
+            print(f"- configured_root: {shared.configured_root}")
+            print(f"- effective_root:  {shared.effective_root}")
+            if shared.offline_reason:
+                print(f"- reason: {shared.offline_reason}")
         print("[DRY-RUN] shared episode offload")
         print(f"- episode: {ch}-{vv}")
-        print(f"- shared_base: {_shared_base_or_die()}")
+        print(f"- shared_base: {shared.base}")
         print(f"- symlink_back: {bool(args.symlink_back)} (applies to heavy artifacts only)")
         for it in items:
-            dest = _dest_for(it, channel=ch, video=vv)
+            # Mirror shared_storage_sync.py destination logic.
+            if it.dest_rel:
+                dest = shared.base / Path(str(it.dest_rel).lstrip("/"))
+            else:
+                dest = shared.base / it.kind / ch / vv / it.src.name
             post = "symlink-back" if (bool(args.symlink_back) and bool(it.post_symlink_back)) else "keep-local"
             print(f"- {it.kind}: {it.src} -> {dest} (post: {post})")
         print("tip: add --run to execute")

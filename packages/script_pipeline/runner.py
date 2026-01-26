@@ -35,6 +35,7 @@ from factory_common.alignment import (
 from factory_common.paths import (
     audio_final_dir,
     channels_csv_path,
+    planning_root,
     persona_path as persona_md_path,
     research_root,
     repo_root,
@@ -3457,6 +3458,16 @@ def _resolve_repo_path(value: str) -> Path:
     p = Path(value)
     if p.is_absolute():
         return p
+    # Hybrid ops: Planning SoT may be a shared root (YTM_PLANNING_ROOT) even when
+    # the repo-local workspaces tree is hot/local. Treat sources.yaml paths under
+    # `workspaces/planning/**` as relative to Planning SoT (not repo root),
+    # to avoid SoT bifurcation across script/video/UI.
+    #
+    # NOTE: do not Path.resolve() here (network mounts may block).
+    norm = str(value).replace("\\", "/")
+    if norm.startswith("workspaces/planning/"):
+        rel = norm[len("workspaces/planning/") :]
+        return planning_root() / rel
     return PROJECT_ROOT / value
 
 

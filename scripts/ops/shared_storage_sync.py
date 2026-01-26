@@ -59,25 +59,123 @@ def _ensure_dir(p: Path) -> None:
     p.mkdir(parents=True, exist_ok=True)
 
 
-def _shared_root() -> Path:
-    p = repo_paths.shared_storage_root()
-    if p is None:
+def _configured_shared_root() -> Path:
+    root = repo_paths.shared_storage_root()
+    if root is None:
         raise SystemExit("[POLICY] Missing YTM_SHARED_STORAGE_ROOT (shared storage root is required).")
-    if not p.exists() or not p.is_dir():
-        raise SystemExit(f"[POLICY] YTM_SHARED_STORAGE_ROOT is not a directory: {p}")
-    return p
+    if not root.exists() or not root.is_dir():
+        raise SystemExit(f"[POLICY] YTM_SHARED_STORAGE_ROOT is not a directory: {root}")
+    return root
 
 
 def _shared_namespace() -> str:
     return repo_paths.shared_storage_namespace()
 
 
-def _shared_base() -> Path:
-    base = repo_paths.shared_storage_base()
-    if base is None:
-        # Keep policy consistent with _shared_root(): shared storage root is required for sync.
-        raise SystemExit("[POLICY] Missing YTM_SHARED_STORAGE_ROOT (shared storage root is required).")
-    return base
+def _shared_base_for(root: Path) -> Path:
+    if root.name == "uploads":
+        return root / _shared_namespace()
+    return root / "uploads" / _shared_namespace()
+
+
+def _is_lenovo_share_stub(root: Path) -> bool:
+    """
+    Convention: when Lenovo share is down, the mountpoint is replaced with a local stub
+    containing README_MOUNTPOINT.txt to prevent accidental writes.
+    """
+    try:
+        return (root / "README_MOUNTPOINT.txt").exists()
+    except Exception:
+        return False
+
+
+def _is_smbfs_mounted(mountpoint: Path) -> bool:
+    """
+    Detect macOS smbfs mounts via `/sbin/mount`.
+    Best-effort: returns False on any error or non-mac platforms.
+    """
+    if sys.platform != "darwin":
+        return False
+    try:
+        proc = subprocess.run(
+            ["/sbin/mount"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            check=False,
+        )
+    except Exception:
+        return False
+    mp = os.path.realpath(str(mountpoint))
+    needle = f" on {mp} "
+    for line in (proc.stdout or "").splitlines():
+        if needle in line and "(smbfs," in line:
+            return True
+    return False
+
+
+def _fallback_shared_root(*, configured_root: Path) -> Path:
+    override = str(os.getenv("YTM_SHARED_STORAGE_FALLBACK_ROOT") or "").strip()
+    if override:
+        return Path(override).expanduser()
+
+    # Prefer the local backup share tree (when using the mountpoint stub convention).
+    # Example:
+    #   <stub>/ytm_workspaces -> <local_backup_share>/ytm_workspaces
+    # so the effective share root is <local_backup_share>.
+    try:
+        link = configured_root / "ytm_workspaces"
+        if link.is_symlink():
+            target = Path(os.readlink(link))
+            if not target.is_absolute():
+                target = (link.parent / target)
+            share_root = target.parent
+            if share_root.exists() and share_root.is_dir():
+                return share_root
+    except Exception:
+        pass
+    # Default: stable local outbox (shared is optional; Mac must not stop).
+    return Path.home() / "doraemon_hq" / "magic_files" / "_fallback_storage" / "lenovo_share_unavailable"
+
+
+@dataclass(frozen=True)
+class SharedCtx:
+    configured_root: Path
+    effective_root: Path
+    base: Path
+    namespace: str
+    offline_fallback: bool
+    offline_reason: str | None
+
+
+def _resolve_shared_ctx(*, run: bool) -> SharedCtx:
+    configured = _configured_shared_root()
+    namespace = _shared_namespace()
+
+    offline = False
+    reason: str | None = None
+    if _is_lenovo_share_stub(configured):
+        offline = True
+        reason = "mountpoint stub detected (README_MOUNTPOINT.txt)"
+    elif sys.platform == "darwin":
+        # When using the Lenovo share alias paths, require smbfs mount unless stub explicitly exists.
+        if "lenovo_share" in str(configured) and not _is_smbfs_mounted(configured):
+            offline = True
+            reason = "Lenovo SMB share not mounted (smbfs not detected)"
+
+    effective = configured if not offline else _fallback_shared_root(configured_root=configured)
+    base = _shared_base_for(effective)
+    if bool(run) and bool(offline):
+        # Ensure outbox exists (local).
+        _ensure_dir(base / "manifests")
+    return SharedCtx(
+        configured_root=configured,
+        effective_root=effective,
+        base=base,
+        namespace=namespace,
+        offline_fallback=bool(offline),
+        offline_reason=reason,
+    )
 
 
 def _validate_channel(channel: Optional[str]) -> Optional[str]:
@@ -123,6 +221,7 @@ def _plan_sync(
     dest_rel: Optional[str],
     channel: Optional[str],
     video: Optional[str],
+    shared_base: Path,
 ) -> SyncPlan:
     if not src.exists():
         raise SystemExit(f"Source not found: {src}")
@@ -136,7 +235,7 @@ def _plan_sync(
     rel = Path(dest_rel) if (dest_rel and str(dest_rel).strip()) else _derive_dest_rel(kind, src=src, channel=ch, video=vv)
     rel = Path(str(rel).replace("\\\\", "/")).as_posix().lstrip("/")
 
-    dest = _shared_base() / rel
+    dest = shared_base / rel
     sha = _sha256_file(src)
     size = int(src.stat().st_size)
     return SyncPlan(kind=kind, src=src, dest=dest, sha256=sha, size_bytes=size)
@@ -204,7 +303,7 @@ def _replace_with_symlink(src: Path, dest: Path) -> None:
     src.symlink_to(dest)
 
 
-def _write_manifest(plan: SyncPlan, *, dest: Path) -> None:
+def _write_manifest(plan: SyncPlan, *, dest: Path, shared: SharedCtx) -> None:
     _ensure_dir(dest.parent)
     payload = {
         "schema_version": 1,
@@ -213,9 +312,12 @@ def _write_manifest(plan: SyncPlan, *, dest: Path) -> None:
         "sync_kind": plan.kind,
         "repo": {"root": str(repo_paths.repo_root()), "name": repo_paths.repo_root().name},
         "shared": {
-            "root": str(_shared_root()),
-            "namespace": _shared_namespace(),
-            "base": str(_shared_base()),
+            "configured_root": str(shared.configured_root),
+            "effective_root": str(shared.effective_root),
+            "namespace": shared.namespace,
+            "base": str(shared.base),
+            "offline_fallback": bool(shared.offline_fallback),
+            "offline_reason": shared.offline_reason,
         },
         "host": {"hostname": socket.gethostname()},
         "artifact": {
@@ -231,7 +333,18 @@ def _write_manifest(plan: SyncPlan, *, dest: Path) -> None:
 def cmd_sync(args: argparse.Namespace) -> int:
     src = Path(str(args.src)).expanduser()
     if not src.is_absolute():
-        src = (repo_paths.repo_root() / src).resolve()
+        # Do not Path.resolve() here (network mounts/symlinks may block when offline).
+        # We only need a stable absolute path independent of CWD.
+        src = (repo_paths.repo_root() / src)
+
+    shared = _resolve_shared_ctx(run=bool(args.run))
+    if bool(shared.offline_fallback) and bool(args.run) and (bool(getattr(args, "symlink_back", False)) or bool(getattr(args, "move", False))):
+        raise SystemExit(
+            "[POLICY] Refusing --symlink-back/--move while shared storage is offline.\n"
+            f"- configured_root: {shared.configured_root}\n"
+            f"- fallback_root:   {shared.effective_root}\n"
+            "- action: rerun after share is mounted (or store without symlink/move)."
+        )
 
     plan = _plan_sync(
         kind=str(args.kind or "misc"),
@@ -239,6 +352,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
         dest_rel=str(args.dest_rel or "").strip() or None,
         channel=str(args.channel or "").strip() or None,
         video=str(args.video or "").strip() or None,
+        shared_base=shared.base,
     )
 
     if not bool(args.ignore_locks):
@@ -253,11 +367,17 @@ def cmd_sync(args: argparse.Namespace) -> int:
                 print(f"- note: {note}", file=sys.stderr)
             return 2
 
-    manifests_dir = _shared_base() / "manifests" / "shared_sync"
+    manifests_dir = shared.base / "manifests" / "shared_sync"
     manifest_name = f"{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}__{plan.kind}__{plan.sha256[:12]}.json"
     manifest_path = manifests_dir / manifest_name
 
     if not bool(args.run):
+        if bool(shared.offline_fallback):
+            print("[OFFLINE] shared store (fallback)")
+            print(f"- configured_root: {shared.configured_root}")
+            print(f"- effective_root:  {shared.effective_root}")
+            if shared.offline_reason:
+                print(f"- reason: {shared.offline_reason}")
         print("[DRY-RUN] shared store")
         print(f"- src: {plan.src}")
         print(f"- dest: {plan.dest}")
@@ -276,7 +396,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
             if plan.dest.is_file():
                 got = _sha256_file(plan.dest)
                 if got == plan.sha256:
-                    _write_manifest(plan, dest=manifest_path)
+                    _write_manifest(plan, dest=manifest_path, shared=shared)
                     if bool(getattr(args, "symlink_back", False)):
                         _replace_with_symlink(plan.src, plan.dest)
                     elif bool(getattr(args, "move", False)):
@@ -288,7 +408,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
             pass
 
     _atomic_copy(plan.src, plan.dest, overwrite=bool(args.overwrite))
-    _write_manifest(plan, dest=manifest_path)
+    _write_manifest(plan, dest=manifest_path, shared=shared)
     if bool(getattr(args, "symlink_back", False)) or bool(getattr(args, "move", False)):
         _post_copy_verify_or_die(plan)
         if bool(getattr(args, "symlink_back", False)):
