@@ -86,11 +86,19 @@ export function StorageStatusPage() {
     if (data?.shared_storage_stub === true) {
       return { tone: "warn" as Tone, label: "共有OFFLINE/STUB" };
     }
-    if (data?.shared_storage_stub === false) {
+    const baseOk = data?.shared_storage_base_present;
+    const vaultOk = data?.vault_workspaces_present;
+    if (baseOk === false || vaultOk === false) {
+      const missing: string[] = [];
+      if (baseOk === false) missing.push("uploads/<repo>");
+      if (vaultOk === false) missing.push("ytm_workspaces");
+      return { tone: "warn" as Tone, label: `共有不整合 (Missing: ${missing.join(", ")})` };
+    }
+    if (data?.shared_storage_stub === false && baseOk !== null && vaultOk !== null) {
       return { tone: "ok" as Tone, label: "共有OK" };
     }
     return { tone: "info" as Tone, label: "共有状態=不明 (Unknown)" };
-  }, [data?.shared_storage_stub, sharedRoot]);
+  }, [data?.shared_storage_base_present, data?.shared_storage_stub, data?.vault_workspaces_present, sharedRoot]);
 
   const hotSummary = data?.hot_assets ?? null;
   const hotViolations = hotSummary?.violations_total ?? null;
@@ -253,4 +261,3 @@ export function StorageStatusPage() {
     </div>
   );
 }
-

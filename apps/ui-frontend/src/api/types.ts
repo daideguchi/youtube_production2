@@ -2438,6 +2438,8 @@ export interface StorageStatusResponse {
   storage_doctor?: StorageDoctorResponse | null;
   storage_doctor_error?: string | null;
   shared_storage_stub?: boolean | null;
+  shared_storage_base_present?: boolean | null;
+  vault_workspaces_present?: boolean | null;
   vault_sentinel_present?: boolean | null;
   hot_assets?: HotAssetsDoctorSummary | null;
   hot_assets_error?: string | null;

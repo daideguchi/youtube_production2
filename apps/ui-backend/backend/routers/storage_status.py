@@ -126,6 +126,22 @@ def _timed_test_file(path: Path, *, timeout_sec: float = 1.0) -> Optional[bool]:
     return proc.returncode == 0
 
 
+def _timed_test_dir(path: Path, *, timeout_sec: float = 1.0) -> Optional[bool]:
+    try:
+        proc = subprocess.run(
+            ["/bin/bash", "-lc", f"test -d {shlex.quote(str(path))}"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=timeout_sec,
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    except Exception:
+        return None
+    return proc.returncode == 0
+
+
 def _hot_assets_summary() -> tuple[Optional[dict[str, Any]], Optional[str]]:
     if not HOT_ASSETS_REPORT_PATH.exists():
         return None, f"not_found: {HOT_ASSETS_REPORT_PATH}"
@@ -197,13 +213,19 @@ def storage_status(
     hot, hot_err = _hot_assets_summary()
 
     shared_stub: Optional[bool] = None
+    shared_base_present: Optional[bool] = None
+    vault_workspaces_present: Optional[bool] = None
     vault_sentinel: Optional[bool] = None
     if doctor and isinstance(doctor.get("paths"), dict):
         shared_root_raw = doctor["paths"].get("shared_storage_root")
         if isinstance(shared_root_raw, str) and shared_root_raw.strip():
             shared_stub = _timed_test_file(Path(shared_root_raw) / "README_MOUNTPOINT.txt")
+        shared_base_raw = doctor["paths"].get("shared_storage_base")
+        if isinstance(shared_base_raw, str) and shared_base_raw.strip():
+            shared_base_present = _timed_test_dir(Path(shared_base_raw))
         vault_root_raw = doctor["paths"].get("vault_workspaces_root")
         if isinstance(vault_root_raw, str) and vault_root_raw.strip():
+            vault_workspaces_present = _timed_test_dir(Path(vault_root_raw))
             vault_sentinel = _timed_test_file(Path(vault_root_raw) / ".ytm_vault_workspaces_root.json")
 
     value = {
@@ -214,6 +236,8 @@ def storage_status(
         "storage_doctor": doctor,
         "storage_doctor_error": doctor_err,
         "shared_storage_stub": shared_stub,
+        "shared_storage_base_present": shared_base_present,
+        "vault_workspaces_present": vault_workspaces_present,
         "vault_sentinel_present": vault_sentinel,
         "hot_assets": hot,
         "hot_assets_error": hot_err,
@@ -221,4 +245,3 @@ def storage_status(
     _CACHE["at"] = now
     _CACHE["value"] = value
     return value
-
