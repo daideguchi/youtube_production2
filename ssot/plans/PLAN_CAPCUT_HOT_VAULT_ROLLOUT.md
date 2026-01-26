@@ -77,7 +77,10 @@ Notion（同一情報の入口）:
   - 主なch: CH13(29ep), CH22(4ep), CH28(4ep), CH09(3ep), CH26(1ep)
   - candidates は全件あり（zero_candidates=0）→ **実体はあるが参照が古い/別名** の可能性が高い
 - 次アクション（破壊禁止）:
-  - episode毎に candidate を人間が確定し、`run_dir/capcut_draft` と `capcut_draft_info.json` の参照を整合させる（ツール化/手順化が必要）
+  - episode毎に candidate を人間が確定し、`run_dir/capcut_draft` と `capcut_draft_info.json` の参照を整合させる
+  - 入口（safe; dry-run既定 / 明示`--run`のみ適用）:
+    - 候補表示: `python3 scripts/ops/relink_capcut_draft.py --episode CHxx-NNN`
+    - 適用（候補を明示して実行）: `python3 scripts/ops/relink_capcut_draft.py --episode CHxx-NNN --draft-dir \"/path/to/draft\" --run`
 
 ---
 
