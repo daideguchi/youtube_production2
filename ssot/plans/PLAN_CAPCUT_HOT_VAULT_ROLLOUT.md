@@ -84,6 +84,22 @@ Notion（同一情報の入口）:
 
 ---
 
+## 0.2.3) relink 適用ログ（2026-01-26）
+
+- 入口（safe; dry-run既定 / 明示`--run`のみ適用）:
+  - `python3 scripts/ops/relink_capcut_draft.py --episode CHxx-NNN`
+- 適用ログ:
+  - relink計画（single-candidate）: `workspaces/logs/ops/hot_assets_doctor/relink_plan__20260126T071200Z.json`
+  - relink計画（残り; ヒューリスティック）: `workspaces/logs/ops/hot_assets_doctor/relink_plan_remaining__20260126T072100Z.json`
+  - 実行ログ（全件追記）: `workspaces/logs/ops/hot_assets_doctor/relink_applied__20260126.jsonl`
+- 再スキャン:
+  - `workspaces/logs/ops/hot_assets_doctor/report__20260126T072611Z__post_relink.json`
+- 結果（P0）:
+  - violations_total=0（Hotが共有/外部only・壊れsymlink・ローカル欠損を解消）
+  - warnings_total=647 は `video_run_missing`（未着手/未生成の回）で、P0違反ではない
+
+---
+
 ## 0.3) 2026-01-26: 現状（Lenovo外付け復旧中）と、このフェーズのゴール
 
 このフェーズは **「MacのHot運用を止めない」** の止血フェーズ。
