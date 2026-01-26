@@ -204,6 +204,42 @@ def _unique_backup_path(p: Path, *, stamp: str) -> Path:
     return p.with_name(f"{p.name}.symlink_shared_backup_{stamp}__pid{os.getpid()}")
 
 
+def _write_offline_placeholder(dest_dir: Path, *, stamp: str, link: Path, target: Path) -> None:
+    """
+    Write a small marker file explaining why this directory exists.
+
+    This helps humans distinguish "real input dir" vs "offline materialized placeholder".
+    """
+    try:
+        marker = dest_dir / "README_OFFLINE_FALLBACK.txt"
+        marker.write_text(
+            "\n".join(
+                [
+                    "offline_shared_fallback: placeholder directory",
+                    f"- created_at_utc: {stamp}",
+                    f"- link: {link}",
+                    f"- original_target: {target}",
+                    "",
+                    "Why:",
+                    "- The Lenovo SMB share is offline, and this path was a broken symlink into the shared archive.",
+                    "- workspaces/video/input is a mirror (NOT SoT). We materialize it locally so Mac hot work doesn't stop.",
+                    "",
+                    "Next:",
+                    "- If you need inputs here, re-sync from SoT (audio final) via:",
+                    "    PYTHONPATH='.:packages' python3 -m video_pipeline.tools.sync_audio_inputs",
+                    "",
+                    "Safety:",
+                    "- The original symlink was renamed to *.symlink_shared_backup_* before creating this directory.",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+    except Exception:
+        # best-effort marker
+        pass
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="Materialize local fallbacks for offloaded symlinked SoT paths (safe by default)."
@@ -267,6 +303,8 @@ def main() -> int:
         report["warnings"].append(f"video_input_root missing: {video_input_root}")
     else:
         ignored_backup_symlinks = 0
+        materialized_from_archive = 0
+        materialized_empty = 0
         for child in sorted(video_input_root.iterdir()):
             if not child.is_symlink():
                 continue
@@ -289,24 +327,28 @@ def main() -> int:
                 continue
 
             src = local_archives.get(_norm_key(child.name))
-            if src is None:
-                report["warnings"].append(f"no local archive for video/input dir: {child.name}")
-                report["actions"].append(
-                    {"action": "video_input_broken_no_archive", "link": str(child), "target": str(target)}
-                )
-                continue
-
             backup = _unique_backup_path(child, stamp=stamp)
-            report["actions"].append(
-                {
-                    "action": "video_input_materialize_plan",
-                    "link": str(child),
-                    "target": str(target),
-                    "src": str(src),
-                    "backup": str(backup),
-                    "mode": str(args.materialize),
-                }
-            )
+            if src is None:
+                report["warnings"].append(f"no local archive for video/input dir: {child.name} (will create empty dir)")
+                report["actions"].append(
+                    {
+                        "action": "video_input_materialize_empty_dir_plan",
+                        "link": str(child),
+                        "target": str(target),
+                        "backup": str(backup),
+                    }
+                )
+            else:
+                report["actions"].append(
+                    {
+                        "action": "video_input_materialize_plan",
+                        "link": str(child),
+                        "target": str(target),
+                        "src": str(src),
+                        "backup": str(backup),
+                        "mode": str(args.materialize),
+                    }
+                )
 
             if not bool(args.run):
                 continue
@@ -321,11 +363,18 @@ def main() -> int:
 
             # Materialize local fallback.
             try:
-                if str(args.materialize) == "symlink":
-                    os.symlink(str(src), str(child))
+                if src is None:
+                    child.mkdir(parents=False, exist_ok=False)
+                    _write_offline_placeholder(child, stamp=stamp, link=backup, target=target)
+                    materialized_empty += 1
+                    report["actions"].append({"action": "video_input_materialized_empty_dir", "dest": str(child)})
                 else:
-                    shutil.copytree(src, child)
-                report["actions"].append({"action": "video_input_materialized", "dest": str(child), "src": str(src)})
+                    if str(args.materialize) == "symlink":
+                        os.symlink(str(src), str(child))
+                    else:
+                        shutil.copytree(src, child)
+                    materialized_from_archive += 1
+                    report["actions"].append({"action": "video_input_materialized", "dest": str(child), "src": str(src)})
             except Exception as e:  # noqa: BLE001
                 report["warnings"].append(f"failed to materialize fallback: {child} <- {src} ({e})")
                 # Best-effort rollback: restore original symlink name.
@@ -339,6 +388,8 @@ def main() -> int:
                 except Exception:
                     pass
         report.setdefault("stats", {})["video_input_backup_symlinks_ignored"] = int(ignored_backup_symlinks)
+        report.setdefault("stats", {})["video_input_materialized_from_archive"] = int(materialized_from_archive)
+        report.setdefault("stats", {})["video_input_materialized_empty_dir"] = int(materialized_empty)
 
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))

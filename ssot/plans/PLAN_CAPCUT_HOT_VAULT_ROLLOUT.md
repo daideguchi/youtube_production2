@@ -58,6 +58,9 @@ Notion（同一情報の入口）:
   - `workspaces/video/input` の壊れsymlinkについて `video_input_broken_no_archive` が残る（= **Hot対象は別途“実体化”が必要**）
   - `.symlink_shared_backup_*` がスキャンに混ざってノイズになりやすい（運用/実装での除外を検討）
   - `vault_workspaces_root()/video/_archive` に `video_input` の復元ソースがあるケースがある（例: CH02）
+- `offline_shared_fallback.py`（改修後 / 自動run）:
+  - archive が無い壊れsymlinkでも **空ディレクトリで実体化**し、`README_OFFLINE_FALLBACK.txt` を書く（Hot作業が止まらない）
+  - 適用後は `workspaces/video/input` に **非backup symlink が残らない**（= 共有依存が消える）。元symlinkは `*.symlink_shared_backup_*` へ退避される
 
 ---
 
