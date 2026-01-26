@@ -142,10 +142,29 @@ CH02 のロック解除後に止血を完了（P0: Hot資産の参照切れを�
 - Hot assets doctor（全ch, 既定limit）:
   - violations_total=0 を確認
   - 証跡:
-    - 事前: `workspaces/logs/ops/hot_assets_doctor/report__20260126T104035Z__fullscan_pre_CH02_relink.json`
-    - 事後: `workspaces/logs/ops/hot_assets_doctor/report__20260126T110018Z__fullscan_post_CH02_fix.json`
+- 事前: `workspaces/logs/ops/hot_assets_doctor/report__20260126T104035Z__fullscan_pre_CH02_relink.json`
+- 事後: `workspaces/logs/ops/hot_assets_doctor/report__20260126T110018Z__fullscan_post_CH02_fix.json`
 
 ---
+
+## 0.2.3) LaunchAgent（Mac）検証ログ（2026-01-26）
+
+目的: 「未投稿=Hot」を外部自動化で消さない / Lenovo不安定でもMac編集を止めない。
+
+確認した LaunchAgent（`plutil -p`）:
+- `com.doraemon.capcut_purge_archived`（120s）: `/Users/dd/doraemon_hq/ops/capcut_purge_archived.py`
+- `com.doraemon.export_mover`（300s + WatchPaths `EXPORT_HERE`）: `... --capcut-archive-mode copy --primary /__no_lenovo__ --fallback-mode acer_ssh ...`
+- `com.doraemon.capcut_auto_export`（120s）: `/Users/dd/doraemon_hq/ops/capcut_auto_export.py`
+- `ytm.factory_commentary.workspaces_mirror`（600s）: `scripts/ops/workspaces_mirror.py --run`
+
+結論（安全側）:
+- CapCut purge は queue の `allow_purge=true` かつ archive 側に `_ARCHIVED_FROM_MAC.(json|txt)` がある時だけ削除する（CapCut起動中はSKIP / draft_root外は削除拒否）。
+- `export_mover` の既定は `--capcut-archive-mode copy` なので purge enqueue しない（= 未投稿ドラフトを勝手に消す経路になりにくい）。
+- `capcut_auto_export.py` は削除系API/コマンドが見当たらない（auto export は生成のみの想定）。
+- `workspaces_mirror.py` は `README_MOUNTPOINT.txt`（stub）検知で SKIP する（外部ダウンで止めない）。
+
+UIメモ（frontend）:
+- `apps/ui-frontend` で `Module not found (node_modules/...)` が出たら: `cd apps/ui-frontend && npm ci` → `./ops ui restart`。
 
 ## 0.3) 2026-01-26: 現状（Lenovo外付け復旧中）と、このフェーズのゴール
 
