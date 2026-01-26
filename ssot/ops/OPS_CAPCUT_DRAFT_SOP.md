@@ -76,6 +76,14 @@
 - **不用意に `draft_id` を変更すると、別ドラフト扱い / 参照切れ / `(1)` 増殖** の原因になる。
 - 変更が必要なケースは “復旧手順” に従い、必ずバックアップを取って慎重に行う（通常は変更しない）。
 
+### 3.4 自動削除（purge）を信用しない
+
+- 「未投稿（Hot）」が消えるのが最悪の事故なので、**自動での `shutil.rmtree` / purge は既定OFF**が前提。
+- purge をする場合は必ず **二段階ゲート**を通す:
+  1) purge_queue に `allow_purge=true`（明示的な許可）
+  2) archive 側に `_ARCHIVED_FROM_MAC.(json|txt)`（実体が保管されている証拠）
+- purge は **CapCutが起動していない時のみ**（ファイルロック/途中書き回避）。
+
 ---
 
 ## 4) 典型症状 → 原因 → 安全な対処
@@ -169,4 +177,3 @@
 - 置き場戦略（Hot/Warm/Cold）: `ssot/ops/OPS_CAPCUT_DRAFT_STORAGE_STRATEGY.md`
 - CH02固有SOP: `ssot/ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`
 - 実装側メモ（補助）: `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md`
-

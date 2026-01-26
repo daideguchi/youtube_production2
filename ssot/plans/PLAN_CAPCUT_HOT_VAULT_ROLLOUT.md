@@ -142,6 +142,14 @@ P1（次点・事故の再発防止）
 - **P1-2: `workspaces/video/runs` の共有退避が多い**（必要時に “外部だけにある” が起きる可能性）
 - **P1-3: `asset_vault` が未整備/未マウントだと入口が曖昧**（素材追加の運用がブレる）
 - **P1-4: LaunchAgent / 外部スクリプト（repo外）でCapCut資産が動く可能性**（purge/auto export 等の干渉リスク）
+  - 棚卸し（Mac）:
+    - `~/Library/LaunchAgents/com.doraemon.capcut_purge_archived.plist`（2分毎）
+    - `~/Library/LaunchAgents/com.doraemon.export_mover.plist`（5分毎 / 既定 `--capcut-archive-mode copy`）
+    - `~/Library/LaunchAgents/com.doraemon.capcut_auto_export.plist`（2分毎）
+    - `~/Library/LaunchAgents/ytm.factory_commentary.workspaces_mirror.plist`（10分毎）
+  - 共有ダウン（stub）時:
+    - `scripts/ops/workspaces_mirror.py` は `README_MOUNTPOINT.txt` を検知して **SKIP** する（Mac作業を止めない）
+    - purge は `allow_purge=true` + `_ARCHIVED_FROM_MAC.(json|txt)` が揃わない限り走らない（最悪事故を避ける）
 
 P2（観測・運用の強化）
 - **P2-1: “共有ダウン/容量逼迫/ドリフト”の通知が弱い**（気づいた時には詰んでる）

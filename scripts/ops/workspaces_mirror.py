@@ -37,6 +37,7 @@ from factory_common import paths as repo_paths  # noqa: E402
 REPORT_SCHEMA = "ytm.ops.workspaces_mirror.v1"
 VAULT_SENTINEL_SCHEMA = "ytm.vault.workspaces_root.v1"
 VAULT_SENTINEL_NAME = ".ytm_vault_workspaces_root.json"
+MOUNTPOINT_STUB_NAME = "README_MOUNTPOINT.txt"
 
 _RSYNC_HELP_CACHE: dict[str, str] = {}
 
@@ -220,6 +221,17 @@ def _is_smbfs_mounted(mountpoint: Path) -> bool:
     return False
 
 
+def _is_mountpoint_stub(mountpoint: Path) -> bool:
+    """
+    When Lenovo/NAS is down we keep a local directory with a marker file so tools
+    can fail-fast (instead of hanging on a dead smbfs mount).
+    """
+    try:
+        return (mountpoint / MOUNTPOINT_STUB_NAME).exists()
+    except Exception:
+        return False
+
+
 def _rsync_cmd(
     *,
     src_root: Path,
@@ -349,6 +361,15 @@ def _main_with_lock(args: argparse.Namespace) -> int:
     # Guardrail: never write into a local stub when shared storage is offline.
     # (This is the root cause of "SSOT drift" when mounts flap.)
     shared_root = repo_paths.shared_storage_root()
+    if shared_root is not None and _is_relative_to(dest_root, shared_root) and _is_mountpoint_stub(shared_root):
+        print(
+            "[workspaces_mirror] SKIP: shared storage is OFFLINE/STUB (marker present).\n"
+            f"- marker:     {shared_root / MOUNTPOINT_STUB_NAME}\n"
+            f"- dest_root:   {dest_root}\n"
+            "- action: mount Lenovo share (launchd: com.doraemon.mount_lenovo_share) and retry."
+        )
+        raise SystemExit(0)
+
     if shared_root is not None and _is_relative_to(dest_root, shared_root) and not _is_smbfs_mounted(shared_root):
         print(
             "[workspaces_mirror] SKIP: shared storage is not mounted.\n"
