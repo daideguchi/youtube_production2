@@ -213,6 +213,23 @@ def planning_root() -> Path:
     if override:
         # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
         candidate = Path(override).expanduser()
+        # If the shared storage is a mountpoint stub (offline), prefer local
+        # planning so Mac-first ops/UI keep running without depending on the
+        # external share.
+        shared_root = shared_storage_root()
+        if shared_root is not None:
+            try:
+                is_stub = (shared_root / "README_MOUNTPOINT.txt").exists()
+            except Exception:
+                is_stub = False
+            if is_stub:
+                try:
+                    candidate.relative_to(shared_root)
+                except Exception:
+                    pass
+                else:
+                    return workspace_root() / "planning"
+
         # If the mount isn't available, fall back to the local workspace copy so
         # UI/ops tools don't hard-fail with 404s during incidents.
         try:
