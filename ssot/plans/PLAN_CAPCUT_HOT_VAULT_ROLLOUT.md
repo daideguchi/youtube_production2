@@ -121,6 +121,30 @@ Notion（同一情報の入口）:
     - `python3 scripts/ops/relink_capcut_draft.py --episode CH02-044 --draft-dir \"...脳(4)\" --run`
     - `python3 scripts/ops/relink_capcut_draft.py --episode CH02-045 --draft-dir \"...理由(5)\" --run`
 
+### 追記（2026-01-26T11:00Z）
+
+CH02 のロック解除後に止血を完了（P0: Hot資産の参照切れを潰す）。
+
+- CH02 relink（capcut_draft_info.json / run_dir/capcut_draft の参照を実在ドラフトへ更新）:
+  - CH02-043 → `...理由(2)`（旧 `...理由`）
+  - CH02-044 → `...脳(4)`（旧 `...脳`）
+  - CH02-045 → `...理由(5)`（旧 `...理由`）
+  - CH02-083 → `...ストア派(1)`（旧 `...ストア派`）
+  - symlink退避（例）:
+    - `workspaces/video/runs/CH02-043_regen_20260126_145633/capcut_draft.symlink_backup__20260126T105554Z`
+    - `workspaces/video/runs/CH02-044_regen_20260126_153449/capcut_draft.symlink_backup__20260126T105555Z`
+    - `workspaces/video/runs/CH02-045_regen_20260126_155212/capcut_draft.symlink_backup__20260126T105556Z`
+    - `workspaces/video/runs/CH02-083_regen_20260126_113957/capcut_draft.symlink_backup__20260126T105556Z`
+- CH02 壊れsymlink掃除（参照切れノイズ除去）:
+  - 対象: `workspaces/video/runs/CH02-*/capcut_draft` の broken symlink（= target が無いもの）
+  - 方式: unlink ではなく `capcut_draft.symlink_backup__20260126T105933Z` へ rename（復元可能）
+  - 実行ログ: `workspaces/logs/ops/hot_assets_doctor/cleanup_broken_capcut_draft_symlinks__20260126.jsonl`
+- Hot assets doctor（全ch, 既定limit）:
+  - violations_total=0 を確認
+  - 証跡:
+    - 事前: `workspaces/logs/ops/hot_assets_doctor/report__20260126T104035Z__fullscan_pre_CH02_relink.json`
+    - 事後: `workspaces/logs/ops/hot_assets_doctor/report__20260126T110018Z__fullscan_post_CH02_fix.json`
+
 ---
 
 ## 0.3) 2026-01-26: 現状（Lenovo外付け復旧中）と、このフェーズのゴール
