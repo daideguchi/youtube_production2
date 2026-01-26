@@ -111,11 +111,14 @@
 - `ops/OPS_VIDEO_ASSET_PACK.md`: 編集ソフト非依存の「エピソード資産束」（Git追跡）。CapCut以外の制作ルートもここに寄せる。
 - `ops/OPS_TTS_MANUAL_READING_AUDIT.md` (Reference): VOICEVOX読み監査の深掘り手順（詳細/背景）。
 - `ops/OPS_CAPCUT_CH02_DRAFT_SOP.md`: CH02 CapCutドラフト生成SOP（CH02-テンプレ維持・音声挿入・字幕黒背景・機械検証）。
+- `ops/OPS_CAPCUT_DRAFT_EDITING_WORKFLOW.md`: CapCutドラフト作成/編集の運用（Macメイン + 共有ストレージ連携。Draft Pack退避/復帰）。
+- `ops/OPS_HOTSET_POLICY.md`: Hot（未投稿）/Freeze（未投稿だが当面触らない）の確定ルール（削除事故防止）。
 - `packages/video_pipeline/docs/CAPCUT_DRAFT_SOP.md` (Reference): 全チャンネル共通 CapCutドラフト生成SOP（auto_capcut_run / safe_image_swap）。
 - `packages/video_pipeline/config/channel_config_spec.md` (Reference): `packages/video_pipeline/config/channel_presets.json` / `capcut_settings` の仕様メモ（実装参照）。
 - (Register) `ops/IMAGE_API_PROGRESS.md`: 画像API/実装の進捗・運用メモ。
 - `agent_runbooks/README.md`: agent/think-mode（Runbook/キュー運用）の入口。
 - `ops/OPS_AGENT_PLAYBOOK.md`: 低知能エージェントでも迷わないための運用ルール（lock/SoT/削除/パッチ）。
+- `ops/OPS_IMAGE_DDD_STORAGE_MAP_AND_APPROVAL.md`: 保存先/配線/決裁（CapCut快適運用。Notion `image-ddd` の鏡）。
 - `ops/OPS_SHARED_ASSET_STORE.md`: 生成資産を共有ストレージ（Tailscale常駐）へ集約する仕様（SoTはworkspacesのまま）。
 - `ops/OPS_SHARED_WORKSPACES_REMOTE_UI.md`: 共有Workspaces（SoT）で “どこからでも同じUI” を見る（リモート閲覧/運用）。
 - `apps/ui-backend/tools/README.md` (Reference): UI運用ツール群（start_manager / assets_sync 等）の補足。
@@ -157,6 +160,7 @@
 - `plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`: 中間生成物/ログ/最終成果物の保持・削除・アーカイブ規約とcleanup計画。
 - `plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md` (Draft): ディスク軽量化（生成物/ログ/キャッシュの定期整理）。
 - `plans/PLAN_OPS_SLACK_GIT_ARCHIVE.md` (Active): SlackやりとりをGitへ“安全に”要約アーカイブ（PM Inbox）。
+- `plans/PLAN_CAPCUT_HOT_VAULT_ROLLOUT.md` (Active): CapCut運用（Hot=Mac / Vault=Lenovo外付け / UI=Acer常駐）移行手順。
 - `plans/PLAN_THUMBNAILS_SCALE_SYSTEM.md` (Draft): サムネ作成・編集を「高品質×高速×スケール」させる計画（Spec-first/SoT分離/UI-CLI統合）。
 - `plans/PLAN_REMOTION_MAINLINE.md` (Draft): Remotion本線化（CapCut級の自動レンダー）計画。
 
