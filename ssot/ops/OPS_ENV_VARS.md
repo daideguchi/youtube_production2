@@ -263,6 +263,7 @@
   - 未設定時: `<workspace_root>/planning`
   - 使いどころ: `workspaces/**` はMacローカルのまま、`planning/` だけ共有に置きたい（進捗の巻き戻しを防ぐ）
   - 注意: どのホスト（Mac/Acer等）でも **同じ planning を参照** すること（planningだけ二重化すると破綻する）
+  - 共有が不安定で `YTM_PLANNING_ROOT` が到達不能な場合は、実行時に `<workspace_root>/planning` へフォールバックして作業継続する（`./ops storage doctor` の警告で検知する）
 - `YTM_ASSET_VAULT_ROOT`（推奨）: 共有素材庫（Asset Vault）のルート（BGM/SE/画像/フォント/テンプレ）
   - 未設定なら（`YTM_SHARED_STORAGE_ROOT` が設定済みの場合）: `<shared_root>/asset_vault`
 - `YTM_CAPCUT_WORKSET_ROOT`（推奨）: CapCut編集用 Workset のルート（Hot・ローカル（内蔵SSD）。外付けSSDは任意）

@@ -43,7 +43,9 @@ def workspace_root() -> Path:
     """
     override = os.getenv("YTM_WORKSPACE_ROOT")
     if override:
-        return Path(override).expanduser().resolve()
+        # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
+        # resolve() may block for a long time if the mount is slow/unresponsive.
+        return Path(override).expanduser()
     return repo_root() / "workspaces"
 
 
@@ -58,7 +60,8 @@ def offload_root() -> Optional[Path]:
     override = os.getenv("YTM_OFFLOAD_ROOT") or os.getenv("FACTORY_OFFLOAD_ROOT")
     if not override:
         return None
-    return Path(override).expanduser().resolve()
+    # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
+    return Path(override).expanduser()
 
 
 def shared_storage_root() -> Optional[Path]:
@@ -71,7 +74,8 @@ def shared_storage_root() -> Optional[Path]:
     override = os.getenv("YTM_SHARED_STORAGE_ROOT")
     if not override:
         return None
-    return Path(override).expanduser().resolve()
+    # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
+    return Path(override).expanduser()
 
 
 def shared_storage_namespace() -> str:
@@ -103,6 +107,79 @@ def shared_storage_base() -> Optional[Path]:
         return root / shared_storage_namespace()
     return root / "uploads" / shared_storage_namespace()
 
+
+def vault_workspaces_root() -> Optional[Path]:
+    """
+    Optional "vault" workspaces root (shared SoT mirror destination).
+
+    This is the directory that should contain a full `workspaces/**` tree
+    (a.k.a. `ytm_workspaces/`).
+
+    Env override:
+      - YTM_VAULT_WORKSPACES_ROOT
+
+    Default (best-effort):
+      - If YTM_SHARED_STORAGE_ROOT is set and points to the *share root*,
+        use <shared_root>/ytm_workspaces
+      - If YTM_SHARED_STORAGE_ROOT points to ".../uploads", return None (too ambiguous)
+    """
+    override = os.getenv("YTM_VAULT_WORKSPACES_ROOT")
+    if override:
+        # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
+        return Path(override).expanduser()
+
+    root = shared_storage_root()
+    if root is None:
+        return None
+    # Avoid guessing when the configured shared root is already "uploads".
+    if root.name == "uploads":
+        return None
+    return root / "ytm_workspaces"
+
+
+def asset_vault_root() -> Optional[Path]:
+    """
+    Optional shared asset vault root for reusable editor assets (BGM/SE/fonts/images/templates).
+
+    Env override:
+      - YTM_ASSET_VAULT_ROOT
+
+    Default:
+      - If YTM_SHARED_STORAGE_ROOT is set, use <shared_root>/asset_vault
+    """
+    override = os.getenv("YTM_ASSET_VAULT_ROOT")
+    if override:
+        # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
+        return Path(override).expanduser()
+
+    root = shared_storage_root()
+    if root is None:
+        return None
+    return root / "asset_vault"
+
+
+def capcut_worksets_root() -> Path:
+    """
+    Root directory for per-episode CapCut worksets (hot local folders for editing).
+
+    Env override:
+      - YTM_CAPCUT_WORKSET_ROOT
+
+    Default:
+      - If YTM_OFFLOAD_ROOT is set, use <offload_root>/capcut_worksets
+      - Else, use <HOME>/capcut_worksets
+    """
+    override = os.getenv("YTM_CAPCUT_WORKSET_ROOT")
+    if override:
+        return Path(override).expanduser().resolve()
+
+    offload = offload_root()
+    if offload is not None:
+        return (offload / "capcut_worksets").resolve()
+
+    return (Path.home() / "capcut_worksets").resolve()
+
+
 def _norm_channel(ch: str) -> str:
     return str(ch).upper()
 
@@ -118,6 +195,31 @@ def _norm_video(video: str) -> str:
 
 
 def planning_root() -> Path:
+    """
+    Root for Planning SoT (progress/channels csv, patches, personas, etc.).
+
+    Default:
+      - <workspace_root>/planning
+
+    Env override:
+      - YTM_PLANNING_ROOT
+
+    Why:
+      - Some deployments want Planning to be a single shared SSOT even if other
+        workspace domains remain local/hot (e.g., Mac-local generation with a
+        shared progress "main branch").
+    """
+    override = os.getenv("YTM_PLANNING_ROOT")
+    if override:
+        # IMPORTANT: avoid Path.resolve() on network mounts (SMB/NFS).
+        candidate = Path(override).expanduser()
+        # If the mount isn't available, fall back to the local workspace copy so
+        # UI/ops tools don't hard-fail with 404s during incidents.
+        try:
+            if candidate.is_dir():
+                return candidate
+        except Exception:
+            pass
     return workspace_root() / "planning"
 
 

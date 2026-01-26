@@ -10,6 +10,7 @@ SSOT（正本）:
 - 保存先/配線/決裁（image-dddの鏡）: `ssot/ops/OPS_IMAGE_DDD_STORAGE_MAP_AND_APPROVAL.md`
 - CapCut編集フロー（Workset/Exports/退避）: `ssot/ops/OPS_CAPCUT_DRAFT_EDITING_WORKFLOW.md`
 - CapCutストレージ戦略（Hot/Warm/Cold）: `ssot/ops/OPS_CAPCUT_DRAFT_STORAGE_STRATEGY.md`
+- Hot（未投稿）/Freeze（未投稿だが当面触らない）の確定ルール: `ssot/ops/OPS_HOTSET_POLICY.md`
 - 投稿済み成果物の整理（archive/delete）: `ssot/ops/OPS_ARCHIVE_PUBLISHED_EPISODES.md`
 - UI Hub常駐化（Acer）: `ssot/agent_runbooks/RUNBOOK_UI_HUB_DAEMON.md`
 - 実行履歴: `ssot/history/HISTORY_20260124_capcut_vault_mirror.md`
@@ -87,19 +88,17 @@ Notion（同一情報の入口）:
 ### 課題（徹底洗い出し / 優先度つき）
 
 P0（止血・最優先）
-- **P0-1: planning/persona の参照SoTが分岐**（ドリフト/カオスの根本）
-  - `configs/sources.yaml` は `workspaces/planning/**` を repo相対で保持
-  - `packages/script_pipeline/runner.py` は `sources.get("planning_csv"/"persona")` を優先し、repo相対として解決する（= `YTM_PLANNING_ROOT` を見ない）
-  - 一方で video 側は `factory_common.paths.planning_root()` を使う箇所があり、`YTM_PLANNING_ROOT` を尊重する
-  - 結果: **同じCHでも planning/persona の実体が“別物”になり得る**
+- **P0-1: planning/persona の参照SoTが分岐**（対策済み: `planning_root()` に統一）
+  - `configs/sources.yaml` は `workspaces/planning/**` をパス契約として保持（実パスはホスト依存でよい）
+  - `packages/script_pipeline/runner.py` は `workspaces/planning/**` を検知すると `factory_common.paths.planning_root()` 基準で解決する（`YTM_PLANNING_ROOT` を尊重）
+  - video 側も `factory_common.paths.planning_root()` を使うため、planning/persona の参照が1本化される（ドリフト抑止）
 - **P0-2: Hotに必要な `video/input` が共有symlink前提になり得る**
   - 共有ダウン時は `offline_shared_fallback.py` が `workspaces/video/input` をローカル実体化するが、
     ローカルアーカイブ未整備のチャンネルは復旧できず “Macに実体が無い” が起き得る
 - **P0-3: ローカル空き容量が薄い**（生成/CapCut/キャッシュで一気に破綻する）
-- **P0-4: “共有へ書き込む系”ツールが stub を未検知のまま走り得る**
-  - `shared_storage_sync.py` / `shared_storage_offload_episode.py` は `YTM_SHARED_STORAGE_ROOT` を「存在するdir」として扱うため、
-    mountpoint stub（read-only）でも `--run` すると失敗し得る（エラーが “共有ダウン” と直結しない）
-  - 共有ダウン時は **明示停止**（または明示fallback先へ切替）するべき
+- **P0-4: “共有へ書き込む系”ツールが stub を未検知のまま走り得る**（対策済み）
+  - `shared_storage_sync.py` / `shared_storage_offload_episode.py` は mountpoint stub（`README_MOUNTPOINT.txt`）や SMB未マウントを検知し、ローカルoutboxへフォールバックする
+  - 共有ダウン中の `--symlink-back/--move` は拒否し、Mac側SoTが共有依存になる事故を防ぐ
 
 P1（次点・事故の再発防止）
 - **P1-1: 壊れsymlink/退避symlinkの残骸が増えやすい**（人間が「どれが正？」で迷子になりやすい）
@@ -112,7 +111,7 @@ P2（観測・運用の強化）
 - **P2-2: 複数端末/複数エージェント並列での「どこが正本？」が揺れやすい**（SSOT/環境変数/入口コマンドの統一が必要）
 
 ### 次アクション（このPlanで進捗管理する）
-- [ ] P0-1: planning/persona の参照を 1本化（`sources.yaml` と実装の責務分離を確定）
+- [x] P0-1: planning/persona の参照を 1本化（`sources.yaml` と実装の責務分離を確定）
 - [ ] P0-2: “今触るチャンネル/エピソード”のHot定義を決め、`video/input` のローカル実体を保証（不足時の取得/退避手順を固定）
 - [ ] P0-3: 容量の安全域（例: 空き < 150Gi でWARN、< 80Gi でSTOP）を決め、回収手順を固定（削除は dry-run → 承認 → run）
 - [ ] P1-4: LaunchAgent（CapCut purge/auto export）を棚卸しし、Hot資産が消える経路が無いことを確認

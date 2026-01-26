@@ -14,6 +14,17 @@
 - 一覧: `./ops list`
 - 実体（P0 launcher）: `python3 scripts/ops/ops_cli.py --help`（`./ops` が呼ぶ）
 - 事前点検: `./ops doctor`
+- ストレージ配線点検（保存先カオス防止）: `./ops storage doctor`
+- Hot（未投稿）/Freeze（未投稿だが当面触らない）の一覧（事故防止）:
+  - 一覧: `python3 scripts/ops/hotset.py list --channel CHxx`
+  - Freeze追加（明示）: `python3 scripts/ops/hotset.py freeze-add --channel CHxx --video NNN --reason "..."`（推論で入れない）
+  - 正本: `ssot/ops/OPS_HOTSET_POLICY.md`
+- Vault(共有)のパス整合（Acerでも壊れない/相対symlink化）:
+  - dry-run: `python3 scripts/ops/vault_workspaces_doctor.py`
+  - 適用: `python3 scripts/ops/vault_workspaces_doctor.py --run`
+- 保管庫ミラー（Macローカル→共有; 作成/更新 + 削除同期）:
+  - 初回（sentinel作成）: `./ops mirror workspaces -- --bootstrap-dest --ensure-dirs`
+  - 同期: `./ops mirror workspaces -- --run`
 - `.env` 管理（事故防止）:
   - 状態: `./ops env status`
   - 保護（macOS）: `./ops env protect` / `./ops env unprotect`
@@ -129,14 +140,18 @@
       - 容量対策（既定）:
         - mp4は共有キャッシュ + hardlink 再利用（重複DL/重複保存を抑制）: `YTM_BROLL_FILE_CACHE=1`
         - 解像度上限（既定=720p）: `YTM_BROLL_MAX_W=1280`, `YTM_BROLL_MAX_H=720`
-    - CH02（既定mix）: gemini:schnell:フリー動画 = `4:3:3`
+    - CH02（既定mix）: flux-pro:flux-max:フリー素材 = `7:2:1`
       - SoT: `configs/sources.yaml: channels.CH02.image_source_mix`
       - 適用（dry-run→apply）:
-        - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels --dry-run`
-        - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels`
+        - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 7:2:1 --flux-pro-model-key f-3 --flux-max-model-key f-4 --broll-provider pexels --dry-run`
+        - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.apply_image_source_mix <run_dir> --weights 7:2:1 --flux-pro-model-key f-3 --flux-max-model-key f-4 --broll-provider pexels`
       - 画像を埋めた/直した後のドラフト再構築（反映の固定手順）:
         - `./ops resume video -- --llm think --channel CHxx --video NNN`
-  - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
+	  - CapCut編集用 Workset（Hotローカルへ必要分だけコピー; dry-runが既定）:
+	    - `./ops video capcut-workset -- --channel CHxx --video NNN --run`
+	    - 置き場の既定: `YTM_CAPCUT_WORKSET_ROOT` → `YTM_OFFLOAD_ROOT/capcut_worksets` → `~/capcut_worksets`
+	    - オプション: `--dest-root <path>` で上書き（マシンごとに違ってOK）
+	  - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.factory ...`（UI/ジョブ運用からも呼ばれる）
 - 投稿（YouTube）:
   - 貼り付け用メタ（タイトル/概要欄/タグをstdoutへ出す）: `./ops youtube meta --channel CHxx --video NNN`
     - 概要欄（全文）だけ: `./ops youtube meta --channel CHxx --video NNN --field description_full`
@@ -154,6 +169,8 @@
 - Acer常駐（Tailscale `/ui` 配下で公開）:
   - `./ops ui start -- --frontend-script start:acer --supervise`
   - ルーティング要点: `/ui`→frontend(3000), `/api`+`/thumbnails/*`→backend(8000), `/remotion/*`→frontend(3000)
+  - Acerを直接触らずにセットアップ（Mac→Acer; systemd + tailscale serve まで）:
+    - `python3 scripts/ops/bootstrap_remote_ui_hub.py --host <acer_ssh_host> --remote-repo-root <REPO_ROOT_ON_ACER> --workspace-root <ACER_MOUNT>/ytm_workspaces --sync-env --ensure-deps --configure-tailscale-serve --run`
 - ヘルスチェック（ガード込み）: `python3 apps/ui-backend/tools/start_manager.py healthcheck --with-guards`
 - FastAPI backend: `apps/ui-backend/backend/main.py`
   - 音声/SRTの参照は final を正本として扱う（`workspaces/audio/final/...`）
