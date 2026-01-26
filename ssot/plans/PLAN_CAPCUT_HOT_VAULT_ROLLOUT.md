@@ -44,6 +44,21 @@ Notion（同一情報の入口）:
   - 本番: `./scripts/with_ytm_env.sh python3 scripts/ops/offline_shared_fallback.py --run`
   - レポート: `--json`
 
+## 0.2.1) 検証ログ（2026-01-26 / 共有ダウン=stub）
+
+- `shared_storage_sync.py`:
+  - offline中に `--symlink-back/--move` が **拒否**されることを確認（ローカルSoTを共有依存にしない）
+  - offline中に `--run` が **ローカルoutboxへ保存**できることを確認（manifest作成までOK）
+- `shared_storage_offload_episode.py`:
+  - offline中に `--symlink-back` が **拒否**されることを確認
+  - `--skip-audio`（小さいscriptのみ）で outbox へ保存できることを確認（manifest作成までOK）
+- `script_pipeline/runner.py`:
+  - `sources.yaml` の `workspaces/planning/**` が `planning_root()`（`YTM_PLANNING_ROOT`）基準で解決されることを確認（planning/persona SoTの分岐を防止）
+- `offline_shared_fallback.py`（dry-run）:
+  - `workspaces/video/input` の壊れsymlinkについて `video_input_broken_no_archive` が残る（= **Hot対象は別途“実体化”が必要**）
+  - `.symlink_shared_backup_*` がスキャンに混ざってノイズになりやすい（運用/実装での除外を検討）
+  - `vault_workspaces_root()/video/_archive` に `video_input` の復元ソースがあるケースがある（例: CH02）
+
 ---
 
 ## 0.3) 2026-01-26: 現状（Lenovo外付け復旧中）と、このフェーズのゴール
