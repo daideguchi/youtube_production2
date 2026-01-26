@@ -109,8 +109,18 @@ SSOTリンク:
 - `YTM_SHARED_STORAGE_ROOT=LENOVO_SHARE_ROOT`
 
 事故防止（重要）:
-- `LENOVO_SHARE_ROOT`（例: `/Users/dd/mounts/lenovo_share_real`）は **Lenovo外付け共有のマウントポイント専用**。Acerの `workspace` など別ホスト配下へ **symlink/付け替え禁止**（Acerが落ちるとSSOTも落ちる）。
-- 共有が未マウントの時は、ミラー/同期は **ローカルに誤書き込みせずSKIP** する（“動いてるつもり”で進捗がズレるのを防ぐ）。
+- `LENOVO_SHARE_ROOT`（例: `/Users/dd/mounts/lenovo_share_real`）は **Vault（共有ストレージ）の入口パス**。Mac側はこのパスに **SMBマウント** する（providerは Lenovo優先 / Acerはフォールバック）。  
+  - OK: SMB mount（Lenovo `doraemon` / Acer `lenovo_share`）で差し替える（`mount-vault-share` / LaunchAgent）。
+  - NG: `LENOVO_SHARE_ROOT` を `workspace` など “別ホストの共有の下” へ symlink/付け替えする（障害が隠れる・Acerが落ちるとSSOTも落ちる）。
+- 共有が未マウント（stub/到達不能）の時は、ミラー/同期は **ローカルに誤書き込みせずSKIP** する（“動いてるつもり”で進捗がズレるのを防ぐ）。
+
+### 速度（Lenovo内蔵 vs 外付け / Tailscale） (Internal SSD vs External)
+結論:
+- 大きいファイルの転送は **ネットワーク（Tailscale経路/回線）** が上限になりやすい。
+- ただし **小ファイル/大量ファイル（rsync・UIのメタデータ）** は “ディスクのレイテンシ” で差が出やすい。可能なら **共有SoT/UIが依存する領域は内蔵SSD側に置く**（外付けはCold/バックアップ寄り）。
+現実的な落とし所（Windows Lenovo）:
+- 共有の入口（参照パス）は `C:\\doraemon_share` で固定（SMB share）。実体を外付けに逃がす場合は **Junctionで“重い所だけ”** を外付けへ（例: `uploads/`, `archive/`, `ytm_workspaces/video/`）。  
+  → 外付けが不安定な期間は、`planning/` `scripts/` `thumbnails/assets/` `jobs/` `outbox/` 等 **UI/運用の必須小物は内蔵側に残す**（外付けが落ちてもUIが死なない）。
 
 推奨（CapCut快適運用 = Mac Hot + 保管庫ミラー）:
 - **Mac（編集機）**
@@ -220,6 +230,7 @@ Macの作業を止めない（強制方針）:
   - [ ] D5-b: audio/final（WAV/SRT）も削除する（再生成前提）
   - [ ] D5-c: thumbnails/assets は削除しない（固定）
 - [ ] D6: `asset_vault` を “追加素材の入口” として固定する（Macローカル専用素材を作らない）
+- [ ] D7: 共有ストレージ実体（Lenovo内蔵SSD / 外付け）: **内蔵SSD優先**、外付けはCold領域のみ（Junctionで限定） (Internal preferred; external for cold)
 
 決裁メモ:
 - 承認者:
