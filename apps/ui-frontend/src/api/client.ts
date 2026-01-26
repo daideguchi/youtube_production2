@@ -105,6 +105,7 @@ import {
   UiParams,
   UiParamsResponse,
   MetaResponse,
+  StorageStatusResponse,
   AudioCheckLog,
   AudioCheckRecentItem,
   AudioIntegrityItem,
@@ -385,6 +386,11 @@ async function fetchGitHubResearchFile(base: string, path: string): Promise<Rese
 
 export function fetchMeta(): Promise<MetaResponse> {
   return request<MetaResponse>("/api/meta");
+}
+
+export function fetchStorageStatus(fresh = false): Promise<StorageStatusResponse> {
+  const suffix = fresh ? "?fresh=1" : "";
+  return request<StorageStatusResponse>(`/api/storage/status${suffix}`);
 }
 
 export function fetchChannels(): Promise<ChannelSummary[]> {

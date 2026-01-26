@@ -49,6 +49,7 @@ import { GhReleasesArchivePage } from "./pages/GhReleasesArchivePage";
 import { CapcutDraftProgressPage } from "./pages/CapcutDraftProgressPage";
 import { BatchMonitorPage } from "./pages/BatchMonitorPage";
 import { YoutubeSalePage } from "./pages/YoutubeSalePage";
+import { StorageStatusPage } from "./pages/StorageStatusPage";
 
 function App() {
   return (
@@ -89,6 +90,7 @@ function App() {
         <Route path="/dictionary" element={<DictionaryPage />} />
         <Route path="/agent-org" element={<AgentOrgPage />} />
         <Route path="/agent-board" element={<AgentBoardPage />} />
+        <Route path="/storage-status" element={<StorageStatusPage />} />
         <Route path="/archives" element={<GhReleasesArchivePage />} />
         <Route path="/audio-review" element={<AudioReviewRoute />} />
         <Route path="/capcut-draft-progress" element={<CapcutDraftProgressPage />} />

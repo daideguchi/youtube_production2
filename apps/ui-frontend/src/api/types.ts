@@ -2394,3 +2394,51 @@ export interface MetaResponse {
     server_now?: number;
   };
 }
+
+export interface StorageDoctorResponse {
+  host?: { hostname?: string };
+  repo?: { root?: string };
+  env?: Record<string, string | null>;
+  paths?: {
+    workspace_root?: string;
+    planning_root?: string;
+    shared_storage_root?: string | null;
+    shared_storage_base?: string | null;
+    vault_workspaces_root?: string | null;
+    asset_vault_root?: string | null;
+    capcut_worksets_root?: string;
+  };
+  disk?: {
+    path?: string;
+    total_bytes?: number;
+    used_bytes?: number;
+    free_bytes?: number;
+    free_gib?: number;
+    used_pct?: number;
+  };
+  warnings?: string[];
+}
+
+export interface HotAssetsDoctorSummary {
+  report_path?: string;
+  generated_at?: string | null;
+  schema?: string | null;
+  channels_total?: number;
+  hot_checked_total?: number;
+  violations_total?: number;
+  warnings_total?: number;
+  channels_with_violations?: string[];
+}
+
+export interface StorageStatusResponse {
+  generated_at?: string;
+  cached?: boolean;
+  runtime_ytm?: Record<string, string | null>;
+  dotenv_ytm?: Record<string, string>;
+  storage_doctor?: StorageDoctorResponse | null;
+  storage_doctor_error?: string | null;
+  shared_storage_stub?: boolean | null;
+  vault_sentinel_present?: boolean | null;
+  hot_assets?: HotAssetsDoctorSummary | null;
+  hot_assets_error?: string | null;
+}

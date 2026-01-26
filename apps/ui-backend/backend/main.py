@@ -339,6 +339,7 @@ from backend.routers import audio_check
 from backend.routers import audio_reports
 from backend.routers import health
 from backend.routers import healthz
+from backend.routers import storage_status
 from backend.routers import lock_metrics
 from backend.routers import batch_tts
 from backend.routers import batch_workflow
@@ -853,6 +854,7 @@ except Exception as e:
     logger.error("Failed to load audio_review router: %s", e)
 app.include_router(health.router)
 app.include_router(healthz.router)
+app.include_router(storage_status.router)
 app.include_router(lock_metrics.router)
 app.include_router(batch_tts.router)
 app.include_router(batch_workflow.router)

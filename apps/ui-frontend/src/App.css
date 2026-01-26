@@ -1567,6 +1567,12 @@ body,
   color: #b91c1c;
 }
 
+.badge--warning {
+  background: var(--color-warning-soft);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: var(--color-warning);
+}
+
 .badge--active {
   border-color: rgba(59, 130, 246, 0.6);
   box-shadow: 0 1px 4px rgba(59, 130, 246, 0.2);

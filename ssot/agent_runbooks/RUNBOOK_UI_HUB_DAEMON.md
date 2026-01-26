@@ -57,6 +57,9 @@ python3 scripts/ops/bootstrap_remote_ui_hub.py \
 確認:
 - UI: `http://127.0.0.1:3000/ui/`（Acerローカル。`serve:acer` は Node 静的配信）
 - API: `http://127.0.0.1:8000/api/healthz`
+- 状態確認（Mac-first / Hot=未投稿）: `<UI_BASE>/storage-status`（メニュー: **Mac状態（Hot/容量 / Storage）**）
+  - disk free / 共有(stub判定) / vault sentinel / hot_assets_doctor(直近レポート) を一覧で確認できる
+  - API: `/api/storage/status`
 
 ## 3. systemd（Linux）
 テンプレ:
