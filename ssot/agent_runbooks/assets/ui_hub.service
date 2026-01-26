@@ -1,0 +1,19 @@
+[Unit]
+Description=Factory UI Hub (backend:8000 + frontend:3000)
+After=network.target
+
+[Service]
+Type=simple
+# TEMPLATE:
+# - replace __REPO_ROOT__ with the absolute path to this repository
+# - ensure npm/node are available in PATH for the service user
+WorkingDirectory=__REPO_ROOT__
+ExecStart=__REPO_ROOT__/.venv/bin/python3 apps/ui-backend/tools/start_manager.py start --env-file __REPO_ROOT__/.env --profile prod --frontend-script serve:acer --supervise --no-follow
+ExecStop=__REPO_ROOT__/.venv/bin/python3 apps/ui-backend/tools/start_manager.py stop
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

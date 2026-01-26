@@ -1,0 +1,12 @@
+[Unit]
+Description=Doraemon Acer watchdog timer
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=15s
+Unit=doraemon-acer-watchdog.service
+
+[Install]
+WantedBy=timers.target
+

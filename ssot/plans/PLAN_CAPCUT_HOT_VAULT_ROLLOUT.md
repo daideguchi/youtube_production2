@@ -154,7 +154,7 @@ P2（観測・運用の強化）
 - [ ] P1-4: LaunchAgent（CapCut purge/auto export）を棚卸しし、Hot資産が消える経路が無いことを確認
 
 Slack通知:
-- `scripts/slack_notify.py` はこの環境で `slack.com` のDNS解決に失敗し送信できなかった（復旧後にリトライ）。
+- `scripts/ops/slack_notify.py` はこの環境で `slack.com` のDNS解決に失敗し送信できなかった（復旧後にリトライ）。
 
 ## 1) まず固定する（翻訳表）
 

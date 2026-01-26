@@ -1,0 +1,9 @@
+[Unit]
+Description=Doraemon Acer watchdog (tailscale/ssh/samba)
+After=network.target
+
+[Service]
+Type=oneshot
+Environment=ACER_WATCHDOG_REPORT_DIR=/srv/workspace/doraemon/workspace/_reports
+ExecStart=/usr/local/bin/doraemon-acer-watchdog.sh
+
