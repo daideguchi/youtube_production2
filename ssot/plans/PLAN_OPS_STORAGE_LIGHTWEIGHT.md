@@ -102,6 +102,26 @@ du -sh workspaces/audio workspaces/video workspaces/scripts workspaces/logs 2>/d
 - `workspaces/logs`: 約 92M
 - OSディスク空き（重要）: `/System/Volumes/Data` 空き約 `20Gi`（使用 `96%`）
 
+### 5.2 Macの“workspaces外”で詰まりやすい場所（観測 / 2026-01-26）
+
+重要: ここは **未投稿（Hot）を消す話ではない**。あくまで「バックアップ/アーカイブの二重化」で容量が詰まるケースの観測。
+
+観測（read-only）:
+- `/Users/dd/mounts/_archive/2026-01-26` が約 `73G`（mountpointの退避/検証の残骸が集積）
+  - `capcut_projects_backup_20260125T233620Z` 約 `26G`（CapCutドラフトroot `com.lveditor.draft` の“バックアップコピー”）
+    - 実体（Hot側）: `/Users/dd/Movies/CapCut/User Data/Projects/com.lveditor.draft`（約 `30G`）
+    - ※ ここを消しても **CapCutの現行ドラフト本体は消えない**（バックアップが減るだけ）
+  - `lenovo_share_real__LOCAL_BACKUP__20260125T230525Z` 約 `44G`（共有/Outbox/ytm_workspaces のローカル退避）
+    - 共有が不安定な間は“保険”の可能性があるため、削除は要注意（まず共有の健全性を確認）
+  - `capcut_decrypted_images_*`（outbox/_snapshots）: 数GB（CapCut cloudDraft DB から復元できる派生物）
+
+対応方針（固定 / safe order）:
+1) まず UI の `<UI_BASE>/storage-status` で **disk free / 共有の健全性（uploads/ytm_workspaces の有無）** を確認する
+2) 「共有が壊れている/空」の間は、`LOCAL_BACKUP` を先に消さない（事故時の復元に必要な可能性がある）
+3) 容量が厳しい場合は、まず **再生成可能な派生物**（例: `capcut_decrypted_images_*`）から整理する
+4) `capcut_projects_backup_*` は「バックアップを残すか」の意思決定が必要（削除は *Hot本体ではない* が、保険を減らす）
+   - 実行は必ず「dry-run（候補とサイズ提示）→承認→run」でログを残す
+
 注:
 - `./ops snapshot workspace -- --write-report` の出力に `report=...json` が出るので、数値は常にその時点の観測を正とする。
 - 環境によっては `workspaces/video` / `workspaces/scripts` が 0B のこともある（別worktree/別ディスクを使っている等）。
