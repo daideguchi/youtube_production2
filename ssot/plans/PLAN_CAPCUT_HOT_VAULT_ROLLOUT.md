@@ -65,6 +65,22 @@ Notion（同一情報の入口）:
 
 ---
 
+## 0.2.2) Hot資産doctor 実行ログ（2026-01-26）
+
+- 入口（read-only）:
+  - `python3 scripts/ops/hot_assets_doctor.py --all-channels --json`
+- レポート:
+  - `workspaces/logs/ops/hot_assets_doctor/report__20260126T065739Z.json`
+  - `workspaces/logs/ops/hot_assets_doctor/candidates__20260126T070401Z.json`
+- 結果（P0）:
+  - violations_total=82（episodes=41）: `run_dir_symlink_broken` + `draft_missing_locally`
+  - 主なch: CH13(29ep), CH22(4ep), CH28(4ep), CH09(3ep), CH26(1ep)
+  - candidates は全件あり（zero_candidates=0）→ **実体はあるが参照が古い/別名** の可能性が高い
+- 次アクション（破壊禁止）:
+  - episode毎に candidate を人間が確定し、`run_dir/capcut_draft` と `capcut_draft_info.json` の参照を整合させる（ツール化/手順化が必要）
+
+---
+
 ## 0.3) 2026-01-26: 現状（Lenovo外付け復旧中）と、このフェーズのゴール
 
 このフェーズは **「MacのHot運用を止めない」** の止血フェーズ。
