@@ -218,11 +218,12 @@ def main() -> int:
     if not run_dir.exists() or not run_dir.is_dir():
         raise SystemExit(f"run_dir not found: {run_dir}")
 
-    # Respect locks (mutations only).
-    locks = [] if bool(args.ignore_locks) else default_active_locks_for_mutation()
-    blocking = find_blocking_lock(run_dir, locks) if locks else None
-    if blocking and bool(args.run):
-        raise SystemExit(f"run_dir is locked; abort. run_dir={run_dir} lock={blocking.lock_id}")
+    # Respect locks (mutations only). Dry-run should not pay the lock-scan cost.
+    if bool(args.run) and not bool(args.ignore_locks):
+        locks = default_active_locks_for_mutation()
+        blocking = find_blocking_lock(run_dir, locks) if locks else None
+        if blocking:
+            raise SystemExit(f"run_dir is locked; abort. run_dir={run_dir} lock={blocking.lock_id}")
 
     info_path = run_dir / "capcut_draft_info.json"
     info = _safe_read_json(info_path) if info_path.exists() else {}
