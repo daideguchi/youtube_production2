@@ -18,6 +18,7 @@
 - Hot（未投稿）/Freeze（未投稿だが当面触らない）の一覧（事故防止）:
   - 一覧: `python3 scripts/ops/hotset.py list --channel CHxx`
   - Freeze追加（明示）: `python3 scripts/ops/hotset.py freeze-add --channel CHxx --video NNN --reason "..."`（推論で入れない）
+  - Hot資産doctor（read-only; HotがMacローカル実体か検査）: `python3 scripts/ops/hot_assets_doctor.py --channel CHxx`（全ch: `--all-channels`）
   - 正本: `ssot/ops/OPS_HOTSET_POLICY.md`
 - Vault(共有)のパス整合（Acerでも壊れない/相対symlink化）:
   - dry-run: `python3 scripts/ops/vault_workspaces_doctor.py`

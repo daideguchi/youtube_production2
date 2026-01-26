@@ -77,6 +77,27 @@
 
 ---
 
+## 3.1) Hot資産doctor（read-only; P0）
+
+目的:
+- Hot（未投稿）の資産が **Macローカルに実体として存在する**ことを検知し、外部不安定でも作業が止まらない状態を維持する。
+- UI/編集系（CapCut等）の参照パス事故（壊れsymlink/外部only）をP0として早期検出する。
+
+入口:
+- `python3 scripts/ops/hot_assets_doctor.py --channel CHxx`
+  - 全チャンネル: `python3 scripts/ops/hot_assets_doctor.py --all-channels`
+  - JSON: `--json`
+
+受入基準（DoD; P0）:
+- Hot（未投稿）で、`run_dir/capcut_draft_info.json` が存在する回は、そこから解決されるCapCutドラフト参照が **ローカルで存在する**（外部onlyはNG）。
+- Hot（未投稿）のドラフト参照が `YTM_SHARED_STORAGE_ROOT` 配下（Lenovo/NAS等の共有）を指している場合は **P0違反**。
+- Hot（未投稿）で `run_dir/capcut_draft` symlink が壊れている/共有を指している場合は **P0違反**（編集事故に直結）。
+
+備考:
+- このdoctorは **read-only**（移動/削除/修復はしない）。
+
+---
+
 ## 4) 禁止（事故防止 / 強制）
 
 - 未投稿（Hot/Freeze）の成果物を削除しない（自動/手動ともに禁止）
