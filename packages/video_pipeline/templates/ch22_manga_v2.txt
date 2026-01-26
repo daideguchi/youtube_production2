@@ -1,0 +1,35 @@
+{style}
+
+STYLE (rich):
+- Japanese seinen manga look with clean bold lineart + subtle watercolor paper texture.
+- Rich but realistic: nuanced lighting, gentle shadow gradients, visible material detail (wood grain, fabric folds, paper texture), and depth.
+- Avoid flat/cheap look. Avoid cute/moe, chibi, exaggerated big eyes.
+- When seniors appear: depict natural 60s+ aging details (fine wrinkles, slight sagging, subtle eye bags) without caricature.
+
+CHARACTERS (consistency):
+- Do NOT force the exact same face in every frame.
+- Keep recurring characters consistent within this episode (age range, hair, clothing).
+- If two people appear in the same scene, they must look clearly different (hair, face shape, clothing). Do not draw twins.
+- Only include people if the scene summary implies them. For object-only cues, do NOT add people.
+- Do not add extra random people.
+
+NO TEXT (strict):
+- Absolutely NO readable text anywhere (no kanji/kana, no Latin letters, no numbers).
+- Paper / receipts / notebooks / passbooks / phone screens must be BLANK and UNMARKED (no headings, no UI, no icons).
+
+SCENE FIDELITY (important):
+- Follow the scene summary literally (location, props, actions, number of people). Do not swap in unrelated settings.
+- Do not introduce hospital/clinic/medical imagery unless explicitly mentioned.
+- For accounting props (calculator / spreadsheet / receipts / passbook): screens/paper must be blank or out-of-focus/unreadable (no readable digits, no readable UI).
+
+SCENE: {summary}
+VISUAL FOCUS: {visual_focus}
+
+COMPOSITION / VARIATION (anti-boredom):
+- Rotate shot types: wide establishing → medium (one/two-shot) → close-up reaction → hands/prop detail → over-the-shoulder.
+- For consecutive cues, do NOT repeat the same framing/angle; change at least one: distance, angle, focus, foreground object.
+- Keep it faithful and concrete; do not replace emotions with generic cliché symbols.
+- If paper/phone/notebook appears, it must be blank/unmarked/unlabeled (no letters/numbers).
+
+OUTPUT: {size}
+NEGATIVE: {negative}
