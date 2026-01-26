@@ -4,6 +4,19 @@
 - `visual_image_cues_plan` の pending に対して、**SRTの文脈に基づく自然な画像カット割り**を作り、`sections` を返す。
 - **機械的な等間隔分割は禁止**（契約上NG）。必ず文脈（話題の切替/例/比喩/感情の山/列挙の区切り）で切る。
 
+## 再発防止（LLM APIで画像プロンプトを作らせない）
+- `refined_prompt` は **人間/エージェントが作る**（LLM APIに丸投げしない）。抽象/象徴で埋める事故を防ぐため。
+- 実装ガード: `packages/video_pipeline/src/srt2images/orchestration/pipeline.py` は、`SRT2IMAGES_DISABLE_TEXT_LLM=1` の場合に cues_plan を **manual-only** 扱いにする。
+  - `visual_cues_plan.json` が無ければ pending の雛形だけ作って停止する（自動生成へ戻らない）。
+- さらに明示的に止めたい場合は `SRT2IMAGES_CUES_PLAN_MANUAL_ONLY=1` を使う（チャンネル非依存）。
+- ルータガード: `packages/factory_common/llm_router.py` は routing lockdown 下で `visual_image_cues_plan` を API 実行しようとすると **強制停止**する（手書き plan へ誘導）。
+
+## データのありか（画像プロンプトの正本）
+- run_dir（Video SoT）: `workspaces/video/runs/<run_id>/`
+- 編集する場所（人間/エージェントが手で直す正本）: `visual_cues_plan.json` の `sections[*].refined_prompt`
+- 実際に送った最終プロンプト（監査/証跡）: `image_cues.json` の `cues[*].prompt`（併記: `cues[*].refined_prompt/visual_focus/summary`）
+- 参照: `srt_segments.json`（SRT決定論パース。planの前提） / `images/0001.png...`（cue index順）
+
 ## 出力フォーマット（厳守）
 - `response_format=json_object` のため、返答は **JSONオブジェクトのみ**（コードフェンス/前置き禁止）。
 

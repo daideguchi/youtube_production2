@@ -92,6 +92,11 @@
 このリポジトリでは **ルート直下の互換symlink（別名ディレクトリ）は禁止**。  
 理由: 探索ノイズと誤参照の温床になり、並列エージェント運用で事故るため。
 
+- **禁止（重要）**: 欠損/参照エラーの「修復」のために、廃止した旧aliasディレクトリ（例: `commentary_02_srt2images_timeline/`, `remotion/`）を repo root に復活させない。  
+  - 正しい修復対象は **参照元のパス**（例: CapCut draft 内 JSON の `file_Path` / `path`）であり、参照先ディレクトリの再作成ではない。
+  - 対応（例）: legacy absolute path を正本へ張り替える  
+    - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.patch_capcut_draft_legacy_paths --mode run`
+
 - 参照/実装は必ず正本へ:
   - 実装: `apps/`, `packages/`, `scripts/`, `tests/`
   - SoT/生成物: `workspaces/`

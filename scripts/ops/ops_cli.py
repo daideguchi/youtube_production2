@@ -1192,6 +1192,36 @@ def cmd_shared(args: argparse.Namespace) -> int:
     return 2
 
 
+def cmd_storage(args: argparse.Namespace) -> int:
+    """
+    Storage wiring helpers (paths/env sanity). Safe by default.
+    """
+    action = str(getattr(args, "action", "") or "").strip()
+    forwarded = _strip_leading_double_dash(list(getattr(args, "args", None) or []))
+
+    if action == "doctor":
+        return _run(["python3", "scripts/ops/storage_doctor.py", *forwarded])
+
+    print(f"unknown storage action: {action}", file=sys.stderr)
+    return 2
+
+
+def cmd_mirror(args: argparse.Namespace) -> int:
+    """
+    Mirroring helpers (Mac-local -> vault).
+    """
+    action = str(getattr(args, "action", "") or "").strip()
+    forwarded = _strip_leading_double_dash(list(getattr(args, "args", None) or []))
+
+    if action == "workspaces":
+        return _run(["python3", "scripts/ops/workspaces_mirror.py", *forwarded])
+    if action == "install-workspaces-launchd":
+        return _run(["python3", "scripts/ops/install_workspaces_mirror_launchd.py", *forwarded])
+
+    print(f"unknown mirror action: {action}", file=sys.stderr)
+    return 2
+
+
 def cmd_mode(args: argparse.Namespace) -> int:
     mode = _normalize_llm_mode(getattr(args, "mode", None))
     if mode not in {"api", "think", "codex"}:
@@ -1350,7 +1380,8 @@ def cmd_youtube(args: argparse.Namespace) -> int:
 
 
 def cmd_ui(args: argparse.Namespace) -> int:
-    inner = ["bash", "scripts/start_all.sh", args.action]
+    forwarded = _strip_leading_double_dash(list(getattr(args, "args", []) or []))
+    inner = ["bash", "scripts/start_all.sh", args.action, *forwarded]
     return _run(inner)
 
 
@@ -1433,6 +1464,9 @@ def cmd_video(args: argparse.Namespace) -> int:
     if action == "auto-capcut":
         inner = ["python3", "-m", "video_pipeline.tools.auto_capcut_run", *forwarded]
         return _run_with_llm_mode(args.llm, inner)
+    if action == "capcut-workset":
+        inner = ["python3", "-m", "video_pipeline.tools.capcut_workset", *forwarded]
+        return _run(inner)
     if action == "bootstrap-run":
         inner = ["python3", "-m", "video_pipeline.tools.bootstrap_placeholder_run_dir", *forwarded]
         return _run_with_llm_mode(args.llm, inner)
@@ -2335,6 +2369,7 @@ def build_parser() -> argparse.ArgumentParser:
         choices=[
             "factory",
             "auto-capcut",
+            "capcut-workset",
             "bootstrap-run",
             "regen-images",
             "variants",
@@ -2370,6 +2405,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("ui", help="start/stop/status UI stack")
     sp.add_argument("action", choices=["start", "stop", "status", "restart"])
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to scripts/start_all.sh (use '--' before flags)",
+    )
     sp.set_defaults(func=cmd_ui)
 
     sp = sub.add_parser("agent", help="agent queue helper (agent_runner.py passthrough)")
@@ -2431,6 +2471,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="args passed to the underlying tool (use '--' before flags)",
     )
     sp.set_defaults(func=cmd_shared)
+
+    sp = sub.add_parser("storage", help="storage wiring helpers (paths/env sanity)")
+    sp.add_argument("action", choices=["doctor"], help="storage operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to scripts/ops/storage_doctor.py (use '--' before flags)",
+    )
+    sp.set_defaults(func=cmd_storage)
+
+    sp = sub.add_parser("mirror", help="mirroring helpers (Mac-local -> vault)")
+    sp.add_argument("action", choices=["workspaces", "install-workspaces-launchd"], help="mirror operation")
+    sp.add_argument(
+        "args",
+        nargs=argparse.REMAINDER,
+        help="args passed to the underlying tool (use '--' before flags)",
+    )
+    sp.set_defaults(func=cmd_mirror)
 
     sp = sub.add_parser("clear-brain", help="clear Antigravity 'memory' artifacts (safe by default)")
     sp.add_argument("args", nargs=argparse.REMAINDER, help="args passed to scripts/ops/antigravity_clear_brain.py (use '--' before flags)")

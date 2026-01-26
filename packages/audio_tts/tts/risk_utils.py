@@ -107,7 +107,19 @@ def normalize_for_compare(kana: str) -> str:
     # (e.g., ヅ/ズ, ヂ/ジ, ヲ/オ are effectively the same in modern pronunciation).
     text = text.replace("ヅ", "ズ").replace("ヂ", "ジ").replace("ヲ", "オ")
     # Foreign V-sounds: VOICEVOX often collapses ヴ系 -> バ/ビ/ベ/ボ.
-    text = text.replace("ヴァ", "バ").replace("ヴィ", "ビ").replace("ヴェ", "ベ").replace("ヴォ", "ボ").replace("ヴ", "ブ")
+    # NOTE: small-vowel normalization runs earlier (ィ->イ, etc), so we must also handle
+    # the expanded forms (ヴイ, ヴエ, ...) to avoid false mismatches like レヴィナス vs レビナス.
+    text = (
+        text.replace("ヴァ", "バ")
+        .replace("ヴィ", "ビ")
+        .replace("ヴェ", "ベ")
+        .replace("ヴォ", "ボ")
+        .replace("ヴア", "バ")
+        .replace("ヴイ", "ビ")
+        .replace("ヴエ", "ベ")
+        .replace("ヴオ", "ボ")
+        .replace("ヴ", "ブ")
+    )
     # NOTE: Particle pronunciation (は=ワ / へ=エ) should be handled at token-level.
     # Doing a blind string replace here breaks real words (e.g., 一発=イチハツ).
     text = _collapse_long_vowels(text)

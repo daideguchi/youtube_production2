@@ -44,25 +44,26 @@ class RoleAssetRouter:
     def _load_default_configs(self) -> Dict[str, RoleAssetConfig]:
         configs: Dict[str, RoleAssetConfig] = {}
 
-        # CH01: 視聴者への語りかけ(viewer_address)パートに既存の動画アセットを提示
+        # CH01/CH32: 視聴者への語りかけ(viewer_address)パートに既存の動画アセットを提示
         ch01_assets = self.assets_root / "ch01"
         if ch01_assets.exists():
-            configs["CH01"] = RoleAssetConfig(
-                channel_id="CH01",
-                rules=[
-                    RoleAssetRule(
-                        role_tag="viewer_address",
-                        asset_dir=ch01_assets,
-                        glob="buddha_0*.mp4",
-                        max_use=3,
-                        min_use=3,
-                        probability=1.0,
-                        prefer_front_back=True,
-                        attach_field="role_asset",
-                        asset_kind="video",
-                    )
-                ],
-            )
+            for ch_id in ("CH01", "CH32"):
+                configs[ch_id] = RoleAssetConfig(
+                    channel_id=ch_id,
+                    rules=[
+                        RoleAssetRule(
+                            role_tag="viewer_address",
+                            asset_dir=ch01_assets,
+                            glob="buddha_0*.mp4",
+                            max_use=3,
+                            min_use=3,
+                            probability=1.0,
+                            prefer_front_back=True,
+                            attach_field="role_asset",
+                            asset_kind="video",
+                        )
+                    ],
+                )
 
         return configs
 

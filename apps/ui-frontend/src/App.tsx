@@ -48,6 +48,7 @@ import { ChannelModelPolicyPage } from "./pages/ChannelModelPolicyPage";
 import { GhReleasesArchivePage } from "./pages/GhReleasesArchivePage";
 import { CapcutDraftProgressPage } from "./pages/CapcutDraftProgressPage";
 import { BatchMonitorPage } from "./pages/BatchMonitorPage";
+import { YoutubeSalePage } from "./pages/YoutubeSalePage";
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
         <Route path="/ssot/entrypoints" element={<SsotEntrypointsPage />} />
         <Route path="/ssot/trace" element={<SsotTracePage />} />
         <Route path="/ssot/trace/:key" element={<SsotTracePage />} />
+        <Route path="/youtube-sale" element={<YoutubeSalePage />} />
         <Route path="/thumbnails/mobile" element={<ThumbnailsMobilePage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/image-management" element={<ImageManagementPage />} />

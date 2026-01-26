@@ -10,12 +10,33 @@ from factory_common.paths import thumbnails_root as ssot_thumbnails_root
 PROJECT_ROOT = ssot_repo_root()
 
 
+def _virtual_workspace_path(path: Path) -> str:
+    """
+    Convert an absolute path into a stable "workspaces/..." path string when possible.
+
+    This avoids ValueError crashes when workspace_root is configured outside repo_root
+    (e.g. Vault/shared storage on Acer).
+    """
+    workspace_root = ssot_thumbnails_root().parent
+    try:
+        rel = path.relative_to(workspace_root)
+        return str(Path("workspaces") / rel)
+    except Exception:
+        pass
+    try:
+        rel = path.relative_to(PROJECT_ROOT)
+        return str(rel)
+    except Exception:
+        return str(path)
+
+
 def find_thumbnails(
     channel_code: str,
     video_no: Optional[str] = None,
     title: Optional[str] = None,
     *,
     limit: int = 3,
+    allow_full_scan: bool = True,
 ) -> List[Dict[str, str]]:
     """
     workspaces/thumbnails/ 配下からチャンネルコード・動画番号に合致しそうなサムネをスコアで探す。
@@ -42,15 +63,17 @@ def find_thumbnails(
         if candidates:
             results: List[Dict[str, str]] = []
             for p in candidates[: max(0, int(limit))]:
-                rel = p.relative_to(PROJECT_ROOT)
                 results.append(
                     {
-                        "path": str(rel),
+                        "path": _virtual_workspace_path(p),
                         "url": f"/thumbnails/assets/{channel_code}/{video_no}/{p.name}",
                         "name": p.name,
                     }
                 )
             return results
+
+    if not allow_full_scan:
+        return []
 
     video_no_int = None
     if video_no and video_no.isdigit():
@@ -106,8 +129,15 @@ def find_thumbnails(
     matches.sort(key=lambda x: (-x[0], -x[1]))
     results: List[Dict[str, str]] = []
     for _, _, p in matches[: max(0, int(limit))]:
-        rel = p.relative_to(PROJECT_ROOT)
-        url = f"/{rel.as_posix()}"
-        results.append({"path": str(rel), "url": url, "name": p.name})
+        url = ""
+        try:
+            rel_assets = p.relative_to(base / "assets")
+            url = f"/thumbnails/assets/{rel_assets.as_posix()}"
+        except Exception:
+            try:
+                rel = p.relative_to(PROJECT_ROOT)
+                url = f"/{rel.as_posix()}"
+            except Exception:
+                url = ""
+        results.append({"path": _virtual_workspace_path(p), "url": url, "name": p.name})
     return results
-

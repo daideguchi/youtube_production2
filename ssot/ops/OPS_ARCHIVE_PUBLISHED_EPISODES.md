@@ -13,11 +13,14 @@
 - 実体: `python3 scripts/ops/archive_published_episodes.py --help`
 
 標準運用（容量対策; 投稿済み）:
-- 音声（`workspaces/audio/final/**`）と動画編集データ（run_dir + CapCut drafts）は **削除**する（台本/進捗/監査ログは保持）。
+- **削除する**: 音声（`workspaces/audio/final/**`） / CapCut drafts（`workspaces/video/_capcut_drafts/**`）
+- **削除しない（保持）**: `workspaces/video/runs/**`（生成画像/中間生成物。再利用価値があるため）
+  - 必要なら **archive移動のみ**（`--delete` は禁止）
+- 台本/進捗/監査ログは保持。
 - dry-run:
-  - `./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --dry-run`
+  - `./ops archive published --channel CHxx --audio --capcut-drafts --delete --dry-run`
 - 実行:
-  - `./ops archive published --channel CHxx --audio --video-runs --capcut-drafts --delete --run --yes`
+  - `./ops archive published --channel CHxx --audio --capcut-drafts --delete --run --yes`
 
 ## 1. 何をアーカイブするか（ドメイン別）
 
@@ -40,16 +43,19 @@
   - 退避先: `workspaces/video/_archive/<timestamp>/<CH>/capcut_drafts/<dir>/`
 
 固定ルール:
-- 標準（容量対策; 投稿済み）: `--delete --audio --video-runs` を使う（台本/進捗は保持）。
+- 標準（容量対策; 投稿済み）: `--delete --audio --capcut-drafts` を使う（台本/進捗は保持）。
 - `--delete` 無し: **移動＝アーカイブ**（復元用途）。
 - `--delete` 有り: **削除**。
+- 例外（強制）: `workspaces/thumbnails/assets/**` は **削除禁止**（長期資産）。`--delete --thumbnails` はポリシーで拒否される（archive/moveのみ）。
+- 例外（強制）: `workspaces/video/runs/**` も **削除禁止**（生成資産の再利用）。`--delete --video-runs` はポリシーで拒否される（archive/moveのみ）。
 - 移動/削除は “既存パスが消える” ため、復元する場合は restore スクリプトを追加する。
 
 ## 2. セーフティ（必須）
 
 - 既定は dry-run（実行には `--run` が必要）。
 - `--run` で複数件を処理する場合は `--yes` を必須にする（事故防止）。
-- `--delete` を使う場合は **対象ドメイン（`--audio/--video-input/--video-runs/--thumbnails`）を明示**し、`--delete --run` には `--yes` を必須にする（事故防止）。
+- `--delete` を使う場合は **対象ドメイン（`--audio/--video-input/--video-runs/--capcut-drafts`）を明示**し、`--delete --run` には `--yes` を必須にする（事故防止）。
+  - 注意: `--thumbnails` は delete 禁止（archiveのみ）。
 - `scripts/agent_org.py lock` のロックを尊重し、該当スコープがロック中ならスキップして report に理由を残す。
 
 ## 3. ログ/レポート

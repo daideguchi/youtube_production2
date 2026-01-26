@@ -45,6 +45,8 @@
 - [`RUNBOOK_JOB_AUDIO_TTS_PIPELINE.md`](/ssot/agent_runbooks/RUNBOOK_JOB_AUDIO_TTS_PIPELINE.md): 音声生成（end-to-end）
 - [`RUNBOOK_JOB_RUNNER_DAEMON.md`](/ssot/agent_runbooks/RUNBOOK_JOB_RUNNER_DAEMON.md): `script_pipeline.job_runner` 常駐（launchd/cron）
 - [`assets/job_runner.service`](/ssot/agent_runbooks/assets/job_runner.service): daemon/service 定義（必要時のみ）
+- [`RUNBOOK_UI_HUB_DAEMON.md`](/ssot/agent_runbooks/RUNBOOK_UI_HUB_DAEMON.md): UI Hub 常駐（Acer / Tailscale `/ui`）
+- [`assets/ui_hub.service`](/ssot/agent_runbooks/assets/ui_hub.service): UI Hub の systemd テンプレ
 - [`RUNBOOK_VISUAL_CUES_PLAN.md`](/ssot/agent_runbooks/RUNBOOK_VISUAL_CUES_PLAN.md): srt2images の cues 計画（visual_image_cues_plan）
 - [`RUNBOOK_THINK_MODE_OPERATOR.md`](/ssot/agent_runbooks/RUNBOOK_THINK_MODE_OPERATOR.md): THINK MODEのループ運用
 - [`RUNBOOK_AGENT_ORG_COORDINATION.md`](/ssot/agent_runbooks/RUNBOOK_AGENT_ORG_COORDINATION.md): Orchestrator + Workers の協調運用

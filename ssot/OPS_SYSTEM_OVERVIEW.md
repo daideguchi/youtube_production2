@@ -91,6 +91,11 @@
 | Publish（外部SoT） | Google Sheets（`YT_PUBLISH_SHEET`） | 実行ログ: `workspaces/logs/**` | `python3 scripts/youtube_publisher/publish_from_sheet.py --run` |
 | Benchmarks（チャンネル勝ちパターン） | `packages/script_pipeline/channels/CHxx-*/channel_info.json` の `benchmarks` | UI編集/監査: `/channel-settings` | UI `/channel-settings` / `python -m script_pipeline.tools.channel_registry ...` |
 
+補足（Video run_dir 内の「画像プロンプト」正本）
+- 編集（人間/エージェントが手で直す）: `workspaces/video/runs/{run_id}/visual_cues_plan.json` の `sections[*].refined_prompt`
+- 最終プロンプト（実際に画像モデルへ送った文字列の証跡）: `workspaces/video/runs/{run_id}/image_cues.json` の `cues[*].prompt`
+- 併せて参照: `workspaces/video/runs/{run_id}/srt_segments.json`（SRT決定論パース） / `workspaces/video/runs/{run_id}/images/0001.png...`（cue index順）
+
 ---
 
 ## 2) 確定E2Eフロー（何がどう流れるか）

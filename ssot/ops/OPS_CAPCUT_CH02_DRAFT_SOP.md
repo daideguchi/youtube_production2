@@ -112,4 +112,6 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
 
 ## 関連SSOT
 
+- CapCutドラフトの内部仕様・安全運用・復旧手順（全チャンネル共通）: `ssot/ops/OPS_CAPCUT_DRAFT_SOP.md`
+- CapCutドラフト作成/編集の運用（Macメイン + 共有ストレージ連携）: `ssot/ops/OPS_CAPCUT_DRAFT_EDITING_WORKFLOW.md`
 - CapCutドラフト（編集）資産の置き場と共有運用: `ssot/ops/OPS_CAPCUT_DRAFT_STORAGE_STRATEGY.md`

@@ -1,0 +1,23 @@
+{style}
+
+CHARACTERS (consistency):
+- Do NOT force the exact same face in every frame.
+- Keep recurring characters consistent within this episode (age range, hair, clothing).
+- If two people appear in the same scene, they must look clearly different (hair, face shape, clothing). Do not draw twins.
+- Only include people if the scene summary implies them. For object-only cues, do NOT add people.
+- Do not add extra random people.
+
+NO TEXT (strict):
+- Absolutely NO readable text anywhere (no kanji/kana, no Latin letters, no numbers).
+- Paper / receipts / notebooks / passbooks / phone screens must be BLANK and UNMARKED (no headings, no UI, no icons).
+
+SCENE: {summary}
+
+COMPOSITION / VARIATION (anti-boredom):
+- Rotate shot types: wide establishing → medium (one/two-shot) → close-up reaction → hands/prop detail → over-the-shoulder.
+- For consecutive cues, do NOT repeat the same framing/angle; change at least one: distance, angle, focus, foreground object.
+- Keep it faithful and concrete; do not replace emotions with generic cliché symbols.
+- If paper/phone/notebook appears, it must be blank/unmarked/unlabeled (no letters/numbers).
+
+OUTPUT: {size}
+NEGATIVE: {negative}

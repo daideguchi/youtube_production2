@@ -1194,6 +1194,75 @@ def create_thumbnail_variant_entry(channel: str, video: str, payload: ThumbnailV
     return variant
 
 
+@router.get(
+    "/api/workspaces/thumbnails/{channel}/{video}/variants",
+    response_model=List[ThumbnailVariantResponse],
+)
+def list_thumbnail_variant_entries(channel: str, video: str) -> List[ThumbnailVariantResponse]:
+    channel_code = normalize_channel_code(channel)
+    video_number = normalize_video_number(video)
+
+    with THUMBNAIL_PROJECTS_LOCK:
+        _, doc = _load_thumbnail_projects_document()
+        projects = doc.get("projects") if isinstance(doc, dict) else None
+
+        project: Optional[dict] = None
+        if isinstance(projects, list):
+            for raw in projects:
+                if not isinstance(raw, dict):
+                    continue
+                if str(raw.get("channel") or "").strip().upper() != channel_code:
+                    continue
+                raw_video = str(raw.get("video") or "").strip()
+                if not raw_video:
+                    continue
+                try:
+                    if normalize_video_number(raw_video) == video_number:
+                        project = raw
+                        break
+                except Exception:
+                    continue
+
+    if project is None:
+        return []
+
+    selected_variant_id = str(project.get("selected_variant_id") or "").strip()
+    raw_variants = project.get("variants") if isinstance(project.get("variants"), list) else []
+    variants_out: List[ThumbnailVariantResponse] = []
+
+    for raw_variant in raw_variants:
+        if not isinstance(raw_variant, dict):
+            continue
+        variant_id = str(raw_variant.get("id") or "").strip()
+        if not variant_id:
+            continue
+        image_url = str(raw_variant.get("image_url") or "").strip() or None
+        preview_url = str(raw_variant.get("preview_url") or "").strip() or image_url
+        variants_out.append(
+            ThumbnailVariantResponse(
+                id=variant_id,
+                label=str(raw_variant.get("label") or "").strip() or None,
+                status=str(raw_variant.get("status") or "").strip() or None,
+                image_url=image_url,
+                image_path=str(raw_variant.get("image_path") or "").strip() or None,
+                preview_url=preview_url,
+                notes=str(raw_variant.get("notes") or "").strip() or None,
+                tags=raw_variant.get("tags") if isinstance(raw_variant.get("tags"), list) else None,
+                provider=str(raw_variant.get("provider") or "").strip() or None,
+                model=str(raw_variant.get("model") or "").strip() or None,
+                model_key=str(raw_variant.get("model_key") or "").strip() or None,
+                openrouter_generation_id=str(raw_variant.get("openrouter_generation_id") or "").strip() or None,
+                cost_usd=(float(raw_variant.get("cost_usd")) if raw_variant.get("cost_usd") is not None else None),
+                usage=raw_variant.get("usage") if isinstance(raw_variant.get("usage"), dict) else None,
+                is_selected=bool(selected_variant_id and selected_variant_id == variant_id),
+                created_at=str(raw_variant.get("created_at") or "").strip() or None,
+                updated_at=str(raw_variant.get("updated_at") or "").strip() or None,
+            )
+        )
+
+    return variants_out
+
+
 @router.patch(
     "/api/workspaces/thumbnails/{channel}/{video}/variants/{variant_id}",
     response_model=ThumbnailVariantResponse,

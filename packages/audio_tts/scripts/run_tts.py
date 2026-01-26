@@ -641,10 +641,10 @@ def main() -> None:
         vv_url = cfg.voicevox_url
         try:
             if requests is not None:
-                r = requests.get(f"{vv_url}/speakers", timeout=3)
+                r = requests.get(f"{vv_url}/speakers", timeout=10)
                 r.raise_for_status()
             else:
-                with urllib.request.urlopen(f"{vv_url}/speakers", timeout=3) as resp:  # noqa: S310
+                with urllib.request.urlopen(f"{vv_url}/speakers", timeout=10) as resp:  # noqa: S310
                     if resp.status != 200:
                         raise RuntimeError(resp.status)
         except Exception as e:

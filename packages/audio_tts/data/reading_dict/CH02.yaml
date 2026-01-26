@@ -1,0 +1,279 @@
+# CH02 (静寂の哲学) channel reading dictionary
+# - Surface must be >= 2 chars (1-char is banned by policy).
+# - Readings must be kana-only (Katakana preferred).
+
+一センチ:
+  accent_moras: null
+  reading_hira: イッセンチ
+  reading_kana: イッセンチ
+  source: manual
+一脚:
+  accent_moras: null
+  reading_hira: イッキヤク
+  reading_kana: イッキヤク
+  source: manual
+一字一句:
+  accent_moras: null
+  reading_hira: イチジイック
+  reading_kana: イチジイック
+  source: manual
+一番上:
+  accent_moras: null
+  reading_hira: イチバンウエ
+  reading_kana: イチバンウエ
+  source: manual
+一編:
+  accent_moras: null
+  reading_hira: イッペン
+  reading_kana: イッペン
+  source: manual
+何から:
+  accent_moras: null
+  reading_hira: ナニカラ
+  reading_kana: ナニカラ
+  source: manual
+何時何分:
+  accent_moras: null
+  reading_hira: ナンジナンプン
+  reading_kana: ナンジナンプン
+  source: manual
+付けて:
+  accent_moras: null
+  reading_hira: ツケテ
+  reading_kana: ツケテ
+  source: manual
+人が:
+  accent_moras: null
+  reading_hira: ヒトガ
+  reading_kana: ヒトガ
+  source: manual
+入り込めば:
+  accent_moras: null
+  reading_hira: ハイリコメバ
+  reading_kana: ハイリコメバ
+  source: manual
+囲い:
+  accent_moras: null
+  reading_hira: カコイ
+  reading_kana: カコイ
+  source: manual
+塗れた:
+  accent_moras: null
+  reading_hira: マミレタ
+  reading_kana: マミレタ
+  source: manual
+妄望:
+  accent_moras: null
+  reading_hira: モウボウ
+  reading_kana: モウボウ
+  source: manual
+妬み:
+  accent_moras: null
+  reading_hira: ネタミ
+  reading_kana: ネタミ
+  source: manual
+彩度:
+  accent_moras: null
+  reading_hira: サイド
+  reading_kana: サイド
+  source: manual
+色鮮やか:
+  accent_moras: null
+  reading_hira: イロアザヤカ
+  reading_kana: イロアザヤカ
+  source: manual
+心優しき:
+  accent_moras: null
+  reading_hira: ココロヤサシキ
+  reading_kana: ココロヤサシキ
+  source: manual
+問いける:
+  accent_moras: null
+  reading_hira: トイカケル
+  reading_kana: トイカケル
+  source: manual
+辿り着いた:
+  accent_moras: null
+  reading_hira: タドリツイタ
+  reading_kana: タドリツイタ
+  source: manual
+身に付いた:
+  accent_moras: null
+  reading_hira: ミニツイタ
+  reading_kana: ミニツイタ
+  source: manual
+沈濁:
+  accent_moras: null
+  reading_hira: チンダク
+  reading_kana: チンダク
+  source: manual
+濁熱:
+  accent_moras: null
+  reading_hira: ジョクネツ
+  reading_kana: ジョクネツ
+  source: manual
+潜勢態:
+  accent_moras: null
+  reading_hira: センゼイタイ
+  reading_kana: センゼイタイ
+  source: manual
+生へと:
+  accent_moras: null
+  reading_hira: セイエト
+  reading_kana: セイエト
+  source: manual
+目として:
+  accent_moras: null
+  reading_hira: メトシテ
+  reading_kana: メトシテ
+  source: manual
+等閑にする:
+  accent_moras: null
+  reading_hira: ナオザリニスル
+  reading_kana: ナオザリニスル
+  source: manual
+籠もっても:
+  accent_moras: null
+  reading_hira: コモッテモ
+  reading_kana: コモッテモ
+  source: manual
+閾値:
+  accent_moras: null
+  reading_hira: シキチ
+  reading_kana: シキチ
+  source: manual
+顔を:
+  accent_moras: null
+  reading_hira: カオオ
+  reading_kana: カオオ
+  source: manual
+高い山:
+  accent_moras: null
+  reading_hira: タカイヤマ
+  reading_kana: タカイヤマ
+  source: manual
+黄金郷:
+  accent_moras: null
+  reading_hira: オウゴンキョウ
+  reading_kana: オウゴンキョウ
+  source: manual
+霧消:
+  accent_moras: null
+  reading_hira: ムショウ
+  reading_kana: ムショウ
+  source: manual
+霧消して:
+  accent_moras: null
+  reading_hira: ムショウシテ
+  reading_kana: ムショウシテ
+  source: manual
+爆走:
+  accent_moras: null
+  reading_hira: バクソウ
+  reading_kana: バクソウ
+  source: manual
+泳法:
+  accent_moras: null
+  reading_hira: エイホウ
+  reading_kana: エイホウ
+  source: manual
+清き一票:
+  accent_moras: null
+  reading_hira: キヨキイッピョウ
+  reading_kana: キヨキイッピョウ
+  source: manual
+数多く:
+  accent_moras: null
+  reading_hira: カズオオク
+  reading_kana: カズオオク
+  source: manual
+次こそ:
+  accent_moras: null
+  reading_hira: ツギコソ
+  reading_kana: ツギコソ
+  source: manual
+並べ立て:
+  accent_moras: null
+  reading_hira: ナラベタテ
+  reading_kana: ナラベタテ
+  source: manual
+力を:
+  accent_moras: null
+  reading_hira: チカラオ
+  reading_kana: チカラオ
+  source: manual
+増します:
+  accent_moras: null
+  reading_hira: マシマス
+  reading_kana: マシマス
+  source: manual
+全く別:
+  accent_moras: null
+  reading_hira: マッタクベツ
+  reading_kana: マッタクベツ
+  source: manual
+二分を過ぎても:
+  accent_moras: null
+  reading_hira: ニフンオスギテモ
+  reading_kana: ニフンオスギテモ
+  source: manual
+名薬:
+  accent_moras: null
+  reading_hira: メイヤク
+  reading_kana: メイヤク
+  source: manual
+山や:
+  accent_moras: null
+  reading_hira: ヤマヤ
+  reading_kana: ヤマヤ
+  source: manual
+手数:
+  accent_moras: null
+  reading_hira: テカズ
+  reading_kana: テカズ
+  source: manual
+時の流れ:
+  accent_moras: null
+  reading_hira: トキノナガレ
+  reading_kana: トキノナガレ
+  source: manual
+行き止まり:
+  accent_moras: null
+  reading_hira: イキドマリ
+  reading_kana: イキドマリ
+  source: manual
+重なり:
+  accent_moras: null
+  reading_hira: カサナリ
+  reading_kana: カサナリ
+  source: manual
+頑なに:
+  accent_moras: null
+  reading_hira: カタクナニ
+  reading_kana: カタクナニ
+  source: manual
+ガス欠:
+  accent_moras: null
+  reading_hira: ガスケツ
+  reading_kana: ガスケツ
+  source: manual
+バラ色:
+  accent_moras: null
+  reading_hira: バライロ
+  reading_kana: バライロ
+  source: manual
+倒し:
+  accent_moras: null
+  reading_hira: タオシ
+  reading_kana: タオシ
+  source: manual
+ブリューマ:
+  accent_moras: null
+  reading_hira: ブリユーマ
+  reading_kana: ブリユーマ
+  source: manual
+ブリューマ・ツァイガルニク:
+  accent_moras: null
+  reading_hira: ブリユーマツァイガルニク
+  reading_kana: ブリユーマツァイガルニク
+  source: manual

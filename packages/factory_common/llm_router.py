@@ -325,11 +325,22 @@ except ImportError:
     OpenAI = None
     AzureOpenAI = None
 
-# Try importing Gemini
-try:
-    import google.generativeai as genai
-except ImportError:
-    genai = None
+_GENAI_IMPORT_ATTEMPTED = False
+genai = None  # lazy-import (avoid noisy import-time messages in long-lived servers)
+
+
+def _lazy_import_genai():
+    global _GENAI_IMPORT_ATTEMPTED, genai
+    if _GENAI_IMPORT_ATTEMPTED:
+        return genai
+    _GENAI_IMPORT_ATTEMPTED = True
+    try:
+        import google.generativeai as genai_mod  # type: ignore
+    except ImportError:
+        genai = None
+    else:
+        genai = genai_mod
+    return genai
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO)
@@ -1088,9 +1099,10 @@ class LLMRouter:
         if "gemini" in providers:
             p = providers["gemini"]
             key = os.getenv(p.get("env_api_key"))
-            if key and genai:
-                genai.configure(api_key=key)
-                self.clients["gemini"] = "configured" # Client is static
+            if key:
+                # Defer importing/configuring the SDK until a Gemini call is actually made.
+                # This avoids noisy import-time output during UI backend startup.
+                self.clients["gemini"] = {"env_api_key": p.get("env_api_key")}  # configure-on-use
 
     def _fireworks_mark_current_key_dead(self, *, http_status: Optional[int] = None) -> None:
         keys = getattr(self, "_fireworks_keys", None)
@@ -1662,6 +1674,27 @@ class LLMRouter:
                     ]
                 )
             )
+
+        # Policy: Image prompt planning must not be generated via LLM API under normal ops.
+        # - This task produces `refined_prompt` that directly steers image generation.
+        # - If we cannot proceed without LLM API, we must stop and report (no silent fallback).
+        if lockdown_active() and str(task or "").strip() == "visual_image_cues_plan":
+            from factory_common.llm_exec_slots import effective_llm_mode
+
+            mode = effective_llm_mode()
+            if mode == "api":
+                raise SystemExit(
+                    "\n".join(
+                        [
+                            "[LOCKDOWN] Forbidden task via LLM API: visual_image_cues_plan",
+                            f"- task: {task}",
+                            "- policy: Do NOT generate image prompts via LLM API/codex exec. Prompts must be provided manually.",
+                            "- action: create/fix `visual_cues_plan.json` (pending→ready) and rerun the pipeline",
+                            "- alt: use THINK/AGENT mode only to create pending tasks (LLM_EXEC_SLOT=3/4)",
+                            "- emergency: set YTM_EMERGENCY_OVERRIDE=1 for debug only",
+                        ]
+                    )
+                )
 
         models = self.get_models_for_task(task, model_keys_override=model_keys)
         if not models:
@@ -2894,8 +2927,23 @@ class LLMRouter:
 
             model_name = model_conf.get("model_name")
 
-            # Use the configured genai client
-            model = genai.GenerativeModel(model_name)
+            genai_mod = _lazy_import_genai()
+            if not genai_mod:
+                raise RuntimeError("Gemini SDK is not available (install google-generativeai).")
+
+            env_key_name = None
+            if isinstance(client, dict):
+                env_key_name = client.get("env_api_key")
+            api_key = os.getenv(env_key_name) if env_key_name else os.getenv("GEMINI_API_KEY")
+            if not api_key:
+                raise RuntimeError("GEMINI_API_KEY is not configured.")
+
+            # Configure once per process/key.
+            if getattr(self, "_gemini_configured_key", None) != api_key:
+                genai_mod.configure(api_key=api_key)
+                self._gemini_configured_key = api_key
+
+            model = genai_mod.GenerativeModel(model_name)
 
             # For image generation, just pass the prompt
             # Additional parameters will be handled by the model configuration

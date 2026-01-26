@@ -26,6 +26,13 @@
   - 正本実装: `apps/ui-frontend/src/api/baseUrl.ts`
   - 注意: `REACT_APP_API_BASE_URL` は末尾 `/` なしに正規化される。
   - fetch直叩きが残る場合でも、URL組み立ては `apiUrl()`（or `client.ts` の `resolveApiUrl()`）を通す。
+- 例外: **Acer常駐（Tailscale `/ui` 配下で公開）** の場合は、frontend を `/ui` に合わせて起動する。
+  - Dev（開発/ホットリロード）: `npm run start:acer`（or `python3 apps/ui-backend/tools/start_manager.py start --profile dev --frontend-script start:acer --supervise`）
+  - Prod（常駐/高速）: `npm run build:acer:gz` → `npm run serve:acer`（or `python3 apps/ui-backend/tools/start_manager.py start --profile prod --frontend-script serve:acer --supervise`）
+  - Reverse proxy/Tailscale serve の配線（重要）:
+    - `/ui/*` → frontend (3000)
+    - `/api/*` と `/thumbnails/*` → backend (8000)
+    - `/remotion/*` → frontend (3000)（Remotion preview を使う場合）
 - 例外（静的）: **Script Viewer（Pages）** は backend を使わない（APIなし）。
   - 静的ページ: `docs/`
     - UI/Style: `docs/index.html`, `docs/styles.css`, `docs/app.js`

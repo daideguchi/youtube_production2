@@ -152,7 +152,9 @@ def run_pipeline(args):
     # CH13: user requirement is concrete, section-faithful scene prompts (avoid abstract/cliché filler).
     if channel_upper in {"CH12", "CH13"}:
         use_cues_plan = True
-        # NOTE: cues_plan is always driven by `visual_image_cues_plan` (API or THINK/AGENT pending).
+        # NOTE:
+        # - Default behavior: cues_plan is driven by `visual_image_cues_plan` (API or THINK/AGENT pending).
+        # - Operators can hard-disable LLM-based planning (see SRT2IMAGES_CUES_PLAN_MANUAL_ONLY below).
 
     # cue-mode=single is a deterministic 1-cue flow (no planning/LLM needed).
     if args.cue_mode == "single":
@@ -256,7 +258,7 @@ def run_pipeline(args):
             # Single-task cue planning (THINK MODE friendly): segments -> planned sections -> cues.
             base_seconds = 30.0
             try:
-                if (args.channel or "").upper() == "CH01":
+                if (args.channel or "").upper() in {"CH01", "CH32"}:
                     base_seconds = 12.0
                 elif channel_preset and channel_preset.config_model and getattr(channel_preset.config_model, "image_generation", None):
                     cfg_period = float(channel_preset.config_model.image_generation.base_period or 0)
@@ -277,7 +279,28 @@ def run_pipeline(args):
 
             logging.info("Building image cues via cues_plan (base_seconds=%.1f, fps=%d)", base_seconds, args.fps)
             plan_path = out_dir / "visual_cues_plan.json"
-            force_plan = (os.getenv("SRT2IMAGES_FORCE_CUES_PLAN") or "").strip().lower() in {"1", "true", "yes", "on"}
+            force_plan_requested = (os.getenv("SRT2IMAGES_FORCE_CUES_PLAN") or "").strip().lower() in {
+                "1",
+                "true",
+                "yes",
+                "on",
+            }
+            manual_only = (os.getenv("SRT2IMAGES_CUES_PLAN_MANUAL_ONLY") or "").strip().lower() in {
+                "1",
+                "true",
+                "yes",
+                "on",
+            }
+            # Policy: When text LLM is disabled, cues planning must also be manual.
+            # This prevents accidental LLM API calls for prompt generation.
+            if disable_text_llm:
+                manual_only = True
+            if manual_only and force_plan_requested:
+                logging.warning(
+                    "Ignoring SRT2IMAGES_FORCE_CUES_PLAN=1 because manual-only cues plan mode is enabled (%s).",
+                    plan_path,
+                )
+            force_plan = force_plan_requested and not manual_only
 
             planned_sections = None
             if plan_path.exists() and not force_plan:
@@ -303,6 +326,13 @@ def run_pipeline(args):
                     ]
                     logging.info("Loaded %d sections from %s", len(planned_sections), plan_path)
                 except Exception as e:
+                    if manual_only:
+                        raise SystemExit(
+                            f"❌ visual_cues_plan.json invalid: {e}\n"
+                            f"- path: {plan_path}\n"
+                            "- policy: manual-only cues plan is enabled; automatic regeneration is disabled\n"
+                            "- fix the file and rerun"
+                        )
                     raise SystemExit(
                         f"❌ visual_cues_plan.json invalid: {e}\n"
                         f"- path: {plan_path}\n"
@@ -310,6 +340,35 @@ def run_pipeline(args):
                     )
 
             if planned_sections is None:
+                if manual_only:
+                    # Manual-only mode: never call the router to generate prompts.
+                    # Create a pending skeleton for operators if missing, then stop.
+                    if not plan_path.exists():
+                        episode = parse_episode_id(str(srt_path))
+                        episode_id = episode.episode if episode else None
+                        plan_art = build_visual_cues_plan_artifact(
+                            srt_path=srt_path,
+                            segment_count=len(segments),
+                            base_seconds=base_seconds,
+                            sections=[],
+                            episode=episode_id,
+                            style_hint=style_hint,
+                            status="pending",
+                            llm_task={
+                                "task": "visual_image_cues_plan",
+                                "note": "manual_only: fill sections then rerun",
+                            },
+                            meta={
+                                "pending_reason": "manual_only: cues plan generation via LLM router is disabled",
+                            },
+                        )
+                        write_visual_cues_plan(plan_path, plan_art)
+                        logging.info("Wrote %s (status=pending; manual_only)", plan_path)
+                    raise SystemExit(
+                        "❌ cues_plan manual-only: visual_cues_plan.json is required.\n"
+                        f"- path: {plan_path}\n"
+                        "- Fill the sections (concrete scenes) and rerun."
+                    )
                 try:
                     planned_sections = plan_sections_via_router(
                         segments=segments,
@@ -699,8 +758,8 @@ def run_pipeline(args):
             
         summary_for_prompt = " \n".join(parts)
         
-        # Determine if we should prepend summary (Subject-First) for CH01
-        is_ch01 = (args.channel or detected_channel or "").upper() == "CH01"
+        # Determine if we should prepend summary (Subject-First) for CH01/CH32
+        is_ch01 = (args.channel or detected_channel or "").upper() in {"CH01", "CH32"}
 
         # Prefer per-cue model_key when present (e.g., image_source_mix assigns it).
         # Otherwise fall back to the run-level forced key (preset/env) so prompt shaping can match the model.

@@ -38,6 +38,8 @@ TAG_REQUIREMENT_KEYS = [
 # 必須フィールドの閾値設定（channel_code -> min_no, keys）
 CHANNEL_FIELD_REQUIREMENTS: Dict[str, ChannelFieldRequirement] = {
     "CH01": ChannelFieldRequirement(min_no=191, required_keys=TAG_REQUIREMENT_KEYS),
+    # CH32 is a CH01 clone (new channel restart); require the same tags from episode 1.
+    "CH32": ChannelFieldRequirement(min_no=1, required_keys=TAG_REQUIREMENT_KEYS),
     "CH02": ChannelFieldRequirement(min_no=101, required_keys=TAG_REQUIREMENT_KEYS),
     "CH03": ChannelFieldRequirement(min_no=101, required_keys=TAG_REQUIREMENT_KEYS),
     "CH04": ChannelFieldRequirement(min_no=101, required_keys=TAG_REQUIREMENT_KEYS),
@@ -48,6 +50,10 @@ CHANNEL_FIELD_REQUIREMENTS: Dict[str, ChannelFieldRequirement] = {
 # 説明文のデフォルト値
 CHANNEL_DESCRIPTION_DEFAULTS: Dict[str, Dict[str, str]] = {
     "CH01": {
+        "description_lead": "優しさを利用されがちなあなたへ──慈悲と境界線のお話。",
+        "description_takeaways": "・慈悲と甘やかしの違い\n・距離を置く言い換え3つ",
+    },
+    "CH32": {
         "description_lead": "優しさを利用されがちなあなたへ──慈悲と境界線のお話。",
         "description_takeaways": "・慈悲と甘やかしの違い\n・距離を置く言い換え3つ",
     },

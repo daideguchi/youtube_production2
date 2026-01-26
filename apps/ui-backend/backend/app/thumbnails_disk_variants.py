@@ -41,7 +41,14 @@ def _collect_disk_thumbnail_variants(channel_code: str) -> Dict[str, List[Thumbn
             video_number = _coerce_video_from_dir(video_dir.name)
             if not video_number:
                 continue
-            for asset_path in sorted(video_dir.rglob("*")):
+            # IMPORTANT: do not rglob() here.
+            # On Vault/shared storage (SMB), rglob() over compiler intermediates can take minutes
+            # and makes `/api/workspaces/thumbnails` unusable. We only need top-level assets.
+            try:
+                entries = sorted(video_dir.iterdir())
+            except FileNotFoundError:
+                continue
+            for asset_path in entries:
                 if not asset_path.is_file():
                     continue
                 suffix = asset_path.suffix.lower()

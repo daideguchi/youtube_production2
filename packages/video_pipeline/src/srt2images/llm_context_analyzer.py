@@ -294,8 +294,8 @@ class LLMContextAnalyzer:
         # This is context-based (semantic boundary scoring), not equal-interval mechanical splitting.
         ch = (self.channel_id or "").upper()
         max_allowed = target_sections + 1
-        if ch == "CH01":
-            # CH01 intentionally uses a faster pace than its base_period-derived target.
+        if ch in {"CH01", "CH32"}:
+            # CH01/CH32 intentionally uses a faster pace than its base_period-derived target.
             max_allowed = int(round(max_allowed * 1.5))
         if ch != "CH22" and len(final_sections) > max_allowed:
             logging.info(
@@ -562,15 +562,15 @@ Script excerpts:
             # Guardrail: allow some variance, but force-split very long sections.
             force_split_seconds = int(max(20.0, min(120.0, float(desired_avg_sec) * 1.6)))
 
-        # CH01: align pacing with channel preset base_period (SSOT).
-        if (self.channel_id or "").upper() == "CH01":
+        # CH01/CH32: align pacing with channel preset base_period (SSOT).
+        if (self.channel_id or "").upper() in {"CH01", "CH32"}:
             min_sections = int(min_sections * 1.5)
             max_sections = int(max_sections * 1.5)
             section_seconds_hint = "15–25"
             force_split_seconds = 30
             extra_rapid = (
                 "\n"
-                "- **CRITICAL FOR CH01:** Maintain a steady visual pace (aim ~15–25s per image around the target average).\n"
+                "- **CRITICAL FOR CH01/CH32:** Maintain a steady visual pace (aim ~15–25s per image around the target average).\n"
                 "- **ABSOLUTELY FORBIDDEN:** Do not merge distinct actions or thoughts into one long static shot.\n"
                 "- **VISUAL VARIETY:** Adjacent sections MUST have distinctly different `visual_focus`. Change angle, subject, distance, or lighting.\n"
                 "- If a segment is a list or has sharp beat changes, split it into shorter cuts (8–15s), but avoid micro-cuts unless the script truly warrants it.\n"

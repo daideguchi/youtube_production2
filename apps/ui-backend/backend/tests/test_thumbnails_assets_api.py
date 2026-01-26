@@ -34,3 +34,20 @@ def test_thumbnails_assets_accepts_unpadded_video(thumbnails_assets_env):
     assert resp.headers["content-type"] == "image/png"
     assert resp.content == b"fake-png"
 
+
+def test_thumbnails_assets_missing_default_returns_placeholder(thumbnails_assets_env):
+    client: TestClient = thumbnails_assets_env["client"]  # type: ignore[assignment]
+
+    resp = client.get("/thumbnails/assets/CH26/4/00_thumb.png")
+    assert resp.status_code == 404
+
+
+def test_thumbnails_assets_missing_default_returns_placeholder_when_enabled(thumbnails_assets_env, monkeypatch):
+    client: TestClient = thumbnails_assets_env["client"]  # type: ignore[assignment]
+
+    monkeypatch.setenv("YTM_THUMBNAILS_MISSING_PLACEHOLDER", "1")
+    resp = client.get("/thumbnails/assets/CH26/4/00_thumb.png")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "image/png"
+    assert resp.headers.get("x-ytm-placeholder") == "1"
+    assert resp.content.startswith(b"\x89PNG\r\n\x1a\n")

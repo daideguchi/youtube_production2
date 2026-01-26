@@ -419,7 +419,7 @@ def _sanitize_prompt_for_generation(*, channel: str, prompt: str) -> str:
             + "ABSOLUTE RESTRICTIONS: NO people, NO face, NO portrait, NO silhouette, NO human figure, NO animals."
         ).strip()
         return out
-    if ch == "CH01":
+    if ch in {"CH01", "CH32"}:
         out = p
         out = out.replace("Buddhist monk", "Buddha figure")
         out = out.replace("buddhist monk", "Buddha figure")
@@ -455,7 +455,7 @@ def _fallback_image_prompt_for_style(channel: str, *, text_template_id: Optional
             "ABSOLUTE RESTRICTIONS:\n"
             "NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.\n"
         )
-    if ch != "CH01" or not tpl:
+    if ch not in {"CH01", "CH32"} or not tpl:
         return ""
 
     if tpl == "CH01_recent_post_bottom_band_3line_v1":
@@ -1006,6 +1006,7 @@ def build_channel_thumbnails(
     height: int,
     stable_thumb_name: str = "00_thumb.png",
     variant_label: Optional[str] = None,
+    update_projects: bool = True,
     force: bool,
     skip_generate: bool,
     continue_on_error: bool,
@@ -1301,7 +1302,7 @@ def build_channel_thumbnails(
             prompt = None
             use_image_spec_prompt = True
             if (
-                ch == "CH01"
+                ch in {"CH01", "CH32"}
                 and str(text_template_id_override or "").strip() == "CH01_canva_gold_right_stack_3line_v1"
                 and str(img_id or "").strip() == "ch01_image_prompts_memo9_v1"
             ):
@@ -1853,16 +1854,19 @@ def build_channel_thumbnails(
         if flat_out:
             flat_out.write_bytes(stable_thumb.read_bytes())
 
-        title = _resolve_title_from_specs(channel=ch, video_id=target.video_id, image_spec=image_spec, text_spec=text_spec_typed)
-        rel_thumb = f"{ch}/{target.video}/{stable_thumb_name}"
-        upsert_fs_variant(
-            channel=ch,
-            video=target.video,
-            title=title,
-            image_rel_path=rel_thumb,
-            label=resolved_variant_label,
-            status="review",
-        )
+        if update_projects:
+            title = _resolve_title_from_specs(
+                channel=ch, video_id=target.video_id, image_spec=image_spec, text_spec=text_spec_typed
+            )
+            rel_thumb = f"{ch}/{target.video}/{stable_thumb_name}"
+            upsert_fs_variant(
+                channel=ch,
+                video=target.video,
+                title=title,
+                image_rel_path=rel_thumb,
+                label=resolved_variant_label,
+                status="review",
+            )
 
         overrides_leaf_json: Dict[str, Any] = {}
         for k, v in overrides_leaf.items():

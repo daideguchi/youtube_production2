@@ -151,6 +151,7 @@
       - 退避先: `workspaces/video/_capcut_drafts/_archive/<timestamp>/`（削除ではなく移動）
       - report: `workspaces/logs/regression/capcut_local_drafts_archive/`
 - `workspaces/video/input/<CH>_<PresetName>/<CH>-<NNN>.{srt,wav}`（Audio final の**ミラー**）
+    - 重要: `video/input/<CH>_*` ディレクトリ自体は **Macローカルに実体化**して運用する（共有の archive へのディレクトリsymlinkで代用しない / 共有ダウン時に破綻する）。
     - 正本は `workspaces/audio/final/<CH>/<NNN>/`。`video/input` は **手動編集禁止**（混乱の原因）。
     - 同期: `python -m video_pipeline.tools.sync_audio_inputs`
       - 容量削減（標準）: wav を symlink でミラーする（挙動は同じで重複を避けられる）

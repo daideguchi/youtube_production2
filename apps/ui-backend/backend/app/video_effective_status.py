@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from backend.app.episode_store import _detect_artifact_path, video_base_dir
-from backend.app.path_utils import PROJECT_ROOT
+from backend.app.path_utils import PROJECT_ROOT, safe_exists, safe_is_file
 from backend.app.stage_status_utils import _stage_status_value
 from backend.app.status_models import STAGE_ORDER
 
@@ -75,8 +75,8 @@ def _inject_audio_completion_from_artifacts(
     else:
         srt_path = _detect_artifact_path(channel_code, video_number, ".srt")
 
-    audio_exists = audio_path.exists() if audio_path else False
-    srt_exists = srt_path.exists() if srt_path else False
+    audio_exists = safe_exists(audio_path) if audio_path else False
+    srt_exists = safe_exists(srt_path) if srt_path else False
 
     if audio_exists:
         audio_stage["status"] = "completed"
@@ -121,7 +121,7 @@ def _resolve_script_artifact_candidates(
 
 
 def _a_text_file_ok(path: Path) -> bool:
-    if not path.exists() or not path.is_file():
+    if not safe_exists(path) or not safe_is_file(path):
         return False
     try:
         if path.stat().st_size <= 0:
@@ -230,4 +230,3 @@ def _derive_effective_video_status(
 
     any_started = any(_stage_status_value(stage_entry) != "pending" for stage_entry in (stages or {}).values())
     return "in_progress" if any_started else "pending"
-

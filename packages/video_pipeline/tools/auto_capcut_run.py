@@ -60,6 +60,16 @@ from factory_common.timeline_manifest import (
 
 from video_pipeline.src.core.config import config
 
+def _abspath_no_resolve(p: Path) -> Path:
+    """
+    Absolute path without following symlinks.
+
+    We avoid Path.resolve() because it can:
+    - follow SoT symlinks into host-specific external mounts
+    - raise when intermediate symlink targets are temporarily unavailable
+    """
+    return Path(os.path.abspath(str(p.expanduser())))
+
 def _warn_if_audio_final_missing_metadata(*, episode: EpisodeId, wav_path: Path, srt_path: Path) -> None:
     """
     Audio/SRT desync is CODE RED.
@@ -714,7 +724,7 @@ def main():
 
     # Safety: prevent cross-channel wiring.
     # If SRT filename/path implies another channel, fail fast.
-    requested_srt_path = Path(args.srt).expanduser().resolve()
+    requested_srt_path = _abspath_no_resolve(Path(args.srt))
     name_match = re.search(r"(CH\d{2})", requested_srt_path.name, flags=re.IGNORECASE)
     if name_match and name_match.group(1).upper() != args.channel.upper():
         print(
@@ -742,7 +752,7 @@ def main():
         try:
             effective_wav_path, effective_srt_path = resolve_final_audio_srt(episode)
             _warn_if_audio_final_missing_metadata(episode=episode, wav_path=effective_wav_path, srt_path=effective_srt_path)
-            if effective_srt_path.resolve() != requested_srt_path.resolve():
+            if _abspath_no_resolve(effective_srt_path) != _abspath_no_resolve(requested_srt_path):
                 print(f"[SoT] Using final SRT: {effective_srt_path} (requested: {requested_srt_path})")
         except FileNotFoundError:
             # Keep requested SRT (manual workflows / in-progress episodes)
@@ -886,12 +896,14 @@ def main():
             "episode_id": episode.episode if episode else "",
             "run_dir": str(run_dir),
             "run_name": run_name,
-            "srt": str(effective_srt_path.resolve()),  # back-compat
+            # Back-compat: keep the old key name as the effective SoT input.
+            # Prefer the run_dir copy so it always points to an on-disk file even if the source was symlinked/offloaded.
+            "srt": str(srt_copy),
             "srt_requested": str(requested_srt_path),
-            "srt_effective": str(effective_srt_path.resolve()),
-            "audio_wav_effective": str(effective_wav_path.resolve()) if effective_wav_path else "",
+            "srt_effective": str(srt_copy),
+            "audio_wav_effective": str(effective_wav_path) if effective_wav_path else "",
             "template": template_override,
-            "draft_root": str(Path(args.draft_root).resolve()),
+            "draft_root": str(Path(args.draft_root).expanduser()),
             "nanobanana": args.nanobanana,
             "force": bool(args.force),
             "resume": bool(args.resume),
@@ -923,7 +935,7 @@ def main():
             sys.executable,
             str(run_pipeline_path),
             "--srt",
-            str(effective_srt_path),
+            str(srt_copy),
             "--out",
             str(run_dir),
             "--engine",
@@ -1442,10 +1454,10 @@ def main():
     log.update({
         "channel": args.channel,
         # Back-compat: keep the old key name as the effective SoT input
-        "srt": str(effective_srt_path.resolve()),
+        "srt": str(srt_copy),
         "srt_requested": str(requested_srt_path),
-        "srt_effective": str(effective_srt_path.resolve()),
-        "audio_wav_effective": str(effective_wav_path.resolve()) if effective_wav_path else "",
+        "srt_effective": str(srt_copy),
+        "audio_wav_effective": str(effective_wav_path) if effective_wav_path else "",
         "run_dir": str(run_dir),
         "draft": str(Path(args.draft_root) / draft_name),
         "draft_name": draft_name,

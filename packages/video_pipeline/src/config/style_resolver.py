@@ -13,6 +13,10 @@ FALLBACK_STYLE_PATH = video_pkg_root() / "config" / "master_styles.json"
 
 logger = logging.getLogger(__name__)
 
+# When a channel preset omits `video_style_id`, we must NOT fall back to a center subtitle style.
+# Default to the empirically-validated bottom subtitle style.
+DEFAULT_FALLBACK_STYLE_ID = "jinsei_standard_v2"
+
 
 def _as_float(value, default: float) -> float:
     try:
@@ -130,14 +134,39 @@ class StyleResolver:
 
     def resolve_from_preset(self, preset_style_id: Optional[str]) -> VideoStyle:
         """
-        Resolve style from ID, falling back to a default or empty style if not found.
-        Useful to ensure the pipeline never crashes due to missing style, 
-        but logs a warning instead (handled by caller).
+        Resolve a video style from a preset's style id.
+
+        IMPORTANT: When missing/invalid, prefer a validated bottom subtitle style
+        instead of a center-positioned fallback. This prevents accidental "center-center"
+        subtitles when a channel forgot to set `video_style_id`.
         """
-        if preset_style_id and preset_style_id in self._styles:
-            return self._styles[preset_style_id]
-        
-        # Return a default SAFE style if specific one not found
-        # This prevents 'None' errors in adapters
-        fallback_sub = TextStyle(font_size_pt=30, text_color="#FFFFFF")
-        return VideoStyle(name="Fallback Default", subtitle_style=fallback_sub)
+        if preset_style_id:
+            style = self._styles.get(preset_style_id)
+            if style:
+                return style
+            logger.warning(
+                "Unknown video_style_id=%s; falling back to %s",
+                preset_style_id,
+                DEFAULT_FALLBACK_STYLE_ID,
+            )
+        else:
+            logger.warning(
+                "Missing video_style_id; falling back to %s",
+                DEFAULT_FALLBACK_STYLE_ID,
+            )
+
+        fallback = self._styles.get(DEFAULT_FALLBACK_STYLE_ID)
+        if fallback:
+            return fallback
+
+        # Last-resort: safe bottom position (CapCut expects y around -0.8 for lower area).
+        logger.error(
+            "Fallback video style id %s not found; using hardcoded safe subtitle position",
+            DEFAULT_FALLBACK_STYLE_ID,
+        )
+        fallback_sub = TextStyle(font_size_pt=30, text_color="#FFFFFF", position_x=0.0, position_y=0.8)
+        return VideoStyle(
+            name="Fallback Default",
+            description=f"auto-fallback (missing/invalid style id). default={DEFAULT_FALLBACK_STYLE_ID}",
+            subtitle_style=fallback_sub,
+        )

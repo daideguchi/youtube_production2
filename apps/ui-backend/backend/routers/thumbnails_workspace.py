@@ -71,8 +71,18 @@ router = APIRouter(prefix="/api/workspaces/thumbnails", tags=["thumbnails"])
 
 
 @router.get("", response_model=ThumbnailOverviewResponse)
-def get_thumbnail_overview():
+def get_thumbnail_overview(
+    include_disk_variants: bool = Query(
+        False,
+        description="Merge file-based variants from workspaces/thumbnails/assets (can be slow on SMB/Vault).",
+    ),
+    include_youtube_previews: bool = Query(
+        False,
+        description="Fetch recent YouTube uploads for preview (may call external APIs).",
+    ),
+):
     from backend import main as backend_main
+    from script_pipeline.tools import planning_store
 
     projects_path = _resolve_thumbnail_projects_path()
 
@@ -85,9 +95,62 @@ def get_thumbnail_overview():
         raise HTTPException(status_code=500, detail=f"invalid thumbnail projects payload: {exc}") from exc
 
     projects_payload = payload.get("projects") or []
-    channel_info_map = refresh_channel_info()
+    # refresh_channel_info() returns a process-global dict that can be refreshed/mutated
+    # by other requests. Snapshot it to avoid "dictionary changed size during iteration".
+    channel_info_map = dict(refresh_channel_info())
 
     channel_map: Dict[str, Dict[str, Any]] = {}
+
+    planning_titles_by_channel: Dict[str, Dict[str, str]] = {}
+
+    def _normalize_planning_video_token(value: Any) -> Optional[str]:
+        raw = str(value or "").strip()
+        if not raw:
+            return None
+        digits = "".join(ch for ch in raw if ch.isdigit())
+        if not digits:
+            return None
+        return digits.zfill(3)
+
+    def _load_planning_titles(channel_code: str) -> Dict[str, str]:
+        cached = planning_titles_by_channel.get(channel_code)
+        if cached is not None:
+            return cached
+        out: Dict[str, str] = {}
+        try:
+            rows = planning_store.get_rows(channel_code, force_refresh=False)
+        except Exception:
+            rows = []
+        for row in rows:
+            raw = getattr(row, "raw", None)
+            if not isinstance(raw, dict):
+                continue
+            title = str(raw.get("タイトル") or raw.get("\ufeffタイトル") or "").strip()
+            if not title:
+                continue
+            vid = _normalize_planning_video_token(getattr(row, "video_number", None))
+            if not vid:
+                continue
+            out[vid] = title
+        planning_titles_by_channel[channel_code] = out
+        return out
+
+    def _resolve_project_titles(raw_project: Dict[str, Any], channel_code: str, video_code: str) -> tuple[Optional[str], Optional[str]]:
+        raw_title = raw_project.get("title")
+        raw_sheet_title = raw_project.get("sheet_title")
+
+        title_text = str(raw_title).strip() if isinstance(raw_title, str) else ""
+        sheet_text = str(raw_sheet_title).strip() if isinstance(raw_sheet_title, str) else ""
+
+        if not sheet_text:
+            vid = _normalize_planning_video_token(video_code)
+            if vid:
+                sheet_text = _load_planning_titles(channel_code).get(vid, "")
+
+        if not title_text and sheet_text:
+            title_text = sheet_text
+
+        return (title_text or None, sheet_text or None)
 
     for raw_project in projects_payload:
         channel_code = str(raw_project.get("channel") or "").upper()
@@ -143,13 +206,14 @@ def get_thumbnail_overview():
             else None
         )
 
+        title, sheet_title = _resolve_project_titles(raw_project, channel_code, video_code)
         entry["projects"].append(
             ThumbnailProjectResponse(
                 channel=channel_code,
                 video=video_code,
                 script_id=raw_project.get("script_id"),
-                title=raw_project.get("title"),
-                sheet_title=raw_project.get("sheet_title"),
+                title=title,
+                sheet_title=sheet_title,
                 status=raw_project.get("status") or "draft",
                 owner=raw_project.get("owner"),
                 summary=raw_project.get("summary"),
@@ -179,9 +243,9 @@ def get_thumbnail_overview():
     remaining_refresh_budget = max(0, backend_main.YOUTUBE_UPLOADS_MAX_REFRESH_PER_REQUEST)
     merged_channels: set[str] = set()
 
-    for channel_code, info in channel_info_map.items():
+    for channel_code, info in list(channel_info_map.items()):
         entry = channel_map.setdefault(channel_code, {"projects": [], "videos": []})
-        if channel_code not in merged_channels:
+        if include_disk_variants and channel_code not in merged_channels:
             backend_main._merge_disk_thumbnail_variants(channel_code, entry)
             merged_channels.add(channel_code)
         branding = info.get("branding") if isinstance(info.get("branding"), dict) else {}
@@ -221,7 +285,8 @@ def get_thumbnail_overview():
 
         backoff_active = bool(backoff_until and backoff_until > now)
         should_refresh = (
-            not cache_is_fresh
+            include_youtube_previews
+            and not cache_is_fresh
             and backend_main.YOUTUBE_CLIENT
             and youtube_meta.get("channel_id")
             and remaining_refresh_budget > 0
@@ -296,7 +361,7 @@ def get_thumbnail_overview():
                 library_path = str(primary_library)
         else:
             library_path = None
-        if channel_code not in merged_channels:
+        if include_disk_variants and channel_code not in merged_channels:
             backend_main._merge_disk_thumbnail_variants(channel_code, entry)
             merged_channels.add(channel_code)
         summary_obj = entry.get("summary")

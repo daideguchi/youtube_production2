@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Apply mixed asset sourcing (gemini:schnell:free stock) to an existing run_dir.
+Apply mixed asset sourcing (flux-pro:flux-max:free stock) to an existing run_dir.
 
 Edits `run_dir/image_cues.json`:
   - Optionally injects stock B-roll (adds `asset_relpath` per cue).
@@ -8,6 +8,10 @@ Edits `run_dir/image_cues.json`:
 
 This is intended for experimentation on a *copy* of an existing run_dir.
 It never rewrites subtitle text; it only annotates cues for downstream tools.
+
+Legacy flag aliases (backward-compat):
+  - --gemini-model-key == --flux-pro-model-key
+  - --schnell-model-key == --flux-max-model-key
 """
 
 from __future__ import annotations
@@ -32,11 +36,11 @@ from factory_common.artifacts.utils import utc_now_iso  # noqa: E402
 
 @dataclass(frozen=True)
 class MixConfig:
-    gemini_weight: int
-    schnell_weight: int
+    flux_pro_weight: int
+    flux_max_weight: int
     broll_weight: int
-    gemini_model_key: str
-    schnell_model_key: str
+    flux_pro_model_key: str
+    flux_max_model_key: str
     seed: int
 
 
@@ -51,16 +55,16 @@ def _write_json(path: Path, obj: Dict[str, Any]) -> None:
 def _parse_weights(raw: str) -> Tuple[int, int, int]:
     parts = [p.strip() for p in str(raw or "").split(":")]
     if len(parts) != 3:
-        raise SystemExit("--weights must be like 4:3:3 (gemini:schnell:free)")
+        raise SystemExit("--weights must be like 7:2:1 (flux-pro:flux-max:free)")
     try:
-        g, s, f = (int(parts[0]), int(parts[1]), int(parts[2]))
+        pro, mx, free = (int(parts[0]), int(parts[1]), int(parts[2]))
     except Exception:
-        raise SystemExit("--weights must be integers like 4:3:3 (gemini:schnell:free)")
-    if g < 0 or s < 0 or f < 0:
-        raise SystemExit("--weights must be >= 0 (gemini:schnell:free)")
-    if g == 0 and s == 0 and f == 0:
+        raise SystemExit("--weights must be integers like 7:2:1 (flux-pro:flux-max:free)")
+    if pro < 0 or mx < 0 or free < 0:
+        raise SystemExit("--weights must be >= 0 (flux-pro:flux-max:free)")
+    if pro == 0 and mx == 0 and free == 0:
         raise SystemExit("--weights cannot be all zeros")
-    return g, s, f
+    return pro, mx, free
 
 
 def _stable_seed(run_dir: Path, extra_seed: Optional[int]) -> int:
@@ -108,34 +112,34 @@ def _assign_models(
             eligible.append(i)
             continue
         if mk:
-            if mk == cfg.gemini_model_key:
+            if mk == cfg.flux_pro_model_key:
                 fixed_g += 1
-            elif mk == cfg.schnell_model_key:
+            elif mk == cfg.flux_max_model_key:
                 fixed_s += 1
             else:
                 fixed_other += 1
         else:
             eligible.append(i)
 
-    img_weight_total = cfg.gemini_weight + cfg.schnell_weight
+    img_weight_total = cfg.flux_pro_weight + cfg.flux_max_weight
     if img_weight_total <= 0:
         # No image models requested.
         return {
             "eligible": len([c for c in cues if isinstance(c, dict) and not _cue_has_existing_asset(run_dir, c)]),
-            "assigned_gemini": 0,
-            "assigned_schnell": 0,
-            "fixed_gemini": fixed_g,
-            "fixed_schnell": fixed_s,
+            "assigned_flux_pro": 0,
+            "assigned_flux_max": 0,
+            "fixed_flux_pro": fixed_g,
+            "fixed_flux_max": fixed_s,
             "fixed_other": fixed_other,
         }
 
     eligible_total = len([c for c in cues if isinstance(c, dict) and not _cue_has_existing_asset(run_dir, c)])
-    desired_g = int(round(eligible_total * (cfg.gemini_weight / img_weight_total)))
-    desired_g = max(0, min(eligible_total, desired_g))
-    desired_s = eligible_total - desired_g
+    desired_pro = int(round(eligible_total * (cfg.flux_pro_weight / img_weight_total)))
+    desired_pro = max(0, min(eligible_total, desired_pro))
+    desired_max = eligible_total - desired_pro
 
-    need_g = max(0, desired_g - fixed_g)
-    need_s = max(0, desired_s - fixed_s)
+    need_pro = max(0, desired_pro - fixed_g)
+    need_max = max(0, desired_max - fixed_s)
 
     # Deterministic shuffle of remaining indices.
     rng = random.Random(int(cfg.seed))
@@ -147,45 +151,47 @@ def _assign_models(
         cue = cues[idx]
         if not isinstance(cue, dict):
             continue
-        if need_s > 0:
-            cue["image_model_key"] = cfg.schnell_model_key
-            need_s -= 1
+        if need_max > 0:
+            cue["image_model_key"] = cfg.flux_max_model_key
+            need_max -= 1
             assigned_s += 1
             continue
-        if need_g > 0:
-            cue["image_model_key"] = cfg.gemini_model_key
-            need_g -= 1
+        if need_pro > 0:
+            cue["image_model_key"] = cfg.flux_pro_model_key
+            need_pro -= 1
             assigned_g += 1
             continue
         # If existing assignments already overshot the target ratio, fill the rest
         # using the original weight ratio (best-effort).
-        if cfg.gemini_weight >= cfg.schnell_weight:
-            cue["image_model_key"] = cfg.gemini_model_key
+        if cfg.flux_pro_weight >= cfg.flux_max_weight:
+            cue["image_model_key"] = cfg.flux_pro_model_key
             assigned_g += 1
         else:
-            cue["image_model_key"] = cfg.schnell_model_key
+            cue["image_model_key"] = cfg.flux_max_model_key
             assigned_s += 1
 
     return {
         "eligible": eligible_total,
-        "assigned_gemini": assigned_g,
-        "assigned_schnell": assigned_s,
-        "fixed_gemini": fixed_g,
-        "fixed_schnell": fixed_s,
+        "assigned_flux_pro": assigned_g,
+        "assigned_flux_max": assigned_s,
+        "fixed_flux_pro": fixed_g,
+        "fixed_flux_max": fixed_s,
         "fixed_other": fixed_other,
     }
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Apply gemini:schnell:free mix to an existing run_dir (image_cues.json).")
+    ap = argparse.ArgumentParser(description="Apply flux-pro:flux-max:free mix to an existing run_dir (image_cues.json).")
     ap.add_argument("run_dir", help="Target run_dir (workspaces/video/runs/<run_id>)")
     ap.add_argument(
         "--weights",
-        default="4:3:3",
-        help="Weights gemini:schnell:free (default: 4:3:3)",
+        default="7:2:1",
+        help="Weights flux-pro:flux-max:free (default: 7:2:1)",
     )
-    ap.add_argument("--gemini-model-key", default="g-1", help="Model key/slot for Gemini (default: g-1)")
-    ap.add_argument("--schnell-model-key", default="f-1", help="Model key/slot for Schnell (default: f-1)")
+    ap.add_argument("--flux-pro-model-key", default=None, help="Model key/slot for Flux Pro (default: f-3)")
+    ap.add_argument("--flux-max-model-key", default=None, help="Model key/slot for Flux Max (default: f-4)")
+    ap.add_argument("--gemini-model-key", default=None, help="(legacy) alias of --flux-pro-model-key")
+    ap.add_argument("--schnell-model-key", default=None, help="(legacy) alias of --flux-max-model-key")
     ap.add_argument("--seed", type=int, help="Optional deterministic seed override (default: derived from run_dir)")
     ap.add_argument("--overwrite", action="store_true", help="Overwrite existing cue.image_model_key assignments")
     ap.add_argument("--dry-run", action="store_true", help="Do not write changes (print summary only)")
@@ -214,18 +220,35 @@ def main() -> int:
     if not cues_path.exists():
         raise SystemExit(f"image_cues.json not found: {cues_path}")
 
-    g_w, s_w, f_w = _parse_weights(args.weights)
-    total_w = g_w + s_w + f_w
-    broll_ratio = float(args.broll_ratio) if args.broll_ratio is not None else (float(f_w) / float(total_w))
+    pro_w, max_w, free_w = _parse_weights(args.weights)
+    total_w = pro_w + max_w + free_w
+    broll_ratio = float(args.broll_ratio) if args.broll_ratio is not None else (float(free_w) / float(total_w))
     broll_ratio = 0.0 if broll_ratio < 0 else broll_ratio
     broll_ratio = 1.0 if broll_ratio > 1 else broll_ratio
 
+    flux_pro_model_key = str(args.flux_pro_model_key or "").strip()
+    flux_max_model_key = str(args.flux_max_model_key or "").strip()
+    legacy_gemini_key = str(args.gemini_model_key or "").strip()
+    legacy_schnell_key = str(args.schnell_model_key or "").strip()
+    if flux_pro_model_key and legacy_gemini_key and flux_pro_model_key != legacy_gemini_key:
+        raise SystemExit(
+            "Conflicting flags: --flux-pro-model-key and --gemini-model-key must match "
+            f"({flux_pro_model_key} vs {legacy_gemini_key})"
+        )
+    if flux_max_model_key and legacy_schnell_key and flux_max_model_key != legacy_schnell_key:
+        raise SystemExit(
+            "Conflicting flags: --flux-max-model-key and --schnell-model-key must match "
+            f"({flux_max_model_key} vs {legacy_schnell_key})"
+        )
+    flux_pro_model_key = flux_pro_model_key or legacy_gemini_key or "f-3"
+    flux_max_model_key = flux_max_model_key or legacy_schnell_key or "f-4"
+
     cfg = MixConfig(
-        gemini_weight=g_w,
-        schnell_weight=s_w,
-        broll_weight=f_w,
-        gemini_model_key=str(args.gemini_model_key or "").strip() or "g-1",
-        schnell_model_key=str(args.schnell_model_key or "").strip() or "f-1",
+        flux_pro_weight=pro_w,
+        flux_max_weight=max_w,
+        broll_weight=free_w,
+        flux_pro_model_key=flux_pro_model_key,
+        flux_max_model_key=flux_max_model_key,
         seed=_stable_seed(run_dir, args.seed),
     )
 
@@ -253,8 +276,8 @@ def main() -> int:
 
     # Compute final counts.
     broll_count = 0
-    gemini_count = 0
-    schnell_count = 0
+    flux_pro_count = 0
+    flux_max_count = 0
     other_model_count = 0
     unassigned = 0
     for cue in cues:
@@ -266,19 +289,23 @@ def main() -> int:
         mk = str(cue.get("image_model_key") or "").strip()
         if not mk:
             unassigned += 1
-        elif mk == cfg.gemini_model_key:
-            gemini_count += 1
-        elif mk == cfg.schnell_model_key:
-            schnell_count += 1
+        elif mk == cfg.flux_pro_model_key:
+            flux_pro_count += 1
+        elif mk == cfg.flux_max_model_key:
+            flux_max_count += 1
         else:
             other_model_count += 1
 
     mix_manifest = {
-        "schema": "ytm.image_source_mix.v1",
+        "schema": "ytm.image_source_mix.v2",
         "generated_at": utc_now_iso(),
         "run_dir": str(run_dir),
-        "weights": {"gemini": cfg.gemini_weight, "schnell": cfg.schnell_weight, "free": cfg.broll_weight},
-        "models": {"gemini": cfg.gemini_model_key, "schnell": cfg.schnell_model_key},
+        "weights": {"flux_pro": cfg.flux_pro_weight, "flux_max": cfg.flux_max_weight, "free": cfg.broll_weight},
+        "models": {"flux_pro": cfg.flux_pro_model_key, "flux_max": cfg.flux_max_model_key},
+        "legacy": {
+            "weights": {"gemini": cfg.flux_pro_weight, "schnell": cfg.flux_max_weight, "free": cfg.broll_weight},
+            "models": {"gemini": cfg.flux_pro_model_key, "schnell": cfg.flux_max_model_key},
+        },
         "seed": int(cfg.seed),
         "broll": {
             "provider": args.broll_provider,
@@ -293,8 +320,8 @@ def main() -> int:
         "counts": {
             "total_cues": len(cues),
             "broll": broll_count,
-            "gemini": gemini_count,
-            "schnell": schnell_count,
+            "flux_pro": flux_pro_count,
+            "flux_max": flux_max_count,
             "other_model_key": other_model_count,
             "unassigned": unassigned,
         },
@@ -317,4 +344,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

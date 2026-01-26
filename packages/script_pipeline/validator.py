@@ -50,6 +50,9 @@ _DUMMY_A_TEXT_MARKERS = (
     "ダミー本文を配置しています",
 )
 
+_PUNCT_ONLY_CHARS = set("。、.,，．・…")
+_RE_PUNCT_WRAP_EMPHASIS = re.compile(r"。[^\\s。！？]{1,12}。")
+
 _SLEEP_CHANNEL_TAG_MARKERS = ("#睡眠用", "#寝落ち")
 _SLEEP_FRAMING_ANY_MARKERS = (
     "寝落ち",
@@ -246,6 +249,55 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
     if not normalized.strip():
         issues.append({"code": "empty_script", "message": "A-text is empty", "severity": "error"})
         return issues, stats
+
+    # Punctuation/line-break collapse guard:
+    # - punctuation-only lines are never valid A-text (use blank line or `---` instead)
+    # - extreme short-line ratio indicates the output has been split into 1-2 chars per line
+    non_empty_non_pause = [ln for ln in lines if ln.strip() and ln.strip() != "---"]
+    punct_only_line_nos: List[int] = []
+    short_lines = 0
+    for idx, ln in enumerate(lines, start=1):
+        s = ln.strip()
+        if not s or s == "---":
+            continue
+        if all(ch in _PUNCT_ONLY_CHARS for ch in s):
+            punct_only_line_nos.append(idx)
+            continue
+        if len(s) <= 2:
+            short_lines += 1
+    stats["punct_only_lines"] = len(punct_only_line_nos)
+    stats["short_lines_le2"] = short_lines
+    if punct_only_line_nos:
+        issues.append(
+            {
+                "code": "punctuation_only_line",
+                "message": "Punctuation-only line detected (use blank line or `---`, never a standalone `。`/`、`/etc).",
+                "line": punct_only_line_nos[0],
+                "severity": "error",
+            }
+        )
+    if non_empty_non_pause:
+        ratio = short_lines / max(1, len(non_empty_non_pause))
+        # Conservative thresholds: false positives are extremely unlikely in natural A-text.
+        if short_lines >= 200 and ratio >= 0.20:
+            issues.append(
+                {
+                    "code": "line_segmentation_collapse",
+                    "message": f"Too many 1-2 character lines detected (short_lines={short_lines}, ratio={ratio:.3f}).",
+                    "severity": "error",
+                }
+            )
+
+    wrap_emphasis = len(_RE_PUNCT_WRAP_EMPHASIS.findall(normalized))
+    stats["punct_wrap_emphasis"] = wrap_emphasis
+    if wrap_emphasis >= 50:
+        issues.append(
+            {
+                "code": "punctuation_wrap_emphasis_abuse",
+                "message": f"Punctuation-wrapped emphasis detected too often (count={wrap_emphasis}).",
+                "severity": "error",
+            }
+        )
 
     # Sleep-framing contamination guard (non-sleep channels).
     if channel and not sleep_channel:
@@ -463,15 +515,15 @@ def validate_a_text(text: str, metadata: Dict[str, Any]) -> Tuple[List[Dict[str,
                 }
             )
 
-        # CH01 policy: forbid the one-line "Name, Age." intro pattern that tends to imply
+        # CH01/CH32 policy: forbid the one-line "Name, Age." intro pattern that tends to imply
         # fictional modern protagonists (e.g., "田村幸子、六十七歳。").
         # NOTE: This is a full-line match, so normal sentences like "ブッダが29歳のとき..." are OK.
-        if channel == "CH01" and _RE_CH01_FICTIONAL_PERSON_AGE_LINE.match(stripped):
+        if channel in {"CH01", "CH32"} and _RE_CH01_FICTIONAL_PERSON_AGE_LINE.match(stripped):
             issues.append(
                 {
                     "code": "ch01_fictional_person_intro",
                     "message": (
-                        "CH01 forbids the one-line `姓名、年齢(歳/才)。` introduction pattern "
+                        "CH01/CH32 forbids the one-line `姓名、年齢(歳/才)。` introduction pattern "
                         "(e.g., '田村幸子、六十七歳。'). If you need to mention age, write it as a normal sentence "
                         "(e.g., 'ブッダが29歳のとき…')."
                     ),

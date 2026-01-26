@@ -258,6 +258,45 @@ def _extract_persona_one_liner(text: str) -> str:
     return ""
 
 
+def _ch04_topic_hint_from_title(title: str) -> str:
+    """
+    CH04 planning rows (esp. 061-090) can be sparse. When required fields are
+    missing, fall back to a topic hint derived from the title so we can avoid
+    Gemini returning [NEEDS_INPUT].
+    """
+    raw = str(title or "").strip()
+    if not raw:
+        return ""
+    # Drop leading bracket tags like "【心理】" / "[tag]" (can be multiple).
+    hint = raw
+    hint = re.sub(r"^(?:【[^】]+】\s*)+", "", hint).strip()
+    hint = re.sub(r"^(?:\[[^\]]+\]\s*)+", "", hint).strip()
+    hint = _sanitize_prompt_input_text(hint)
+    return hint or _sanitize_prompt_input_text(raw)
+
+
+def _ch04_autofill_kikaku_intent(title: str) -> str:
+    topic = _ch04_topic_hint_from_title(title) or "今日のテーマ"
+    return (
+        "日常のモヤモヤや違和感を、心理学/認知科学の視点で整理する。\n"
+        f"扱うテーマは「{topic}」。\n"
+        "断定や煽りは避け、具体例→仕組み→日常での扱い方の順で、視聴者が今日から試せる一手まで落とす。"
+    )
+
+
+def _ch04_autofill_kosei(title: str) -> str:
+    topic = _ch04_topic_hint_from_title(title) or "今日のテーマ"
+    return (
+        "導入: 日常の一場面から入る。違和感を1つ提示する。\n"
+        f"テーマ: {topic} を、短い一文で定義する。\n"
+        "よくある誤解: ありがちな解釈や思い込みを1つだけ出す。\n"
+        "仕組み: 何が起きているかを、注意/記憶/感情/習慣のどれかに結びつけて説明する。\n"
+        "具体例: 仕事/人間関係/買い物など、身近な例を2つ。\n"
+        "観察の一手: 今日からできる短いメモや問いを1つ。\n"
+        "結び: まとめて終える。"
+    )
+
+
 @dataclass(frozen=True)
 class BuildResult:
     channel: str
@@ -350,7 +389,9 @@ def build_prompts(
         prompt_lines.append(f"- channel: {ch}")
         prompt_lines.append(f"- video: {video}")
         prompt_lines.append(f"- title: {title}")
-        if pat_id:
+        # CH04: pattern_id に "hidden_library" が含まれており、台本本文に
+        # 図書館モチーフが混入する誘因になるため、Gemini投入文面からは除外する。
+        if pat_id and ch != "CH04":
             prompt_lines.append(f"- pattern_id: {pat_id}")
         prompt_lines.append("")
 
@@ -409,11 +450,24 @@ def build_prompts(
 
         prompt_lines.append("## 5) INPUT（企画; Planning CSV）")
         # Keep the minimum set visible (even when empty) so Gemini can return [NEEDS_INPUT] safely.
-        target = _sanitize_prompt_input_text(_extract_str(row, "ターゲット層")) or persona_one.strip()
+        raw_target = _sanitize_prompt_input_text(_extract_str(row, "ターゲット層"))
+        # CH04: planning rows historically contained "隠れた歴史・神秘/書庫" 系の誘導が混ざりやすい。
+        # 台本本文ではそれらのモチーフを禁止しているため、Batch投入のPERSONAは persona.md を優先する。
+        if ch == "CH04" and persona_one.strip():
+            target = persona_one.strip()
+        else:
+            target = raw_target or persona_one.strip()
+        kikaku_intent = _sanitize_prompt_input_text(_extract_str(row, "企画意図"))
+        kosei = _sanitize_prompt_input_text(_extract_str(row, "具体的な内容（話の構成案）"))
+        if ch == "CH04":
+            if not kikaku_intent:
+                kikaku_intent = _ch04_autofill_kikaku_intent(title)
+            if not kosei:
+                kosei = _ch04_autofill_kosei(title)
         minimal_fields: List[Tuple[str, str]] = [
-            ("企画意図", _sanitize_prompt_input_text(_extract_str(row, "企画意図"))),
+            ("企画意図", kikaku_intent),
             ("ターゲット層", target),
-            ("具体的な内容（話の構成案）", _sanitize_prompt_input_text(_extract_str(row, "具体的な内容（話の構成案）"))),
+            ("具体的な内容（話の構成案）", kosei),
             ("避けたい話題/表現", _sanitize_prompt_input_text(_extract_str(row, "避けたい話題/表現"))),
         ]
         for k, v in minimal_fields:
@@ -439,6 +493,11 @@ def build_prompts(
             "説明文_リード",
             "説明文_この動画でわかること",
         ]
+        if ch == "CH04":
+            # CH04: たとえ話/説明文は「書庫/アーカイブ/光る糸」などのモチーフ誘導が混ざりやすいので、
+            # Gemini投入プロンプトから除外して事故を防ぐ。
+            drop = {"たとえ話イメージ", "説明文_リード", "説明文_この動画でわかること"}
+            optional_keys = [k for k in optional_keys if k not in drop]
         for k in optional_keys:
             val = _sanitize_prompt_input_text(_extract_str(row, k))
             if not val:

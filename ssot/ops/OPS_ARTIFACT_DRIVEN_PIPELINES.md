@@ -28,11 +28,25 @@
   - SRTを決定論でパースしたsegments（start/end/text）
 - `visual_cues_plan.json`
   - schema: `ytm.visual_cues_plan.v1`
-  - sections（start/end segment + visual_focus等）
+  - sections（start/end segment + visual_focus等 + **refined_prompt**）
+  - **画像プロンプトの“下書き/正本”**: `sections[*].refined_prompt`
+    - ここが「人間/エージェントが思考して書く」箇所（LLM APIに生成させない）
   - THINK/AGENTで未完の場合は `status=pending`（埋めたら `ready` 扱い）
 - `image_cues.json`
   - schema: `ytm.image_cues.v1`
-  - 最終的なcue（start/end/prompt含む）と画像生成設定
+  - **画像生成に使う“最終プロンプトの正本”**: `cues[*].prompt`
+    - 実際に画像モデルへ送る文字列（model_key/テンプレ/ガードレール等を反映）
+    - 監査/差し替えの基準はまずここ（「何を送ったか」を確定できる）
+  - 併記: `cues[*].refined_prompt`（plan由来の短い本命差分）、`cues[*].visual_focus`、`cues[*].summary`
+  - 画像ファイル対応（run_dir内）:
+    - `images/0001.png` は `cues[0]`（index=1）に対応（以降、連番）
+  - **再生成の原則**:
+    - `visual_cues_plan.json`（ready）から `image_cues.json` は再計算できる（例: prompt圧縮ロジック更新時）
+    - `SRT2IMAGES_DISABLE_TEXT_LLM=1` + `SRT2IMAGES_CUES_PLAN_MANUAL_ONLY=1` で「LLM APIへ落ちない」ことを保証した上で再実行する
+
+### 画像プロンプトの“どこを見ればいいか”（結論）
+- **編集（人間/エージェントが手で直す場所）**: `workspaces/video/runs/<run_id>/visual_cues_plan.json` の `sections[*].refined_prompt`
+- **実際に送った最終プロンプト（監査/証跡）**: `workspaces/video/runs/<run_id>/image_cues.json` の `cues[*].prompt`
 
 ## 台本生成（script_pipeline）のartifact（追加）
 出力先: `workspaces/scripts/{CH}/{NNN}/`

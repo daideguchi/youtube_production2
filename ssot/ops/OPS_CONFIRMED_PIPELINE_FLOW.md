@@ -314,10 +314,13 @@ Planning運用: `ssot/ops/OPS_PLANNING_CSV_WORKFLOW.md`
 		     - Outputs:
 		     - `workspaces/video/runs/{run_id}/srt_segments.json`（SRTを決定論でパースしたsegments。plan/retimeの前提）
 		     - `workspaces/video/runs/{run_id}/image_cues.json`
-		     - `workspaces/video/runs/{run_id}/images/0001.png ...`
+		       - 画像生成プロンプト（最終・送信文字列の正本）: `cues[*].prompt`
+		       - plan由来の短い本命差分: `cues[*].refined_prompt`（schnell等の差分源）
+		     - `workspaces/video/runs/{run_id}/images/0001.png ...`（`cues[0]`=index 1 に対応。以降連番）
 		     - `workspaces/video/runs/{run_id}/_gemini_batch/manifest.json`（`nanobanana=batch` の場合。job_id/入力/出力対応のSoT）
-    	     - `workspaces/video/runs/{run_id}/persona.txt` / `channel_preset.json`（存在時）
+	    	     - `workspaces/video/runs/{run_id}/persona.txt` / `channel_preset.json`（存在時）
 	     - `workspaces/video/runs/{run_id}/visual_cues_plan.json`（cues_plan 経路のみ。THINK/AGENT では status=pending の骨格が先に出る）
+	       - 人間/エージェントが編集する正本: `sections[*].refined_prompt`
      - Quota失敗時: `RUN_FAILED_QUOTA.txt` を出力して明示停止。
      - 画像の人物一貫性（use_persona=true）:
        - `image_cues.json` の `input_images` に guide 画像が入り、生成時に **前フレーム画像を追加参照**して identity drift を抑える（guide + prev）。

@@ -49,6 +49,13 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 1) UIのテンプレからAI生成（Templates SoTに従う）
 2) 手動/外部で作った画像を配置（アップロード/コピー）
 
+運用メモ（重要）: Gemini枠死/429 等で `thumbnail_image_gen` が回らない場合
+- **禁止事項は守る**（`IMAGE_CLIENT_FORCE_MODEL_KEY_THUMBNAIL_IMAGE_GEN` 等の override で勝手に別モデルへ切替しない）
+- 回避ルート（安全・確実）:
+  1) 先に `workspaces/thumbnails/assets/{CH}/{NNN}/10_bg.png` を **ローカル生成/手動配置** する（背景だけ用意）
+  2) `scripts/thumbnails/build.py build --skip-generate ...` で **合成のみ**実行する（背景生成をスキップ）
+     - 例: `./.venv/bin/python scripts/thumbnails/build.py build --channel CH22 --videos 041 042 ... --skip-generate`
+
 手動差し替え（UI経由）:
 - `/thumbnails` → `調整（ドラッグ）` → `素材の差し替え（画像アップロード）` からアップロードすると、安定ファイル名へ置換される。
   - 背景: `10_bg.png`
@@ -64,6 +71,12 @@ UI（`/thumbnails`）の管理SoTや、AI画像生成テンプレの管理SoTと
 - Layer Specs:
   - `text_layout_v3.yaml`（動画ごとの文字/強調/配置）
   - `image_prompts_v3.yaml`（背景プロンプト）
+
+補足: CH24（kobo_best; ファイル直参照）
+- CH24 は `projects.json` 上で `fs::...kobo_best` を参照し、期待パスが `workspaces/thumbnails/assets/CH24/{NNN}/{NNN}_kobo_best.png` になっている（`00_thumb.png` ではない）。
+- SoT（固定）: `workspaces/thumbnails/assets/CH24/kobo_text_layer_spec_30.json`（Planning CSV の `サムネタイトル上/下` と一致）
+- 復旧/再構築（NO placeholders; Planning から再生成）:
+  - `./.venv/bin/python scripts/ops/ch24_kobo_best_rebuild.py --run`
 
 ### 2.3 ローカル合成で“最終サムネ”を作る
 背景（10_bg.*） + 文字（layout/spec）を **ローカル合成**し、最終PNGを生成する。

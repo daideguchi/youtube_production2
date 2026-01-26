@@ -2472,3 +2472,75 @@ archive-first（repo, tracked）:
 
 再発防止（コード）:
 - `packages/video_pipeline/tools/sync_audio_inputs.py` の orphan archive で broken symlink を扱えるように修正（`stat()` で落ちない）
+
+---
+
+## 2026-01-23
+
+### 1) CH04 崩壊Aテキスト（句読点/改行崩壊・Markdown混入）を graveyard へ退避して削除
+
+背景:
+- antigravity 実行後の一部 Aテキストが、1文字+句読点の連打や記号だらけになり、読み台本として成立していない。
+- `# ...` の Markdown 見出し混入など、Aテキストの禁止事項にも抵触していた。
+
+実行:
+- 退避先（archive-first）: `backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/`
+- 退避→削除対象: 37本
+  - `CH04-042, CH04-043, CH04-044`
+  - `CH04-049`〜`CH04-070`
+  - `CH04-079`〜`CH04-090`
+- 対象ファイル: `workspaces/scripts/CH04/NNN/content/assembled_human.md`
+
+補足:
+- 対象一覧（ローカル; gitignore）: `workspaces/_scratch/ch04_collapsed_a_text_list.json`
+
+---
+
+## 2026-01-24
+
+### 1) 廃止済みの旧aliasディレクトリ再出現を撤去（untracked）
+
+背景:
+- `commentary_02_srt2images_timeline/` は廃止済み（正本: `workspaces/video/{input,runs}/`）。
+- 欠損参照の“応急処置”として repo root に旧dirを作り直すと、SSOT/探索/並列運用の事故要因になる。
+
+方針（SSOT）:
+- 旧dirを再作成して欠損を埋めない。修復は参照元（例: CapCut draft 内 JSON の `file_Path` / `path`）を正本パスへ張り替える。
+
+実行:
+- 削除（untracked）:
+  - `commentary_02_srt2images_timeline/`
+  - `remotion/`（repo root alias。正本は `apps/remotion/`）
+- パス修復（CapCut draft）:
+  - `PYTHONPATH=".:packages" .venv/bin/python -m video_pipeline.tools.patch_capcut_draft_legacy_paths --mode run`
+  - 結果: scanned=985 matched=2 patched=2 replacements=2
+- 検証:
+  - `python3 scripts/ops/repo_sanity_audit.py --verbose` → `[ok] repo root layout drift: none`
+  - `rg -n "commentary_02_srt2images_timeline" "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" -S -g'*.json'` → 0 hits
+  - `rg -n "remotion/asset" "$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft" -S -g'*.json'` → 0 hits
+
+---
+
+## 2026-01-26
+
+### 1) ディスク逼迫の緊急掃除（CH04: 中間音声 / CapCut draft）
+
+背景:
+- ディスク空きが少なく（`/Users/dd` が 94〜96% 付近）、作業継続が難しくなった。
+- 方針: **台本は消さない**（投稿済み含む）。進捗は投稿済みのまま。サムネも消さない。
+- 削除対象は「再生成可能な大きい中間音声」および「投稿済みの CapCut draft / cache の明らかに不要なもの」に限定。
+
+実行:
+- 削除（untracked）: `workspaces/scripts/CH04/031-090/**/audio_prep/`（60本、約4.41GB）
+  - 例: `rm -rf workspaces/scripts/CH04/{031..090}/audio_prep/`
+  - 理由: final は `workspaces/audio/final/CH04/**` にあり、中間生成物は再生成可能。
+- 削除（CapCut / untracked, user home）:
+  - `"$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/.cloud_cache_7444088538909754384"`（約224.6MB）
+  - `"$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/OLD__*"`（4件、約0.25GB）
+  - `"$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/CH06-001_ダーク図書館_capcut_v9"` / `..._v10`
+  - `"$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/完成★CH02-042-..."`（symlink を unlink → 実体削除）
+  - `"$HOME/Movies/CapCut/User Data/Projects/com.lveditor.draft/★CH26-001-..."`（約38.7MB）
+
+検証:
+- `df -h /Users/dd` にて空き容量が増加したことを確認（実行後: avail 25Gi / 94%）。
+- `./ops progress --channel CH04 --format summary --include-hidden-runs` → issues=0（進捗・サムネ・台本は保持）。

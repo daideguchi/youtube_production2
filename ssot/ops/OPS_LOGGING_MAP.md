@@ -219,6 +219,22 @@
   - Reader: `./ops latest`
   - 種別: **L1（上書きポインタ。`cleanup_logs` が保護）**
 
+- `workspaces/logs/ops/workspaces_mirror/*`  
+  - Writer: `scripts/ops/workspaces_mirror.py`（`./ops mirror workspaces`）
+  - 役割: **Macローカル→保管庫ミラー**の実行記録（run/dry-run, src/dest, rsync結果、stdout/stderrログ）
+  - ファイル例:
+    - `workspaces_mirror__<stamp>.json`（構造化レポート; L1寄り）
+    - `workspaces_mirror__<stamp>__<step>.stdout.log` / `.stderr.log`（rsyncの全文ログ; L3）
+    - `launchd_stdout.log` / `launchd_stderr.log`（launchd常駐の出力; L3）
+  - 種別: **L3（短期保持。ローテ対象）**（ただし調査対象の run は手動で退避してよい）
+
+- `workspaces/logs/ops/vault_workspaces_doctor/*`  
+  - Writer: `scripts/ops/vault_workspaces_doctor.py`
+  - 役割: **Vault(共有)のパス整合/portable化**（絶対symlink→相対symlink変換、必須パス作成のレポート）
+  - ファイル例:
+    - `vault_workspaces_doctor__<stamp>.json`（構造化レポート; L1寄り）
+  - 種別: **L3（短期保持。ローテ対象）**
+
 - `workspaces/logs/ops/slack_outbox/outbox__*.json`  
   - Writer: `scripts/ops/slack_notify.py`（Slack送信失敗時のローカル退避）
   - Reader: `python3 scripts/ops/slack_notify.py --flush-outbox`

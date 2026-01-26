@@ -126,6 +126,12 @@
         "path": "workspaces/thumbnails/compiler/layer_specs/ch02_image_prompts_sample_v3.yaml",
         "name": "ch02_image_prompts_sample_v3"
       },
+      "ch02_image_prompts_legacy_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch02_image_prompts_legacy_v1.yaml",
+        "name": "ch02_image_prompts_legacy_v1"
+      },
       "ch02_text_layout_sample_v3": {
         "kind": "text_layout",
         "version": 3,

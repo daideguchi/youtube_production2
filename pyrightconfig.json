@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/pyright/main/packages/pyright/schema/pyrightconfig.schema.json",
+  "exclude": [
+    "**/__pycache__",
+    "**/.mypy_cache",
+    "**/.pytest_cache",
+    ".git",
+    ".remotion",
+    ".venv",
+    "apps/**/.next",
+    "apps/**/.remotion",
+    "apps/**/build",
+    "apps/**/dist",
+    "apps/**/node_modules",
+    "asset",
+    "backups",
+    "docs",
+    "workspaces/_scratch",
+    "workspaces/_tmp",
+    "workspaces/audio",
+    "workspaces/logs",
+    "workspaces/scripts",
+    "workspaces/thumbnails",
+    "workspaces/tmp",
+    "workspaces/video"
+  ]
+}

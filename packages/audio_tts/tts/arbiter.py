@@ -40,7 +40,7 @@ VOICEPEAK_LOCAL_USER_CSV_PATH = VOICEPEAK_SETTINGS_DIR / "user.csv"
 LLM_LOG_PATH = logs_root() / "tts_llm_usage.log"
 
 # Surfaces that should be kept even if they match MeCab/trivial diff.
-FORCE_GLOBAL_SURFACES = {"同じ道", "微調整", "一種", "憂い"}
+FORCE_GLOBAL_SURFACES = {"同じ道", "微調整", "一種", "憂い", "善き"}
 
 _VOICEPEAK_COMMA_DROP_PARTICLES_DEFAULT = {"は", "が", "に", "で", "も", "へ", "を"}
 
@@ -903,7 +903,8 @@ def _jp_number_with_counter_kana(n: int, counter: str) -> str:
 
     if counter == "年":
         if n % 10 == 4:
-            prefix = _jp_number_kana(n - 4) if n >= 4 else ""
+            # 4年=ヨネン (not ゼロヨネン), 14年=ジュウヨネン, 24年=ニジュウヨネン ...
+            prefix = _jp_number_kana(n - 4) if n > 4 else ""
             return (prefix + "ヨネン") if prefix else "ヨネン"
         return _jp_number_kana(n) + "ネン"
 

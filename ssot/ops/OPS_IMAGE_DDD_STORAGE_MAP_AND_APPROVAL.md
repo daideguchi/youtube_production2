@@ -64,10 +64,11 @@ SSOTリンク:
 
 ### 2.1 マウント先（決定）
 
-保管庫（共有ストレージ）の実体は **Lenovo外付け**。  
+保管庫（共有ストレージ）の実体は「外付け」。通常は Lenovo に刺さっているが、Lenovo が死んだ場合は Acer に付け替えて運用する（Vault provider 切替）。  
 各ホストは「同じ共有」をそれぞれのパスへマウントし、以降は env で固定する。
 
-- Lenovo（物理ストレージ）: SMB共有 `doraemon`（Tailscale IP: `100.127.188.120`）
+- Lenovo（通常の物理ストレージ）: SMB共有 `doraemon`（Tailscale IP: `100.127.188.120`）
+- Acer（Lenovo不在時の物理ストレージ）: SMB共有 `lenovo_share`（Tailscale IP: `100.98.188.38`）
 - Mac（編集機）: `/Users/dd/mounts/lenovo_share_real` にマウント（`YTM_SHARED_STORAGE_ROOT=/Users/dd/mounts/lenovo_share_real`）
 - Acer（UIゲートウェイ）: `/srv/workspace/doraemon/workspace/lenovo_share` にマウント（`YTM_SHARED_STORAGE_ROOT=/srv/workspace/doraemon/workspace/lenovo_share`）
 

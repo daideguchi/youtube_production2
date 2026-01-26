@@ -188,3 +188,313 @@ NG:
   reading_hira: カイバ
   reading_kana: カイバ
   source: manual
+あっという間:
+  accent_moras: null
+  reading_hira: アットイウマ
+  reading_kana: アットイウマ
+  source: manual
+あっという間に:
+  accent_moras: null
+  reading_hira: アットイウマニ
+  reading_kana: アットイウマニ
+  source: manual
+一九二〇年代:
+  accent_moras: null
+  reading_hira: センキュウヒャクニジュウネンダイ
+  reading_kana: センキュウヒャクニジュウネンダイ
+  source: manual
+一九五〇年代:
+  accent_moras: null
+  reading_hira: センキュウヒャクゴジュウネンダイ
+  reading_kana: センキュウヒャクゴジュウネンダイ
+  source: manual
+一九五十年代:
+  accent_moras: null
+  reading_hira: センキュウヒャクゴジュウネンダイ
+  reading_kana: センキュウヒャクゴジュウネンダイ
+  source: manual
+一九六〇年代:
+  accent_moras: null
+  reading_hira: センキュウヒャクロクジュウネンダイ
+  reading_kana: センキュウヒャクロクジュウネンダイ
+  source: manual
+一九八〇年代:
+  accent_moras: null
+  reading_hira: センキュウヒャクハチジュウネンダイ
+  reading_kana: センキュウヒャクハチジュウネンダイ
+  source: manual
+一場面:
+  accent_moras: null
+  reading_hira: イチバメン
+  reading_kana: イチバメン
+  source: manual
+一言一句:
+  accent_moras: null
+  reading_hira: ヒトコトイック
+  reading_kana: ヒトコトイック
+  source: manual
+二十種類:
+  accent_moras: null
+  reading_hira: ニジュッシュルイ
+  reading_kana: ニジュッシュルイ
+  source: manual
+二十種類ほど:
+  accent_moras: null
+  reading_hira: ニジュッシュルイホド
+  reading_kana: ニジュッシュルイホド
+  source: manual
+二十カ国:
+  accent_moras: null
+  reading_hira: ニジュッカコク
+  reading_kana: ニジュッカコク
+  source: manual
+二桁:
+  accent_moras: null
+  reading_hira: フタケタ
+  reading_kana: フタケタ
+  source: manual
+何の:
+  accent_moras: null
+  reading_hira: ナンノ
+  reading_kana: ナンノ
+  source: manual
+他と:
+  accent_moras: null
+  reading_hira: ホカト
+  reading_kana: ホカト
+  source: manual
+行き止まり:
+  accent_moras: null
+  reading_hira: イキドマリ
+  reading_kana: イキドマリ
+  source: manual
+後や:
+  accent_moras: null
+  reading_hira: アトヤ
+  reading_kana: アトヤ
+  source: manual
+後知恵:
+  accent_moras: null
+  reading_hira: アトヂエ
+  reading_kana: アトヂエ
+  source: manual
+後付け:
+  accent_moras: null
+  reading_hira: アトヅケ
+  reading_kana: アトヅケ
+  source: manual
+強張って:
+  accent_moras: null
+  reading_hira: コワバッテ
+  reading_kana: コワバッテ
+  source: manual
+感作:
+  accent_moras: null
+  reading_hira: カンサ
+  reading_kana: カンサ
+  source: manual
+既視感:
+  accent_moras: null
+  reading_hira: キシカン
+  reading_kana: キシカン
+  source: manual
+未視感:
+  accent_moras: null
+  reading_hira: ミシカン
+  reading_kana: ミシカン
+  source: manual
+最も:
+  accent_moras: null
+  reading_hira: モットモ
+  reading_kana: モットモ
+  source: manual
+数十分:
+  accent_moras: null
+  reading_hira: スウジュップン
+  reading_kana: スウジュップン
+  source: manual
+数十種類:
+  accent_moras: null
+  reading_hira: スウジュッシュルイ
+  reading_kana: スウジュッシュルイ
+  source: manual
+漏洩:
+  accent_moras: null
+  reading_hira: ロウエイ
+  reading_kana: ロウエイ
+  source: manual
+馴染み深い:
+  accent_moras: null
+  reading_hira: ナジミブカイ
+  reading_kana: ナジミブカイ
+  source: manual
+関心事:
+  accent_moras: null
+  reading_hira: カンシンゴト
+  reading_kana: カンシンゴト
+  source: manual
+雨音:
+  accent_moras: null
+  reading_hira: アマオト
+  reading_kana: アマオト
+  source: manual
+部屋中:
+  accent_moras: null
+  reading_hira: ヘヤジュウ
+  reading_kana: ヘヤジュウ
+  source: manual
+不安感:
+  accent_moras: null
+  reading_hira: フアンカン
+  reading_kana: フアンカン
+  source: manual
+導き手:
+  accent_moras: null
+  reading_hira: ミチビキテ
+  reading_kana: ミチビキテ
+  source: manual
+誤答:
+  accent_moras: null
+  reading_hira: ゴトウ
+  reading_kana: ゴトウ
+  source: manual
+証し:
+  accent_moras: null
+  reading_hira: アカシ
+  reading_kana: アカシ
+  source: manual
+捉われる:
+  accent_moras: null
+  reading_hira: トラワレル
+  reading_kana: トラワレル
+  source: manual
+立ち振る舞い:
+  accent_moras: null
+  reading_hira: タチフルマイ
+  reading_kana: タチフルマイ
+  source: manual
+書き間違い:
+  accent_moras: null
+  reading_hira: カキマチガイ
+  reading_kana: カキマチガイ
+  source: manual
+衝動買い:
+  accent_moras: null
+  reading_hira: ショウドウガイ
+  reading_kana: ショウドウガイ
+  source: manual
+日記帳:
+  accent_moras: null
+  reading_hira: ニッキチョウ
+  reading_kana: ニッキチョウ
+  source: manual
+小箱:
+  accent_moras: null
+  reading_hira: コバコ
+  reading_kana: コバコ
+  source: manual
+擦れる:
+  accent_moras: null
+  reading_hira: コスレル
+  reading_kana: コスレル
+  source: manual
+重なり:
+  accent_moras: null
+  reading_hira: カサナリ
+  reading_kana: カサナリ
+  source: manual
+子供返り:
+  accent_moras: null
+  reading_hira: コドモガエリ
+  reading_kana: コドモガエリ
+  source: manual
+横線:
+  accent_moras: null
+  reading_hira: ヨコセン
+  reading_kana: ヨコセン
+  source: manual
+被り:
+  accent_moras: null
+  reading_hira: カブリ
+  reading_kana: カブリ
+  source: manual
+網様体賦活系:
+  accent_moras: null
+  reading_hira: モウヨウタイフカツケイ
+  reading_kana: モウヨウタイフカツケイ
+  source: manual
+大脳辺縁系:
+  accent_moras: null
+  reading_hira: ダイノウヘンエンケイ
+  reading_kana: ダイノウヘンエンケイ
+  source: manual
+ＳＮＳ:
+  accent_moras: null
+  reading_hira: エスエヌエス
+  reading_kana: エスエヌエス
+  source: manual
+SNS:
+  accent_moras: null
+  reading_hira: エスエヌエス
+  reading_kana: エスエヌエス
+  source: manual
+レヴィン:
+  accent_moras: null
+  reading_hira: レビン
+  reading_kana: レビン
+  source: manual
+灯り:
+  accent_moras: null
+  reading_hira: アカリ
+  reading_kana: アカリ
+  source: manual
+逸らし:
+  accent_moras: null
+  reading_hira: ソラシ
+  reading_kana: ソラシ
+  source: manual
+冷え:
+  accent_moras: null
+  reading_hira: ヒエ
+  reading_kana: ヒエ
+  source: manual
+間や:
+  accent_moras: null
+  reading_hira: アイダヤ
+  reading_kana: アイダヤ
+  source: manual
+なじみ深い:
+  accent_moras: null
+  reading_hira: ナジミブカイ
+  reading_kana: ナジミブカイ
+  source: manual
+顔を:
+  accent_moras: null
+  reading_hira: カオオ
+  reading_kana: カオオ
+  source: manual
+辿り着いた:
+  accent_moras: null
+  reading_hira: タドリツイタ
+  reading_kana: タドリツイタ
+  source: manual
+傾げ:
+  accent_moras: null
+  reading_hira: カシゲ
+  reading_kana: カシゲ
+  source: manual
+苦しんだり:
+  accent_moras: null
+  reading_hira: クルシンダリ
+  reading_kana: クルシンダリ
+  source: manual
+入ろう:
+  accent_moras: null
+  reading_hira: ハイロオ
+  reading_kana: ハイロオ
+  source: manual
+組み立て直して:
+  accent_moras: null
+  reading_hira: クミタテナオシテ
+  reading_kana: クミタテナオシテ
+  source: manual

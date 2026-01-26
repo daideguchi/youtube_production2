@@ -26,7 +26,12 @@ LOGS_ROOT = ssot_logs_root()
 LOCK_TIMEOUT_SECONDS = 5.0
 LOCK_METRICS = {"timeout": 0, "unexpected": 0}
 LOCK_HISTORY: deque[dict] = deque(maxlen=50)
-LOCK_DB_PATH = LOGS_ROOT / "lock_metrics.db"
+#
+# NOTE:
+# - LOGS_ROOT is derived from workspace_root(), which may point to a shared/Vault path.
+# - sqlite DB on network shares is prone to "database is locked" issues.
+# - Keep lock metrics DB LOCAL to the repo root.
+LOCK_DB_PATH = PROJECT_ROOT / "workspaces" / "logs" / "ui" / "lock_metrics.db"
 LOCK_ALERT_CONFIG_PATH = PROJECT_ROOT / "configs" / "ui_lock_alerts.json"
 LOCK_ALERT_CONFIG: Dict[str, Any] = {
     "enabled": False,

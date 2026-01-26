@@ -345,10 +345,47 @@ def build_contactsheet(
     grid: QcGrid,
     source_name: str = "00_thumb.png",
     output_mode: PngOutputMode = "final",
+    allow_missing: bool = True,
 ) -> Path:
     ch = _normalize_channel(channel)
     vids = [_normalize_video(v) for v in videos]
     out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    selected_sources: Optional[Dict[str, Path]] = None
+    source_key = str(source_name or "").strip()
+    if source_key.lower() in {"selected", "selected_variant"}:
+        doc = _load_projects()
+        assets_root = fpaths.thumbnails_root() / "assets"
+        selected_sources = {}
+        for project in _iter_channel_projects(doc, ch):
+            try:
+                vid = _normalize_video(project.get("video") or "")
+            except Exception:
+                continue
+            variants = project.get("variants")
+            if not isinstance(variants, list):
+                continue
+            selected_id = str(project.get("selected_variant_id") or "").strip()
+            chosen: Optional[Dict[str, Any]] = None
+            if selected_id:
+                for variant in variants:
+                    if not isinstance(variant, dict):
+                        continue
+                    if str(variant.get("id") or "").strip() == selected_id:
+                        chosen = variant
+                        break
+            if chosen is None:
+                for variant in variants:
+                    if isinstance(variant, dict):
+                        chosen = variant
+                        break
+            if not chosen:
+                continue
+            image_rel = chosen.get("image_path")
+            if not isinstance(image_rel, str) or not image_rel.strip():
+                continue
+            rel_path = Path(image_rel.strip())
+            selected_sources[vid] = rel_path if rel_path.is_absolute() else (assets_root / rel_path)
 
     tile_w, tile_h = int(grid.tile_w), int(grid.tile_h)
     cols = max(1, int(grid.cols))
@@ -361,16 +398,21 @@ def build_contactsheet(
     draw = ImageDraw.Draw(canvas)
     font = _pick_font()
 
+    missing_tiles: list[tuple[str, Optional[Path]]] = []
+
     for i, vid in enumerate(vids):
         r = i // cols
         c = i % cols
         x = pad + c * (tile_w + pad)
         y = pad + r * (tile_h + pad)
-        src = fpaths.thumbnail_assets_dir(ch, vid) / source_name
-        if not src.exists():
+        src = selected_sources.get(vid) if selected_sources is not None else (fpaths.thumbnail_assets_dir(ch, vid) / source_name)
+        if not src or not src.exists():
+            if not allow_missing:
+                missing_tiles.append((vid, src))
+                continue
             tile = Image.new("RGB", (tile_w, tile_h), (30, 30, 30))
             canvas.paste(tile, (x, y))
-            draw.text((x + 10, y + 10), f"MISSING {vid}", fill=(255, 80, 80), font=font)
+            draw.text((x + 10, y + 10), f"NEEDS_RESTORE {vid}", fill=(255, 80, 80), font=font)
             continue
         with Image.open(src) as im:
             im = im.convert("RGB").resize((tile_w, tile_h), Image.LANCZOS)
@@ -384,6 +426,13 @@ def build_contactsheet(
         lx, ly = x + tile_w - 10 - tw, y + 10
         draw.rectangle((lx - 6, ly - 4, lx + tw + 6, ly + th + 4), fill=(0, 0, 0))
         draw.text((lx, ly), label, fill=(255, 255, 255), font=font)
+
+    if missing_tiles and not allow_missing:
+        details = ", ".join([f"{ch}-{vid}" for vid, _ in missing_tiles[:30]])
+        suffix = "" if len(missing_tiles) <= 30 else f" (+{len(missing_tiles) - 30})"
+        raise SystemExit(
+            f"QC aborted: {len(missing_tiles)} thumbnails need restore before contactsheet can be generated: {details}{suffix}"
+        )
 
     save_png_atomic(canvas, out_path, mode=output_mode, verify=True)
     return out_path
@@ -439,6 +488,7 @@ def _cmd_build(args: argparse.Namespace) -> int:
             height=int(args.height),
             stable_thumb_name=str(getattr(args, "thumb_name", "00_thumb.png") or "00_thumb.png"),
             variant_label=str(getattr(args, "variant_label", "") or "").strip() or None,
+            update_projects=not bool(getattr(args, "no_update_projects", False)),
             force=bool(args.force),
             skip_generate=bool(args.skip_generate),
             regen_bg=bool(getattr(args, "regen_bg", False)),
@@ -615,7 +665,15 @@ def _cmd_qc(args: argparse.Namespace) -> int:
 
     out = Path(args.out).expanduser() if args.out else (fpaths.thumbnails_root() / "assets" / channel / "_qc" / "contactsheet.png")
     grid = QcGrid(tile_w=args.tile_w, tile_h=args.tile_h, cols=args.cols, pad=args.pad)
-    build_contactsheet(channel=channel, videos=videos, out_path=out, grid=grid, source_name=args.source_name, output_mode=args.output_mode)
+    build_contactsheet(
+        channel=channel,
+        videos=videos,
+        out_path=out,
+        grid=grid,
+        source_name=args.source_name,
+        output_mode=args.output_mode,
+        allow_missing=bool(getattr(args, "allow_missing", False)),
+    )
     print(f"[QC] wrote {out}")
     if args.out is None:
         _publish_qc_to_library(channel=channel, qc_path=out)
@@ -660,6 +718,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         help="Optional style preset (e.g. ch01_recent_post_v1). Applies text template + overlays without writing thumb_spec.",
     )
     b.add_argument("--force", action="store_true")
+    b.add_argument(
+        "--no-update-projects",
+        dest="no_update_projects",
+        action="store_true",
+        help="Do not write to projects.json (safe for incident restore / image-only rebuilds).",
+    )
     b.add_argument("--skip-generate", action="store_true")
     b.add_argument("--regen-bg", action="store_true", help="Regenerate background even if assets already exist (overwrites 90_bg_ai_raw/10_bg)")
     b.add_argument("--continue-on-error", action="store_true")
@@ -767,7 +831,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     q.add_argument("--videos", nargs="*")
     q.add_argument("--status", help="Select videos by projects.json status")
     q.add_argument("--out", help="Output path (default: assets/{CH}/_qc/contactsheet.png)")
-    q.add_argument("--source-name", default="00_thumb.png", help="Relative name under assets/{CH}/{NNN}/ (default: 00_thumb.png)")
+    q.add_argument(
+        "--source-name",
+        default="selected",
+        help="Source image under assets/{CH}/{NNN}/. Use 'selected' to use projects.json selected_variant image_path (default: selected)",
+    )
+    q.add_argument("--allow-missing", action="store_true", help="Allow QC generation even when some assets are not restored")
     q.add_argument("--tile-w", type=int, default=640)
     q.add_argument("--tile-h", type=int, default=360)
     q.add_argument("--cols", type=int, default=6)

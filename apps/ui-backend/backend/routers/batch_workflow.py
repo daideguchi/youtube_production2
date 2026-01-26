@@ -25,7 +25,14 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = ssot_repo_root()
 LOGS_ROOT = ssot_logs_root()
-UI_LOG_DIR = LOGS_ROOT / "ui"
+#
+# NOTE:
+# - LOGS_ROOT is derived from workspace_root(), which may point to a shared/Vault path
+#   on always-on hosts (e.g., Acer reading Vault SoT).
+# - This router uses sqlite for UI task/queue state; sqlite on network shares is
+#   prone to "database is locked" issues.
+# - Therefore, keep these UI runtime logs/db LOCAL to the repo root, not the Vault.
+UI_LOG_DIR = PROJECT_ROOT / "workspaces" / "logs" / "ui"
 TASK_LOG_DIR = UI_LOG_DIR / "batch_workflow"
 TASK_DB_PATH = UI_LOG_DIR / "ui_tasks.db"
 TASK_TABLE = "batch_tasks"
@@ -839,4 +846,3 @@ def get_batch_workflow_log(task_id: str, tail: int = Query(200, ge=1, le=2000)):
         raise HTTPException(status_code=404, detail="log file not found")
     lines = log_path.read_text(encoding="utf-8", errors="ignore").splitlines()
     return BatchWorkflowLogResponse(task_id=task_id, lines=lines[-tail:])
-

@@ -59,10 +59,21 @@ def _compact_summary_for_fireworks_schnell(summary: str, *, max_chars: int = 420
     )
 
     ja_re = re.compile(r"[一-龠ぁ-んァ-ン]")
+    # If the *only* subject line contains "no text" etc, the old logic dropped the whole line,
+    # resulting in empty prompts for Fireworks FLUX schnell. Instead, strip these clauses and
+    # keep the concrete subject/action.
+    no_text_clause_re = re.compile(
+        r"(?:"
+        r"[,;]?\s*no\s+(?:"
+        r"text|subtitle|subtitles|caption|captions|signage|logo|logos|watermark|watermarks"
+        r")\b[^,;.\n]*"
+        r"[,;.]?\s*"
+        r"|[,;]?\s*no\s+readable\s+text\b[^,;.\n]*[,;.]?\s*"
+        r")",
+        re.IGNORECASE,
+    )
     kept: list[str] = []
     for ln in lines:
-        if len(ln) > 240:
-            continue
         # Drop JP-heavy scene prose for schnell (it tends to bias outputs toward JP storefront/signage).
         if ln.startswith("Scene:") and ja_re.search(ln):
             continue
@@ -70,20 +81,18 @@ def _compact_summary_for_fireworks_schnell(summary: str, *, max_chars: int = 420
             continue
         if any(ln.startswith(p) for p in dropped_prefixes):
             continue
-        lower_ln = ln.lower()
-        if (
-            "no text" in lower_ln
-            or "no subtitle" in lower_ln
-            or "no caption" in lower_ln
-            or "no signage" in lower_ln
-            or "no logo" in lower_ln
-            or "no watermark" in lower_ln
-            or "人物ポリシー" in ln
-            or "ルール" in ln
-            or "禁止" in ln
-        ):
+        # Drop explicit policy/rule lines (they consume budget and reduce uniqueness).
+        if "人物ポリシー" in ln or "ルール" in ln or "禁止" in ln:
             continue
-        kept.append(ln)
+
+        cleaned = no_text_clause_re.sub("", ln).strip()
+        cleaned = re.sub(r"\s{2,}", " ", cleaned).strip(" ,;.")
+        if not cleaned:
+            continue
+        if len(cleaned) > 240:
+            continue
+
+        kept.append(cleaned)
         if len(kept) >= 6:
             break
 

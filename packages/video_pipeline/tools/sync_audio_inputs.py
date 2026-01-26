@@ -15,6 +15,7 @@ Usage:
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 import argparse
 import hashlib
@@ -36,6 +37,46 @@ INPUT_ROOT = video_input_root()
 PRESET_PATH = video_pkg_root() / "config" / "channel_presets.json"
 MANIFEST = video_audio_sync_status_path()
 
+_FS_ERRORS = 0
+
+
+def _count_fs_error() -> None:
+    global _FS_ERRORS
+    _FS_ERRORS += 1
+
+
+def _safe_exists(path: Path) -> bool:
+    try:
+        return path.exists()
+    except OSError:
+        _count_fs_error()
+        return False
+
+
+def _safe_is_dir(path: Path) -> bool:
+    try:
+        return path.is_dir()
+    except OSError:
+        _count_fs_error()
+        return False
+
+
+def _safe_is_symlink(path: Path) -> bool:
+    try:
+        return path.is_symlink()
+    except OSError:
+        _count_fs_error()
+        return False
+
+
+def _safe_mkdir(path: Path) -> bool:
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        return True
+    except OSError:
+        _count_fs_error()
+        return False
+
 
 def _utc_now_compact() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -54,7 +95,7 @@ def _symlink_to(src: Path, dst: Path) -> None:
 
 def load_channel_names():
     names = {}
-    if PRESET_PATH.exists():
+    if _safe_exists(PRESET_PATH):
         data = json.loads(PRESET_PATH.read_text())
         for k, v in (data.get("channels") or {}).items():
             nm = v.get("name") or k
@@ -101,7 +142,7 @@ def _files_match(src: Path, dst: Path, *, hash_wav: bool) -> bool:
 
 
 def load_manifest():
-    if not MANIFEST.exists():
+    if not _safe_exists(MANIFEST):
         return {}
     try:
         data = json.loads(MANIFEST.read_text())
@@ -128,8 +169,14 @@ def load_manifest():
 
 
 def save_manifest(manifest: dict):
-    MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
+    if not _safe_mkdir(MANIFEST.parent):
+        print(f"[WARN] sync_audio_inputs: cannot create manifest dir: {MANIFEST.parent}", file=sys.stderr)
+        return
+    try:
+        MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
+    except OSError as exc:
+        _count_fs_error()
+        print(f"[WARN] sync_audio_inputs: failed to write manifest: {MANIFEST} ({exc})", file=sys.stderr)
 
 
 def main():
@@ -200,7 +247,7 @@ def main():
         return True
 
     def _is_same_symlink_target(dst: Path, src: Path) -> bool:
-        if not dst.is_symlink():
+        if not _safe_is_symlink(dst):
             return False
         try:
             return dst.resolve() == src.resolve()
@@ -221,7 +268,7 @@ def main():
         return True
 
     for ch_dir in sorted(ART_ROOT.glob("*")):
-        if not ch_dir.is_dir():
+        if not _safe_is_dir(ch_dir):
             continue
         ch = ch_dir.name
         safe_name = channel_names.get(ch, ch)
@@ -237,14 +284,25 @@ def main():
             entry = manifest.get(rel, {"path": rel, "type": f.suffix.lstrip("."), "checked": False})
             entry["type"] = f.suffix.lstrip(".")
             entry["src"] = str(f.relative_to(BASE))
-            entry["size"] = f.stat().st_size
+            try:
+                entry["size"] = f.stat().st_size
+            except OSError:
+                _count_fs_error()
+                entry["size"] = 0
+                skipped.append(rel)
+                manifest[rel] = entry
+                continue
             # Store source hash for traceability (SRT always; WAV only when --hash-wav)
             if mode != "dry-run" and (f.suffix.lower() != ".wav" or args.hash_wav):
-                entry["hash"] = sha1(f)
+                try:
+                    entry["hash"] = sha1(f)
+                except OSError:
+                    _count_fs_error()
+                    entry["hash"] = entry.get("hash") or ""
             else:
                 entry["hash"] = entry.get("hash") or ""
 
-            if target.exists():
+            if _safe_exists(target):
                 if (
                     f.suffix.lower() == ".wav"
                     and args.wav_policy == "symlink"
@@ -259,13 +317,21 @@ def main():
                             did_update = False
                             skipped.append(rel)
                         else:
-                            target_dir.mkdir(parents=True, exist_ok=True)
-                            try:
-                                target.unlink()
-                            except Exception:
-                                pass
-                            _materialize(f, target)
-                            did_update = True
+                            if not _safe_mkdir(target_dir):
+                                did_update = False
+                                skipped.append(rel)
+                            else:
+                                try:
+                                    target.unlink()
+                                except Exception:
+                                    pass
+                                try:
+                                    _materialize(f, target)
+                                    did_update = True
+                                except OSError:
+                                    _count_fs_error()
+                                    did_update = False
+                                    skipped.append(rel)
                     if did_update:
                         updated.append(rel)
                         entry["checked"] = False
@@ -284,13 +350,19 @@ def main():
                             if _is_locked(f) or _is_locked(target):
                                 did_update = False
                             else:
-                                target_dir.mkdir(parents=True, exist_ok=True)
-                                if args.on_mismatch == "archive-replace":
-                                    dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
-                                    dest.parent.mkdir(parents=True, exist_ok=True)
-                                    shutil.move(str(target), str(dest))
-                                    archived.append(str(dest.relative_to(BASE)))
-                                did_update = _materialize(f, target)
+                                if not _safe_mkdir(target_dir):
+                                    did_update = False
+                                else:
+                                    try:
+                                        if args.on_mismatch == "archive-replace":
+                                            dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
+                                            dest.parent.mkdir(parents=True, exist_ok=True)
+                                            shutil.move(str(target), str(dest))
+                                            archived.append(str(dest.relative_to(BASE)))
+                                        did_update = _materialize(f, target)
+                                    except OSError:
+                                        _count_fs_error()
+                                        did_update = False
                         if did_update:
                             updated.append(rel)
                             # content changed; checked flag no longer valid
@@ -304,16 +376,22 @@ def main():
                         if _is_locked(f) or _is_locked(target_dir):
                             skipped.append(rel)
                         else:
-                            target_dir.mkdir(parents=True, exist_ok=True)
-                            if _materialize(f, target):
-                                copied.append(rel)
-                            else:
+                            if not _safe_mkdir(target_dir):
                                 skipped.append(rel)
+                            else:
+                                try:
+                                    if _materialize(f, target):
+                                        copied.append(rel)
+                                    else:
+                                        skipped.append(rel)
+                                except OSError:
+                                    _count_fs_error()
+                                    skipped.append(rel)
                     else:
                         copied.append(rel)
             manifest[rel] = entry
         for video_dir in sorted(ch_dir.glob("*")):
-            if not video_dir.is_dir():
+            if not _safe_is_dir(video_dir):
                 continue
             srts = sorted(video_dir.glob("*.srt"))
             wavs = sorted(video_dir.glob("*.wav"))
@@ -324,13 +402,24 @@ def main():
                 entry = manifest.get(rel, {"path": rel, "type": f.suffix.lstrip("."), "checked": False})
                 entry["type"] = f.suffix.lstrip(".")
                 entry["src"] = str(f.relative_to(BASE))
-                entry["size"] = f.stat().st_size
+                try:
+                    entry["size"] = f.stat().st_size
+                except OSError:
+                    _count_fs_error()
+                    entry["size"] = 0
+                    skipped.append(rel)
+                    manifest[rel] = entry
+                    continue
                 if mode != "dry-run" and (f.suffix.lower() != ".wav" or args.hash_wav):
-                    entry["hash"] = sha1(f)
+                    try:
+                        entry["hash"] = sha1(f)
+                    except OSError:
+                        _count_fs_error()
+                        entry["hash"] = entry.get("hash") or ""
                 else:
                     entry["hash"] = entry.get("hash") or ""
 
-                if target.exists():
+                if _safe_exists(target):
                     if (
                         f.suffix.lower() == ".wav"
                         and args.wav_policy == "symlink"
@@ -344,13 +433,21 @@ def main():
                                 did_update = False
                                 skipped.append(rel)
                             else:
-                                target_dir.mkdir(parents=True, exist_ok=True)
-                                try:
-                                    target.unlink()
-                                except Exception:
-                                    pass
-                                _materialize(f, target)
-                                did_update = True
+                                if not _safe_mkdir(target_dir):
+                                    did_update = False
+                                    skipped.append(rel)
+                                else:
+                                    try:
+                                        target.unlink()
+                                    except Exception:
+                                        pass
+                                    try:
+                                        _materialize(f, target)
+                                        did_update = True
+                                    except OSError:
+                                        _count_fs_error()
+                                        did_update = False
+                                        skipped.append(rel)
                         if did_update:
                             updated.append(rel)
                             entry["checked"] = False
@@ -369,13 +466,19 @@ def main():
                                 if _is_locked(f) or _is_locked(target):
                                     did_update = False
                                 else:
-                                    target_dir.mkdir(parents=True, exist_ok=True)
-                                    if args.on_mismatch == "archive-replace":
-                                        dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
-                                        dest.parent.mkdir(parents=True, exist_ok=True)
-                                        shutil.move(str(target), str(dest))
-                                        archived.append(str(dest.relative_to(BASE)))
-                                    did_update = _materialize(f, target)
+                                    if not _safe_mkdir(target_dir):
+                                        did_update = False
+                                    else:
+                                        try:
+                                            if args.on_mismatch == "archive-replace":
+                                                dest = _archive_path_for(target, channel=ch, archive_root=archive_root)
+                                                dest.parent.mkdir(parents=True, exist_ok=True)
+                                                shutil.move(str(target), str(dest))
+                                                archived.append(str(dest.relative_to(BASE)))
+                                            did_update = _materialize(f, target)
+                                        except OSError:
+                                            _count_fs_error()
+                                            did_update = False
                             if did_update:
                                 updated.append(rel)
                                 entry["checked"] = False
@@ -388,16 +491,22 @@ def main():
                             if _is_locked(f) or _is_locked(target_dir):
                                 skipped.append(rel)
                             else:
-                                target_dir.mkdir(parents=True, exist_ok=True)
-                                if _materialize(f, target):
-                                    copied.append(rel)
-                                else:
+                                if not _safe_mkdir(target_dir):
                                     skipped.append(rel)
+                                else:
+                                    try:
+                                        if _materialize(f, target):
+                                            copied.append(rel)
+                                        else:
+                                            skipped.append(rel)
+                                    except OSError:
+                                        _count_fs_error()
+                                        skipped.append(rel)
                         else:
                             copied.append(rel)
                 manifest[rel] = entry
 
-        if args.orphan_policy != "keep" and target_dir.exists():
+        if args.orphan_policy != "keep" and _safe_exists(target_dir):
             current = sorted(target_dir.glob("*.srt")) + sorted(target_dir.glob("*.wav"))
             for f in current:
                 if f.name in expected_names:
@@ -415,8 +524,8 @@ def main():
                     entry["type"] = f.suffix.lstrip(".")
                     broken_symlink = False
                     try:
-                        if f.is_symlink():
-                            broken_symlink = not f.exists()
+                        if _safe_is_symlink(f):
+                            broken_symlink = not _safe_exists(f)
                             st = f.lstat()
                         else:
                             st = f.stat()
@@ -446,6 +555,9 @@ def main():
 
     save_manifest(manifest)
 
+    if _FS_ERRORS:
+        print(f"[WARN] sync_audio_inputs: filesystem errors encountered: {_FS_ERRORS}", file=sys.stderr)
+
     print(
         f"mode={mode} on_mismatch={args.on_mismatch} | copied: {len(copied)} | updated: {len(updated)} | skipped: {len(skipped)} | mismatched: {len(mismatched)}"
     )
@@ -466,4 +578,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("[WARN] sync_audio_inputs: interrupted", file=sys.stderr)
+        raise SystemExit(130)

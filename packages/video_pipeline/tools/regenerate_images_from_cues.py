@@ -257,14 +257,56 @@ def _sanitize_visual_focus_for_no_text(
     return s
 
 
-def _sanitize_summary_for_no_text(summary: str, *, enabled: bool) -> str:
+def _sanitize_summary_for_no_text(summary: str, *, enabled: bool, avoid_props: str = "") -> str:
     s = str(summary or "").strip()
     if not enabled or not s:
         return s
     # Remove short quoted labels/titles that tend to be rendered as literal on-image text.
     s = re.sub(r"[「『\"][^」』\"]{1,60}[」』\"]", "", s)
     s = re.sub(r"(?i)\\b(question|title|caption|subtitle|label)\\b", "", s)
-    return " ".join(s.split()).strip()
+    s = " ".join(s.split()).strip()
+
+    # If the scene mentions paper/finance/screen props, enforce the no-text constraint explicitly.
+    lower = s.lower()
+    risky_words = (
+        # Screens / UI / numerals
+        "screen",
+        "ui",
+        "display",
+        "calculator",
+        "spreadsheet",
+        "excel",
+        "digit",
+        "number",
+        # Japanese
+        "画面",
+        "表示",
+        "電卓",
+        "計算機",
+        "表計算",
+        "エクセル",
+        "数字",
+        "金額",
+        "明細",
+        "残高",
+        "通帳",
+        "レシート",
+        "領収書",
+        "請求書",
+        "申請書",
+        "帳簿",
+        "会計",
+    )
+    avoid = [p.strip().lower() for p in str(avoid_props or "").split(",") if p.strip()]
+    risky_hit = any(w in lower for w in risky_words) or any(tok in lower for tok in avoid)
+    if risky_hit:
+        clause = "(NO readable text; blank/unmarked/unlabeled; no letters/numbers)"
+        if clause.lower() in lower:
+            parts = [p.strip() for p in s.split(clause) if p.strip()]
+            return f"{parts[0]} {clause}" if parts else clause
+        return f"{s} {clause}"
+
+    return s
 
 
 def _resolve_anchor_path(run_dir: Path, mode: str) -> Optional[str]:
@@ -297,7 +339,15 @@ def _load_template_text(path: Optional[str]) -> str:
         )
     p = Path(path)
     if not p.is_absolute():
-        p = (PROJECT_ROOT / p).resolve()
+        # Prefer paths relative to video pkg root (normal presets), but accept repo-root-relative
+        # paths as well (ops templates in workspaces/..., or already-prefixed pkg paths).
+        cand_pkg = (PROJECT_ROOT / p).resolve()
+        if cand_pkg.exists():
+            p = cand_pkg
+        else:
+            cand_cwd = p.resolve()
+            if cand_cwd.exists():
+                p = cand_cwd
     if not p.exists():
         return (
             "Scene: {summary}\\n"
@@ -336,7 +386,11 @@ def _build_prompt(
         )
         if vf:
             parts.append(f"Visual Focus: {vf}")
-        summary = _sanitize_summary_for_no_text((cue.get("summary") or "").strip(), enabled=bool(forbid_text))
+        summary = _sanitize_summary_for_no_text(
+            (cue.get("summary") or "").strip(),
+            enabled=bool(forbid_text),
+            avoid_props=str(avoid_props or ""),
+        )
         if summary:
             parts.append(f"Scene: {summary}")
         tone = (cue.get("emotional_tone") or "").strip()
@@ -407,9 +461,12 @@ def _backup_existing_pngs(images_dir: Path) -> Tuple[int, Optional[Path]]:
     return moved, backup_dir if moved else None
 
 
-def _verify_images(images_dir: Path, expected: int) -> Tuple[bool, List[int]]:
+def _verify_images(images_dir: Path, expected: int, *, skip_indices: Optional[set[int]] = None) -> Tuple[bool, List[int]]:
     missing: List[int] = []
+    skip = skip_indices or set()
     for i in range(1, expected + 1):
+        if i in skip:
+            continue
         p = images_dir / f"{i:04d}.png"
         if not p.exists():
             missing.append(i)
@@ -701,8 +758,10 @@ def main() -> None:
         if args.ensure_diversity_note and not str(cue.get("diversity_note") or "").strip():
             cue["diversity_note"] = _diversity_note_for_index(i)
 
-        # Default persona policy (can be overridden via CLI).
-        cue["use_persona"] = bool(use_persona)
+        # Default persona policy; respect cue-level overrides when present.
+        # (nanobanana_client supports per-cue use_persona True/False.)
+        if cue.get("use_persona") is None:
+            cue["use_persona"] = bool(use_persona)
 
         visual_focus = (cue.get("visual_focus") or "").strip()
         main_character = ""
@@ -841,13 +900,31 @@ def main() -> None:
         placeholder_text=None,
     )
 
+    skip_indices: set[int] = set()
     if selected_indices:
         ok, missing = _verify_selected_images(images_dir, generated_indices)
     else:
-        ok, missing = _verify_images(images_dir, expected=total)
+        # Treat cues backed by injected assets (asset_relpath) as complete even without a PNG.
+        # CapCut insertion prefers asset_relpath over images/*.png (SSOT).
+        for i in range(1, total + 1):
+            cue = cues[i - 1]
+            if not isinstance(cue, dict):
+                continue
+            rel = (str(cue.get("asset_relpath") or "").strip() if isinstance(cue, dict) else "") or ""
+            if not rel:
+                continue
+            try:
+                if (run_dir / rel).resolve().exists():
+                    skip_indices.add(i)
+            except Exception:
+                continue
+        ok, missing = _verify_images(images_dir, expected=total, skip_indices=skip_indices)
     if not ok:
         raise SystemExit(f"Image generation incomplete: missing={missing[:10]} (total_missing={len(missing)})")
-    print(f"[DONE] images={total} dir={images_dir}")
+    if skip_indices:
+        print(f"[DONE] cues={total} pngs={total - len(skip_indices)} skipped_assets={len(skip_indices)} dir={images_dir}")
+    else:
+        print(f"[DONE] images={total} dir={images_dir}")
 
 
 if __name__ == "__main__":

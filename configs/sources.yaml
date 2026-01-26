@@ -24,6 +24,22 @@ channels:
       enabled: false
       provider: pexels
       ratio: 0.2
+  CH32:
+    planning_csv: workspaces/planning/channels/CH32.csv
+    persona: workspaces/planning/personas/CH32_PERSONA.md
+    channel_prompt: packages/script_pipeline/channels/CH32-ブッダ_d006/script_prompt.txt
+    web_search_policy: required
+    wikipedia:
+      policy: auto
+      lang: ja
+      fallback_lang: en
+    chapter_count: 5
+    target_chars_min: 4500
+    target_chars_max: 8000
+    video_broll:
+      enabled: false
+      provider: pexels
+      ratio: 0.2
   CH02:
     planning_csv: workspaces/planning/channels/CH02.csv
     persona: workspaces/planning/personas/CH02_PERSONA.md
@@ -42,9 +58,9 @@ channels:
       ratio: 0.3
     image_source_mix:
       enabled: true
-      weights: "4:3:3" # gemini:schnell:free
-      gemini_model_key: g-1
-      schnell_model_key: f-1
+      weights: "7:2:1" # flux-pro:flux-max:free
+      gemini_model_key: f-3   # flux-pro
+      schnell_model_key: f-4  # flux-max
       broll_provider: pexels
       broll_min_gap_sec: 60.0
   CH03:
@@ -73,8 +89,8 @@ channels:
       lang: ja
       fallback_lang: en
     chapter_count: 7
-    target_chars_min: 8000
-    target_chars_max: 10000
+    target_chars_min: 6000
+    target_chars_max: 9000
     video_broll:
       enabled: true
       provider: pexels

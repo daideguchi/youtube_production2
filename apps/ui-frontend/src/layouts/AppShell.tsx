@@ -1529,6 +1529,7 @@ export function AppShell() {
         title: "運用/設定",
         items: [
           { key: "ssot", label: "SSOT", icon: "📌", path: "/ssot" },
+          { key: "youtubeSale", label: "YouTube売却", icon: "🤝", path: "/youtube-sale" },
           { key: "archives", label: "書庫", icon: "🗄️", path: "/archives" },
           { key: "research", label: "リサーチ", icon: "🧪", path: "/research" },
           { key: "benchmarks", label: "ベンチマーク", icon: "📚", path: "/benchmarks" },

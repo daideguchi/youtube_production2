@@ -9,6 +9,7 @@ from typing import Optional
 from fastapi import HTTPException
 
 from backend.app.normalize import normalize_channel_code, normalize_video_number
+from backend.app.path_utils import safe_exists, safe_is_file
 from factory_common.paths import audio_final_dir
 from factory_common.paths import repo_root as ssot_repo_root
 from factory_common.paths import script_data_root as ssot_script_data_root
@@ -32,21 +33,21 @@ def _load_json(path: Path) -> dict:
 
 def load_status(channel_code: str, video_number: str) -> dict:
     status_path = video_base_dir(channel_code, video_number) / "status.json"
-    if not status_path.exists():
+    if not safe_exists(status_path):
         raise HTTPException(status_code=404, detail="status.json not found")
     return _load_json(status_path)
 
 
 def load_status_optional(channel_code: str, video_number: str) -> Optional[dict]:
     status_path = video_base_dir(channel_code, video_number) / "status.json"
-    if not status_path.exists():
+    if not safe_exists(status_path):
         return None
     return _load_json(status_path)
 
 
 def resolve_text_file(path: Path) -> Optional[str]:
     """正規パスのみを読む。フォールバック禁止。"""
-    if not path.exists() or not path.is_file():
+    if not safe_exists(path) or not safe_is_file(path):
         return None
     return path.read_text(encoding="utf-8")
 
@@ -56,7 +57,7 @@ def _detect_artifact_path(channel_code: str, video_number: str, extension: str) 
     if extension == ".wav":
         for ext in (".wav", ".flac", ".mp3", ".m4a"):
             candidate = base / f"{channel_code}-{video_number}{ext}"
-            if candidate.exists():
+            if safe_exists(candidate):
                 return candidate
     return base / f"{channel_code}-{video_number}{extension}"
 
@@ -72,28 +73,28 @@ def resolve_audio_path(status: dict, base_dir: Path) -> Optional[Path]:
         candidate = Path(str(final_wav))
         if not candidate.is_absolute():
             candidate = (PROJECT_ROOT / candidate).resolve()
-        if candidate.exists():
+        if safe_exists(candidate):
             return candidate.resolve()
 
     final_candidate = _detect_artifact_path(channel, video_no, ".wav")
-    if final_candidate.exists():
+    if safe_exists(final_candidate):
         return final_candidate.resolve()
 
     legacy_candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.wav"
-    return legacy_candidate.resolve() if legacy_candidate.exists() else None
+    return legacy_candidate.resolve() if safe_exists(legacy_candidate) else None
 
 
 def resolve_log_path(status: dict, base_dir: Path) -> Optional[Path]:
     channel = normalize_channel_code(status.get("channel") or base_dir.parent.name)
     video_no = normalize_video_number(str(status.get("video_number") or base_dir.name))
     final_log = audio_final_dir(channel, video_no) / "log.json"
-    if final_log.exists():
+    if safe_exists(final_log):
         return final_log.resolve()
     candidate = base_dir / "audio_prep" / "log.json"
-    if candidate.exists():
+    if safe_exists(candidate):
         return candidate.resolve()
     candidate_nested = base_dir / "audio_prep" / f"{channel}-{video_no}.log.json"
-    return candidate_nested.resolve() if candidate_nested.exists() else None
+    return candidate_nested.resolve() if safe_exists(candidate_nested) else None
 
 
 def resolve_srt_path(status: dict, base_dir: Path) -> Optional[Path]:
@@ -106,19 +107,19 @@ def resolve_srt_path(status: dict, base_dir: Path) -> Optional[Path]:
         candidate = Path(str(final_srt))
         if not candidate.is_absolute():
             candidate = (PROJECT_ROOT / candidate).resolve()
-        if candidate.exists():
+        if safe_exists(candidate):
             return candidate.resolve()
 
     final_candidate = _detect_artifact_path(channel, video_no, ".srt")
-    if final_candidate.exists():
+    if safe_exists(final_candidate):
         return final_candidate.resolve()
 
     legacy_candidate = base_dir / "audio_prep" / f"{channel}-{video_no}.srt"
-    return legacy_candidate.resolve() if legacy_candidate.exists() else None
+    return legacy_candidate.resolve() if safe_exists(legacy_candidate) else None
 
 
 def get_audio_duration_seconds(path: Path) -> Optional[float]:
-    if not path.exists():
+    if not safe_exists(path):
         return None
     try:
         with contextlib.closing(wave.open(str(path), "rb")) as wav_file:

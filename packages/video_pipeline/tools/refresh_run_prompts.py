@@ -150,8 +150,8 @@ def refresh_run_prompts(*, run_dir: Path, channel_override: Optional[str], dry_r
         extra_suffix_parts.append(str(preset.character_note))
     extra_suffix = "\n".join([x for x in extra_suffix_parts if x.strip()])
 
-    # Subject-first is only used where explicitly helpful (historically CH01).
-    prepend_summary = channel == "CH01"
+    # Subject-first is only used where explicitly helpful (historically CH01/CH32).
+    prepend_summary = channel in {"CH01", "CH32"}
 
     updated = 0
     size_str = _size_str(payload)

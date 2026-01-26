@@ -5,7 +5,7 @@
 
 # スタイル定義（固定）
 Style: Quiet philosophical oil painting (museum-grade) with subtle watercolor underpainting + thin glazing. Painterly brush strokes, soft edges, gentle chiaroscuro, faint canvas grain. Muted palette with warm-gold highlights vs cool blue-gray shadows. Metaphorical, symbolic composition with negative space. No text, no UI, no signs.
-Negative: Photorealism, 3D render, horror, gore, anime exaggeration, big eyes, cel shading, hard outlines, cluttered composition, modern signage, red headband, scythe, farm/worker/construction gear, hardhat, tool belts, industrial setting. If the script explicitly calls for such worker/gear, allow only that for the specified main_character; otherwise forbid.
+Negative: Photorealism, 3D render, anime exaggeration, big eyes, cel shading, hard outlines, cluttered composition, modern signage.
 Requirement: Keep proportions realistic-adult; gentle, high-quality illustration. Avoid adding extra characters.
 
 # 追加スタイル仕様（油彩寄り・静寂・哲学）

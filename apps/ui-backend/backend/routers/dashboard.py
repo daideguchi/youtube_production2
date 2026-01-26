@@ -8,6 +8,7 @@ from backend.app.datetime_utils import current_timestamp, parse_iso_datetime
 from backend.app.dashboard_models import DashboardAlert, DashboardChannelSummary, DashboardOverviewResponse
 from backend.app.channel_catalog import list_known_channel_codes, list_planning_video_numbers, list_video_dirs
 from backend.app.episode_store import load_status_optional, resolve_audio_path, resolve_srt_path, video_base_dir
+from backend.app.path_utils import safe_exists
 from backend.app.stage_status_utils import _stage_status_value
 from backend.app.status_models import STAGE_ORDER, VALID_STAGE_STATUSES
 from backend.app.status_store import default_status_payload
@@ -163,7 +164,7 @@ def dashboard_overview(
             audio_done = audio_exists or _stage_status_value(stages.get("audio_synthesis")) == "completed"
             if not audio_done:  # legacy fallback (status.json metadata paths etc)
                 audio_path = resolve_audio_path(status_payload, base_dir)
-                audio_done = bool(audio_path and audio_path.exists())
+                audio_done = bool(audio_path and safe_exists(audio_path))
             if audio_done:
                 summary.audio_completed += 1
 
@@ -171,7 +172,7 @@ def dashboard_overview(
             srt_done = srt_exists or _stage_status_value(stages.get("srt_generation")) == "completed"
             if not srt_done:  # legacy fallback (status.json metadata paths etc)
                 srt_path = resolve_srt_path(status_payload, base_dir)
-                srt_done = bool(srt_path and srt_path.exists())
+                srt_done = bool(srt_path and safe_exists(srt_path))
             if srt_done:
                 summary.srt_completed += 1
 

@@ -325,4 +325,14 @@ if [[ $# -eq 0 ]]; then
   echo "✅ Environment loaded. Run commands like: ./scripts/with_ytm_env.sh python3 ..." >&2
   exit 0
 fi
+
+# Offline fallback (Lenovo share down):
+# If the shared root is a local mountpoint stub (README_MOUNTPOINT.txt exists),
+# prepare fallback targets so `workspaces/**` symlinks into the shared tree do not break.
+if [[ -n "${YTM_SHARED_STORAGE_ROOT:-}" ]]; then
+  _mp="${YTM_SHARED_STORAGE_ROOT}"
+  if [[ -f "${_mp}/README_MOUNTPOINT.txt" ]]; then
+    python3 "$ROOT_DIR/scripts/ops/offline_shared_fallback.py" --run >/dev/null 2>&1 || true
+  fi
+fi
 exec "$@"

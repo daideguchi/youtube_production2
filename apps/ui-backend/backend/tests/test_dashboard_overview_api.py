@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import errno
 from typing import Dict
 
 import pytest
 from fastapi.testclient import TestClient
+from pathlib import Path
 
 from backend import main
 from backend.app import channel_catalog
 from backend.app import channel_info_store
 from backend.app import episode_store
 from backend.main import app
+from factory_common.paths import audio_artifacts_root
 
 
 @pytest.fixture()
@@ -75,3 +78,25 @@ def test_dashboard_overview_includes_planning_channels(dashboard_test_env):
     # Missing status.json entries are treated as pending work so UI progress does not show 100% started.
     assert payload["stage_matrix"]["CH01"]["script_outline"]["pending"] == 2
     assert payload["stage_matrix"]["CH02"]["script_outline"]["pending"] == 1
+
+
+def test_dashboard_overview_survives_audio_volume_errors(dashboard_test_env, monkeypatch):
+    """
+    Regression: macOS can raise OSError (e.g. ENXIO/ENOTCONN) when probing paths on
+    an unmounted volume / stale mount. The dashboard API must not crash (500).
+    """
+    client: TestClient = dashboard_test_env["client"]  # type: ignore[assignment]
+
+    original_exists = Path.exists
+    audio_final_root = str(audio_artifacts_root() / "final") + "/"
+
+    def flaky_exists(self: Path) -> bool:  # type: ignore[override]
+        token = str(self)
+        if token.startswith(audio_final_root):
+            raise OSError(errno.ENXIO, "Device not configured", token)
+        return original_exists(self)
+
+    monkeypatch.setattr(Path, "exists", flaky_exists, raising=True)
+
+    response = client.get("/api/dashboard/overview")
+    assert response.status_code == 200

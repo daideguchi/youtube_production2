@@ -160,6 +160,11 @@ SoT（正本）:
 - CH別の固定: `packages/video_pipeline/config/channel_presets.json` の `channels.<CH>.image_generation.model_key`
 - 画面: `/model-policy`（effective確認） / `/image-model-routing`（編集）
 
+補足（CH02の既定mix）:
+- `configs/sources.yaml: channels.CH02.image_source_mix` で cue ごとに `image_model_key` を割当（flux-pro:flux-max:フリー素材=7:2:1）。
+- 適用: `./ops video apply-source-mix -- <run_dir> --weights 7:2:1 --flux-pro-model-key f-3 --flux-max-model-key f-4 --broll-provider pexels`
+- 注意: cue ごとに model_key が変わるため、画像生成は `--nanobanana direct` を使う（`batch` は単一 model_key 前提）。
+
 禁止（通常運用）:
 - `.env` に `IMAGE_CLIENT_FORCE_MODEL_KEY_VISUAL_IMAGE_GEN` / `IMAGE_CLIENT_FORCE_MODEL_KEY` を恒久セットしない（ロックダウンで停止）。
 

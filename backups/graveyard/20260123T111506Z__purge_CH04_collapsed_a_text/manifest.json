@@ -1,0 +1,196 @@
+{
+  "schema": "ytm.graveyard_archive_manifest.v1",
+  "generated_at": "2026-01-23T11:15:06.780296+00:00",
+  "reason": "purge collapsed CH04 A-text (punctuation/heading collapse)",
+  "source_list": "workspaces/_scratch/ch04_collapsed_a_text_list.json",
+  "copied_count": 37,
+  "missing_count": 0,
+  "copied": [
+    {
+      "src": "workspaces/scripts/CH04/042/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/042/content/assembled_human.md",
+      "script_id": "CH04-042"
+    },
+    {
+      "src": "workspaces/scripts/CH04/043/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/043/content/assembled_human.md",
+      "script_id": "CH04-043"
+    },
+    {
+      "src": "workspaces/scripts/CH04/044/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/044/content/assembled_human.md",
+      "script_id": "CH04-044"
+    },
+    {
+      "src": "workspaces/scripts/CH04/049/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/049/content/assembled_human.md",
+      "script_id": "CH04-049"
+    },
+    {
+      "src": "workspaces/scripts/CH04/050/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/050/content/assembled_human.md",
+      "script_id": "CH04-050"
+    },
+    {
+      "src": "workspaces/scripts/CH04/051/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/051/content/assembled_human.md",
+      "script_id": "CH04-051"
+    },
+    {
+      "src": "workspaces/scripts/CH04/052/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/052/content/assembled_human.md",
+      "script_id": "CH04-052"
+    },
+    {
+      "src": "workspaces/scripts/CH04/053/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/053/content/assembled_human.md",
+      "script_id": "CH04-053"
+    },
+    {
+      "src": "workspaces/scripts/CH04/054/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/054/content/assembled_human.md",
+      "script_id": "CH04-054"
+    },
+    {
+      "src": "workspaces/scripts/CH04/055/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/055/content/assembled_human.md",
+      "script_id": "CH04-055"
+    },
+    {
+      "src": "workspaces/scripts/CH04/056/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/056/content/assembled_human.md",
+      "script_id": "CH04-056"
+    },
+    {
+      "src": "workspaces/scripts/CH04/057/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/057/content/assembled_human.md",
+      "script_id": "CH04-057"
+    },
+    {
+      "src": "workspaces/scripts/CH04/058/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/058/content/assembled_human.md",
+      "script_id": "CH04-058"
+    },
+    {
+      "src": "workspaces/scripts/CH04/059/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/059/content/assembled_human.md",
+      "script_id": "CH04-059"
+    },
+    {
+      "src": "workspaces/scripts/CH04/060/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/060/content/assembled_human.md",
+      "script_id": "CH04-060"
+    },
+    {
+      "src": "workspaces/scripts/CH04/061/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/061/content/assembled_human.md",
+      "script_id": "CH04-061"
+    },
+    {
+      "src": "workspaces/scripts/CH04/062/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/062/content/assembled_human.md",
+      "script_id": "CH04-062"
+    },
+    {
+      "src": "workspaces/scripts/CH04/063/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/063/content/assembled_human.md",
+      "script_id": "CH04-063"
+    },
+    {
+      "src": "workspaces/scripts/CH04/064/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/064/content/assembled_human.md",
+      "script_id": "CH04-064"
+    },
+    {
+      "src": "workspaces/scripts/CH04/065/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/065/content/assembled_human.md",
+      "script_id": "CH04-065"
+    },
+    {
+      "src": "workspaces/scripts/CH04/066/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/066/content/assembled_human.md",
+      "script_id": "CH04-066"
+    },
+    {
+      "src": "workspaces/scripts/CH04/067/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/067/content/assembled_human.md",
+      "script_id": "CH04-067"
+    },
+    {
+      "src": "workspaces/scripts/CH04/068/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/068/content/assembled_human.md",
+      "script_id": "CH04-068"
+    },
+    {
+      "src": "workspaces/scripts/CH04/069/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/069/content/assembled_human.md",
+      "script_id": "CH04-069"
+    },
+    {
+      "src": "workspaces/scripts/CH04/070/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/070/content/assembled_human.md",
+      "script_id": "CH04-070"
+    },
+    {
+      "src": "workspaces/scripts/CH04/079/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/079/content/assembled_human.md",
+      "script_id": "CH04-079"
+    },
+    {
+      "src": "workspaces/scripts/CH04/080/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/080/content/assembled_human.md",
+      "script_id": "CH04-080"
+    },
+    {
+      "src": "workspaces/scripts/CH04/081/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/081/content/assembled_human.md",
+      "script_id": "CH04-081"
+    },
+    {
+      "src": "workspaces/scripts/CH04/082/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/082/content/assembled_human.md",
+      "script_id": "CH04-082"
+    },
+    {
+      "src": "workspaces/scripts/CH04/083/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/083/content/assembled_human.md",
+      "script_id": "CH04-083"
+    },
+    {
+      "src": "workspaces/scripts/CH04/084/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/084/content/assembled_human.md",
+      "script_id": "CH04-084"
+    },
+    {
+      "src": "workspaces/scripts/CH04/085/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/085/content/assembled_human.md",
+      "script_id": "CH04-085"
+    },
+    {
+      "src": "workspaces/scripts/CH04/086/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/086/content/assembled_human.md",
+      "script_id": "CH04-086"
+    },
+    {
+      "src": "workspaces/scripts/CH04/087/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/087/content/assembled_human.md",
+      "script_id": "CH04-087"
+    },
+    {
+      "src": "workspaces/scripts/CH04/088/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/088/content/assembled_human.md",
+      "script_id": "CH04-088"
+    },
+    {
+      "src": "workspaces/scripts/CH04/089/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/089/content/assembled_human.md",
+      "script_id": "CH04-089"
+    },
+    {
+      "src": "workspaces/scripts/CH04/090/content/assembled_human.md",
+      "dst": "/Users/dd/10_YouTube_Automation/factory_commentary/backups/graveyard/20260123T111506Z__purge_CH04_collapsed_a_text/workspaces/scripts/CH04/090/content/assembled_human.md",
+      "script_id": "CH04-090"
+    }
+  ],
+  "missing": []
+}

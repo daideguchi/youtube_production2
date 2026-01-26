@@ -331,14 +331,14 @@ THINK（外部LLM APIコストを使わない）:
 ## PAT-VIDEO-SOURCE-MIX-CH02-001 — CH02 画像ソースmix適用（apply-source-mix）
 
 目的:
-- 画像ソースmix（例: gemini:schnell:broll=4:3:3）を run_dir に適用する。
+- 画像ソースmix（例: flux-pro:flux-max:フリー素材=7:2:1）を run_dir に適用する。
 
 入口（固定）:
 - `./ops video apply-source-mix -- <args>`
 
 例（SSOT値を尊重しつつ、run単位で適用）:
-- dry-run: `./ops video apply-source-mix -- <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels --dry-run`
-- apply: `./ops video apply-source-mix -- <run_dir> --weights 4:3:3 --gemini-model-key g-1 --schnell-model-key f-1 --broll-provider pexels`
+- dry-run: `./ops video apply-source-mix -- <run_dir> --weights 7:2:1 --flux-pro-model-key f-3 --flux-max-model-key f-4 --broll-provider pexels --dry-run`
+- apply: `./ops video apply-source-mix -- <run_dir> --weights 7:2:1 --flux-pro-model-key f-3 --flux-max-model-key f-4 --broll-provider pexels`
 
 注意:
 - 画像を再生成する場合は `regen-images --only-missing` を実行し、最後に `./ops resume video ...` でドラフトを再構築する。

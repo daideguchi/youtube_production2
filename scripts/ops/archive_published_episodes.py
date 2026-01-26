@@ -323,6 +323,18 @@ def main() -> int:
     do_delete = bool(args.delete)
     if do_delete and not requested_domains:
         raise SystemExit("--delete requires explicit domain flags (e.g. --audio --video-input --video-runs).")
+    if do_delete and "thumbnails" in domains:
+        raise SystemExit(
+            "[POLICY] Refusing to delete thumbnails/assets.\n"
+            "- reason: thumbnails are long-lived assets (do not delete)\n"
+            "- action: run without --delete to archive/move instead"
+        )
+    if do_delete and "video_runs" in domains:
+        raise SystemExit(
+            "[POLICY] Refusing to delete video/runs.\n"
+            "- reason: generated images are long-lived assets (keep in vault)\n"
+            "- action: run without --delete to archive/move instead"
+        )
 
     do_run = bool(args.run) and not bool(args.dry_run)
     if do_run and do_delete and not args.yes:

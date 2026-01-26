@@ -18,6 +18,7 @@ import socket
 import subprocess
 import sys
 import time
+import shutil
 from collections import deque
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
@@ -104,6 +105,58 @@ def build_pythonpath() -> str:
     return os.pathsep.join([str(YTM_ROOT), str(YTM_ROOT / "packages")])
 
 
+def _python_has_module(python: str, module: str) -> bool:
+    try:
+        proc = subprocess.run(
+            [python, "-c", f"import {module}"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return False
+    return proc.returncode == 0
+
+
+def resolve_backend_python() -> str:
+    """
+    Resolve a Python interpreter for the UI backend.
+
+    The UI hub is often started via `python3` from PATH. When Homebrew updates
+    `python3` to a new minor (e.g. 3.14), previously-installed deps (uvicorn)
+    may no longer be available. Prefer an explicit override or a repo-local venv,
+    then fall back to an interpreter that can import uvicorn.
+    """
+
+    override = (os.getenv("YTM_UI_BACKEND_PYTHON") or "").strip()
+    if override:
+        return override
+
+    candidates: List[str] = []
+
+    venv_python = YTM_ROOT / ".venv" / "bin" / "python3"
+    if venv_python.exists():
+        candidates.append(str(venv_python))
+
+    for name in ("python3.13", "python3.12", "python3.11", "python3"):
+        resolved = shutil.which(name)
+        if resolved:
+            candidates.append(resolved)
+
+    # Finally, whatever is running this script.
+    candidates.append(sys.executable)
+
+    seen = set()
+    for candidate in candidates:
+        if not candidate or candidate in seen:
+            continue
+        seen.add(candidate)
+        if _python_has_module(candidate, "uvicorn"):
+            return candidate
+
+    return sys.executable
+
+
 def component_definitions() -> List[Component]:
     """Return the list of UI components managed by this tool."""
 
@@ -124,28 +177,40 @@ def component_definitions() -> List[Component]:
         frontend_env["NODE_OPTIONS"] = (
             f"{existing_node_options} --no-deprecation".strip() if existing_node_options else "--no-deprecation"
         )
+    frontend_script = (os.environ.get("YTM_UI_FRONTEND_SCRIPT") or "").strip() or "start"
+    profile = (os.environ.get("YTM_UI_PROFILE") or "").strip().lower() or "dev"
+    if profile not in {"dev", "prod"}:
+        warn(f"Unknown YTM_UI_PROFILE={profile!r}; falling back to 'dev'")
+        profile = "dev"
+    if profile == "prod":
+        frontend_env.setdefault("NODE_ENV", "production")
     # NOTE: do not force REACT_APP_API_BASE_URL in dev.
     # Default behaviour in `apps/ui-frontend/src/api/baseUrl.ts` is a relative
     # path, which lets CRA's dev proxy (`apps/ui-frontend/src/setupProxy.js`)
     # route `/api/*` to the backend without any CORS preflight.
 
+    backend_cmd: List[str] = [
+        resolve_backend_python(),
+        "-m",
+        "uvicorn",
+        "backend.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+    ]
+    if profile == "dev":
+        backend_cmd += [
+            "--reload",
+            "--reload-dir",
+            "backend",
+        ]
+
     return [
         {
             "name": "backend",
             "cwd": UI_DIR,
-            "cmd": [
-                sys.executable,
-                "-m",
-                "uvicorn",
-                "backend.main:app",
-                "--host",
-                "127.0.0.1",
-                "--port",
-                "8000",
-                "--reload",
-                "--reload-dir",
-                "backend",
-            ],
+            "cmd": backend_cmd,
             "port": 8000,
             "log": LOG_ROOT / "backend.log",
             "env": backend_env,
@@ -153,7 +218,7 @@ def component_definitions() -> List[Component]:
         {
             "name": "frontend",
             "cwd": FRONTEND_DIR,
-            "cmd": ["npm", "run", "start"],
+            "cmd": ["npm", "run", frontend_script],
             "port": 3000,
             "log": LOG_ROOT / "frontend.log",
             "env": frontend_env,
@@ -425,6 +490,70 @@ def check_tcp(host: str, port: int, timeout: float = 2.0) -> bool:
         return False
 
 
+# Supervision ---------------------------------------------------------------
+
+def _pid_alive(pid: Optional[int]) -> bool:
+    if not pid:
+        return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def supervise_components(*, poll_sec: float = 2.0) -> None:
+    """
+    Keep running and restart backend/frontend if they exit.
+
+    Intended for daemon/systemd usage where operators want a single long-running
+    process to keep the UI stack alive.
+    """
+
+    components = component_definitions()
+    last_restart: Dict[str, float] = {}
+    stop_requested = {"value": False}
+
+    def _handle_stop(signum: int, _frame: object) -> None:  # pragma: no cover - signal path
+        stop_requested["value"] = True
+        info(f"Stop requested (signal={signum}).")
+
+    for sig in (getattr(signal, "SIGTERM", None), getattr(signal, "SIGINT", None)):
+        if sig is None:
+            continue
+        try:
+            signal.signal(sig, _handle_stop)
+        except Exception:
+            continue
+
+    info("Supervising components. Press Ctrl+C to stop; use `stop` to terminate gracefully.")
+    while not stop_requested["value"]:
+        for comp in components:
+            name = str(comp["name"])
+            pid = read_pid(name)
+            if _pid_alive(pid):
+                continue
+
+            now = time.time()
+            last = last_restart.get(name, 0.0)
+            # Simple backoff to avoid hot restart loops on repeated crashes.
+            if now - last < 3.0:
+                continue
+
+            warn(f"{name}: not running (pid={pid}); restarting")
+            remove_pidfile(name)
+            try:
+                start_component(comp)
+            except Exception as exc:
+                warn(f"{name}: restart failed: {exc}")
+            last_restart[name] = now
+
+        time.sleep(poll_sec)
+
+    info("Stopping all components (supervisor exiting).")
+    stop_all_components(force=False)
+
+
 # CLI commands ---------------------------------------------------------------
 
 def fetch_backend_health(url: str = "http://127.0.0.1:8000/api/healthz", timeout: float = 3.0) -> tuple[bool, Optional[Dict[str, object]], Optional[str]]:
@@ -456,9 +585,18 @@ def check_http_head(url: str, timeout: float = 2.0) -> tuple[bool, Optional[str]
 
 def cmd_start(args: argparse.Namespace) -> None:
     run_check_env(Path(args.env_file))
+    profile = str(getattr(args, "profile", "") or "").strip()
+    if profile:
+        os.environ["YTM_UI_PROFILE"] = profile
+    frontend_script = str(getattr(args, "frontend_script", "") or "").strip()
+    if frontend_script:
+        os.environ["YTM_UI_FRONTEND_SCRIPT"] = frontend_script
     stop_existing_components_before_start()
     start_all_components()
     info("All components started. Use `status` or `stop` as needed.")
+    if getattr(args, "supervise", False):
+        supervise_components()
+        return
     if not args.no_follow:
         stream_component_logs()
 
@@ -476,9 +614,18 @@ def cmd_status(_: argparse.Namespace) -> None:
 
 def cmd_restart(args: argparse.Namespace) -> None:
     run_check_env(Path(args.env_file))
+    profile = str(getattr(args, "profile", "") or "").strip()
+    if profile:
+        os.environ["YTM_UI_PROFILE"] = profile
+    frontend_script = str(getattr(args, "frontend_script", "") or "").strip()
+    if frontend_script:
+        os.environ["YTM_UI_FRONTEND_SCRIPT"] = frontend_script
     info("Restarting components")
     restart_components(force=args.force)
     info("Restart completed.")
+    if getattr(args, "supervise", False):
+        supervise_components()
+        return
     if not args.no_follow:
         stream_component_logs()
 
@@ -633,6 +780,22 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--env-file", default=str(ENV_FILE), help="Path to .env (default: %(default)s)"
     )
     p_start.add_argument(
+        "--profile",
+        choices=["dev", "prod"],
+        default=os.getenv("YTM_UI_PROFILE", "dev"),
+        help="Run profile: dev (reload/dev server) or prod (no reload; static frontend) (default: env YTM_UI_PROFILE or 'dev')",
+    )
+    p_start.add_argument(
+        "--frontend-script",
+        default=os.getenv("YTM_UI_FRONTEND_SCRIPT", "start"),
+        help="Frontend npm script to run (default: env YTM_UI_FRONTEND_SCRIPT or 'start')",
+    )
+    p_start.add_argument(
+        "--supervise",
+        action="store_true",
+        help="Keep running and restart components when they exit (daemon/systemd)",
+    )
+    p_start.add_argument(
         "--no-follow",
         action="store_true",
         help="Do not tail logs after startup",
@@ -649,6 +812,22 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_restart = sub.add_parser("restart", help="Restart backend/frontend")
     p_restart.add_argument(
         "--env-file", default=str(ENV_FILE), help="Path to .env (default: %(default)s)"
+    )
+    p_restart.add_argument(
+        "--profile",
+        choices=["dev", "prod"],
+        default=os.getenv("YTM_UI_PROFILE", "dev"),
+        help="Run profile: dev (reload/dev server) or prod (no reload; static frontend) (default: env YTM_UI_PROFILE or 'dev')",
+    )
+    p_restart.add_argument(
+        "--frontend-script",
+        default=os.getenv("YTM_UI_FRONTEND_SCRIPT", "start"),
+        help="Frontend npm script to run (default: env YTM_UI_FRONTEND_SCRIPT or 'start')",
+    )
+    p_restart.add_argument(
+        "--supervise",
+        action="store_true",
+        help="Keep running and restart components when they exit (daemon/systemd)",
     )
     p_restart.add_argument("--force", action="store_true", help="Force kill before restart")
     p_restart.add_argument(
