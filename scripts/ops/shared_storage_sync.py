@@ -160,9 +160,26 @@ def _resolve_shared_ctx(*, run: bool) -> SharedCtx:
         reason = "mountpoint stub detected (README_MOUNTPOINT.txt)"
     elif sys.platform == "darwin":
         # When using the Lenovo share alias paths, require smbfs mount unless stub explicitly exists.
-        if "lenovo_share" in str(configured) and not _is_smbfs_mounted(configured):
-            offline = True
-            reason = "Lenovo SMB share not mounted (smbfs not detected)"
+        if "lenovo_share" in str(configured):
+            if not _is_smbfs_mounted(configured):
+                offline = True
+                reason = "Lenovo SMB share not mounted (smbfs not detected)"
+            else:
+                # Degraded-mount detection:
+                # Even when smbfs is mounted, the share can be "half-broken" (e.g. wrong export,
+                # external disk missing, or partial permissions) and miss the required base:
+                #   <root>/uploads/<namespace>/
+                # In that case, treat it like offline and fall back to local outbox so Mac-first
+                # workflows don't stop.
+                try:
+                    expected_base = _shared_base_for(configured)
+                    if not expected_base.exists():
+                        offline = True
+                        reason = f"shared storage mounted but base is missing: {expected_base}"
+                except Exception:
+                    # If the check itself errors (permission/IO), prefer fallback.
+                    offline = True
+                    reason = "shared storage base check failed (treat as offline)"
 
     effective = configured if not offline else _fallback_shared_root(configured_root=configured)
     base = _shared_base_for(effective)

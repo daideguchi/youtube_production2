@@ -62,6 +62,7 @@
 
 判定:
 - `YTM_SHARED_STORAGE_ROOT/README_MOUNTPOINT.txt` が存在する（mountpoint stub） or 共有が未マウント
+- 共有がマウントされていても、`$YTM_SHARED_STORAGE_ROOT/uploads/$YTM_SHARED_STORAGE_NAMESPACE/` が見つからない（degraded mount / export違い・外付け未接続・権限不整合など）
 
 方針（ハイブリッド）:
 - **L1 bytes store の保存は継続**する（ただし宛先はローカル）。
