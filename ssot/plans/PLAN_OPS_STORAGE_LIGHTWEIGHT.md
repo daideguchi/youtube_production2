@@ -11,10 +11,10 @@
   - `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`
   - `ssot/plans/PLAN_UI_WORKSPACE_CLEANUP.md`
   - `python3 scripts/ops/workspace_snapshot.py`
-  - `python -m scripts.cleanup_workspace`
+  - `python3 scripts/cleanup_workspace.py`
   - `python3 scripts/ops/cleanup_logs.py`
   - `python3 scripts/cleanup_data.py`
-- **最終更新日**: 2026-01-09
+- **最終更新日**: 2026-01-26
 
 ## 1. 背景と目的
 - 中間生成物（L2）と一時ログ/キャッシュ（L3）が溜まり、探索ノイズとディスク逼迫を起こす。
@@ -35,8 +35,8 @@
 
 ### 4.1 日次（L3ログ/キャッシュ）
 ```bash
-python -m scripts.cleanup_workspace --logs --dry-run
-python -m scripts.cleanup_workspace --logs --run --logs-keep-days 30
+python3 scripts/cleanup_workspace.py --logs --dry-run
+python3 scripts/cleanup_workspace.py --logs --run --logs-keep-days 30
 
 # キャッシュ（untracked）は随時OK
 bash scripts/ops/cleanup_caches.sh
@@ -44,20 +44,34 @@ bash scripts/ops/cleanup_caches.sh
 
 ### 4.2 週次（台本中間物/音声prep）
 ```bash
-python -m scripts.cleanup_workspace --scripts --dry-run
-python -m scripts.cleanup_workspace --scripts --run --scripts-keep-days 14
+python3 scripts/cleanup_workspace.py --scripts --dry-run
+python3 scripts/cleanup_workspace.py --scripts --run --scripts-keep-days 14
 ```
 
 ### 4.3 月次（video runs の整理）
 ```bash
 # 全チャンネル対象（標準: まず dry-run）
-python -m scripts.cleanup_workspace --video-runs --dry-run --all
+python3 scripts/cleanup_workspace.py --video-runs --dry-run --all
 
 # チャンネル指定で絞る（例）
-python -m scripts.cleanup_workspace --video-runs --dry-run --channel CH04 --channel CH23
+python3 scripts/cleanup_workspace.py --video-runs --dry-run --channel CH04 --channel CH23
 
 # 運用の合意が取れてから:
-python -m scripts.cleanup_workspace --video-runs --run --all --yes
+python3 scripts/cleanup_workspace.py --video-runs --run --all --yes
+```
+
+### 4.4 緊急（Disk STOP-level: 空き <= 30Gi）: audio_prep を先に削る
+
+狙い:
+- `workspaces/scripts/**/audio_prep/chunks/` と `audio_prep/{CH}-{NNN}*.wav/.srt` の重複バイナリを削り、数GB単位で空きを作る。
+- SoT（`workspaces/audio/final/**`）は触らない。削除は rebuildable な chunk/重複のみ。
+
+```bash
+# まず dry-run（ログを残す）
+python3 scripts/cleanup_workspace.py --audio --dry-run --channel CH01 --channel CH02 --channel CH04 --channel CH26
+
+# OKなら run（同じscopeで実行）
+python3 scripts/cleanup_workspace.py --audio --run --channel CH01 --channel CH02 --channel CH04 --channel CH26
 ```
 
 ## 5. 計測（肥大化の可視化）
@@ -79,6 +93,14 @@ du -sh workspaces/audio workspaces/video workspaces/scripts workspaces/logs 2>/d
 - `workspaces/logs`: 約 337M
 - `workspaces/_scratch`: 約 238M
 - `workspaces/tmp`: 約 44M
+
+2026-01-26（Mac / Lenovo共有stub / 参考）:
+- `workspaces/video`: 約 15G
+- `workspaces/audio`: 約 5.2G
+- `workspaces/scripts`: 約 18G（主因: `audio_prep/**`）
+- `workspaces/thumbnails`: 約 1.8G
+- `workspaces/logs`: 約 92M
+- OSディスク空き（重要）: `/System/Volumes/Data` 空き約 `20Gi`（使用 `96%`）
 
 注:
 - `./ops snapshot workspace -- --write-report` の出力に `report=...json` が出るので、数値は常にその時点の観測を正とする。
