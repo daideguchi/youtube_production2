@@ -48,6 +48,7 @@
 - `packages/script_pipeline/channels/README.md` (Reference): チャンネル定義ディレクトリの補足メモ（正本: `packages/script_pipeline/channels/CHxx-*/channel_info.json` と SSOT）。
 - (Register) `ops/OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
+- `ops/OPS_INFRA_SPEED_MEASUREMENT.md`: インフラ（通信/保存）速度の実測と集約（Notion + /files）。
 - `ops/OPS_EXECUTION_PATTERNS.md`: 処理パターン×CLIレシピ（索引付き。新パターンは必ず追記）。
 - `ops/OPS_FIXED_RECOVERY_COMMANDS.md`: 復帰コマンドの固定（途中で落ちても同じコマンドで復帰）。
 - `ops/OPS_RECONCILE_RUNBOOK.md`: Reconcile（episode_progress の issues を根拠に固定復帰コマンドを配線）。

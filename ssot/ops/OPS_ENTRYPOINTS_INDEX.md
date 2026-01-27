@@ -15,6 +15,9 @@
 - 実体（P0 launcher）: `python3 scripts/ops/ops_cli.py --help`（`./ops` が呼ぶ）
 - 事前点検: `./ops doctor`
 - ストレージ配線点検（保存先カオス防止）: `./ops storage doctor`
+- インフラ速度ベンチ（通信/SMB read-write; 実測の正本を作る）:
+  - 実測: `python3 scripts/ops/infra_speed_bench.py --help`
+  - 正本（SSOT）: `ssot/ops/OPS_INFRA_SPEED_MEASUREMENT.md`
 - Hot（未投稿）/Freeze（未投稿だが当面触らない）の一覧（事故防止）:
   - 一覧: `python3 scripts/ops/hotset.py list --channel CHxx`
   - Freeze追加（明示）: `python3 scripts/ops/hotset.py freeze-add --channel CHxx --video NNN --reason "..."`（推論で入れない）
