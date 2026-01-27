@@ -664,11 +664,11 @@ def _apply_text_to_image(
             )
 
         blocks: list[tuple[Sequence[str], ImageFont.FreeTypeFont]] = []
-        if font_upper and sw_upper:
+        if font_upper is not None and sw_upper is not None:
             blocks.append((list(upper_lines), font_upper))
-        if font_main and sw_main:
+        if font_main is not None and sw_main is not None:
             blocks.append((list(main_lines), font_main))
-        if font_lower and sw_lower:
+        if font_lower is not None and sw_lower is not None:
             blocks.append((list(lower_lines), font_lower))
 
         total_h = 0
@@ -694,11 +694,11 @@ def _apply_text_to_image(
         layout_scale *= 0.92
 
     blocks = []
-    if font_upper and sw_upper:
+    if font_upper is not None and sw_upper is not None:
         blocks.append((list(upper_lines), font_upper))
-    if font_main and sw_main:
+    if font_main is not None and sw_main is not None:
         blocks.append((list(main_lines), font_main))
-    if font_lower and sw_lower:
+    if font_lower is not None and sw_lower is not None:
         blocks.append((list(lower_lines), font_lower))
 
     total_h = 0
@@ -728,7 +728,7 @@ def _apply_text_to_image(
     start_y = int(max(int(style.layout.start_y_min), round(free_h * factor) + int(style.layout.start_y_bias_px)))
     cur_y = start_y
 
-    if upper_lines and font_upper and sw_upper:
+    if upper_lines and font_upper is not None and sw_upper is not None:
         _render_block(
             base=overlay,
             x=pad,
@@ -758,7 +758,7 @@ def _apply_text_to_image(
             line_gap_min_px=int(style.layout.line_gap_min_px),
         )
 
-    if upper_lines and main_lines and font_upper and font_main:
+    if upper_lines and main_lines and font_upper is not None and font_main is not None:
         cur_y += _inter_block_gap(
             font_upper,
             font_main,
@@ -766,7 +766,7 @@ def _apply_text_to_image(
             block_gap_min_px=int(style.layout.block_gap_min_px),
         )
 
-    if main_lines and font_main and sw_main:
+    if main_lines and font_main is not None and sw_main is not None:
         main_boost = 1.0
         if len(main_text) <= int(style.typography.main_boost_short_len):
             main_boost = float(style.typography.main_boost)
@@ -799,7 +799,7 @@ def _apply_text_to_image(
             line_gap_min_px=int(style.layout.line_gap_min_px),
         )
 
-    if main_lines and lower_lines and font_main and font_lower:
+    if main_lines and lower_lines and font_main is not None and font_lower is not None:
         cur_y += _inter_block_gap(
             font_main,
             font_lower,
@@ -807,7 +807,7 @@ def _apply_text_to_image(
             block_gap_min_px=int(style.layout.block_gap_min_px),
         )
 
-    if lower_lines and font_lower and sw_lower:
+    if lower_lines and font_lower is not None and sw_lower is not None:
         _render_block(
             base=overlay,
             x=pad,

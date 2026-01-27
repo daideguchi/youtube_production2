@@ -89,6 +89,7 @@
 | `/capcut-edit/swap` | `apps/ui-frontend/src/pages/CapcutSwapPage.tsx` | `/api/swap/*` | `workspaces/video/runs/**` |
 | `/image-management` | `apps/ui-frontend/src/pages/ImageManagementPage.tsx` | `/api/video-production/*`（画像variants含む） | `workspaces/video/runs/**` |
 | `/image-warehouse` | `apps/ui-frontend/src/pages/ImageWarehousePage.tsx` | `/api/video-production/*`（SSE: assets/stream, log/stream） | `workspaces/video/runs/**` |
+| `/thumbnails/chat` | `apps/ui-frontend/src/pages/ThumbnailChatEditorPage.tsx` | `/api/workspaces/thumbnails/*`（comment-patch / thumb-spec / build） | `workspaces/thumbnails/**` |
 | `/thumbnails` | `apps/ui-frontend/src/pages/ThumbnailsPage.tsx` | `/api/workspaces/thumbnails/*` | `workspaces/thumbnails/**`（QC: `assets/{CH}/library/qc/*`） |
 | `/channel-settings` | `apps/ui-frontend/src/pages/ChannelSettingsPage.tsx` | `/api/channels/register` 等 | `packages/script_pipeline/channels/**`, `workspaces/planning/**` |
 | `/prompts` | `apps/ui-frontend/src/pages/PromptManagerPage.tsx` | `/api/prompts*` | `packages/**/prompts/**` |

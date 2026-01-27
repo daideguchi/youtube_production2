@@ -62,6 +62,15 @@ def _missing_thumb_png_bytes(label: str) -> bytes:
 def get_thumbnail_asset(channel: str, video: str, asset_path: str):
     from backend import main as backend_main
 
+    # Backward-compatible special-case:
+    # Some UIs derive QC contactsheet URLs from the file path
+    # `workspaces/thumbnails/assets/<CHxx>/library/qc/contactsheet.png` and request:
+    #   /thumbnails/assets/<CHxx>/library/qc/contactsheet.png
+    # The canonical route for library assets is `/thumbnails/library/<CHxx>/...`,
+    # but keep the legacy path working to avoid hiding QC during incidents.
+    if (video or "").strip().lower() == "library":
+        return get_thumbnail_library_asset(channel=channel, asset_path=asset_path)
+
     channel_code = channel.strip().upper()
     if not channel_code or Path(channel_code).name != channel_code:
         raise HTTPException(status_code=404, detail="invalid channel")

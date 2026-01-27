@@ -70,6 +70,7 @@ export type WorkspaceView =
   | "benchmarks"
   | "research"
   | "thumbnails"
+  | "thumbnailChat"
   | "imageManagement"
   | "imageWarehouse"
   | "channelWorkspace"
@@ -309,6 +310,9 @@ function determineView(pathname: string): WorkspaceView {
   if (matchPath("/thumbnails/mobile", pathname)) {
     return "thumbnails";
   }
+  if (matchPath("/thumbnails/chat", pathname)) {
+    return "thumbnailChat";
+  }
   if (matchPath("/thumbnails", pathname)) {
     return "thumbnails";
   }
@@ -459,6 +463,10 @@ const PLACEHOLDER_COPY: Record<
   thumbnails: {
     title: "サムネイル管理",
     description: "サムネイル案のステータスや採用状況を整理し、ドラフトの差し替えを素早く行えます。",
+  },
+  thumbnailChat: {
+    title: "サムネ自然言語編集",
+    description: "サムネを自然言語で調整し、提案（comment-patch）を thumb_spec overrides に適用して再合成します。",
   },
   imageManagement: {
     title: "画像管理",
@@ -1529,6 +1537,7 @@ export function AppShell() {
           { key: "audioTts", label: "音声生成(TTS)", icon: "🔊", path: "/audio-tts" },
           { key: "capcutEdit", label: "動画(CapCut)", icon: "🎬", path: "/capcut-edit" },
           { key: "thumbnails", label: "サムネ", icon: "🖼️", path: thumbnailsLink },
+          { key: "thumbnailChat", label: "サムネ自然言語編集", icon: "💬", path: "/thumbnails/chat" },
           { key: "imageTimeline", label: "画像タイムライン", icon: "🕒", path: "/image-timeline" },
           { key: "imageManagement", label: "画像管理", icon: "🗃️", path: "/image-management" },
           { key: "imageWarehouse", label: "画像倉庫（Live）", icon: "📦", path: "/image-warehouse" },
@@ -1563,7 +1572,7 @@ export function AppShell() {
   );
 
   const workspaceModifiers: string[] = [];
-  if (view === "thumbnails") {
+  if (view === "thumbnails" || view === "thumbnailChat") {
     workspaceModifiers.push("workspace--thumbnail-clean");
   }
   if (view === "remotion") {

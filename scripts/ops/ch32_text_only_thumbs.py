@@ -666,11 +666,11 @@ def _make_text_only_png(
             )
 
         blocks: list[tuple[Sequence[str], ImageFont.FreeTypeFont]] = []
-        if font_upper and sw_upper:
+        if font_upper is not None and sw_upper is not None:
             blocks.append((list(item.upper_lines), font_upper))
-        if font_main and sw_main:
+        if font_main is not None and sw_main is not None:
             blocks.append((list(item.main_lines), font_main))
-        if font_lower and sw_lower:
+        if font_lower is not None and sw_lower is not None:
             blocks.append((list(item.lower_lines), font_lower))
 
         total_h = 0
@@ -696,11 +696,11 @@ def _make_text_only_png(
         layout_scale *= 0.92
 
     blocks = []
-    if font_upper and sw_upper:
+    if font_upper is not None and sw_upper is not None:
         blocks.append((list(item.upper_lines), font_upper))
-    if font_main and sw_main:
+    if font_main is not None and sw_main is not None:
         blocks.append((list(item.main_lines), font_main))
-    if font_lower and sw_lower:
+    if font_lower is not None and sw_lower is not None:
         blocks.append((list(item.lower_lines), font_lower))
 
     total_h = 0
@@ -730,7 +730,7 @@ def _make_text_only_png(
     start_y = int(max(int(style.layout.start_y_min), round(free_h * factor) + int(style.layout.start_y_bias_px)))
     cur_y = start_y
 
-    if item.upper_lines and font_upper and sw_upper:
+    if item.upper_lines and font_upper is not None and sw_upper is not None:
         _render_block(
             base=base,
             x=pad,
@@ -760,7 +760,7 @@ def _make_text_only_png(
             line_gap_min_px=int(style.layout.line_gap_min_px),
         )
 
-    if item.upper_lines and item.main_lines and font_upper and font_main:
+    if item.upper_lines and item.main_lines and font_upper is not None and font_main is not None:
         cur_y += _inter_block_gap(
             font_upper,
             font_main,
@@ -768,7 +768,7 @@ def _make_text_only_png(
             block_gap_min_px=int(style.layout.block_gap_min_px),
         )
 
-    if item.main_lines and font_main and sw_main:
+    if item.main_lines and font_main is not None and sw_main is not None:
         main_boost = 1.0
         if len(main_text) <= int(style.typography.main_boost_short_len):
             main_boost = float(style.typography.main_boost)
@@ -801,7 +801,7 @@ def _make_text_only_png(
             line_gap_min_px=int(style.layout.line_gap_min_px),
         )
 
-    if item.main_lines and item.lower_lines and font_main and font_lower:
+    if item.main_lines and item.lower_lines and font_main is not None and font_lower is not None:
         cur_y += _inter_block_gap(
             font_main,
             font_lower,
@@ -809,7 +809,7 @@ def _make_text_only_png(
             block_gap_min_px=int(style.layout.block_gap_min_px),
         )
 
-    if item.lower_lines and font_lower and sw_lower:
+    if item.lower_lines and font_lower is not None and sw_lower is not None:
         _render_block(
             base=base,
             x=pad,

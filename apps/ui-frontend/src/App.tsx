@@ -21,6 +21,7 @@ import { SsotGapsPage } from "./pages/SsotGapsPage";
 import { SsotZombiesPage } from "./pages/SsotZombiesPage";
 import { ThumbnailsPage } from "./pages/ThumbnailsPage";
 import { ThumbnailsMobilePage } from "./pages/ThumbnailsMobilePage";
+import { ThumbnailChatEditorPage } from "./pages/ThumbnailChatEditorPage";
 import { AudioReviewRoute } from "./pages/AudioReviewRoute";
 import { ReportsPage } from "./pages/ReportsPage";
 import { PromptManagerPage } from "./pages/PromptManagerPage";
@@ -85,6 +86,7 @@ function App() {
         <Route path="/ssot/trace/:key" element={<SsotTracePage />} />
         <Route path="/youtube-sale" element={<YoutubeSalePage />} />
         <Route path="/thumbnails/mobile" element={<ThumbnailsMobilePage />} />
+        <Route path="/thumbnails/chat" element={<ThumbnailChatEditorPage />} />
         <Route path="/thumbnails" element={<ThumbnailsPage />} />
         <Route path="/image-management" element={<ImageManagementPage />} />
         <Route path="/image-timeline" element={<ImageManagementPage />} />

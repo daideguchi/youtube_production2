@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import re
+import subprocess
+import tempfile
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -960,6 +963,371 @@ def _extract_thumbnail_human_comment(raw: str) -> str:
         text = text.split("修正済み:", 1)[0]
     return text.strip()
 
+def _thumbnail_comment_patch_mode() -> str:
+    """
+    Controls how `/comment-patch` generates suggestions.
+
+    Values:
+      - disabled (default): always returns ops=[]
+      - heuristic: deterministic keyword-based suggestions
+      - cli: codex exec -> gemini -> qwen -> ollama (then heuristic)
+    """
+    raw = str(os.getenv("YTM_THUMBNAIL_COMMENT_PATCH_MODE") or "").strip().lower()
+    if raw in {"", "0", "off", "false", "disabled", "disable"}:
+        return "disabled"
+    if raw in {"heuristic", "rule", "rules"}:
+        return "heuristic"
+    if raw in {"1", "on", "true", "cli"}:
+        return "cli"
+    return "disabled"
+
+
+def _parse_json_object_from_text(raw: str) -> Dict[str, Any]:
+    """
+    Extract the first JSON object from a model/CLI response.
+    Accepts extra prose before/after the JSON (we ignore it).
+    """
+    text = str(raw or "").strip()
+    if not text:
+        raise ValueError("empty response")
+    try:
+        obj = json.loads(text)
+        if isinstance(obj, dict):
+            return obj
+    except Exception:
+        pass
+
+    decoder = json.JSONDecoder()
+    for start in [m.start() for m in re.finditer(r"{", text)]:
+        try:
+            obj, _end = decoder.raw_decode(text[start:])
+        except Exception:
+            continue
+        if isinstance(obj, dict):
+            return obj
+    raise ValueError("no json object found in response")
+
+
+def _iter_allowed_override_leaf_paths() -> List[str]:
+    try:
+        from script_pipeline.thumbnails.param_catalog_v1 import iter_allowed_leaf_paths_v1
+    except Exception:
+        return []
+    return sorted([p for p in iter_allowed_leaf_paths_v1() if isinstance(p, str) and p.startswith("overrides.")])
+
+
+def _validate_comment_patch_ops(raw_ops: Any) -> List[Dict[str, Any]]:
+    try:
+        from script_pipeline.thumbnails.param_catalog_v1 import validate_param_value_v1
+    except Exception as exc:
+        raise ValueError(f"param catalog is not available: {exc}") from exc
+
+    allowed = set(_iter_allowed_override_leaf_paths())
+    if not isinstance(raw_ops, list):
+        raise TypeError("ops must be a list")
+
+    ops_out: List[Dict[str, Any]] = []
+    for raw_item in raw_ops:
+        if not isinstance(raw_item, dict):
+            continue
+        op_kind = str(raw_item.get("op") or "set").strip().lower()
+        if op_kind not in {"set", "unset"}:
+            raise ValueError(f"invalid op: {op_kind}")
+        path = str(raw_item.get("path") or "").strip()
+        if not path or path not in allowed:
+            raise ValueError(f"op path is not allowed: {path!r}")
+        reason = raw_item.get("reason")
+        if reason is not None and not isinstance(reason, str):
+            reason = str(reason)
+        reason_out = reason.strip() if isinstance(reason, str) and reason.strip() else None
+
+        if op_kind == "unset":
+            ops_out.append({"op": "unset", "path": path, "reason": reason_out})
+            continue
+
+        if "value" not in raw_item:
+            raise ValueError(f"missing value for set op: {path}")
+        normalized = validate_param_value_v1(path, raw_item.get("value"))
+        if isinstance(normalized, tuple):
+            normalized_out: Any = list(normalized)
+        else:
+            normalized_out = normalized
+        ops_out.append({"op": "set", "path": path, "value": normalized_out, "reason": reason_out})
+
+    # Keep the output bounded (UI readability / safety).
+    if len(ops_out) > 32:
+        ops_out = ops_out[:32]
+    return ops_out
+
+
+def _resolve_leaf_value(ctx: ThumbnailEditorContextResponse, path: str, fallback: Any) -> Any:
+    leaf = ctx.effective_leaf or {}
+    if isinstance(leaf, dict) and path in leaf:
+        return leaf.get(path)
+    defaults = ctx.defaults_leaf or {}
+    if isinstance(defaults, dict) and path in defaults:
+        return defaults.get(path)
+    return fallback
+
+
+def _heuristic_comment_patch(comment: str, ctx: ThumbnailEditorContextResponse) -> List[Dict[str, Any]]:
+    """
+    Deterministic fallback: best-effort keyword mapping.
+    Intended to keep the feature usable even when CLI-based inference is unavailable.
+    """
+    text = str(comment or "").strip()
+    if not text:
+        return []
+
+    def _f(path: str, default: float) -> float:
+        try:
+            return float(_resolve_leaf_value(ctx, path, default))
+        except Exception:
+            return float(default)
+
+    def _i(path: str, default: int) -> int:
+        try:
+            return int(_resolve_leaf_value(ctx, path, default))
+        except Exception:
+            return int(default)
+
+    ops: List[Dict[str, Any]] = []
+
+    # Background brightness.
+    if any(k in text for k in ("明る", "明るく")):
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.bg_enhance.brightness",
+                "value": _f("overrides.bg_enhance.brightness", 1.0) * 1.12,
+                "reason": "明るく",
+            }
+        )
+    if any(k in text for k in ("暗", "暗く")):
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.bg_enhance.brightness",
+                "value": _f("overrides.bg_enhance.brightness", 1.0) * 0.88,
+                "reason": "暗く",
+            }
+        )
+
+    # Background pan (rough).
+    if "上" in text and "下" not in text:
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.bg_pan_zoom.pan_y",
+                "value": _f("overrides.bg_pan_zoom.pan_y", 0.0) + 0.35,
+                "reason": "上へ",
+            }
+        )
+    if "下" in text:
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.bg_pan_zoom.pan_y",
+                "value": _f("overrides.bg_pan_zoom.pan_y", 0.0) - 0.35,
+                "reason": "下へ",
+            }
+        )
+    if "左" in text and "右" not in text:
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.bg_pan_zoom.pan_x",
+                "value": _f("overrides.bg_pan_zoom.pan_x", 0.0) - 0.35,
+                "reason": "左へ",
+            }
+        )
+    if "右" in text:
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.bg_pan_zoom.pan_x",
+                "value": _f("overrides.bg_pan_zoom.pan_x", 0.0) + 0.35,
+                "reason": "右へ",
+            }
+        )
+
+    # Zoom.
+    if any(k in text for k in ("ズーム", "寄り", "近づ", "アップ")):
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.bg_pan_zoom.zoom",
+                "value": max(1.0, _f("overrides.bg_pan_zoom.zoom", 1.0) * 1.05),
+                "reason": "ズーム",
+            }
+        )
+
+    # Text scale.
+    if any(k in text for k in ("文字大", "文字を大", "文字をもっと大", "テキスト大")):
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.text_scale",
+                "value": _f("overrides.text_scale", 1.0) * 1.08,
+                "reason": "文字を大きく",
+            }
+        )
+    if any(k in text for k in ("文字小", "文字を小", "テキスト小")):
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.text_scale",
+                "value": _f("overrides.text_scale", 1.0) / 1.08,
+                "reason": "文字を小さく",
+            }
+        )
+
+    # Text stroke thickness (outline).
+    if any(k in text for k in ("縁", "アウトライン", "ふち")) and any(k in text for k in ("太", "太く")):
+        ops.append(
+            {
+                "op": "set",
+                "path": "overrides.text_effects.stroke.width_px",
+                "value": _i("overrides.text_effects.stroke.width_px", 8) + 2,
+                "reason": "縁を太く",
+            }
+        )
+
+    # Validate + normalize. If any op fails validation, drop it.
+    try:
+        return _validate_comment_patch_ops(ops)
+    except Exception:
+        safe_ops: List[Dict[str, Any]] = []
+        for op in ops:
+            try:
+                safe_ops.extend(_validate_comment_patch_ops([op]))
+            except Exception:
+                continue
+        return safe_ops
+
+
+def _build_comment_patch_prompt(comment: str, ctx: ThumbnailEditorContextResponse) -> str:
+    """
+    Prompt contract: return a SINGLE JSON object (no markdown) matching ytm.thumbnail.comment_patch.v1.
+    """
+    allowed_paths = _iter_allowed_override_leaf_paths()
+    effective_leaf = ctx.effective_leaf if isinstance(ctx.effective_leaf, dict) else {}
+    allowed_set = set(allowed_paths)
+    effective_editable = {k: v for k, v in effective_leaf.items() if isinstance(k, str) and k in allowed_set}
+
+    payload = {
+        "schema": THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
+        "target": {"channel": ctx.channel, "video": ctx.video},
+        "instruction": str(comment),
+        "rules": [
+            "Return JSON only. No markdown, no prose.",
+            "You are generating a suggestion patch; do NOT apply changes.",
+            "ops may include only allowlisted overrides.* paths. Unknown paths are forbidden.",
+            "For set: include value with correct type and within min/max range when specified.",
+            "For unset: omit value.",
+            "If unclear, add clarifying_questions and keep ops minimal.",
+        ],
+        "allowlisted_paths": allowed_paths,
+        "current": {
+            "text_slots": ctx.text_slots,
+            "effective_leaf": effective_editable,
+        },
+        "output_format": {
+            "schema": THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
+            "target": {"channel": ctx.channel, "video": ctx.video},
+            "confidence": "0..1",
+            "clarifying_questions": ["..."],
+            "ops": [{"op": "set|unset", "path": "overrides....", "value": "optional", "reason": "optional"}],
+        },
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def _run_codex_exec_patch(prompt: str, *, timeout_sec: int = 70) -> Dict[str, Any]:
+    schema_obj = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "required": ["schema", "target", "confidence", "clarifying_questions", "ops"],
+        "properties": {
+            "schema": {"type": "string"},
+            "target": {
+                "type": "object",
+                "required": ["channel", "video"],
+                "properties": {"channel": {"type": "string"}, "video": {"type": "string"}},
+            },
+            "confidence": {"type": "number"},
+            "clarifying_questions": {"type": "array", "items": {"type": "string"}},
+            "ops": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["op", "path"],
+                    "properties": {
+                        "op": {"type": "string"},
+                        "path": {"type": "string"},
+                        "value": {},
+                        "reason": {"type": "string"},
+                    },
+                },
+            },
+        },
+    }
+
+    with tempfile.TemporaryDirectory(prefix="ytm_thumb_comment_patch_") as tmp_dir:
+        schema_path = Path(tmp_dir) / "schema.json"
+        out_path = Path(tmp_dir) / "last_message.txt"
+        schema_path.write_text(json.dumps(schema_obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+        cmd = [
+            "codex",
+            "exec",
+            "--sandbox",
+            "read-only",
+            "--skip-git-repo-check",
+            "--output-schema",
+            str(schema_path),
+            "--output-last-message",
+            str(out_path),
+            "-",
+        ]
+        proc = subprocess.run(cmd, input=prompt, text=True, capture_output=True, timeout=max(10, int(timeout_sec)))
+        if proc.returncode != 0:
+            err = (proc.stderr or proc.stdout or "").strip()
+            raise RuntimeError(f"codex exec failed (exit={proc.returncode}): {err[:400]}")
+        if not out_path.exists():
+            raise RuntimeError("codex exec did not produce output-last-message")
+        return _parse_json_object_from_text(out_path.read_text(encoding="utf-8"))
+
+
+def _run_gemini_cli_patch(prompt: str, *, timeout_sec: int = 70) -> Dict[str, Any]:
+    cmd = ["gemini", "-o", "text", "-p", prompt]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=max(10, int(timeout_sec)))
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "").strip()
+        raise RuntimeError(f"gemini cli failed (exit={proc.returncode}): {err[:400]}")
+    return _parse_json_object_from_text(proc.stdout)
+
+
+def _run_qwen_cli_patch(prompt: str, *, timeout_sec: int = 70) -> Dict[str, Any]:
+    cmd = ["qwen", "--output-format", "text", "--chat-recording", "false", "-p", prompt]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=max(10, int(timeout_sec)))
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "").strip()
+        raise RuntimeError(f"qwen cli failed (exit={proc.returncode}): {err[:400]}")
+    return _parse_json_object_from_text(proc.stdout)
+
+
+def _run_ollama_patch(prompt: str, *, timeout_sec: int = 70) -> Dict[str, Any]:
+    model = str(os.getenv("YTM_THUMBNAIL_COMMENT_PATCH_OLLAMA_MODEL") or "qwen2.5:7b-instruct").strip()
+    if not model:
+        raise RuntimeError("missing ollama model")
+    cmd = ["ollama", "run", model]
+    proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=max(10, int(timeout_sec)))
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "").strip()
+        raise RuntimeError(f"ollama failed (exit={proc.returncode}): {err[:400]}")
+    return _parse_json_object_from_text(proc.stdout)
+
 
 @router.post(
     "/api/workspaces/thumbnails/{channel}/{video}/comment-patch",
@@ -977,16 +1345,106 @@ def get_thumbnail_comment_patch(channel: str, video: str, request: ThumbnailComm
     if not comment:
         raise HTTPException(status_code=400, detail="comment is required")
 
-    # Disabled: thumbnail tuning comments are processed in the operator chat (this conversation),
-    # not via backend LLM translation.
+    mode = _thumbnail_comment_patch_mode()
+
+    # Reuse the same context as the manual Layer Specs tuner.
+    try:
+        ctx = get_thumbnail_editor_context(channel_code, video_number, stable=None, variant=None)
+    except HTTPException as exc:
+        raise exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"failed to build editor context: {exc}") from exc
+
+    if mode == "disabled":
+        return ThumbnailCommentPatchResponse(
+            schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
+            target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
+            confidence=0.0,
+            clarifying_questions=[
+                "comment-patch は現在 disabled です（YTM_THUMBNAIL_COMMENT_PATCH_MODE=cli|heuristic で有効化）。",
+            ],
+            ops=[],
+            provider="disabled",
+            model=None,
+        )
+
+    if mode == "heuristic":
+        ops = _heuristic_comment_patch(comment, ctx)
+        return ThumbnailCommentPatchResponse(
+            schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
+            target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
+            confidence=0.35 if ops else 0.0,
+            clarifying_questions=[] if ops else ["コメントから安全に推定できる操作が見つかりませんでした。具体的に指示してください。"],
+            ops=ops,
+            provider="heuristic",
+            model=None,
+        )
+
+    prompt = _build_comment_patch_prompt(comment, ctx)
+    errors: List[str] = []
+
+    providers: List[tuple[str, Any]] = [
+        ("codex_exec", _run_codex_exec_patch),
+        ("gemini_cli", _run_gemini_cli_patch),
+        ("qwen_cli", _run_qwen_cli_patch),
+        ("ollama", _run_ollama_patch),
+    ]
+
+    for name, fn in providers:
+        try:
+            payload = fn(prompt)  # type: ignore[misc]
+            raw_ops = payload.get("ops") if isinstance(payload, dict) else None
+            ops = _validate_comment_patch_ops(raw_ops or [])
+            confidence = payload.get("confidence") if isinstance(payload, dict) else None
+            try:
+                conf = float(confidence)
+            except Exception:
+                conf = 0.6 if ops else 0.0
+            conf = max(0.0, min(1.0, conf))
+            questions = payload.get("clarifying_questions") if isinstance(payload, dict) else None
+            if not isinstance(questions, list):
+                questions = []
+            questions_out = [str(q).strip() for q in questions if str(q).strip()]
+
+            if not ops and not questions_out:
+                questions_out = ["操作が空でした。より具体的な指示（例: 文字を10%大きく / 背景を少し右へ）をください。"]
+
+            return ThumbnailCommentPatchResponse(
+                schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
+                target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
+                confidence=conf,
+                clarifying_questions=questions_out,
+                ops=ops,
+                provider=name,
+                model=(str(payload.get("model") or "").strip() if isinstance(payload, dict) else None) or None,
+            )
+        except Exception as exc:
+            errors.append(f"{name}: {exc}")
+            continue
+
+    # Final fallback: heuristic (never calls external services).
+    ops = _heuristic_comment_patch(comment, ctx)
+    if ops:
+        return ThumbnailCommentPatchResponse(
+            schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
+            target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
+            confidence=0.25,
+            clarifying_questions=[],
+            ops=ops,
+            provider="heuristic_fallback",
+            model=None,
+        )
+
+    questions = [
+        "自動変換に失敗しました。より具体的な指示（例: 背景を少し下へ / 文字を1.1倍 / 縁を太く）をください。",
+    ]
+    if errors:
+        questions.append("（debug）失敗した経路: " + " / ".join(errors[:4]))
     return ThumbnailCommentPatchResponse(
         schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
         target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
         confidence=0.0,
-        clarifying_questions=[
-            "コメントの解釈はこのチャットで実施します（UI/API では自動変換しません）。"
-            "必要な調整は thumb_spec.json の overrides に落として保存してください。",
-        ],
+        clarifying_questions=questions,
         ops=[],
         provider=None,
         model=None,

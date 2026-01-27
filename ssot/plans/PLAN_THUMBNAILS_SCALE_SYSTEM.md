@@ -211,21 +211,25 @@ UI/CLI は “同じ関数” を呼ぶ。
 - 画像ファイルの破損検知（`10_bg.*`, `00_thumb.png`, portrait）
 - thumb_spec.json のスキーマ検証
 
-### 5.9 コメント → パラメータ更新（翻訳）を安全に回す（サムネ編集はLLM APIを使わない）
-結論: **ベンチマーク分析/調整の推論はこのチャットで行い、結果は thumb_spec の overrides に保存する**。  
-サムネ編集（コメント解釈・要約・自動変換）に LLM API を使う導線は持たない（=オプトインも含めて既定は無効）。
+### 5.9 コメント → パラメータ更新（翻訳）を安全に回す（NLP編集: UIでオプトイン）
+結論: **自然言語コメント → thumb_spec patch（提案）をUIで実装する**。  
+ただし誤適用を避けるため、**自動適用は禁止**（常に「提案 → 人間が適用」）とする。
 
-方針（現行運用）:
-- 自然言語コメントの解釈は、オペレーター（このチャット）で確定する
-- 反映先は **動画単位**の `thumb_spec.json`（`overrides`）のみ
-- 更新できるのは **PARAM_CATALOG の allowlist** に含まれる `overrides.*` パスだけ
-- unknown key はエラー（silent accept しない）
-- 数値は型/範囲を検証し、外れたら **適用せず止める**（勝手に丸めない）
-- 適用前後に **draft再合成→プレビュー** して、人間が確認できる状態にする
+方針（更新: 2026-01-26）:
+- UI: 「サムネ自然言語編集」ページ（上: サムネ大プレビュー / 下: チャット）を追加する
+- Backend: `POST /api/workspaces/thumbnails/{channel}/{video}/comment-patch` が `ytm.thumbnail.comment_patch.v1` を返す（保存はしない）
+- 推論の実行順（fallback）: `codex exec` → `gemini` CLI → `qwen` CLI → `ollama`（local）
+  - いずれも失敗した場合は `clarifying_questions` を返し、`ops=[]` で止める
+- ガードレール（強制）:
+  - 更新できるのは **PARAM_CATALOG の allowlist**（`packages/script_pipeline/thumbnails/param_catalog_v1.py`）に含まれる `overrides.*` パスだけ
+  - unknown key はエラー（silent accept しない）
+  - 数値は型/範囲を検証し、外れたら **適用せず止める**（勝手に丸めない）
+  - 反映は `thumb_spec.json`（動画単位 / overrides差分）に集約する
+  - 適用後は **draft再合成→プレビュー** して、人間が確認できる状態にする
 
 保存形式（このPlanでは採用）:
-- チャットで確定した変更を `ytm.thumbnail.comment_patch.v1`（下記）で残す
-- その `ops` を UI で `thumb_spec.json` に保存して再合成する（同じ修正を再現可能にする）
+- Backendが生成した `ytm.thumbnail.comment_patch.v1` を UI で確認し、必要なら修正してから適用する
+- 適用は `thumb_spec.json` の `overrides` のみに行い、再合成して結果を確認する（同じ修正を再現可能にする）
 
 `ytm.thumbnail.comment_patch.v1`（人間が書く・貼るための契約）
 ```json
@@ -242,7 +246,7 @@ UI/CLI は “同じ関数” を呼ぶ。
 ```
 
 補足（実装）:
-- UI backend の `/api/workspaces/thumbnails/{channel}/{video}/comment-patch` は、誤適用を避けるため **常に no-op を返す**（チャットで処理する前提）。
+- 旧方針（常に no-op 返却）は廃止する。ただし **保存/適用はUI側の明示操作**のみ。
 
 ### 5.10 エフェクト/効果を“パラメータとプリセット”でスケール管理する
 前提: 既にエフェクトはデータ駆動で存在する。
