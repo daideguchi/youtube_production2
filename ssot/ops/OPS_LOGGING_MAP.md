@@ -444,6 +444,27 @@ workspaces/logs/
 - `python3 scripts/ops/cleanup_logs.py --run --keep-days 30 --include-llm-api-cache`（llm_api_cache も含める。report: `workspaces/logs/regression/logs_cleanup/`）
 - `python3 scripts/cleanup_data.py --run --keep-days 14`（workspaces/scripts の L3+一部L2。`audio_prep/` は final 音声が揃っている動画のみ対象）
 
+### 4.3 Acer外付けが弱い前提: 日次バッチは「ログのみ」
+
+目的:
+- Acer（常駐/ゲートウェイ）は壊れても復旧できる前提にする（＝**AcerにHot/SoTの実体を置かない**）。
+- その代わり、調査/復旧のための最小情報として **ログだけ** を日次で退避する。
+
+固定ルール:
+- Acer側（外付け/弱いストレージ）へ置くのは **ログのみ**（`workspaces/logs/**`）。  
+  `workspaces/scripts/**`, `workspaces/thumbnails/**`, `workspaces/audio/**`, `workspaces/video/**`, `CapCutドラフト` は対象外。
+- 退避先が SMB 未マウントのときは **実行しない**（ローカルstubに書いて SoT を分岐させない）。
+
+実行（例; Mac→Acer SMBへ退避）:
+- 退避先の例: `ACER_LOGS_SINK_ROOT=/Users/dd/mounts/workspace/ytm_logs_mirror`
+- 初回（sentinel作成 + 同期）:
+  - `mount | rg -q " on /Users/dd/mounts/workspace \\(smbfs," || exit 0`
+  - `python3 scripts/ops/workspaces_mirror.py --src-root workspaces/logs --dest-root "$ACER_LOGS_SINK_ROOT" --bootstrap-dest --ensure-dirs --run`
+- 日次（同期）:
+  - `mount | rg -q " on /Users/dd/mounts/workspace \\(smbfs," || exit 0`
+  - `python3 scripts/ops/workspaces_mirror.py --src-root workspaces/logs --dest-root "$ACER_LOGS_SINK_ROOT" --run`
+- スケジュール: macOS launchd（StartInterval=86400）で日次実行（repoの `workspaces/logs/` は `cleanup_logs` で 30日ローテ済みのため、退避サイズは上限が決まる）
+
 ---
 
 ## 5. 次の確定タスク（ログ整理のための追加調査）

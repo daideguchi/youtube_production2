@@ -26,6 +26,10 @@
 - 保管庫ミラー（Macローカル→共有; 作成/更新 + 削除同期）:
   - 初回（sentinel作成）: `./ops mirror workspaces -- --bootstrap-dest --ensure-dirs`
   - 同期: `./ops mirror workspaces -- --run`
+- 補助: Acer外付けが弱い前提の「ログのみ」日次バッチ（Acerが壊れてもSoTが残るように）:
+  - 退避先（例）: `ACER_LOGS_SINK_ROOT=/Users/dd/mounts/workspace/ytm_logs_mirror`
+  - 初回（sentinel作成 + 同期）: `mount | rg -q " on /Users/dd/mounts/workspace \\(smbfs," || exit 0; python3 scripts/ops/workspaces_mirror.py --src-root workspaces/logs --dest-root "$ACER_LOGS_SINK_ROOT" --bootstrap-dest --ensure-dirs --run`
+  - 日次（同期）: `mount | rg -q " on /Users/dd/mounts/workspace \\(smbfs," || exit 0; python3 scripts/ops/workspaces_mirror.py --src-root workspaces/logs --dest-root "$ACER_LOGS_SINK_ROOT" --run`
 - `.env` 管理（事故防止）:
   - 状態: `./ops env status`
   - 保護（macOS）: `./ops env protect` / `./ops env unprotect`
