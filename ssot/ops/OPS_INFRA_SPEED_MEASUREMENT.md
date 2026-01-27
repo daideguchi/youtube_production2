@@ -26,7 +26,7 @@
 
 - Notion（Network NOW配下）:
   - ページ（入口）: `SMB-5G-Tailscale`（UIから辿れる）
-  - 確定計画（3フェーズ）: `https://www.notion.so/3-2f503c608a71814aa8dbe25ae24fcae0`
+  - 確定計画（3フェーズ）: `https://www.notion.so/3-2f503c608a7181d1b8c4f1aab4510494`
   - 計測DB（正本）: `2f503c60-8a71-813b-ac34-d31149ea42cc`
 - UI（/files）:
   - `https://acer-dai.tail8c523e.ts.net/files/_reports/infra_speed_summary.html`
