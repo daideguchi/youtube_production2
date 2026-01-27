@@ -26,10 +26,11 @@
 
 - Notion（Network NOW配下）:
   - ページ（入口）: `SMB-5G-Tailscale`（UIから辿れる）
+  - 確定計画（3フェーズ）: `https://www.notion.so/3-2f503c608a71814aa8dbe25ae24fcae0`
   - 計測DB（正本）: `2f503c60-8a71-813b-ac34-d31149ea42cc`
 - UI（/files）:
   - `https://acer-dai.tail8c523e.ts.net/files/_reports/infra_speed_summary.html`
-  - JSON（機械読み）: `.../infra_speed_summary.json`
+  - JSON（機械読み）: `.../infra_speed_summary.json`（`links.notion_plan` あり）
 
 ---
 
@@ -80,4 +81,3 @@ python3 scripts/ops/infra_speed_bench.py \
 - 外部ストレージが落ちた時に、Macの作業が止まるのはNG。
   - `./ops storage doctor` を常に入口に置く（配線の可視化）。
   - 共有が落ちている時は “サイレントfallbackで別場所に書く” をしない（分岐でカオス化する）。
-
