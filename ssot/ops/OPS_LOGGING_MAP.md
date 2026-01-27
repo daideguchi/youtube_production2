@@ -455,8 +455,8 @@ workspaces/logs/
   `workspaces/scripts/**`, `workspaces/thumbnails/**`, `workspaces/audio/**`, `workspaces/video/**`, `CapCutドラフト` は対象外。
 - 退避先が SMB 未マウントのときは **実行しない**（ローカルstubに書いて SoT を分岐させない）。
 
-実行（例; Mac→Acer SMBへ退避）:
-- 退避先の例: `ACER_LOGS_SINK_ROOT=/Users/dd/mounts/workspace/ytm_logs_mirror`
+実行（確定; Mac→Acer SMBへ退避）:
+- 退避先（確定）: `ACER_LOGS_SINK_ROOT=/Users/dd/mounts/workspace/logs/ytm_logs_mirror/factory_commentary`
 - 初回（sentinel作成 + 同期）:
   - `mount | rg -q " on /Users/dd/mounts/workspace \\(smbfs," || exit 0`
   - `python3 scripts/ops/workspaces_mirror.py --src-root workspaces/logs --dest-root "$ACER_LOGS_SINK_ROOT" --bootstrap-dest --ensure-dirs --run`
