@@ -11,6 +11,9 @@
 - 日常運用の台本生成は **Blueprint→Writer→Validate** に分離し、正本は `ssot/agent_runbooks/RUNBOOK_JOB_SCRIPT_PIPELINE.md`。
   - Blueprint: `./ops script resume -- --channel CHxx --video NNN --until script_master_plan --max-iter 6`
   - Writer（本文Aテキスト）: `./ops claude script -- --channel CHxx --video NNN --run`（既定; 失敗→Gemini→qwen）
+  - Manual Review（必須 / 手動）: **通し読みの定性レビュー**（`ssot/ops/OPS_A_TEXT_GLOBAL_RULES.md`）
+    - 目的（北極星）を1行で固定し、違和感/流れ/冗長/チャンネル逸脱がないかを聞き手目線で判断する。
+    - 記録: `workspaces/scripts/{CH}/{NNN}/content/analysis/manual_review.md`
   - Validate: `./ops script resume -- --channel CHxx --video NNN --until script_validation --max-iter 6`
 - 本書は `scripts/ops/script_runbook.py` / `packages/script_pipeline/*` の **内部ロジック/契約**の正本。
   - 台本本文（Aテキスト）の既定Writerは **外部CLI**（APIは明示した実行だけ / 失敗→停止 / 自動フォールバック禁止）。
@@ -61,6 +64,7 @@ flowchart TD
 - 台本アーキテクチャ（構造で壊さない）: `ssot/ops/OPS_SCRIPT_GENERATION_ARCHITECTURE.md`
 - 入力契約（タイトル=正 / 補助 / 禁止）: `ssot/ops/OPS_SCRIPT_INPUT_CONTRACT.md`
 - 運用手順（入口/やり直し）: `ssot/ops/OPS_SCRIPT_GUIDE.md`
+- 企画→アノテ前の工程定義（日本語補正（JP Polish）/上書き禁止/I-O）: `ssot/ops/OPS_SCRIPT_PRE_ANNOTATION_WORKFLOW.md`
 - 品質ゲート（Judge→Fixer→Rebuild）: `ssot/ops/OPS_A_TEXT_LLM_QUALITY_GATE.md`
 - 超長尺（Marathon）設計: `ssot/ops/OPS_LONGFORM_SCRIPT_SCALING.md`
 - 構成パターン（骨格/字数配分SSOT）: `ssot/ops/OPS_SCRIPT_PATTERNS.yaml`
@@ -315,6 +319,16 @@ flowchart LR
 - 既定（Claude CLI）: `./ops claude script -- --channel CHxx --video NNN --run`
 - フォールバック（Gemini CLI）: `./ops gemini script -- --channel CHxx --video NNN --run --gemini-model gemini-3-flash-preview`
 - 最終フォールバック（qwen）: `./ops qwen script -- --channel CHxx --video NNN --run`
+
+手動多段（エージェント手動モード / **LLM APIは使わない**）:
+- 目的: **Gemini で下地 → qwen で荒れを直す → Claude で全体を整える → 最後に人手（対話型AI）で微調整**
+- 手順（固定）:
+  1) 下地（Gemini）: `./ops gemini script -- --channel CHxx --video NNN --run`
+  2) 整形（qwen）: `./ops qwen script -- --channel CHxx --video NNN --run --include-current`
+  3) 仕上げ（Claude）: `./ops claude script -- --channel CHxx --video NNN --run --include-current`
+- 注意:
+  - 各パスは `content/assembled_human.md` を上書きする（証跡は `workspaces/scripts/{CH}/{NNN}/logs/*_cli_*`）。
+  - prompt SoT（`prompts/antigravity_gemini/**`）は改変しない。追加指示が必要なら `--instruction` で渡す。
 
 #### 2.1.2.1 Claude Code（claude CLI）非対話モード（-p/--print）
 前提:

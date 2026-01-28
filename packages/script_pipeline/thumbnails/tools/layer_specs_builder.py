@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -85,6 +86,42 @@ def _load_planning_copy(channel: str, video: str) -> Dict[str, str]:
         upper = str(raw.get("サムネタイトル上") or "").strip()
         title = str(raw.get("サムネタイトル") or "").strip()
         lower = str(raw.get("サムネタイトル下") or "").strip()
+
+        # CH04: 027-029 style uses:
+        # - upper: bracket label from `タイトル` (e.g. 【危険】)
+        # - title: copy from `サムネタイトル` (031+) or extracted from legacy prompt payloads (027-029)
+        if ch == "CH04":
+            if not upper:
+                raw_title = str(raw.get("タイトル") or raw.get("title") or "").strip()
+                m = re.match(r"^【(?P<label>[^】]{1,40})】", raw_title)
+                if m:
+                    upper = str(m.group("label") or "").strip()
+            else:
+                m = re.match(r"^【(?P<label>[^】]{1,40})】$", upper)
+                if m:
+                    upper = str(m.group("label") or "").strip()
+
+            if not title:
+                prompt_keys = [
+                    "サムネ画像プロンプト（URL・テキスト指示込み）",
+                    "サムネ用DALL-Eプロンプト（URL・テキスト指示込み）",
+                    "DALL-Eプロンプト（URL・テキスト指示込み）",
+                    "サムネ画像プロンプト",
+                    "サムネ用DALL-Eプロンプト",
+                ]
+                prompt_val = ""
+                for k in prompt_keys:
+                    val = raw.get(k)
+                    if isinstance(val, str) and val.strip():
+                        prompt_val = val.strip()
+                        break
+                if prompt_val:
+                    # Common legacy pattern: CH04-027『感情は消えずに体に溜まる』
+                    m2 = re.search(r"『(?P<copy>[^』\n]{2,80})』", prompt_val)
+                    if not m2:
+                        m2 = re.search(r"「(?P<copy>[^」\n]{2,80})」", prompt_val)
+                    if m2:
+                        title = str(m2.group("copy") or "").strip()
 
         # CH01 など: サムネタイトルに3行をまとめて入れる運用を許容
         if title and not upper and not lower:
@@ -323,6 +360,59 @@ def _load_planning_image_prompt(channel: str, video: str) -> str:
             val = raw.get(k)
             if isinstance(val, str) and val.strip():
                 return val.strip()
+
+        # CH04: some rows omit prompt fields (e.g. 064+). Derive a safe per-video prompt from `タイトル`.
+        if ch == "CH04":
+            raw_title = str(raw.get("タイトル") or raw.get("title") or "").strip()
+            m = re.match(r"^【(?P<label>[^】]{1,40})】", raw_title)
+            label = str(m.group("label") or "").strip() if m else ""
+
+            # Keep this mapping small and deterministic (no LLM), and avoid text-like props (letters/numbers/UI).
+            motif_by_label = {
+                "フレーミング": "ornate empty picture frames, frame-within-frame perspective shift, same object seen differently through frames",
+                "アンカリング": "heavy iron anchor with chain, antique compass, dramatic spotlight on the anchor",
+                "確証バイアス": "magnifying glass highlighting one clue among many scattered blank papers and photos (no readable text)",
+                "損失回避": "cracked piggy bank spilling coins, broken safe-lock, tense shadows",
+                "現状維持": "rusted lever stuck in place, padlocked door slightly ajar, cobwebs, inertia symbolism",
+                "投影": "distorted mirror reflection with abstract inkblot shapes, two theatrical masks on a desk (no faces, just masks)",
+                "学習性無力感": "small empty cage with an open door, broken chain, abandoned puppet strings, helplessness symbolism",
+                "ハロー効果": "glowing halo ring spotlighting a simple object (trophy or apple), glamour lighting",
+                "ピークエンド": "ribbon-like path with bright endpoints and faded middle, abstract timeline motif (no numbers)",
+                "サンクコスト": "pile of burnt tickets and torn receipts (no readable text), sinking coins, chess pieces",
+                "選択過多": "many keys scattered on a desk, multiple shadowy doorways in the background, decision overload mood",
+                "感情感染": "colored smoke spreading from one glass vial into the room, ripples in the air, contagion mood",
+                "デフォルト効果": "old mechanical switch/lever in a default position, highlighted by light, minimal composition (no UI)",
+                "同調圧力": "row of identical masks lined up, one cracked mask, pressure atmosphere",
+                "自己正当化": "balanced scale with hidden weights, sealed journal with a lock, self-deception motif",
+                "バイアス盲点": "pair of glasses with one lens fogged, magnifier nearby, blind-spot symbolism",
+                "予言の自己成就": "crystal sphere with swirling smoke spiral, subtle sense of destiny, calm tension",
+                "時間の錯覚": "hourglass with swirling sand motion blur, warped clockwork gears (no numerals)",
+                "ストループ効果": "paint tubes and color swatches, overlapping colored cards, confusion without letters/words",
+                "ラバーハンド": "wooden mannequin hand and a rubber glove on a desk, eerie illusion mood (no human body)",
+                "後知恵バイアス": "rear-view mirror, shattered glass revealing a clear path behind, hindsight motif",
+                "物語化": "red string connecting blank photos and objects (no text), detective board style without letters",
+                "注意の罠": "bright spotlight focusing on one object while the surroundings blur, tunnel vision mood",
+                "メタ認知": "book within a book, layered mirrors, abstract layers of thought, self-observation motif",
+                "反証": "two opposing evidence cards, one stamped with an X mark (no letters), hypothesis testing mood",
+                "記憶の偏り": "faded photographs with burnt edges, scattered diary pages with blank lines, selective memory mood",
+                "擬人化": "vintage toy robot and a lamp that subtly resembles a face-like silhouette (no real face), pareidolia mood",
+            }
+            motif = motif_by_label.get(label)
+
+            if motif:
+                return (
+                    "YouTube thumbnail background image, 16:9 (1920x1080).\n\n"
+                    "STYLE (HIDDEN LIBRARY):\n"
+                    "Moonlit hidden library interior, teal and gold color palette, cinematic lighting,\n"
+                    "soft fog, floating dust particles, shallow depth of field, premium digital painting.\n\n"
+                    "COMPOSITION:\n"
+                    "Keep the UPPER area dark and low-detail for overlaid typography.\n"
+                    "Place the main objects on the RIGHT side; leave generous negative space on the LEFT.\n\n"
+                    f"SUBJECT:\n{motif}.\n\n"
+                    "ABSOLUTE RESTRICTIONS:\n"
+                    "NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.\n"
+                    "NO people, NO real human faces, NO characters.\n"
+                )
         break
     return ""
 

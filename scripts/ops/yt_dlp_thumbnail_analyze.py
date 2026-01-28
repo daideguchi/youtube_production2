@@ -5,7 +5,9 @@ yt_dlp_thumbnail_analyze.py — yt-dlpベンチマーク（research）に「サ�
 前提:
   - `scripts/ops/yt_dlp_benchmark_analyze.py` が生成した
     `workspaces/research/YouTubeベンチマーク（yt-dlp）/*/report.json` を入力（SoT）として扱う。
-  - 本スクリプトは LLM(Vision) を使って、サムネの内容を「言語化」して JSON に保存する。
+  - 本スクリプトはデフォルトで「オフライン簡易解析」（外部LLM/APIを呼ばない）で
+    サムネの内容を「言語化」して JSON に保存する。
+  - 追加で詳細な解析が必要な場合のみ `--use-llm` で LLM(Vision) を使う。
 
 設計方針（事故防止）:
   - 既存 report.json の構造は壊さず、追加キーとして `thumbnail_insights` / `thumbnail_summary` を付与する。
@@ -13,8 +15,11 @@ yt_dlp_thumbnail_analyze.py — yt-dlpベンチマーク（research）に「サ�
   - 既に分析済みの動画は再実行しない（--force で上書き）。
 
 Usage:
-  # 1チャンネルだけ
+  # 1チャンネルだけ（デフォルト: オフライン簡易解析）
   python3 scripts/ops/yt_dlp_thumbnail_analyze.py --channel-id UCOmPg-Ncs7XA5Jt_JBUJDmg --apply
+
+  # LLM(Vision) を使って解析（明示指定）
+  python3 scripts/ops/yt_dlp_thumbnail_analyze.py --channel-id UCOmPg-Ncs7XA5Jt_JBUJDmg --use-llm --apply
 
   # 全チャンネル
   python3 scripts/ops/yt_dlp_thumbnail_analyze.py --all --apply
@@ -23,11 +28,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import io
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
+from urllib.request import Request, urlopen
 
 from _bootstrap import bootstrap
 
@@ -51,6 +58,291 @@ def _ytimg_hqdefault_url(video_id: str) -> str:
     canonical hqdefault URL is more reliable.
     """
     return f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+
+
+def _extract_bracket_prefix(title: str) -> Optional[str]:
+    t = (title or "").strip()
+    if not t.startswith("【"):
+        return None
+    end = t.find("】")
+    if end <= 1:
+        return None
+    inner = t[1:end].strip()
+    return inner or None
+
+
+def _infer_hook_type_from_title(title: str) -> str:
+    t = (title or "").strip()
+    # Priority: warning/expose > question/compare/reversal > empathy > assertion > other
+    warning = ["危険", "超危険", "絶対", "放置", "助けてはいけない", "許してはいけない", "不幸", "人生が不幸", "損", "舐められ", "見下"]
+    expose = ["正体", "真実", "裏", "実態", "本当", "闇", "知らない", "９割", "9割", "99%"]
+    question = ["なぜ", "理由", "どうして", "？", "?"]
+    compare = ["VS", "vs", "比較", "違い", "どっち"]
+    reversal = ["実は", "逆転", "誤解", "真逆", "勘違い"]
+    empathy = ["つら", "苦し", "不安", "悩", "孤独", "クヨクヨ", "心配"]
+    assertive = ["結論", "最強", "無敵", "激変", "必ず"]
+
+    if any(k in t for k in warning):
+        return "警告"
+    if any(k in t for k in expose):
+        return "暴露"
+    if any(k in t for k in question):
+        return "質問"
+    if any(k in t for k in compare):
+        return "比較"
+    if any(k in t for k in reversal):
+        return "逆転"
+    if any(k in t for k in empathy):
+        return "共感"
+    if any(k in t for k in assertive):
+        return "断言"
+    return "その他"
+
+
+def _download_image_rgb(url: str, *, timeout_sec: float = 12.0) -> Optional["Image.Image"]:
+    try:
+        from PIL import Image  # type: ignore
+    except Exception:
+        return None
+
+    u = (url or "").strip()
+    if not u:
+        return None
+
+    try:
+        req = Request(u, headers={"User-Agent": "Mozilla/5.0"})
+        with urlopen(req, timeout=float(timeout_sec)) as resp:
+            data = resp.read()
+        with Image.open(io.BytesIO(data)) as im:
+            return im.convert("RGB")
+    except Exception:
+        return None
+
+
+def _edge_strength(im_rgb: "Image.Image") -> float:
+    try:
+        from PIL import ImageFilter, ImageStat  # type: ignore
+    except Exception:
+        return 0.0
+    try:
+        edges = im_rgb.convert("L").filter(ImageFilter.FIND_EDGES)
+        return float((ImageStat.Stat(edges).mean or [0.0])[0])
+    except Exception:
+        return 0.0
+
+
+def _brightness_stats(im_rgb: "Image.Image") -> tuple[float, float]:
+    try:
+        from PIL import ImageStat  # type: ignore
+    except Exception:
+        return (0.0, 0.0)
+    try:
+        st = ImageStat.Stat(im_rgb.convert("L"))
+        mean = float((st.mean or [0.0])[0])
+        std = float((st.stddev or [0.0])[0])
+        return (mean, std)
+    except Exception:
+        return (0.0, 0.0)
+
+
+def _color_ratios(im_rgb: "Image.Image") -> Dict[str, float]:
+    # Fast heuristic: downsample and count coarse categories.
+    try:
+        small = im_rgb.resize((240, 135)).convert("RGB")
+        pixels = list(small.getdata())
+    except Exception:
+        return {}
+    total = float(len(pixels) or 1)
+
+    def is_dark(r: int, g: int, b: int) -> bool:
+        return r < 60 and g < 60 and b < 60
+
+    def is_white(r: int, g: int, b: int) -> bool:
+        return r > 210 and g > 210 and b > 210
+
+    def is_red(r: int, g: int, b: int) -> bool:
+        return r > 160 and g < 120 and b < 120
+
+    def is_gold(r: int, g: int, b: int) -> bool:
+        return r > 180 and g > 140 and b < 140
+
+    dark = sum(1 for r, g, b in pixels if is_dark(r, g, b)) / total
+    white = sum(1 for r, g, b in pixels if is_white(r, g, b)) / total
+    red = sum(1 for r, g, b in pixels if is_red(r, g, b)) / total
+    gold = sum(1 for r, g, b in pixels if is_gold(r, g, b)) / total
+    return {"dark": float(dark), "white": float(white), "red": float(red), "gold": float(gold)}
+
+
+def _analyze_thumbnail_offline(
+    *,
+    thumbnail_url: str,
+    title: str,
+    view_count: Optional[int],
+    duration_sec: Optional[float],
+) -> Dict[str, Any]:
+    """
+    Offline heuristic analyzer (no paid Vision LLM).
+
+    This intentionally does NOT attempt Japanese OCR by default, because tesseract language packs
+    may not be installed on all operator machines. `thumbnail_text` is set to null.
+    """
+    im = _download_image_rgb(thumbnail_url)
+    if im is None:
+        raise RuntimeError("offline_download_failed")
+
+    w, h = im.size
+    top_h = max(1, int(h * 0.30))
+    left_w = max(1, int(w * 0.55))
+    bottom = im.crop((0, top_h, w, h))
+    top = im.crop((0, 0, w, top_h))
+    left = im.crop((0, 0, left_w, h))
+    right = im.crop((int(w * 0.45), 0, w, h))
+
+    e_top = _edge_strength(top)
+    e_bottom = _edge_strength(bottom)
+    e_left = _edge_strength(left)
+    e_right = _edge_strength(right)
+    mean_b, std_b = _brightness_stats(im)
+    cr = _color_ratios(im)
+
+    layout = "unknown"
+    if e_bottom > 0 and (e_top / max(1.0, e_bottom)) >= 1.25:
+        layout = "top_band"
+    elif e_right > 0 and (e_left / max(1.0, e_right)) >= 1.15:
+        layout = "left_text"
+
+    if layout == "top_band":
+        composition = "上に文字帯、下に背景/被写体"
+    elif layout == "left_text":
+        composition = "左に大きな文字、右に被写体"
+    else:
+        composition = "文字と被写体を強調した高コントラスト構図"
+
+    colors_bits: List[str] = []
+    if cr.get("dark", 0.0) >= 0.25 or mean_b <= 70:
+        colors_bits.append("黒基調")
+    if cr.get("gold", 0.0) >= 0.01:
+        colors_bits.append("金/黄アクセント")
+    if cr.get("red", 0.0) >= 0.01:
+        colors_bits.append("赤アクセント")
+    if cr.get("white", 0.0) >= 0.02:
+        colors_bits.append("白文字")
+    colors = " + ".join(colors_bits) if colors_bits else "高コントラスト"
+
+    design_elements: List[str] = []
+    if layout == "top_band":
+        design_elements.append("上帯テキスト")
+    if layout == "left_text":
+        design_elements.append("左大文字")
+    if mean_b <= 70:
+        design_elements.append("暗色背景")
+    if std_b >= 55:
+        design_elements.append("高コントラスト")
+    if cr.get("gold", 0.0) >= 0.01:
+        design_elements.append("金アクセント")
+    if cr.get("red", 0.0) >= 0.01:
+        design_elements.append("赤アクセント")
+    if cr.get("white", 0.0) >= 0.02 and (cr.get("dark", 0.0) >= 0.15 or mean_b <= 90):
+        design_elements.append("太字縁取り文字")
+
+    hook_type = _infer_hook_type_from_title(title)
+
+    title_clean = (title or "").strip()
+    bracket = _extract_bracket_prefix(title_clean) or ""
+    bracket_short = bracket.strip()
+    if len(bracket_short) > 18:
+        bracket_short = bracket_short[:18].rstrip()
+
+    tags: List[str] = []
+    # Always keep these for this genre.
+    tags.extend(["仏教", "ブッダ"])
+    if hook_type:
+        tags.append(hook_type)
+    if bracket_short:
+        tags.append(bracket_short)
+
+    # Keyword-based tags (very small dictionary; avoid overfitting).
+    kw_tags = [
+        ("人間関係", ["嫌い", "見下", "舐め", "悪口", "否定", "批判", "恩", "縁", "関わ", "無視"]),
+        ("メンタル", ["心", "メンタル", "不安", "悩", "楽", "折れ", "心配", "クヨクヨ"]),
+        ("幸せ", ["幸せ"]),
+        ("運", ["運", "運気", "不運"]),
+        ("会話術", ["会話", "話", "喋"]),
+        ("習慣", ["習慣", "技術", "テクニック"]),
+        ("自己防衛", ["守る", "受け流", "距離", "消す"]),
+    ]
+    for tag, needles in kw_tags:
+        if any(n in title_clean for n in needles):
+            tags.append(tag)
+
+    # Fill to 8-16 tags with safe defaults if needed.
+    defaults = ["人生", "考え方", "不安", "安心", "学び", "実践", "心を整える", "人間関係"]
+    for d in defaults:
+        if len(tags) >= 16:
+            break
+        if d not in tags:
+            tags.append(d)
+    tags = tags[:16]
+
+    if any(k in title_clean for k in ["方法", "やり方", "技術", "テクニック"]):
+        promise = "具体的な対処法がわかる"
+    elif any(k in title_clean for k in ["理由", "なぜ"]):
+        promise = "理由がわかる"
+    elif "特徴" in title_clean:
+        promise = "特徴がわかる"
+    else:
+        promise = "考え方がわかる"
+
+    if "老後" in title_clean:
+        target = "老後が不安な人"
+    elif any(k in title_clean for k in ["嫌い", "見下", "舐め", "悪口", "否定", "批判", "人間関係"]):
+        target = "人間関係で傷つきやすい人"
+    elif "幸せ" in title_clean:
+        target = "幸せを感じにくい人"
+    elif "運" in title_clean:
+        target = "運が悪いと感じる人"
+    else:
+        target = "心を整えたい人"
+
+    if hook_type == "警告":
+        emotion = "不安/警戒"
+    elif hook_type == "暴露":
+        emotion = "好奇心"
+    elif hook_type == "質問":
+        emotion = "好奇心"
+    elif hook_type == "比較":
+        emotion = "迷い"
+    elif hook_type == "逆転":
+        emotion = "驚き"
+    elif hook_type == "共感":
+        emotion = "共感/安心"
+    elif hook_type == "断言":
+        emotion = "安心"
+    else:
+        emotion = "内省"
+
+    # Keep caption concrete but avoid inventing facts not visible.
+    caption = f"{composition}。{hook_type}フックで「{promise}」を示し、{target}の{emotion}に刺さる設計。"
+    if len(caption) > 220:
+        caption = caption[:220].rstrip()
+
+    payload = {
+        "caption_ja": caption,
+        "thumbnail_text": None,
+        "hook_type": hook_type,
+        "promise": promise,
+        "target": target,
+        "emotion": emotion,
+        "composition": composition,
+        "colors": colors,
+        "design_elements": design_elements,
+        "tags": tags,
+        # Keep original meta for traceability (non-schema keys will be dropped by normalizer).
+        "meta_title": title or None,
+        "meta_view_count": view_count,
+        "meta_duration_sec": duration_sec,
+    }
+    return _normalize_analysis_payload(payload)
 
 
 def _safe_norm_str(value: Any) -> Optional[str]:
@@ -402,6 +694,21 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=20, help="1チャンネルあたり最大何本分析するか（default: 20）")
     parser.add_argument("--force", action="store_true", help="既存の分析を上書きする")
     parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="ローカルの簡易解析（外部LLM/APIを呼ばない）を強制する（デフォルト挙動の明示用）",
+    )
+    parser.add_argument(
+        "--use-llm",
+        action="store_true",
+        help="LLM(Vision)で解析する（外部LLM/APIを呼ぶ。デフォルトはオフライン簡易解析）",
+    )
+    parser.add_argument(
+        "--fallback-offline",
+        action="store_true",
+        help="LLM解析が失敗した場合に、ローカルの簡易解析へフォールバックする",
+    )
+    parser.add_argument(
         "--continue-on-failover",
         action="store_true",
         help="LLM API が失敗して THINK MODE にフォールバックした場合でも、他の動画の処理を続ける（pendingを複数作り得る）",
@@ -440,15 +747,21 @@ def main() -> int:
                 vid = _safe_norm_str(item.get("id")) or "—"
                 title = (_safe_norm_str(item.get("title")) or "").strip()
                 status = "done" if vid in insights else "todo"
-                print(f"- [{status}] {vid} {title}")
+            print(f"- [{status}] {vid} {title}")
         return 0
 
-    try:
-        from factory_common.llm_router import get_router
-    except Exception as exc:
-        raise SystemExit(f"LLMRouter is not available: {exc}") from exc
-
-    router = get_router()
+    offline = bool(args.offline) or (not bool(args.use_llm))
+    router = None
+    if not offline:
+        try:
+            from factory_common.llm_router import get_router
+        except Exception as exc:
+            if args.fallback_offline:
+                offline = True
+            else:
+                raise SystemExit(f"LLMRouter is not available: {exc}") from exc
+        else:
+            router = get_router()
 
     updated: List[Path] = []
     for target in targets:
@@ -492,22 +805,63 @@ def main() -> int:
             duration_sec = _safe_float(item.get("duration_sec"))
 
             try:
-                analysis, model, source = _analyze_thumbnail_with_llm(
-                    router=router,
-                    thumbnail_url=thumb_url,
-                    title=title,
-                    view_count=view_count,
-                    duration_sec=duration_sec,
-                )
+                if offline:
+                    analysis = _analyze_thumbnail_offline(
+                        thumbnail_url=thumb_url,
+                        title=title,
+                        view_count=view_count,
+                        duration_sec=duration_sec,
+                    )
+                    model = None
+                    source = "offline_heuristic"
+                else:
+                    assert router is not None
+                    analysis, model, source = _analyze_thumbnail_with_llm(
+                        router=router,
+                        thumbnail_url=thumb_url,
+                        title=title,
+                        view_count=view_count,
+                        duration_sec=duration_sec,
+                    )
             except SystemExit as exc:
+                if not offline and args.fallback_offline:
+                    try:
+                        analysis = _analyze_thumbnail_offline(
+                            thumbnail_url=thumb_url,
+                            title=title,
+                            view_count=view_count,
+                            duration_sec=duration_sec,
+                        )
+                        model = None
+                        source = "offline_heuristic"
+                    except Exception as exc2:
+                        print(f"[warn] offline analysis failed: {target.channel_id}/{vid} ({exc2})")
+                        continue
+                elif offline:
+                    print(f"[warn] offline analysis aborted: {target.channel_id}/{vid} ({exc})")
+                    continue
                 if args.continue_on_failover:
                     first_line = str(exc).splitlines()[0] if str(exc) else "THINK MODE (queued)"
                     print(f"[queue] {target.channel_id}/{vid} {first_line}")
                     continue
                 raise
             except Exception as exc:
-                print(f"[warn] analysis failed: {target.channel_id}/{vid} ({exc})")
-                continue
+                if not offline and args.fallback_offline:
+                    try:
+                        analysis = _analyze_thumbnail_offline(
+                            thumbnail_url=thumb_url,
+                            title=title,
+                            view_count=view_count,
+                            duration_sec=duration_sec,
+                        )
+                        model = None
+                        source = "offline_heuristic"
+                    except Exception as exc2:
+                        print(f"[warn] analysis failed: {target.channel_id}/{vid} ({exc}); offline also failed: ({exc2})")
+                        continue
+                else:
+                    print(f"[warn] analysis failed: {target.channel_id}/{vid} ({exc})")
+                    continue
 
             insights[vid] = {
                 "schema": "ytm.yt_dlp.thumbnail_insight.v1",

@@ -227,6 +227,11 @@
   reading_hira: ヤマヤ
   reading_kana: ヤマヤ
   source: manual
+床や:
+  accent_moras: null
+  reading_hira: ユカヤ
+  reading_kana: ユカヤ
+  source: manual
 手数:
   accent_moras: null
   reading_hira: テカズ
@@ -267,6 +272,26 @@
   reading_hira: タオシ
   reading_kana: タオシ
   source: manual
+布切れ:
+  accent_moras: null
+  reading_hira: ヌノキレ
+  reading_kana: ヌノキレ
+  source: manual
+やり切ろうと:
+  accent_moras: null
+  reading_hira: ヤリキロオト
+  reading_kana: ヤリキロオト
+  source: manual
+逸れた:
+  accent_moras: null
+  reading_hira: ハグレタ
+  reading_kana: ハグレタ
+  source: manual
+所有物:
+  accent_moras: null
+  reading_hira: ショユウブツ
+  reading_kana: ショユウブツ
+  source: manual
 ブリューマ:
   accent_moras: null
   reading_hira: ブリユーマ
@@ -276,4 +301,14 @@
   accent_moras: null
   reading_hira: ブリユーマツァイガルニク
   reading_kana: ブリユーマツァイガルニク
+  source: manual
+相反:
+  accent_moras: null
+  reading_hira: ソウハン
+  reading_kana: ソウハン
+  source: manual
+クッション詞:
+  accent_moras: null
+  reading_hira: クッションコトバ
+  reading_kana: クッションコトバ
   source: manual

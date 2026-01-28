@@ -1,0 +1,10 @@
+schema: ytm.planning_patch.v1
+patch_id: CH04-050__ch04_031_090_capcut_thumb_progress_20260127_20260127
+target:
+  channel: CH04
+  video: '050'
+apply:
+  set:
+    進捗: 'capcut_draft: completed / thumb: review'
+notes: '031-090: CapCut draft completed; thumbnail images exist (projects status=review).
+  Update planning progress for human tracking.'

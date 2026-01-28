@@ -54,6 +54,7 @@
 ### 2.3 Generated（派生物）
 - `workspaces/scripts/{CH}/{NNN}/logs/*_prompt.txt`, `*_response.json`（証跡/デバッグ）
 - `workspaces/scripts/{CH}/{NNN}/content/*`（段階生成物、運用で採用するファイルを固定する）
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/jp_polish/*`（日本語補正の提案物：proposed本文/diff/検証ログ。正本は触らない）
 
 ### 2.4 入口（Entry points）
 - `python -m script_pipeline.cli init/run/next/run-all ...`

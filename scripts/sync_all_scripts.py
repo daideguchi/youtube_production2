@@ -25,6 +25,21 @@ from factory_common.paths import planning_root, repo_root, script_data_root
 CHANNELS_DIR = planning_root() / "channels"
 DATA_ROOT = script_data_root()
 
+def _compact_ranges(nums: List[int]) -> List[str]:
+    values = sorted(set(int(n) for n in (nums or []) if isinstance(n, int) or str(n).isdigit()))
+    if not values:
+        return []
+    ranges: List[str] = []
+    start = prev = values[0]
+    for n in values[1:]:
+        if n == prev + 1:
+            prev = n
+            continue
+        ranges.append(f"{start:03d}" if start == prev else f"{start:03d}-{prev:03d}")
+        start = prev = n
+    ranges.append(f"{start:03d}" if start == prev else f"{start:03d}-{prev:03d}")
+    return ranges
+
 def _to_repo_relative(path: Path) -> str:
     try:
         return path.resolve().relative_to(repo_root()).as_posix()
@@ -134,7 +149,16 @@ def _find_row(rows: List[Dict[str, str]], no: int) -> Optional[Dict[str, str]]:
     return None
 
 
-def sync_one(code: str, no: int, rows: List[Dict[str, str]], fieldnames: List[str], data_dir: Path) -> None:
+def sync_one(
+    code: str,
+    no: int,
+    rows: List[Dict[str, str]],
+    fieldnames: List[str],
+    data_dir: Path,
+    *,
+    missing_rows: List[int],
+    missing_row_policy: str,
+) -> None:
     base_dir = data_dir / f"{no:03d}"
     content_path = base_dir / "content" / "assembled.md"
     if not content_path.exists():
@@ -145,7 +169,10 @@ def sync_one(code: str, no: int, rows: List[Dict[str, str]], fieldnames: List[st
         content_path = alt
     row = _find_row(rows, no)
     if row is None:
-        print(f"[WARN] {code} {no:03d}: planning row not found; skip (no auto-create)", file=sys.stderr)
+        if missing_row_policy == "warn":
+            print(f"[WARN] {code} {no:03d}: planning row not found; skip (no auto-create)", file=sys.stderr)
+        else:
+            missing_rows.append(int(no))
         return
 
     text = content_path.read_text(encoding="utf-8")
@@ -189,18 +216,35 @@ def sync_one(code: str, no: int, rows: List[Dict[str, str]], fieldnames: List[st
     write_status(status_path, status)
 
 
-def sync_channel(csv_path: Path) -> None:
+def sync_channel(csv_path: Path, *, missing_row_policy: str) -> None:
     code = csv_path.stem.upper()
     data_dir = DATA_ROOT / code
     if not data_dir.exists():
         return
     rows, fieldnames = load_csv(csv_path)
+    missing: List[int] = []
     for entry in sorted(data_dir.iterdir()):
         if entry.is_dir() and entry.name.isdigit():
             no = int(entry.name)
-            sync_one(code, no, rows, fieldnames, data_dir)
+            sync_one(
+                code,
+                no,
+                rows,
+                fieldnames,
+                data_dir,
+                missing_rows=missing,
+                missing_row_policy=missing_row_policy,
+            )
     sort_rows_inplace(csv_path, rows)
     save_csv(csv_path, rows, fieldnames)
+    if missing and missing_row_policy == "summary":
+        chunks = _compact_ranges(missing)
+        preview = ", ".join(chunks[:4])
+        tail = " ..." if len(chunks) > 4 else ""
+        print(
+            f"[WARN] {code}: planning rows not found for {len(missing)} scripts ({preview}{tail}); skipped (no auto-create)",
+            file=sys.stderr,
+        )
 
 
 def main() -> None:
@@ -209,6 +253,12 @@ def main() -> None:
         "--channel",
         action="append",
         help="Only sync specific channel code(s) (e.g. --channel CH07). Repeatable. Default: all channels.",
+    )
+    ap.add_argument(
+        "--missing-row-policy",
+        choices=["warn", "summary", "silent"],
+        default="warn",
+        help="How to report scripts with no matching planning row (default: warn per row).",
     )
     args = ap.parse_args()
 
@@ -227,7 +277,7 @@ def main() -> None:
             continue
         if only and csv_path.stem.upper() not in only:
             continue
-        sync_channel(csv_path)
+        sync_channel(csv_path, missing_row_policy=str(args.missing_row_policy))
 
 
 if __name__ == "__main__":

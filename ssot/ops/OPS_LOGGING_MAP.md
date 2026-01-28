@@ -3,7 +3,7 @@
 この文書は「どこに、どんなログが、どの処理で、どの粒度で溜まっていくか」を**コード実態に基づき確定**したSoT。  
 ログ整理/リファクタリング/削除判断は本マップを正とする。
 
-関連: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`, `ssot/plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md`, `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`
+関連: `ssot/ops/OPS_CONFIRMED_PIPELINE_FLOW.md`, `ssot/ops/OPS_NOTION_PAGE_STRUCTURE_RULES.md`, `ssot/plans/PLAN_OPS_ARTIFACT_LIFECYCLE.md`, `ssot/plans/PLAN_OPS_STORAGE_LIGHTWEIGHT.md`, `ssot/plans/PLAN_REPO_DIRECTORY_REFACTOR.md`
 
 ---
 
@@ -198,6 +198,7 @@
     - `scripts/ops/a_text_quality_scan.py`（`a_text_quality_scan_<label>__<ts>.{json,md}` + `a_text_quality_scan_<label>__latest.{json,md}` under `workspaces/logs/regression/a_text_quality_scan/`）
     - `scripts/ops/cleanup_broken_symlinks.py`（`broken_symlinks_<timestamp>.json` under `workspaces/logs/regression/broken_symlinks/`）
     - `scripts/ops/archive_capcut_local_drafts.py`（`capcut_local_drafts_archive_<timestamp>.json` under `workspaces/logs/regression/capcut_local_drafts_archive/`）
+    - `scripts/ops/capcut_draft_integrity_doctor.py`（`capcut_draft_integrity_<scope>__<ts>.{json,md}` + `capcut_draft_integrity_<scope>__latest.{json,md}` under `workspaces/logs/regression/capcut_draft_integrity/`）
     - `scripts/ops/restore_video_runs.py`（`restore_video_runs_dryrun_<timestamp>.json` / `restore_report_<timestamp>.json`）
   - 種別:
     - `thumbnail_quick_history.jsonl` は **L1**（履歴価値あり）

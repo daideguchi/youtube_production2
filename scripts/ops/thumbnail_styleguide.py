@@ -48,7 +48,7 @@ bootstrap(load_env=False)
 try:
     import numpy as np  # type: ignore
     import yaml  # type: ignore
-    from PIL import Image, ImageOps  # type: ignore
+    from PIL import Image, ImageDraw, ImageFont, ImageOps  # type: ignore
 except Exception as exc:  # pragma: no cover
     raise SystemExit(
         "Missing dependencies for thumbnail_styleguide.\n"
@@ -164,6 +164,92 @@ def _load_pil_rgb(path: Path) -> Image.Image:
     with Image.open(path) as img:
         img = ImageOps.exif_transpose(img)
         return img.convert("RGB")
+
+
+def _write_png_atomic(path: Path, img_rgb: Image.Image) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    img_rgb.save(tmp, format="PNG", optimize=True)
+    tmp.replace(path)
+
+
+def _pick_contactsheet_font(size_px: int) -> ImageFont.ImageFont:
+    size = max(10, min(64, int(size_px)))
+    for cand in (
+        "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+    ):
+        try:
+            return ImageFont.truetype(cand, size)
+        except Exception:
+            continue
+    return ImageFont.load_default()
+
+
+def _fmt_views_short(v: Optional[int]) -> str:
+    if v is None:
+        return "—"
+    n = int(v)
+    if n >= 100_000_000:
+        return f"{n / 100_000_000:.1f}億"
+    if n >= 10_000:
+        return f"{n / 10_000:.1f}万"
+    if n >= 1_000:
+        return f"{n / 1_000:.1f}千"
+    return str(n)
+
+
+def _build_contactsheet(
+    *,
+    features: List["VideoFeature"],
+    out_path: Path,
+    cols: int,
+    tile_w: int,
+    tile_h: int,
+    pad: int,
+) -> Optional[Path]:
+    cols = max(1, int(cols))
+    tile_w = max(120, int(tile_w))
+    tile_h = max(90, int(tile_h))
+    pad = max(0, int(pad))
+
+    if not any(f.thumb_path and Path(f.thumb_path).exists() for f in features):
+        return None
+
+    rows = (len(features) + cols - 1) // cols
+    W = cols * tile_w + (cols + 1) * pad
+    H = rows * tile_h + (rows + 1) * pad
+    canvas = Image.new("RGB", (W, H), (0, 0, 0))
+    draw = ImageDraw.Draw(canvas)
+    font = _pick_contactsheet_font(max(16, int(round(tile_h * 0.08))))
+
+    for i, f in enumerate(features):
+        r = i // cols
+        c = i % cols
+        x = pad + c * (tile_w + pad)
+        y = pad + r * (tile_h + pad)
+        src = Path(f.thumb_path) if f.thumb_path else None
+        if not src or not src.exists():
+            tile = Image.new("RGB", (tile_w, tile_h), (30, 30, 30))
+            canvas.paste(tile, (x, y))
+            draw.text((x + 10, y + 10), f"MISSING {f.video_id}", fill=(255, 80, 80), font=font)
+            continue
+        with Image.open(src) as im:
+            im = ImageOps.exif_transpose(im).convert("RGB").resize((tile_w, tile_h), Image.Resampling.LANCZOS)
+            canvas.paste(im, (x, y))
+
+        label = f"{f.video_id}  {_fmt_views_short(f.view_count)}"
+        bbox = draw.textbbox((0, 0), label, font=font)
+        tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        lx = x + tile_w - 8 - tw
+        ly = y + tile_h - 8 - th
+        draw.rectangle((lx - 6, ly - 4, lx + tw + 6, ly + th + 4), fill=(0, 0, 0))
+        draw.text((lx, ly), label, fill=(255, 255, 255), font=font)
+
+    _write_png_atomic(out_path, canvas)
+    return out_path
 
 
 def _hex(rgb: Tuple[int, int, int]) -> str:
@@ -447,7 +533,7 @@ def build_styleguide(
     download_thumbs: bool,
     palette_k: int,
     max_text_boxes: int,
-) -> Dict[str, Any]:
+) -> Tuple[Dict[str, Any], List[VideoFeature]]:
     candidates = _collect_target_videos(report, target=target, limit=limit)
     insights = report.get("thumbnail_insights")
     insights_by_vid = insights if isinstance(insights, dict) else {}
@@ -645,7 +731,7 @@ def build_styleguide(
             ),
         },
     }
-    return styleguide
+    return styleguide, features
 
 
 def _render_styleguide_md(doc: Dict[str, Any]) -> str:
@@ -1139,6 +1225,11 @@ def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     sp_build.add_argument("--no-download-thumbs", action="store_true", help="do not download thumbnails (LLM-only)")
     sp_build.add_argument("--palette-k", type=int, default=10, help="palette k-means size (default: 10)")
     sp_build.add_argument("--max-text-boxes", type=int, default=18, help="cap per-thumb text boxes (default: 18)")
+    sp_build.add_argument("--contactsheet", action="store_true", help="write contactsheet.png under styleguide dir")
+    sp_build.add_argument("--contactsheet-cols", type=int, default=5, help="contactsheet grid cols (default: 5)")
+    sp_build.add_argument("--contactsheet-tile-w", type=int, default=480, help="contactsheet tile width (default: 480)")
+    sp_build.add_argument("--contactsheet-tile-h", type=int, default=360, help="contactsheet tile height (default: 360)")
+    sp_build.add_argument("--contactsheet-pad", type=int, default=12, help="contactsheet padding (default: 12)")
     sp_build.add_argument("--apply", action="store_true", help="write styleguide.json/md")
 
     sp_sc = sub.add_parser("scaffold", help="Scaffold layer_specs and optionally register in templates.json.")
@@ -1181,7 +1272,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         if not ch_id:
             raise SystemExit("playlist_channel_id is missing in report")
 
-        doc = build_styleguide(
+        doc, features = build_styleguide(
             report=report,
             report_path=report_path,
             channel_id=ch_id,
@@ -1194,10 +1285,13 @@ def main(argv: Optional[List[str]] = None) -> int:
         out_root = _styleguides_root(channel_id=ch_id)
         out_json = out_root / "styleguide.json"
         out_md = out_root / "styleguide.md"
+        out_png = out_root / "contactsheet.png"
         if not args.apply:
             print("[dry-run] would write:")
             print(f"- {out_json}")
             print(f"- {out_md}")
+            if bool(args.contactsheet):
+                print(f"- {out_png}")
             print("\nUse --apply to write.")
             return 0
         _write_json(out_json, doc)
@@ -1205,6 +1299,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("wrote:")
         print(f"- {out_json}")
         print(f"- {out_md}")
+        if bool(args.contactsheet):
+            wrote = _build_contactsheet(
+                features=features,
+                out_path=out_png,
+                cols=int(args.contactsheet_cols),
+                tile_w=int(args.contactsheet_tile_w),
+                tile_h=int(args.contactsheet_tile_h),
+                pad=int(args.contactsheet_pad),
+            )
+            if wrote:
+                print(f"- {wrote}")
+            else:
+                print("[warn] contactsheet: no local thumbnails available (try without --no-download-thumbs)")
         return 0
 
     if args.cmd == "scaffold":

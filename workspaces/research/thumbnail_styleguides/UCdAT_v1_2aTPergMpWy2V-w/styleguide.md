@@ -1,53 +1,67 @@
 # Thumbnail Styleguide（自動集約）— 人生の道標 - 癒される仏教
 
-- generated_at: 2026-01-09T04:43:35.326537+00:00
+- generated_at: 2026-01-28T02:09:56.814327+00:00
 - channel_id: UCdAT_v1_2aTPergMpWy2V-w
 - source_url: https://www.youtube.com/@shaka__namu/videos
 
 ## Signals
-- layout_hint: top_band
-- union_bbox_median: None
-- top_darkness_median: 18.22757339477539
-- left_darkness_median: 9.85883903503418
+- layout_hint: left_tsz
+- union_bbox_median: [0.0, 0.39583333333333337, 0.6072916666666666, 0.6236111111111111]
+- top_darkness_median: 29.00184440612793
+- left_darkness_median: 15.368118286132812
 
 ## Recommendations
-- safe_left_tsz: None
-- top_band: {'y0': 0.0, 'y1': 0.3}
+- safe_left_tsz: {'x0': 0.0, 'x1': 0.6673}
+- top_band: None
 
 ## Top hook_types
-（なし）
+- 暴露 (25.26)
+- その他 (13.28)
+- 警告 (10.14)
+- 質問 (9.74)
+- 共感 (8.03)
+- 断言 (3.22)
 
 ## Top design_elements
-（なし）
+- 金アクセント (69.67)
+- 高コントラスト (69.67)
+- 太字縁取り文字 (54.23)
+- 赤アクセント (39.28)
+- 左大文字 (12.15)
+- 暗色背景 (9.61)
+- 上帯テキスト (9.05)
 
 ## Top palette (quantized)
-- #000000 (13.81)
-- #fff0c0 (1.33)
-- #101010 (0.81)
-- #f0d070 (0.80)
-- #ffe0a0 (0.72)
-- #fff0b0 (0.66)
-- #201000 (0.62)
-- #f0d080 (0.57)
-- #101000 (0.56)
-- #f0e080 (0.54)
-- #102010 (0.53)
-- #f0d050 (0.50)
+- #000000 (23.33)
+- #fff0d0 (2.21)
+- #c0b0a0 (1.94)
+- #504040 (1.32)
+- #302020 (1.29)
+- #ffe0b0 (1.26)
+- #f0f0f0 (1.08)
+- #101010 (0.96)
+- #e04030 (0.94)
+- #707060 (0.88)
+- #102010 (0.87)
+- #f0e090 (0.82)
 
 ## Samples (top views)
+- -dGBn_uFOn0  views=268780  【９割が知らない鈍感力】心が楽になるブッダの「受け流す」技術。自分の心を守るための優しさと賢さが身につきます。
+  - url: https://i.ytimg.com/vi/-dGBn_uFOn0/hqdefault.jpg
+- jkErbvLE-cA  views=120367  脳が変わる感謝の力を知ってる？「本当の感謝」をした時に起こること。【感謝に秘められた力】 | ブッダの教え
+  - url: https://i.ytimg.com/vi/jkErbvLE-cA/hqdefault.jpg
+  - text_union_bbox: [0.0, 0.3277777777777778, 0.5708333333333333, 0.5666666666666667]
+- KQjrHTntFVY  views=105596  【人生が変わる】悪口・否定・批判…何を言われても気にしない方法とは？人の評価は変わるものでも、あなたの価値は変わりません。 | ブッダの教え
+  - url: https://i.ytimg.com/vi/KQjrHTntFVY/hqdefault.jpg
+- dWEDLDetQzw  views=52200  【なぜ？】人生が激変する！「どうでもいい」と思うだけで全てがうまくいく理由
+  - url: https://i.ytimg.com/vi/dWEDLDetQzw/hqdefault.jpg
 - 7DQlA6dIPiw  views=16164  【９割が知らない幸せの正体】何かを得る必要はない。気づくだけで幸せになれる理由 | ブッダの教え
   - url: https://i.ytimg.com/vi/7DQlA6dIPiw/hqdefault.jpg
 - AfgkTl6twfw  views=15279  【忘却は最高の鎮痛剤】終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え
   - url: https://i.ytimg.com/vi/AfgkTl6twfw/hqdefault.jpg
-- dqKQXiIznq8  views=2934  【運の正体】不運を“運”に変える人の考え方｜ブッダの教え
-  - url: https://i.ytimg.com/vi/dqKQXiIznq8/hqdefault.jpg
-- QQ_M82n69FM  views=1633  【無敵になる】江戸時代の有名僧侶が教える無視の極意 | ブッダの教え
-  - url: https://i.ytimg.com/vi/QQ_M82n69FM/hqdefault.jpg
-- zRPR6p0IhW0  views=1371  【違和感は体の警報】理由はないけど、なんか嫌だ。その違和感は放置すると超危険です。 | ブッダの教え
-  - url: https://i.ytimg.com/vi/zRPR6p0IhW0/hqdefault.jpg
-- 0pi7B8GK8H8  views=1324  【99%勘違い】それを喋った瞬間、人生が不利になる話｜ブッダの教え
-  - url: https://i.ytimg.com/vi/0pi7B8GK8H8/hqdefault.jpg
-- Hatf30pL4hQ  views=1262  【「変な人」と思われることの価値】普通でありたいと願うほど、心が窮屈になりがちなあなたへ | ブッダの教え
-  - url: https://i.ytimg.com/vi/Hatf30pL4hQ/hqdefault.jpg
-- 8I6QI1lw7Po  views=1259  【荘子×仏教】心が折れない人の「反応しない技術」 | ブッダの教え
-  - url: https://i.ytimg.com/vi/8I6QI1lw7Po/hqdefault.jpg
+  - text_union_bbox: [0.06041666666666667, 0.18611111111111112, 0.35625, 0.3055555555555556]
+- 4D9iU86_VDA  views=15226  嫌いな人を心から消す方法 | ブッダの教え
+  - url: https://i.ytimg.com/vi/4D9iU86_VDA/hqdefault.jpg
+- M3G_tEH8scU  views=9302  【逆転の一言】見下された時に使えるブッダの知恵『勝ち逃げの極意』｜仏教の教えで心が軽くなる | ブッダの教え
+  - url: https://i.ytimg.com/vi/M3G_tEH8scU/hqdefault.jpg
+  - text_union_bbox: [0.03125, 0.3888888888888889, 0.7208333333333333, 0.8472222222222222]

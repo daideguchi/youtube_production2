@@ -95,6 +95,13 @@ LLMコスト制御（重要）:
 - 入力SRTは **audio final の SoT**（`workspaces/audio/final/.../*.srt`）を自動で選ぶ
 - `video_pipeline.tools.factory ... draft` でドラフト再生成（最新run_dirを自動選択）
 - 実行後に `./ops episode ensure -- --channel CHxx --video NNN` を自動で走らせ、run選択/リンク集を確定させる
+- 参照切れ/迷子の再発防止（点検）:
+  - Hot全件監査: `./scripts/with_ytm_env.sh python3 scripts/ops/capcut_draft_integrity_doctor.py --all-channels`
+  - CH02は追加で: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts --channel CH02 --videos NNN --all-matching`
+  - CapCutで赤い「!」（素材欠損）が出るが draft_dir が存在する場合（placeholder残り / (4)付与でパス迷子 / photoにテンプレ汚染が残留）:
+    - `./scripts/with_ytm_env.sh python3 scripts/ops/fix_capcut_draft_material_placeholders.py --draft-dir "<capcut_draft_dir>" --run`
+    - もしくは `--channel CHxx --video NNN --run`（status/run から draft_dir を解決）
+    - この fixer は `draft_info.json` / `draft_content.json` の materials パス修復 + photoのテンプレ汚染除去 + `draft_meta_info.json` の self-path / draft_id / draft_name 整合も同時に修正する（迷子/重複の根絶）。
 
 注意:
 - audio final が無いと復帰できない → 先に `./ops resume audio -- --channel CHxx --video NNN`

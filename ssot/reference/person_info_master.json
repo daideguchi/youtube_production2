@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "description": "CH09/CH26 portrait_left_subtitles_v1 の person_info_text 用メタデータSoT。run_dir/episode_info.json に years/occupation を埋めるための正本。",
+  "aliases": {
+    "スティーブン・コヴィー（思想枠）": "スティーブン・コヴィー",
+    "トヨタ生産方式（思想枠）": "トヨタ生産方式"
+  },
+  "entries": {
+    "アダム・スミス": {
+      "years": "1723年-1790年",
+      "occupation": "経済学者",
+      "wikidata_qid": "Q9381"
+    },
+    "アラン・チューリング": {
+      "years": "1912年-1954年",
+      "occupation": "数学者",
+      "wikidata_qid": "Q7251"
+    },
+    "イーロン・マスク": {
+      "years": "1971年-",
+      "occupation": "実業家",
+      "wikidata_qid": "Q317521"
+    },
+    "エジソン": {
+      "years": "1847年-1931年",
+      "occupation": "発明家",
+      "wikidata_qid": "Q8743"
+    },
+    "カント": {
+      "years": "1724年-1804年",
+      "occupation": "哲学者",
+      "wikidata_qid": "Q9312"
+    },
+    "クロード・シャノン": {
+      "years": "1916年-2001年",
+      "occupation": "数学者",
+      "wikidata_qid": "Q92760"
+    },
+    "ジェフ・ベゾス": {
+      "years": "1964年-",
+      "occupation": "実業家",
+      "wikidata_qid": "Q312556"
+    },
+    "ジョン・ナッシュ": {
+      "years": "1928年-2015年",
+      "occupation": "数学者",
+      "wikidata_qid": "Q128736"
+    },
+    "ジョン・フォン・ノイマン": {
+      "years": "1903年-1957年",
+      "occupation": "数学者",
+      "wikidata_qid": "Q17455"
+    },
+    "ジョン・メイナード・ケインズ": {
+      "years": "1883年-1946年",
+      "occupation": "経済学者",
+      "wikidata_qid": "Q9317"
+    },
+    "スティーブン・コヴィー": {
+      "years": "1932年-2012年",
+      "occupation": "経営コンサルタント",
+      "wikidata_qid": "Q313482"
+    },
+    "スティーブ・ジョブズ": {
+      "years": "1955年-2011年",
+      "occupation": "実業家",
+      "wikidata_qid": "Q19837"
+    },
+    "セネカ": {
+      "years": "紀元前4年-65年",
+      "occupation": "哲学者",
+      "wikidata_qid": "Q2054"
+    },
+    "ダーウィン": {
+      "years": "1809年-1882年",
+      "occupation": "生物学者",
+      "wikidata_qid": "Q1035"
+    },
+    "デカルト": {
+      "years": "1596年-1650年",
+      "occupation": "哲学者",
+      "wikidata_qid": "Q9191"
+    },
+    "デミング": {
+      "years": "1900年-1993年",
+      "occupation": "統計学者",
+      "wikidata_qid": "Q311472"
+    },
+    "トヨタ生産方式": {
+      "years": "",
+      "occupation": "生産方式",
+      "wikidata_qid": "Q1553383"
+    },
+    "ニーチェ": {
+      "years": "1844年-1900年",
+      "occupation": "哲学者",
+      "wikidata_qid": "Q9358"
+    },
+    "ピーター・ドラッカー": {
+      "years": "1909年-2005年",
+      "occupation": "経営学者",
+      "wikidata_qid": "Q84238"
+    },
+    "ファラデー": {
+      "years": "1791年-1867年",
+      "occupation": "科学者",
+      "wikidata_qid": "Q8750"
+    },
+    "フロイト": {
+      "years": "1856年-1939年",
+      "occupation": "精神分析学者",
+      "wikidata_qid": "Q9215"
+    },
+    "ヘルベルト・サイモン": {
+      "years": "1916年-2001年",
+      "occupation": "経済学者",
+      "wikidata_qid": "Q181529"
+    },
+    "マイケル・ポーター": {
+      "years": "1947年-",
+      "occupation": "経営学者",
+      "wikidata_qid": "Q272146"
+    },
+    "マキャヴェリ": {
+      "years": "1469年-1527年",
+      "occupation": "政治思想家",
+      "wikidata_qid": "Q1399"
+    },
+    "マリー・キュリー": {
+      "years": "1867年-1934年",
+      "occupation": "物理学者",
+      "wikidata_qid": "Q7186"
+    },
+    "ユング": {
+      "years": "1875年-1961年",
+      "occupation": "心理学者",
+      "wikidata_qid": "Q41532"
+    },
+    "レイ・ダリオ": {
+      "years": "1949年-",
+      "occupation": "投資家",
+      "wikidata_qid": "Q7297378"
+    },
+    "レオナルド・ダ・ヴィンチ": {
+      "years": "1452年-1519年",
+      "occupation": "芸術家",
+      "wikidata_qid": "Q762"
+    },
+    "孫子": {
+      "years": "紀元前544年-紀元前496年",
+      "occupation": "兵法家",
+      "wikidata_qid": "Q37151"
+    },
+    "岡潔": {
+      "years": "1901年-1978年",
+      "occupation": "数学者",
+      "wikidata_qid": "Q1062061"
+    },
+    "松下幸之助": {
+      "years": "1894年-1989年",
+      "occupation": "実業家",
+      "wikidata_qid": "Q252785"
+    },
+    "田中角栄": {
+      "years": "1918年-1993年",
+      "occupation": "政治家",
+      "wikidata_qid": "Q297644"
+    }
+  }
+}
+

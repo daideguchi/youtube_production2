@@ -214,6 +214,7 @@ CapCutは「どこにドラフト/キャッシュがあるか」で運用が変�
 ## 6) 受け入れ基準
 
 - CapCut編集が引っかからずに操作できる（Hot）。
+- 未投稿（Hot）について `scripts/ops/capcut_draft_integrity_doctor.py --all-channels` が `bad=0`（参照切れなし）。
 - 進捗/台本/サムネは `https://acer-dai.tail8c523e.ts.net/ui/` でどの端末から見ても一致（Warm）。
 - 完了した案件を退避しても、必要なら復帰できる（Cold）。
 

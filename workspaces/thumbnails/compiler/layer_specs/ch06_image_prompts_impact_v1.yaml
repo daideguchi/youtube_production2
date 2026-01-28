@@ -1,0 +1,665 @@
+version: 3
+name: CH06_image_prompts_impact_v1
+canvas: {w: 1920, h: 1080, aspect: '16:9'}
+policy:
+  forbid_text: true
+items:
+  - video_id: CH06-034
+    title: '【南極の封印】ハイジャンプ作戦と黒塗り航海記'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Antarctica map on a desk, redacted naval logbook with heavy black censor bars (no readable text), military compass, icy mist.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI. No readable documents or screens.
+
+  - video_id: CH06-035
+    title: '【消された超能力計画】スターゲイト計画の遠隔透視'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Declassified intelligence folder with heavy black redaction bars (no readable text), target silhouette on a map (no labels), subtle psychic wave ripples in the air.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI. No readable documents or screens.
+
+  - video_id: CH06-036
+    title: '【禁忌の周波数】タオス・ハムは誰が鳴らすのか'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Vibrating tuning fork, visible low-frequency wave ripples through floating dust, eerie empty small-town street at night in the distance.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-037
+    title: '【沈黙した電波】WOW!シグナルは返信だったのか'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Radio telescope dish, single bright pulse beam cutting through mist into a starry sky, quiet cosmic signal atmosphere.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-038
+    title: '【影の衛星】ブラックナイト―軌道に残る古い目'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient black satellite silhouette in orbit above Earth, debris fragments, ominous eye-like glow reflected on metal surfaces.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-039
+    title: '【森のUFO報告書】レンデルシャム事件の公式メモ'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Dark pine forest at night, UFO glow between trees, official memo papers scattered on a desk with black redaction bars (no readable text).
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-040
+    title: '【消失した落下傘】D.B.クーパーはどこへ消えた'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Stormy night sky, torn parachute harness and straps, scattered money bills flying in rain, distant airplane silhouette.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-041
+    title: '【無人の幽霊船】メアリー・セレスト号の食卓'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Abandoned ship cabin dining table still set, cold candlelight, ocean fog through a round porthole, eerie silence.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-042
+    title: '【暗号の死体】タマム・シュッド事件と紙片の謎'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Evidence desk with torn paper scrap pinned under a magnifying glass (no readable text), beach sand and suitcase nearby, moody investigation lighting.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-043
+    title: '【黒塗りの実験書】MKウルトラ計画の欠落ページ'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Mind-control program dossier with heavy black redaction bars (no readable text), torn missing pages, old tape recorder, unsettling clinical glow.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-044
+    title: '【封印された島の穴】オークアイランドは装置か罠か'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Deep excavation pit with wooden planks and a hidden booby-trap mechanism, shovel and rope, damp torch light, ominous depth.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-045
+    title: '【2000年前の歯車】アンティキティラ機械の設計者'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient bronze gear mechanism with intricate cogs, scientific schematic papers (no readable text), museum spotlight, mysterious precision.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-046
+    title: '【古代の電池】バグダッド電池は何に使われた'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient clay jar battery artifact with copper cylinder, faint electric sparks, archaeological table, eerie tech-from-the-past mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-047
+    title: '【海底の聖都】ドワルカ遺跡―神話が先か史実か'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Underwater ancient city ruins with temple columns, bioluminescent glow, swirling sand, sun rays cutting through dark water.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-048
+    title: '【消されたUFO調査】ブルーブック計画の結論'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Investigation file folder with torn missing conclusion page, heavy black redaction bars (no readable text), faint UFO silhouette glow in the background.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-049
+    title: '【夜空の火の玉】フーファイター目撃が示す兵器説'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Night sky with glowing fireball orbs, aircraft silhouette in clouds, motion blur and smoke trails, tense wartime atmosphere.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-050
+    title: '【禁断の布】トリノの聖骸布は偽造か証拠か'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient sacred cloth relic under forensic flashlight, subtle UV-like glow, cathedral shadows, evidence table (no faces).
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-051
+    title: '【黒塗りの墜落】ケックスバーグ事件の鐘型物体'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Bell-shaped metallic object half-buried in a forest crash site, scorched ground, redacted report folder (no readable text), glowing embers.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-052
+    title: '【消えた遭難信号】オウラング・メダン号の最後'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Vintage distress radio receiver emitting cyan static waves (no letters), ghost ship silhouette in storm fog, rain and lightning.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-053
+    title: '【沈黙の山】ベニントン三角地帯の連続失踪'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Foggy mountain trail at dusk, footprints fading into mist, abandoned backpack and map (no text), ominous triangular shadows.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-054
+    title: '【未解読暗号】ゾディアックの手紙が示すもの'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Cipher puzzle wheel and evidence board, blurred cryptic symbols (no readable text), string connections, cold detective lighting.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-055
+    title: '【消えた町】ロアノーク植民地の失踪サイン'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Abandoned colonial village at night, broken palisade, fog, mysterious carved symbol on wood (unreadable), torch glow.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-056
+    title: '【禁忌の電波塔】HAARPは空を操れるのか'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Vast antenna array in a storm, artificial aurora arcs above, lightning, electromagnetic energy haze, ominous sky.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-057
+    title: '【沈黙の監視網】エシュロンは何を聞いていた'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Satellite dish network and surveillance equipment in a dark control room, abstract global network lines (no labels), tense secrecy mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-058
+    title: '【封印された洞窟】死海文書の失われた巻物'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Desert cave interior, ancient jars, parchment scroll partially unrolled (no readable text), sand dust in torchlight, sealed secret atmosphere.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-059
+    title: '【禁書の地図】中世海図に描かれた世界の端'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Medieval sea map edge on torn parchment (no readable text), compass, stormy ocean beyond the paper, sea monster silhouette in mist.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-060
+    title: '【黒塗りの通路】ナスカ地上絵は滑走路だったのか'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Aerial view of desert geoglyph lines at dusk, runway-like strip cutting through the ground, hidden corridor vibe, mysterious shadows.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-061
+    title: '【沈黙の深海音】ブロップは生物か兵器か'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Deep ocean darkness, glowing sonar wave rings, gigantic shadowy creature silhouette far below, pressure haze, eerie blue sound ripple.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-062
+    title: '【封印された予言機】デルポイ神託の煙の正体'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient temple interior with a tripod altar, mystical smoke rising in a spiral, warm torchlight, sacred secrecy mood (no people).
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-063
+    title: '【消えたノート】テスラの研究はどこへ消えた'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Tesla-like laboratory table, glowing electric coils and arcs, an empty space where a notebook should be, scattered schematic papers (no readable text), sparks.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-064
+    title: '【黒塗りの月面写真】アポロ写真の「空白」が示すもの'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Moon surface at night with Earth rising, stack of lunar photo prints with heavy black redaction bars (no readable text), sealed archive folder glowing faint red warning light.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-065
+    title: '【地下都市計画】政府文書に残る「地下」構想'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Massive underground city cross-section in a cavern, glowing city lights, huge circular tunnel mouth, blueprint sheets with black redactions (no readable text) on a desk.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-066
+    title: '【消えた航海ログ】海で途絶えた黒塗り通信'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Stormy ocean at night with an abandoned ship silhouette, radio receiver emitting a single cyan pulse (no letters), torn naval logbook with heavy black redaction bars (no readable text), distant lightning.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-067
+    title: '【人工オーロラ】空が光る実験と軍の特許番号'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Night sky with artificial aurora curtain, experimental beam rising from a ground device, eerie green-cyan glow, clouds lit from below.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-068
+    title: '【数字放送】正体不明のラジオ局が残す暗号'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Vintage shortwave radio and headphones, glowing green static wave particles (no digits), mysterious transmission atmosphere, dark room.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-069
+    title: '【禁断の共鳴装置】音で物体が動く極秘実験'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Resonance chamber, levitating small objects, visible sound-wave rings in the air, metallic device with blue glow, dramatic shadows.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-070
+    title: '【消えた潜水艦】深海で途絶えた最後の信号'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Submarine silhouette in deep ocean, a single glowing sonar ping pulse, broken cable drifting, pressure haze, dark abyss.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-071
+    title: '【地図にない施設】衛星画像から消された研究所'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Aerial satellite-like view of a remote facility area erased by a dark censor patch, glitch distortion in clouds (no UI overlay), eerie surveillance vibe.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-072
+    title: '【月の謎の反射】地上レーザーが返された夜'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ground laser beam shooting upward into the night sky, a bright reflected point on the Moon, atmospheric haze, mysterious return signal.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-073
+    title: '【沈黙の海底ケーブル】切られた回線と監視の影'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Broken undersea communication cable in deep water, sparks and bubbles, shadowy surveillance device silhouette, cold abyss.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-074
+    title: '【古代の禁断金属】ありえない純度の出土品'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Gleaming ancient metal ingot on a pedestal, excavation dust swirling, dramatic spotlight, forbidden artifact vibe (no people).
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-075
+    title: '【消える証言テープ】UFO目撃の録音が残らない理由'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Old tape recorder and cassette tape disintegrating into glowing particles, mysterious blue light beam, evidence table atmosphere.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-076
+    title: '【雨雲のパターン】特許番号が示す「操作」の影'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Storm clouds with unnatural geometric patterns, weather-control antenna silhouette, lightning, eerie green glow through rain.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-077
+    title: '【電磁パルス】一瞬で止まる街の記録'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Shockwave ring of electromagnetic pulse sweeping over a city skyline, sparks from electronics, sudden blackout mood, dramatic clouds.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-078
+    title: '【黒塗りの洞窟壁画】削られた星図の痕跡'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient cave wall art of constellations scraped away, black paint-like redaction smears, torchlight, dust and ancient pigment.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-079
+    title: '【落ちたデータ】空から降った謎の衛星信号'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Glowing data cube falling from the night sky, satellite debris fragments, dramatic impact light in clouds, mysterious signal feel.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-080
+    title: '【禁断の音声合成】誰の声でも作れる古い資料'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Vintage reel-to-reel recorder, microphone, glowing waveform light in the air (no letters), forbidden tech mood, dark studio.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-081
+    title: '【謎の儀式記録】軍が残した「同じ符号」'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ritual-like symbols on a dark floor (abstract, no readable text), candles, sealed classified folder with black redaction bars, eerie secret ceremony mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-082
+    title: '【消えた天文台】観測所が閉鎖された夜の理由'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Dark closed observatory dome, telescope silhouette behind a locked gate, cold moonlight, warning atmosphere.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-083
+    title: '【封印された古文書】翻訳の途中で止まったページ'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient manuscript open on a desk, translation halted mid-page with blank/redacted sections (no readable text), ink bottle, quill, torn edge.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-084
+    title: '【禁忌の座標】座標だけ残された「行き先」'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Mysterious map grid with a red cross mark, blurred coordinate markers (no numbers), compass, foggy unknown destination vibe.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-085
+    title: '【通信衛星の同時墜落】同じ日に落ちた3つの機体'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Three satellites falling in synchronized fiery streaks across a night sky, debris fragments, dramatic glow, ominous coincidence mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-086
+    title: '【消えた特許】発明家が残した謎の電源'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Strange glowing power-source device in a workshop, lost patent files with black redaction bars (no readable text), cables and sparks, forbidden invention mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-087
+    title: '【消えた裁判記録】証拠が封印された事件'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Sealed archive box of court records, gavel silhouette, shredded pages and evidence tape, harsh spotlight, secrecy mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-088
+    title: '【光通信】空に描かれた「見えない線」'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Invisible optical communication beam line across a night sky (thin laser-like glow), fiber-optic cable glow, mist and particles, covert signal mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-089
+    title: '【名が消された論文】影の科学者に共通する痕跡'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Research paper with author name area erased by black redaction bar (no readable text), torn corner, shadowy lab scene, anonymous scientist motif (no people).
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-090
+    title: '【沈黙の列車事故】乗客が語らない夜'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Night train wreck in dense fog, twisted rail and sparks, empty seats visible through windows, eerie silence mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-091
+    title: '【黒塗りの観測データ】太陽から来た異常値'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Solar observation charts censored with heavy black bars (no readable text), telescope lens flare, bright anomaly glow, science secrecy mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-092
+    title: '【封印された通報網】同時多発の目撃報告が消える'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Old switchboard with many phone lines cut, redacted call-log sheets (no readable text), multiple blinking lights, cover-up network mood.
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.
+
+  - video_id: CH06-093
+    title: '【黒塗りの海図端】海図の端に描かれた「境界」'
+    person_key: symbolic
+    prompt_ja: |
+      YouTube thumbnail background image, 16:9 (1920x1080).
+      High-impact cinematic thriller key visual, ultra-detailed premium digital painting, sharp focus, high contrast.
+      Deep navy/teal palette with warm amber highlights and subtle red accents, volumetric fog/smoke, dust particles, dramatic rim light.
+      KEY OBJECTS: Ancient sea chart edge ending at an ice wall cliff, stormy ocean, icy mist, torn map corner with black redaction bar (no readable text).
+      COMPOSITION: Main subject large and centered in the middle area (between top/bottom), keep top/bottom ~25% darker and less detailed for overlaid typography.
+      ABSOLUTE RESTRICTIONS: NO text, NO letters, NO numbers, NO watermark, NO logo, NO signature, NO UI.

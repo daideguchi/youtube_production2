@@ -48,6 +48,8 @@
 - `packages/script_pipeline/channels/README.md` (Reference): チャンネル定義ディレクトリの補足メモ（正本: `packages/script_pipeline/channels/CHxx-*/channel_info.json` と SSOT）。
 - (Register) `ops/OPS_GLOBAL_TODO.md`: 全体TODOの正本（board note thread とリンクして協働する）。
 - `ops/OPS_ENTRYPOINTS_INDEX.md`: 実行入口（CLI/スクリプト/UI）の確定リスト。
+- `ops/OPS_NOTION_PAGE_STRUCTURE_RULES.md`: Notion迷子停止（入口/命名/タグ/合言葉/ログ索引の固定ルール）。
+- `ops/OPS_NOTION_TIMESTAMP_RULES.md`: Notionのタイムスタンプ（UTC/表記/命名）ルールの正本。
 - `ops/OPS_INFRA_SPEED_MEASUREMENT.md`: インフラ（通信/保存）速度の実測と集約（Notion + /files）。
 - `ops/OPS_EXECUTION_PATTERNS.md`: 処理パターン×CLIレシピ（索引付き。新パターンは必ず追記）。
 - `ops/OPS_FIXED_RECOVERY_COMMANDS.md`: 復帰コマンドの固定（途中で落ちても同じコマンドで復帰）。
@@ -74,6 +76,7 @@
 - `ops/OPS_SCRIPT_PIPELINE_SSOT.md`: 台本量産ロジックの単一SSOT（新規/やり直し/超長尺）。
 - `ops/OPS_SCRIPT_GUIDE.md`: 台本（Script）運用手順（人間の作業順）。
 - `ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md`: 台本がカオス化したときの止血・復帰（複数エージェント競合）のSSOT。
+- `ops/OPS_SCRIPT_PRE_ANNOTATION_WORKFLOW.md`: 企画→アノテ前（Aテキスト確定まで）の工程定義（固定フェーズ）。
 - `ops/OPS_FACT_CHECK_RUNBOOK.md`: 完成台本（Aテキスト）のファクトチェック運用（証拠ベース）。
 - `ops/OPS_RESEARCH_BUNDLE.md`: リサーチ/ファクトチェック用の中間生成物の“型”と投入手順（検索経路差を吸収）。
 - `ops/OPS_A_TEXT_GLOBAL_RULES.md`: 全チャンネル共通のAテキスト執筆ルール（TTS事故を防ぐ下限品質）。

@@ -1,6 +1,7 @@
 import { ThumbnailWorkspace } from "../components/ThumbnailWorkspace";
 import { Link, useOutletContext } from "react-router-dom";
 import type { ShellOutletContext } from "../layouts/AppShell";
+import "./ThumbnailsPage.css";
 
 export function ThumbnailsPage() {
   const { channels } = useOutletContext<ShellOutletContext>();

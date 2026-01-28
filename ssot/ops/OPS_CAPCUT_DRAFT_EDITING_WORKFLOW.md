@@ -264,6 +264,11 @@ PYTHONPATH=\".:packages\" python3 -m video_pipeline.tools.validate_ch02_drafts \
   --videos 034
 ```
 
+未投稿（Hot）全件の参照切れ点検（推奨; read-only）:
+```bash
+./scripts/with_ytm_env.sh python3 scripts/ops/capcut_draft_integrity_doctor.py --all-channels
+```
+
 ### 7.3 CapCutで編集（Mac）
 - 生成されたドラフトをCapCutで開いて編集
 - 編集中の素材参照はHot（ローカル/外付け）に寄せる（共有参照を混ぜない）

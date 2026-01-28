@@ -164,7 +164,8 @@ def _parse_title_to_lines(title: str) -> tuple[tuple[str, ...], tuple[str, ...],
     if not raw:
         return ((), ("（未設定）",), ())
 
-    cooked = raw.replace("\\\\n", "\n")
+    # Support both "\\n" (CSV-escaped) and "\n" (common CLI usage) as explicit line breaks.
+    cooked = raw.replace("\\\\n", "\n").replace("\\n", "\n")
     explicit_lines = [ln.strip() for ln in cooked.splitlines() if ln.strip()]
     if len(explicit_lines) >= 3:
         return ((explicit_lines[0],), (explicit_lines[1],), tuple(explicit_lines[2:]))
@@ -420,6 +421,7 @@ def _render_block(
     line_gap_min_px: int,
     box: BoxStyle | None = None,
     mixed: bool = False,
+    align: str = "left",
     font_override: ImageFont.FreeTypeFont | None = None,
     stroke_width_override: int | None = None,
 ) -> None:
@@ -444,14 +446,26 @@ def _render_block(
     line_gap_px = max(int(line_gap_min_px), int(round(float(font.size) * float(line_gap_ratio))))
     cur_y = int(y)
     box_style = box if (box is not None and bool(getattr(box, "enabled", False))) else None
+    align_mode = str(align or "left").strip().lower()
+    if align_mode not in {"left", "center", "right"}:
+        align_mode = "left"
     for raw in lines:
         line = str(raw or "").strip()
         if not line:
             cur_y += int(font.size * 0.92) + int(line_gap_px)
             continue
+        bb_line = draw.textbbox((0, 0), line, font=font, stroke_width=int(stroke_width))
+        line_w = int(bb_line[2] - bb_line[0])
+        if align_mode == "center":
+            x_line = int(x) + int(round((int(max_w) - int(line_w)) / 2))
+        elif align_mode == "right":
+            x_line = int(x) + int(max_w) - int(line_w)
+        else:
+            x_line = int(x)
+        x_line = max(int(x), int(x_line))
         if box_style is not None:
             d = ImageDraw.Draw(base)
-            bb = d.textbbox((int(x), int(cur_y)), line, font=font, stroke_width=int(box_style.stroke_width))
+            bb = d.textbbox((int(x_line), int(cur_y)), line, font=font, stroke_width=int(box_style.stroke_width))
             rx0 = max(0, int(bb[0]) - int(box_style.pad_x))
             ry0 = max(0, int(bb[1]) - int(box_style.pad_y))
             rx1 = min(base.size[0], int(bb[2]) + int(box_style.pad_x))
@@ -465,7 +479,7 @@ def _render_block(
         if mixed and box_style is None:
             _draw_mixed_line(
                 base=base,
-                x=int(x),
+                x=int(x_line),
                 y=int(cur_y),
                 text=line,
                 font=font,
@@ -475,7 +489,7 @@ def _render_block(
         else:
             _draw_line(
                 base=base,
-                x=int(x),
+                x=int(x_line),
                 y=int(cur_y),
                 text=line,
                 font=font,
@@ -581,6 +595,9 @@ def _apply_text_to_image(
     style: Ch32ThumbStyle,
     stable_key: int,
     run: bool,
+    align_upper: str = "left",
+    align_main: str = "left",
+    align_lower: str = "left",
 ) -> None:
     with Image.open(base_path) as im:
         base = im.convert("RGBA")
@@ -748,6 +765,7 @@ def _apply_text_to_image(
             line_gap_ratio=float(style.layout.line_gap_ratio),
             line_gap_min_px=int(style.layout.line_gap_min_px),
             box=(style.box if bool(style.box.apply_upper) else None),
+            align=str(align_upper),
             font_override=font_upper,
             stroke_width_override=int(sw_upper),
         )
@@ -789,6 +807,7 @@ def _apply_text_to_image(
             line_gap_ratio=float(style.layout.line_gap_ratio),
             line_gap_min_px=int(style.layout.line_gap_min_px),
             box=(style.box if bool(style.box.apply_main) else None),
+            align=str(align_main),
             font_override=font_main,
             stroke_width_override=int(sw_main),
         )
@@ -828,6 +847,7 @@ def _apply_text_to_image(
             line_gap_ratio=float(style.layout.line_gap_ratio),
             line_gap_min_px=int(style.layout.line_gap_min_px),
             box=(style.box if bool(style.box.apply_lower) else None),
+            align=str(align_lower),
             font_override=font_lower,
             stroke_width_override=int(sw_lower),
         )
@@ -848,6 +868,26 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("images", nargs="+", help="input PNG/JPG paths")
     ap.add_argument("--channel", default="CH32", help="default channel when not inferrable from filename")
     ap.add_argument("--style", default="", help="style JSON path (default: <CH>/library/style/live.json; auto-created)")
+    ap.add_argument(
+        "--title",
+        default="",
+        help="override title text for ALL images (supports \\\\n for line breaks). When set, planning CSV is ignored.",
+    )
+    ap.add_argument("--font-path", default="", help="optional font file path (ttf/ttc). default: auto-detect")
+    ap.add_argument(
+        "--font-variation",
+        default="",
+        help='optional variation name (for variable fonts). e.g. "Black" for NotoSansJP_wght.ttf',
+    )
+    ap.add_argument(
+        "--align",
+        default="left",
+        choices=["left", "center", "right"],
+        help="default text alignment within text area (left/center/right)",
+    )
+    ap.add_argument("--align-upper", default="", choices=["", "left", "center", "right"], help="override alignment for upper block")
+    ap.add_argument("--align-main", default="", choices=["", "left", "center", "right"], help="override alignment for main block")
+    ap.add_argument("--align-lower", default="", choices=["", "left", "center", "right"], help="override alignment for lower block")
     ap.add_argument("--run", action="store_true", help="actually write outputs")
     ap.add_argument("--out-dir", default="", help="optional output dir (default: next to each input)")
     ap.add_argument(
@@ -864,10 +904,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     default_channel = _normalize_channel(args.channel)
     forced_video = _normalize_video(args.force_video) if str(args.force_video or "").strip() else None
+    title_override = str(args.title or "").strip()
 
-    font_path, font_variation = _pick_font_spec()
-    if not font_path:
-        raise SystemExit("Japanese-capable font not found on this host")
+    if str(args.font_path or "").strip():
+        font_path = str(Path(str(args.font_path)).expanduser())
+        if not Path(font_path).exists():
+            raise SystemExit(f"--font-path not found: {font_path}")
+        font_variation = str(args.font_variation or "").strip() or None
+        if font_variation is None and Path(font_path).name == "NotoSansJP_wght.ttf":
+            font_variation = "Black"
+    else:
+        font_path, font_variation = _pick_font_spec()
+        if not font_path:
+            raise SystemExit("Japanese-capable font not found on this host")
+        if str(args.font_variation or "").strip():
+            font_variation = str(args.font_variation or "").strip()
 
     titles_cache: dict[str, dict[str, str]] = {}
 
@@ -875,6 +926,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(f"[INFO] started_at={_now_iso_utc()} run={bool(args.run)} stamp={stamp}")
     font_note = f"{font_path}@{font_variation}" if font_variation else font_path
     print(f"[INFO] font={font_note}")
+    if title_override:
+        print("[INFO] title_override=1 (planning CSV ignored)")
 
     style_cache: dict[str, tuple[Ch32ThumbStyle, Path]] = {}
 
@@ -894,23 +947,25 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             print(f"[SKIP] cannot infer video from filename: {src.name} (use --force-video)")
             continue
 
-        if channel not in titles_cache:
-            try:
-                titles_cache[channel] = _load_planning_titles(channel)
-            except Exception as e:
-                if channel != default_channel and default_channel not in titles_cache:
-                    titles_cache[default_channel] = _load_planning_titles(default_channel)
-                if channel != default_channel:
-                    print(f"[WARN] planning missing for {channel}; fallback to {default_channel}: {e}")
-                    channel = default_channel
-                else:
-                    raise
-
-        title_map = titles_cache[channel]
-        title = title_map.get(inferred_video)
+        title = title_override
         if not title:
-            print(f"[SKIP] title missing in planning for {channel}-{inferred_video}")
-            continue
+            if channel not in titles_cache:
+                try:
+                    titles_cache[channel] = _load_planning_titles(channel)
+                except Exception as e:
+                    if channel != default_channel and default_channel not in titles_cache:
+                        titles_cache[default_channel] = _load_planning_titles(default_channel)
+                    if channel != default_channel:
+                        print(f"[WARN] planning missing for {channel}; fallback to {default_channel}: {e}")
+                        channel = default_channel
+                    else:
+                        raise
+
+            title_map = titles_cache[channel]
+            title = title_map.get(inferred_video)
+            if not title:
+                print(f"[SKIP] title missing in planning for {channel}-{inferred_video}")
+                continue
 
         if channel not in style_cache:
             style_cache[channel] = load_style(channel=channel, style_path=str(args.style or "").strip() or None)
@@ -932,6 +987,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             style=style,
             stable_key=int(inferred_video),
             run=bool(args.run),
+            align_upper=str(args.align_upper or args.align),
+            align_main=str(args.align_main or args.align),
+            align_lower=str(args.align_lower or args.align),
         )
         ok += 1
         print(f"[OK] {src.name} -> {dest} ({channel}-{inferred_video}: {title})")

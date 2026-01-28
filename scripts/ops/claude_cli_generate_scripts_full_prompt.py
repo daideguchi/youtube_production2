@@ -437,7 +437,11 @@ def _reject_obviously_non_script(text: str) -> Optional[str]:
     if stripped.startswith("[NEEDS_INPUT]"):
         return "needs_input"
     head = stripped[:600]
-    bad_markers = (
+    first_line = (head.splitlines()[0] if head.splitlines() else head).strip()
+
+    # Reject typical assistant/meta preambles, but avoid false positives for common Japanese substrings
+    # like "ではなく" that can naturally appear in scripts.
+    bad_prefixes = (
         "Let me",
         "Sure",
         "Here's",
@@ -454,17 +458,25 @@ def _reject_obviously_non_script(text: str) -> Optional[str]:
         "以下は",
         "了解",
         "承知",
-        "では",
         "まず",
         "結論",
         "要約",
         "ポイント",
+    )
+    for p in bad_prefixes:
+        if p and first_line.startswith(p):
+            return f"non_script_marker:{p}"
+    # Special-case: "では" is too common inside normal prose; only reject if it begins the first line.
+    if re.match(r"^では([、。\\s]|$)", first_line):
+        return "non_script_marker:では"
+    # Meta/prompt echo markers are still rejected anywhere near the beginning.
+    bad_anywhere = (
         "箇条書き",
         "見出し",
         "###",
         "- ",
     )
-    for m in bad_markers:
+    for m in bad_anywhere:
         if m and m in head:
             return f"non_script_marker:{m}"
     return None
@@ -501,6 +513,79 @@ def _build_prompt(*, base_prompt: str, instruction: str | None, current_a_text: 
         parts.append("<<<OPERATOR_INSTRUCTION_END>>>")
     joined = "\n\n".join([p for p in parts if str(p).strip()]).strip()
     return joined + "\n"
+
+
+def _read_current_a_text(channel: str, video: str) -> Optional[str]:
+    content_dir = repo_paths.video_root(channel, video) / "content"
+    human = content_dir / "assembled_human.md"
+    mirror = content_dir / "assembled.md"
+    path = human if human.exists() else mirror
+    if not path.exists():
+        return None
+    try:
+        return _read_text(path)
+    except Exception:
+        return None
+
+
+def _revise_current_instruction() -> str:
+    return (
+        "指示: <<<CURRENT_A_TEXT_START>>> は下書きです。内容を保ちながら、冗長/重複/不自然な言い回しを直し、"
+        "企画タイトルとチャンネル方針に沿って全体を整えてください。"
+        "出力は本文（Aテキスト）のみ。ルール説明/見出し/箇条書き/番号リスト/マーカー文字列は出さない。"
+        "全文を最初から最後まで書き直した完成稿を出してください。"
+    )
+
+
+_SLEEP_GUARD_TAG_MARKERS = ("#睡眠用", "#寝落ち")
+
+
+def _channel_opted_in_sleep_framing(channel: str) -> bool:
+    """
+    SSOT: sleep-framing is opt-in per channel.
+    A channel is sleep-allowed only when its channel_info explicitly includes
+    '#睡眠用' or '#寝落ち' in youtube_description/default_tags.
+    """
+    ch = str(channel or "").strip().upper()
+    if not re.fullmatch(r"CH\\d{2}", ch):
+        return False
+    root = repo_paths.repo_root() / "packages" / "script_pipeline" / "channels"
+    info_path: Optional[Path] = None
+    try:
+        for p in root.glob(f"{ch}-*/channel_info.json"):
+            info_path = p
+            break
+    except Exception:
+        info_path = None
+    if info_path is None or not info_path.exists():
+        return False
+    try:
+        import json
+
+        data = json.loads(info_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    parts: List[str] = []
+    yd = data.get("youtube_description")
+    if isinstance(yd, str) and yd.strip():
+        parts.append(yd)
+    tags = data.get("default_tags")
+    if isinstance(tags, list):
+        parts.extend(str(t) for t in tags if t)
+    elif isinstance(tags, str) and tags.strip():
+        parts.append(tags)
+    blob = "\\n".join(parts)
+    return any(tok in blob for tok in _SLEEP_GUARD_TAG_MARKERS)
+
+
+def _sleep_guard_instruction() -> str:
+    # Keep this short; the prompt file already carries most rules.
+    return (
+        "重要: この台本は睡眠用ではない。睡眠導入/寝落ち誘導の呼びかけ・使い方の提示は禁止。"
+        "本文と末尾に「寝落ち」「睡眠用」「安眠」「就寝」「入眠」「熟睡」「布団」「ベッド」「枕」「寝室」「寝る」「眠り」"
+        "「おやすみ」「ゆっくりお休み」等の語（派生/言い換え含む）を出さない。"
+        "末尾は内容として完結させる。"
+    )
 
 
 def _strip_edge_pause_lines(text: str) -> str:
@@ -767,6 +852,8 @@ def _run_fallback_gemini(args: argparse.Namespace, *, channel: str, video: str) 
     ]
     if bool(args.run):
         cmd.append("--run")
+    if bool(getattr(args, "include_current", False)):
+        cmd.append("--include-current")
     instruction = str(getattr(args, "instruction", "") or "").strip()
     if instruction:
         cmd += ["--instruction", instruction]
@@ -794,6 +881,8 @@ def _run_fallback_qwen(args: argparse.Namespace, *, channel: str, video: str) ->
     ]
     if bool(args.run):
         cmd.append("--run")
+    if bool(getattr(args, "include_current", False)):
+        cmd.append("--include-current")
     instruction = str(getattr(args, "instruction", "") or "").strip()
     if instruction:
         cmd += ["--instruction", instruction]
@@ -845,6 +934,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     if not re.fullmatch(r"CH\d{2}", channel):
         raise SystemExit(f"Invalid --channel: {args.channel!r} (expected CHxx)")
 
+    sleep_guard_enabled = not _channel_opted_in_sleep_framing(channel)
+
     videos: List[str] = []
     if args.video:
         videos = [_z3(args.video)]
@@ -874,6 +965,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         ok_blueprint, blueprint_payload = _ensure_blueprint_ready(channel=channel, video=vv, require=bool(args.run))
         if ok_blueprint and blueprint_payload:
             base_prompt = (base_prompt.rstrip() + "\n\n" + blueprint_payload.strip()).strip() + "\n"
+        current = _read_current_a_text(channel, vv) if bool(getattr(args, "include_current", False)) else None
         detected_min = _parse_target_chars_min(base_prompt)
         detected_max = _parse_target_chars_max(base_prompt)
 
@@ -892,7 +984,15 @@ def cmd_run(args: argparse.Namespace) -> int:
             else:
                 print(f"- blueprint: MISSING (run: ./ops script resume -- --channel {channel} --video {vv} --until script_master_plan --max-iter 6)")
             print(f"- output: {out_path}")
+            if bool(getattr(args, "include_current", False)):
+                print("- include_current: true")
+            if sleep_guard_enabled:
+                print("- sleep_guard: enabled (non-sleep channel)")
             print("")
+            continue
+
+        if bool(getattr(args, "include_current", False)) and not current:
+            failures.append(f"{script_id}: include_current_missing_current_a_text (need assembled_human.md or assembled.md)")
             continue
 
         _ensure_dir(logs_dir)
@@ -914,9 +1014,19 @@ def cmd_run(args: argparse.Namespace) -> int:
                             "再試行: 直前の出力が不合格。本文のみを出力し、ルール説明/見出し/箇条書き/番号リスト/マーカー文字列/段落重複を絶対に出さない。"
                         )
                     attempt_instruction = str(args.instruction or "").strip()
+                    if sleep_guard_enabled:
+                        guard = _sleep_guard_instruction()
+                        attempt_instruction = (
+                            (attempt_instruction + "\n\n" + guard).strip() if attempt_instruction else guard
+                        )
                     if retry_hint:
                         attempt_instruction = (
                             (attempt_instruction + "\n\n" + retry_hint).strip() if attempt_instruction else retry_hint
+                        )
+                    if bool(getattr(args, "include_current", False)):
+                        base_hint = _revise_current_instruction()
+                        attempt_instruction = (
+                            (base_hint + "\n\n" + attempt_instruction).strip() if attempt_instruction else base_hint
                         )
                     if attempt_instruction:
                         attempt_instruction = (attempt_instruction + f"\nretry_attempt: {attempt}").strip()
@@ -924,7 +1034,7 @@ def cmd_run(args: argparse.Namespace) -> int:
                     attempt_prompt = _build_prompt(
                         base_prompt=base_prompt,
                         instruction=attempt_instruction if attempt_instruction else None,
-                        current_a_text=None,
+                        current_a_text=current if bool(getattr(args, "include_current", False)) else None,
                     )
 
                     attempt_prompt_log = logs_dir / f"claude_cli_prompt__attempt{attempt:02d}.txt"
@@ -1114,6 +1224,7 @@ def build_parser() -> argparse.ArgumentParser:
     mg.add_argument("--video", help="e.g. 002")
     mg.add_argument("--videos", help="e.g. 001-030 or 1,2,3")
     sp.add_argument("--run", action="store_true", help="Execute claude and write assembled_human.md (default: dry-run)")
+    sp.add_argument("--include-current", dest="include_current", action="store_true", help="Include current A-text in the prompt")
 
     sp.add_argument("--instruction", default="", help="Optional operator instruction appended to the prompt")
     sp.add_argument(

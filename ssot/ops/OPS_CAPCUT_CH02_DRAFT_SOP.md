@@ -1,6 +1,6 @@
 # OPS_CAPCUT_CH02_DRAFT_SOP (SSOT)
 
-- 最終更新日: 2025-12-13  
+- 最終更新日: 2026-01-27  
 - 目的: **CH02のCapCutドラフトを「CH02-テンプレ」から崩さず**に生成し、右上メイン帯のデザイン維持・音声挿入・字幕黒背景スタイルを **機械検証で100%担保**する。
 - 適用範囲: `packages/video_pipeline/tools/*` によるCapCutドラフト生成（CH02）。
 
@@ -95,6 +95,15 @@ PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts \
   1) `align_run_dir_to_tts_final.py` を実行（cuesがズレている可能性）
   2) `auto_capcut_run.py --resume ...` を再実行（draftは置換される）
   3) 再度 `validate_ch02_drafts.py`
+
+補足（参照切れ/迷子対策）:
+- 生成直後に CapCut で “欠損素材” が見える場合は、まず **CapCut終了→再起動**（途中書き/キャッシュを踏まない）
+- 同一NNNでフォルダ名が `(1)`, `(4)` など増殖している場合は、`--all-matching` で全候補を洗い出す:
+  - `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts --channel CH02 --videos {NNN} --all-matching`
+- run_dir の `capcut_draft` が古い/壊れている場合は、正本ツールで整合（dry-run→明示指定でrun）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/relink_capcut_draft.py --episode CH02-{NNN}`
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/relink_capcut_draft.py --episode CH02-{NNN} --run-id <run_id> --draft-dir "<capcut_draft_dir>" --run`
+  - 反映後: `./scripts/with_ytm_env.sh python3 scripts/episode_ssot.py materialize --channel CH02 --video {NNN}`
 
 ---
 

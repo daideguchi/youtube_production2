@@ -162,6 +162,12 @@
         "path": "workspaces/thumbnails/compiler/layer_specs/ch06_image_prompts_sample_v3.yaml",
         "name": "ch06_image_prompts_sample_v3"
       },
+      "ch06_image_prompts_impact_v1": {
+        "kind": "image_prompts",
+        "version": 3,
+        "path": "workspaces/thumbnails/compiler/layer_specs/ch06_image_prompts_impact_v1.yaml",
+        "name": "ch06_image_prompts_impact_v1"
+      },
       "ch06_text_layout_sample_v3": {
         "kind": "text_layout",
         "version": 3,

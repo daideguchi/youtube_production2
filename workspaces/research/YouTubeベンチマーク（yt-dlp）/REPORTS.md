@@ -37,9 +37,9 @@
   - report: `YouTubeベンチマーク（yt-dlp）/UCeUpwmP1xKY2Tgc8qH-I0Tw/report.md`
   - median views: `5820.0` / median duration: `23:21`
 - **人生これから - ブッダの教え** `@buddha-no09`
-  - id: `UC9fcd5KCJfOeRsdRJZdSaGQ` / fetched_at: `2026-01-08T10:04:17.342714+00:00`
+  - id: `UC9fcd5KCJfOeRsdRJZdSaGQ` / fetched_at: `2026-01-27T04:19:53.853715+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UC9fcd5KCJfOeRsdRJZdSaGQ/report.md`
-  - median views: `5030.0` / median duration: `21:54`
+  - median views: `4727.0` / median duration: `21:18`
 - **偉人の言霊** `@偉人の言霊-q4r`
   - id: `UC06rREl2zUsv6_qbtqYAHmw` / fetched_at: `2026-01-08T10:29:48.571280+00:00`
   - report: `YouTubeベンチマーク（yt-dlp）/UC06rREl2zUsv6_qbtqYAHmw/report.md`

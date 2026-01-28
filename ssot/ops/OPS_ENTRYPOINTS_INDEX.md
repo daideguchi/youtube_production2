@@ -313,6 +313,8 @@
 - `packages/video_pipeline/tools/align_run_dir_to_tts_final.py`（run_dir の cue を final SRT に retime / LLMなし）
 - `packages/video_pipeline/tools/patch_draft_audio_subtitles_from_manifest.py`（テンプレdraftに audio/subtitles を SoT(manifest) から注入）
 - `packages/video_pipeline/tools/validate_ch02_drafts.py`（CH02 draft 破壊検知: belt/voice/subtitles）
+- `scripts/ops/capcut_draft_integrity_doctor.py`（Hot/未投稿のCapCutドラフトを全件監査: 参照切れ/重複/迷子をレポート。report: `workspaces/logs/regression/capcut_draft_integrity/`）
+- `scripts/ops/fix_capcut_draft_material_placeholders.py`（CapCut参照切れ対策: `draft_info.json` のプレースホルダ/迷子パス補正 + photoのテンプレ汚染除去 + `draft_meta_info.json` の fold/id/name 整合）
 - `packages/video_pipeline/tools/regenerate_images_from_cues.py`（既存 run_dir の `image_cues.json` から `images/*.png` を実生成で再作成して置換）
 - `packages/video_pipeline/tools/refresh_run_prompts.py`（既存 run_dir の `image_cues.json` を更新して prompt だけ最新化。LLM/画像生成なし）
 - `packages/video_pipeline/tools/generate_image_variants.py`（既存 run_dir の `image_cues.json` から画像バリアントを生成。UI の Quick Job からも実行）
@@ -457,6 +459,7 @@
   - `./ops clear-brain` → OKなら `./ops clear-brain -- --run`
   - 未完の scratch run も消す場合: `./ops clear-brain -- --run --include-incomplete-scratch`
 - `scripts/ops/cleanup_broken_symlinks.py --run`（壊れた `capcut_draft` symlink を削除して探索ノイズを減らす。report: `workspaces/logs/regression/broken_symlinks/`）
+- `scripts/ops/relink_capcut_draft.py`（run_dir の `capcut_draft` symlink + `capcut_draft_info.json` を安全に整合。dry-run既定、`--run` で明示適用）
 - `scripts/ops/cleanup_remotion_artifacts.py --run`（Remotion 生成物 `apps/remotion/out` と `apps/remotion/public/_bgm/_auto` を keep-days でローテ。report: `workspaces/logs/regression/remotion_cleanup/`）
 - `scripts/ops/prune_video_run_legacy_files.py --run`（`workspaces/video/runs/**` の `*.legacy.*` を archive-first で prune。report: `workspaces/logs/regression/video_runs_legacy_prune/`）
 - `scripts/ops/archive_published_episodes.py --dry-run --channel CHxx --delete --audio --video-input --video-runs`（Planningの `進捗=投稿済み` を根拠に、音声/CapCutデータを削除して容量を確保。`--run --yes` で実行。`--delete` なしはアーカイブ移動。report: `workspaces/logs/regression/archive_published_episodes/`）

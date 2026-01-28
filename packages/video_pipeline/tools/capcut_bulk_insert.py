@@ -788,11 +788,13 @@ def _purge_unreferenced_placeholder_video_materials(draft_dir: Path, logger: log
     Policy:
       - Remove only UNREFERENCED placeholder video materials.
       - If placeholder video materials are STILL referenced after generation,
-        fail fast (template must be fixed; otherwise the draft will be broken).
+        we keep them for now and repair their paths later (post-sync).
     """
 
+    _PLACEHOLDER_TOKENS = ("##_material_placeholder_", "##_draftpath_placeholder_")
+
     def _is_placeholder_path(p: object) -> bool:
-        return isinstance(p, str) and "##_draftpath_placeholder_" in p
+        return isinstance(p, str) and any(tok in p for tok in _PLACEHOLDER_TOKENS)
 
     def _get_tracks_list(data: dict) -> list | None:
         if isinstance(data.get("tracks"), list):
@@ -869,10 +871,148 @@ def _purge_unreferenced_placeholder_video_materials(draft_dir: Path, logger: log
 
     if referenced_placeholders:
         preview = ", ".join(sorted({f"{fname}:{p}" for fname, p in referenced_placeholders})[:5])
-        raise RuntimeError(
-            "Template still references placeholder video materials (will be broken). "
-            f"Fix the template draft and retry. Examples: {preview}"
+        logger.warning(
+            "⚠️ Template still references placeholder video materials (will attempt repair post-sync). Examples: %s",
+            preview,
         )
+
+
+def _repair_draft_info_material_paths_from_content(draft_dir: Path, logger: logging.Logger) -> int:
+    """
+    Repair draft_info.json materials.*.path when template placeholders leak in.
+
+    Known regression:
+      - draft_content.json materials.*.path is correct (absolute & exists),
+      - but draft_info.json materials.*.path stays as template placeholders like:
+          - ##_material_placeholder_<...>_##
+          - ##_draftpath_placeholder_<...>_##/assets/image/0002.png
+      -> CapCut UI shows red "missing media" icons even though files exist.
+
+    We treat draft_content.json as SoT and patch draft_info.json accordingly.
+    """
+    _PLACEHOLDER_TOKENS = ("##_material_placeholder_", "##_draftpath_placeholder_")
+
+    def _is_placeholder_path(p: object) -> bool:
+        return isinstance(p, str) and any(tok in p for tok in _PLACEHOLDER_TOKENS)
+
+    content_path = draft_dir / "draft_content.json"
+    info_path = draft_dir / "draft_info.json"
+    content, _r1 = _try_load_json_file(content_path)
+    info, _r2 = _try_load_json_file(info_path)
+    if not (isinstance(content, dict) and isinstance(info, dict)):
+        return 0
+
+    cmats = content.get("materials")
+    imats = info.get("materials")
+    if not (isinstance(cmats, dict) and isinstance(imats, dict)):
+        return 0
+
+    # We use draft_content.json as SoT for per-material fields when CapCut template
+    # leakage leaves draft_info.json in a broken state.
+    content_videos_by_id = {}
+    cv = cmats.get("videos")
+    if isinstance(cv, list):
+        for cm in cv:
+            if not isinstance(cm, dict):
+                continue
+            mid = cm.get("id")
+            if isinstance(mid, str) and mid:
+                content_videos_by_id[mid] = cm
+
+    def _index_by_id(mats: object) -> dict[str, str]:
+        out: dict[str, str] = {}
+        if not isinstance(mats, list):
+            return out
+        for m in mats:
+            if not isinstance(m, dict):
+                continue
+            mid = m.get("id")
+            if not (isinstance(mid, str) and mid):
+                continue
+            path = m.get("path") or m.get("local_material_path") or ""
+            if isinstance(path, str) and path.startswith("/"):
+                try:
+                    if Path(path).exists():
+                        out[mid] = path
+                except Exception:
+                    continue
+        return out
+
+    vmap = _index_by_id(cmats.get("videos"))
+    amap = _index_by_id(cmats.get("audios"))
+
+    def _candidate_from_placeholder(cur: str, *, base_dir: Path) -> str | None:
+        if not cur:
+            return None
+        try:
+            fname = Path(cur).name
+        except Exception:
+            return None
+        if not fname:
+            return None
+        cand = base_dir / fname
+        return str(cand) if cand.exists() else None
+
+    changed = 0
+
+    vids = imats.get("videos")
+    if isinstance(vids, list):
+        base_dir = draft_dir / "assets" / "image"
+        for m in vids:
+            if not isinstance(m, dict):
+                continue
+            mid = m.get("id")
+            if not (isinstance(mid, str) and mid):
+                continue
+
+            # Another known regression:
+            # - draft_content.json photo materials omit "has_audio" (normal)
+            # - draft_info.json photo materials can incorrectly keep has_audio=True from template,
+            #   which makes CapCut show red "missing media" icons for images.
+            if m.get("type") == "photo" and m.get("has_audio") is True:
+                cmat = content_videos_by_id.get(mid)
+                if not (isinstance(cmat, dict) and ("has_audio" in cmat)):
+                    m.pop("has_audio", None)
+                    changed += 1
+
+            cur = m.get("path") or ""
+            cur_s = str(cur or "")
+            need = _is_placeholder_path(cur_s) or (not cur_s.startswith("/")) or (cur_s.startswith("/") and not Path(cur_s).exists())
+            if need:
+                target = vmap.get(mid) or (_candidate_from_placeholder(cur_s, base_dir=base_dir) if _is_placeholder_path(cur_s) else None)
+                if target and target != cur_s:
+                    m["path"] = target
+                    if isinstance(m.get("local_material_path"), str) and _is_placeholder_path(m.get("local_material_path")):
+                        m["local_material_path"] = target
+                    changed += 1
+
+    auds = imats.get("audios")
+    if isinstance(auds, list):
+        base_dir = draft_dir / "materials" / "audio"
+        for m in auds:
+            if not isinstance(m, dict):
+                continue
+            mid = m.get("id")
+            if not (isinstance(mid, str) and mid):
+                continue
+            cur = m.get("path") or ""
+            cur_s = str(cur or "")
+            need = _is_placeholder_path(cur_s) or (not cur_s.startswith("/")) or (cur_s.startswith("/") and not Path(cur_s).exists())
+            if not need:
+                continue
+            target = amap.get(mid) or (_candidate_from_placeholder(cur_s, base_dir=base_dir) if _is_placeholder_path(cur_s) else None)
+            if target and target != cur_s:
+                m["path"] = target
+                if isinstance(m.get("local_material_path"), str) and _is_placeholder_path(m.get("local_material_path")):
+                    m["local_material_path"] = target
+                changed += 1
+
+    if not changed:
+        return 0
+
+    info_path.write_text(_json2.dumps(info, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info("🛠️ Repaired draft_info.json material paths from draft_content.json (changed=%d)", changed)
+    return changed
 
 
 def _trim_all_tracks_to_duration(
@@ -1399,10 +1539,13 @@ def _load_person_info_text(run_dir: Path) -> Optional[str]:
       {
         "person": {
           "name": "...",
-          "years": "1903–1957",
-          "achievement": "数学者 ..."
+          "years": "1903年-1957年",
+          "occupation": "数学者"
         }
       }
+
+    Backward-compat:
+      - `achievement` is treated as `occupation` when `occupation` is missing.
     """
     epi_path = run_dir / "episode_info.json"
     if not epi_path.exists():
@@ -1418,15 +1561,21 @@ def _load_person_info_text(run_dir: Path) -> Optional[str]:
         return None
     name = str(person.get("name") or "").strip()
     years = str(person.get("years") or "").strip()
-    achievement = str(person.get("achievement") or "").strip()
+    occupation = str(person.get("occupation") or person.get("achievement") or "").strip()
     if not name:
         return None
 
-    header = f"{name}（{years}）" if years else name
-    lines = [header]
-    if achievement:
-        lines.append(achievement)
-    return "\n".join(lines).strip() or None
+    # Desired on-screen layout (CH09/CH26 portrait layout):
+    #   line1: years (optional)
+    #   line2: name (+ occupation in parentheses when provided)
+    lines: list[str] = []
+    if years:
+        lines.append(years)
+    if occupation:
+        lines.append(f"{name}（{occupation}）")
+    else:
+        lines.append(name)
+    return "\n".join([x for x in lines if str(x).strip()]).strip() or None
 
 
 def make_absolute_schedule_us(cues, offset_us=0):
@@ -3641,6 +3790,43 @@ def _post_flight_validate_draft(
             if seg_count > 0:
                 problems.append(f"{ttype}:{name}({seg_count})")
 
+    # CapCut "missing media" regression: placeholder/missing paths in draft_info.json materials.*.
+    info_path = draft_dir / "draft_info.json"
+    try:
+        if info_path.exists():
+            info = json.loads(info_path.read_text(encoding="utf-8"))
+            mats = info.get("materials") if isinstance(info, dict) else None
+            if isinstance(mats, dict):
+                placeholder_tokens = ("##_material_placeholder_", "##_draftpath_placeholder_")
+
+                def _has_placeholder(p: object) -> bool:
+                    return isinstance(p, str) and any(tok in p for tok in placeholder_tokens)
+
+                def _check(kind: str) -> None:
+                    items = mats.get(kind)
+                    if not isinstance(items, list):
+                        return
+                    for m in items:
+                        if not isinstance(m, dict):
+                            continue
+                        p = m.get("path") or m.get("local_material_path") or ""
+                        if _has_placeholder(p):
+                            problems.append(f"draft_info:materials.{kind}:placeholder_path")
+                            return
+                        if isinstance(p, str) and p.startswith("/"):
+                            try:
+                                if not Path(p).exists():
+                                    problems.append(f"draft_info:materials.{kind}:missing_file")
+                                    return
+                            except Exception:
+                                problems.append(f"draft_info:materials.{kind}:missing_file")
+                                return
+
+                _check("videos")
+                _check("audios")
+    except Exception as exc:
+        problems.append(f"draft_info:materials:check_failed({exc})")
+
     if expect_srt2images_track:
         if srt2_tracks != 1:
             problems.append(f"video:srt2images_* track_count={srt2_tracks}")
@@ -3655,6 +3841,118 @@ def _post_flight_validate_draft(
     if problems:
         raise RuntimeError("Post-flight draft validation failed: " + ", ".join(problems))
     logger.info("✅ Post-flight validation: draft structure OK")
+
+
+def _sanitize_draft_meta_info(draft_dir: Path, logger: logging.Logger) -> None:
+    """
+    CapCut can surface missing-media warnings based on draft_meta_info.json
+    even when draft_content/info are correct.
+
+    We defensively:
+    - drop any draft_materials items whose file_Path points to a non-existent file
+    - if subtitle (type=2) material list becomes empty, repoint it to a local *.srt
+      inside the draft folder when available
+    """
+    meta_path = draft_dir / "draft_meta_info.json"
+    if not meta_path.exists():
+        return
+
+    try:
+        data = json.loads(meta_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        logger.warning("draft_meta_info.json parse failed (skip sanitize): %s", exc)
+        return
+
+    mats = data.get("draft_materials") or []
+    if not isinstance(mats, list):
+        return
+
+    # Prefer a local SRT inside this draft (helps avoid stale template references).
+    preferred_srt: Path | None = None
+    local_srts = sorted(draft_dir.glob("*.srt"))
+    if local_srts:
+        m = re.search(r"(CH\\d{2}-\\d{3})", draft_dir.name)
+        if m:
+            vid = m.group(1)
+            for p in local_srts:
+                if vid in p.name:
+                    preferred_srt = p
+                    break
+        preferred_srt = preferred_srt or local_srts[0]
+
+    changed = False
+    for mat in mats:
+        if not isinstance(mat, dict):
+            continue
+        vals = mat.get("value") or []
+        if not isinstance(vals, list):
+            continue
+
+        kept: list[dict] = []
+        removed = 0
+        seed_item: dict | None = None
+        for item in vals:
+            if not isinstance(item, dict):
+                continue
+            seed_item = seed_item or item
+            fp = item.get("file_Path")
+            if isinstance(fp, str) and fp.startswith("/") and fp:
+                try:
+                    if not Path(fp).exists():
+                        removed += 1
+                        continue
+                except Exception:
+                    removed += 1
+                    continue
+            kept.append(item)
+
+        if removed:
+            mat["value"] = kept
+            changed = True
+
+        # If subtitle materials (type=2) lost all valid refs, repoint to local draft SRT.
+        if mat.get("type") == 2 and (not mat.get("value")) and preferred_srt:
+            seed = dict(seed_item or {})
+            seed["extra_info"] = preferred_srt.name
+            seed["file_Path"] = str(preferred_srt)
+            mat["value"] = [seed]
+            changed = True
+
+    # Keep fold path consistent (renames happen; this avoids stale self-paths).
+    if isinstance(data, dict):
+        if data.get("draft_fold_path") != str(draft_dir):
+            data["draft_fold_path"] = str(draft_dir)
+            changed = True
+        if data.get("draft_root_path") != str(draft_dir.parent):
+            data["draft_root_path"] = str(draft_dir.parent)
+            changed = True
+
+        # Align draft_id/draft_name with draft_info.json (primary key + listing consistency).
+        info_path = draft_dir / "draft_info.json"
+        try:
+            info = json.loads(info_path.read_text(encoding="utf-8")) if info_path.exists() else {}
+        except Exception:
+            info = {}
+        if isinstance(info, dict):
+            did = info.get("draft_id")
+            if isinstance(did, str) and did.strip() and data.get("draft_id") != did:
+                data["draft_id"] = did
+                changed = True
+            dname = info.get("draft_name")
+            if isinstance(dname, str) and dname.strip() and data.get("draft_name") != dname:
+                data["draft_name"] = dname
+                changed = True
+
+    if not changed:
+        return
+
+    try:
+        backup = meta_path.with_suffix(meta_path.suffix + f".bak_pathfix_{int(time.time())}")
+        backup.write_text(meta_path.read_text(encoding="utf-8"), encoding="utf-8")
+    except Exception:
+        pass
+    meta_path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    logger.info("🩺 Sanitized draft_meta_info.json (stale file refs removed)")
 
 
 def _shift_audio_in_json(draft_dir: Path, offset_us: int):
@@ -4802,13 +5100,11 @@ def main():
             fade_val = float(fade_target or 0.0)
             applied = apply_auto_fade_transitions(draft_dir, track_name, fade_val)
             if applied == 0:
-                logger.error("❌ Auto-fade (%.2fs) could not be applied. Helper missing or track empty.", fade_val)
-                sys.exit(1)
+                logger.warning("⚠️ Auto-fade (%.2fs) skipped (helper missing / track empty).", fade_val)
             else:
                 logger.info("✅ Auto-fade transitions applied: %d (%.2fs)", applied, fade_val)
         except Exception as exc:
-            logger.error(f"Auto-fade injection failed: {exc}")
-            sys.exit(1)
+            logger.warning("Auto-fade injection failed (non-fatal): %s", exc)
 
     # IMPORTANT: Do NOT merge draft_info -> draft_content.
     # draft_info often contains stale template tracks and merging can overwrite newly inserted segments.
@@ -4957,6 +5253,21 @@ def main():
             logger.error(f"❌ CH02 belt design restore failed: {exc}")
             sys.exit(1)
 
+    # CapCut may still show "missing media" if draft_meta_info.json retains stale
+    # references copied from the template. Sanitize it after all other sync steps.
+    try:
+        _sanitize_draft_meta_info(draft_dir, logger)
+    except Exception as exc:
+        logger.warning("draft_meta_info.json sanitize failed (ignored): %s", exc)
+
+    # CapCut may still show red "missing media" icons if draft_info.json keeps
+    # template placeholder paths in materials.* (even when draft_content.json is correct).
+    # Repair those paths from draft_content.json before post-flight validation.
+    try:
+        _repair_draft_info_material_paths_from_content(draft_dir, logger)
+    except Exception as exc:
+        logger.warning("draft_info.json material path repair failed (ignored): %s", exc)
+
     # Post-flight validation: fail hard if template placeholders leaked into the draft.
     try:
         allow_generic_tracks = set(keep_generic_text_tracks)
@@ -5062,6 +5373,27 @@ def main():
                 and d.get("draft_fold_path") != str(draft_dir)
                 and d.get("draft_id") != draft_id
             ]
+            # CH02: keep a single visible draft per video to avoid the "which one is correct?"
+            # confusion when CapCut/OS auto-suffixes folder names like (2)/(4).
+            try:
+                vid = locals().get("video_id")
+                if not vid:
+                    m = re.search(r"(CH\\d{2}-\\d{3})", str(entry.get("draft_name") or ""))
+                    vid = m.group(1) if m else None
+                if channel_id == "CH02" and isinstance(vid, str) and vid:
+                    pat = re.compile(rf"^★?{re.escape(vid)}-")
+                    drafts = [
+                        d
+                        for d in drafts
+                        if not (
+                            isinstance(d, dict)
+                            and isinstance(d.get("draft_name"), str)
+                            and pat.match(d.get("draft_name") or "")
+                            and d.get("draft_fold_path") != str(draft_dir)
+                        )
+                    ]
+            except Exception:
+                pass
             drafts.append(entry)
             data["all_draft_store"] = drafts
 

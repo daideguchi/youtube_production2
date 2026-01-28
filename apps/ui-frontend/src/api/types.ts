@@ -1029,6 +1029,8 @@ export interface ThumbnailEditorContext {
   video: string;
   video_id: string;
   portrait_available: boolean;
+  portrait_dest_box_norm?: number[] | null;
+  portrait_anchor?: string | null;
   template_id_default?: string | null;
   template_options: ThumbnailTextTemplateOption[];
   text_slots?: Record<string, string>;
@@ -1087,9 +1089,13 @@ export interface ThumbnailCommentPatch {
   model?: string | null;
 }
 
+export type ThumbnailCommentPatchProviderPreference = "auto" | "codex_exec" | "gemini_cli" | "qwen_cli" | "ollama";
+
 export interface ThumbnailCommentPatchPayload {
   comment: string;
   include_thumb_caption?: boolean;
+  provider_preference?: ThumbnailCommentPatchProviderPreference;
+  model?: string;
 }
 
 export interface ThumbnailTemplate {

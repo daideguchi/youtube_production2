@@ -183,6 +183,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="Alias for --mode dry-run")
     ap.add_argument("--mode", choices=["dry-run", "run"], default="run")
+    ap.add_argument("--quiet", action="store_true", help="Suppress stdout summary output (keep warnings on stderr).")
     ap.add_argument(
         "--on-mismatch",
         choices=["skip", "replace", "archive-replace"],
@@ -557,6 +558,9 @@ def main():
 
     if _FS_ERRORS:
         print(f"[WARN] sync_audio_inputs: filesystem errors encountered: {_FS_ERRORS}", file=sys.stderr)
+
+    if args.quiet:
+        return
 
     print(
         f"mode={mode} on_mismatch={args.on_mismatch} | copied: {len(copied)} | updated: {len(updated)} | skipped: {len(skipped)} | mismatched: {len(mismatched)}"

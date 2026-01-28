@@ -120,3 +120,5 @@ class ThumbnailCommentPatchResponse(BaseModel):
 class ThumbnailCommentPatchRequest(BaseModel):
     comment: str
     include_thumb_caption: bool = False
+    provider_preference: Literal["auto", "codex_exec", "gemini_cli", "qwen_cli", "ollama"] = "auto"
+    model: Optional[str] = None

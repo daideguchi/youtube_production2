@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-01-09T04:41:54.917577+00:00",
+  "generated_at": "2026-01-27T04:19:58.530763+00:00",
   "entries": [
     {
       "playlist_channel_id": "UC06rREl2zUsv6_qbtqYAHmw",
@@ -36,7 +36,7 @@
       "playlist_channel": "人生これから - ブッダの教え",
       "channel_avatar_url": "https://yt3.googleusercontent.com/lpIereXDsuqfuHEl6OOqJNpXpXHnW_ZQUUKziHUlz2vrz8MQcPU4_LAhOt7vE4V0u6glRmLIxBU=s0",
       "source_url": "https://www.youtube.com/@buddha-no09/videos",
-      "fetched_at": "2026-01-08T10:04:17.342714+00:00",
+      "fetched_at": "2026-01-27T04:19:53.853715+00:00",
       "playlist_end": 80,
       "video_count": 80,
       "report_md_path": "YouTubeベンチマーク（yt-dlp）/UC9fcd5KCJfOeRsdRJZdSaGQ/report.md",
@@ -46,15 +46,15 @@
         "title": "【絶対に助けてはいけない人】関わった瞬間 “人生が不幸になる相手”の特徴",
         "url": "https://www.youtube.com/watch?v=ZbSneYw5enA",
         "duration_sec": 966.0,
-        "view_count": 239085,
+        "view_count": 249583,
         "thumbnail_url": "https://i.ytimg.com/vi/ZbSneYw5enA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC2hx3jz2yYwoSDj8TdRJGXLkJEpw",
-        "playlist_index": 28
+        "playlist_index": 35
       },
       "stats": {
-        "view_count_median": 5030.0,
-        "view_count_p75": 8178.0,
-        "duration_median_sec": 1313.5,
-        "title_starts_with_bracket_ratio": 0.7125,
+        "view_count_median": 4727.0,
+        "view_count_p75": 8444.5,
+        "duration_median_sec": 1278.0,
+        "title_starts_with_bracket_ratio": 0.6875,
         "top_bracket_prefix": "ブッダの警鐘"
       }
     },

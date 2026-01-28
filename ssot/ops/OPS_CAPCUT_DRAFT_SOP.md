@@ -12,7 +12,7 @@
 # - `root_meta_info.json` は CapCut 自身も更新するため、**読み取り中に壊れたJSON（途中書き）を踏みやすい**。
 # - “parse失敗→最小構造で上書き” は **索引の全損（一覧から大量消失）**になるので絶対にやらない。
 #
-# 最終更新日: 2026-01-26
+# 最終更新日: 2026-01-27
 
 ---
 
@@ -69,6 +69,7 @@
   - `draft_name` は **フォルダ名（または CapCutが想定する表示名）**と矛盾しないこと
   - `draft_id` は `draft_info.json` の `draft_id` と一致していること
   - `(1)` の付いた別名を指していないこと（フォルダ実体が無いのに `(1)` を指すと確実に迷子になる）
+  - 参照（SRT/素材）に **存在しないパスが混入**していないこと（CapCut側で “欠損素材” 扱いになりうる）
 
 ### 3.3 “draft_id をいじらない”
 
@@ -103,9 +104,39 @@
 原因:
 - CapCutが同名衝突でフォルダ名を `(1)` に変更 → symlink が古いまま
 
-対処:
-- `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.audit_fix_drafts --channel CHxx --min-id ... --max-id ...`（dry-run→必要ならapply）
-  - ※このツールは run_dir 側のリンク整備が主。CapCut索引（root_meta）の全量修復ではない。
+対処（正本）:
+- `./scripts/with_ytm_env.sh python3 scripts/ops/relink_capcut_draft.py --episode CHxx-NNN`（dry-run: 候補表示のみ）
+- 実行（明示指定; 事故防止のため auto-pick はしない）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/relink_capcut_draft.py --episode CHxx-NNN --run-id <run_id> --draft-dir "<capcut_draft_dir>" --run`
+- 反映後（情報整備）:
+  - `./scripts/with_ytm_env.sh python3 scripts/episode_ssot.py materialize --channel CHxx --video NNN`
+  - CH02は `ssot/ops/OPS_CAPCUT_CH02_DRAFT_SOP.md` の検証コマンドも必須
+
+### 4.3 「CapCutで開くと、画像/音声/字幕が“欠損”になる（参照切れ）」
+
+原因（頻出）:
+1) 同名衝突でフォルダ名に `(1)`, `(4)` などが付き、ドラフト内JSONが **サフィックス無しフォルダ**を参照している
+2) `draft_meta_info.json` に **存在しないSRT/素材参照**が残り、CapCutが欠損扱いする（テンプレ汚染/過去の残骸）
+3) `draft_info.json` の `materials.(videos|audios).path` がテンプレ由来のプレースホルダのまま残る（例: `##_material_placeholder_..._##`, `##_draftpath_placeholder_..._##/...`）
+   - `draft_content.json` 側は実ファイルを指していても、CapCut UI が `draft_info.json` を根拠に “欠損素材” 扱いするケースがある（赤い「!」）
+4) `draft_info.json` の photo 素材がテンプレ由来の不整合を残す（例: `materials.videos[].has_audio=true` が写真に残留）
+   - 実ファイルが存在しても、CapCutが素材を正しく解決できず赤い「!」が出ることがある
+
+安全な対処:
+- まず CapCut を終了（⌘Q）→ 再起動（途中書きを踏まない）
+- 機械検証:
+  - CH02: `PYTHONPATH=".:packages" python3 -m video_pipeline.tools.validate_ch02_drafts --channel CH02 --videos NNN --all-matching`
+  - Hot全件（推奨）: `./scripts/with_ytm_env.sh python3 scripts/ops/capcut_draft_integrity_doctor.py --all-channels`（report: `workspaces/logs/regression/capcut_draft_integrity/`）
+- run_dir 側が迷子なら `relink_capcut_draft.py` で symlink/info を整合（4.2）
+- (4.3-1/3) の修復（プレースホルダ残り / サフィックス起因のパス迷子）:
+  - `./scripts/with_ytm_env.sh python3 scripts/ops/fix_capcut_draft_material_placeholders.py --draft-dir "<capcut_draft_dir>" --run`
+  - もしくは `--channel CHxx --video NNN --run`（status/run から draft_dir を解決）
+  - この fixer は以下も同時に整合させる（再発/迷子対策）:
+    - `draft_info.json` / `draft_content.json` の `materials.(videos|audios).path` を「実在する draft_dir」へ寄せる（(2)/(4) 付与でも復旧）
+    - `draft_info.json` のテンプレ汚染フィールド（例: photo の `has_audio=true`）を削除（CapCutの赤い「!」対策）
+    - `draft_meta_info.json` の `draft_fold_path` / `draft_root_path`
+    - `draft_meta_info.json` の `draft_id` / `draft_name`（`draft_info.json` と一致させる）
+- それでも直らない場合は “生成側” で作り直す（CH02なら `auto_capcut_run --resume` → 再検証）
 
 ---
 

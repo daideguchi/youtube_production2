@@ -1673,6 +1673,12 @@ export function fetchThumbnailCommentPatch(
     comment: payload?.comment ?? "",
     include_thumb_caption: Boolean(payload?.include_thumb_caption),
   };
+  if (payload?.provider_preference) {
+    body.provider_preference = payload.provider_preference;
+  }
+  if (payload?.model) {
+    body.model = payload.model;
+  }
   return request<ThumbnailCommentPatch>(
     `/api/workspaces/thumbnails/${encodeURIComponent(channel)}/${encodeURIComponent(video)}/comment-patch`,
     {

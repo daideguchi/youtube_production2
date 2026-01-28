@@ -68,6 +68,49 @@ load_env_file() {
   done < "$env_path"
 }
 
+# Resolve the effective planning root as seen by Python helpers.
+# This respects fallback logic in `factory_common.paths.planning_root()`.
+resolve_effective_planning_root() {
+  local out
+  out="$("$PYTHON_BIN" -c "from factory_common.paths import planning_root; print(planning_root())" 2>/dev/null || true)"
+  out="${out%$'\r'}"
+  out="${out%%$'\n'*}"
+  printf '%s' "$out"
+}
+
+# Seed shared planning SSOT when it looks uninitialized.
+# This prevents UI backend 503s when `YTM_PLANNING_ROOT` points to an empty Vault path.
+seed_planning_ssot_if_needed() {
+  local src_root="$YTM_ROOT/workspaces/planning"
+  local dest_root dest_channels src_channels
+
+  dest_root="$(resolve_effective_planning_root)"
+  [ -z "$dest_root" ] && return
+  [ "$dest_root" = "$src_root" ] && return
+
+  src_channels="$src_root/channels"
+  dest_channels="$dest_root/channels"
+  [ -d "$src_channels" ] || return
+
+  # Assume already initialized when destination has channel CSVs.
+  if [ -d "$dest_channels" ] && ls "$dest_channels"/CH*.csv >/dev/null 2>&1; then
+    return
+  fi
+  # Nothing to seed if source has no channels CSVs.
+  if ! ls "$src_channels"/CH*.csv >/dev/null 2>&1; then
+    return
+  fi
+
+  if ! command -v rsync >/dev/null 2>&1; then
+    warn "rsync not found; cannot seed planning SSOT ($src_root -> $dest_root)"
+    return
+  fi
+
+  mkdir -p "$dest_root" 2>/dev/null || true
+  info "Seeding planning SSOT into $dest_root (first-run safeguard)"
+  rsync -a "$src_root"/ "$dest_root"/ || warn "planning SSOT seed failed"
+}
+
 # optional: start remotion preview server (port 3100) for Studio iframe
 start_remotion_studio() {
   local remotion_dir="$YTM_ROOT/apps/remotion"
@@ -116,9 +159,13 @@ start_remotion_studio() {
 # Ensure `workspaces/scripts/CHxx/` exists for every planning CSV channel.
 # This avoids confusing startup warnings for "未着手" channels (empty dir is fine).
 ensure_script_channel_dirs() {
-  local planning_channels_dir="$YTM_ROOT/workspaces/planning/channels"
+  local planning_root planning_channels_dir
   local scripts_root="$YTM_ROOT/workspaces/scripts"
   local csv stem code target_dir
+
+  planning_root="$(resolve_effective_planning_root)"
+  [ -n "$planning_root" ] || return
+  planning_channels_dir="$planning_root/channels"
 
   if [ ! -d "$planning_channels_dir" ] || [ ! -d "$scripts_root" ]; then
     return
@@ -165,10 +212,22 @@ main() {
       fi
     fi
 
+    if [ -f "$ENV_FILE" ]; then
+      info "Loading environment from $ENV_FILE"
+      load_env_file "$ENV_FILE" || warn "Failed to parse $ENV_FILE; continuing without sourcing"
+    else
+      warn "ENV file $ENV_FILE not found; continuing without sourcing"
+    fi
+
+    # First-run safeguard: when planning is configured to point at the Vault,
+    # ensure the Vault copy is initialized so UI planning endpoints don't 503.
+    seed_planning_ssot_if_needed
+
     # Keep planning CSV/status in sync for all channels before起動
     if [ -f "$YTM_ROOT/scripts/sync_all_scripts.py" ]; then
       info "Syncing planning/status via sync_all_scripts.py"
       "$PYTHON_BIN" "$YTM_ROOT/scripts/sync_all_scripts.py" \
+        --missing-row-policy silent \
         > >(grep -v "non-numeric 'No.' rows" || true) \
         2> >(grep -v "non-numeric 'No.' rows" >&2 || true) \
         || warn "sync_all_scripts failed"
@@ -178,14 +237,7 @@ main() {
 
     # Sync audio artifacts into video input (safe: no overwrite)
     if [ -f "$YTM_ROOT/packages/video_pipeline/tools/sync_audio_inputs.py" ]; then
-      "$PYTHON_BIN" -m video_pipeline.tools.sync_audio_inputs || warn "sync_audio_inputs failed"
-    fi
-
-    if [ -f "$ENV_FILE" ]; then
-      info "Loading environment from $ENV_FILE"
-      load_env_file "$ENV_FILE" || warn "Failed to parse $ENV_FILE; continuing without sourcing"
-    else
-      warn "ENV file $ENV_FILE not found; continuing without sourcing"
+      "$PYTHON_BIN" -m video_pipeline.tools.sync_audio_inputs --quiet || warn "sync_audio_inputs failed"
     fi
   fi
 

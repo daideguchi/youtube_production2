@@ -4,7 +4,7 @@
 - **Runbook ID**: RUNBOOK_JOB_SCRIPT_PIPELINE
 - **ステータス**: Active
 - **対象**: 台本（Aテキスト）を用意し、`script_validation` まで確定させる（THINK/pending を含む）
-- **最終更新日**: 2026-01-19
+- **最終更新日**: 2026-01-27
 
 ## 0. 固定ルール（最重要）
 - **THINK がデフォルト**（pending を作って止める。対話型AIエージェントが埋めて進める）。
@@ -55,6 +55,7 @@
 | DEFAULT | Claude CLI で作る（既定） | 対話型AIエージェント | `./ops claude script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | 既定=sonnet 4.5。Opus は **オーナー指示 + `YTM_ALLOW_CLAUDE_OPUS=1` の明示実行のみ**。Claudeリミット時は Gemini 3 Flash Preview → qwen。**Blueprint必須**（FULL prompt + blueprint bundle を自動追記） |
 | FALLBACK-1 | Gemini CLI で作る | 対話型AIエージェント | `./ops gemini script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。サイレントfallback禁止 |
 | FALLBACK-2 | qwen -p で作る（最終フォールバック） | 対話型AIエージェント | `./ops qwen script -- --channel CHxx --video NNN --run` | `prompts/antigravity_gemini/CHxx/CHxx_NNN_FULL_PROMPT.md` | `content/assembled_human.md`（正本）+ `assembled.md`（mirror） | **Blueprint必須**（FULL prompt + blueprint bundle を自動追記）。**qwen-oauth固定**。**`--auth-type`/`--qwen-model/--model/-m` 禁止**（別課金/別プロバイダへ逃げない） |
+| MANUAL-MULTIPASS | 手動多段（Gemini→qwen→Claude で“下地→整える”） | 対話型AIエージェント | `./ops gemini script -- --channel CHxx --video NNN --run --gemini-model gemini-3-flash-preview` → `./ops qwen script -- --channel CHxx --video NNN --run --include-current` → `./ops claude script -- --channel CHxx --video NNN --run --include-current` | FULL prompt + Blueprint bundle（自動追記） + 現在Aテキスト（2nd/3rd passで `--include-current`） | `content/assembled_human.md`（最終）+ `content/assembled.md`（mirror）+ logs | **API禁止**のときに「まず下地を作る→次に整える」を明示して収束させる。各パスは `logs/*_cli_stdout__attempt*.txt` に証跡が残る。 |
 | EXPLICIT | LLM API が作る | パイプライン | `./ops api script <MODE> -- --channel CHxx --video NNN` | planning + SSOT | `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（/human があれば優先） | **API失敗→停止**（THINKへ自動フォールバック禁止） |
 | INPUT-SOT | antigravity（prompt SoT） | 入力SoT（prompt） | `prompts/antigravity_gemini/**` | MASTER+FULL prompt | （上の Claude/Gemini/Qwen/API が読む） | prompt は git-tracked（勝手に改変しない） |
 | FORBIDDEN | codex exec（非対話） | 非対話CLI | `./ops codex <cmd> ...` | SSOT/設定 | （台本本文には使わない） | **script_* は対象外/禁止**（混線防止） |

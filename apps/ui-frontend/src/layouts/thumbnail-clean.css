@@ -586,6 +586,10 @@
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
 }
 
+.workspace--thumbnail-clean .thumbnail-library-grid.thumbnail-library-grid--qc {
+  grid-template-columns: 1fr;
+}
+
 .workspace--thumbnail-clean .thumbnail-library-card {
   padding: 12px;
   gap: 8px;
@@ -605,6 +609,68 @@
   height: 150px;
   object-fit: cover;
   border-radius: 8px;
+}
+
+.workspace--thumbnail-clean .thumbnail-library-card--qc .thumbnail-library-card__preview img {
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+}
+
+.workspace--thumbnail-clean .thumbnail-library-card--qc .thumbnail-library-card__preview {
+  aspect-ratio: auto;
+  height: auto;
+  overflow: hidden;
+  background: #0b1220;
+}
+
+.workspace--thumbnail-clean .thumbnail-qc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.workspace--thumbnail-clean .thumbnail-qc-toolbar__presets {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.workspace--thumbnail-clean .thumbnail-qc-toolbar__presets .btn {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.workspace--thumbnail-clean .thumbnail-qc-toolbar input[type="search"] {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-muted);
+  background: #ffffff;
+  font-size: 13px;
+  min-width: 240px;
+}
+
+.workspace--thumbnail-clean .thumbnail-qc-toolbar select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-muted);
+  background: #ffffff;
+  font-size: 13px;
+}
+
+.workspace--thumbnail-clean .thumbnail-qc-toolbar__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #475569;
+  user-select: none;
+}
+
+.workspace--thumbnail-clean .thumbnail-qc-toolbar__count {
+  margin-left: auto;
 }
 
 .workspace--thumbnail-clean .thumbnail-library-card__meta strong,
@@ -1176,6 +1242,15 @@
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+.workspace--thumbnail-clean .thumbnail-gallery-panel__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #475569;
+  user-select: none;
 }
 
 .workspace--thumbnail-clean .thumbnail-gallery-panel__search {

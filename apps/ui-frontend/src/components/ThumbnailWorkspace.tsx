@@ -850,6 +850,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [galleryLimit, setGalleryLimit] = useState<number>(DEFAULT_GALLERY_LIMIT);
+  const [galleryHideMissingEnabled, setGalleryHideMissingEnabled] = useState<boolean>(() => {
+    const stored = (safeLocalStorage.getItem("ui.thumbnails.gallery.hide_missing") ?? "").trim();
+    if (!stored) {
+      return true;
+    }
+    return stored === "1";
+  });
+  const [galleryImageErrors, setGalleryImageErrors] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [updatingProjectId, setUpdatingProjectId] = useState<string | null>(null);
@@ -1172,6 +1180,10 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   }, [activeChannel?.channel, galleryVariantMode]);
 
   useEffect(() => {
+    safeLocalStorage.setItem("ui.thumbnails.gallery.hide_missing", galleryHideMissingEnabled ? "1" : "0");
+  }, [galleryHideMissingEnabled]);
+
+  useEffect(() => {
     if (galleryVariantMode !== "two_up" && galleryVariantMode !== "three_up") {
       return;
     }
@@ -1247,6 +1259,22 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
     return items;
   }, [activeChannel, galleryProjects, galleryVariantMode]);
 
+  const visibleGalleryItems = useMemo(() => {
+    if (!galleryHideMissingEnabled) {
+      return galleryItems;
+    }
+    return galleryItems.filter((item) => {
+      const variant = item.variant;
+      if (!variant) {
+        return false;
+      }
+      if (!variant.preview_url && !variant.image_url && !variant.image_path) {
+        return false;
+      }
+      return !galleryImageErrors[item.key];
+    });
+  }, [galleryHideMissingEnabled, galleryImageErrors, galleryItems]);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const channelParam = (params.get("channel") ?? "").trim().toUpperCase();
@@ -1274,6 +1302,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   useEffect(() => {
     setGalleryProjectSaving({});
     setGalleryNotesDraft({});
+    setGalleryImageErrors({});
     setExpandedProjectKey(null);
     const projectCount = activeChannel?.projects.length ?? 0;
     const nextLimit = channelHasTwoUpVariants ? Math.max(DEFAULT_GALLERY_LIMIT, projectCount * 2) : DEFAULT_GALLERY_LIMIT;
@@ -2056,7 +2085,17 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                 ? "全バリアントを一覧表示し、ZIPでまとめてダウンロードできます。"
                 : "選択中サムネを一覧表示し、ZIPでまとめてダウンロードできます。"}{" "}
             <span className="muted small-text">
-              （{Math.min(galleryItems.length, galleryLimit)} / {galleryItems.length}枚）
+              （
+              {(() => {
+                const visibleCount = visibleGalleryItems.length;
+                const hiddenCount = galleryHideMissingEnabled ? Math.max(0, galleryItems.length - visibleCount) : 0;
+                if (!visibleCount) {
+                  return hiddenCount ? `0枚（欠損${hiddenCount}枚非表示）` : "0枚";
+                }
+                const shownCount = Math.min(visibleCount, galleryLimit);
+                return `${shownCount} / ${visibleCount}枚${hiddenCount ? `（欠損${hiddenCount}枚非表示）` : ""}`;
+              })()}
+              ）
             </span>
           </p>
           {channelHasThreeUpVariants && galleryVariantMode !== "three_up" ? (
@@ -2095,6 +2134,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
+          <label className="thumbnail-gallery-panel__toggle" title="404などで壊れているサムネカードを非表示">
+            <input
+              type="checkbox"
+              checked={galleryHideMissingEnabled}
+              onChange={(event) => setGalleryHideMissingEnabled(event.target.checked)}
+            />
+            欠損を隠す
+          </label>
           <a
             className="btn btn--ghost"
             href={resolveApiUrl(
@@ -2133,13 +2180,14 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         </div>
       </div>
       <div className="thumbnail-gallery-grid">
-	        {galleryItems.slice(0, galleryLimit).map((item) => {
-	          const project = item.project;
-	          const itemKey = item.key;
-	          const cardKey = itemKey;
-	          const selectedVariant = item.variant;
-	          const slotLabel = (item.slotLabel ?? "").trim();
-          const displayVariantLabel = (() => {
+        {visibleGalleryItems.length ? (
+          visibleGalleryItems.slice(0, galleryLimit).map((item) => {
+		          const project = item.project;
+		          const itemKey = item.key;
+		          const cardKey = itemKey;
+		          const selectedVariant = item.variant;
+		          const slotLabel = (item.slotLabel ?? "").trim();
+	          const displayVariantLabel = (() => {
             const base = selectedVariant ? (selectedVariant.label ?? selectedVariant.id) : "";
             if (!base) {
               return slotLabel;
@@ -2237,6 +2285,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
                   ? resolveApiUrl(`/thumbnails/assets/${selectedVariant.image_path}`)
                   : null;
           const imageUrl = imageUrlBase ? withCacheBust(imageUrlBase, cacheBustToken) : null;
+          const imageBroken = Boolean(galleryImageErrors[itemKey]);
           const variantMode = galleryVariantMode === "selected" ? "project" : "variant";
           const statusRaw = variantMode === "project" ? project.status : selectedVariant.status;
           const statusForStyle = (() => {
@@ -2281,30 +2330,35 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
 	                .filter(Boolean)
 	                .join(" ")}
 	            >
-	              <div className="thumbnail-gallery-card__media">
-	                {imageUrl ? (
-	                  <button
-	                    type="button"
-	                    className="thumbnail-gallery-card__media-button"
-	                    onClick={() =>
-	                      handleOpenLayerTuningDialog(project, {
-	                        stable: stableForEdit,
-	                        cardKey,
-	                      })
-	                    }
-	                    title="クリックで調整を開く"
-	                  >
-	                    <img
-	                      src={imageUrl}
-	                      alt={`${project.channel}-${project.video}`}
-	                      loading="lazy"
-	                      draggable={false}
-	                    />
-	                  </button>
-	                ) : (
-	                  <div className="thumbnail-gallery-card__placeholder">No Image</div>
-	                )}
-	              </div>
+		              <div className="thumbnail-gallery-card__media">
+		                {imageUrl && !imageBroken ? (
+		                  <button
+		                    type="button"
+		                    className="thumbnail-gallery-card__media-button"
+		                    onClick={() =>
+		                      handleOpenLayerTuningDialog(project, {
+		                        stable: stableForEdit,
+		                        cardKey,
+		                      })
+		                    }
+		                    title="クリックで調整を開く"
+		                  >
+		                    <img
+		                      src={imageUrl}
+		                      alt={`${project.channel}-${project.video}`}
+		                      loading="lazy"
+		                      draggable={false}
+		                      onError={() =>
+		                        setGalleryImageErrors((current) =>
+		                          current[itemKey] ? current : { ...current, [itemKey]: true }
+		                        )
+		                      }
+		                    />
+		                  </button>
+		                ) : (
+		                  <div className="thumbnail-gallery-card__placeholder">欠損</div>
+		                )}
+		              </div>
               <div className="thumbnail-gallery-card__meta">
                 <div className="thumbnail-gallery-card__code">{project.channel}-{project.video}</div>
                 <div className="thumbnail-gallery-card__title" title={project.title ?? undefined}>
@@ -2447,12 +2501,16 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
 	                        文字を編集
 	                      </button>
 	                    )}
-	                    <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
-	                      開く
-	                    </a>
-	                    <a className="btn" href={imageUrl} download={downloadName}>
-                      DL
-                    </a>
+	                    {imageUrl && !imageBroken ? (
+	                      <>
+	                        <a className="btn btn--ghost" href={imageUrl} target="_blank" rel="noreferrer">
+	                          開く
+	                        </a>
+	                        <a className="btn" href={imageUrl} download={downloadName}>
+	                          DL
+	                        </a>
+	                      </>
+	                    ) : null}
                   </div>
                 ) : null}
                 {feedback ? (
@@ -2465,9 +2523,30 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
               </div>
             </article>
           );
-        })}
+          })
+        ) : (
+          <div className="muted small-text" style={{ gridColumn: "1 / -1", padding: 18 }}>
+            {(() => {
+              const query = searchTerm.trim();
+              if (query) {
+                return `「${query}」に一致するサムネがありません。`;
+              }
+
+              const visibleCount = visibleGalleryItems.length;
+              const hiddenCount = galleryHideMissingEnabled ? Math.max(0, galleryItems.length - visibleCount) : 0;
+              if (galleryHideMissingEnabled && hiddenCount > 0 && visibleCount === 0) {
+                return `欠損を隠す がONのため、欠損${hiddenCount}枚を非表示にしています。OFFにすると確認できます。`;
+              }
+
+              if (galleryVariantMode === "selected") {
+                return "選択中のサムネがありません。まず「量産（Canva）」か「生成」から作成してください。";
+              }
+              return "未作成のサムネは非表示です。まず「量産（Canva）」か「生成」から作成してください。";
+            })()}
+          </div>
+        )}
       </div>
-      {galleryItems.length > galleryLimit ? (
+      {visibleGalleryItems.length > galleryLimit ? (
         <div className="thumbnail-gallery-panel__more">
           <button
             type="button"
@@ -2477,7 +2556,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             さらに表示
           </button>
           <span className="muted small-text">
-            {Math.min(galleryLimit, galleryItems.length)} / {galleryItems.length}
+            {Math.min(galleryLimit, visibleGalleryItems.length)} / {visibleGalleryItems.length}
           </span>
         </div>
       ) : null}
@@ -3184,6 +3263,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
   }, [activeChannel]);
 
   const handleRefresh = useCallback(() => {
+    setGalleryImageErrors({});
     fetchData().catch(() => {
       // fetchData 内で記録済み
     });
@@ -6094,7 +6174,7 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
         </p>
       ) : null}
       {qcLibraryAssets.length > 0 ? (
-        <div className="thumbnail-library-grid">
+        <div className="thumbnail-library-grid thumbnail-library-grid--qc">
           {qcLibraryAssets.map((asset) => {
             const previewUrlBase = resolveApiUrl(asset.public_url);
             const previewUrl = withCacheBust(previewUrlBase, asset.updated_at);
@@ -6106,11 +6186,11 @@ export function ThumbnailWorkspace({ compact = false, channelSummaries }: Thumbn
             const noteSaving = qcNotesSaving[relativePath] ?? false;
             const assetPath = `${THUMBNAIL_ASSET_BASE_PATH}/${activeChannel.channel}/${relativePath}`;
             return (
-              <article key={asset.id} className="thumbnail-library-card">
+              <article key={asset.id} className="thumbnail-library-card thumbnail-library-card--qc">
                 <div className="thumbnail-library-card__preview">
-	                  <a href={previewUrl} target="_blank" rel="noreferrer" title="別タブで表示">
-	                    <img src={previewUrl} alt={asset.file_name} loading="lazy" draggable={false} />
-	                  </a>
+		                  <a href={previewUrl} target="_blank" rel="noreferrer" title="別タブで表示">
+		                    <img src={previewUrl} alt={asset.file_name} loading="lazy" draggable={false} />
+		                  </a>
                 </div>
                 <div className="thumbnail-library-card__meta">
                   <strong title={asset.file_name}>{asset.file_name}</strong>

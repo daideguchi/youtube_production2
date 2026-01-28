@@ -9,6 +9,9 @@
 
 複数エージェント競合でカオスになった場合の止血・復帰は `ssot/ops/OPS_SCRIPT_INCIDENT_RUNBOOK.md` が正本。
 
+企画→アノテ前の工程定義（Codex補正 / 日本語補正（JP Polish）を含む）は `ssot/ops/OPS_SCRIPT_PRE_ANNOTATION_WORKFLOW.md` が正本。
+  - 日本語補正（JP Polish）は **必須フェーズ**（ただし正本を自動上書きしない：提案→差分→人間が採用）
+
 入口固定（共通）:
 - **必ず** `./scripts/with_ytm_env.sh python3 ...` を使う（.envロード + PYTHONPATH固定）。
   - 例: `./scripts/with_ytm_env.sh python3 scripts/ops/script_runbook.py new --channel CH10 --video 008`
@@ -22,6 +25,33 @@
 - 台本本文（Aテキスト / 入力の正）:
   - 正本: `workspaces/scripts/{CH}/{NNN}/content/assembled_human.md`（存在する場合）
   - ミラー: `workspaces/scripts/{CH}/{NNN}/content/assembled.md`（正本と同内容に揃える）
+
+---
+
+## 0.1 先に読む（定性レビュー）— ツールより先（強制）
+
+目的:
+- 「型チェックに通ったのに、視聴者が離脱する “破綻台本”」を根絶する。
+- 機械チェック/validator/自動修復を **執筆の代替にしない**（最終ゲートとして使う）。
+
+必須フロー（Aテキストを直す/ブラッシュアップする時）:
+1. **ベンチマーク台本**を読む（チャンネルの“正しいノリ/テンポ/情報密度”を先に頭へ入れる）
+2. 対象の `assembled_human.md` を **最初から最後まで通読**し、定性の問題点をメモする
+3. 手動で本文を直す（機械的な置換・均等分割で直した扱いにしない）
+4. 仕上げにだけ `script_validation` / `a_text_quality_scan` 等を回して **事故（禁則/混入/未完）を止める**
+
+定性レビューの観点（目安。チェック結果が良くても本文が悪ければ修正を優先）:
+- 冒頭で異常が刺さるか（早い段で「何が変なのか」が一文で分かる）
+- 年号/数字/固有名詞などの **現実の杭**が早めに入るか（フワつき防止）
+- 1段落1論点になっているか（話題が混ざって迷子にならない）
+- “分かる→気になる→次へ” の流れが続くか（段落ごとの問いが自然に繋がる）
+- 冗長/言い換え水増し/同じ主張の反復がないか（情報密度を落とさない）
+- 耳で追える文の長さか（主語と述語が離れすぎない）
+- チャンネル固有の禁止（CTA/同意要求/睡眠誘導/導入テンプレ等）に触れていないか
+
+このステップを飛ばすことの禁止:
+- 先に機械修復やvalidatorを回し、**通読せずに**「OKだから完了」と判断しない。
+  - OKに見えても“聞きにくい/冗長/意味が飛ぶ”が残ることがあるため。
 
 ---
 
@@ -62,6 +92,7 @@
 - `workspaces/scripts/{CH}/{NNN}/content/`
   - `assembled.md`（最終台本）
   - `assembled_with_quotes.md` など（運用で採用ルールを固定する）
+- `workspaces/scripts/{CH}/{NNN}/content/analysis/jp_polish/`（日本語補正の提案物：本文/差分/検証/ログ。正本は触らない）
 - `workspaces/scripts/{CH}/{NNN}/logs/`
   - `{stage}_prompt.txt`, `{stage}_response.json`（証跡）
 

@@ -7,6 +7,7 @@ import {
   lookupThumbnails,
   markVideoPublishedLocked,
   unmarkVideoPublishedLocked,
+  resolveApiUrl,
 } from "../api/client";
 import { apiUrl } from "../api/baseUrl";
 import type { ChannelSummary, RedoSummaryItem, ThumbnailLookupItem } from "../api/types";
@@ -213,6 +214,26 @@ const normalizeThumbStable = (raw: string | null | undefined): string | null => 
     return name.replace(/\.png$/i, "");
   }
   return null;
+};
+
+const THUMB_CACHE_BUST = String(Date.now());
+
+const withCacheBust = (url: string, token: string): string => {
+  if (!url) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}cb=${encodeURIComponent(token)}`;
+};
+
+const isThumbAssetUrl = (url: string): boolean => {
+  const path = url.replace(/^https?:\/\/[^/]+/i, "");
+  return path.startsWith("/thumbnails/assets/");
+};
+
+const resolveThumbUrl = (raw: string | null | undefined): string => {
+  const value = String(raw ?? "").trim();
+  if (!value) return "";
+  const resolved = resolveApiUrl(value);
+  return isThumbAssetUrl(resolved) ? withCacheBust(resolved, THUMB_CACHE_BUST) : resolved;
 };
 
 const pickTwoUpThumb = (items: ThumbnailLookupItem[], stable: "00_thumb_1" | "00_thumb_2"): ThumbnailLookupItem | null => {
@@ -1263,7 +1284,7 @@ export function PlanningPage() {
                             const handlePreviewClick = (index: number) => {
                               setThumbPreviewItems(thumbs);
                               setThumbPreviewIndex(index);
-                              setThumbPreview(thumbs[index]?.url ?? null);
+                              setThumbPreview(resolveThumbUrl(thumbs[index]?.url) || null);
                             };
                             if (thumb1 && thumb2) {
                               const extraCount = Math.max(0, thumbs.length - 2);
@@ -1288,7 +1309,7 @@ export function PlanningPage() {
                                           handlePreviewClick(index);
                                         }}
                                       >
-                                        <img src={item.url} alt={`thumb:${stable}`} loading="lazy" draggable={false} />
+                                        <img src={resolveThumbUrl(item.url)} alt={`thumb:${stable}`} loading="lazy" draggable={false} />
                                         <span className="planning-page__thumb-slot">{label}</span>
                                         {index === 1 && extraCount > 0 ? (
                                           <span className="planning-page__thumb-count">+{extraCount}</span>
@@ -1329,7 +1350,7 @@ export function PlanningPage() {
                                 }}
                                 title="クリックでサムネ編集（⌘/Ctrl/Alt クリックでプレビュー）"
                               >
-                                <img src={thumbs[0].url} alt="thumb" loading="lazy" draggable={false} />
+                                <img src={resolveThumbUrl(thumbs[0].url)} alt="thumb" loading="lazy" draggable={false} />
                                 {thumbs.length > 1 ? (
                                   <span className="planning-page__thumb-count">+{thumbs.length - 1}</span>
                                 ) : null}
@@ -1772,10 +1793,10 @@ export function PlanningPage() {
                       className={`planning-page__preview-thumb ${i === thumbPreviewIndex ? "is-active" : ""}`}
                       onClick={() => {
                         setThumbPreviewIndex(i);
-                        setThumbPreview(item.url);
+                        setThumbPreview(resolveThumbUrl(item.url) || null);
                       }}
                     >
-                      <img src={item.url} alt={`thumb ${i + 1}`} loading="lazy" />
+                      <img src={resolveThumbUrl(item.url)} alt={`thumb ${i + 1}`} loading="lazy" />
                     </button>
                   ))}
                 </div>

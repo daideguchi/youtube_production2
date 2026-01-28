@@ -1202,5 +1202,965 @@
       "thumbnail_url": "https://i.ytimg.com/vi/7DQlA6dIPiw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBUUkYWdJ8BPkS7o39YHCIXtaT9IA",
       "playlist_index": 10
     }
-  ]
+  ],
+  "thumbnail_summary": {
+    "schema": "ytm.yt_dlp.thumbnail_summary.v1",
+    "generated_at": "2026-01-28T01:00:45.469617+00:00",
+    "insight_count": 18,
+    "top_tags": [
+      {
+        "value": "ブッダ",
+        "count": 18
+      },
+      {
+        "value": "不安",
+        "count": 18
+      },
+      {
+        "value": "人生",
+        "count": 18
+      },
+      {
+        "value": "人間関係",
+        "count": 18
+      },
+      {
+        "value": "仏教",
+        "count": 18
+      },
+      {
+        "value": "学び",
+        "count": 18
+      },
+      {
+        "value": "安心",
+        "count": 18
+      },
+      {
+        "value": "実践",
+        "count": 18
+      },
+      {
+        "value": "心を整える",
+        "count": 18
+      },
+      {
+        "value": "考え方",
+        "count": 18
+      },
+      {
+        "value": "メンタル",
+        "count": 7
+      },
+      {
+        "value": "暴露",
+        "count": 6
+      },
+      {
+        "value": "その他",
+        "count": 4
+      },
+      {
+        "value": "会話術",
+        "count": 3
+      },
+      {
+        "value": "習慣",
+        "count": 3
+      },
+      {
+        "value": "警告",
+        "count": 3
+      },
+      {
+        "value": "共感",
+        "count": 2
+      },
+      {
+        "value": "自己防衛",
+        "count": 2
+      },
+      {
+        "value": "質問",
+        "count": 2
+      },
+      {
+        "value": "運",
+        "count": 2
+      },
+      {
+        "value": "99%勘違い",
+        "count": 1
+      },
+      {
+        "value": "99%好かれる会話術",
+        "count": 1
+      },
+      {
+        "value": "「変な人」と思われることの価値",
+        "count": 1
+      },
+      {
+        "value": "なぜ？",
+        "count": 1
+      },
+      {
+        "value": "人生が変わる",
+        "count": 1
+      },
+      {
+        "value": "今すぐ縁を切るべき人",
+        "count": 1
+      },
+      {
+        "value": "幸せ",
+        "count": 1
+      },
+      {
+        "value": "忘却は最高の鎮痛剤",
+        "count": 1
+      },
+      {
+        "value": "恩を売ると損",
+        "count": 1
+      },
+      {
+        "value": "断言",
+        "count": 1
+      }
+    ],
+    "hook_types": [
+      {
+        "value": "暴露",
+        "count": 6
+      },
+      {
+        "value": "その他",
+        "count": 4
+      },
+      {
+        "value": "警告",
+        "count": 3
+      },
+      {
+        "value": "共感",
+        "count": 2
+      },
+      {
+        "value": "質問",
+        "count": 2
+      },
+      {
+        "value": "断言",
+        "count": 1
+      }
+    ]
+  },
+  "thumbnail_insights": {
+    "-dGBn_uFOn0": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:41.295247+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "-dGBn_uFOn0",
+        "title": "【９割が知らない鈍感力】心が楽になるブッダの「受け流す」技術。自分の心を守るための優しさと賢さが身につきます。",
+        "url": "https://www.youtube.com/watch?v=-dGBn_uFOn0",
+        "view_count": 268780,
+        "duration_sec": 628.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/-dGBn_uFOn0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAEcd5IhOH-hKPfJT30Y_6MkpsjAw"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。暴露フックで「具体的な対処法がわかる」を示し、心を整えたい人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "暴露",
+        "promise": "具体的な対処法がわかる",
+        "target": "心を整えたい人",
+        "emotion": "好奇心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 白文字",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "暴露",
+          "９割が知らない鈍感力",
+          "メンタル",
+          "習慣",
+          "自己防衛",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "jkErbvLE-cA": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:41.543710+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "jkErbvLE-cA",
+        "title": "脳が変わる感謝の力を知ってる？「本当の感謝」をした時に起こること。【感謝に秘められた力】 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=jkErbvLE-cA",
+        "view_count": 120367,
+        "duration_sec": 988.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/jkErbvLE-cA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCJHurTIehCrf4-vGjZMpvsIZuhiQ"
+      },
+      "analysis": {
+        "caption_ja": "上に文字帯、下に背景/被写体。暴露フックで「考え方がわかる」を示し、心を整えたい人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "暴露",
+        "promise": "考え方がわかる",
+        "target": "心を整えたい人",
+        "emotion": "好奇心",
+        "composition": "上に文字帯、下に背景/被写体",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "上帯テキスト",
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "暴露",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "KQjrHTntFVY": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:41.760962+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "KQjrHTntFVY",
+        "title": "【人生が変わる】悪口・否定・批判…何を言われても気にしない方法とは？人の評価は変わるものでも、あなたの価値は変わりません。 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=KQjrHTntFVY",
+        "view_count": 105596,
+        "duration_sec": 1332.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/KQjrHTntFVY/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAiiSaMfvlw3rR9U0HaPiispBzoDQ"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。質問フックで「具体的な対処法がわかる」を示し、人間関係で傷つきやすい人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "質問",
+        "promise": "具体的な対処法がわかる",
+        "target": "人間関係で傷つきやすい人",
+        "emotion": "好奇心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "質問",
+          "人生が変わる",
+          "人間関係",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える"
+        ]
+      }
+    },
+    "dWEDLDetQzw": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:42.041582+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "dWEDLDetQzw",
+        "title": "【なぜ？】人生が激変する！「どうでもいい」と思うだけで全てがうまくいく理由",
+        "url": "https://www.youtube.com/watch?v=dWEDLDetQzw",
+        "view_count": 52200,
+        "duration_sec": 900.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/dWEDLDetQzw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDT89MdjtDipir2Rt1c1FpJQKLj_g"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。質問フックで「理由がわかる」を示し、心を整えたい人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "質問",
+        "promise": "理由がわかる",
+        "target": "心を整えたい人",
+        "emotion": "好奇心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "質問",
+          "なぜ？",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "7DQlA6dIPiw": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:42.158716+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "7DQlA6dIPiw",
+        "title": "【９割が知らない幸せの正体】何かを得る必要はない。気づくだけで幸せになれる理由 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=7DQlA6dIPiw",
+        "view_count": 16164,
+        "duration_sec": 803.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/7DQlA6dIPiw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBUUkYWdJ8BPkS7o39YHCIXtaT9IA"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。暴露フックで「理由がわかる」を示し、幸せを感じにくい人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "暴露",
+        "promise": "理由がわかる",
+        "target": "幸せを感じにくい人",
+        "emotion": "好奇心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "暴露",
+          "９割が知らない幸せの正体",
+          "幸せ",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "AfgkTl6twfw": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:42.402423+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "AfgkTl6twfw",
+        "title": "【忘却は最高の鎮痛剤】終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え終わったことをクヨクヨ悩まない「忘れる力」 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=AfgkTl6twfw",
+        "view_count": 15279,
+        "duration_sec": 880.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/AfgkTl6twfw/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCReCzAqCKzJT-6gumiHqK0RFEyiQ"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。共感フックで「考え方がわかる」を示し、心を整えたい人の共感/安心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "共感",
+        "promise": "考え方がわかる",
+        "target": "心を整えたい人",
+        "emotion": "共感/安心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "共感",
+          "忘却は最高の鎮痛剤",
+          "メンタル",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "4D9iU86_VDA": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:42.606314+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "4D9iU86_VDA",
+        "title": "嫌いな人を心から消す方法 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=4D9iU86_VDA",
+        "view_count": 15226,
+        "duration_sec": 1425.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/4D9iU86_VDA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA2Qw0lGLZ6NgIR-qFxwU55XTbiYA"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。その他フックで「具体的な対処法がわかる」を示し、人間関係で傷つきやすい人の内省に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "その他",
+        "promise": "具体的な対処法がわかる",
+        "target": "人間関係で傷つきやすい人",
+        "emotion": "内省",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "その他",
+          "人間関係",
+          "メンタル",
+          "自己防衛",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える"
+        ]
+      }
+    },
+    "M3G_tEH8scU": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:42.816040+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "M3G_tEH8scU",
+        "title": "【逆転の一言】見下された時に使えるブッダの知恵『勝ち逃げの極意』｜仏教の教えで心が軽くなる | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=M3G_tEH8scU",
+        "view_count": 9302,
+        "duration_sec": 805.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/M3G_tEH8scU/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCRJeSSIXtQsEi6OZb-dEoIqqCipQ"
+      },
+      "analysis": {
+        "caption_ja": "上に文字帯、下に背景/被写体。警告フックで「考え方がわかる」を示し、人間関係で傷つきやすい人の不安/警戒に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "警告",
+        "promise": "考え方がわかる",
+        "target": "人間関係で傷つきやすい人",
+        "emotion": "不安/警戒",
+        "composition": "上に文字帯、下に背景/被写体",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "上帯テキスト",
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "警告",
+          "逆転の一言",
+          "人間関係",
+          "メンタル",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える"
+        ]
+      }
+    },
+    "i9D7gvjbyew": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:42.959382+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "i9D7gvjbyew",
+        "title": "【99%好かれる会話術】なぜか人が集まる究極テクニック｜ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=i9D7gvjbyew",
+        "view_count": 8753,
+        "duration_sec": 650.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/i9D7gvjbyew/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDdGExvPLpQt3OSn_lc_xa-sy8bWA"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。暴露フックで「具体的な対処法がわかる」を示し、心を整えたい人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "暴露",
+        "promise": "具体的な対処法がわかる",
+        "target": "心を整えたい人",
+        "emotion": "好奇心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "暴露",
+          "99%好かれる会話術",
+          "会話術",
+          "習慣",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "UXPnjT8bdU4": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:43.129743+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "UXPnjT8bdU4",
+        "title": "【最強メンタルへ激変！】心配ばかりしてしまうあなたへ | ブッダの教えで心が軽くなる話",
+        "url": "https://www.youtube.com/watch?v=UXPnjT8bdU4",
+        "view_count": 7030,
+        "duration_sec": 1118.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/UXPnjT8bdU4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLADkitnn5-m1b2-dUMcmeKKyRq1Ww"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。共感フックで「考え方がわかる」を示し、心を整えたい人の共感/安心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "共感",
+        "promise": "考え方がわかる",
+        "target": "心を整えたい人",
+        "emotion": "共感/安心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "共感",
+          "最強メンタルへ激変！",
+          "メンタル",
+          "会話術",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "0pi7B8GK8H8": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:43.324523+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "0pi7B8GK8H8",
+        "title": "【99%勘違い】それを喋った瞬間、人生が不利になる話｜ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=0pi7B8GK8H8",
+        "view_count": 1324,
+        "duration_sec": 734.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/0pi7B8GK8H8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCFPC6a9MfYoiazJb9pI2d6Zf8t8w"
+      },
+      "analysis": {
+        "caption_ja": "左に大きな文字、右に被写体。暴露フックで「考え方がわかる」を示し、心を整えたい人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "暴露",
+        "promise": "考え方がわかる",
+        "target": "心を整えたい人",
+        "emotion": "好奇心",
+        "composition": "左に大きな文字、右に被写体",
+        "colors": "黒基調 + 金/黄アクセント + 白文字",
+        "design_elements": [
+          "左大文字",
+          "高コントラスト",
+          "金アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "暴露",
+          "99%勘違い",
+          "会話術",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "nlO8ryuVrC8": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:43.627492+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "nlO8ryuVrC8",
+        "title": "【恩を売ると損】「してあげた」と思った瞬間、それは善行ではなく取引になる | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=nlO8ryuVrC8",
+        "view_count": 1074,
+        "duration_sec": 587.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/nlO8ryuVrC8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBrTyBYnQ7GuUn4BQWYptHBkbwrjA"
+      },
+      "analysis": {
+        "caption_ja": "左に大きな文字、右に被写体。警告フックで「考え方がわかる」を示し、心を整えたい人の不安/警戒に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "警告",
+        "promise": "考え方がわかる",
+        "target": "心を整えたい人",
+        "emotion": "不安/警戒",
+        "composition": "左に大きな文字、右に被写体",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "左大文字",
+          "暗色背景",
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "警告",
+          "恩を売ると損",
+          "人間関係",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える"
+        ]
+      }
+    },
+    "8I6QI1lw7Po": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:43.814222+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "8I6QI1lw7Po",
+        "title": "【荘子×仏教】心が折れない人の「反応しない技術」 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=8I6QI1lw7Po",
+        "view_count": 1259,
+        "duration_sec": 666.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/8I6QI1lw7Po/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDLLwB29A9cqhUbUYrRpzi-rmz22g"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。その他フックで「具体的な対処法がわかる」を示し、心を整えたい人の内省に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "その他",
+        "promise": "具体的な対処法がわかる",
+        "target": "心を整えたい人",
+        "emotion": "内省",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント",
+        "design_elements": [
+          "暗色背景",
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "その他",
+          "荘子×仏教",
+          "メンタル",
+          "習慣",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "zRPR6p0IhW0": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:43.999569+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "zRPR6p0IhW0",
+        "title": "【違和感は体の警報】理由はないけど、なんか嫌だ。その違和感は放置すると超危険です。 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=zRPR6p0IhW0",
+        "view_count": 1371,
+        "duration_sec": 779.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/zRPR6p0IhW0/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA9TMmlEBdD0I33tE5adqXdNVkMeA"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。警告フックで「理由がわかる」を示し、心を整えたい人の不安/警戒に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "警告",
+        "promise": "理由がわかる",
+        "target": "心を整えたい人",
+        "emotion": "不安/警戒",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 白文字",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "警告",
+          "違和感は体の警報",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "dqKQXiIznq8": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:44.638543+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "dqKQXiIznq8",
+        "title": "【運の正体】不運を“運”に変える人の考え方｜ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=dqKQXiIznq8",
+        "view_count": 2934,
+        "duration_sec": 606.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/dqKQXiIznq8/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDZiKU1-Q5kdZDHfr0zZT8LPXOTxg"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。暴露フックで「考え方がわかる」を示し、運が悪いと感じる人の好奇心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "暴露",
+        "promise": "考え方がわかる",
+        "target": "運が悪いと感じる人",
+        "emotion": "好奇心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 白文字",
+        "design_elements": [
+          "暗色背景",
+          "高コントラスト",
+          "金アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "暴露",
+          "運の正体",
+          "運",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "Hatf30pL4hQ": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:45.025049+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "Hatf30pL4hQ",
+        "title": "【「変な人」と思われることの価値】普通でありたいと願うほど、心が窮屈になりがちなあなたへ | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=Hatf30pL4hQ",
+        "view_count": 1262,
+        "duration_sec": 594.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/Hatf30pL4hQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAm8TMmYWd_pRfszxhKHBRst-isjw"
+      },
+      "analysis": {
+        "caption_ja": "左に大きな文字、右に被写体。その他フックで「考え方がわかる」を示し、心を整えたい人の内省に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "その他",
+        "promise": "考え方がわかる",
+        "target": "心を整えたい人",
+        "emotion": "内省",
+        "composition": "左に大きな文字、右に被写体",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "左大文字",
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "その他",
+          "「変な人」と思われることの価値",
+          "メンタル",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える",
+          "人間関係"
+        ]
+      }
+    },
+    "QQ_M82n69FM": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:45.279277+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "QQ_M82n69FM",
+        "title": "【無敵になる】江戸時代の有名僧侶が教える無視の極意 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=QQ_M82n69FM",
+        "view_count": 1633,
+        "duration_sec": 774.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/QQ_M82n69FM/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBpyxSZx2tZ6JbKGBsfqEvvp_vCrQ"
+      },
+      "analysis": {
+        "caption_ja": "文字と被写体を強調した高コントラスト構図。断言フックで「考え方がわかる」を示し、心を整えたい人の安心に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "断言",
+        "promise": "考え方がわかる",
+        "target": "心を整えたい人",
+        "emotion": "安心",
+        "composition": "文字と被写体を強調した高コントラスト構図",
+        "colors": "黒基調 + 金/黄アクセント + 赤アクセント + 白文字",
+        "design_elements": [
+          "高コントラスト",
+          "金アクセント",
+          "赤アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "断言",
+          "無敵になる",
+          "人間関係",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える"
+        ]
+      }
+    },
+    "Tg_iXDcuQv4": {
+      "schema": "ytm.yt_dlp.thumbnail_insight.v1",
+      "generated_at": "2026-01-28T01:00:45.469529+00:00",
+      "source": "offline_heuristic",
+      "model": null,
+      "video": {
+        "id": "Tg_iXDcuQv4",
+        "title": "【今すぐ縁を切るべき人】あなたの運気を吸い取る「5つのタイプ」 | ブッダの教え",
+        "url": "https://www.youtube.com/watch?v=Tg_iXDcuQv4",
+        "view_count": 760,
+        "duration_sec": 606.0,
+        "thumbnail_url": "https://i.ytimg.com/vi/Tg_iXDcuQv4/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCTUCioUr9VjfHx0C0Fk9iWpjPR1g"
+      },
+      "analysis": {
+        "caption_ja": "左に大きな文字、右に被写体。その他フックで「考え方がわかる」を示し、運が悪いと感じる人の内省に刺さる設計。",
+        "thumbnail_text": null,
+        "hook_type": "その他",
+        "promise": "考え方がわかる",
+        "target": "運が悪いと感じる人",
+        "emotion": "内省",
+        "composition": "左に大きな文字、右に被写体",
+        "colors": "黒基調 + 金/黄アクセント + 白文字",
+        "design_elements": [
+          "左大文字",
+          "高コントラスト",
+          "金アクセント",
+          "太字縁取り文字"
+        ],
+        "tags": [
+          "仏教",
+          "ブッダ",
+          "その他",
+          "今すぐ縁を切るべき人",
+          "人間関係",
+          "運",
+          "人生",
+          "考え方",
+          "不安",
+          "安心",
+          "学び",
+          "実践",
+          "心を整える"
+        ]
+      }
+    }
+  }
 }

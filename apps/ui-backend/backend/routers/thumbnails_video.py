@@ -1317,10 +1317,12 @@ def _run_qwen_cli_patch(prompt: str, *, timeout_sec: int = 70) -> Dict[str, Any]
     return _parse_json_object_from_text(proc.stdout)
 
 
-def _run_ollama_patch(prompt: str, *, timeout_sec: int = 70) -> Dict[str, Any]:
-    model = str(os.getenv("YTM_THUMBNAIL_COMMENT_PATCH_OLLAMA_MODEL") or "qwen2.5:7b-instruct").strip()
+def _run_ollama_patch(prompt: str, *, timeout_sec: int = 70, model_override: Optional[str] = None) -> Dict[str, Any]:
+    model = str(model_override or os.getenv("YTM_THUMBNAIL_COMMENT_PATCH_OLLAMA_MODEL") or "qwen2.5:7b-instruct").strip()
     if not model:
         raise RuntimeError("missing ollama model")
+    if not re.fullmatch(r"[A-Za-z0-9_.:-]+", model):
+        raise RuntimeError("invalid ollama model name")
     cmd = ["ollama", "run", model]
     proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=max(10, int(timeout_sec)))
     if proc.returncode != 0:
@@ -1345,6 +1347,11 @@ def get_thumbnail_comment_patch(channel: str, video: str, request: ThumbnailComm
     if not comment:
         raise HTTPException(status_code=400, detail="comment is required")
 
+    preferred_provider = str(getattr(request, "provider_preference", "auto") or "auto").strip()
+    requested_model = (str(getattr(request, "model", "") or "").strip() or None) if request else None
+    if requested_model and not re.fullmatch(r"[A-Za-z0-9_.:-]+", requested_model):
+        raise HTTPException(status_code=400, detail="invalid model name")
+
     mode = _thumbnail_comment_patch_mode()
 
     # Reuse the same context as the manual Layer Specs tuner.
@@ -1355,13 +1362,14 @@ def get_thumbnail_comment_patch(channel: str, video: str, request: ThumbnailComm
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"failed to build editor context: {exc}") from exc
 
-    if mode == "disabled":
+    if mode == "disabled" and preferred_provider != "ollama":
         return ThumbnailCommentPatchResponse(
             schema=THUMBNAIL_COMMENT_PATCH_SCHEMA_V1,
             target=ThumbnailCommentPatchTargetResponse(channel=channel_code, video=video_number),
             confidence=0.0,
             clarifying_questions=[
                 "comment-patch は現在 disabled です（YTM_THUMBNAIL_COMMENT_PATCH_MODE=cli|heuristic で有効化）。",
+                "Local (Ollama) を選ぶと、env 設定なしでも推定だけは動きます（外部CLIは呼びません）。",
             ],
             ops=[],
             provider="disabled",
@@ -1383,12 +1391,24 @@ def get_thumbnail_comment_patch(channel: str, video: str, request: ThumbnailComm
     prompt = _build_comment_patch_prompt(comment, ctx)
     errors: List[str] = []
 
-    providers: List[tuple[str, Any]] = [
-        ("codex_exec", _run_codex_exec_patch),
-        ("gemini_cli", _run_gemini_cli_patch),
-        ("qwen_cli", _run_qwen_cli_patch),
-        ("ollama", _run_ollama_patch),
-    ]
+    ollama_fn = (
+        (lambda p: _run_ollama_patch(p, model_override=requested_model)) if requested_model else _run_ollama_patch
+    )
+    if mode == "disabled":
+        providers: List[tuple[str, Any]] = [("ollama", ollama_fn)]
+    else:
+        providers_default: List[tuple[str, Any]] = [
+            ("codex_exec", _run_codex_exec_patch),
+            ("gemini_cli", _run_gemini_cli_patch),
+            ("qwen_cli", _run_qwen_cli_patch),
+            ("ollama", ollama_fn),
+        ]
+        if preferred_provider and preferred_provider != "auto":
+            primary = [p for p in providers_default if p[0] == preferred_provider]
+            rest = [p for p in providers_default if p[0] != preferred_provider]
+            providers = primary + rest if primary else providers_default
+        else:
+            providers = providers_default
 
     for name, fn in providers:
         try:

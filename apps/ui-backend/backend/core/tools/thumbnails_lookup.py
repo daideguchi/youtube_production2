@@ -58,7 +58,14 @@ def find_thumbnails(
     # This keeps 2案(00_thumb_1/2) discoverable and avoids expensive full-tree scans.
     if video_no:
         asset_dir = base / "assets" / channel_code / video_no
-        preferred_names = ("00_thumb_1.png", "00_thumb_2.png", "00_thumb.png")
+        preferred_names = (
+            "00_thumb_1.png",
+            "00_thumb_2.png",
+            "00_thumb_4.png",
+            "00_thumb_3.png",
+            "00_thumb.png",
+            "00_thumb_mincho.png",
+        )
         candidates = [asset_dir / name for name in preferred_names if (asset_dir / name).is_file()]
         if candidates:
             results: List[Dict[str, str]] = []

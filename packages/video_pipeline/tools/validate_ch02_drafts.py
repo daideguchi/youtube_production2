@@ -27,6 +27,8 @@ CAPCUT_DRAFT_ROOT = Path(
     or (Path.home() / "Movies" / "CapCut" / "User Data" / "Projects" / "com.lveditor.draft")
 )
 
+_CAPCUT_PLACEHOLDER_TOKENS = ("##_material_placeholder_", "##_draftpath_placeholder_")
+
 
 DEFAULT_VIDEOS = [
     "014",
@@ -50,6 +52,11 @@ DEFAULT_VIDEOS = [
 
 def _load_json(path: Path) -> Dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+def _is_capcut_placeholder_path(value: Any) -> bool:
+    if not isinstance(value, str):
+        return False
+    return any(tok in value for tok in _CAPCUT_PLACEHOLDER_TOKENS)
 
 
 def _find_latest_draft_dirs(draft_root: Path, channel: str, videos: List[str]) -> Tuple[List[Path], List[str]]:
@@ -370,6 +377,135 @@ def _validate_images(draft_content: Dict[str, Any], draft_dir: Path) -> List[str
     return errors
 
 
+def _validate_draft_info_media_paths(draft_info: Dict[str, Any], draft_dir: Path) -> List[str]:
+    """
+    CapCut uses both draft_content.json and draft_info.json. If draft_info.json keeps template placeholders like:
+      - ##_material_placeholder_<...>_##
+      - ##_draftpath_placeholder_<...>_##
+    CapCut UI can show red "missing" icons even if draft_content.json looks correct.
+    """
+    errors: List[str] = []
+    mats = draft_info.get("materials") if isinstance(draft_info, dict) else None
+    if not isinstance(mats, dict):
+        return errors
+
+    # videos
+    videos = mats.get("videos")
+    if isinstance(videos, list) and videos:
+        placeholder = []
+        missing = []
+        photo_has_audio = []
+        for m in videos:
+            if not isinstance(m, dict):
+                continue
+            if m.get("type") == "photo" and m.get("has_audio") is True:
+                photo_has_audio.append(m.get("material_name") or m.get("id") or "?")
+            path = m.get("path") or m.get("local_material_path") or ""
+            if _is_capcut_placeholder_path(path):
+                placeholder.append(m.get("material_name") or m.get("id") or "?")
+                continue
+            if isinstance(path, str) and path.startswith("/"):
+                try:
+                    if not Path(path).exists():
+                        missing.append(path)
+                except Exception:
+                    missing.append(path)
+        if placeholder:
+            errors.append(f"draft_info: materials.videos has placeholder paths (count={len(placeholder)} sample={placeholder[:3]})")
+        if missing:
+            errors.append(f"draft_info: materials.videos has missing files (count={len(missing)} sample={missing[0]})")
+        if photo_has_audio:
+            errors.append(
+                "draft_info: photo materials unexpectedly have has_audio=true "
+                f"(count={len(photo_has_audio)} sample={photo_has_audio[:3]})"
+            )
+
+    # audios
+    audios = mats.get("audios")
+    if isinstance(audios, list) and audios:
+        placeholder = []
+        missing = []
+        for m in audios:
+            if not isinstance(m, dict):
+                continue
+            path = m.get("path") or m.get("local_material_path") or ""
+            if _is_capcut_placeholder_path(path):
+                placeholder.append(m.get("material_name") or m.get("id") or "?")
+                continue
+            if isinstance(path, str) and path.startswith("/"):
+                try:
+                    if not Path(path).exists():
+                        missing.append(path)
+                except Exception:
+                    missing.append(path)
+        if placeholder:
+            errors.append(f"draft_info: materials.audios has placeholder paths (count={len(placeholder)} sample={placeholder[:3]})")
+        if missing:
+            errors.append(f"draft_info: materials.audios has missing files (count={len(missing)} sample={missing[0]})")
+
+    # Quick sanity: assets/image exists and is non-empty.
+    assets_dir = draft_dir / "assets" / "image"
+    if not assets_dir.exists():
+        errors.append("draft_info: draft assets/image directory missing")
+    else:
+        try:
+            if not any(p.suffix.lower() in {'.png', '.jpg', '.jpeg', '.webp', '.mp4', '.mov'} for p in assets_dir.iterdir()):
+                errors.append("draft_info: draft assets/image has no media files")
+        except Exception:
+            pass
+
+    return errors
+
+
+def _validate_meta_info(draft_dir: Path) -> List[str]:
+    """
+    Validate CapCut draft_meta_info.json file references.
+
+    CapCut can surface "missing" warnings if draft_meta_info.json retains stale
+    draft_materials entries that point to non-existent files.
+    """
+    errors: List[str] = []
+    meta_path = draft_dir / "draft_meta_info.json"
+    if not meta_path.exists():
+        return errors
+
+    try:
+        meta = _load_json(meta_path)
+    except Exception as exc:
+        return [f"meta_info: draft_meta_info.json invalid JSON ({exc})"]
+
+    mats = meta.get("draft_materials") or []
+    if not isinstance(mats, list):
+        return errors
+
+    exts = {".srt", ".wav", ".mp3", ".m4a", ".aac", ".flac", ".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mov", ".m4v"}
+    missing: List[str] = []
+    for m in mats:
+        if not isinstance(m, dict):
+            continue
+        vals = m.get("value") or []
+        if not isinstance(vals, list):
+            continue
+        for item in vals:
+            if not isinstance(item, dict):
+                continue
+            fp = item.get("file_Path")
+            if not isinstance(fp, str) or not fp:
+                continue
+            if not fp.startswith("/"):
+                continue
+            if Path(fp).suffix.lower() not in exts:
+                continue
+            if not Path(fp).exists():
+                missing.append(fp)
+
+    if missing:
+        errors.append(
+            f"meta_info: {len(missing)} draft_materials file_Path missing (sample={missing[0]})"
+        )
+    return errors
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--draft-root", type=Path, default=CAPCUT_DRAFT_ROOT)
@@ -425,6 +561,8 @@ def main() -> None:
         errs.extend(_validate_subtitles(content, label="content"))
         errs.extend(_validate_voiceover(content, d))
         errs.extend(_validate_images(content, d))
+        errs.extend(_validate_draft_info_media_paths(info, d))
+        errs.extend(_validate_meta_info(d))
 
         if errs:
             any_fail = True

@@ -1263,6 +1263,30 @@ def main():
         safe = re.sub(r"[_\\s]+", "_", safe).strip("_")
         return safe[:max_len]
 
+    def _resolve_existing_draft_dir_name(draft_root: Path, desired_name: str) -> str:
+        """
+        Avoid duplicate drafts when CapCut/OS has already created a suffix variant like:
+          - <name>(2), <name>(4), ...
+
+        If desired_name doesn't exist but a suffix variant exists, reuse the existing
+        variant so we update/replace the one CapCut already lists, instead of creating
+        a second draft with a near-identical name.
+        """
+        if not desired_name:
+            return desired_name
+        desired_path = draft_root / desired_name
+        if desired_path.exists():
+            return desired_name
+        try:
+            pat = re.compile(rf"^{re.escape(desired_name)}\\(\\d+\\)$")
+            candidates = [p for p in draft_root.iterdir() if p.is_dir() and pat.match(p.name)]
+            if not candidates:
+                return desired_name
+            candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+            return candidates[0].name
+        except Exception:
+            return desired_name
+
     # Draft directory name:
     # - planning: Prefer a stable SoT name from planning CSV when episode is resolvable.
     # - run: Always use run_name-based draft (regen/debug workflows).
@@ -1276,6 +1300,12 @@ def main():
             safe = _sanitize_capcut_name(str(effective_belt_title), max_len=120)
             if safe:
                 draft_name = f"{draft_base}__{safe}"
+
+    # If an existing suffix-variant draft folder exists, reuse it to avoid duplicates.
+    resolved_draft_name = _resolve_existing_draft_dir_name(Path(args.draft_root), draft_name)
+    if resolved_draft_name != draft_name:
+        print(f"ℹ️ Reusing existing CapCut draft folder: {resolved_draft_name} (requested: {draft_name})")
+        draft_name = resolved_draft_name
 
     # Progress: resolved title + draft name
     try:
@@ -1560,6 +1590,47 @@ def main():
                 prog["timeline_manifest"] = {**(prog.get("timeline_manifest") or {}), "path": str(mf_path)}
         except Exception:
             pass
+
+    # Guardrail: validate CH02 drafts immediately after creation to prevent
+    # recurring "missing media" regressions being shipped to the user.
+    if not args.dry_run and episode and args.channel.upper() == "CH02":
+        try:
+            validate_cmd = [
+                sys.executable,
+                "tools/validate_ch02_drafts.py",
+                "--channel",
+                "CH02",
+                "--videos",
+                episode.video.zfill(3),
+                "--template",
+                template_override or "CH02-テンプレ(1)",
+            ]
+            # Be strict and validate all matching drafts for the video to catch suffix variants.
+            validate_cmd.append("--all-matching")
+            validate_res = run(
+                validate_cmd,
+                env,
+                PROJECT_ROOT,
+                exit_on_error=False,
+                timeout=args.timeout_ms / 1000 if args.timeout_ms else None,
+                abort_patterns=args.abort_on_log,
+            )
+            log.setdefault("progress", {})["capcut_validate"] = {
+                "status": "ok" if validate_res.returncode == 0 else "failed",
+                "cmd": " ".join(validate_cmd),
+                "returncode": int(validate_res.returncode),
+                "elapsed_sec": round(float(getattr(validate_res, "elapsed", 0.0) or 0.0), 2),
+            }
+            _write_json(log_path, log)
+            if validate_res.returncode != 0 and args.exit_on_error:
+                log["status"] = "failed"
+                _write_json(log_path, log)
+                sys.exit(validate_res.returncode)
+        except Exception as e:
+            log["capcut_validate_error"] = str(e)
+            _write_json(log_path, log)
+            if args.exit_on_error:
+                raise
 
     log["status"] = "completed"
     _write_json(log_path, log)
